@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -163,7 +163,8 @@ public class ContentTypeImpl implements ContentType {
             if (newObject.getName() != null) {
                 return false;
             }
-        } else if (!this.getName().equals(newObject.getName())) {
+        } else if (!this.getName()
+                .equals(newObject.getName())) {
             return false;
         }
 
@@ -171,7 +172,8 @@ public class ContentTypeImpl implements ContentType {
             if (newObject.getVersion() != null) {
                 return false;
             }
-        } else if (!this.getVersion().equals(newObject.getVersion())) {
+        } else if (!this.getVersion()
+                .equals(newObject.getVersion())) {
             return false;
         }
 
@@ -179,7 +181,8 @@ public class ContentTypeImpl implements ContentType {
             if (newObject.getNamespace() != null) {
                 return false;
             }
-        } else if (!this.getNamespace().equals(newObject.getNamespace())) {
+        } else if (!this.getNamespace()
+                .equals(newObject.getNamespace())) {
             return false;
         }
 

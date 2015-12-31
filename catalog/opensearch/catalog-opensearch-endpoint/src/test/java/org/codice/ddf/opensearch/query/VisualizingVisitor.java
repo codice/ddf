@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -33,8 +33,8 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
     public static final String SEPARATOR = " - ";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(VisualizingVisitor.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(VisualizingVisitor.class));
 
     private int indent = 0;
 
@@ -54,14 +54,16 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
     public Object visit(Function expression, Object data) {
         countOccurrence(expression);
         LOGGER.debug(indent(indent + 2) + "FUNCTION:" + " " + expression.getName() + SEPARATOR
-                + expression.getClass().getName());
+                + expression.getClass()
+                .getName());
         return super.visit(expression, data);
     }
 
     @Override
     public Object visit(Not filter, Object data) {
         countOccurrence(filter);
-        LOGGER.debug(indent(indent) + "NOT" + SEPARATOR + filter.getClass().getName());
+        LOGGER.debug(indent(indent) + "NOT" + SEPARATOR + filter.getClass()
+                .getName());
         return super.visit(filter, data);
     }
 
@@ -69,7 +71,8 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
     public Object visit(Or filter, Object data) {
         countOccurrence(filter);
 
-        LOGGER.debug(indent(indent) + "OR" + SEPARATOR + filter.getClass().getName());
+        LOGGER.debug(indent(indent) + "OR" + SEPARATOR + filter.getClass()
+                .getName());
 
         indent++;
         return super.visit(filter, data);
@@ -80,7 +83,8 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
         countOccurrence(filter);
 
-        LOGGER.debug(indent(indent) + "AND" + SEPARATOR + filter.getClass().getName());
+        LOGGER.debug(indent(indent) + "AND" + SEPARATOR + filter.getClass()
+                .getName());
 
         indent++;
 
@@ -93,14 +97,18 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
             FilterStatus status = new FilterStatus();
             status.increment();
-            map.put(filter.getClass().getName(), status);
+            map.put(filter.getClass()
+                    .getName(), status);
         } else {
-            map.get(filter.getClass().getName()).increment();
+            map.get(filter.getClass()
+                    .getName())
+                    .increment();
         }
     }
 
     private FilterStatus getStatus(Object filter) {
-        return map.get(filter.getClass().getName());
+        return map.get(filter.getClass()
+                .getName());
     }
 
     @Override
@@ -110,7 +118,8 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
         getStatus(filter).setCaseSensitive(filter.isMatchingCase());
         getStatus(filter).setWildcard(filter.getWildCard());
 
-        LOGGER.debug(indent(indent) + filter.NAME + SEPARATOR + filter.getClass().getName());
+        LOGGER.debug(indent(indent) + filter.NAME + SEPARATOR + filter.getClass()
+                .getName());
 
         LOGGER.debug(indent(indent + 2) + filter.getLiteral());
 
@@ -122,7 +131,8 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
         countOccurrence(filter);
 
-        LOGGER.debug(indent(indent) + filter.NAME + SEPARATOR + filter.getClass().getName());
+        LOGGER.debug(indent(indent) + filter.NAME + SEPARATOR + filter.getClass()
+                .getName());
 
         LOGGER.debug(indent(indent + 2) + filter.getLowerBoundary());
         LOGGER.debug(indent(indent + 2) + filter.getUpperBoundary());
@@ -135,8 +145,9 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
         countOccurrence(expression);
 
-        LOGGER.debug(indent(indent + 2) + expression.getPropertyName() + SEPARATOR + expression
-                .getClass().getName());
+        LOGGER.debug(indent(indent + 2) + expression.getPropertyName() + SEPARATOR
+                + expression.getClass()
+                .getName());
 
         return data;
     }
@@ -146,9 +157,9 @@ public class VisualizingVisitor extends DefaultFilterVisitor {
 
         countOccurrence(expression);
 
-        LOGGER.debug(
-                indent(indent) + expression.getValue() + VisualizingVisitor.SEPARATOR + expression
-                        .getClass().getName());
+        LOGGER.debug(indent(indent) + expression.getValue() + VisualizingVisitor.SEPARATOR
+                + expression.getClass()
+                .getName());
         return data;
     }
 

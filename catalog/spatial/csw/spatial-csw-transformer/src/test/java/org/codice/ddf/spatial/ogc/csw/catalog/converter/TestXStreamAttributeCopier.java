@@ -39,51 +39,46 @@ import com.thoughtworks.xstream.io.xml.XppReader;
 public class TestXStreamAttributeCopier {
     private static final String INSERT_XML =
             "    <csw:Insert typeName=\"csw:Record\">\n" + "        <csw:Record\n"
-            + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
-            + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
-            + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
-            + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
-            + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
-            + "            <dc:identifier>123</dc:identifier>\n"
-            + "            <dc:title>Aliquam fermentum purus quis arcu</dc:title>\n"
-            + "            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>\n"
-            + "            <dc:subject>Hydrography--Dictionaries</dc:subject>\n"
-            + "            <dc:format>application/pdf</dc:format>\n"
-            + "            <dc:date>2006-05-12</dc:date>\n"
-            + "            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>\n"
-            + "            <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
-            + "                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>\n"
-            + "                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>\n"
-            + "            </ows:BoundingBox>\n" + "        </csw:Record>\n"
-            + "    </csw:Insert>\n";
+                    + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
+                    + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                    + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
+                    + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
+                    + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+                    + "            <dc:identifier>123</dc:identifier>\n"
+                    + "            <dc:title>Aliquam fermentum purus quis arcu</dc:title>\n"
+                    + "            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>\n"
+                    + "            <dc:subject>Hydrography--Dictionaries</dc:subject>\n"
+                    + "            <dc:format>application/pdf</dc:format>\n"
+                    + "            <dc:date>2006-05-12</dc:date>\n"
+                    + "            <dct:abstract>Vestibulum quis ipsum sit amet metus imperdiet vehicula. Nulla scelerisque cursus mi.</dct:abstract>\n"
+                    + "            <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                    + "                <ows:LowerCorner>44.792 -6.171</ows:LowerCorner>\n"
+                    + "                <ows:UpperCorner>51.126 -2.228</ows:UpperCorner>\n"
+                    + "            </ows:BoundingBox>\n" + "        </csw:Record>\n"
+                    + "    </csw:Insert>\n";
 
     private static final String DELETE_XML =
             "  <csw:Delete typeName=\"csw:Record\" handle=\"something\">\n"
-            + "    <csw:Constraint version=\"2.0.0\">\n"
-            + "      <ogc:Filter>\n"
-            + "        <ogc:PropertyIsEqualTo>\n"
-            + "            <ogc:PropertyName>title</ogc:PropertyName>\n"
-            + "            <ogc:Literal>Test Title</ogc:Literal>\n"
-            + "        </ogc:PropertyIsEqualTo>\n"
-            + "      </ogc:Filter>\n"
-            + "    </csw:Constraint>\n"
-            + "  </csw:Delete>\n";
+                    + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
+                    + "        <ogc:PropertyIsEqualTo>\n"
+                    + "            <ogc:PropertyName>title</ogc:PropertyName>\n"
+                    + "            <ogc:Literal>Test Title</ogc:Literal>\n"
+                    + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
+                    + "    </csw:Constraint>\n" + "  </csw:Delete>\n";
 
-    private static final String TEST_XML =
-            "<csw:Transaction service=\"CSW\"\n"
+    private static final String TEST_XML = "<csw:Transaction service=\"CSW\"\n"
             + "   version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
-            + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
-            +     DELETE_XML
-            +     INSERT_XML
+            + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n" + DELETE_XML + INSERT_XML
             + "</csw:Transaction>";
 
     private HierarchicalStreamReader reader;
 
     @Before
     public void setUp() throws IOException, XmlPullParserException {
-        reader = new XppReader(new InputStreamReader(
-                IOUtils.toInputStream(TEST_XML, StandardCharsets.UTF_8.name())),
-                XmlPullParserFactory.newInstance().newPullParser());
+        reader = new XppReader(new InputStreamReader(IOUtils.toInputStream(TEST_XML,
+                StandardCharsets.UTF_8.name())),
+                XmlPullParserFactory.newInstance()
+                        .newPullParser());
     }
 
     @Test
@@ -96,8 +91,9 @@ public class TestXStreamAttributeCopier {
         Map<String, String> attributeMap = new HashMap<>();
         attributeMap.put("foo", "bar");
 
-        HierarchicalStreamReader deleteReader = XStreamAttributeCopier
-                .copyXml(reader, sw, attributeMap);
+        HierarchicalStreamReader deleteReader = XStreamAttributeCopier.copyXml(reader,
+                sw,
+                attributeMap);
 
         // Verify that the reader is at the end of <Delete>.
         assertThat(reader.hasMoreChildren(), is(false));
@@ -162,8 +158,8 @@ public class TestXStreamAttributeCopier {
         XStreamAttributeCopier.copyXmlNamespaceDeclarationsIntoContext(reader, context);
 
         @SuppressWarnings("unchecked")
-        Map<String, String> attributeMap = (Map<String, String>) context
-                .get(CswConstants.NAMESPACE_DECLARATIONS);
+        Map<String, String> attributeMap =
+                (Map<String, String>) context.get(CswConstants.NAMESPACE_DECLARATIONS);
 
         assertThat(attributeMap.size(), is(2));
 

@@ -47,22 +47,22 @@ NOTE:
     DDF started up.
     -->
     <list id="listenerList" interface="ddf.catalog.util.DdfConfigurationWatcher" cardinality="0..N">
-		<listener bind-method="bind" ref="ddfConfigurationManager"/>
+        <listener bind-method="bind" ref="ddfConfigurationManager"/>
     </list>
-	
+
     <list id="ddfManagedServiceList" interface="ddf.catalog.util.DdfConfigurationWatcher"
           cardinality="0..N"/>
 
     <beans:bean name="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
     <beans:bean name="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-	
-	<beans:bean name="ddfConfigurationManager" class="ddf.catalog.util.DdfConfigurationManager">
-		<beans:constructor-arg ref="ddfManagedServiceList"/>
-		<beans:constructor-arg ref="configurationAdmin"/>
+
+    <beans:bean name="ddfConfigurationManager" class="ddf.catalog.util.DdfConfigurationManager">
+        <beans:constructor-arg ref="ddfManagedServiceList"/>
+        <beans:constructor-arg ref="configurationAdmin"/>
         <beans:constructor-arg ref="urlHelper"/>
         <beans:constructor-arg ref="systemInfo"/>
- 	</beans:bean>
-	
+    </beans:bean>
+
 </beans:beans>
 
 

@@ -15,32 +15,32 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
-	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-	<bean id="exampleQueryFormBean" class="org.codice.ddf.ui.QueryForm" />
-	
-	<bean id="exampleQueryBean" class="org.codice.ddf.ui.Query" >
-		<property name="catalogFramework" ref="catalogFramework" />
-		<property name="filterBuilder" ref="filterBuilder" />
-        <property name="securityManager" ref="securityManager" />
-	</bean>
-	
-	<service id="exampleQueryFormService" ref="exampleQueryFormBean"
-		interface="javax.servlet.http.HttpServlet">
-		<service-properties>
-			<entry key="alias" value="/ddf/query" />
-			<entry key="servlet-name" value="QueryForm" />
-		</service-properties>
-	</service>
-	
-	<service id="exampleQueryService" ref="exampleQueryBean"
-		interface="javax.servlet.http.HttpServlet">
-		<service-properties>
-			<entry key="alias" value="/ddf/queryresult" />
-			<entry key="servlet-name" value="Query" />
-		</service-properties>
-	</service>
+    <bean id="exampleQueryFormBean" class="org.codice.ddf.ui.QueryForm"/>
+
+    <bean id="exampleQueryBean" class="org.codice.ddf.ui.Query">
+        <property name="catalogFramework" ref="catalogFramework"/>
+        <property name="filterBuilder" ref="filterBuilder"/>
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <service id="exampleQueryFormService" ref="exampleQueryFormBean"
+             interface="javax.servlet.http.HttpServlet">
+        <service-properties>
+            <entry key="alias" value="/ddf/query"/>
+            <entry key="servlet-name" value="QueryForm"/>
+        </service-properties>
+    </service>
+
+    <service id="exampleQueryService" ref="exampleQueryBean"
+             interface="javax.servlet.http.HttpServlet">
+        <service-properties>
+            <entry key="alias" value="/ddf/queryresult"/>
+            <entry key="servlet-name" value="Query"/>
+        </service-properties>
+    </service>
 
 </blueprint>

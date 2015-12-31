@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,22 +43,31 @@ public class TestFanout extends AbstractIntegrationTest {
 
         getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(), LOCAL_SOURCE_ID);
 
-        LOGGER.info("Source status: \n{}",
-                get(REST_PATH.getUrl() + "sources").body().prettyPrint());
+        LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
+                .prettyPrint());
     }
 
     @Test
     public void testFanoutQueryWithUnknownSource() throws Exception {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&src=does.not.exist";
 
-        when().get(queryUrl).then().log().all().assertThat().body(containsString("Unknown source"));
+        when().get(queryUrl)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(containsString("Unknown source"));
     }
 
     @Test
     public void testFanoutQueryWithoutFederatedSources() throws Exception {
         String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&src=local";
 
-        when().get(queryUrl).then().log().all().assertThat()
+        when().get(queryUrl)
+                .then()
+                .log()
+                .all()
+                .assertThat()
                 .body(containsString("SiteNames could not be resolved"));
     }
 }

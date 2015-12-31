@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,7 +48,8 @@ import ddf.catalog.transformer.xml.binding.StringxmlElement.Value;
 
 public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
-    private static final String TRANSFORMATION_FAILED_ERROR_MESSAGE = "Transformation failed.  Could not transform XML Attribute.";
+    private static final String TRANSFORMATION_FAILED_ERROR_MESSAGE =
+            "Transformation failed.  Could not transform XML Attribute.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StringxmlAdapter.class);
 
@@ -62,8 +63,8 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
         // Create Transformer
         TransformerFactory transFactory = TransformerFactory.newInstance();
-        Source xsltSource = new StreamSource(
-                StringxmlAdapter.class.getClassLoader().getResourceAsStream("stringxml.xslt"));
+        Source xsltSource = new StreamSource(StringxmlAdapter.class.getClassLoader()
+                .getResourceAsStream("stringxml.xslt"));
         try {
             templates = transFactory.newTemplates(xsltSource);
         } catch (TransformerConfigurationException e) {
@@ -95,8 +96,9 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
                         builder = factory.newDocumentBuilder();
                         builder.setErrorHandler(null);
                     }
-                    anyElement = builder.parse(new ByteArrayInputStream(
-                            xmlString.getBytes(StandardCharsets.UTF_8))).getDocumentElement();
+                    anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes(
+                            StandardCharsets.UTF_8)))
+                            .getDocumentElement();
                 } catch (ParserConfigurationException e) {
                     throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
                 } catch (SAXException e) {
@@ -106,7 +108,8 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
                 }
                 Value anyValue = new StringxmlElement.Value();
                 anyValue.setAny(anyElement);
-                element.getValue().add(anyValue);
+                element.getValue()
+                        .add(anyValue);
             }
         }
         return element;

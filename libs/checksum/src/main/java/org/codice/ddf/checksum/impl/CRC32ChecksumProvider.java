@@ -27,8 +27,8 @@ public class CRC32ChecksumProvider extends AbstractChecksumProvider {
 
     private static final String DIGEST_ALGORITHM = "CRC32";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(CRC32ChecksumProvider.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(CRC32ChecksumProvider.class));
 
     @Override
     public String calculateChecksum(InputStream inputStream) throws IOException {

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -85,8 +85,8 @@ public class ReliableResourceDownloadManagerTest {
     public static final String EXPECTED_CACHE_KEY =
             EXPECTED_METACARD_SOURCE_ID + "-" + EXPECTED_METACARD_ID;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ReliableResourceDownloadManagerTest.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ReliableResourceDownloadManagerTest.class);
 
     private static String productCacheDirectory;
 
@@ -151,8 +151,11 @@ public class ReliableResourceDownloadManagerTest {
         eventListener = mock(DownloadsStatusEventListener.class);
         downloadStatusInfo = new DownloadStatusInfoImpl();
 
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
-                eventListener, downloadStatusInfo, Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
+                eventPublisher,
+                eventListener,
+                downloadStatusInfo,
+                Executors.newSingleThreadExecutor());
 
     }
 
@@ -232,10 +235,12 @@ public class ReliableResourceDownloadManagerTest {
         int chunkSize = 50;
         downloadMgr.setChunkSize(chunkSize);
 
-        ResourceResponse newResourceResponse = downloadMgr
-                .download(resourceRequest, metacard, retriever);
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest,
+                metacard,
+                retriever);
         assertThat(newResourceResponse, is(notNullValue()));
-        productInputStream = newResourceResponse.getResource().getInputStream();
+        productInputStream = newResourceResponse.getResource()
+                .getInputStream();
         assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
 
         ByteArrayOutputStream clientBytesRead = clientRead(chunkSize, productInputStream);
@@ -328,8 +333,8 @@ public class ReliableResourceDownloadManagerTest {
 
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.INPUT_STREAM_IO_EXCEPTION);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.INPUT_STREAM_IO_EXCEPTION);
 
         int chunkSize = 50;
         startDownload(false, chunkSize, false, metacard, retriever);
@@ -356,8 +361,8 @@ public class ReliableResourceDownloadManagerTest {
 
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.INPUT_STREAM_IO_EXCEPTION);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.INPUT_STREAM_IO_EXCEPTION);
 
         int chunkSize = 50;
         startDownload(true, chunkSize, false, metacard, retriever);
@@ -390,8 +395,8 @@ public class ReliableResourceDownloadManagerTest {
         mis = new MockInputStream(productInputFilename);
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.TIMEOUT_EXCEPTION);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.TIMEOUT_EXCEPTION);
 
         int chunkSize = 50;
         startDownload(true, chunkSize, false, metacard, retriever);
@@ -424,8 +429,8 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.CLIENT_CANCELS_DOWNLOAD);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.CLIENT_CANCELS_DOWNLOAD);
 
         int chunkSize = 50;
         startDownload(true, chunkSize, true, metacard, retriever);
@@ -463,8 +468,9 @@ public class ReliableResourceDownloadManagerTest {
         // Need the product InputStream (MockInputStream) to read slower so that client has time to
         // start reading from the ReliableResourceInputStream and close it, simulating a cancel of
         // the product download
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.CLIENT_CANCELS_DOWNLOAD, true);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.CLIENT_CANCELS_DOWNLOAD,
+                        true);
 
         int chunkSize = 50;
         startDownload(true, chunkSize, false, metacard, retriever);
@@ -495,8 +501,8 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.NETWORK_CONNECTION_UP_AND_DOWN);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.NETWORK_CONNECTION_UP_AND_DOWN);
 
         int chunkSize = 50;
         startDownload(true, chunkSize, false, metacard, retriever);
@@ -528,8 +534,8 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        ResourceRetriever retriever = getMockResourceRetrieverWithRetryCapability(
-                RetryType.NETWORK_CONNECTION_DROPPED);
+        ResourceRetriever retriever =
+                getMockResourceRetrieverWithRetryCapability(RetryType.NETWORK_CONNECTION_DROPPED);
 
         int chunkSize = 50;
         startDownload(true, chunkSize, false, metacard, retriever);
@@ -610,8 +616,11 @@ public class ReliableResourceDownloadManagerTest {
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
 
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
-                eventListener, downloadStatusInfo, Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
+                eventPublisher,
+                eventListener,
+                downloadStatusInfo,
+                Executors.newSingleThreadExecutor());
 
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception
@@ -623,10 +632,12 @@ public class ReliableResourceDownloadManagerTest {
 
         ArgumentCaptor<ReliableResource> argument = ArgumentCaptor.forClass(ReliableResource.class);
 
-        ResourceResponse newResourceResponse = downloadMgr
-                .download(resourceRequest, metacard, retriever);
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest,
+                metacard,
+                retriever);
         assertThat(newResourceResponse, is(notNullValue()));
-        productInputStream = newResourceResponse.getResource().getInputStream();
+        productInputStream = newResourceResponse.getResource()
+                .getInputStream();
         assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
 
         // On second chunk read by client it will close the download manager's cache file output stream
@@ -651,16 +662,21 @@ public class ReliableResourceDownloadManagerTest {
 
     private void startDownload(boolean cacheEnabled, int chunkSize, boolean cacheWhenCanceled,
             Metacard metacard, ResourceRetriever retriever) throws Exception {
-        downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
-                eventListener, downloadStatusInfo, Executors.newSingleThreadExecutor());
+        downloadMgr = new ReliableResourceDownloadManager(resourceCache,
+                eventPublisher,
+                eventListener,
+                downloadStatusInfo,
+                Executors.newSingleThreadExecutor());
         downloadMgr.setCacheEnabled(cacheEnabled);
         downloadMgr.setChunkSize(chunkSize);
         downloadMgr.setCacheWhenCanceled(cacheWhenCanceled);
 
-        ResourceResponse newResourceResponse = downloadMgr
-                .download(resourceRequest, metacard, retriever);
+        ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest,
+                metacard,
+                retriever);
         assertThat(newResourceResponse, is(notNullValue()));
-        productInputStream = newResourceResponse.getResource().getInputStream();
+        productInputStream = newResourceResponse.getResource()
+                .getInputStream();
         assertThat(productInputStream, is(instanceOf(ReliableResourceInputStream.class)));
     }
 
@@ -684,7 +700,9 @@ public class ReliableResourceDownloadManagerTest {
 
         // Verifies client read same contents as product input file
         if (clientBytesRead != null) {
-            assertThat(clientBytesRead.size(), is(Long.valueOf(expectedFileSize).intValue()));
+            assertThat(clientBytesRead.size(),
+                    is(Long.valueOf(expectedFileSize)
+                            .intValue()));
             assertEquals(expectedFileContents, new String(clientBytesRead.toByteArray()));
         }
     }
@@ -785,8 +803,7 @@ public class ReliableResourceDownloadManagerTest {
                 reset(resourceResponse);
                 when(resourceResponse.getRequest()).thenReturn(resourceRequest);
                 when(resourceResponse.getResource()).thenReturn(resource);
-                when(resourceResponse.getProperties())
-                        .thenReturn(new HashMap<String, Serializable>());
+                when(resourceResponse.getProperties()).thenReturn(new HashMap<String, Serializable>());
 
                 return resourceResponse;
             }
@@ -876,7 +893,8 @@ public class ReliableResourceDownloadManagerTest {
     public ByteArrayOutputStream clientRead(int chunkSize, InputStream is,
             int simulatedCancelChunkCount) throws Exception {
         executor = Executors.newCachedThreadPool();
-        ProductDownloadClient productDownloadClient = new ProductDownloadClient(is, chunkSize,
+        ProductDownloadClient productDownloadClient = new ProductDownloadClient(is,
+                chunkSize,
                 simulatedCancelChunkCount);
         future = executor.submit(productDownloadClient);
         ByteArrayOutputStream clientBytesRead = future.get();

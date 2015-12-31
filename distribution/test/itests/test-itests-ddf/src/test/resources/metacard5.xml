@@ -11,8 +11,7 @@
  *
  **/ -->
 <metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml"
-          xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/"
-          xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
+>
     <type>ddf.metacard</type>
     <source>ddf.distribution</source>
     <string name="metadata-content-type-version">
@@ -21,7 +20,7 @@
     <string name="title">
         <value>Metacard-5</value>
     </string>
-     <geometry name="location">
+    <geometry name="location">
         <value>
             <ns2:Point>
                 <ns2:pos>31.14926 53.58979</ns2:pos>

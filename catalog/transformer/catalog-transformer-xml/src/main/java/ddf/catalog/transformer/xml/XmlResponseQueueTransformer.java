@@ -94,12 +94,20 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
             } else {
                 int half = resultList.size() / 2;
 
-                MetacardForkTask fLeft = new MetacardForkTask(resultList.subList(0, half), fjp,
-                        geometryTransformer, threshold, cancelOperation, metacardMarshaller);
+                MetacardForkTask fLeft = new MetacardForkTask(resultList.subList(0, half),
+                        fjp,
+                        geometryTransformer,
+                        threshold,
+                        cancelOperation,
+                        metacardMarshaller);
                 fLeft.fork();
-                MetacardForkTask fRight = new MetacardForkTask(
-                        resultList.subList(half, resultList.size()), fjp, geometryTransformer,
-                        threshold, cancelOperation, metacardMarshaller);
+                MetacardForkTask fRight = new MetacardForkTask(resultList.subList(half,
+                        resultList.size()),
+                        fjp,
+                        geometryTransformer,
+                        threshold,
+                        cancelOperation,
+                        metacardMarshaller);
                 StringWriter rightList = fRight.compute();
                 StringWriter leftList = fLeft.join();
 
@@ -148,12 +156,13 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
     static {
         String nsPrefix = "xmlns";
 
-        NAMESPACE_MAP = new ImmutableMap.Builder<String, String>()
-                .put(nsPrefix, "urn:catalog:metacard")
+        NAMESPACE_MAP = new ImmutableMap.Builder<String, String>().put(nsPrefix,
+                "urn:catalog:metacard")
                 .put(nsPrefix + ":" + GML_PREFIX, "http://www.opengis.net/gml")
                 .put(nsPrefix + ":xlink", "http://www.w3.org/1999/xlink")
                 .put(nsPrefix + ":smil", "http://www.w3.org/2001/SMIL20/")
-                .put(nsPrefix + ":smillang", "http://www.w3.org/2001/SMIL20/Language").build();
+                .put(nsPrefix + ":smillang", "http://www.w3.org/2001/SMIL20/Language")
+                .build();
     }
 
     /**
@@ -204,17 +213,23 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
                 writer.addAttribute(nsRow.getKey(), nsRow.getValue());
             }
 
-            if (response.getResults() != null && !response.getResults().isEmpty()) {
-                StringWriter metacardContent = fjp
-                        .invoke(new MetacardForkTask(ImmutableList.copyOf(response.getResults()),
-                                fjp, geometryTransformer, threshold, metacardMarshaller));
+            if (response.getResults() != null && !response.getResults()
+                    .isEmpty()) {
+                StringWriter metacardContent = fjp.invoke(new MetacardForkTask(ImmutableList.copyOf(
+                        response.getResults()),
+                        fjp,
+                        geometryTransformer,
+                        threshold,
+                        metacardMarshaller));
 
-                writer.setRawValue(metacardContent.getBuffer().toString());
+                writer.setRawValue(metacardContent.getBuffer()
+                        .toString());
             }
 
             writer.endNode(); // metacards
 
-            ByteArrayInputStream bais = new ByteArrayInputStream(writer.makeString().getBytes());
+            ByteArrayInputStream bais = new ByteArrayInputStream(writer.makeString()
+                    .getBytes());
 
             return new BinaryContentImpl(bais, mimeType);
         } catch (Exception e) {

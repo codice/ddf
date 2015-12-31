@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,14 +46,14 @@ public class Polygon extends MultiPoint {
     protected static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
 
         // according to the GeoJson specification, first ring is the exterior
-        LinearRing exterior = GEOMETRY_FACTORY
-                .createLinearRing(getCoordinates((List) coordinates.get(0)));
+        LinearRing exterior =
+                GEOMETRY_FACTORY.createLinearRing(getCoordinates((List) coordinates.get(0)));
 
         LinearRing[] interiorHoles = new LinearRing[coordinates.size() - 1];
 
         for (int i = 1; i < coordinates.size(); i++) {
-            interiorHoles[i - 1] = GEOMETRY_FACTORY
-                    .createLinearRing(getCoordinates((List) coordinates.get(i)));
+            interiorHoles[i - 1] =
+                    GEOMETRY_FACTORY.createLinearRing(getCoordinates((List) coordinates.get(i)));
         }
 
         return GEOMETRY_FACTORY.createPolygon(exterior, interiorHoles);
@@ -83,10 +83,12 @@ public class Polygon extends MultiPoint {
         List linearRingsList = new ArrayList();
 
         // According GeoJSON spec, first LinearRing is the exterior ring
-        linearRingsList.add(buildCoordinatesList(polygon.getExteriorRing().getCoordinates()));
+        linearRingsList.add(buildCoordinatesList(polygon.getExteriorRing()
+                .getCoordinates()));
 
         for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
-            linearRingsList.add(buildCoordinatesList(polygon.getInteriorRingN(i).getCoordinates()));
+            linearRingsList.add(buildCoordinatesList(polygon.getInteriorRingN(i)
+                    .getCoordinates()));
         }
         return linearRingsList;
     }
@@ -94,8 +96,8 @@ public class Polygon extends MultiPoint {
     @Override
     public List<Position> toGeoRssPositions() {
 
-        org.apache.abdera.ext.geo.Coordinates coords = getPolygonCoordinates(
-                (com.vividsolutions.jts.geom.Polygon) geometry);
+        org.apache.abdera.ext.geo.Coordinates coords =
+                getPolygonCoordinates((com.vividsolutions.jts.geom.Polygon) geometry);
 
         return Arrays.asList((Position) (new org.apache.abdera.ext.geo.Polygon(coords)));
 

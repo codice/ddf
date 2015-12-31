@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -23,8 +23,10 @@ public class ContentEndpointException extends WebApplicationException {
     private static final long serialVersionUID = 1L;
 
     public ContentEndpointException(String message, Status status) {
-        super(Response.status(status).entity(message)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build());
+        super(Response.status(status)
+                .entity(message)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN)
+                .build());
     }
 
     public ContentEndpointException(Throwable cause) {

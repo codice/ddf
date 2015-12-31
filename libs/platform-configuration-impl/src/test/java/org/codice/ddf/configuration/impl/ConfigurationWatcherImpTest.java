@@ -26,8 +26,14 @@ public class ConfigurationWatcherImpTest {
         ConfigurationWatcherImpl configWatcher = new ConfigurationWatcherImpl();
         configWatcher.setSystemBaseUrl(new SystemBaseUrl());
         configWatcher.setSystemInfo(new SystemInfo());
-        configureProperties("http://", "hostValue", "8888", "/services", "siteNameValue",
-                "orgValue", "contactValue", "versionValue");
+        configureProperties("http://",
+                "hostValue",
+                "8888",
+                "/services",
+                "siteNameValue",
+                "orgValue",
+                "contactValue",
+                "versionValue");
         assertEquals(configWatcher.getContactEmailAddress(), "contactValue");
         assertEquals(configWatcher.getHostname(), "hostValue");
         assertEquals(configWatcher.getPort(), Integer.valueOf("8888"));
@@ -38,8 +44,13 @@ public class ConfigurationWatcherImpTest {
         assertEquals(configWatcher.getVersion(), "versionValue");
         assertEquals(configWatcher.getConfigurationValue("BlahKey"), null);
 
-        configureProperties("https://", "updatedhostValue", "9999", "/services",
-                "updatedsiteNameValue", "updatedorgValue", "updatedcontactValue",
+        configureProperties("https://",
+                "updatedhostValue",
+                "9999",
+                "/services",
+                "updatedsiteNameValue",
+                "updatedorgValue",
+                "updatedcontactValue",
                 "updatedversionValue");
         assertEquals(configWatcher.getContactEmailAddress(), "updatedcontactValue");
         assertEquals(configWatcher.getHostname(), "updatedhostValue");

@@ -35,7 +35,6 @@ import org.junit.Test;
 /**
  * Tests out the ApplicationImpl code to make sure it is following the interface
  * specification.
- *
  */
 public class ApplicationImplTest {
 
@@ -44,6 +43,7 @@ public class ApplicationImplTest {
     private static final String FILE_MAIN_FEATURE = "test-features-with-main-feature.xml";
 
     private static final String MAIN_FEATURE_NAME = "Main Feature Test";
+
     /**
      * number of non-duplicate bundles in the feature file
      */
@@ -57,9 +57,9 @@ public class ApplicationImplTest {
      */
     @Test
     public void testAppGetters() throws Exception {
-        RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource(FILE_NO_MAIN_FEATURES)
-                        .toURI());
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_NO_MAIN_FEATURES)
+                .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -71,7 +71,9 @@ public class ApplicationImplTest {
         assertTrue(appFeatures.containsAll(Arrays.asList(repo.getFeatures())));
         assertNull(testApp.getMainFeature());
 
-        assertEquals(NUM_BUNDLES, testApp.getBundles().size());
+        assertEquals(NUM_BUNDLES,
+                testApp.getBundles()
+                        .size());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -96,9 +98,9 @@ public class ApplicationImplTest {
         String mainFeatureVersion = "1.0.1";
         String mainFeatureDescription = "Main Feature Test";
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
-        RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
-                        .toURI());
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_MAIN_FEATURE)
+                .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -123,9 +125,9 @@ public class ApplicationImplTest {
         String mainFeatureVersion = "0.0.0";
         String mainFeatureDescription = null;
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
-        RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource(FILE_NO_MAIN_FEATURES)
-                        .toURI());
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_NO_MAIN_FEATURES)
+                .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -145,17 +147,17 @@ public class ApplicationImplTest {
      */
     @Test
     public void testAppEquality() throws Exception {
-        RepositoryImpl repo1 = new RepositoryImpl(
-                getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
-                        .toURI());
+        RepositoryImpl repo1 = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_MAIN_FEATURE)
+                .toURI());
         repo1.load();
         Application testApp1 = new ApplicationImpl(repo1);
         Application testApp1Duplicate = new ApplicationImpl(repo1);
         Application testAppNull = null;
 
-        RepositoryImpl repo2 = new RepositoryImpl(
-                getClass().getClassLoader().getResource(FILE_NO_MAIN_FEATURES)
-                        .toURI());
+        RepositoryImpl repo2 = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_NO_MAIN_FEATURES)
+                .toURI());
         repo2.load();
         Application testApp2 = new ApplicationImpl(repo2);
 
@@ -175,7 +177,8 @@ public class ApplicationImplTest {
      */
     @Test
     public void testGetURI() throws Exception {
-        URI testURI = getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
+        URI testURI = getClass().getClassLoader()
+                .getResource(FILE_MAIN_FEATURE)
                 .toURI();
         RepositoryImpl repo1 = new RepositoryImpl(testURI);
         repo1.load();
@@ -190,9 +193,9 @@ public class ApplicationImplTest {
      */
     @Test
     public void testGetDescription() throws Exception {
-        RepositoryImpl repo = new RepositoryImpl(
-                getClass().getClassLoader().getResource(FILE_MAIN_FEATURE)
-                        .toURI());
+        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
+                .getResource(FILE_MAIN_FEATURE)
+                .toURI());
         repo.load();
 
         Application testApp = new ApplicationImpl(repo);

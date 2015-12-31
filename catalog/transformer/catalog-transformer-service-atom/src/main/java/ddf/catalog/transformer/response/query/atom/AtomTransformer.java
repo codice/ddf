@@ -68,7 +68,6 @@ import ddf.geo.formatter.CompositeGeometry;
  * feed. <br>
  * Atom specification referenced and used for this implementation was found at
  * http://tools.ietf.org/html/rfc4287
- *
  */
 public class AtomTransformer implements QueryResponseTransformer {
 
@@ -90,9 +89,11 @@ public class AtomTransformer implements QueryResponseTransformer {
 
     static final String DEFAULT_SOURCE_ID = "unknown";
 
-    private static final String FEDERATION_EXTENSION_NAMESPACE = "http://a9.com/-/opensearch/extensions/federation/1.0/";
+    private static final String FEDERATION_EXTENSION_NAMESPACE =
+            "http://a9.com/-/opensearch/extensions/federation/1.0/";
 
-    private static final String COULD_NOT_CREATE_XML_CONTENT_MESSAGE = "Could not create xml content. Running default behavior.";
+    private static final String COULD_NOT_CREATE_XML_CONTENT_MESSAGE =
+            "Could not create xml content. Running default behavior.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtomTransformer.class);
 
@@ -156,16 +157,19 @@ public class AtomTransformer implements QueryResponseTransformer {
 
         Date currentDate = new Date();
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
         Feed feed = null;
         try {
 
-            Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(AtomTransformer.class.getClassLoader());
 
             feed = ABDERA.newFeed();
 
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
 
         /*
@@ -181,7 +185,8 @@ public class AtomTransformer implements QueryResponseTransformer {
         // as a query in another site probably could factor in ddf.host and port
         // into the algorithm
 
-        feed.setId(URN_UUID + UUID.randomUUID().toString());
+        feed.setId(URN_UUID + UUID.randomUUID()
+                .toString());
 
         // TODO SELF LINK For the Feed, possible design --> serialize Query into
         // a URL
@@ -219,7 +224,8 @@ public class AtomTransformer implements QueryResponseTransformer {
             hits.setText(Long.toString(sourceResponse.getHits()));
         }
 
-        if (sourceResponse.getRequest() != null && sourceResponse.getRequest().getQuery() != null) {
+        if (sourceResponse.getRequest() != null && sourceResponse.getRequest()
+                .getQuery() != null) {
             Element itemsPerPage = feed.addExtension(OpenSearchConstants.ITEMS_PER_PAGE);
 
             Element startIndex = feed.addExtension(OpenSearchConstants.START_INDEX);
@@ -230,17 +236,22 @@ public class AtomTransformer implements QueryResponseTransformer {
              * set to a non-negative integer though. When non-negative we will instead we will
              * change it to the number of search results on current page.
              */
-            if (sourceResponse.getRequest().getQuery().getPageSize() > -1) {
-                itemsPerPage.setText(
-                        Integer.toString(sourceResponse.getRequest().getQuery().getPageSize()));
+            if (sourceResponse.getRequest()
+                    .getQuery()
+                    .getPageSize() > -1) {
+                itemsPerPage.setText(Integer.toString(sourceResponse.getRequest()
+                        .getQuery()
+                        .getPageSize()));
             } else {
                 if (sourceResponse.getResults() != null) {
-                    itemsPerPage.setText(Integer.toString(sourceResponse.getResults().size()));
+                    itemsPerPage.setText(Integer.toString(sourceResponse.getResults()
+                            .size()));
                 }
             }
 
-            startIndex.setText(
-                    Integer.toString(sourceResponse.getRequest().getQuery().getStartIndex()));
+            startIndex.setText(Integer.toString(sourceResponse.getRequest()
+                    .getQuery()
+                    .getStartIndex()));
         }
 
         for (Result result : sourceResponse.getResults()) {
@@ -255,12 +266,15 @@ public class AtomTransformer implements QueryResponseTransformer {
 
             String sourceName = DEFAULT_SOURCE_ID;
 
-            if (result.getMetacard().getSourceId() != null) {
-                sourceName = result.getMetacard().getSourceId();
+            if (result.getMetacard()
+                    .getSourceId() != null) {
+                sourceName = result.getMetacard()
+                        .getSourceId();
             }
 
-            Element source = entry
-                    .addExtension(new QName(FEDERATION_EXTENSION_NAMESPACE, "resultSource", "fs"));
+            Element source = entry.addExtension(new QName(FEDERATION_EXTENSION_NAMESPACE,
+                    "resultSource",
+                    "fs"));
 
             /*
              * According to the os-federation.xsd, the resultSource element text has a max length of
@@ -274,10 +288,12 @@ public class AtomTransformer implements QueryResponseTransformer {
                     sourceName);
 
             if (result.getRelevanceScore() != null) {
-                Element relevance = entry.addExtension(
-                        new QName("http://a9.com/-/opensearch/extensions/relevance/1.0/", "score",
-                                "relevance"));
-                relevance.setText(result.getRelevanceScore().toString());
+                Element relevance = entry.addExtension(new QName(
+                        "http://a9.com/-/opensearch/extensions/relevance/1.0/",
+                        "score",
+                        "relevance"));
+                relevance.setText(result.getRelevanceScore()
+                        .toString());
             }
 
             entry.setId(URN_CATALOG_ID + metacard.getId());
@@ -365,7 +381,8 @@ public class AtomTransformer implements QueryResponseTransformer {
                 }
             }
 
-            tccl = Thread.currentThread().getContextClassLoader();
+            tccl = Thread.currentThread()
+                    .getContextClassLoader();
             try {
 
                 Thread.currentThread()
@@ -374,7 +391,8 @@ public class AtomTransformer implements QueryResponseTransformer {
                 entry.setContent(contentOutput, atomContentType);
 
             } finally {
-                Thread.currentThread().setContextClassLoader(tccl);
+                Thread.currentThread()
+                        .setContextClassLoader(tccl);
             }
 
         }
@@ -383,7 +401,8 @@ public class AtomTransformer implements QueryResponseTransformer {
 
         try {
 
-            tccl = Thread.currentThread().getContextClassLoader();
+            tccl = Thread.currentThread()
+                    .getContextClassLoader();
             try {
 
                 Thread.currentThread()
@@ -392,7 +411,8 @@ public class AtomTransformer implements QueryResponseTransformer {
                 feed.writeTo(baos);
 
             } finally {
-                Thread.currentThread().setContextClassLoader(tccl);
+                Thread.currentThread()
+                        .setContextClassLoader(tccl);
             }
 
         } catch (IOException e) {
@@ -418,7 +438,9 @@ public class AtomTransformer implements QueryResponseTransformer {
                     if (actionProvider.equals(resourceActionProvider)
                             && metacard.getResourceURI() != null) {
 
-                        Link viewLink = addLinkHelper(action, entry, linkType,
+                        Link viewLink = addLinkHelper(action,
+                                entry,
+                                linkType,
                                 MIME_TYPE_OCTET_STREAM);
                         try {
                             Long length = Long.parseLong(metacard.getResourceSize(), 10);
@@ -432,8 +454,8 @@ public class AtomTransformer implements QueryResponseTransformer {
                             && metacard.getThumbnail() != null) {
 
                         addLinkHelper(action, entry, linkType, MIME_TYPE_JPEG);
-                    } else if (!actionProvider.equals(resourceActionProvider) && !actionProvider
-                            .equals(thumbnailActionProvider)) {
+                    } else if (!actionProvider.equals(resourceActionProvider)
+                            && !actionProvider.equals(thumbnailActionProvider)) {
 
                         addLinkHelper(action, entry, linkType, MIME_TYPE_OCTET_STREAM);
                     }
@@ -449,7 +471,8 @@ public class AtomTransformer implements QueryResponseTransformer {
     }
 
     private Link addLinkHelper(Action action, Entry entry, String linkType, String mimeType) {
-        Link viewLink = entry.addLink(action.getUrl().toString(), linkType);
+        Link viewLink = entry.addLink(action.getUrl()
+                .toString(), linkType);
         viewLink.setTitle(action.getTitle());
         viewLink.setMimeType(mimeType);
         return viewLink;
@@ -459,10 +482,12 @@ public class AtomTransformer implements QueryResponseTransformer {
 
         List<Position> georssPositions = new ArrayList<Position>();
 
-        for (AttributeDescriptor ad : metacard.getMetacardType().getAttributeDescriptors()) {
+        for (AttributeDescriptor ad : metacard.getMetacardType()
+                .getAttributeDescriptors()) {
 
             if (ad != null && ad.getType() != null && BasicTypes.GEO_TYPE.getAttributeFormat()
-                    .equals(ad.getType().getAttributeFormat())) {
+                    .equals(ad.getType()
+                            .getAttributeFormat())) {
 
                 Attribute geoAttribute = metacard.getAttribute(ad.getName());
 
@@ -477,8 +502,8 @@ public class AtomTransformer implements QueryResponseTransformer {
                         try {
                             Geometry geometry = reader.read(geo.toString());
 
-                            CompositeGeometry formatter = CompositeGeometry
-                                    .getCompositeGeometry(geometry);
+                            CompositeGeometry formatter = CompositeGeometry.getCompositeGeometry(
+                                    geometry);
 
                             if (null != formatter) {
                                 georssPositions.addAll(formatter.toGeoRssPositions());
@@ -490,7 +515,8 @@ public class AtomTransformer implements QueryResponseTransformer {
 
                         } catch (ParseException e) {
                             LOGGER.info("When cycling through geometries, could not parse [{}]",
-                                    geo, e);
+                                    geo,
+                                    e);
                         }
 
                     }

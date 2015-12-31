@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -82,7 +82,8 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
      *             SortedFederationStrategy
      */
     public AbstractFederationStrategy(ExecutorService queryExecutorService) {
-        this(queryExecutorService, new ArrayList<PreFederatedQueryPlugin>(),
+        this(queryExecutorService,
+                new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
     }
 
@@ -142,7 +143,8 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
 
         Query modifiedQuery = getModifiedQuery(originalQuery, sources.size(), offset, pageSize);
         QueryRequest modifiedQueryRequest = new QueryRequestImpl(modifiedQuery,
-                queryRequest.isEnterprise(), queryRequest.getSourceIds(),
+                queryRequest.isEnterprise(),
+                queryRequest.getSourceIds(),
                 queryRequest.getProperties());
 
         // Do NOT call source.isAvailable() when checking sources
@@ -154,19 +156,19 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
                             try {
-                                modifiedQueryRequest = service
-                                        .process(source, modifiedQueryRequest);
+                                modifiedQueryRequest = service.process(source,
+                                        modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                LOGGER.warn("Error executing PreFederatedQueryPlugin: " + e
-                                                .getMessage(), e);
+                                LOGGER.warn("Error executing PreFederatedQueryPlugin: "
+                                        + e.getMessage(), e);
                             }
                         }
                     } catch (StopProcessingException e) {
                         LOGGER.warn("Plugin stopped processing: ", e);
                     }
 
-                    futures.put(source, queryExecutorService
-                            .submit(new CallableSourceResponse(source,
+                    futures.put(source,
+                            queryExecutorService.submit(new CallableSourceResponse(source,
                                     modifiedQueryRequest.getQuery(),
                                     modifiedQueryRequest.getProperties())));
                 } else {
@@ -183,12 +185,15 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
         // OffsetResultHandler does.
         if (offset > 1 && sources.size() > 1) {
             offsetResults = new QueryResponseImpl(queryRequest, null);
-            queryExecutorService
-                    .submit(new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize,
-                            offset));
+            queryExecutorService.submit(new OffsetResultHandler(queryResponseQueue,
+                    offsetResults,
+                    pageSize,
+                    offset));
         }
 
-        queryExecutorService.submit(createMonitor(queryExecutorService, futures, queryResponseQueue,
+        queryExecutorService.submit(createMonitor(queryExecutorService,
+                futures,
+                queryResponseQueue,
                 modifiedQueryRequest.getQuery()));
 
         QueryResponse queryResponse = null;
@@ -248,8 +253,11 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
              * from all federated sources and merged together - then the offset is applied.
              *
              */
-            query = new QueryImpl(originalQuery, modifiedOffset, modifiedPageSize,
-                    originalQuery.getSortBy(), originalQuery.requestsTotalResultsCount(),
+            query = new QueryImpl(originalQuery,
+                    modifiedOffset,
+                    modifiedPageSize,
+                    originalQuery.getSortBy(),
+                    originalQuery.requestsTotalResultsCount(),
                     originalQuery.getTimeoutMillis());
         } else {
             query = originalQuery;

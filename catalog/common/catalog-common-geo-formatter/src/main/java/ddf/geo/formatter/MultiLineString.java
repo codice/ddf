@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,12 +32,12 @@ public class MultiLineString extends LineString {
 
     public static CompositeGeometry toCompositeGeometry(List coordinates) {
 
-        com.vividsolutions.jts.geom.LineString[] allLineStrings = new com.vividsolutions.jts.geom.LineString[coordinates
-                .size()];
+        com.vividsolutions.jts.geom.LineString[] allLineStrings =
+                new com.vividsolutions.jts.geom.LineString[coordinates.size()];
 
         for (int i = 0; i < allLineStrings.length; i++) {
-            allLineStrings[i] = GEOMETRY_FACTORY
-                    .createLineString(getCoordinates((List) coordinates.get(i)));
+            allLineStrings[i] =
+                    GEOMETRY_FACTORY.createLineString(getCoordinates((List) coordinates.get(i)));
         }
 
         return new MultiLineString(GEOMETRY_FACTORY.createMultiLineString(allLineStrings));
@@ -49,7 +49,8 @@ public class MultiLineString extends LineString {
         List overallCoordsList = new ArrayList();
 
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            overallCoordsList.add(buildCoordinatesList(geometry.getGeometryN(i).getCoordinates()));
+            overallCoordsList.add(buildCoordinatesList(geometry.getGeometryN(i)
+                    .getCoordinates()));
 
         }
 

@@ -18,36 +18,36 @@
 	    http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
         ">
 
-<!-- According to the schema the type-converters element must be above all other elements except 'description' -->
+    <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
     <type-converters>
-		<bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
-	</type-converters>
+        <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
+    </type-converters>
 
     <ext:property-placeholder/>
 
-	<bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
+    <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
 
     <!-- START Sorted Plugin lists that are sorted by their ServiceReferences -->
     <bean id="preIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="preQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
-	<bean id="resourceReaderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-	</bean>
+    </bean>
+    <bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="preQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="resourceReaderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
 
 
     <!-- END of Sorted Plugin lists -->
@@ -57,83 +57,83 @@
                     availability="optional">  <!-- DDF-1618: Made CatalogProvider optional -->
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourceListener"/>
-		<reference-listener bind-method="bind"
+        <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourcePollerRunner"/>
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="catalogProviderSortedList"/>
-		<reference-listener bind-method="bind"
+        <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="ddf"/>
-	</reference-list>
+    </reference-list>
     <!-- PREINGEST REFERENCE -->
     <reference-list id="preIngest" interface="ddf.catalog.plugin.PreIngestPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preIngestSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTINGEST REFERENCE -->
     <reference-list id="postIngest" interface="ddf.catalog.plugin.PostIngestPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postIngestSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- PREQUERY REFERENCE -->
     <reference-list id="preQuery" interface="ddf.catalog.plugin.PreQueryPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preQuerySortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTQUERY REFERENCE -->
     <reference-list id="postQuery" interface="ddf.catalog.plugin.PostQueryPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postQuerySortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- PRE FEDERATED QUERY REFERENCE -->
     <reference-list id="preFederatedQuery" interface="ddf.catalog.plugin.PreFederatedQueryPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preFederatedQuerySortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POST FEDERATED QUERY REFERENCE -->
     <reference-list id="postFederatedQuery" interface="ddf.catalog.plugin.PostFederatedQueryPlugin"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postFederatedQuerySortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- PRERESOURCE REFERENCE -->
     <reference-list id="preResource"
                     interface="ddf.catalog.plugin.PreResourcePlugin" availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preResourceSortedList"/>
-	</reference-list>
+    </reference-list>
     <!-- POSTRESOURCE REFERENCE -->
     <reference-list id="postResource"
                     interface="ddf.catalog.plugin.PostResourcePlugin" availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postResourceSortedList"/>
-	</reference-list>
+    </reference-list>
 
-	<reference-list id="connectedSources" interface="ddf.catalog.source.ConnectedSource"
+    <reference-list id="connectedSources" interface="ddf.catalog.source.ConnectedSource"
                     availability="optional">
-		<reference-listener bind-method="bind"
+        <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourceListener"/>
-		<reference-listener bind-method="bind"
+        <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourcePollerRunner"/>
-	</reference-list>
+    </reference-list>
 
-	<reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource"
+    <reference-list id="federatedSources" interface="ddf.catalog.source.FederatedSource"
                     availability="optional">
-		<reference-listener bind-method="bind"
+        <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourcePollerRunner"/>
-	</reference-list>
+    </reference-list>
 
-	<reference-list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"
+    <reference-list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"
                     availability="optional">
-		<reference-listener bind-method="bindPlugin"
+        <reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="resourceReaderSortedList"/>
-	</reference-list>
+    </reference-list>
 
-	<bean id="queryThreadPool" class="java.util.concurrent.Executors"
+    <bean id="queryThreadPool" class="java.util.concurrent.Executors"
           factory-method="newCachedThreadPool"/>
 
     <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
@@ -168,25 +168,25 @@
         <argument ref="urlHelper"/>
     </bean>
 
-	<bean id="sorted" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
+    <bean id="sorted" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
-		<cm:managed-properties
+        <cm:managed-properties
                 persistent-id="ddf.catalog.federation.impl.CachingFederationStrategy"
                 update-strategy="container-managed"/>
-		<argument ref="queryThreadPool"/>
-		<argument ref="preFederatedQuerySortedList"/>
-		<argument ref="postFederatedQuerySortedList"/>
+        <argument ref="queryThreadPool"/>
+        <argument ref="preFederatedQuerySortedList"/>
+        <argument ref="postFederatedQuerySortedList"/>
         <argument ref="solrCatalogCache"/>
         <argument ref="cacheThreadPool"/>
-		<property name="maxStartIndex" value="50000"/>
-	</bean>
+        <property name="maxStartIndex" value="50000"/>
+    </bean>
 
-	<service ref="sorted" interface="ddf.catalog.federation.FederationStrategy"
+    <service ref="sorted" interface="ddf.catalog.federation.FederationStrategy"
              ranking="100">
-		<service-properties>
-			<entry key="shortname" value="sorted"/>
-		</service-properties>
-	</service>
+        <service-properties>
+            <entry key="shortname" value="sorted"/>
+        </service-properties>
+    </service>
     <service ref="sorted" interface="ddf.catalog.plugin.PostIngestPlugin"/>
 
     <reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider"
@@ -225,16 +225,16 @@
         <property name="context" ref="blueprintBundleContext"/>
         <property name="xmlConfigFilename" value="reliableResource-hazelcast.xml"/>
     </bean>
-    
+
     <service ref="productCache" interface="ddf.catalog.cache.ResourceCacheInterface"/>
-    
+
     <bean id="reliableResourceDownloadManager"
           class="ddf.catalog.resource.download.ReliableResourceDownloadManager"
           init-method="init" destroy-method="cleanUp">
-    	<argument ref="productCache"/>
-    	<argument ref="retrieveStatusEventPublisher"/>
-    	<argument ref="retrieveStatusEventListener"/>
-    	<argument ref="downloadStatusInfo"/>
+        <argument ref="productCache"/>
+        <argument ref="retrieveStatusEventPublisher"/>
+        <argument ref="retrieveStatusEventListener"/>
+        <argument ref="downloadStatusInfo"/>
         <argument ref="downloadThreadPool"/>
     </bean>
 
@@ -242,66 +242,66 @@
 
     <!-- create the ddf bean -->
     <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
-		<cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
+        <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
                                update-strategy="container-managed"/>
         <argument ref="catalogProviderSortedList"/>
-		<argument ref="blueprintBundleContext"/>
-		<argument ref="preIngestSortedList"/>
-		<argument ref="postIngestSortedList"/>
-		<argument ref="preQuerySortedList"/>
-		<argument ref="postQuerySortedList"/>
-		<argument ref="preResourceSortedList"/>
-		<argument ref="postResourceSortedList"/>
-		<argument ref="connectedSources"/>
-		<argument ref="federatedSources"/>
-		<argument ref="resourceReaderSortedList"/>
-		<argument ref="sorted"/>
-		<argument ref="queryThreadPool"/>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="preIngestSortedList"/>
+        <argument ref="postIngestSortedList"/>
+        <argument ref="preQuerySortedList"/>
+        <argument ref="postQuerySortedList"/>
+        <argument ref="preResourceSortedList"/>
+        <argument ref="postResourceSortedList"/>
+        <argument ref="connectedSources"/>
+        <argument ref="federatedSources"/>
+        <argument ref="resourceReaderSortedList"/>
+        <argument ref="sorted"/>
+        <argument ref="queryThreadPool"/>
         <argument ref="queryResponsePostProcessor"/>
-		<argument ref="sourcePoller"/>
-		<argument ref="productCache"/>
-		<argument ref="retrieveStatusEventPublisher"/>
-		<argument ref="reliableResourceDownloadManager"/>
-		<property name="systemInfo" ref="systemInfo"/>
-		<property name="masker" ref="sourceListener"/>
-		<property name="cacheEnabled" value="true"/>
-		<property name="delayBetweenRetryAttempts" value="10"/>
+        <argument ref="sourcePoller"/>
+        <argument ref="productCache"/>
+        <argument ref="retrieveStatusEventPublisher"/>
+        <argument ref="reliableResourceDownloadManager"/>
+        <property name="systemInfo" ref="systemInfo"/>
+        <property name="masker" ref="sourceListener"/>
+        <property name="cacheEnabled" value="true"/>
+        <property name="delayBetweenRetryAttempts" value="10"/>
         <property name="maxRetryAttempts" value="3"/>
         <property name="retrievalMonitorPeriod" value="5"/>
         <property name="cacheWhenCanceled" value="false"/>
         <property name="notificationEnabled" value="true"/>
-	</bean>
+    </bean>
 
-	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
-		<argument ref="sourcePollerRunner"/>
-	</bean>
+    <bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
+        <argument ref="sourcePollerRunner"/>
+    </bean>
 
     <!-- Poller instance which is a listener and source polling mechanism -->
     <bean id="sourcePollerRunner" class="ddf.catalog.util.impl.SourcePollerRunner">
-	</bean>
+    </bean>
 
     <!-- export the bean on the service registry -->
     <service ref="ddf" interface="ddf.catalog.CatalogFramework">
-		<registration-listener ref="sourcePoller"
+        <registration-listener ref="sourcePoller"
                                registration-method="start" unregistration-method="cancel"/>
-	</service>
+    </service>
 
     <!-- Events -->
 
     <reference-list id="preSubscription" interface="ddf.catalog.plugin.PreSubscriptionPlugin"
                     availability="optional"/>
 
-	<reference-list id="preDelivery" interface="ddf.catalog.plugin.PreDeliveryPlugin"
+    <reference-list id="preDelivery" interface="ddf.catalog.plugin.PreDeliveryPlugin"
                     availability="optional"/>
 
 
     <bean id="eventProcessorService" class="ddf.catalog.pubsub.EventProcessorImpl"
           init-method="init" destroy-method="destroy">
-    	<argument ref="blueprintBundleContext"/>
-    	<argument ref="eventAdmin"/>
-    	<argument ref="preSubscription"/>
-		<argument ref="preDelivery"/>
-		<argument ref="ddf"/>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="eventAdmin"/>
+        <argument ref="preSubscription"/>
+        <argument ref="preDelivery"/>
+        <argument ref="ddf"/>
     </bean>
 
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
@@ -309,15 +309,15 @@
     <service ref="eventProcessorService" interface="ddf.catalog.event.EventProcessor"/>
     <service ref="eventProcessorService" interface="ddf.catalog.plugin.PostIngestPlugin"/>
     <service ref="eventProcessorService" interface="org.osgi.service.event.EventHandler">
-    	<service-properties>
-			<entry key="event.topics">
-				<array value-type="java.lang.String">
-					<value>ddf/catalog/event/CREATED</value>
-					<value>ddf/catalog/event/UPDATED</value>
-					<value>ddf/catalog/event/DELETED</value>
-				</array>
-			</entry>
-    	</service-properties>
+        <service-properties>
+            <entry key="event.topics">
+                <array value-type="java.lang.String">
+                    <value>ddf/catalog/event/CREATED</value>
+                    <value>ddf/catalog/event/UPDATED</value>
+                    <value>ddf/catalog/event/DELETED</value>
+                </array>
+            </entry>
+        </service-properties>
     </service>
 
 </blueprint>

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -217,7 +217,6 @@ public class DdfConfigurationManager {
         // Add the system properties
         configuration.putAll(getSystemProperties());
 
-
         // Append the read-only settings to the DDF System Settings so that all
         // settings are pushed to registered listeners
         configuration.putAll(readOnlySettings);
@@ -295,15 +294,17 @@ public class DdfConfigurationManager {
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        LOGGER.info("ENTERING: {}   servicePid = {},  propertyName = {}", methodName, servicePid,
+        LOGGER.info("ENTERING: {}   servicePid = {},  propertyName = {}",
+                methodName,
+                servicePid,
                 propertyName);
 
         String value = "";
 
         try {
             if (this.configurationAdmin != null) {
-                Configuration currentConfiguration = this.configurationAdmin
-                        .getConfiguration(servicePid);
+                Configuration currentConfiguration = this.configurationAdmin.getConfiguration(
+                        servicePid);
 
                 if (currentConfiguration != null) {
                     Dictionary properties = currentConfiguration.getProperties();

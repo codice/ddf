@@ -35,12 +35,14 @@ public class ValidationQueryDelegate extends FilterDelegate<Boolean> {
 
     @Override
     public Boolean and(List<Boolean> operands) {
-        return operands.stream().reduce(false, (a, b) -> a || b);
+        return operands.stream()
+                .reduce(false, (a, b) -> a || b);
     }
 
     @Override
     public Boolean or(List<Boolean> operands) {
-        return operands.stream().reduce(false, (a, b) -> a || b);
+        return operands.stream()
+                .reduce(false, (a, b) -> a || b);
     }
 
     @Override

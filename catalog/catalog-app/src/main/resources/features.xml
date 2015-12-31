@@ -24,22 +24,24 @@
      org.apache.karaf.features.cfg." 
 -->
 <features name="${project.artifactId}-${project.version}">
-    
+
     <feature name="catalog-core-api" install="manual" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_2</bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_2
+        </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-core" install="manual" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature>catalog-core-api</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>        
+        <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
         <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle>
@@ -60,12 +62,24 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
     </feature>
 
     <feature name="catalog-core-metricsplugin" install="manual" version="${project.version}"
@@ -82,17 +96,17 @@
              description="Capture metrics about individual source operations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-schematron-plugin" install="manual" version="${project.version}"
              description="Schematron pre-ingest validation plugin.">
         <bundle>mvn:ddf.catalog.schematron/catalog-schematron-plugin/${project.version}</bundle>
-    </feature>   
+    </feature>
 
     <feature name="catalog-rest-endpoint" install="manual" version="${project.version}"
              description="REST Endpoint provides CRUD operations on the Catalog Framework.">
         <bundle>mvn:ddf.catalog.rest/catalog-rest-endpoint/${project.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-opensearch-endpoint" install="manual" version="${project.version}"
              description="OpenSearch Query Endpoint with Atom Transformer.">
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-endpoint/${project.version}</bundle>
@@ -108,23 +122,29 @@
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
     </feature>
-    
+
     <feature name="abdera" install="manual" version="${project.version}"
              description="Apache Abdera">
         <bundle>wrap:mvn:org.apache.james/apache-mime4j-core/0.7.2</bundle>
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
         does not export any classes. Must use the servicemix version. -->
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2
+        </bundle>
         <bundle>mvn:org.apache.ws.commons.axiom/axiom-api/1.2.14</bundle>
         <bundle>mvn:org.apache.abdera/abdera-core/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-client/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-i18n/${abdera.version}</bundle>
         <!-- Cannot use <bundle>mvn:org.apache.abdera/abdera-parser/${abdera.version}</bundle>
         because of a classpath issue with OMFactory. Servicemix fixes this abdera-parser.-->
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1.2_1</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1.2_1
+        </bundle>
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
     </feature>
 
@@ -137,27 +157,28 @@
              description="">
         <bundle>mvn:ddf.catalog.plugin/jpeg2000-thumbnail-converter/${project.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-transformer-metadata" install="manual" version="${project.version}"
              description="Retrieves the attribute, Metadata, from the Metacard.">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-metadata/${project.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-transformer-thumbnail" install="manual" version="${project.version}"
              description="Retrieves the attribute, Thumbnail, from the Metacard.">
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}
+        </bundle>
     </feature>
-    
+
     <feature name="catalog-transformer-xsltengine" install="manual" version="${project.version}"
              description="Provides XSLT transformer engine.">
         <bundle>mvn:ddf.catalog.transformer/service-xslt-transformer/${project.version}</bundle>
     </feature>
-        
+
     <feature name="catalog-transformer-resource" install="manual" version="${project.version}"
              description="Resource MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-resource/${project.version}</bundle>
-    </feature>  
-    
+    </feature>
+
     <feature name="catalog-transformer-tika" install="manual" version="${project.version}"
              description="DDF default Input Transformer.">
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
@@ -167,7 +188,8 @@
              description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}
+        </bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
 
@@ -179,7 +201,7 @@
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-server/${abdera.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-transformer-geoformatter" install="manual" version="${project.version}"
              description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
         <feature>abdera</feature>
@@ -188,19 +210,23 @@
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-transformer-xml" install="manual" version="${project.version}"
              description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        </bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}
+        </bundle>
         <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
-    
+
     <feature name="catalog-security-filter" install="manual" version="${project.version}"
              description="DDF Catalog Security Filtering">
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
-    </feature>     
+    </feature>
 
     <feature name="catalog-security-plugin" install="manual" version="${project.version}"
              description="DDF Security Plugins">
@@ -221,19 +247,19 @@
              description="DDF Security Ingest Plugins">
         <bundle>mvn:ddf.catalog.security/catalog-security-ingestplugin/${project.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-admin-module-sources" install="manual" version="${project.version}"
              description="DDF Admin Module">
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
-    
+
     <feature name="catalog-app" install="auto" version="${project.version}"
              description="The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog">
         <feature>platform-app</feature>
         <feature>catalog-core</feature>
         <feature>catalog-core-metricsplugin</feature>
         <feature>catalog-core-sourcemetricsplugin</feature>
-        <feature>catalog-transformer-thumbnail</feature>    
+        <feature>catalog-transformer-thumbnail</feature>
         <feature>catalog-transformer-metadata</feature>
         <feature>catalog-transformer-xsltengine</feature>
         <feature>catalog-transformer-resource</feature>
@@ -254,7 +280,8 @@
 
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
              description="DDF Metacard Validator Plugins">
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
+        </bundle>
     </feature>
-        
+
 </features>

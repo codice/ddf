@@ -33,8 +33,8 @@ import org.slf4j.ext.XLogger;
 
 public class TestCRCChecksumProvider {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(TestCRCChecksumProvider.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(
+            TestCRCChecksumProvider.class));
 
     private ChecksumProvider checksumProvider;
 

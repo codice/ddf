@@ -14,18 +14,18 @@
 
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-		>
+>
 
-	<bean id="transformer"
+    <bean id="transformer"
           class="org.codice.ddf.catalog.transformer.html.HtmlMetacardTransformer">
-	</bean>
+    </bean>
 
-	<service ref="transformer" interface="ddf.catalog.transform.MetacardTransformer">
-		<service-properties>
-			<entry key="id" value="html"/>
+    <service ref="transformer" interface="ddf.catalog.transform.MetacardTransformer">
+        <service-properties>
+            <entry key="id" value="html"/>
             <!-- shortname only exists for backwards compatibility -->
             <entry key="shortname" value="html"/>
-			<entry key="mime-type" value="text/html"/>
-		</service-properties>
-	</service>
+            <entry key="mime-type" value="text/html"/>
+        </service-properties>
+    </service>
 </blueprint>

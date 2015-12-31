@@ -12,20 +12,21 @@
 *
 **/
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Sign-on Redirect</title>
 </head>
 <body>
-    <h2>Redirecting...</h2>
-    <form id="sso" method="post" action="%s">
-        <input type="hidden" name="SAMLRequest" value="%s" />
-        <input type="hidden" name="RelayState" value="%s" />
-        <input type="submit" value="Submit" style="display:none;" />
-    </form>
-    <script type="text/javascript">
+<h2>Redirecting...</h2>
+<form id="sso" method="post" action="%s">
+    <input type="hidden" name="SAMLRequest" value="%s"/>
+    <input type="hidden" name="RelayState" value="%s"/>
+    <input type="submit" value="Submit" style="display:none;"/>
+</form>
+<script type="text/javascript">
         window.onload = function() {
             window.setTimeout(function () {
                 window.setInterval(function () {
@@ -33,6 +34,7 @@
                 }, 1000);
             }, 100);
         }
-    </script>
+
+</script>
 </body>
 </html>

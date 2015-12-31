@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -65,12 +65,14 @@ public class XPathHelper {
     private Document document;
 
     public XPathHelper() {
-        dbf = DocumentBuilderFactory
-                .newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
-                        this.getClass().getClassLoader());
-        tf = TransformerFactory
-                .newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
-                        this.getClass().getClassLoader());
+        dbf =
+                DocumentBuilderFactory.newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
+                        this.getClass()
+                                .getClassLoader());
+        tf =
+                TransformerFactory.newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
+                        this.getClass()
+                                .getClassLoader());
     }
 
     /**
@@ -94,7 +96,8 @@ public class XPathHelper {
 
         if (cloneAndNormalize) {
             this.document = (Document) document.cloneNode(true);
-            this.document.getDocumentElement().normalize();
+            this.document.getDocumentElement()
+                    .normalize();
         } else {
             this.document = document;
         }
@@ -121,7 +124,8 @@ public class XPathHelper {
                 builder = dbf.newDocumentBuilder();
                 builder.setErrorHandler(null);
                 doc = builder.parse(is);
-                doc.getDocumentElement().normalize();
+                doc.getDocumentElement()
+                        .normalize();
                 this.document = doc;
             } finally {
                 thread.setContextClassLoader(loader);
@@ -210,7 +214,8 @@ public class XPathHelper {
      * @throws XPathExpressionException
      */
     public String evaluate(String xpathExpressionKey) throws XPathExpressionException {
-        return (String) this.evaluate(xpathExpressionKey, XPathConstants.STRING,
+        return (String) this.evaluate(xpathExpressionKey,
+                XPathConstants.STRING,
                 XPathCache.getNamespaceResolver());
     }
 
@@ -248,13 +253,15 @@ public class XPathHelper {
      */
     public synchronized Object evaluate(String xpathExpressionKey, QName returnType,
             NamespaceContext nsContext) throws XPathExpressionException {
-        XPathCache.getXPath().setNamespaceContext(nsContext);
+        XPathCache.getXPath()
+                .setNamespaceContext(nsContext);
 
         XPathExpression compiledExpression = XPathCache.getCompiledExpression(xpathExpressionKey);
 
         Thread thread = Thread.currentThread();
         ClassLoader loader = thread.getContextClassLoader();
-        thread.setContextClassLoader(this.getClass().getClassLoader());
+        thread.setContextClassLoader(this.getClass()
+                .getClassLoader());
 
         try {
             return compiledExpression.evaluate(document, returnType);

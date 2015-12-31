@@ -31,7 +31,8 @@ public class ConfigStatusCommand extends PlatformCommands {
 
     static final String FAILED_IMPORT_MESSAGE = "Failed to import file [%s]. ";
 
-    static final String NO_CONFIG_STATUS_MESSAGE = "No Configuration Status returned from Configuration Status Service.";
+    static final String NO_CONFIG_STATUS_MESSAGE =
+            "No Configuration Status returned from Configuration Status Service.";
 
     private ConfigurationStatusService configStatusService;
 
@@ -44,13 +45,13 @@ public class ConfigStatusCommand extends PlatformCommands {
     protected Object doExecute() {
         try {
             Collection<ConfigurationStatus> configStatusMessages = getFailedImports();
-            
+
             if (configStatusMessages == null) {
                 outputErrorMessage(NO_CONFIG_STATUS_MESSAGE);
                 return null;
             }
 
-            if (configStatusMessages.isEmpty()){
+            if (configStatusMessages.isEmpty()) {
                 outputSuccessMessage(SUCCESSFUL_IMPORT_MESSAGE);
                 return null;
             }
@@ -59,8 +60,8 @@ public class ConfigStatusCommand extends PlatformCommands {
                 outputErrorMessage(constructErrorMessage(configStatus));
             }
         } catch (IOException | RuntimeException e) {
-            String message = "An error was encountered while executing this command. "
-                    + e.getMessage();
+            String message =
+                    "An error was encountered while executing this command. " + e.getMessage();
             outputErrorMessage(message);
         }
 
@@ -70,8 +71,10 @@ public class ConfigStatusCommand extends PlatformCommands {
     private Collection<ConfigurationStatus> getFailedImports() throws IOException {
         return configStatusService.getFailedConfigurationFiles();
     }
-    
+
     private String constructErrorMessage(ConfigurationStatus configStatus) {
-        return String.format(FAILED_IMPORT_MESSAGE, configStatus.getPath().toString());
+        return String.format(FAILED_IMPORT_MESSAGE,
+                configStatus.getPath()
+                        .toString());
     }
 }

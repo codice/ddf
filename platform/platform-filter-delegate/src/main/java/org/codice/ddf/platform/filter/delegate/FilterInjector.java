@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -76,7 +76,8 @@ public class FilterInjector {
         try {
             //this grabs the enclosing instance class, which is actually a private class
             //this is the only way to do this in Java
-            field = context.getClass().getDeclaredField("this$0");
+            field = context.getClass()
+                    .getDeclaredField("this$0");
             field.setAccessible(true);
         } catch (NoSuchFieldException e) {
             LOGGER.warn(
@@ -94,7 +95,8 @@ public class FilterInjector {
             } catch (IllegalAccessException e) {
                 LOGGER.warn(
                         "Unable to get the ServletContextHandler for {}. The delegating filter may not work properly.",
-                        refBundle.getSymbolicName(), e);
+                        refBundle.getSymbolicName(),
+                        e);
             }
 
             if (httpServiceContext != null) {
@@ -103,7 +105,8 @@ public class FilterInjector {
 
                 if (handler != null) {
                     try {
-                        matchAfterField = handler.getClass().getSuperclass()
+                        matchAfterField = handler.getClass()
+                                .getSuperclass()
                                 .getDeclaredField("_matchAfterIndex");
                         matchAfterField.setAccessible(true);
                     } catch (NoSuchFieldException e) {
@@ -131,8 +134,8 @@ public class FilterInjector {
         try {
             //This causes the value of "_matchAfterIndex" to jump to 0 which means all web.xml filters will be added in front of it
             //this isn't what we want, so we need to reset it back to what it was before
-            FilterRegistration filterReg = context
-                    .addFilter(DELEGATING_FILTER, delegatingServletFilter);
+            FilterRegistration filterReg = context.addFilter(DELEGATING_FILTER,
+                    delegatingServletFilter);
 
             if (filterReg == null) {
                 filterReg = context.getFilterRegistration(DELEGATING_FILTER);

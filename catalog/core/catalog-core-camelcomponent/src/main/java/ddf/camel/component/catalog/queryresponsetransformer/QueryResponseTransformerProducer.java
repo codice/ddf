@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -42,8 +42,8 @@ import ddf.mime.MimeTypeToTransformerMapper;
  *
  */
 public class QueryResponseTransformerProducer extends TransformerProducer {
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(QueryResponseTransformerProducer.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+            QueryResponseTransformerProducer.class);
 
     /**
      * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would
@@ -69,13 +69,14 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
                     mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY + "=" + transformerId);
         }
 
-        List<QueryResponseTransformer> matches = mapper
-                .findMatches(QueryResponseTransformer.class, derivedMimeType);
+        List<QueryResponseTransformer> matches = mapper.findMatches(QueryResponseTransformer.class,
+                derivedMimeType);
         Object binaryContent = null;
 
         if (matches != null && matches.size() == 1) {
             Map<String, Serializable> arguments = new HashMap<String, Serializable>();
-            for (Entry<String, Object> entry : in.getHeaders().entrySet()) {
+            for (Entry<String, Object> entry : in.getHeaders()
+                    .entrySet()) {
                 if (entry.getValue() instanceof Serializable) {
                     arguments.put(entry.getKey(), (Serializable) entry.getValue());
                 }

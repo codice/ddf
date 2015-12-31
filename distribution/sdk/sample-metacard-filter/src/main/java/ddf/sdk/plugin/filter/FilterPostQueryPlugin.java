@@ -29,8 +29,8 @@ import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class FilterPostQueryPlugin implements PostQueryPlugin {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(FilterPostQueryPlugin.class.getName());
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(FilterPostQueryPlugin.class.getName());
 
     @Override
     public QueryResponse process(QueryResponse queryResponse)

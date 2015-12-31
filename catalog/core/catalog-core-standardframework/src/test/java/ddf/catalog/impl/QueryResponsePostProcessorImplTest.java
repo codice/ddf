@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -97,8 +97,8 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequestWhenResourceActionProviderIsNull() {
-        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
-                null);
+        QueryResponsePostProcessor queryResponsePostProcessor =
+                new QueryResponsePostProcessor(null);
         queryResponsePostProcessor.processResponse(queryResponse);
 
         verifyZeroInteractions(queryResponse);
@@ -124,7 +124,8 @@ public class QueryResponsePostProcessorImplTest {
 
         when(queryResponse.getResults()).thenReturn(results);
 
-        when(results.get(0).getMetacard()).thenReturn(metacards[0]);
+        when(results.get(0)
+                .getMetacard()).thenReturn(metacards[0]);
         when(metacards[0].getResourceURI()).thenReturn(null);
 
         setUpExpectationsForResult(1);
@@ -142,7 +143,8 @@ public class QueryResponsePostProcessorImplTest {
 
         when(queryResponse.getResults()).thenReturn(results);
 
-        when(results.get(0).getMetacard()).thenReturn(metacards[0]);
+        when(results.get(0)
+                .getMetacard()).thenReturn(metacards[0]);
         when(metacards[0].getResourceURI()).thenReturn(uris[0]);
         when(resourceActionProvider.getAction(metacards[0])).thenReturn(null);
 
@@ -161,7 +163,8 @@ public class QueryResponsePostProcessorImplTest {
 
         when(queryResponse.getResults()).thenReturn(results);
 
-        when(results.get(0).getMetacard()).thenReturn(metacards[0]);
+        when(results.get(0)
+                .getMetacard()).thenReturn(metacards[0]);
         when(metacards[0].getResourceURI()).thenReturn(uris[0]);
         when(resourceActionProvider.getAction(metacards[0])).thenReturn(resourceActions[0]);
         when(resourceActions[0].getUrl()).thenReturn(null);
@@ -175,10 +178,10 @@ public class QueryResponsePostProcessorImplTest {
     }
 
     private void setUpExpectationsForResult(int resultNumber) {
-        when(results.get(resultNumber).getMetacard()).thenReturn(metacards[resultNumber]);
+        when(results.get(resultNumber)
+                .getMetacard()).thenReturn(metacards[resultNumber]);
         when(metacards[resultNumber].getResourceURI()).thenReturn(uris[resultNumber]);
-        when(resourceActionProvider.getAction(metacards[resultNumber]))
-                .thenReturn(resourceActions[resultNumber]);
+        when(resourceActionProvider.getAction(metacards[resultNumber])).thenReturn(resourceActions[resultNumber]);
         when(resourceActions[resultNumber].getUrl()).thenReturn(urls[resultNumber]);
     }
 
@@ -186,8 +189,12 @@ public class QueryResponsePostProcessorImplTest {
             String expectedValue) {
         ArgumentCaptor<AttributeImpl> attribute1 = ArgumentCaptor.forClass(AttributeImpl.class);
         verify(metacard).setAttribute(attribute1.capture());
-        assertThat(attribute1.getValue().getName(), is(attributeName));
-        assertThat(attribute1.getValue().getValues().size(), is(1));
-        assertThat(attribute1.getValue().getValues(), hasItems((Serializable) expectedValue));
+        assertThat(attribute1.getValue()
+                .getName(), is(attributeName));
+        assertThat(attribute1.getValue()
+                .getValues()
+                .size(), is(1));
+        assertThat(attribute1.getValue()
+                .getValues(), hasItems((Serializable) expectedValue));
     }
 }

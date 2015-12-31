@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,7 +27,12 @@ public class TestGeoNamesCreator extends TestBase {
                 "Candler,Candleris,Chandler,Chandlur\t33.30616\t-111.84125\tP\tPPL\tUS\tUS\tAZ\t" +
                 "013\t012\t011\t236123\t370\t368\tAmerica/Phoenix\t2011-05-14";
         final GeoEntry geoEntry = GEONAMES_CREATOR.createGeoEntry(geoNamesEntryStr);
-        verifyGeoEntry(geoEntry, "Chandler", 33.30616, -111.84125, "PPL", 236123,
+        verifyGeoEntry(geoEntry,
+                "Chandler",
+                33.30616,
+                -111.84125,
+                "PPL",
+                236123,
                 "Candler,Candleris,Chandler,Chandlur");
     }
 

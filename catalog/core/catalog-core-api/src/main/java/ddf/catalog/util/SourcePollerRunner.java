@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,8 +43,8 @@ import ddf.catalog.source.Source;
 @Deprecated
 public class SourcePollerRunner implements Runnable {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(SourcePollerRunner.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
 
     private List<Source> sources;
 
@@ -106,7 +106,8 @@ public class SourcePollerRunner implements Runnable {
                     Lock sourceStatusThreadLock = sourceStatusThreadLocks.get(source);
 
                     if (sourceStatusThreadLock.tryLock()) {
-                        LOGGER.debug("Acquired lock for Source [{}] with id [{}]", source,
+                        LOGGER.debug("Acquired lock for Source [{}] with id [{}]",
+                                source,
                                 source.getId());
 
                         try {
@@ -114,13 +115,13 @@ public class SourcePollerRunner implements Runnable {
                         } finally {
                             // release the lock acquired initially
                             sourceStatusThreadLock.unlock();
-                            LOGGER.debug("Released lock for Source [{}] with id [{}]", source,
+                            LOGGER.debug("Released lock for Source [{}] with id [{}]",
+                                    source,
                                     source.getId());
                         }
                     } else {
                         LOGGER.debug("Unable to get lock for Source [{}] with id [{}]."
-                                        + "  A status thread is already running.", source,
-                                source.getId());
+                                + "  A status thread is already running.", source, source.getId());
                     }
                 }
             }

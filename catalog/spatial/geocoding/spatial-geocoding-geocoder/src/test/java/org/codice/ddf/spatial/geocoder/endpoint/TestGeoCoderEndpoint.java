@@ -1,4 +1,4 @@
-    /**
+/**
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -27,14 +27,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.util.impl.ServiceSelector;
-
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 public class TestGeoCoderEndpoint {
     private ServiceSelector<GeoCoder> mockGeoCoderFactory;
+
     private GeoCoder mockGeoCoder;
+
     private GeoResult geoResult;
+
     private GeoCoderEndpoint geoCoderEndpoint;
 
     @Before
@@ -47,7 +49,6 @@ public class TestGeoCoderEndpoint {
         when(mockGeoCoderFactory.getService()).thenReturn(mockGeoCoder);
         when(mockGeoCoder.getLocation(anyString())).thenReturn(geoResult);
     }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorException() {
@@ -88,10 +89,13 @@ public class TestGeoCoderEndpoint {
         return geoCoderFactory;
     }
 
-    private GeoResult buildGeoResult(final String name, final double latitude, final double longitude,
-                                     final String featureCode, final long population) {
-        GeoResult geoResult = GeoResultCreator.createGeoResult(name, latitude, longitude,
-                featureCode, population);
+    private GeoResult buildGeoResult(final String name, final double latitude,
+            final double longitude, final String featureCode, final long population) {
+        GeoResult geoResult = GeoResultCreator.createGeoResult(name,
+                latitude,
+                longitude,
+                featureCode,
+                population);
         return geoResult;
     }
 }

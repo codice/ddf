@@ -59,21 +59,23 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     private ArgumentCaptor<Document> documentArgumentCaptor;
 
-    private static final String[] NAMES = {"Phoenix", "Tempe", "Glendale", "Mesa", "Tucson",
-            "Flagstaff", "Scottsdale", "Gilbert", "Queen Creek"};
+    private static final String[] NAMES =
+            {"Phoenix", "Tempe", "Glendale", "Mesa", "Tucson", "Flagstaff", "Scottsdale", "Gilbert",
+                    "Queen Creek"};
 
     private static final double[] LATS = {1.2, -3.4, 5.6, -7.8, 9.1, -2.3, 4.5, -6.7, 8.9};
 
     private static final double[] LONS = {-1.2, 3.4, -5.6, 7.8, -9.1, 2.3, -4.5, 6.7, -8.9};
 
-    private static final String[] FEATURE_CODES = {"PPL", "ADM", "PCL", "ADM1", "ADM2", "ADM3",
-            "PPLA", "PPLA2", "PPLC"};
+    private static final String[] FEATURE_CODES =
+            {"PPL", "ADM", "PCL", "ADM1", "ADM2", "ADM3", "PPLA", "PPLA2", "PPLC"};
 
-    private static final long[] POPS = {0, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
-            100000000};
+    private static final long[] POPS =
+            {0, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 
-    private static final String[] ALT_NAMES = {"alt1, alt2", "alt3", "", "alt4", "alt5,alt6,alt7",
-            "alt-8,alt-9", "alt-10", "alt 1.1, alt1.2", "alt2.1,alt3.4"};
+    private static final String[] ALT_NAMES =
+            {"alt1, alt2", "alt3", "", "alt4", "alt5,alt6,alt7", "alt-8,alt-9", "alt-10",
+                    "alt 1.1, alt1.2", "alt2.1,alt3.4"};
 
     private static final GeoEntry GEO_ENTRY_1 = createGeoEntry(0);
 
@@ -93,14 +95,24 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
     private static final GeoEntry GEO_ENTRY_9 = createGeoEntry(8);
 
-    private static final List<GeoEntry> GEO_ENTRY_LIST = Arrays
-            .asList(GEO_ENTRY_1, GEO_ENTRY_2, GEO_ENTRY_3, GEO_ENTRY_4, GEO_ENTRY_5, GEO_ENTRY_6,
-                    GEO_ENTRY_7, GEO_ENTRY_8, GEO_ENTRY_9);
+    private static final List<GeoEntry> GEO_ENTRY_LIST = Arrays.asList(GEO_ENTRY_1,
+            GEO_ENTRY_2,
+            GEO_ENTRY_3,
+            GEO_ENTRY_4,
+            GEO_ENTRY_5,
+            GEO_ENTRY_6,
+            GEO_ENTRY_7,
+            GEO_ENTRY_8,
+            GEO_ENTRY_9);
 
     private static GeoEntry createGeoEntry(final int index) {
-        return new GeoEntry.Builder().name(NAMES[index]).latitude(LATS[index])
-                .longitude(LONS[index]).featureCode(FEATURE_CODES[index]).population(POPS[index])
-                .alternateNames(ALT_NAMES[index]).build();
+        return new GeoEntry.Builder().name(NAMES[index])
+                .latitude(LATS[index])
+                .longitude(LONS[index])
+                .featureCode(FEATURE_CODES[index])
+                .population(POPS[index])
+                .alternateNames(ALT_NAMES[index])
+                .build();
     }
 
     @After
@@ -121,8 +133,7 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
     private GeoEntry createGeoEntryFromDocument(final Document document) {
         return new GeoEntry.Builder().name(document.get(GeoNamesLuceneConstants.NAME_FIELD))
                 .latitude(Double.parseDouble(document.get(GeoNamesLuceneConstants.LATITUDE_FIELD)))
-                .longitude(
-                        Double.parseDouble(document.get(GeoNamesLuceneConstants.LONGITUDE_FIELD)))
+                .longitude(Double.parseDouble(document.get(GeoNamesLuceneConstants.LONGITUDE_FIELD)))
                 .featureCode(document.get(GeoNamesLuceneConstants.FEATURE_CODE_FIELD))
                 .population(Long.parseLong(document.get(GeoNamesLuceneConstants.POPULATION_FIELD)))
                 .alternateNames(document.get(GeoNamesLuceneConstants.ALTERNATE_NAMES_FIELD))
@@ -133,8 +144,13 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
         assertEquals(GEO_ENTRY_LIST.size(), documentList.size());
 
         for (int i = 0; i < documentList.size(); ++i) {
-            verifyGeoEntry(createGeoEntryFromDocument(documentList.get(i)), NAMES[i], LATS[i],
-                    LONS[i], FEATURE_CODES[i], POPS[i], ALT_NAMES[i]);
+            verifyGeoEntry(createGeoEntryFromDocument(documentList.get(i)),
+                    NAMES[i],
+                    LATS[i],
+                    LONS[i],
+                    FEATURE_CODES[i],
+                    POPS[i],
+                    ALT_NAMES[i]);
         }
     }
 
@@ -144,8 +160,8 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
         geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, null);
 
-        verify(indexWriter, times(GEO_ENTRY_LIST.size()))
-                .addDocument(documentArgumentCaptor.capture());
+        verify(indexWriter,
+                times(GEO_ENTRY_LIST.size())).addDocument(documentArgumentCaptor.capture());
 
         final List<Document> documentList = documentArgumentCaptor.getAllValues();
 
@@ -161,8 +177,8 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
 
         geoNamesLuceneIndexer.updateIndex(GEO_ENTRY_LIST, true, progressCallback);
 
-        verify(indexWriter, times(GEO_ENTRY_LIST.size()))
-                .addDocument(documentArgumentCaptor.capture());
+        verify(indexWriter,
+                times(GEO_ENTRY_LIST.size())).addDocument(documentArgumentCaptor.capture());
 
         final List<Document> documentList = documentArgumentCaptor.getAllValues();
 
@@ -181,31 +197,32 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
         final ProgressCallback progressCallback = mock(ProgressCallback.class);
 
         geoNamesLuceneIndexer.updateIndex(null, new GeoEntryExtractor() {
-                    @Override
-                    public List<GeoEntry> getGeoEntries(final String resource,
-                            final ProgressCallback progressCallback) {
-                        return null;
-                    }
+            @Override
+            public List<GeoEntry> getGeoEntries(final String resource,
+                    final ProgressCallback progressCallback) {
+                return null;
+            }
 
-                    @Override
-                    public void pushGeoEntriesToExtractionCallback(final String resource,
-                            final ExtractionCallback extractionCallback) throws GeoEntryExtractionException {
-                        try {
-                            extractionCallback.extracted(GEO_ENTRY_1);
-                            extractionCallback.extracted(GEO_ENTRY_2);
-                            extractionCallback.extracted(GEO_ENTRY_3);
-                            extractionCallback.extracted(GEO_ENTRY_4);
-                            extractionCallback.extracted(GEO_ENTRY_5);
-                            extractionCallback.extracted(GEO_ENTRY_6);
-                            extractionCallback.extracted(GEO_ENTRY_7);
-                            extractionCallback.extracted(GEO_ENTRY_8);
-                            extractionCallback.extracted(GEO_ENTRY_9);
-                            extractionCallback.updateProgress(100);
-                        } catch(GeoEntryIndexingException e) {
-                            throw new GeoEntryExtractionException("Unable to add entry.", e);
-                        }
-                    }
-                }, true, progressCallback);
+            @Override
+            public void pushGeoEntriesToExtractionCallback(final String resource,
+                    final ExtractionCallback extractionCallback)
+                    throws GeoEntryExtractionException {
+                try {
+                    extractionCallback.extracted(GEO_ENTRY_1);
+                    extractionCallback.extracted(GEO_ENTRY_2);
+                    extractionCallback.extracted(GEO_ENTRY_3);
+                    extractionCallback.extracted(GEO_ENTRY_4);
+                    extractionCallback.extracted(GEO_ENTRY_5);
+                    extractionCallback.extracted(GEO_ENTRY_6);
+                    extractionCallback.extracted(GEO_ENTRY_7);
+                    extractionCallback.extracted(GEO_ENTRY_8);
+                    extractionCallback.extracted(GEO_ENTRY_9);
+                    extractionCallback.updateProgress(100);
+                } catch (GeoEntryIndexingException e) {
+                    throw new GeoEntryExtractionException("Unable to add entry.", e);
+                }
+            }
+        }, true, progressCallback);
 
         verify(indexWriter, times(9)).addDocument(documentArgumentCaptor.capture());
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -54,8 +54,8 @@ public class ContentResourceReader implements ResourceReader {
 
     private static final String ORGANIZATION = "DDF";
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(ContentResourceReader.class));
+    private static XLogger logger =
+            new XLogger(LoggerFactory.getLogger(ContentResourceReader.class));
 
     private static Set<String> qualifierSet;
 
@@ -123,7 +123,8 @@ public class ContentResourceReader implements ResourceReader {
             throw new ResourceNotFoundException("Unable to find resource - resource URI was null");
         }
 
-        if (resourceUri.getScheme().equals(URL_CONTENT_SCHEME)) {
+        if (resourceUri.getScheme()
+                .equals(URL_CONTENT_SCHEME)) {
             logger.debug("Resource URI is content scheme");
             String contentId = resourceUri.getSchemeSpecificPart();
             if (contentId != null && !contentId.isEmpty()) {
@@ -135,8 +136,9 @@ public class ContentResourceReader implements ResourceReader {
                     String fileName = filePathName.getName();
                     logger.debug("resource name: " + fileName);
                     InputStream is = contentItem.getInputStream();
-                    response = new ResourceResponseImpl(
-                            new ResourceImpl(new BufferedInputStream(is), contentItem.getMimeType(),
+                    response =
+                            new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),
+                                    contentItem.getMimeType(),
                                     fileName));
                 } catch (ContentFrameworkException e) {
                     throw new ResourceNotFoundException(e);

@@ -15,11 +15,11 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-  <!-- Get a List of all ServletContexts. Every Web App that gets registered will have a ServletContext.
-  More Info on ServletContext: http://docs.oracle.com/cd/E17802_01/products/products/servlet/2.5/docs/servlet-2_5-mr2/ -->
+    <!-- Get a List of all ServletContexts. Every Web App that gets registered will have a ServletContext.
+    More Info on ServletContext: http://docs.oracle.com/cd/E17802_01/products/products/servlet/2.5/docs/servlet-2_5-mr2/ -->
     <reference-list id="servletContexts" interface="javax.servlet.ServletContext">
-    <reference-listener ref="filterInjector" bind-method="injectFilter"/>
-  </reference-list>
+        <reference-listener ref="filterInjector" bind-method="injectFilter"/>
+    </reference-list>
 
     <bean id="sortedServiceList" class="org.codice.ddf.platform.util.SortedServiceList">
     </bean>
@@ -29,14 +29,13 @@
                             ref="sortedServiceList"/>
     </reference-list>
 
-  <bean id="delegatingServletFilter"
-        class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter">
-  </bean>
+    <bean id="delegatingServletFilter"
+          class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter">
+    </bean>
 
-  <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">
-    <argument ref="delegatingServletFilter"/>
-  </bean>
-
+    <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">
+        <argument ref="delegatingServletFilter"/>
+    </bean>
 
 
 </blueprint>

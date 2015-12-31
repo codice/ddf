@@ -27,8 +27,8 @@ import com.google.common.collect.ImmutableSet;
 
 public class UrlResourceReaderConfigurator {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(UrlResourceReaderConfigurator.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(UrlResourceReaderConfigurator.class);
 
     private static final String PID = "ddf.catalog.resource.impl.URLResourceReader";
 
@@ -41,10 +41,12 @@ public class UrlResourceReaderConfigurator {
     public void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
         Configuration configuration = configAdmin.getConfiguration(PID, null);
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        Set<String> rootResourceDirectories = ImmutableSet.<String>builder().add(rootResourceDirs).build();
+        Set<String> rootResourceDirectories = ImmutableSet.<String>builder().add(rootResourceDirs)
+                .build();
         properties.put("rootResourceDirectories", rootResourceDirectories);
         configuration.update(properties);
-        LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties()
-                .toString());
+        LOGGER.info("URLResourceReader props after update: {}",
+                configuration.getProperties()
+                        .toString());
     }
 }

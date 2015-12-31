@@ -42,35 +42,43 @@ public class CertificateSigningRequestTest {
 
     @Test
     public void testKeys() throws Exception {
-        assertThat("CSR failed to auto-generate RSA keypair", csr.getSubjectPrivateKey(),
+        assertThat("CSR failed to auto-generate RSA keypair",
+                csr.getSubjectPrivateKey(),
                 instanceOf(PrivateKey.class));
-        assertThat("CSR failed to auto-generate RSA keypair", csr.getSubjectPublicKey(),
+        assertThat("CSR failed to auto-generate RSA keypair",
+                csr.getSubjectPublicKey(),
                 instanceOf(PublicKey.class));
         PublicKey pubKey = mock(PublicKey.class);
         PrivateKey privKey = mock(PrivateKey.class);
         KeyPair kp = new KeyPair(pubKey, privKey);
         csr.setSubjectKeyPair(kp);
-        assertThat("Unable to get mock private key", csr.getSubjectPrivateKey(),
+        assertThat("Unable to get mock private key",
+                csr.getSubjectPrivateKey(),
                 sameInstance(privKey));
-        assertThat("Unable to get mock public key", csr.getSubjectPublicKey(),
+        assertThat("Unable to get mock public key",
+                csr.getSubjectPublicKey(),
                 sameInstance(pubKey));
     }
 
     @Test
     public void assertDates() {
-        boolean outcome = csr.getNotAfter().isAfter(csr.getNotBefore());
+        boolean outcome = csr.getNotAfter()
+                .isAfter(csr.getNotBefore());
         assertThat("'Not after' date should never be chronologically before the 'Not before' date'",
-                outcome, equalTo(true));
+                outcome,
+                equalTo(true));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void badNotBeforeDate() {
-        csr.setNotBefore(csr.getNotAfter().plusDays(1));
+        csr.setNotBefore(csr.getNotAfter()
+                .plusDays(1));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void badNotAfterDate() {
-        csr.setNotAfter(csr.getNotBefore().minusDays(1));
+        csr.setNotAfter(csr.getNotBefore()
+                .minusDays(1));
     }
 
     @Test
@@ -95,10 +103,12 @@ public class CertificateSigningRequestTest {
     @Test
     public void subjectName() throws Exception {
 
-        assertThat("Subject name should never be null", true,
+        assertThat("Subject name should never be null",
+                true,
                 equalTo(csr.getSubjectName() != null));
         csr.setCommonName("test");
-        String cn = csr.getSubjectName().toString();
+        String cn = csr.getSubjectName()
+                .toString();
         assertThat("Subject name should be 'test'", cn, endsWith("test"));
     }
 

@@ -129,7 +129,8 @@ public class CrlCheckerTest {
             crlChecker.setCrlLocation(crlPropertyValue);
         } else {
             String crlRelativePath = "/" + prop.getProperty(crlChecker.CRL_PROPERTY_KEY);
-            String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath).getPath();
+            String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath)
+                    .getPath();
             crlChecker.setCrlLocation(crlAbsolutePath);
         }
 

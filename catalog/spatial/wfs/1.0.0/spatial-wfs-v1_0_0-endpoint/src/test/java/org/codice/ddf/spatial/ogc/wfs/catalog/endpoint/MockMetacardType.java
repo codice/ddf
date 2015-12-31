@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
@@ -47,31 +46,83 @@ public class MockMetacardType extends MetacardTypeImpl {
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
-        descriptors.add(new AttributeDescriptorImpl("binary", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("binary",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.BINARY_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("boolean", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("boolean",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.BOOLEAN_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("date", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("date",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("double", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("double",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.DOUBLE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("float", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("float",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.FLOAT_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("geo", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("geo",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.GEO_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("integer", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("integer",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.INTEGER_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("long", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("long",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("object", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("object",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.OBJECT_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("short", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("short",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.SHORT_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("string", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("string",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("xml", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("xml",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.XML_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("mock.effective", true, true, false, true,
+        descriptors.add(new AttributeDescriptorImpl("mock.effective",
+                true,
+                true,
+                false,
+                true,
                 BasicTypes.DATE_TYPE));
 
     }

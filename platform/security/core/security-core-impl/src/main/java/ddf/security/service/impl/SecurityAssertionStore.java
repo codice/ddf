@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,12 +55,12 @@ public final class SecurityAssertionStore {
                 if (wsResults != null) {
                     for (Object wsResult : wsResults) {
                         if (wsResult instanceof WSHandlerResult) {
-                            List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
-                                    .getResults();
+                            List<WSSecurityEngineResult> wsseResults =
+                                    ((WSHandlerResult) wsResult).getResults();
 
                             for (WSSecurityEngineResult wsseResult : wsseResults) {
-                                Object principalResult = wsseResult
-                                        .get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                                Object principalResult =
+                                        wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
                                 if (principalResult instanceof SAMLTokenPrincipal) {
                                     principal = (SAMLTokenPrincipal) principalResult;
                                     break;
@@ -74,17 +74,23 @@ public final class SecurityAssertionStore {
             if (tokenStore != null && principal != null
                     && principal instanceof SAMLTokenPrincipal) {
                 String id = ((SAMLTokenPrincipal) principal).getId();
-                SamlAssertionWrapper samlAssertionWrapper = ((SAMLTokenPrincipal) principal)
-                        .getToken();
+                SamlAssertionWrapper samlAssertionWrapper =
+                        ((SAMLTokenPrincipal) principal).getToken();
                 SecurityToken token = tokenStore.getToken(id);
                 if (token == null) {
-                    if (samlAssertionWrapper.getSaml2().getIssueInstant() != null
-                            && samlAssertionWrapper.getSaml2().getConditions() != null
-                            && samlAssertionWrapper.getSaml2().getConditions().getNotOnOrAfter()
-                            != null) {
-                        token = new SecurityToken(id, samlAssertionWrapper.getElement(),
-                                samlAssertionWrapper.getSaml2().getIssueInstant().toDate(),
-                                samlAssertionWrapper.getSaml2().getConditions().getNotOnOrAfter()
+                    if (samlAssertionWrapper.getSaml2()
+                            .getIssueInstant() != null && samlAssertionWrapper.getSaml2()
+                            .getConditions() != null && samlAssertionWrapper.getSaml2()
+                            .getConditions()
+                            .getNotOnOrAfter() != null) {
+                        token = new SecurityToken(id,
+                                samlAssertionWrapper.getElement(),
+                                samlAssertionWrapper.getSaml2()
+                                        .getIssueInstant()
+                                        .toDate(),
+                                samlAssertionWrapper.getSaml2()
+                                        .getConditions()
+                                        .getNotOnOrAfter()
                                         .toDate());
                     } else {
                         // we don't know how long this should last or when it was created, so just
@@ -92,7 +98,9 @@ public final class SecurityAssertionStore {
                         // This shouldn't happen unless someone sets up a third party STS with weird
                         // settings.
                         Date date = new Date();
-                        token = new SecurityToken(id, samlAssertionWrapper.getElement(), date,
+                        token = new SecurityToken(id,
+                                samlAssertionWrapper.getElement(),
+                                date,
                                 new Date(date.getTime() + TimeUnit.MINUTES.toMillis(1)));
                     }
                     tokenStore.add(token);

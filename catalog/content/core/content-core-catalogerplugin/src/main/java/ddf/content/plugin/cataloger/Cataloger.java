@@ -82,10 +82,10 @@ public class Cataloger {
                     try {
                         logger.debug("Calling catalog framework");
 
-                        CreateResponse catalogCreateResponse = catalogFramework
-                                .create(catalogCreateRequest);
-                        List<Metacard> createdMetacards = catalogCreateResponse
-                                .getCreatedMetacards();
+                        CreateResponse catalogCreateResponse = catalogFramework.create(
+                                catalogCreateRequest);
+                        List<Metacard> createdMetacards =
+                                catalogCreateResponse.getCreatedMetacards();
                         if (createdMetacards != null && createdMetacards.size() == 1) {
                             logger.debug("Catalog Framework returned a metacard");
                             Metacard createdMetacard = createdMetacards.get(0);
@@ -142,13 +142,14 @@ public class Cataloger {
                     String id = null;
                     try {
                         logger.debug("Calling catalog framework");
-                        UpdateResponse catalogUpdateResponse = catalogFramework
-                                .update(catalogUpdateRequest);
+                        UpdateResponse catalogUpdateResponse = catalogFramework.update(
+                                catalogUpdateRequest);
                         List<Update> updatedMetacards = catalogUpdateResponse.getUpdatedMetacards();
                         if (updatedMetacards != null && updatedMetacards.size() == 1) {
                             logger.debug("Catalog Framework returned a metacard");
                             Update updatedMetacard = updatedMetacards.get(0);
-                            id = updatedMetacard.getNewMetacard().getId();
+                            id = updatedMetacard.getNewMetacard()
+                                    .getId();
                             logger.debug("updatedCatalogId = " + id);
                         }
                     } catch (IngestException | SourceUnavailableException e) {
@@ -200,10 +201,10 @@ public class Cataloger {
                     String id = null;
                     try {
                         logger.debug("Calling catalog framework");
-                        DeleteResponse catalogDeleteResponse = catalogFramework
-                                .delete(catalogDeleteRequest);
-                        List<Metacard> deletedMetacards = catalogDeleteResponse
-                                .getDeletedMetacards();
+                        DeleteResponse catalogDeleteResponse = catalogFramework.delete(
+                                catalogDeleteRequest);
+                        List<Metacard> deletedMetacards =
+                                catalogDeleteResponse.getDeletedMetacards();
                         if (deletedMetacards != null && deletedMetacards.size() == 1) {
                             logger.debug("Catalog Framework returned a metacard");
                             Metacard deletedMetacard = deletedMetacards.get(0);

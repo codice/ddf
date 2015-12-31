@@ -35,7 +35,8 @@ public class CrlChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
-    private static String encryptionPropertiesLocation = "etc/ws-security/server/encryption.properties";
+    private static String encryptionPropertiesLocation =
+            "etc/ws-security/server/encryption.properties";
 
     private CRL crl = null;
 

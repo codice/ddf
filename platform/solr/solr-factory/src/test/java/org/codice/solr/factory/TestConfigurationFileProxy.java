@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -86,13 +86,13 @@ public class TestConfigurationFileProxy {
 
         final BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(
-                ConfigurationStore.getInstance()) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ConfigurationFileProxy proxy =
+                new ConfigurationFileProxy(ConfigurationStore.getInstance()) {
+                    @Override
+                    protected BundleContext getContext() {
+                        return bundleContext;
+                    }
+                };
 
         File tempLocation = new File("target/temp");
 
@@ -119,13 +119,13 @@ public class TestConfigurationFileProxy {
 
         final BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(
-                ConfigurationStore.getInstance()) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ConfigurationFileProxy proxy =
+                new ConfigurationFileProxy(ConfigurationStore.getInstance()) {
+                    @Override
+                    protected BundleContext getContext() {
+                        return bundleContext;
+                    }
+                };
 
         proxy.writeBundleFilesTo(tempLocation);
 
@@ -172,13 +172,13 @@ public class TestConfigurationFileProxy {
 
         final BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(
-                ConfigurationStore.getInstance()) {
-            @Override
-            protected BundleContext getContext() {
-                return bundleContext;
-            }
-        };
+        ConfigurationFileProxy proxy =
+                new ConfigurationFileProxy(ConfigurationStore.getInstance()) {
+                    @Override
+                    protected BundleContext getContext() {
+                        return bundleContext;
+                    }
+                };
 
         // when
         proxy.writeBundleFilesTo(tempLocation);
@@ -211,16 +211,19 @@ public class TestConfigurationFileProxy {
         when(bundleContext.getBundle()).thenReturn(bundle);
 
         // needs to return a new Enumeration each time
-        when(bundle.findEntries(isA(String.class), isA(String.class), isA(Boolean.class)))
-                .then(new Answer<Enumeration>() {
-                    @Override
-                    public Enumeration answer(InvocationOnMock invocation) throws Throwable {
-                        List<URL> urls = new ArrayList<URL>();
-                        urls.add(file1.toURI().toURL());
-                        urls.add(file2.toURI().toURL());
-                        return new EnumerationStub(urls);
-                    }
-                });
+        when(bundle.findEntries(isA(String.class),
+                isA(String.class),
+                isA(Boolean.class))).then(new Answer<Enumeration>() {
+            @Override
+            public Enumeration answer(InvocationOnMock invocation) throws Throwable {
+                List<URL> urls = new ArrayList<URL>();
+                urls.add(file1.toURI()
+                        .toURL());
+                urls.add(file2.toURI()
+                        .toURL());
+                return new EnumerationStub(urls);
+            }
+        });
         return bundleContext;
     }
 

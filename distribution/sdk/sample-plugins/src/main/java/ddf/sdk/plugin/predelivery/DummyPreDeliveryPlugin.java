@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 package ddf.sdk.plugin.predelivery;
 
@@ -28,6 +27,7 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummyPreDeliveryPlugin.class);
 
     private static final String ENTERING = "ENTERING {}";
+
     private static final String EXITING = "EXITING {}";
 
     public DummyPreDeliveryPlugin() {
@@ -35,8 +35,8 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     }
 
     @Override
-    public Metacard processCreate(Metacard metacard) throws PluginExecutionException,
-        StopProcessingException {
+    public Metacard processCreate(Metacard metacard)
+            throws PluginExecutionException, StopProcessingException {
         String methodName = "processCreate";
         LOGGER.trace(ENTERING, methodName);
 
@@ -48,8 +48,8 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     }
 
     @Override
-    public Update processUpdateMiss(Update update) throws PluginExecutionException,
-        StopProcessingException {
+    public Update processUpdateMiss(Update update)
+            throws PluginExecutionException, StopProcessingException {
         String methodName = "processUpdateMiss";
         LOGGER.trace(ENTERING, methodName);
 
@@ -63,8 +63,8 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     }
 
     @Override
-    public Update processUpdateHit(Update update) throws PluginExecutionException,
-        StopProcessingException {
+    public Update processUpdateHit(Update update)
+            throws PluginExecutionException, StopProcessingException {
         String methodName = "processUpdateHit";
         LOGGER.trace(ENTERING, methodName);
 
@@ -78,8 +78,8 @@ public class DummyPreDeliveryPlugin implements PreDeliveryPlugin {
     }
 
     @Override
-    public Metacard processDelete(Metacard metacard) throws PluginExecutionException,
-        StopProcessingException {
+    public Metacard processDelete(Metacard metacard)
+            throws PluginExecutionException, StopProcessingException {
         String methodName = "processDelete";
         LOGGER.trace(ENTERING, methodName);
 

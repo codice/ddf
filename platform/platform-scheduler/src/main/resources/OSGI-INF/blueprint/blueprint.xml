@@ -27,9 +27,9 @@
 
     <bean id="scheduler" class="org.quartz.impl.StdSchedulerFactory"
           factory-method="getDefaultScheduler" init-method="start"
-          destroy-method="shutdown" />
+          destroy-method="shutdown"/>
     <bean id="serviceStore" class="ddf.platform.scheduler.ServiceStore"
-          factory-method="getInstance" >
+          factory-method="getInstance">
         <property name="object" ref="commandProcessor"/>
     </bean>
 

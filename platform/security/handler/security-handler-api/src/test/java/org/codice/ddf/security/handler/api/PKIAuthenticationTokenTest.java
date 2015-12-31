@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,12 +53,15 @@ public class PKIAuthenticationTokenTest {
     @Test
     public void testEncodeAndParse() throws Exception {
         PKIAuthenticationToken pkiToken = new PKIAuthenticationToken(TEST_PRINCIPAL,
-                ENCODED_CERT.getBytes(), TEST_REALM);
+                ENCODED_CERT.getBytes(),
+                TEST_REALM);
         assertNotNull(pkiToken);
         String encodedCreds = pkiToken.getEncodedCredentials();
         BaseAuthenticationToken bat = PKIAuthenticationToken.parse(encodedCreds, true);
         PKIAuthenticationToken pki = new PKIAuthenticationToken(bat.getPrincipal(),
-                bat.getCredentials().toString(), bat.getRealm());
+                bat.getCredentials()
+                        .toString(),
+                bat.getRealm());
         assertNotNull(pki);
         assertEquals(TEST_PRINCIPAL, pki.getDn());
         assertArrayEquals(ENCODED_CERT.getBytes(), pki.getCertificate());

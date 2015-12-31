@@ -17,19 +17,19 @@
 
   http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-	<reference id="contentFramework" interface="ddf.content.ContentFramework"/>
-	
-	<reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+    <reference id="contentFramework" interface="ddf.content.ContentFramework"/>
 
-	<jaxrs:server id="restService" address="/content">
-		<jaxrs:serviceBeans>
-			<ref component-id="restSvc"/>
-		</jaxrs:serviceBeans>
-	</jaxrs:server>
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
-	<bean id="restSvc" class="ddf.content.endpoint.rest.ContentEndpoint">
-		<argument ref="contentFramework"/>
-		<argument ref="mimeTypeMapper"/>
-	</bean>
+    <jaxrs:server id="restService" address="/content">
+        <jaxrs:serviceBeans>
+            <ref component-id="restSvc"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <bean id="restSvc" class="ddf.content.endpoint.rest.ContentEndpoint">
+        <argument ref="contentFramework"/>
+        <argument ref="mimeTypeMapper"/>
+    </bean>
 
 </blueprint>

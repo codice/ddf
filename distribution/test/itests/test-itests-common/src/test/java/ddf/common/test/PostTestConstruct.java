@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 
 /**
  * Pax Exam OSGi containers cannot execute {@code @PostConstruct} in the container.
- *
+ * <p>
  * {@code @PostTestConstruct} will execute after object creation before each test run when
  * combined with {@link PaxExamRule}. This will provide a suitable location for post-construction
  * modifications, after {@code @Inject} annotations have been run and before the test is initialized.

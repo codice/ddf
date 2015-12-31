@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -85,8 +85,10 @@ public class ApplicationConfigInstaller extends Thread {
             if (!props.isEmpty()) {
                 LOGGER.debug("Found applications to install from config.");
                 for (Entry<Object, Object> curApp : props.entrySet()) {
-                    String appName = curApp.getKey().toString();
-                    String appLocation = curApp.getValue().toString();
+                    String appName = curApp.getKey()
+                            .toString();
+                    String appLocation = curApp.getValue()
+                            .toString();
                     LOGGER.debug("Starting app {} at location: {}", appName, appLocation);
 
                     try {

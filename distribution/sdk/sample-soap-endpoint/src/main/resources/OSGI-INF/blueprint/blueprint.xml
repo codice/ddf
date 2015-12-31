@@ -11,7 +11,8 @@
  *
  **/
  -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:http="http://cxf.apache.org/transports/http/configuration"
@@ -20,7 +21,7 @@
         http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd"
            default-activation="lazy">
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
     <bean id="soapImpl" class="org.codice.ddf.sdk.soap.SoapEndpoint">
     </bean>
@@ -46,7 +47,7 @@
             </bean>
         </jaxws:inInterceptors>
         <jaxws:properties>
-            <entry key="ws-security.validate.audience-restriction" value="false" />
+            <entry key="ws-security.validate.audience-restriction" value="false"/>
             <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
             <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
         </jaxws:properties>

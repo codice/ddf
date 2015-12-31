@@ -124,11 +124,13 @@ public class ConfigurationManager {
 
     private static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
 
-    private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
+    private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY =
+            "javax.net.ssl.keyStorePassword";
 
     private static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
 
-    private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
+    private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY =
+            "javax.net.ssl.trustStorePassword";
 
     protected SystemBaseUrl systemBaseUrl;
 
@@ -197,8 +199,8 @@ public class ConfigurationManager {
         configurationProperties.putAll(getSystemProperties());
 
         readOnlySettings.put(KEY_STORE, System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY));
-        readOnlySettings
-                .put(KEY_STORE_PASSWORD, System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY));
+        readOnlySettings.put(KEY_STORE_PASSWORD,
+                System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY));
         readOnlySettings.put(TRUST_STORE, System.getProperty(SSL_TRUSTSTORE_JAVA_PROPERTY));
         readOnlySettings.put(TRUST_STORE_PASSWORD,
                 System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY));
@@ -271,7 +273,9 @@ public class ConfigurationManager {
 
             for (Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
                 if (entry.getValue() != null) {
-                    configuration.put(entry.getKey(), entry.getValue().toString());
+                    configuration.put(entry.getKey(),
+                            entry.getValue()
+                                    .toString());
                 }
             }
 
@@ -329,15 +333,17 @@ public class ConfigurationManager {
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        LOGGER.debug("ENTERING: {},   servicePid = {},  propertyName = {}", methodName, servicePid,
+        LOGGER.debug("ENTERING: {},   servicePid = {},  propertyName = {}",
+                methodName,
+                servicePid,
                 propertyName);
 
         String value = "";
 
         try {
             if (this.configurationAdmin != null) {
-                Configuration currentConfiguration = this.configurationAdmin
-                        .getConfiguration(servicePid);
+                Configuration currentConfiguration = this.configurationAdmin.getConfiguration(
+                        servicePid);
 
                 if (currentConfiguration != null) {
                     Dictionary<String, Object> properties = currentConfiguration.getProperties();

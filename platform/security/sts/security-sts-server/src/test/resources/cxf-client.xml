@@ -47,52 +47,52 @@ http://cxf.apache.org/configuration/security http://cxf.apache.org/schemas/confi
             <cxf:logging/>
         </cxf:features>
     </cxf:bus>
-    
+
     <jaxws:client name="{http://www.example.org/contract/DoubleIt}DoubleItTransportSAML2Port"
                   createdFromAPI="true">
-       <jaxws:properties>
-           <entry key="ws-security.sts.client">
-				<bean id="stsClient" class="org.apache.cxf.ws.security.trust.STSClient">
-                <constructor-arg ref="cxf"/>
-                <property name="wsdlLocation"
-                          value="http://localhost:8993/services/SecurityTokenService/UT?wsdl"/>
-                <property name="serviceName"
-                          value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"/>
-                <property name="endpointName"
-                          value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port"/>
-                <property name="tokenType"
-                          value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
-                <property name="keyType"
-                          value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
-                <property name="properties">
+        <jaxws:properties>
+            <entry key="ws-security.sts.client">
+                <bean id="stsClient" class="org.apache.cxf.ws.security.trust.STSClient">
+                    <constructor-arg ref="cxf"/>
+                    <property name="wsdlLocation"
+                              value="http://localhost:8993/services/SecurityTokenService/UT?wsdl"/>
+                    <property name="serviceName"
+                              value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"/>
+                    <property name="endpointName"
+                              value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port"/>
+                    <property name="tokenType"
+                              value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
+                    <property name="keyType"
+                              value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
+                    <property name="properties">
                         <map>
-                                <entry key="ws-security.callback-handler"
-                                       value="ddf.security.common.callback.CommonCallbackHandler"/>
-                                <entry key="ws-security.sts.token.username" value="localhost"/>
-                                <entry key="ws-security.sts.token.properties"
-                                       value="clientKeystore.properties"/>
-                                <entry key="ws-security.sts.token.usecert" value="true"/>
-                                <entry key="ws-security.username" value="ian"/>
-                                <entry key="ws-security.password" value="ian"/>
+                            <entry key="ws-security.callback-handler"
+                                   value="ddf.security.common.callback.CommonCallbackHandler"/>
+                            <entry key="ws-security.sts.token.username" value="localhost"/>
+                            <entry key="ws-security.sts.token.properties"
+                                   value="clientKeystore.properties"/>
+                            <entry key="ws-security.sts.token.usecert" value="true"/>
+                            <entry key="ws-security.username" value="ian"/>
+                            <entry key="ws-security.password" value="ian"/>
                         </map>
-                </property>
-        </bean>
-         </entry> 
-       </jaxws:properties>
-   </jaxws:client>
+                    </property>
+                </bean>
+            </entry>
+        </jaxws:properties>
+    </jaxws:client>
 
     <!-- It appears that this is the only one being used. -->
     <http:conduit name=".*http-conduit">
-                <http:tlsClientParameters disableCNCheck="true">
-                        <!--  <sec:keyManagers keyPassword="ckpass">  -->
-                    <sec:keyManagers keyPassword="changeit">
-                                <sec:keyStore type="jks" password="changeit"
-                                              resource="etc/keystores/clientKeystore.jks"/>
-                        </sec:keyManagers>
-                        <sec:trustManagers>
-                                <sec:keyStore type="jks" password="changeit"
-                                              resource="etc/keystores/clientTruststore.jks"/>
-                        </sec:trustManagers>
-                </http:tlsClientParameters>
-        </http:conduit>
- </beans>
+        <http:tlsClientParameters disableCNCheck="true">
+            <!--  <sec:keyManagers keyPassword="ckpass">  -->
+            <sec:keyManagers keyPassword="changeit">
+                <sec:keyStore type="jks" password="changeit"
+                              resource="etc/keystores/clientKeystore.jks"/>
+            </sec:keyManagers>
+            <sec:trustManagers>
+                <sec:keyStore type="jks" password="changeit"
+                              resource="etc/keystores/clientTruststore.jks"/>
+            </sec:trustManagers>
+        </http:tlsClientParameters>
+    </http:conduit>
+</beans>

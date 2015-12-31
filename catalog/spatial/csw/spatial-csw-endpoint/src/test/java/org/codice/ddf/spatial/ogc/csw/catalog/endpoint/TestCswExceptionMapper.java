@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
@@ -51,16 +50,25 @@ public class TestCswExceptionMapper {
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
         assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         assertEquals(SERVICE_EXCEPTION_MSG,
-                exceptionReport.getException().get(0).getExceptionText().get(0));
-        assertNull(exceptionReport.getException().get(0).getExceptionCode());
-        assertNull(exceptionReport.getException().get(0).getLocator());
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionText()
+                        .get(0));
+        assertNull(exceptionReport.getException()
+                .get(0)
+                .getExceptionCode());
+        assertNull(exceptionReport.getException()
+                .get(0)
+                .getLocator());
     }
 
     @Test
     public void testCswExceptionToServiceExceptionReportWithLocatorAndCode() {
 
         CswException exception = new CswException(SERVICE_EXCEPTION_MSG,
-                Status.BAD_REQUEST.getStatusCode(), EXCEPTION_CODE, LOCATOR);
+                Status.BAD_REQUEST.getStatusCode(),
+                EXCEPTION_CODE,
+                LOCATOR);
 
         ExceptionMapper<Throwable> exceptionMapper = new CswExceptionMapper();
         Response response = exceptionMapper.toResponse(exception);
@@ -68,9 +76,18 @@ public class TestCswExceptionMapper {
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
         assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         assertEquals(SERVICE_EXCEPTION_MSG,
-                exceptionReport.getException().get(0).getExceptionText().get(0));
-        assertEquals(EXCEPTION_CODE, exceptionReport.getException().get(0).getExceptionCode());
-        assertEquals(LOCATOR, exceptionReport.getException().get(0).getLocator());
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionText()
+                        .get(0));
+        assertEquals(EXCEPTION_CODE,
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionCode());
+        assertEquals(LOCATOR,
+                exceptionReport.getException()
+                        .get(0)
+                        .getLocator());
     }
 
     @Test
@@ -84,12 +101,17 @@ public class TestCswExceptionMapper {
         ExceptionReport exceptionReport = (ExceptionReport) response.getEntity();
         assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         assertEquals(XML_PARSE_FAIL_MSG,
-                exceptionReport.getException().get(0).getExceptionText().get(0));
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionText()
+                        .get(0));
         assertEquals(CswConstants.MISSING_PARAMETER_VALUE,
-                exceptionReport.getException().get(0).getExceptionCode());
-        assertNull(exceptionReport.getException().get(0).getLocator());
-
-
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionCode());
+        assertNull(exceptionReport.getException()
+                .get(0)
+                .getLocator());
 
         IllegalArgumentException iae = new IllegalArgumentException();
 
@@ -99,11 +121,17 @@ public class TestCswExceptionMapper {
         exceptionReport = (ExceptionReport) response.getEntity();
         assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         assertEquals(XML_PARSE_FAIL_MSG,
-                exceptionReport.getException().get(0).getExceptionText().get(0));
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionText()
+                        .get(0));
         assertEquals(CswConstants.MISSING_PARAMETER_VALUE,
-                exceptionReport.getException().get(0).getExceptionCode());
-        assertNull(exceptionReport.getException().get(0).getLocator());
-
+                exceptionReport.getException()
+                        .get(0)
+                        .getExceptionCode());
+        assertNull(exceptionReport.getException()
+                .get(0)
+                .getLocator());
 
     }
 }

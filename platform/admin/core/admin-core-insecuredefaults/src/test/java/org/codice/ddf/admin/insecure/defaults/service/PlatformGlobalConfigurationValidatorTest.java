@@ -27,23 +27,26 @@ public class PlatformGlobalConfigurationValidatorTest {
 
     private static final String HTTPS_PROTOCOL = "https://";
 
-    private static final String NULL_ADMIN_VALIDATE = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
+    private static final String NULL_ADMIN_VALIDATE =
+            "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
 
-    private static final String VALIDATE_EXCEPT = "Unable to determine if Platform Global Configuration has insecure defaults.";
+    private static final String VALIDATE_EXCEPT =
+            "Unable to determine if Platform Global Configuration has insecure defaults.";
 
     @Test
     public void testValidateWhenHttpIsEnabled() throws Exception {
         // Setup
         System.setProperty(SystemBaseUrl.PROTOCOL, HTTP_PROTOCOL);
-        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                new SystemBaseUrl());
+        PlatformGlobalConfigurationValidator pgc =
+                new PlatformGlobalConfigurationValidator(new SystemBaseUrl());
 
         // Perform Test
         List<Alert> alerts = pgc.validate();
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(),
+        assertThat(alerts.get(0)
+                        .getMessage(),
                 is(PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));
     }
 
@@ -52,8 +55,8 @@ public class PlatformGlobalConfigurationValidatorTest {
         // Setup
 
         System.setProperty(SystemBaseUrl.PROTOCOL, HTTPS_PROTOCOL);
-        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                new SystemBaseUrl());
+        PlatformGlobalConfigurationValidator pgc =
+                new PlatformGlobalConfigurationValidator(new SystemBaseUrl());
 
         // Perform Test
         List<Alert> alerts = pgc.validate();
@@ -68,7 +71,9 @@ public class PlatformGlobalConfigurationValidatorTest {
 
         List<Alert> result = pgc.validate();
 
-        assertThat("Should return a warning about null admin config.", result.get(0).getMessage(),
+        assertThat("Should return a warning about null admin config.",
+                result.get(0)
+                        .getMessage(),
                 is(NULL_ADMIN_VALIDATE));
     }
 }

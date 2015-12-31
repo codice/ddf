@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,8 +50,8 @@ import ddf.catalog.transformer.xml.binding.MetacardElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AdaptedSourceResponse implements SourceResponse {
 
-    public static final SourceResponseImpl EMPTY_SOURCE_RESPONSE = new SourceResponseImpl(
-            new QueryRequestImpl(null), new ArrayList<Result>());
+    public static final SourceResponseImpl EMPTY_SOURCE_RESPONSE =
+            new SourceResponseImpl(new QueryRequestImpl(null), new ArrayList<Result>());
 
     private static final String METACARD_URI = "urn:catalog:metacard";
 
@@ -127,21 +127,23 @@ public class AdaptedSourceResponse implements SourceResponse {
 
                 String metacardTypeName = BasicTypes.BASIC_METACARD.getName();
 
-                if (isNotBlank(metacard.getMetacardType().getName())) {
-                    metacardTypeName = metacard.getMetacardType().getName();
+                if (isNotBlank(metacard.getMetacardType()
+                        .getName())) {
+                    metacardTypeName = metacard.getMetacardType()
+                            .getName();
                 }
 
                 element.setType(metacardTypeName);
 
-                AttributeAdapter attributeAdapter = new AttributeAdapter(
-                        metacard.getMetacardType());
+                AttributeAdapter attributeAdapter =
+                        new AttributeAdapter(metacard.getMetacardType());
 
                 for (AttributeDescriptor descriptor : metacard.getMetacardType()
                         .getAttributeDescriptors()) {
 
                     try {
-                        element.getAttributes().add(attributeAdapter
-                                .marshal(metacard.getAttribute(descriptor.getName())));
+                        element.getAttributes()
+                                .add(attributeAdapter.marshal(metacard.getAttribute(descriptor.getName())));
                     } catch (CatalogTransformerException e) {
                         LOGGER.info("Marshalling error with attribute", e);
                     }

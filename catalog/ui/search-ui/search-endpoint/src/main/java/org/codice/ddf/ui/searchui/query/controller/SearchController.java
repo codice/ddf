@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -109,8 +108,8 @@ public class SearchController {
 
         LOGGER.debug("Creating channel if it doesn't exist: {}", channelName);
 
-        bayeuxServer
-                .createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer() {
+        bayeuxServer.createChannelIfAbsent(channelName,
+                new ConfigurableServerChannel.Initializer() {
                     public void configureChannel(ConfigurableServerChannel channel) {
                         channel.setPersistent(true);
                     }
@@ -122,7 +121,8 @@ public class SearchController {
 
         LOGGER.debug("Sending results to subscribers on: {}", channelName);
 
-        bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
+        bayeuxServer.getChannel(channelName)
+                .publish(serverSession, reply, null);
     }
 
     /**
@@ -137,14 +137,14 @@ public class SearchController {
             final Subject subject) {
 
         final Search search = new Search(request, actionRegistry);
-        final Map<String, Result> results = Collections
-                .synchronizedMap(new HashMap<String, Result>());
+        final Map<String, Result> results =
+                Collections.synchronizedMap(new HashMap<String, Result>());
 
         final Future<FilteringSolrIndex> solrIndexFuture;
         if (shouldNormalizeRelevance(request)) {
             // Create in memory Solr instance asynchronously
-            solrIndexFuture = executorService
-                    .submit(new FilteringSolrIndexCallable(request, filterAdapter));
+            solrIndexFuture = executorService.submit(new FilteringSolrIndexCallable(request,
+                    filterAdapter));
         } else {
             solrIndexFuture = Futures.immediateFuture(null);
         }
@@ -152,21 +152,34 @@ public class SearchController {
         final Future cacheFuture;
         if (!cacheDisabled) {
             // Send any previously cached results
-            cacheFuture = executorService
-                    .submit(new CacheQueryRunnable(this, request, subject, search, session, results,
-                                    solrIndexFuture));
+            cacheFuture = executorService.submit(new CacheQueryRunnable(this,
+                    request,
+                    subject,
+                    search,
+                    session,
+                    results,
+                    solrIndexFuture));
         } else {
             cacheFuture = Futures.immediateFuture(null);
         }
 
-        long deadline = System.currentTimeMillis() + request.getQuery().getTimeoutMillis();
-        Map<String, Future> futures = new HashMap<>(request.getSourceIds().size());
+        long deadline = System.currentTimeMillis() + request.getQuery()
+                .getTimeoutMillis();
+        Map<String, Future> futures = new HashMap<>(request.getSourceIds()
+                .size());
 
         for (final String sourceId : request.getSourceIds()) {
             // Send the latest results from each source
-            futures.put(sourceId, executorService
-                    .submit(new SourceQueryRunnable(this, sourceId, request, subject, results,
-                            search, session, cacheFuture, solrIndexFuture)));
+            futures.put(sourceId,
+                    executorService.submit(new SourceQueryRunnable(this,
+                            sourceId,
+                            request,
+                            subject,
+                            results,
+                            search,
+                            session,
+                            cacheFuture,
+                            solrIndexFuture)));
         }
 
         for (Map.Entry<String, Future> entry : futures.entrySet()) {
@@ -208,7 +221,8 @@ public class SearchController {
     }
 
     private boolean shouldNormalize(SearchRequest request) {
-        return request.getSourceIds().size() > 1 && !normalizationDisabled;
+        return request.getSourceIds()
+                .size() > 1 && !normalizationDisabled;
     }
 
     public String getSortBy(Query query) {
@@ -216,7 +230,8 @@ public class SearchController {
         SortBy sortBy = query.getSortBy();
 
         if (sortBy != null && sortBy.getPropertyName() != null) {
-            result = sortBy.getPropertyName().getPropertyName();
+            result = sortBy.getPropertyName()
+                    .getPropertyName();
         }
 
         return result;

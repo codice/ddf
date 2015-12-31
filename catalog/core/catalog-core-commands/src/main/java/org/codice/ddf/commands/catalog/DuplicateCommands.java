@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -106,8 +106,8 @@ public abstract class DuplicateCommands extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    private List<Metacard> failedMetacards = Collections
-            .synchronizedList(new ArrayList<Metacard>());
+    private List<Metacard> failedMetacards =
+            Collections.synchronizedList(new ArrayList<Metacard>());
 
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
 
@@ -155,13 +155,13 @@ public abstract class DuplicateCommands extends CatalogCommands {
             createResponse = provider.create(createRequest);
             createdMetacards = createResponse.getCreatedMetacards();
         } catch (IngestException e) {
-            printErrorMessage(
-                    String.format("Received error while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Received error while ingesting: %s%n",
+                    e.getMessage()));
             LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
-            printErrorMessage(
-                    String.format("Received error while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Received error while ingesting: %s%n",
+                    e.getMessage()));
             LOGGER.warn("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
@@ -205,15 +205,25 @@ public abstract class DuplicateCommands extends CatalogCommands {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
         if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
-            return builder.attribute(temporalProperty).is().during()
+            return builder.attribute(temporalProperty)
+                    .is()
+                    .during()
                     .dates(formatter.parse(startDate), formatter.parse(endDate));
         } else if (start > 0 && end > 0) {
-            return builder.attribute(temporalProperty).is().during()
+            return builder.attribute(temporalProperty)
+                    .is()
+                    .during()
                     .dates(new Date(start), new Date(end));
         } else if (isUseTemporal) {
-            return builder.attribute(temporalProperty).is().during().last(start);
+            return builder.attribute(temporalProperty)
+                    .is()
+                    .during()
+                    .last(start);
         } else {
-            return builder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
+            return builder.attribute(Metacard.ANY_TEXT)
+                    .is()
+                    .like()
+                    .text(WILDCARD);
         }
     }
 
@@ -242,7 +252,8 @@ public abstract class DuplicateCommands extends CatalogCommands {
         console.print(String.format(message));
         console.flush();
         while (true) {
-            int byteOfData = session.getKeyboard().read();
+            int byteOfData = session.getKeyboard()
+                    .read();
 
             if (byteOfData < 0) {
                 // end of stream
@@ -280,8 +291,9 @@ public abstract class DuplicateCommands extends CatalogCommands {
         }
         for (Metacard metacard : failedMetacards) {
 
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
-                    new File(directory.getAbsolutePath(), metacard.getId())))) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(
+                    directory.getAbsolutePath(),
+                    metacard.getId())))) {
                 oos.writeObject(new MetacardImpl(metacard));
                 oos.flush();
             }

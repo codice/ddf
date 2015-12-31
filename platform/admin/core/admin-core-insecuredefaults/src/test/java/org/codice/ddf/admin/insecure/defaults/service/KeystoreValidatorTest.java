@@ -70,7 +70,8 @@ public class KeystoreValidatorTest {
 
     private static final String DEFAULT_ROOT_CA = "ddf demo root ca";
 
-    private static final String KEYSTORE_NULL_PATH = "Unable to determine if keystore is using insecure defaults. No keystore path provided.";
+    private static final String KEYSTORE_NULL_PATH =
+            "Unable to determine if keystore is using insecure defaults. No keystore path provided.";
 
     private static final String BLACKLIST_NULL_PATH = "No Blacklist keystore path provided";
 
@@ -98,10 +99,12 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        Path blacklistPath = Paths.get(getClass().getResource(BLACK_LIST).toURI());
+        Path blacklistPath = Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI());
         keystoreValidator.setBlacklistKeystorePath(blacklistPath);
         keystoreValidator.setBlacklistKeystorePassword(INVALID_BLACKLIST_PASSWORD);
-        Path keystorePath = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        Path keystorePath = Paths.get(getClass().getResource(INSECURE_KEYSTORE)
+                .toURI());
         keystoreValidator.setKeystorePath(keystorePath);
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
@@ -112,14 +115,18 @@ public class KeystoreValidatorTest {
 
         // Verify
         List<String> actualAlertMessages = getActualAlertMessages(alerts);
-        String[] expectedAlertMessages = new String[] {
-                String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG, DEFAULT_ALIAS,
-                        keystorePath, DEFAULT_KEY_PASSWORD),
-                String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, keystorePath,
-                        DEFAULT_KEYSTORE_PASSWORD),
-                String.format(KeystoreValidator.INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG,
-                        keystorePath, blacklistPath,
-                        "Keystore was tampered with, or password was incorrect")};
+        String[] expectedAlertMessages =
+                new String[] {String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG,
+                        DEFAULT_ALIAS,
+                        keystorePath,
+                        DEFAULT_KEY_PASSWORD),
+                        String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                                keystorePath,
+                                DEFAULT_KEYSTORE_PASSWORD),
+                        String.format(KeystoreValidator.INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG,
+                                keystorePath,
+                                blacklistPath,
+                                "Keystore was tampered with, or password was incorrect")};
         assertThat(alerts.size(), is(3));
         assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
     }
@@ -131,7 +138,8 @@ public class KeystoreValidatorTest {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
         keystoreValidator.setBlacklistKeystorePath(Paths.get(FAKE_BLACK_LIST));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE)
+                .toURI());
         keystoreValidator.setKeystorePath(path);
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
@@ -143,13 +151,18 @@ public class KeystoreValidatorTest {
         // Verify
         assertThat(alerts.size(), is(3));
         List<String> actualMessages = getActualAlertMessages(alerts);
-        String[] expectedAlertMessages = new String[] {
-                String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG, DEFAULT_ALIAS, path,
+        String[] expectedAlertMessages =
+                new String[] {String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG,
+                        DEFAULT_ALIAS,
+                        path,
                         DEFAULT_KEY_PASSWORD),
-                String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, path,
-                        DEFAULT_KEYSTORE_PASSWORD),
-                String.format(KeystoreValidator.BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG, path,
-                        FAKE_BLACK_LIST, FAKE_BLACK_LIST)};
+                        String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                                path,
+                                DEFAULT_KEYSTORE_PASSWORD),
+                        String.format(KeystoreValidator.BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG,
+                                path,
+                                FAKE_BLACK_LIST,
+                                FAKE_BLACK_LIST)};
         assertThat(actualMessages, hasItems(expectedAlertMessages));
     }
 
@@ -158,8 +171,8 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
         keystoreValidator.setKeystorePath(Paths.get(FAKE_KEYSTORE));
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
@@ -171,8 +184,11 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), is(String
-                .format(KeystoreValidator.KEYSTORE_DOES_NOT_EXIST_MSG, FAKE_KEYSTORE, "")));
+        assertThat(alerts.get(0)
+                        .getMessage(),
+                is(String.format(KeystoreValidator.KEYSTORE_DOES_NOT_EXIST_MSG,
+                        FAKE_KEYSTORE,
+                        "")));
     }
 
     @Test
@@ -180,10 +196,11 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE)
+                .toURI());
         keystoreValidator.setKeystorePath(path);
         keystoreValidator.setKeystorePassword(INVALID_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
@@ -194,7 +211,8 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(),
+        assertThat(alerts.get(0)
+                        .getMessage(),
                 is(String.format(KeystoreValidator.GENERIC_INSECURE_DEFAULTS_MSG, path)
                         + "Keystore was tampered with, or password was incorrect."));
     }
@@ -204,10 +222,11 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        Path keystorePath = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        Path keystorePath = Paths.get(getClass().getResource(INSECURE_KEYSTORE)
+                .toURI());
         keystoreValidator.setKeystorePath(keystorePath);
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
@@ -220,14 +239,21 @@ public class KeystoreValidatorTest {
         List<String> actualAlertMessages = getActualAlertMessages(alerts);
         String[] expectedAlertMessages = new String[] {
                 String.format(KeystoreValidator.CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG,
-                        DEFAULT_ALIAS, keystorePath, DEFAULT_ROOT_CA),
+                        DEFAULT_ALIAS,
+                        keystorePath,
+                        DEFAULT_ROOT_CA),
                 String.format(KeystoreValidator.CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG,
-                        DEFAULT_ALIAS, keystorePath, DEFAULT_ALIAS),
-                String.format(KeystoreValidator.CERT_IS_BLACKLISTED_MSG, DEFAULT_ROOT_CA,
-                        keystorePath, DEFAULT_ROOT_CA),
-                String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG, DEFAULT_ALIAS,
-                        keystorePath, DEFAULT_KEY_PASSWORD),
-                String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, keystorePath,
+                        DEFAULT_ALIAS,
+                        keystorePath,
+                        DEFAULT_ALIAS), String.format(KeystoreValidator.CERT_IS_BLACKLISTED_MSG,
+                DEFAULT_ROOT_CA,
+                keystorePath,
+                DEFAULT_ROOT_CA), String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG,
+                DEFAULT_ALIAS,
+                keystorePath,
+                DEFAULT_KEY_PASSWORD),
+                String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                        keystorePath,
                         DEFAULT_KEYSTORE_PASSWORD)};
         assertThat(alerts.size(), is(5));
         assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
@@ -238,10 +264,11 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator truststoreValidator = new KeystoreValidator();
-        truststoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        truststoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         truststoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        Path path = Paths.get(getClass().getResource(INSECURE_TRUSTSTORE).toURI());
+        Path path = Paths.get(getClass().getResource(INSECURE_TRUSTSTORE)
+                .toURI());
         truststoreValidator.setKeystorePath(path);
         truststoreValidator.setKeystorePassword(INSECURE_TRUSTSTORE_PASSWORD);
         truststoreValidator.setDefaultKeystorePassword(DEFAULT_TRUSTSTORE_PASSWORD);
@@ -251,11 +278,14 @@ public class KeystoreValidatorTest {
 
         // Verify
         List<String> actualAlertMessages = getActualAlertMessages(alerts);
-        String[] expectedAlertMessages = new String[] {
-                String.format(KeystoreValidator.CERT_IS_BLACKLISTED_MSG, DEFAULT_ROOT_CA, path,
+        String[] expectedAlertMessages =
+                new String[] {String.format(KeystoreValidator.CERT_IS_BLACKLISTED_MSG,
+                        DEFAULT_ROOT_CA,
+                        path,
                         DEFAULT_ROOT_CA),
-                String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, path,
-                        DEFAULT_KEYSTORE_PASSWORD)};
+                        String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                                path,
+                                DEFAULT_KEYSTORE_PASSWORD)};
         assertThat(alerts.size(), is(2));
         assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
     }
@@ -265,11 +295,11 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator
-                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE)
+                .toURI()));
         keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -286,11 +316,11 @@ public class KeystoreValidatorTest {
 
         // Setup
         KeystoreValidator truststoreValidator = new KeystoreValidator();
-        truststoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        truststoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         truststoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        truststoreValidator
-                .setKeystorePath(Paths.get(getClass().getResource(SECURE_TRUSTSTORE).toURI()));
+        truststoreValidator.setKeystorePath(Paths.get(getClass().getResource(SECURE_TRUSTSTORE)
+                .toURI()));
         truststoreValidator.setKeystorePassword(SECURE_TRUSTSTORE_PASSWORD);
         truststoreValidator.setDefaultKeystorePassword(DEFAULT_TRUSTSTORE_PASSWORD);
 
@@ -310,8 +340,8 @@ public class KeystoreValidatorTest {
     @Test
     public void testKeystoreNullPath() throws Exception {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
         keystoreValidator.setKeystorePath(null);
         keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
@@ -320,7 +350,9 @@ public class KeystoreValidatorTest {
 
         List<Alert> alerts = keystoreValidator.validate();
 
-        assertThat("Should report a warning about the keystore path.", alerts.get(0).getMessage(),
+        assertThat("Should report a warning about the keystore path.",
+                alerts.get(0)
+                        .getMessage(),
                 containsString(KEYSTORE_NULL_PATH));
     }
 
@@ -335,8 +367,8 @@ public class KeystoreValidatorTest {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
         keystoreValidator.setBlacklistKeystorePath(null);
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator
-                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE)
+                .toURI()));
         keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -344,7 +376,9 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = keystoreValidator.validate();
 
         assertThat("Should report a warning about the Blacklist Keystore path.",
-                alerts.get(0).getMessage(), containsString(BLACKLIST_NULL_PATH));
+                alerts.get(0)
+                        .getMessage(),
+                containsString(BLACKLIST_NULL_PATH));
     }
 
     /**
@@ -356,11 +390,11 @@ public class KeystoreValidatorTest {
     @Test
     public void testKeystoreNullBlacklistPassword() throws Exception {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(null);
-        keystoreValidator
-                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE)
+                .toURI()));
         keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -368,7 +402,9 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = keystoreValidator.validate();
 
         assertThat("Should report a warning about the Blacklist Keystore password.",
-                alerts.get(0).getMessage(), containsString(BLACKLIST_NULL_PASS));
+                alerts.get(0)
+                        .getMessage(),
+                containsString(BLACKLIST_NULL_PASS));
     }
 
     /**
@@ -380,11 +416,11 @@ public class KeystoreValidatorTest {
     @Test
     public void testKeystoreNullDefaultKeyPassword() throws Exception {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator
-                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE)
+                .toURI()));
         keystoreValidator.setKeystorePassword(SECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(null);
@@ -392,7 +428,9 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = keystoreValidator.validate();
 
         assertThat("Should report a warning about the default key password.",
-                alerts.get(0).getMessage(), containsString(DEFAULT_KEY_NULL_PASS));
+                alerts.get(0)
+                        .getMessage(),
+                containsString(DEFAULT_KEY_NULL_PASS));
     }
 
     /**
@@ -404,11 +442,11 @@ public class KeystoreValidatorTest {
     @Test
     public void testKeystoreNullKeystorePassword() throws Exception {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator
-                .setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST).toURI()));
+        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
+                .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator
-                .setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE).toURI()));
+        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(SECURE_KEYSTORE)
+                .toURI()));
         keystoreValidator.setKeystorePassword(null);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -416,7 +454,9 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = keystoreValidator.validate();
 
         assertThat("Should report a warning about the keystore password.",
-                alerts.get(0).getMessage(), containsString(KEYSTORE_NULL_PASS));
+                alerts.get(0)
+                        .getMessage(),
+                containsString(KEYSTORE_NULL_PASS));
     }
 
     private List<String> getActualAlertMessages(List<Alert> alerts) {

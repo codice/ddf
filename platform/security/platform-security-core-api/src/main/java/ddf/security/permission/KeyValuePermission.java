@@ -110,8 +110,8 @@ public class KeyValuePermission implements Permission {
             }
         } else if (p instanceof KeyValueCollectionPermission) {
             WildcardPermission thisWildCard = buildWildcardFromKeyValue(this);
-            List<KeyValuePermission> permissionList = ((KeyValueCollectionPermission) p)
-                    .getKeyValuePermissionList();
+            List<KeyValuePermission> permissionList =
+                    ((KeyValueCollectionPermission) p).getKeyValuePermissionList();
             for (KeyValuePermission keyValuePermission : permissionList) {
                 if (getKey().equals(keyValuePermission.getKey())) {
                     WildcardPermission implied = buildWildcardFromKeyValue(keyValuePermission);
@@ -119,7 +119,8 @@ public class KeyValuePermission implements Permission {
                 }
             }
         } else if (p instanceof MatchOneCollectionPermission) {
-            MatchOneCollectionPermission matchOneCollectionPermission = (MatchOneCollectionPermission) p;
+            MatchOneCollectionPermission matchOneCollectionPermission =
+                    (MatchOneCollectionPermission) p;
             return matchOneCollectionPermission.implies(this);
         } else if (p instanceof WildcardPermission) {
             WildcardPermission thisWildCard = buildWildcardFromKeyValue(this);
@@ -141,8 +142,8 @@ public class KeyValuePermission implements Permission {
             wildcardString.append(value);
             wildcardString.append(",");
         }
-        WildcardPermission wildcardPermission = new WildcardPermission(
-                wildcardString.toString().substring(0, wildcardString.length() - 1));
+        WildcardPermission wildcardPermission = new WildcardPermission(wildcardString.toString()
+                .substring(0, wildcardString.length() - 1));
         return wildcardPermission;
     }
 

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
@@ -47,11 +46,11 @@ public class TestCswUnmarshallHelper {
 
     private static final String TEST_BOUNDING_BOX =
             "<ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
-            + " <ows:LowerCorner>-6.171 44.792</ows:LowerCorner>\n"
-            + " <ows:UpperCorner>-2.228 51.126</ows:UpperCorner>\n"
-            + "</ows:BoundingBox>";
+                    + " <ows:LowerCorner>-6.171 44.792</ows:LowerCorner>\n"
+                    + " <ows:UpperCorner>-2.228 51.126</ows:UpperCorner>\n" + "</ows:BoundingBox>";
 
     private Map<AttributeType.AttributeFormat, Matcher> matcherMap;
+
     private Map<AttributeType.AttributeFormat, String> valueMap;
 
     @Before
@@ -67,7 +66,6 @@ public class TestCswUnmarshallHelper {
         matcherMap.put(AttributeType.AttributeFormat.STRING, is(String.class));
         matcherMap.put(AttributeType.AttributeFormat.DATE, is(Date.class));
         matcherMap.put(AttributeType.AttributeFormat.OBJECT, nullValue());
-
 
         valueMap = new HashMap<AttributeType.AttributeFormat, String>();
         valueMap.put(AttributeType.AttributeFormat.BOOLEAN, "true");
@@ -90,7 +88,6 @@ public class TestCswUnmarshallHelper {
         matcherMap.put(AttributeType.AttributeFormat.BINARY, nullValue());
         matcherMap.put(AttributeType.AttributeFormat.GEOMETRY, nullValue());
 
-
         Serializable ser = CswUnmarshallHelper.convertStringValueToMetacardValue(null, "XYZ");
         assertThat(ser, nullValue());
 
@@ -110,15 +107,17 @@ public class TestCswUnmarshallHelper {
         valueMap.put(AttributeType.AttributeFormat.GEOMETRY, TEST_BOUNDING_BOX);
 
         matcherMap.put(AttributeType.AttributeFormat.BINARY, notNullValue());
-        matcherMap.put(AttributeType.AttributeFormat.GEOMETRY, is(
-                "POLYGON((44.792 -6.171, 51.126 -6.171, 51.126 -2.228, 44.792 -2.228, 44.792 -6.171))"));
+        matcherMap.put(AttributeType.AttributeFormat.GEOMETRY,
+                is("POLYGON((44.792 -6.171, 51.126 -6.171, 51.126 -2.228, 44.792 -2.228, 44.792 -6.171))"));
 
         AttributeType.AttributeFormat[] attributeFormats = AttributeType.AttributeFormat.values();
 
         for (AttributeType.AttributeFormat attributeFormat : attributeFormats) {
             HierarchicalStreamReader reader = getReader(attributeFormat);
 
-            Serializable ser = CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(attributeFormat, reader,
+            Serializable ser = CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(
+                    attributeFormat,
+                    reader,
                     CswAxisOrder.LAT_LON);
 
             Matcher m = matcherMap.get(attributeFormat);
@@ -143,8 +142,7 @@ public class TestCswUnmarshallHelper {
 
             Answer<String> answer = new Answer<String>() {
                 @Override
-                public String answer(InvocationOnMock invocationOnMock)
-                        throws Throwable {
+                public String answer(InvocationOnMock invocationOnMock) throws Throwable {
                     return boundingBoxNodes.pop();
                 }
             };
@@ -162,16 +160,19 @@ public class TestCswUnmarshallHelper {
     public void testConvertToDate() {
         LocalDate localDate = new LocalDate();
         Date testDate = localDate.toDate();
-        String dateString = DateFormat.getDateInstance().format(testDate);
+        String dateString = DateFormat.getDateInstance()
+                .format(testDate);
         Date result = CswUnmarshallHelper.convertToDate(dateString);
         assertThat(result, is(testDate));
 
         DateFormat xsdFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateString = xsdFormat.format(testDate);
-        LocalDate localResult = LocalDate.fromDateFields(CswUnmarshallHelper.convertToDate(dateString));
+        LocalDate localResult = LocalDate.fromDateFields(CswUnmarshallHelper.convertToDate(
+                dateString));
         assertThat(localResult, is(localDate));
 
-        dateString = ISODateTimeFormat.basicOrdinalDateTime().print(localDate);
+        dateString = ISODateTimeFormat.basicOrdinalDateTime()
+                .print(localDate);
         localResult = LocalDate.fromDateFields(CswUnmarshallHelper.convertToDate(dateString));
         assertThat(localResult, is(localDate));
     }

@@ -61,8 +61,7 @@ public class TreeApplicationCommandTest {
         when(testNode2.getChildren()).thenReturn(new TreeSet<ApplicationNode>());
         when(testNode1.getChildren()).thenReturn(childSet);
         when(testAppService.getApplicationTree()).thenReturn(treeSet);
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         treeApplicationCommand.doExecute();

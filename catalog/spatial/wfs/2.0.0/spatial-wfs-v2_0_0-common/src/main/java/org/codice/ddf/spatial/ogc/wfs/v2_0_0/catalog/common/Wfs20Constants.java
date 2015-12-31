@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
@@ -82,14 +81,19 @@ public class Wfs20Constants extends WfsConstants {
 
     public static final QName MULTI_POLYGON = new QName(GML_3_2_NAMESPACE, "MultiPolygon");
 
-    public static final List<QName> GEOMETRY_QNAMES = Arrays
-            .asList(POINT, ENVELOPE, POLYGON, LINESTRING, GEOMETRY_COLLECTION, MULTI_LINE_STRING,
-                    MULTI_POINT, MULTI_POLYGON);
+    public static final List<QName> GEOMETRY_QNAMES = Arrays.asList(POINT,
+            ENVELOPE,
+            POLYGON,
+            LINESTRING,
+            GEOMETRY_COLLECTION,
+            MULTI_LINE_STRING,
+            MULTI_POINT,
+            MULTI_POLYGON);
 
     public static enum SPATIAL_OPERATORS {
         BBOX("BBOX"), Beyond("Beyond"), Contains("Contains"), Crosses("Crosses"), Disjoint(
-                "Disjoint"), DWithin("DWithin"), Intersects("Intersects"), Equals(
-                "Equals"), Overlaps("Overlaps"), Touches("Touches"), Within("Within");
+                "Disjoint"), DWithin("DWithin"), Intersects("Intersects"), Equals("Equals"), Overlaps(
+                "Overlaps"), Touches("Touches"), Within("Within");
 
         private String value;
 
@@ -103,20 +107,13 @@ public class Wfs20Constants extends WfsConstants {
     }
 
     public static enum CONFORMANCE_CONSTRAINTS {
-        ImplementsQuery("ImplementsQuery"), ImplementsAdHocQuery(
-                "ImplementsAdHocQuery"), ImplementsFunctions(
-                "ImplementsFunctions"), ImplementsResourceld(
-                "ImplementsResourceld"), ImplementsMinStandardFilter(
-                "ImplementsMinStandardFilter"), ImplementsStandardFilter(
-                "ImplementsStandardFilter"), ImplementsMinSpatialFilter(
-                "ImplementsMinSpatialFilter"), ImplementsSpatialFilter(
-                "ImplementsSpatialFilter"), ImplementsMinTemporalFilter(
-                "ImplementsMinTemporalFilter"), ImplementsTemporalFilter(
-                "ImplementsTemporalFilter"), ImplementsVersionNav(
-                "ImplementsVersionNav"), ImplementsSorting(
-                "ImplementsSorting"), ImplementsExtendedOperators(
-                "ImplementsExtendedOperators"), ImplementsMinimumXPath(
-                "ImplementsMinimumXPath"), ImplementsSchemaElementFunc(
+        ImplementsQuery("ImplementsQuery"), ImplementsAdHocQuery("ImplementsAdHocQuery"), ImplementsFunctions(
+                "ImplementsFunctions"), ImplementsResourceld("ImplementsResourceld"), ImplementsMinStandardFilter(
+                "ImplementsMinStandardFilter"), ImplementsStandardFilter("ImplementsStandardFilter"), ImplementsMinSpatialFilter(
+                "ImplementsMinSpatialFilter"), ImplementsSpatialFilter("ImplementsSpatialFilter"), ImplementsMinTemporalFilter(
+                "ImplementsMinTemporalFilter"), ImplementsTemporalFilter("ImplementsTemporalFilter"), ImplementsVersionNav(
+                "ImplementsVersionNav"), ImplementsSorting("ImplementsSorting"), ImplementsExtendedOperators(
+                "ImplementsExtendedOperators"), ImplementsMinimumXPath("ImplementsMinimumXPath"), ImplementsSchemaElementFunc(
                 "ImplementsSchemaElementFunc"), ImplementsResourceId("ImplementsResourceId");
 
         private String value;
@@ -131,10 +128,8 @@ public class Wfs20Constants extends WfsConstants {
     }
 
     public static enum COMPARISON_OPERATORS {
-        PropertyIsEqualTo("PropertyIsEqualTo"), PropertyIsNotEqualTo(
-                "PropertyIsNotEqualTo"), PropertyIsLessThan(
-                "PropertyIsLessThan"), PropertyIsGreaterThan(
-                "PropertyIsGreaterThan"), PropertyIsLessThanOrEqualTo(
+        PropertyIsEqualTo("PropertyIsEqualTo"), PropertyIsNotEqualTo("PropertyIsNotEqualTo"), PropertyIsLessThan(
+                "PropertyIsLessThan"), PropertyIsGreaterThan("PropertyIsGreaterThan"), PropertyIsLessThanOrEqualTo(
                 "PropertyIsLessThanOrEqualTo"), PropertyIsGreaterThanOrEqualTo(
                 "PropertyIsGreaterThanOrEqualTo"), PropertyIsLike("PropertyIsLike"), PropertyIsNull(
                 "PropertyIsNull"), PropertyIsNil("PropertyIsNil"), PropertyIsBetween(

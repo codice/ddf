@@ -33,8 +33,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     static final String PATH = "/catalog/sources";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractMetacardActionProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AbstractMetacardActionProvider.class);
 
     protected String actionProviderId;
 
@@ -92,7 +92,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     protected boolean isHostUnset(String host) {
 
-        return (host == null || host.trim().equals(UNKNOWN_TARGET));
+        return (host == null || host.trim()
+                .equals(UNKNOWN_TARGET));
     }
 
     protected String getSource(Metacard metacard) {

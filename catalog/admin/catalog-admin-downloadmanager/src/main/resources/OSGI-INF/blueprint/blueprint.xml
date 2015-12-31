@@ -11,13 +11,13 @@
  *
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+>
     <reference interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo"
                id="downloadStatusInfo"/>
     <bean id="downloadManagerService"
           class="org.codice.ddf.catalog.admin.downloadmanager.DownloadManagerService"
           init-method="init"
           destroy-method="destroy">
-          <argument ref="downloadStatusInfo"/>
+        <argument ref="downloadStatusInfo"/>
     </bean>
 </blueprint>

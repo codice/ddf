@@ -46,10 +46,10 @@ public class CrlInterceptor extends AbstractPhaseInterceptor<Message> {
 
     @Override
     public void handleMessage(Message message) throws Fault {
-        HttpServletRequest request = (HttpServletRequest) message
-                .get(AbstractHTTPDestination.HTTP_REQUEST);
-        X509Certificate[] certs = (X509Certificate[]) request
-                .getAttribute("javax.servlet.request.X509Certificate");
+        HttpServletRequest request =
+                (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
+        X509Certificate[] certs = (X509Certificate[]) request.getAttribute(
+                "javax.servlet.request.X509Certificate");
 
         if (!crlChecker.passesCrlCheck(certs)) {
             throw new AccessDeniedException(

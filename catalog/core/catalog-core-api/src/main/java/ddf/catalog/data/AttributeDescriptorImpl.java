@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -146,9 +146,11 @@ public class AttributeDescriptorImpl implements AttributeDescriptor {
 
         result = HASHCODE_MULTIPLIER * result + (multivalued ? 1 : 0);
 
-        result = HASHCODE_MULTIPLIER * result + type.getAttributeFormat().hashCode();
+        result = HASHCODE_MULTIPLIER * result + type.getAttributeFormat()
+                .hashCode();
 
-        result = HASHCODE_MULTIPLIER * result + type.getBinding().hashCode();
+        result = HASHCODE_MULTIPLIER * result + type.getBinding()
+                .hashCode();
 
         return result;
 
@@ -174,15 +176,22 @@ public class AttributeDescriptorImpl implements AttributeDescriptor {
             if (newObject.getName() != null) {
                 return false;
             }
-        } else if (!this.getName().equals(newObject.getName())) {
+        } else if (!this.getName()
+                .equals(newObject.getName())) {
             return false;
         }
 
-        if (!this.getType().getAttributeFormat().equals(newObject.getType().getAttributeFormat())) {
+        if (!this.getType()
+                .getAttributeFormat()
+                .equals(newObject.getType()
+                        .getAttributeFormat())) {
             return false;
         }
 
-        if (!this.getType().getBinding().equals(newObject.getType().getBinding())) {
+        if (!this.getType()
+                .getBinding()
+                .equals(newObject.getType()
+                        .getBinding())) {
             return false;
         }
 

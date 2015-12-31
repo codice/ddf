@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -74,8 +74,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
     protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(SortedFederationStrategy.class));
+    private static XLogger logger =
+            new XLogger(LoggerFactory.getLogger(SortedFederationStrategy.class));
 
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
@@ -156,17 +156,19 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 SourceResponse sourceResponse = null;
                 try {
                     sourceResponse = query.getTimeoutMillis() < 1 ?
-                            entry.getValue().get() :
-                            entry.getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+                            entry.getValue()
+                                    .get() :
+                            entry.getValue()
+                                    .get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     logger.warn(
                             "Couldn't get results from completed federated query on site with ShortName "
-                                    + site.getId(), e);
+                                    + site.getId(),
+                            e);
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (ExecutionException e) {
-                    logger.warn(
-                            "Couldn't get results from completed federated query on site " + site
-                                    .getId(), e);
+                    logger.warn("Couldn't get results from completed federated query on site "
+                            + site.getId(), e);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding exception to response.");
                     }
@@ -181,22 +183,24 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                     long sourceHits = sourceResponse.getHits();
 
                     totalHits += sourceHits;
-                    Map<String, Serializable> newSourceProperties = new HashMap<String, Serializable>();
+                    Map<String, Serializable> newSourceProperties =
+                            new HashMap<String, Serializable>();
                     newSourceProperties.put(QueryResponse.TOTAL_HITS, sourceHits);
-                    newSourceProperties
-                            .put(QueryResponse.TOTAL_RESULTS_RETURNED, sourceResults.size());
+                    newSourceProperties.put(QueryResponse.TOTAL_RESULTS_RETURNED,
+                            sourceResults.size());
 
-                    Map<String, Serializable> originalSourceProperties = sourceResponse
-                            .getProperties();
+                    Map<String, Serializable> originalSourceProperties =
+                            sourceResponse.getProperties();
                     if (originalSourceProperties != null) {
-                        Serializable object = originalSourceProperties
-                                .get(QueryResponse.ELAPSED_TIME);
+                        Serializable object =
+                                originalSourceProperties.get(QueryResponse.ELAPSED_TIME);
                         if (object != null && object instanceof Long) {
                             newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
                             originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
                             logger.debug(
                                     "Setting the ellapsedTime responseProperty to {} for source {}",
-                                    object, site.getId());
+                                    object,
+                                    site.getId());
                         }
 
                         // TODO: for now add all properties into outgoing response's properties.
@@ -215,8 +219,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                     } else {
                         siteListObject = new ArrayList<String>();
                         ((List) siteListObject).add(site.getId());
-                        returnProperties
-                                .put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
+                        returnProperties.put(QueryResponse.SITE_LIST,
+                                (Serializable) siteListObject);
                     }
 
                 }

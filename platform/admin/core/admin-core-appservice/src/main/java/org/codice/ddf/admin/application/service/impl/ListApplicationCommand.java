@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -36,8 +36,10 @@ public class ListApplicationCommand extends AbstractApplicationCommand {
     static {
         int size = 0;
         for (ApplicationState curState : ApplicationStatus.ApplicationState.values()) {
-            if (curState.name().length() > size) {
-                size = curState.name().length();
+            if (curState.name()
+                    .length() > size) {
+                size = curState.name()
+                        .length();
             }
         }
         STATUS_COLUMN_LENGTH = size;
@@ -52,27 +54,36 @@ public class ListApplicationCommand extends AbstractApplicationCommand {
             ApplicationStatus appStatus = applicationService.getApplicationStatus(curApp);
             // only show applications that have features (gets rid of repo
             // aggregator 'apps')
-            if (!curApp.getFeatures().isEmpty()) {
+            if (!curApp.getFeatures()
+                    .isEmpty()) {
                 console.print("[");
                 switch (appStatus.getState()) {
                 case ACTIVE:
-                    console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+                    console.print(Ansi.ansi()
+                            .fg(Ansi.Color.GREEN)
+                            .toString());
                     break;
                 case FAILED:
-                    console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
+                    console.print(Ansi.ansi()
+                            .fg(Ansi.Color.RED)
+                            .toString());
                     break;
                 case INACTIVE:
                     // don't set a color
                     break;
                 case UNKNOWN:
-                    console.print(Ansi.ansi().fg(Ansi.Color.YELLOW).toString());
+                    console.print(Ansi.ansi()
+                            .fg(Ansi.Color.YELLOW)
+                            .toString());
                     break;
                 default:
                     break;
                 }
-                console.print(StringUtils
-                        .rightPad(appStatus.getState().toString(), STATUS_COLUMN_LENGTH));
-                console.print(Ansi.ansi().reset().toString());
+                console.print(StringUtils.rightPad(appStatus.getState()
+                        .toString(), STATUS_COLUMN_LENGTH));
+                console.print(Ansi.ansi()
+                        .reset()
+                        .toString());
                 console.println("] " + curApp.getName());
             }
         }

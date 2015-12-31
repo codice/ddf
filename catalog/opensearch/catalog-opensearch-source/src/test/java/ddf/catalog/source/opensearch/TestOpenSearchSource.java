@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -98,9 +98,23 @@ public class TestOpenSearchSource {
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
-    private static final List<String> DEFAULT_PARAMETERS = Arrays
-            .asList("q", "src", "mr", "start", "count", "mt", "dn", "lat", "lon", "radius", "bbox",
-                    "polygon", "dtstart", "dtend", "dateName", "filter", "sort");
+    private static final List<String> DEFAULT_PARAMETERS = Arrays.asList("q",
+            "src",
+            "mr",
+            "start",
+            "count",
+            "mt",
+            "dn",
+            "lat",
+            "lon",
+            "radius",
+            "bbox",
+            "polygon",
+            "dtstart",
+            "dtend",
+            "dateName",
+            "filter",
+            "sort");
 
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
@@ -284,13 +298,16 @@ public class TestOpenSearchSource {
         WebClient client = mock(WebClient.class);
 
         //ClientResponse
-        doReturn(clientResponse).when(client).get();
-        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse).getStatus();
+        doReturn(clientResponse).when(client)
+                .get();
+        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse)
+                .getStatus();
 
         //Client functions
-        doReturn(getSampleXmlStream()).when(clientResponse).getEntity();
-        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
-                .thenReturn(OpenSearchSource.BYTES);
+        doReturn(getSampleXmlStream()).when(clientResponse)
+                .getEntity();
+        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(
+                OpenSearchSource.BYTES);
         when(client.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(client);
 
         SecureCxfClientFactory factory = getMockFactory(client);
@@ -302,7 +319,9 @@ public class TestOpenSearchSource {
         source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+        Filter filter = filterBuilder.attribute(Metacard.ID)
+                .equalTo()
+                .text(SAMPLE_ID);
 
         // when
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -323,7 +342,9 @@ public class TestOpenSearchSource {
 
         OpenSearchSource source = givenSource(answer);
 
-        Filter filter = filterBuilder.attribute(Metacard.CONTENT_TYPE).equalTo().text(SAMPLE_ID);
+        Filter filter = filterBuilder.attribute(Metacard.CONTENT_TYPE)
+                .equalTo()
+                .text(SAMPLE_ID);
 
         // when
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -355,7 +376,8 @@ public class TestOpenSearchSource {
         source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+        Filter filter = filterBuilder.attribute(Metacard.METADATA)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
@@ -393,7 +415,8 @@ public class TestOpenSearchSource {
 
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+        Filter filter = filterBuilder.attribute(Metacard.METADATA)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
@@ -433,8 +456,8 @@ public class TestOpenSearchSource {
 
         try {
             when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
-                    .thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
         } catch (IOException e) {
             fail();
         } catch (CatalogTransformerException e) {
@@ -447,7 +470,8 @@ public class TestOpenSearchSource {
 
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+        Filter filter = filterBuilder.attribute(Metacard.METADATA)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -481,8 +505,8 @@ public class TestOpenSearchSource {
 
         try {
             when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
-                    .thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
         } catch (IOException e) {
             fail();
         } catch (CatalogTransformerException e) {
@@ -495,7 +519,8 @@ public class TestOpenSearchSource {
 
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+        Filter filter = filterBuilder.attribute(Metacard.METADATA)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -512,11 +537,14 @@ public class TestOpenSearchSource {
     public void testQueryAnyText()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         Response clientResponse = mock(Response.class);
-        doReturn(getSampleAtomStream()).when(clientResponse).getEntity();
+        doReturn(getSampleAtomStream()).when(clientResponse)
+                .getEntity();
 
         WebClient client = mock(WebClient.class);
-        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse).getStatus();
-        doReturn(clientResponse).when(client).get();
+        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse)
+                .getStatus();
+        doReturn(clientResponse).when(client)
+                .get();
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
@@ -527,7 +555,8 @@ public class TestOpenSearchSource {
         source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // when
@@ -541,7 +570,8 @@ public class TestOpenSearchSource {
         WebClient client = mock(WebClient.class);
 
         //ClientResponse
-        doReturn(clientResponse).when(client).get();
+        doReturn(clientResponse).when(client)
+                .get();
         doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(clientResponse)
                 .getStatus();
 
@@ -554,7 +584,8 @@ public class TestOpenSearchSource {
         source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         source.query(new QueryRequestImpl(new QueryImpl(filter)));
@@ -584,7 +615,9 @@ public class TestOpenSearchSource {
         // when
         ResourceResponse response = source.retrieveResource(null, requestProperties);
 
-        Assert.assertEquals(3, response.getResource().getByteArray().length);
+        Assert.assertEquals(3,
+                response.getResource()
+                        .getByteArray().length);
     }
 
     /**
@@ -635,10 +668,13 @@ public class TestOpenSearchSource {
         source.factory = factory;
 
         // Metacard ID filter
-        Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+        Filter idFilter = filterBuilder.attribute(Metacard.ID)
+                .equalTo()
+                .text(SAMPLE_ID);
 
         // Any text filter
-        Filter anyTextFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+        Filter anyTextFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // Perform Test (Query by ID followed by Any Text Query)
@@ -648,10 +684,12 @@ public class TestOpenSearchSource {
         // Verification - Verify that we don't see any exceptions when
         // processing the input stream from the endpoint.
         // Verify 1 metacard is in the results
-        assertThat(response1.getResults().size(), is(1));
+        assertThat(response1.getResults()
+                .size(), is(1));
 
         // Verify that the atom feed is converted into 1 metacard result
-        assertThat(response2.getResults().size(), is(1));
+        assertThat(response2.getResults()
+                .size(), is(1));
     }
 
     // DDF-161
@@ -676,10 +714,13 @@ public class TestOpenSearchSource {
         source.factory = factory;
 
         // Metacard ID filter
-        Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+        Filter idFilter = filterBuilder.attribute(Metacard.ID)
+                .equalTo()
+                .text(SAMPLE_ID);
 
         // Any text filter
-        Filter anyTextFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+        Filter anyTextFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         // Perform Test (Query by ID followed by Any Text Query)
@@ -689,10 +730,12 @@ public class TestOpenSearchSource {
         // Verification - Verify that we don't see any exceptions when
         // processing the input stream from the endpoint.
         // Verify 1 metacard is in the results
-        assertThat(response1.getResults().size(), is(1));
+        assertThat(response1.getResults()
+                .size(), is(1));
 
         // Verify that the atom feed is converted into 1 metacard result
-        assertThat(response2.getResults().size(), is(1));
+        assertThat(response2.getResults()
+                .size(), is(1));
     }
 
     private NameValuePair pair(String name, String value) {
@@ -758,12 +801,13 @@ public class TestOpenSearchSource {
 
         Response clientResponse = mock(Response.class);
         when(clientResponse.getEntity()).thenReturn(getBinaryData());
-        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES)))
-                .thenReturn(OpenSearchSource.BYTES);
+        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(
+                OpenSearchSource.BYTES);
         when(client.get()).thenReturn(clientResponse);
         SecureCxfClientFactory factory = getMockFactory(client);
-        when(mockReader.retrieveResource(any(URI.class), any(Map.class)))
-                .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
+        when(mockReader.retrieveResource(any(URI.class),
+                any(Map.class))).thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(),
+                "")));
 
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<String, Object>();
         headers.put(HttpHeaders.CONTENT_TYPE, Arrays.<Object>asList("application/octet-stream"));
@@ -789,8 +833,8 @@ public class TestOpenSearchSource {
 
         try {
             when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
-                    .thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
         } catch (IOException e) {
             fail();
         } catch (CatalogTransformerException e) {
@@ -880,10 +924,12 @@ public class TestOpenSearchSource {
     protected SecureCxfClientFactory getMockFactory(WebClient client) {
         SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
 
-        doReturn(client).when(factory).getClient();
+        doReturn(client).when(factory)
+                .getClient();
         doReturn(client).when(factory)
                 .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
-        doReturn(client).when(factory).getWebClient();
+        doReturn(client).when(factory)
+                .getWebClient();
 
         return factory;
     }

@@ -38,7 +38,9 @@
     </feature>
     <feature name="sample-validator" version="${project.version}" install="manual"
              description="SDK sample metacard validator">
-        <bundle>mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}</bundle>
+        <bundle>
+            mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}
+        </bundle>
     </feature>
 
     <feature name="sdk-app" version="${project.version}" description="SDK app.">

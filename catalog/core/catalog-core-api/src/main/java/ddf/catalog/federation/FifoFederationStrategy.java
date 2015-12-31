@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,8 +41,8 @@ import ddf.catalog.source.Source;
  */
 public class FifoFederationStrategy extends AbstractFederationStrategy {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(FifoFederationStrategy.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(FifoFederationStrategy.class));
 
     /**
      * Instantiates a {@code FifoFederationStrategy} with the provided {@link ExecutorService}.
@@ -156,9 +156,8 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
                 }
 
                 addToGrandTotal(lastKnownGrandTotal);
-                LOGGER.debug(
-                        "adding grand total from this site to grand total from all sites: " + total
-                                .get());
+                LOGGER.debug("adding grand total from this site to grand total from all sites: "
+                        + total.get());
                 if (updateSites(-1) == 0) {
                     // all done, send the Terminator.
                     LOGGER.debug("sending terminator for fifo federation strategy.");

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,8 +52,8 @@ import net.minidev.json.parser.ParseException;
  */
 public class TestGeoJsonQueryResponseTransformer {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestGeoJsonQueryResponseTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TestGeoJsonQueryResponseTransformer.class);
 
     private static final JSONParser PARSER = new JSONParser();
 
@@ -123,8 +123,8 @@ public class TestGeoJsonQueryResponseTransformer {
 
     private JSONObject transform(SourceResponse sourceResponse, final int resultCount,
             final int hitCount) throws CatalogTransformerException, IOException, ParseException {
-        BinaryContent content = new GeoJsonQueryResponseTransformer()
-                .transform(sourceResponse, null);
+        BinaryContent content = new GeoJsonQueryResponseTransformer().transform(sourceResponse,
+                null);
 
         assertEquals(content.getMimeTypeValue(),
                 GeoJsonQueryResponseTransformer.defaultMimeType.getBaseType());
@@ -192,8 +192,8 @@ public class TestGeoJsonQueryResponseTransformer {
         assertThat(toString(properties.get(Metacard.TITLE)), is(DEFAULT_TITLE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE)), is(DEFAULT_TYPE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE_VERSION)), is(DEFAULT_VERSION));
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(NOW)));
         assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());

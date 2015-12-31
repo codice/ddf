@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagedServiceConfigurationFile extends ConfigurationFile {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ManagedServiceConfigurationFile.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ManagedServiceConfigurationFile.class);
 
     ManagedServiceConfigurationFile(Path configFilePath, Dictionary<String, Object> properties,
             ConfigurationAdmin configAdmin, PersistenceStrategy persistenceStrategy) {
@@ -49,8 +49,8 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
             Configuration configuration = configAdmin.getConfiguration(servicePid, null);
             configuration.update(properties);
         } catch (IOException e) {
-            String message = String
-                    .format("Unable to get or update Configuration for pid [%s].", servicePid);
+            String message = String.format("Unable to get or update Configuration for pid [%s].",
+                    servicePid);
             LOGGER.error(message, e);
             throw new ConfigurationFileException(message, e);
         }
@@ -69,7 +69,9 @@ public class ManagedServiceConfigurationFile extends ConfigurationFile {
 
         @Override
         public ConfigurationFile build() {
-            return new ManagedServiceConfigurationFile(configFilePath, properties, configAdmin,
+            return new ManagedServiceConfigurationFile(configFilePath,
+                    properties,
+                    configAdmin,
                     persistenceStrategy);
         }
     }

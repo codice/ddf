@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,8 @@ public class GuestHandler implements AuthenticationHandler {
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         // For guest - if credentials were provided, return them, if not, then return guest credentials
         BaseAuthenticationToken authToken = getAuthToken((HttpServletRequest) request,
-                (HttpServletResponse) response, chain);
+                (HttpServletResponse) response,
+                chain);
 
         result.setSource(realm + "-GuestHandler");
         result.setStatus(HandlerResult.Status.COMPLETED);
@@ -92,9 +93,12 @@ public class GuestHandler implements AuthenticationHandler {
         //check for basic auth first
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-        HandlerResult handlerResult = basicAuthenticationHandler
-                .getNormalizedToken(request, response, chain, false);
-        if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+        HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
+                response,
+                chain,
+                false);
+        if (handlerResult.getStatus()
+                .equals(HandlerResult.Status.COMPLETED)) {
             return handlerResult.getToken();
         }
         //if basic fails, check for PKI
@@ -102,7 +106,8 @@ public class GuestHandler implements AuthenticationHandler {
         pkiHandler.setTokenFactory(tokenFactory);
         try {
             handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
-            if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+            if (handlerResult.getStatus()
+                    .equals(HandlerResult.Status.COMPLETED)) {
                 return handlerResult.getToken();
             }
         } catch (ServletException e) {
@@ -121,7 +126,8 @@ public class GuestHandler implements AuthenticationHandler {
         String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         try {
-            httpResponse.getWriter().write(INVALID_MESSAGE);
+            httpResponse.getWriter()
+                    .write(INVALID_MESSAGE);
             httpResponse.flushBuffer();
         } catch (IOException e) {
             LOGGER.debug("Failed to send auth response: {}", e);

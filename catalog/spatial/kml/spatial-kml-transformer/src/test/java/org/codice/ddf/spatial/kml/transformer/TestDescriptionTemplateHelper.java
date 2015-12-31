@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
@@ -80,7 +79,9 @@ public class TestDescriptionTemplateHelper {
         MetacardImpl metacard = new MetacardImpl();
 
         String effectiveTime = helper.prettyPrint(metacard.getAttribute(Metacard.EFFECTIVE),
-                metacard.getMetacardType().getAttributeDescriptor(Metacard.EFFECTIVE).getType()
+                metacard.getMetacardType()
+                        .getAttributeDescriptor(Metacard.EFFECTIVE)
+                        .getType()
                         .getAttributeFormat());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         assertNotNull(effectiveTime);
@@ -96,7 +97,9 @@ public class TestDescriptionTemplateHelper {
         metacard.setEffectiveDate(date);
 
         String effectiveTime = helper.prettyPrint(metacard.getAttribute(Metacard.EFFECTIVE),
-                metacard.getMetacardType().getAttributeDescriptor(Metacard.EFFECTIVE).getType()
+                metacard.getMetacardType()
+                        .getAttributeDescriptor(Metacard.EFFECTIVE)
+                        .getType()
                         .getAttributeFormat());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         Date retrievedDate = dateFormat.parse(effectiveTime);
@@ -137,7 +140,8 @@ public class TestDescriptionTemplateHelper {
         when(mockOptions.fn()).thenReturn(ifOption);
         when(mockOptions.inverse()).thenReturn(elseOption);
 
-        String result = helper.hasThumbnail(metacard, mockOptions).toString();
+        String result = helper.hasThumbnail(metacard, mockOptions)
+                .toString();
         assertEquals(elseOption, result);
     }
 
@@ -152,7 +156,8 @@ public class TestDescriptionTemplateHelper {
         when(mockOptions.fn()).thenReturn(ifOption);
         when(mockOptions.inverse()).thenReturn(elseOption);
 
-        String result = helper.hasThumbnail(metacard, mockOptions).toString();
+        String result = helper.hasThumbnail(metacard, mockOptions)
+                .toString();
         assertEquals(ifOption, result);
 
     }

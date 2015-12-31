@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,13 +66,24 @@ public class FanoutCatalogFrameworkTest {
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(), null,
-                new ArrayList<PreIngestPlugin>(), postIngestPlugins,
-                new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, null, poller,
-                null, null, null);
+        framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
+                null,
+                new ArrayList<PreIngestPlugin>(),
+                postIngestPlugins,
+                new ArrayList<PreQueryPlugin>(),
+                new ArrayList<PostQueryPlugin>(),
+                new ArrayList<PreResourcePlugin>(),
+                new ArrayList<PostResourcePlugin>(),
+                new ArrayList<ConnectedSource>(),
+                new ArrayList<FederatedSource>(),
+                new ArrayList<ResourceReader>(),
+                new MockFederationStrategy(),
+                null,
+                null,
+                poller,
+                null,
+                null,
+                null);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
     }
@@ -194,7 +205,9 @@ public class FanoutCatalogFrameworkTest {
         Set<String> sourceIds = framework.getSourceIds();
         assertNotNull(sourceIds);
         assertEquals(1, sourceIds.size());
-        assertEquals(NEW_SOURCE_ID, sourceIds.iterator().next());
+        assertEquals(NEW_SOURCE_ID,
+                sourceIds.iterator()
+                        .next());
     }
 
     /**
@@ -213,20 +226,34 @@ public class FanoutCatalogFrameworkTest {
         List<FederatedSource> fedSources = new ArrayList<FederatedSource>();
 
         FederatedSource mockFederatedSource = Mockito.mock(FederatedSource.class);
-        Mockito.when(mockFederatedSource.isAvailable()).thenReturn(true);
+        Mockito.when(mockFederatedSource.isAvailable())
+                .thenReturn(true);
 
         // Mockito would not accept Collections.emptySet() as the parameter for
         // thenReturn for mockFederatedSource.getContentTypes()
-        Mockito.when(mockFederatedSource.getContentTypes()).thenReturn(null);
+        Mockito.when(mockFederatedSource.getContentTypes())
+                .thenReturn(null);
 
         fedSources.add(mockFederatedSource);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
-                null, new ArrayList<PreIngestPlugin>(), postIngestPlugins,
-                new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), fedSources, new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(), null, null, poller, null, null, null);
+                null,
+                new ArrayList<PreIngestPlugin>(),
+                postIngestPlugins,
+                new ArrayList<PreQueryPlugin>(),
+                new ArrayList<PostQueryPlugin>(),
+                new ArrayList<PreResourcePlugin>(),
+                new ArrayList<PostResourcePlugin>(),
+                new ArrayList<ConnectedSource>(),
+                fedSources,
+                new ArrayList<ResourceReader>(),
+                new MockFederationStrategy(),
+                null,
+                null,
+                poller,
+                null,
+                null,
+                null);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
 

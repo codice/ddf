@@ -13,24 +13,24 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+>
 
-	<!-- Creating MimeTypeToTransformerMapper implementation -->
+    <!-- Creating MimeTypeToTransformerMapper implementation -->
     <bean id="mimeTypeToTransformerMapper" class="ddf.mime.mapper.MimeTypeToTransformerMapperImpl">
-	</bean>
+    </bean>
 
     <!-- export the bean on the service registry -->
     <service ref="mimeTypeToTransformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
-	<bean id="ddf-mimetype-mapper" class="ddf.mime.mapper.MimeTypeMapperImpl">
-		<argument ref="mimeTypeResolverList"/>
-	</bean>
+    <bean id="ddf-mimetype-mapper" class="ddf.mime.mapper.MimeTypeMapperImpl">
+        <argument ref="mimeTypeResolverList"/>
+    </bean>
 
     <!-- export the bean on the service registry -->
     <service ref="ddf-mimetype-mapper" interface="ddf.mime.MimeTypeMapper"/>
 
-	<reference-list id="mimeTypeResolverList" interface="ddf.mime.MimeTypeResolver"
+    <reference-list id="mimeTypeResolverList" interface="ddf.mime.MimeTypeResolver"
                     availability="optional">
-	</reference-list>
+    </reference-list>
 
 </blueprint>

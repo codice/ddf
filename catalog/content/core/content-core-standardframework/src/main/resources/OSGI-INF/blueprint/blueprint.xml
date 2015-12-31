@@ -15,39 +15,41 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<!-- create the DDF content framework bean -->
+    <!-- create the DDF content framework bean -->
     <bean id="ddf-content-framework" class="ddf.content.impl.ContentFrameworkImpl">
-		<cm:managed-properties persistent-id="ddf.content.impl.ContentFrameworkImpl"
+        <cm:managed-properties persistent-id="ddf.content.impl.ContentFrameworkImpl"
                                update-strategy="container-managed"/>
-		<argument ref="blueprintBundleContext"/>
-		<argument ref="storageProvider"/>
-		<argument ref="contentPluginList"/>
-		<argument ref="preCreateStoragePluginList"/>
-		<argument ref="postCreateStoragePluginList"/>
-	</bean>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="storageProvider"/>
+        <argument ref="contentPluginList"/>
+        <argument ref="preCreateStoragePluginList"/>
+        <argument ref="postCreateStoragePluginList"/>
+    </bean>
 
 
     <!-- export the bean on the service registry -->
     <service ref="ddf-content-framework" interface="ddf.content.ContentFramework"/>
-	
-	<reference id="storageProvider" interface="ddf.content.storage.StorageProvider"
+
+    <reference id="storageProvider" interface="ddf.content.storage.StorageProvider"
                availability="optional"/>
-	
-	<reference-list id="contentPluginList" interface="ddf.content.plugin.ContentPlugin"
+
+    <reference-list id="contentPluginList" interface="ddf.content.plugin.ContentPlugin"
                     availability="optional">
-	</reference-list>
+    </reference-list>
 
-	<reference-list id="preCreateStoragePluginList" interface="ddf.content.plugin.PreCreateStoragePlugin"
-					availability="optional">
-	</reference-list>
+    <reference-list id="preCreateStoragePluginList"
+                    interface="ddf.content.plugin.PreCreateStoragePlugin"
+                    availability="optional">
+    </reference-list>
 
-	<reference-list id="postCreateStoragePluginList" interface="ddf.content.plugin.PostCreateStoragePlugin"
-					availability="optional">
-	</reference-list>
+    <reference-list id="postCreateStoragePluginList"
+                    interface="ddf.content.plugin.PostCreateStoragePlugin"
+                    availability="optional">
+    </reference-list>
 
-	<service interface="ddf.catalog.data.MetacardType" >
-		<bean class="ddf.content.data.impl.ContentMetacardType"/>
-	</service>
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="ddf.content.data.impl.ContentMetacardType"/>
+    </service>
 
-	
+
 </blueprint>	

@@ -113,8 +113,10 @@ public class XMLUtils {
 
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
             Result result) {
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(XMLUtils.class.getClassLoader());
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
+        Thread.currentThread()
+                .setContextClassLoader(XMLUtils.class.getClassLoader());
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
             Transformer transformer = transFactory.newTransformer();
@@ -129,7 +131,8 @@ public class XMLUtils {
         } catch (TransformerException e) {
             LOGGER.warn("Unable to transform XML.", e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
     }
 }

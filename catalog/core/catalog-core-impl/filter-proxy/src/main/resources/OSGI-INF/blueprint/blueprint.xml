@@ -13,13 +13,13 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<bean id="geotoolsFilterAdapter"
+    <bean id="geotoolsFilterAdapter"
           class="ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl"/>
-	<bean id="geotoolsFilterBuilder"
+    <bean id="geotoolsFilterBuilder"
           class="ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder"/>
 
     <!-- Register Geotools Filter Adapter and Builder in the OSGi Service Registry -->
     <service ref="geotoolsFilterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
-	<service ref="geotoolsFilterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <service ref="geotoolsFilterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
 </blueprint>

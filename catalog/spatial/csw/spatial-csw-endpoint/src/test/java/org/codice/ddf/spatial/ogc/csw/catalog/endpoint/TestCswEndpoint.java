@@ -318,14 +318,16 @@ public class TestCswEndpoint {
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
         when(mockContext.getBundle()).thenReturn(mockBundle);
         URL resourceUrl = TestCswEndpoint.class.getResource("/record.xsd");
-        URL resourceUrlDot = TestCswEndpoint.class.getClass().getResource(".");
+        URL resourceUrlDot = TestCswEndpoint.class.getClass()
+                .getResource(".");
         when(mockBundle.getResource("record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
         QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
-        when(catalogFramework.getSourceIds())
-                .thenReturn(new HashSet<>(Arrays.asList("source1", "source2", "source3")));
+        when(catalogFramework.getSourceIds()).thenReturn(new HashSet<>(Arrays.asList("source1",
+                "source2",
+                "source3")));
 
         AttributeBuilder attrBuilder = mock(AttributeBuilder.class);
         ExpressionBuilder exprBuilder = mock(ExpressionBuilder.class);
@@ -336,18 +338,20 @@ public class TestCswEndpoint {
         when(attrBuilder.is()).thenReturn(exprBuilder);
         when(filterBuilder.attribute(Metacard.ID)).thenReturn(attrBuilder);
         when(filterBuilder.anyOf(anyList())).thenReturn(mock(Or.class));
-        csw = new CswEndpoint(mockContext, catalogFramework, filterBuilder, mockUriInfo,
-                mockMimeTypeManager, mockSchemaManager);
+        csw = new CswEndpoint(mockContext,
+                catalogFramework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
-        when(mockMimeTypeManager.getAvailableMimeTypes())
-                .thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
-        when(mockSchemaManager.getAvailableSchemas())
-                .thenReturn(Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
-        when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
-                .thenReturn(mockTransformer);
+        when(mockMimeTypeManager.getAvailableMimeTypes()).thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
+        when(mockSchemaManager.getAvailableSchemas()).thenReturn(Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
+        when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockTransformer);
     }
 
     @Test
@@ -521,11 +525,13 @@ public class TestCswEndpoint {
         }
         assertNotNull(ct);
         assertNotNull(ct.getOperationsMetadata());
-        for (Operation operation : ct.getOperationsMetadata().getOperation()) {
+        for (Operation operation : ct.getOperationsMetadata()
+                .getOperation()) {
             if (StringUtils.equals(operation.getName(), CswConstants.GET_RECORDS)) {
                 for (DomainType constraint : operation.getConstraint()) {
                     if (StringUtils.equals(constraint.getName(), CswConstants.FEDERATED_CATALOGS)) {
-                        assertThat(constraint.getValue().size(), is(3));
+                        assertThat(constraint.getValue()
+                                .size(), is(3));
                         return;
                     }
                 }
@@ -624,9 +630,10 @@ public class TestCswEndpoint {
         // Should return all sections
         GetCapabilitiesType gct = createDefaultGetCapabilitiesType();
         SectionsType stv = new SectionsType();
-        stv.setSection(
-                Arrays.asList(CswEndpoint.SERVICE_IDENTIFICATION, CswEndpoint.SERVICE_PROVIDER,
-                        CswEndpoint.OPERATIONS_METADATA, CswEndpoint.FILTER_CAPABILITIES));
+        stv.setSection(Arrays.asList(CswEndpoint.SERVICE_IDENTIFICATION,
+                CswEndpoint.SERVICE_PROVIDER,
+                CswEndpoint.OPERATIONS_METADATA,
+                CswEndpoint.FILTER_CAPABILITIES));
         gct.setSections(stv);
         CapabilitiesType ct = null;
         try {
@@ -703,7 +710,8 @@ public class TestCswEndpoint {
         // Should throw an exception
         GetCapabilitiesType gct = createDefaultGetCapabilitiesType();
         AcceptVersionsType badVersion = new AcceptVersionsType();
-        badVersion.getVersion().add(CswConstants.VERSION_2_0_1);
+        badVersion.getVersion()
+                .add(CswConstants.VERSION_2_0_1);
         gct.setAcceptVersions(badVersion);
         csw.getCapabilities(gct);
     }
@@ -720,11 +728,13 @@ public class TestCswEndpoint {
         }
         assertNotNull(ct);
         assertNotNull(ct.getOperationsMetadata());
-        for (Operation operation : ct.getOperationsMetadata().getOperation()) {
+        for (Operation operation : ct.getOperationsMetadata()
+                .getOperation()) {
             if (StringUtils.equals(operation.getName(), CswConstants.GET_RECORDS)) {
                 for (DomainType constraint : operation.getConstraint()) {
                     if (StringUtils.equals(constraint.getName(), CswConstants.FEDERATED_CATALOGS)) {
-                        assertThat(constraint.getValue().size(), is(3));
+                        assertThat(constraint.getValue()
+                                .size(), is(3));
                         return;
                     }
                 }
@@ -738,7 +748,10 @@ public class TestCswEndpoint {
     public void testDescribeRecordRequestSingleTypePassed() {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE);
-        LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
+        LOGGER.info("Resource directory is {}",
+                this.getClass()
+                        .getResource(".")
+                        .getPath());
         DescribeRecordResponseType drrt = null;
         try {
             drrt = csw.describeRecord(drr);
@@ -748,7 +761,8 @@ public class TestCswEndpoint {
         assertNotNull(drrt);
         assertNotNull(drrt.getSchemaComponent());
         // Assert that it returned all record types.
-        assertEquals(drrt.getSchemaComponent().size(), 1);
+        assertEquals(drrt.getSchemaComponent()
+                .size(), 1);
         LOGGER.info("got response \n{}\n", drrt.toString());
 
     }
@@ -777,7 +791,10 @@ public class TestCswEndpoint {
     @Test
     public void testDescribeRecordRequestNoTypesPassed() {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
-        LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
+        LOGGER.info("Resource directory is {}",
+                this.getClass()
+                        .getResource(".")
+                        .getPath());
         DescribeRecordResponseType drrt = null;
         try {
             drrt = csw.describeRecord(drr);
@@ -787,7 +804,8 @@ public class TestCswEndpoint {
         assertNotNull(drrt);
         assertNotNull(drrt.getSchemaComponent());
         // Assert that it returned all record types.
-        assertEquals(drrt.getSchemaComponent().size(), 1);
+        assertEquals(drrt.getSchemaComponent()
+                .size(), 1);
         LOGGER.info("got response \n{}\n", drrt.toString());
 
     }
@@ -798,7 +816,10 @@ public class TestCswEndpoint {
 
         DescribeRecordType request = createDefaultDescribeRecordType();
 
-        LOGGER.info("Resource directory is {}", this.getClass().getResource(".").getPath());
+        LOGGER.info("Resource directory is {}",
+                this.getClass()
+                        .getResource(".")
+                        .getPath());
 
         DescribeRecordResponseType drrt = null;
 
@@ -811,7 +832,8 @@ public class TestCswEndpoint {
         assertNotNull(drrt);
         assertNotNull(drrt.getSchemaComponent());
         // Assert that it returned all record types.
-        assertEquals(drrt.getSchemaComponent().size(), 1);
+        assertEquals(drrt.getSchemaComponent()
+                .size(), 1);
 
         LOGGER.info("got response \n{}\n", drrt.toString());
     }
@@ -869,7 +891,8 @@ public class TestCswEndpoint {
         // spec does not say specifically it should throw an exception,
         // and NSG interoperability tests require to skip the unknown ones, and
         // potentially return an empty list if none are known
-        assertThat(response.getSchemaComponent().size(), is(1));
+        assertThat(response.getSchemaComponent()
+                .size(), is(1));
     }
 
     @Test
@@ -881,7 +904,8 @@ public class TestCswEndpoint {
         drt.setTypeName(typeNames);
         DescribeRecordResponseType response = csw.describeRecord(drt);
 
-        assertThat(response.getSchemaComponent().size(), is(1));
+        assertThat(response.getSchemaComponent()
+                .size(), is(1));
     }
 
     @Test
@@ -1243,8 +1267,9 @@ public class TestCswEndpoint {
         List<QName> typeNames = new ArrayList<QName>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1252,7 +1277,7 @@ public class TestCswEndpoint {
     }
 
     /**
-     *  Test Valid GetRecords request, no exceptions should be thrown
+     * Test Valid GetRecords request, no exceptions should be thrown
      */
 
     @Test
@@ -1261,9 +1286,12 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
-        List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("summary"), new QName("full"));
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
+        List<QName> elementNameList = Arrays.asList(new QName("brief"),
+                new QName("summary"),
+                new QName("full"));
         query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1276,8 +1304,9 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"), new QName("sas"));
         query.setElementName(elementNameList);
         grr.setAbstractQuery(jaxbQuery);
@@ -1291,8 +1320,9 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         query.setElementSetName(new ElementSetNameType());
         grr.setAbstractQuery(jaxbQuery);
@@ -1306,8 +1336,9 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
         ElementSetNameType elsnt = new ElementSetNameType();
         elsnt.setValue(ElementSetType.BRIEF);
         query.setElementSetName(elsnt);
@@ -1322,8 +1353,9 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"));
         ElementSetNameType elsnt = new ElementSetNameType();
         elsnt.setValue(ElementSetType.BRIEF);
@@ -1346,12 +1378,18 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        assertThat(argument.getValue().isEnterprise(), is(false));
-        assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
+        assertThat(argument.getValue()
+                .isEnterprise(), is(false));
+        assertThat(argument.getValue()
+                .getSourceIds(), anyOf(nullValue(), empty()));
     }
 
     @SuppressWarnings("unchecked")
@@ -1369,8 +1407,9 @@ public class TestCswEndpoint {
         constraint.setFilter(new FilterType());
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1379,8 +1418,12 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
     }
@@ -1402,12 +1445,18 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        assertThat(argument.getValue().isEnterprise(), is(false));
-        assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
+        assertThat(argument.getValue()
+                .isEnterprise(), is(false));
+        assertThat(argument.getValue()
+                .getSourceIds(), anyOf(nullValue(), empty()));
     }
 
     @SuppressWarnings("unchecked")
@@ -1427,12 +1476,18 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        assertThat(argument.getValue().isEnterprise(), is(true));
-        assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
+        assertThat(argument.getValue()
+                .isEnterprise(), is(true));
+        assertThat(argument.getValue()
+                .getSourceIds(), anyOf(nullValue(), empty()));
     }
 
     @SuppressWarnings("unchecked")
@@ -1458,8 +1513,9 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
         grr.setAbstractQuery(jaxbQuery);
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -1467,12 +1523,18 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        assertThat(argument.getValue().isEnterprise(), is(false));
-        assertThat(argument.getValue().getSourceIds(), contains("source1"));
+        assertThat(argument.getValue()
+                .isEnterprise(), is(false));
+        assertThat(argument.getValue()
+                .getSourceIds(), contains("source1"));
     }
 
     @Test(expected = CswException.class)
@@ -1487,8 +1549,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_BAD_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1509,8 +1572,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1519,11 +1583,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsLike.class));
         PropertyIsLike like = (PropertyIsLike) frameworkQuery.getFilter();
         assertThat(like.getLiteral(), is(CQL_CONTEXTUAL_PATTERN));
@@ -1549,8 +1618,9 @@ public class TestCswEndpoint {
         ElementSetNameType esnt = new ElementSetNameType();
         esnt.setValue(ElementSetType.SUMMARY);
         query.setElementSetName(esnt);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
         final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
@@ -1570,8 +1640,12 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
@@ -1597,8 +1671,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1614,8 +1689,12 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
@@ -1638,8 +1717,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1655,8 +1735,12 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
@@ -1679,11 +1763,13 @@ public class TestCswEndpoint {
         PropertyNameType propName = new PropertyNameType();
         propName.setContent(Arrays.asList((Object) TITLE_TEST_ATTRIBUTE));
         propType.setPropertyName(propName);
-        incomingSort.getSortProperty().add(propType);
+        incomingSort.getSortProperty()
+                .add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1693,15 +1779,21 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
 
-        SortBy resultSort = argument.getValue().getQuery().getSortBy();
+        SortBy resultSort = argument.getValue()
+                .getQuery()
+                .getSortBy();
 
-        assertThat(resultSort.getPropertyName().getPropertyName(),
-                is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
+        assertThat(resultSort.getPropertyName()
+                .getPropertyName(), is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
         assertThat(resultSort.getSortOrder(), is(SortOrder.ASCENDING));
     }
 
@@ -1719,11 +1811,13 @@ public class TestCswEndpoint {
         PropertyNameType propName = new PropertyNameType();
         propName.setContent(Arrays.asList((Object) UNKNOWN_TEST_ATTRIBUTE));
         propType.setPropertyName(propName);
-        incomingSort.getSortProperty().add(propType);
+        incomingSort.getSortProperty()
+                .add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1733,8 +1827,12 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
     }
@@ -1912,7 +2010,8 @@ public class TestCswEndpoint {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsLessThan(op),
+        ogcTemporalQuery(Metacard.CREATED,
+                filterObjectFactory.createPropertyIsLessThan(op),
                 Before.class);
     }
 
@@ -1925,7 +2024,8 @@ public class TestCswEndpoint {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
         ogcOrdTemporalQuery(Metacard.CREATED,
-                filterObjectFactory.createPropertyIsLessThanOrEqualTo(op), BegunBy.class,
+                filterObjectFactory.createPropertyIsLessThanOrEqualTo(op),
+                BegunBy.class,
                 TEquals.class);
     }
 
@@ -1937,7 +2037,8 @@ public class TestCswEndpoint {
             FederationException {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsGreaterThan(op),
+        ogcTemporalQuery(Metacard.CREATED,
+                filterObjectFactory.createPropertyIsGreaterThan(op),
                 After.class);
     }
 
@@ -1950,7 +2051,8 @@ public class TestCswEndpoint {
         BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
                 TIMESTAMP);
         ogcOrdTemporalQuery(Metacard.CREATED,
-                filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op), After.class,
+                filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op),
+                After.class,
                 TEquals.class);
     }
 
@@ -1971,8 +2073,8 @@ public class TestCswEndpoint {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_ISSUED, CQL_AFTER,
-                TIMESTAMP};
+        String[] cqlTextValues =
+                new String[] {CswRecordMetacardType.CSW_ISSUED, CQL_AFTER, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {After.class});
     }
@@ -1983,8 +2085,9 @@ public class TestCswEndpoint {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_DATE_ACCEPTED, CQL_DURING,
-                TIMESTAMP, "/", DURATION};
+        String[] cqlTextValues =
+                new String[] {CswRecordMetacardType.CSW_DATE_ACCEPTED, CQL_DURING, TIMESTAMP, "/",
+                        DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.EFFECTIVE, cqlText, new Class[] {During.class});
     }
@@ -1995,8 +2098,9 @@ public class TestCswEndpoint {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_DATE, CQL_BEFORE_OR_DURING,
-                TIMESTAMP, "/", DURATION};
+        String[] cqlTextValues =
+                new String[] {CswRecordMetacardType.CSW_DATE, CQL_BEFORE_OR_DURING, TIMESTAMP, "/",
+                        DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {Before.class, During.class});
     }
@@ -2007,8 +2111,9 @@ public class TestCswEndpoint {
             throws CswException, UnsupportedQueryException, SourceUnavailableException,
             FederationException {
 
-        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_VALID, CQL_DURING_OR_AFTER,
-                TIMESTAMP, "/", DURATION};
+        String[] cqlTextValues =
+                new String[] {CswRecordMetacardType.CSW_VALID, CQL_DURING_OR_AFTER, TIMESTAMP, "/",
+                        DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.EXPIRATION, cqlText, new Class[] {During.class, After.class});
     }
@@ -2025,15 +2130,16 @@ public class TestCswEndpoint {
 
         final Metacard metacard = new MetacardImpl();
 
-        final List<Result> mockResults = Collections
-                .<Result>singletonList(new ResultImpl(metacard));
-        final QueryResponseImpl queryResponse = new QueryResponseImpl(null, mockResults,
+        final List<Result> mockResults =
+                Collections.<Result>singletonList(new ResultImpl(metacard));
+        final QueryResponseImpl queryResponse = new QueryResponseImpl(null,
+                mockResults,
                 mockResults.size());
 
         final CswEndpoint cswEndpoint = createCswEndpoint(queryResponse);
 
-        final CswRecordCollection cswRecordCollection = cswEndpoint
-                .getRecordById(getRecordByIdRequest);
+        final CswRecordCollection cswRecordCollection = cswEndpoint.getRecordById(
+                getRecordByIdRequest);
         verifyCswRecordCollection(cswRecordCollection, metacard);
 
         assertThat(cswRecordCollection.getElementSetType(), is(ElementSetType.FULL));
@@ -2051,15 +2157,16 @@ public class TestCswEndpoint {
         final Metacard metacard1 = new MetacardImpl();
         final Metacard metacard2 = new MetacardImpl();
 
-        final List<Result> mockResults = Arrays
-                .<Result>asList(new ResultImpl(metacard1), new ResultImpl(metacard2));
-        final QueryResponse queryResponse = new QueryResponseImpl(null, mockResults,
+        final List<Result> mockResults = Arrays.<Result>asList(new ResultImpl(metacard1),
+                new ResultImpl(metacard2));
+        final QueryResponse queryResponse = new QueryResponseImpl(null,
+                mockResults,
                 mockResults.size());
 
         final CswEndpoint cswEndpoint = createCswEndpoint(queryResponse);
 
-        final CswRecordCollection cswRecordCollection = cswEndpoint
-                .getRecordById(getRecordByIdType);
+        final CswRecordCollection cswRecordCollection =
+                cswEndpoint.getRecordById(getRecordByIdType);
         verifyCswRecordCollection(cswRecordCollection, metacard1, metacard2);
 
         // "summary" is the default if none is specified in the request.
@@ -2095,10 +2202,15 @@ public class TestCswEndpoint {
     private CswEndpoint createCswEndpoint(final QueryResponse queryResponse)
             throws FederationException, SourceUnavailableException, UnsupportedQueryException {
         final CatalogFramework mockFramework = mock(CatalogFramework.class);
-        doReturn(queryResponse).when(mockFramework).query(any(QueryRequest.class));
+        doReturn(queryResponse).when(mockFramework)
+                .query(any(QueryRequest.class));
 
-        return new CswEndpoint(mockContext, mockFramework, filterBuilder, mockUriInfo,
-                mockMimeTypeManager, mockSchemaManager);
+        return new CswEndpoint(mockContext,
+                mockFramework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
     }
 
     @Test(expected = CswException.class)
@@ -2165,9 +2277,10 @@ public class TestCswEndpoint {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             StringWriter sw = new StringWriter();
 
-            JAXBElement<DescribeRecordResponseType> wrappedResponse = new JAXBElement<DescribeRecordResponseType>(
-                    cswQnameOutPutSchema,
-                    DescribeRecordResponseType.class, response);
+            JAXBElement<DescribeRecordResponseType> wrappedResponse =
+                    new JAXBElement<DescribeRecordResponseType>(cswQnameOutPutSchema,
+                            DescribeRecordResponseType.class,
+                            response);
 
             marshaller.marshal(wrappedResponse, sw);
 
@@ -2190,7 +2303,8 @@ public class TestCswEndpoint {
             StringWriter sw = new StringWriter();
 
             JAXBElement<TransactionResponseType> wrappedResponse = new JAXBElement<>(qName,
-                    TransactionResponseType.class, response);
+                    TransactionResponseType.class,
+                    response);
 
             marshaller.marshal(wrappedResponse, sw);
 
@@ -2205,25 +2319,36 @@ public class TestCswEndpoint {
     public void testIngestTransaction()
             throws CswException, SourceUnavailableException, FederationException, IngestException {
         CswTransactionRequest request = new CswTransactionRequest();
-        request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
-                Arrays.<Metacard>asList(new MetacardImpl())));
+        request.getInsertActions()
+                .add(new InsertAction(CswConstants.CSW_TYPE,
+                        null,
+                        Arrays.<Metacard>asList(new MetacardImpl())));
 
         CatalogFramework framework = mock(CatalogFramework.class);
-        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
+        CreateResponseImpl createResponse = new CreateResponseImpl(null,
+                null,
                 Arrays.<Metacard>asList(new MetacardImpl()));
         when(framework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         TransactionResponseType response = cswEndpoint.transaction(request);
         assertThat(response, notNullValue());
-        assertThat(response.getInsertResult().isEmpty(), is(true));
+        assertThat(response.getInsertResult()
+                .isEmpty(), is(true));
         assertThat(response.getTransactionSummary(), notNullValue());
         TransactionSummaryType summary = response.getTransactionSummary();
-        assertThat(summary.getTotalDeleted().intValue(), is(0));
-        assertThat(summary.getTotalUpdated().intValue(), is(0));
-        assertThat(summary.getTotalInserted().intValue(), is(1));
+        assertThat(summary.getTotalDeleted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalUpdated()
+                .intValue(), is(0));
+        assertThat(summary.getTotalInserted()
+                .intValue(), is(1));
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
@@ -2234,31 +2359,43 @@ public class TestCswEndpoint {
     public void testIngestVerboseTransaction()
             throws CswException, SourceUnavailableException, FederationException, IngestException {
         CswTransactionRequest request = new CswTransactionRequest();
-        request.getInsertActions().add(new InsertAction(CswConstants.CSW_TYPE, null,
-                Arrays.<Metacard>asList(new MetacardImpl())));
+        request.getInsertActions()
+                .add(new InsertAction(CswConstants.CSW_TYPE,
+                        null,
+                        Arrays.<Metacard>asList(new MetacardImpl())));
         request.setVerbose(true);
 
         CatalogFramework framework = mock(CatalogFramework.class);
-        CreateResponseImpl createResponse = new CreateResponseImpl(null, null,
+        CreateResponseImpl createResponse = new CreateResponseImpl(null,
+                null,
                 Arrays.<Metacard>asList(new MetacardImpl()));
         when(framework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         TransactionResponseType response = cswEndpoint.transaction(request);
         assertThat(response, notNullValue());
-        assertThat(response.getInsertResult().size(), is(1));
+        assertThat(response.getInsertResult()
+                .size(), is(1));
         assertThat(response.getTransactionSummary(), notNullValue());
         TransactionSummaryType summary = response.getTransactionSummary();
-        assertThat(summary.getTotalDeleted().intValue(), is(0));
-        assertThat(summary.getTotalUpdated().intValue(), is(0));
-        assertThat(summary.getTotalInserted().intValue(), is(1));
+        assertThat(summary.getTotalDeleted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalUpdated()
+                .intValue(), is(0));
+        assertThat(summary.getTotalInserted()
+                .intValue(), is(1));
 
-        String contextPath = StringUtils
-                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
-        verifyMarshalResponse(response, contextPath,
+        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
+                CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
+                CswConstants.OGC_OWS_PACKAGE}, ":");
+        verifyMarshalResponse(response,
+                contextPath,
                 new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.TRANSACTION));
     }
 
@@ -2268,12 +2405,15 @@ public class TestCswEndpoint {
             FederationException, IngestException {
         DeleteType deleteType = mock(DeleteType.class);
 
-        doReturn(CswConstants.CSW_RECORD).when(deleteType).getTypeName();
-        doReturn("").when(deleteType).getHandle();
+        doReturn(CswConstants.CSW_RECORD).when(deleteType)
+                .getTypeName();
+        doReturn("").when(deleteType)
+                .getHandle();
 
         QueryConstraintType queryConstraintType = new QueryConstraintType();
         queryConstraintType.setCqlText("title = \"foo\"");
-        doReturn(queryConstraintType).when(deleteType).getConstraint();
+        doReturn(queryConstraintType).when(deleteType)
+                .getConstraint();
 
         List<Result> results = new ArrayList<>();
         results.add(new ResultImpl(new MetacardImpl()));
@@ -2283,26 +2423,34 @@ public class TestCswEndpoint {
 
         CatalogFramework framework = mock(CatalogFramework.class);
 
-        doReturn(queryResponse).when(framework).query(any(QueryRequest.class));
+        doReturn(queryResponse).when(framework)
+                .query(any(QueryRequest.class));
 
         List<Metacard> deletedMetacards = new ArrayList<>();
         deletedMetacards.add(new MetacardImpl());
         deletedMetacards.add(new MetacardImpl());
 
         DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, deletedMetacards);
-        doReturn(deleteResponse).when(framework).delete(any(DeleteRequest.class));
+        doReturn(deleteResponse).when(framework)
+                .delete(any(DeleteRequest.class));
 
         DeleteAction deleteAction = new DeleteAction(deleteType,
-                DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
+                DefaultCswRecordMap.getDefaultCswRecordMap()
+                        .getPrefixToUriMapping());
 
         CswTransactionRequest deleteRequest = new CswTransactionRequest();
-        deleteRequest.getDeleteActions().add(deleteAction);
+        deleteRequest.getDeleteActions()
+                .add(deleteAction);
         deleteRequest.setVersion(CswConstants.VERSION_2_0_2);
         deleteRequest.setService(CswConstants.CSW);
         deleteRequest.setVerbose(false);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         TransactionResponseType response = cswEndpoint.transaction(deleteRequest);
         assertThat(response, notNullValue());
@@ -2310,9 +2458,12 @@ public class TestCswEndpoint {
         TransactionSummaryType summary = response.getTransactionSummary();
         assertThat(summary, notNullValue());
 
-        assertThat(summary.getTotalDeleted().intValue(), is(2));
-        assertThat(summary.getTotalInserted().intValue(), is(0));
-        assertThat(summary.getTotalUpdated().intValue(), is(0));
+        assertThat(summary.getTotalDeleted()
+                .intValue(), is(2));
+        assertThat(summary.getTotalInserted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalUpdated()
+                .intValue(), is(0));
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
@@ -2329,20 +2480,26 @@ public class TestCswEndpoint {
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
 
         UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
-        doReturn(updateResponse).when(framework).update(any(UpdateRequest.class));
+        doReturn(updateResponse).when(framework)
+                .update(any(UpdateRequest.class));
 
         MetacardImpl updatedMetacard = new MetacardImpl();
         updatedMetacard.setId("123");
         UpdateAction updateAction = new UpdateAction(updatedMetacard, CswConstants.CSW_RECORD, "");
 
         CswTransactionRequest transactionRequest = new CswTransactionRequest();
-        transactionRequest.getUpdateActions().add(updateAction);
+        transactionRequest.getUpdateActions()
+                .add(updateAction);
         transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
         transactionRequest.setService(CswConstants.CSW);
         transactionRequest.setVerbose(false);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         TransactionResponseType response = cswEndpoint.transaction(transactionRequest);
         assertThat(response, notNullValue());
@@ -2350,22 +2507,29 @@ public class TestCswEndpoint {
         TransactionSummaryType summary = response.getTransactionSummary();
         assertThat(summary, notNullValue());
 
-        assertThat(summary.getTotalDeleted().intValue(), is(0));
-        assertThat(summary.getTotalInserted().intValue(), is(0));
-        assertThat(summary.getTotalUpdated().intValue(), is(1));
+        assertThat(summary.getTotalDeleted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalInserted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalUpdated()
+                .intValue(), is(1));
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
                 cswQnameOutPutSchema);
 
-        ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
-                .forClass(UpdateRequest.class);
+        ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor.forClass(
+                UpdateRequest.class);
 
         verify(framework, times(1)).update(updateRequestArgumentCaptor.capture());
 
         UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
-        assertThat(actualUpdateRequest.getUpdates().size(), is(1));
-        assertThat(actualUpdateRequest.getUpdates().get(0).getValue().getId(), is("123"));
+        assertThat(actualUpdateRequest.getUpdates()
+                .size(), is(1));
+        assertThat(actualUpdateRequest.getUpdates()
+                .get(0)
+                .getValue()
+                .getId(), is("123"));
     }
 
     @Test
@@ -2389,14 +2553,16 @@ public class TestCswEndpoint {
         results.add(new ResultImpl(secondResult));
 
         QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
-        doReturn(queryResponse).when(framework).query(any(QueryRequest.class));
+        doReturn(queryResponse).when(framework)
+                .query(any(QueryRequest.class));
 
         List<Update> updatedMetacards = new ArrayList<>();
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
 
         UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
-        doReturn(updateResponse).when(framework).update(any(UpdateRequest.class));
+        doReturn(updateResponse).when(framework)
+                .update(any(UpdateRequest.class));
 
         Map<String, Serializable> recordProperties = new HashMap<>();
         recordProperties.put("title", "foo");
@@ -2405,17 +2571,26 @@ public class TestCswEndpoint {
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText("title = 'fake'");
 
-        UpdateAction updateAction = new UpdateAction(recordProperties, CswConstants.CSW_RECORD, "",
-                constraint, DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
+        UpdateAction updateAction = new UpdateAction(recordProperties,
+                CswConstants.CSW_RECORD,
+                "",
+                constraint,
+                DefaultCswRecordMap.getDefaultCswRecordMap()
+                        .getPrefixToUriMapping());
 
         CswTransactionRequest updateRequest = new CswTransactionRequest();
-        updateRequest.getUpdateActions().add(updateAction);
+        updateRequest.getUpdateActions()
+                .add(updateAction);
         updateRequest.setVersion(CswConstants.VERSION_2_0_2);
         updateRequest.setService(CswConstants.CSW);
         updateRequest.setVerbose(false);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         TransactionResponseType response = cswEndpoint.transaction(updateRequest);
         assertThat(response, notNullValue());
@@ -2423,16 +2598,19 @@ public class TestCswEndpoint {
         TransactionSummaryType summary = response.getTransactionSummary();
         assertThat(summary, notNullValue());
 
-        assertThat(summary.getTotalDeleted().intValue(), is(0));
-        assertThat(summary.getTotalInserted().intValue(), is(0));
-        assertThat(summary.getTotalUpdated().intValue(), is(2));
+        assertThat(summary.getTotalDeleted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalInserted()
+                .intValue(), is(0));
+        assertThat(summary.getTotalUpdated()
+                .intValue(), is(2));
 
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
                 cswQnameOutPutSchema);
 
-        ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor
-                .forClass(UpdateRequest.class);
+        ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor = ArgumentCaptor.forClass(
+                UpdateRequest.class);
 
         verify(framework, times(1)).update(updateRequestArgumentCaptor.capture());
 
@@ -2441,15 +2619,19 @@ public class TestCswEndpoint {
         List<Map.Entry<Serializable, Metacard>> updates = actualUpdateRequest.getUpdates();
         assertThat(updates.size(), is(2));
 
-        Metacard firstUpdate = updates.get(0).getValue();
+        Metacard firstUpdate = updates.get(0)
+                .getValue();
         assertThat(firstUpdate.getId(), is("123"));
         assertThat(firstUpdate.getTitle(), is("foo"));
-        assertThat((String) firstUpdate.getAttribute("subject").getValue(), is("bar"));
+        assertThat((String) firstUpdate.getAttribute("subject")
+                .getValue(), is("bar"));
 
-        Metacard secondUpdate = updates.get(1).getValue();
+        Metacard secondUpdate = updates.get(1)
+                .getValue();
         assertThat(secondUpdate.getId(), is("789"));
         assertThat(secondUpdate.getTitle(), is("foo"));
-        assertThat((String) secondUpdate.getAttribute("subject").getValue(), is("bar"));
+        assertThat((String) secondUpdate.getAttribute("subject")
+                .getValue(), is("bar"));
     }
 
     /**
@@ -2475,8 +2657,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2485,11 +2668,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
@@ -2524,8 +2712,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2534,11 +2723,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
@@ -2557,14 +2751,18 @@ public class TestCswEndpoint {
         BinaryComparisonOpType comparisonOp = new BinaryComparisonOpType();
 
         PropertyNameType propName = new PropertyNameType();
-        propName.getContent().add(attr);
+        propName.getContent()
+                .add(attr);
 
-        comparisonOp.getExpression().add(filterObjectFactory.createPropertyName(propName));
+        comparisonOp.getExpression()
+                .add(filterObjectFactory.createPropertyName(propName));
 
         LiteralType literal = new LiteralType();
-        literal.getContent().add(comparison);
+        literal.getContent()
+                .add(comparison);
 
-        comparisonOp.getExpression().add(filterObjectFactory.createLiteral(literal));
+        comparisonOp.getExpression()
+                .add(filterObjectFactory.createLiteral(literal));
         return comparisonOp;
     }
 
@@ -2572,7 +2770,8 @@ public class TestCswEndpoint {
         BinarySpatialOpType binarySpatialOps = new BinarySpatialOpType();
 
         PropertyNameType propName = new PropertyNameType();
-        propName.getContent().add(SPATIAL_TEST_ATTRIBUTE);
+        propName.getContent()
+                .add(SPATIAL_TEST_ATTRIBUTE);
         binarySpatialOps.setPropertyName(propName);
 
         binarySpatialOps.setGeometry(createPolygon());
@@ -2609,7 +2808,8 @@ public class TestCswEndpoint {
         DistanceBufferType distanceBuffer = new DistanceBufferType();
 
         PropertyNameType propName = new PropertyNameType();
-        propName.getContent().add(SPATIAL_TEST_ATTRIBUTE);
+        propName.getContent()
+                .add(SPATIAL_TEST_ATTRIBUTE);
         distanceBuffer.setPropertyName(propName);
 
         DistanceType distance = filterObjectFactory.createDistanceType();
@@ -2632,15 +2832,16 @@ public class TestCswEndpoint {
             if (!Double.isNaN(coordinate.z)) {
                 coord.setZ(BigDecimal.valueOf(coordinate.z));
             }
-            ring.getCoord().add(coord);
+            ring.getCoord()
+                    .add(coord);
         }
         AbstractRingPropertyType abstractRing = new AbstractRingPropertyType();
         abstractRing.setRing(gmlObjectFactory.createLinearRing(ring));
         localPolygon.setExterior(gmlObjectFactory.createExterior(abstractRing));
 
-        JAXBElement<AbstractGeometryType> agt = new JAXBElement<AbstractGeometryType>(
-                new QName("http://www.opengis.net/gml", "Polygon"), AbstractGeometryType.class,
-                null, localPolygon);
+        JAXBElement<AbstractGeometryType> agt = new JAXBElement<AbstractGeometryType>(new QName(
+                "http://www.opengis.net/gml",
+                "Polygon"), AbstractGeometryType.class, null, localPolygon);
         return agt;
     }
 
@@ -2667,11 +2868,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
@@ -2708,8 +2914,9 @@ public class TestCswEndpoint {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2718,11 +2925,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
@@ -2759,8 +2971,9 @@ public class TestCswEndpoint {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2769,11 +2982,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         assertThat(frameworkQuery.getFilter(), instanceOf(clz));
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
@@ -2836,7 +3054,8 @@ public class TestCswEndpoint {
 
         List<Filter> temporalFilters = ordTemporal.getChildren();
 
-        List<Class<? extends BinaryTemporalOperator>> classes = new ArrayList<Class<? extends BinaryTemporalOperator>>();
+        List<Class<? extends BinaryTemporalOperator>> classes =
+                new ArrayList<Class<? extends BinaryTemporalOperator>>();
 
         for (Filter temporal : temporalFilters) {
             assertThat(temporal, instanceOf(BinaryTemporalOperator.class));
@@ -2860,8 +3079,9 @@ public class TestCswEndpoint {
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2870,11 +3090,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         return frameworkQuery.getFilter();
     }
 
@@ -2893,8 +3118,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(cqlSpatialDwithinQuery);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2903,11 +3129,16 @@ public class TestCswEndpoint {
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
         when(framework.query(argument.capture())).thenReturn(response);
 
-        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext,
+                framework,
+                filterBuilder,
+                mockUriInfo,
+                mockMimeTypeManager,
+                mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
-        QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
+        QueryImpl frameworkQuery = (QueryImpl) argument.getValue()
+                .getQuery();
         N temporal = null;
         if (classes.length > 1) {
             assertThat(frameworkQuery.getFilter(), instanceOf(Or.class));
@@ -2996,8 +3227,9 @@ public class TestCswEndpoint {
 
         query.setTypeNames(typeNames);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
-                cswQnameOutPutSchema, QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
     }
@@ -3039,7 +3271,8 @@ public class TestCswEndpoint {
         ServiceIdentification si = ct.getServiceIdentification();
         assertEquals(si.getTitle(), CswEndpoint.SERVICE_TITLE);
         assertEquals(si.getAbstract(), CswEndpoint.SERVICE_ABSTRACT);
-        assertEquals(si.getServiceType().getValue(), CswConstants.CSW);
+        assertEquals(si.getServiceType()
+                .getValue(), CswConstants.CSW);
         assertEquals(si.getServiceTypeVersion(), Arrays.asList(CswConstants.VERSION_2_0_2));
     }
 
@@ -3054,16 +3287,17 @@ public class TestCswEndpoint {
         ArrayList<String> opNames = new ArrayList<>();
         for (Operation op : opList) {
             opNames.add(op.getName());
-            if (StringUtils.equals(CswConstants.TRANSACTION, op.getName()) || StringUtils
-                    .equals(CswConstants.GET_RECORDS, op.getName())) {
+            if (StringUtils.equals(CswConstants.TRANSACTION, op.getName()) || StringUtils.equals(
+                    CswConstants.GET_RECORDS,
+                    op.getName())) {
                 for (DomainType parameter : op.getParameter()) {
                     if (StringUtils.equals(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
                             parameter.getName())) {
                         assertThat(parameter.getValue(),
                                 contains(CswConstants.CONSTRAINT_LANGUAGE_FILTER,
                                         CswConstants.CONSTRAINT_LANGUAGE_CQL));
-                    } else if (StringUtils
-                            .equals(CswConstants.TYPE_NAMES_PARAMETER, parameter.getName())) {
+                    } else if (StringUtils.equals(CswConstants.TYPE_NAMES_PARAMETER,
+                            parameter.getName())) {
                         assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
                     }
                 }
@@ -3085,20 +3319,29 @@ public class TestCswEndpoint {
         FilterCapabilities fc = ct.getFilterCapabilities();
 
         assertNotNull(fc.getIdCapabilities());
-        assertTrue(fc.getIdCapabilities().getEIDOrFID().size() == 1);
+        assertTrue(fc.getIdCapabilities()
+                .getEIDOrFID()
+                .size() == 1);
 
         assertNotNull(fc.getScalarCapabilities());
         assertTrue(CswEndpoint.COMPARISON_OPERATORS.size() == fc.getScalarCapabilities()
-                .getComparisonOperators().getComparisonOperator().size());
+                .getComparisonOperators()
+                .getComparisonOperator()
+                .size());
         for (ComparisonOperatorType cot : CswEndpoint.COMPARISON_OPERATORS) {
-            assertTrue(fc.getScalarCapabilities().getComparisonOperators().getComparisonOperator()
+            assertTrue(fc.getScalarCapabilities()
+                    .getComparisonOperators()
+                    .getComparisonOperator()
                     .contains(cot));
         }
 
         assertNotNull(fc.getSpatialCapabilities());
         assertTrue(CswEndpoint.SPATIAL_OPERATORS.size() == fc.getSpatialCapabilities()
-                .getSpatialOperators().getSpatialOperator().size());
-        for (SpatialOperatorType sot : fc.getSpatialCapabilities().getSpatialOperators()
+                .getSpatialOperators()
+                .getSpatialOperator()
+                .size());
+        for (SpatialOperatorType sot : fc.getSpatialCapabilities()
+                .getSpatialOperators()
                 .getSpatialOperator()) {
             assertTrue(CswEndpoint.SPATIAL_OPERATORS.contains(sot.getName()));
         }

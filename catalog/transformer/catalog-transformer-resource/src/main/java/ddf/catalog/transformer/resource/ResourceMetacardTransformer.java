@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -88,28 +88,33 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
         String resourceUriAscii = "";
         if (metacard.getResourceURI() != null) {
-            resourceUriAscii = metacard.getResourceURI().toASCIIString();
+            resourceUriAscii = metacard.getResourceURI()
+                    .toASCIIString();
         }
 
         try {
             resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
         } catch (IOException e) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, resourceUriAscii,
-                            e.getMessage()), e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
+                    sourceName,
+                    resourceUriAscii,
+                    e.getMessage()), e);
         } catch (ResourceNotFoundException e) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, resourceUriAscii,
-                            e.getMessage()), e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
+                    sourceName,
+                    resourceUriAscii,
+                    e.getMessage()), e);
         } catch (ResourceNotSupportedException e) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, resourceUriAscii,
-                            e.getMessage()), e);
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
+                    sourceName,
+                    resourceUriAscii,
+                    e.getMessage()), e);
         }
 
         if (resourceResponse == null) {
-            throw new CatalogTransformerException(
-                    retrieveResourceFailureMessage(id, sourceName, resourceUriAscii));
+            throw new CatalogTransformerException(retrieveResourceFailureMessage(id,
+                    sourceName,
+                    resourceUriAscii));
         }
 
         Resource transformedContent = resourceResponse.getResource();
@@ -120,17 +125,20 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
                 mimeType = new MimeType(DEFAULT_MIME_TYPE_STR);
                 // There is no method to set the MIME type, so in order to set it to our default
                 // one, we need to create a new object.
-                transformedContent = new ResourceImpl(transformedContent.getInputStream(), mimeType,
+                transformedContent = new ResourceImpl(transformedContent.getInputStream(),
+                        mimeType,
                         transformedContent.getName());
             } catch (MimeTypeParseException e) {
                 throw new CatalogTransformerException(
                         "Could not create default mime type upon null mimeType, for default mime type '"
-                                + DEFAULT_MIME_TYPE_STR + "'.", e);
+                                + DEFAULT_MIME_TYPE_STR + "'.",
+                        e);
             }
         }
         LOGGER.debug(
                 "Found mime type: '{}' for product of metacard with id: '{}'.\nGetting associated resource from input stream. \n",
-                mimeType, id);
+                mimeType,
+                id);
 
         LOGGER.trace("Exiting resource transform for metacard id: '{}'", id);
         return transformedContent;

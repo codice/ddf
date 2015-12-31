@@ -60,7 +60,8 @@ public abstract class PkiTools {
      */
     public static String derToPem(byte[] bytes) {
         Validate.isTrue(bytes != null, "Argument bytes cannot be null");
-        return Base64.getEncoder().encodeToString(bytes);
+        return Base64.getEncoder()
+                .encodeToString(bytes);
     }
 
     /**
@@ -95,9 +96,9 @@ public abstract class PkiTools {
         }
 
         if (!file.canRead()) {
-            String msg = String
-                    .format("Cannot read security file (possible file permission problem)  or %s is a directory",
-                            file.getAbsolutePath());
+            String msg = String.format(
+                    "Cannot read security file (possible file permission problem)  or %s is a directory",
+                    file.getAbsolutePath());
             throw new IOException(msg);
         }
 
@@ -116,7 +117,8 @@ public abstract class PkiTools {
             return derToPem(cert.getEncoded());
         } catch (RuntimeException | CertificateEncodingException e) {
             throw new CertificateGeneratorException(
-                    "Unable to convert the certificate to a PEM object", e);
+                    "Unable to convert the certificate to a PEM object",
+                    e);
         }
     }
 
@@ -151,7 +153,8 @@ public abstract class PkiTools {
         //getCannonicalHostName returns the IP address. getHostName is the closet Java method to getting
         // the FQDN.
         try {
-            return InetAddress.getLocalHost().getHostName();
+            return InetAddress.getLocalHost()
+                    .getHostName();
         } catch (UnknownHostException e) {
             throw new CertificateGeneratorException("Cannot get this machine's host name", e);
         }
@@ -165,13 +168,14 @@ public abstract class PkiTools {
      */
     public static KeyPair generateRsaKeyPair() {
         try {
-            KeyPairGenerator keyGen = KeyPairGenerator
-                    .getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM,
+                    BouncyCastleProvider.PROVIDER_NAME);
             keyGen.initialize(RSA_KEY_LENGTH);
             return keyGen.generateKeyPair();
         } catch (Exception e) {
             throw new CertificateGeneratorException(
-                    "Failed to generate new public/private key pair.", e);
+                    "Failed to generate new public/private key pair.",
+                    e);
         }
     }
 
@@ -242,7 +246,8 @@ public abstract class PkiTools {
             cert = (X509Certificate) cf.engineGenerateCertificate(in);
         } catch (CertificateException e) {
             throw new CertificateGeneratorException(
-                    "Cannot convert this PEM object to X509 certificate", e);
+                    "Cannot convert this PEM object to X509 certificate",
+                    e);
         }
         if (cert == null) {
             throw new CertificateGeneratorException(
@@ -259,7 +264,8 @@ public abstract class PkiTools {
      */
     public static byte[] pemToDer(String string) {
         Validate.isTrue(string != null, "PEM string cannot be null");
-        return Base64.getDecoder().decode(string);
+        return Base64.getDecoder()
+                .decode(string);
     }
 
     /**

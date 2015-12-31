@@ -33,9 +33,9 @@ public class NearbyLocationImpl implements NearbyLocation {
      * Constructs a {@code NearbyLocationImpl} that describes the position of {@code sourceLocation}
      * relative to {@code nearbyLocation}.
      *
-     * @param sourceLocation  the primary location
-     * @param nearbyLocation  the location close to {@code sourceLocation}
-     * @param nearbyLocationName  the name of the nearby location
+     * @param sourceLocation     the primary location
+     * @param nearbyLocation     the location close to {@code sourceLocation}
+     * @param nearbyLocationName the name of the nearby location
      */
     public NearbyLocationImpl(final Point sourceLocation, final Point nearbyLocation,
             final String nearbyLocationName) {
@@ -55,8 +55,8 @@ public class NearbyLocationImpl implements NearbyLocation {
      * Calculates the bearing from the start point to the end point (i.e., the <em>initial bearing
      * </em>) in degrees.
      *
-     * @param startPoint  the point from which to start
-     * @param endPoint  the point at which to end
+     * @param startPoint the point from which to start
+     * @param endPoint   the point at which to end
      * @return the bearing from {@code startPoint} to {@code endPoint}, in degrees
      */
     private static double getBearing(final Point startPoint, final Point endPoint) {
@@ -70,9 +70,8 @@ public class NearbyLocationImpl implements NearbyLocation {
         final double lat1Rads = Math.toRadians(lat1);
         final double lat2Rads = Math.toRadians(lat2);
         final double y = Math.sin(lonDiffRads) * Math.cos(lat2Rads);
-        final double x =
-                Math.cos(lat1Rads) * Math.sin(lat2Rads) - Math.sin(lat1Rads) * Math.cos(lat2Rads)
-                        * Math.cos(lonDiffRads);
+        final double x = Math.cos(lat1Rads) * Math.sin(lat2Rads) - Math.sin(lat1Rads) * Math.cos(
+                lat2Rads) * Math.cos(lonDiffRads);
 
         return (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
     }
@@ -80,7 +79,7 @@ public class NearbyLocationImpl implements NearbyLocation {
     /**
      * Takes a bearing in degrees and returns the corresponding cardinal direction as a string.
      *
-     * @param bearing  the bearing, in degrees
+     * @param bearing the bearing, in degrees
      * @return the cardinal direction corresponding to {@code bearing} (N, NE, E, SE, S, SW, W, NW)
      */
     private static String bearingToCardinalDirection(final double bearing) {

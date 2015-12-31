@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -58,7 +58,9 @@ public class LatestCommand extends CatalogCommands {
 
         CatalogFacade catalogProvider = getCatalog();
 
-        Filter filter = getFilterBuilder().attribute(Metacard.MODIFIED).before().date(new Date());
+        Filter filter = getFilterBuilder().attribute(Metacard.MODIFIED)
+                .before()
+                .date(new Date());
 
         QueryImpl query = new QueryImpl(filter);
 
@@ -81,16 +83,23 @@ public class LatestCommand extends CatalogCommands {
             String postedDate = "";
             String title = "";
 
-            if (result.getMetacard().getModifiedDate() != null) {
-                postedDate = new DateTime(result.getMetacard().getModifiedDate())
-                        .toString(DATETIME_FORMATTER);
+            if (result.getMetacard()
+                    .getModifiedDate() != null) {
+                postedDate = new DateTime(result.getMetacard()
+                        .getModifiedDate()).toString(DATETIME_FORMATTER);
             }
 
-            if (isNotBlank(result.getMetacard().getTitle())) {
-                title = result.getMetacard().getTitle();
+            if (isNotBlank(result.getMetacard()
+                    .getTitle())) {
+                title = result.getMetacard()
+                        .getTitle();
             }
 
-            console.printf(formatString, i, result.getMetacard().getId(), postedDate,
+            console.printf(formatString,
+                    i,
+                    result.getMetacard()
+                            .getId(),
+                    postedDate,
                     title.substring(0, Math.min(title.length(), MAX_LENGTH)));
 
             i++;

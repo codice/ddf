@@ -56,7 +56,8 @@
             <map>
                 <entry>
                     <key>
-                        <value>ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType</value>
+                        <value>ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType
+                        </value>
                     </key>
                     <value>{http://www.opengis.net/wfs}WFS_Capabilities</value>
                 </entry>

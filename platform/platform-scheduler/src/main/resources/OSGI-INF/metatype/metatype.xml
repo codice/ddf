@@ -14,20 +14,20 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="" name="Platform Command Scheduler" id="ddf.platform.scheduler.Command">
-  
-    <AD name="Command" id="command" required="true" type="String" default=""
-        description="Shell command to be used within the container. For example, log:set DEBUG">
-    </AD>
-    
-    <AD name="Interval in seconds" id="intervalInSeconds"
-        description="The interval of time in seconds between each execution. Must be a positive integer. For example, 3600 is 1 hour."
-        required="true" type="Integer"/>
-    
-  </OCD>
+    <OCD description="" name="Platform Command Scheduler" id="ddf.platform.scheduler.Command">
 
-  <Designate pid="ddf.platform.scheduler.Command" factoryPid="ddf.platform.scheduler.Command">
-    <Object ocdref="ddf.platform.scheduler.Command"/>
-  </Designate>
-  
+        <AD name="Command" id="command" required="true" type="String" default=""
+            description="Shell command to be used within the container. For example, log:set DEBUG">
+        </AD>
+
+        <AD name="Interval in seconds" id="intervalInSeconds"
+            description="The interval of time in seconds between each execution. Must be a positive integer. For example, 3600 is 1 hour."
+            required="true" type="Integer"/>
+
+    </OCD>
+
+    <Designate pid="ddf.platform.scheduler.Command" factoryPid="ddf.platform.scheduler.Command">
+        <Object ocdref="ddf.platform.scheduler.Command"/>
+    </Designate>
+
 </metatype:MetaData>

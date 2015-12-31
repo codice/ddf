@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer;
 
@@ -94,10 +93,11 @@ public class TestFeatureCollectionMessageBodyWriter {
     private static final String BASIC_LOCATION = "POINT(1 1)";
 
     @Test
-    public void testWriteToGeneratesGMLConformantXml() throws IOException, WebApplicationException,
-            SAXException {
+    public void testWriteToGeneratesGMLConformantXml()
+            throws IOException, WebApplicationException, SAXException {
 
-        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
+        FeatureCollectionMessageBodyWriter wtr =
+                new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         wtr.writeTo(getWfsFeatureCollection(), null, null, null, null, null, stream);
         String actual = stream.toString();
@@ -121,8 +121,8 @@ public class TestFeatureCollectionMessageBodyWriter {
                 schemaLocations.put("gml.xsd", "/gml/2.1.2/gml.xsd");
                 schemaLocations.put("expr.xsd", "/filter/1.0.0/expr.xsd");
                 schemaLocations.put("filter.xsd", "/filter/1.0.0/filter.xsd");
-                schemaLocations
-                        .put("filterCapabilities.xsd", "/filter/1.0.0/filterCapabilties.xsd");
+                schemaLocations.put("filterCapabilities.xsd",
+                        "/filter/1.0.0/filterCapabilties.xsd");
                 schemaLocations.put("WFS-capabilities.xsd", "/wfs/1.0.0/WFS-capabilities.xsd");
                 schemaLocations.put("OGC-exception.xsd", "/wfs/1.0.0/OGC-exception.xsd");
                 schemaLocations.put("WFS-basic.xsd", "/wfs/1.0.0/WFS-basic.xsd");
@@ -148,24 +148,26 @@ public class TestFeatureCollectionMessageBodyWriter {
             }
         });
 
-        Source wfsSchemaSource = new StreamSource(
-                getClass().getResourceAsStream("/wfs/1.0.0/wfs.xsd"));
+        Source wfsSchemaSource = new StreamSource(getClass().getResourceAsStream(
+                "/wfs/1.0.0/wfs.xsd"));
         Source testSchemaSource = new StreamSource(getClass().getResourceAsStream("/schema.xsd"));
 
         Schema schema = schemaFactory.newSchema(new Source[] {wfsSchemaSource, testSchemaSource});
 
         try {
-            schema.newValidator().validate(new StreamSource(new StringReader(actual)));
+            schema.newValidator()
+                    .validate(new StreamSource(new StringReader(actual)));
         } catch (Exception e) {
             fail("Generated GML Response does not conform to WFS Schema" + e.getMessage());
         }
     }
 
     @Test
-    public void testWriteToGeneratesExpectedNonBasicMetacard() throws IOException,
-            WebApplicationException, SAXException {
+    public void testWriteToGeneratesExpectedNonBasicMetacard()
+            throws IOException, WebApplicationException, SAXException {
 
-        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
+        FeatureCollectionMessageBodyWriter wtr =
+                new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         wtr.writeTo(getWfsFeatureCollection(), null, null, null, null, null, stream);
 
@@ -178,10 +180,11 @@ public class TestFeatureCollectionMessageBodyWriter {
     }
 
     @Test
-    public void testWriteToGeneratesExpectedBasicMetacard() throws IOException,
-            WebApplicationException, SAXException {
+    public void testWriteToGeneratesExpectedBasicMetacard()
+            throws IOException, WebApplicationException, SAXException {
 
-        FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
+        FeatureCollectionMessageBodyWriter wtr =
+                new FeatureCollectionMessageBodyWriter(new SystemBaseUrl());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         wtr.writeTo(getBasicWfsFeatureCollection(), null, null, null, null, null, stream);
 
@@ -219,17 +222,41 @@ public class TestFeatureCollectionMessageBodyWriter {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        descriptors.add(new AttributeDescriptorImpl(ID, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(ID,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(TITLE, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(TITLE,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(DATE_CREATED, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(DATE_CREATED,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(WINS, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(WINS,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.INTEGER_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(HOME_LOCATION, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(HOME_LOCATION,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.GEO_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(AWAY_LOCATION, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(AWAY_LOCATION,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.GEO_TYPE));
 
         MetacardTypeImpl metacardType = new MetacardTypeImpl(CONTENT_TYPE, descriptors);

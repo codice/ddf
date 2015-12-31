@@ -51,8 +51,8 @@ public final class ContextualEvaluator {
 
     private static final String CASE_SENSITIVE_FIELD_NAME = "cs_Resource";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(ContextualEvaluator.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(ContextualEvaluator.class));
 
     private static final String DEFAULT_XPATH_1 =
             "/*[local-name()=\"Resource\"]/*" + "[local-name() != \"identifier\" and "
@@ -66,8 +66,8 @@ public final class ContextualEvaluator {
             + "/*[local-name()=\"geospatialCoverage\"]/*[local-name()=\"GeospatialExtent\"]"
             + "/*[not(ancestor::node()[local-name()=\"boundingGeometry\"] or descendant-or-self::node()[local-name()=\"boundingGeometry\"])] ";
 
-    private static final String[] DEFAULT_XPATH_SELECTORS = new String[] {DEFAULT_XPATH_1,
-            DEFAULT_XPATH_2};
+    private static final String[] DEFAULT_XPATH_SELECTORS =
+            new String[] {DEFAULT_XPATH_1, DEFAULT_XPATH_2};
 
     private ContextualEvaluator() {
         throw new UnsupportedOperationException(
@@ -76,7 +76,6 @@ public final class ContextualEvaluator {
 
     /**
      * @param cec
-     *
      * @return
      * @throws IOException
      * @throws ParseException
@@ -115,7 +114,8 @@ public final class ContextualEvaluator {
         QueryParser queryParser = null;
         if (cec.isCaseSensitiveSearch()) {
             LOGGER.debug("Doing case-sensitive search ...");
-            queryParser = new QueryParser(Version.LUCENE_30, CASE_SENSITIVE_FIELD_NAME,
+            queryParser = new QueryParser(Version.LUCENE_30,
+                    CASE_SENSITIVE_FIELD_NAME,
                     new CaseSensitiveContextualAnalyzer(Version.LUCENE_30));
 
             // Make Wildcard, Prefix, Fuzzy, and Range queries *not* be automatically lower-cased,
@@ -123,7 +123,8 @@ public final class ContextualEvaluator {
             queryParser.setLowercaseExpandedTerms(false);
         } else {
             LOGGER.debug("Doing case-insensitive search ...");
-            queryParser = new QueryParser(Version.LUCENE_30, FIELD_NAME,
+            queryParser = new QueryParser(Version.LUCENE_30,
+                    FIELD_NAME,
                     new ContextualAnalyzer(Version.LUCENE_30));
         }
 
@@ -157,13 +158,15 @@ public final class ContextualEvaluator {
      * @param indexWriter
      * @param fieldName
      * @param value
-     *
      * @throws IOException
      */
     private static void addDoc(IndexWriter indexWriter, String fieldName, String value)
             throws IOException {
         Document doc = new Document();
-        doc.add(new Field(fieldName, value, Field.Store.YES, Field.Index.ANALYZED,
+        doc.add(new Field(fieldName,
+                value,
+                Field.Store.YES,
+                Field.Index.ANALYZED,
                 Field.TermVector.WITH_POSITIONS_OFFSETS));
         indexWriter.addDocument(doc);
     }
@@ -173,11 +176,8 @@ public final class ContextualEvaluator {
      * case-sensitive indexed text. Use the default XPath selectors to extract the indexable text
      * from the specified XML document.
      *
-     * @param fullDocument
-     *            the XML document to be indexed
-     *
+     * @param fullDocument the XML document to be indexed
      * @return the Lucene index for the indexed text from the XML document
-     *
      * @throws IOException
      */
     public static Directory buildIndex(String fullDocument) throws IOException {
@@ -192,13 +192,9 @@ public final class ContextualEvaluator {
      * case-sensitive indexed text. Use the provided XPath selectors to extract the indexable text
      * from the specified XML document.
      *
-     * @param fullDocument
-     *            the XML document to be indexed
-     * @param xpathSelectors
-     *            the XPath selectors to use to extract the indexable text from the XML document
-     *
+     * @param fullDocument   the XML document to be indexed
+     * @param xpathSelectors the XPath selectors to use to extract the indexable text from the XML document
      * @return the Lucene index for the indexed text from the XML document
-     *
      * @throws IOException
      */
     public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
@@ -222,7 +218,9 @@ public final class ContextualEvaluator {
         // Create an IndexWriter using the case-insensitive StandardAnalyzer
         // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
         // overwriting any existing index
-        IndexWriter indexWriter = new IndexWriter(index, contextualAnalyzer, true,
+        IndexWriter indexWriter = new IndexWriter(index,
+                contextualAnalyzer,
+                true,
                 IndexWriter.MaxFieldLength.UNLIMITED);
         logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
 
@@ -231,13 +229,15 @@ public final class ContextualEvaluator {
         addDoc(indexWriter, FIELD_NAME, indexableText);
         indexWriter.close();
 
-        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer = new CaseSensitiveContextualAnalyzer(
-                Version.LUCENE_30);
+        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer =
+                new CaseSensitiveContextualAnalyzer(Version.LUCENE_30);
 
         // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
         // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
         // index (populated by first IndexWriter)
-        IndexWriter csIndexWriter = new IndexWriter(index, caseSensitiveStandardAnalyzer, false,
+        IndexWriter csIndexWriter = new IndexWriter(index,
+                caseSensitiveStandardAnalyzer,
+                false,
                 IndexWriter.MaxFieldLength.UNLIMITED);
 
         // Add the indexable text to the case-sensitive index writer, assigning it the

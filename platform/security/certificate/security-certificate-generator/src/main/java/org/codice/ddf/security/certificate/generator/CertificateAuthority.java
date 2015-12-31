@@ -83,11 +83,12 @@ public class CertificateAuthority {
 
     ContentSigner getContentSigner() {
         try {
-            return new JcaContentSignerBuilder(SIGNATURE_ALGORITHM)
-                    .setProvider(BouncyCastleProvider.PROVIDER_NAME).build(getPrivateKey());
+            return new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).setProvider(BouncyCastleProvider.PROVIDER_NAME)
+                    .build(getPrivateKey());
         } catch (Exception e) {
             throw new CertificateGeneratorException(
-                    "Cannot create content signer of certificate authority", e);
+                    "Cannot create content signer of certificate authority",
+                    e);
         }
     }
 

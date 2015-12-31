@@ -20,65 +20,105 @@
         <AnyOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">create</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">create
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">update</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">update
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">delete</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">delete
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <!-- SOAP Endpoints -->
             <AllOf>
                 <!-- http://ddf.sdk/soap/hello/HelloWorldServicePort/helloWorld -->
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">helloWorld</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">helloWorld
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <!-- REST Endpoints -->
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/admin</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/admin
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/jolokia</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/jolokia
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/system</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/system
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/solr</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/solr
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
             <AllOf>
                 <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/security</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/security
+                    </AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                         DataType="http://www.w3.org/2001/XMLSchema#string"
+                                         MustBePresent="true"/>
                 </Match>
             </AllOf>
         </AnyOf>
@@ -89,64 +129,118 @@
             <AnyOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">create</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">create
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">read
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">update</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">update
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">delete</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">delete
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/admin</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/admin
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/jolokia</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+                            ^/jolokia
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/system</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+                            ^/system
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/solr</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/solr
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-regexp-match">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">^/security</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+                            ^/security
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
             </AnyOf>
         </Target>
         <Condition>
             <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
-                <AttributeDesignator AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-                <AttributeDesignator AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                <AttributeDesignator
+                        AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+                        Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"
+                        DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                <AttributeDesignator
+                        AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+                        Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                        DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
             </Apply>
         </Condition>
     </Rule>
@@ -157,8 +251,14 @@
                 <AllOf>
                     <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
                         <!-- Checks that the action is http://ddf.sdk/soap/hello/HelloWorldServicePort/helloWorld -->
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">helloWorld</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">
+                            helloWorld
+                        </AttributeValue>
+                        <AttributeDesignator
+                                AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+                                Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"
+                                DataType="http://www.w3.org/2001/XMLSchema#string"
+                                MustBePresent="true"/>
                     </Match>
                 </AllOf>
             </AnyOf>
@@ -166,9 +266,13 @@
         <!-- Users with the correct role can perform these actions -->
         <Condition>
             <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
-                <AttributeDesignator AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                <AttributeDesignator
+                        AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+                        Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"
+                        DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
                 <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">guest</AttributeValue>
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">guest
+                    </AttributeValue>
                 </Apply>
             </Apply>
         </Condition>

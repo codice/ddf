@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
 
@@ -71,7 +70,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     protected static final String FID = "fid";
 
-    protected static final String ERROR_PARSING_MESSAGE = "Error parsing Geometry from feature xml.";
+    protected static final String ERROR_PARSING_MESSAGE =
+            "Error parsing Geometry from feature xml.";
 
     protected static final String UTF8_ENCODING = "UTF-8";
 
@@ -134,7 +134,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         copier.copy(hreader, new CompactWriter(writer, noNameCoder));
 
         StaxDriver driver = new WstxDriver();
-        return driver.createReader(new ByteArrayInputStream(writer.toString().getBytes()));
+        return driver.createReader(new ByteArrayInputStream(writer.toString()
+                .getBytes()));
     }
 
     protected Metacard createMetacardFromFeature(HierarchicalStreamReader hreader,
@@ -149,8 +150,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             reader.moveDown();
 
             String featureProperty = propertyPrefix + reader.getNodeName();
-            AttributeDescriptor attributeDescriptor = metacardType
-                    .getAttributeDescriptor(featureProperty);
+            AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(
+                    featureProperty);
 
             //Check MetacardMapper for mappings of incoming values
             String mappedMetacardAttribute = null;
@@ -160,57 +161,65 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                         featureProperty);
                 mappedMetacardAttribute = metacardMapper.getMetacardAttribute(featureProperty);
                 LOGGER.debug("Found metacard attribute {} for feature property {}",
-                        mappedMetacardAttribute, featureProperty);
+                        mappedMetacardAttribute,
+                        featureProperty);
             }
 
             Serializable value = null;
             if (attributeDescriptor != null && (StringUtils.isNotBlank(reader.getValue())
                     || BasicTypes.GEO_TYPE.getAttributeFormat()
-                    .equals(attributeDescriptor.getType().getAttributeFormat())
-                    || BasicTypes.DATE_TYPE.getAttributeFormat()
-                    .equals(attributeDescriptor.getType().getAttributeFormat()))) {
+                    .equals(attributeDescriptor.getType()
+                            .getAttributeFormat()) || BasicTypes.DATE_TYPE.getAttributeFormat()
+                    .equals(attributeDescriptor.getType()
+                            .getAttributeFormat()))) {
                 if (StringUtils.isNotBlank(mappedMetacardAttribute)) {
                     if (StringUtils.equals(mappedMetacardAttribute, Metacard.RESOURCE_SIZE)) {
                         String sizeBeforeConversion = reader.getValue();
                         String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
                         if (StringUtils.isNotBlank(bytes)) {
                             LOGGER.debug("Setting mapped metacard attribute {} with value {}",
-                                    mappedMetacardAttribute, bytes);
+                                    mappedMetacardAttribute,
+                                    bytes);
                             mc.setAttribute(mappedMetacardAttribute, bytes);
                         }
                         if (StringUtils.isNotBlank(sizeBeforeConversion)) {
                             LOGGER.debug("Setting metacard attribute {} with value {}",
-                                    featureProperty, sizeBeforeConversion);
+                                    featureProperty,
+                                    sizeBeforeConversion);
                             mc.setAttribute(featureProperty, sizeBeforeConversion);
                         }
                     } else {
-                        value = getValueForMetacardAttribute(
-                                attributeDescriptor.getType().getAttributeFormat(), reader);
+                        value = getValueForMetacardAttribute(attributeDescriptor.getType()
+                                .getAttributeFormat(), reader);
                         if (value != null) {
                             LOGGER.debug("Setting mapped metacard attribute {} with value {}",
-                                    mappedMetacardAttribute, value);
+                                    mappedMetacardAttribute,
+                                    value);
                             mc.setAttribute(mappedMetacardAttribute, value);
                             mc.setAttribute(featureProperty, value);
                         }
                     }
                 } else {
-                    value = getValueForMetacardAttribute(
-                            attributeDescriptor.getType().getAttributeFormat(), reader);
+                    value = getValueForMetacardAttribute(attributeDescriptor.getType()
+                            .getAttributeFormat(), reader);
 
                     if (value != null) {
-                        LOGGER.debug("Setting metacard attribute {} with value {}", featureProperty,
+                        LOGGER.debug("Setting metacard attribute {} with value {}",
+                                featureProperty,
                                 value);
                         mc.setAttribute(featureProperty, value);
                     }
                 }
                 if (BasicTypes.GEO_TYPE.getAttributeFormat()
-                        .equals(attributeDescriptor.getType().getAttributeFormat())) {
+                        .equals(attributeDescriptor.getType()
+                                .getAttributeFormat())) {
                     mc.setLocation((String) value);
                 }
                 // if this node matches a basic metacard attribute name,
                 // populate that field as well
                 if (isBasicMetacardAttribute(reader.getNodeName())) {
-                    LOGGER.debug("Setting metacard basic attribute: {} = {}", reader.getNodeName(),
+                    LOGGER.debug("Setting metacard basic attribute: {} = {}",
+                            reader.getNodeName(),
                             value);
 
                     mc.setAttribute(reader.getNodeName(), value);
@@ -283,7 +292,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             break;
         case BINARY:
             try {
-                ser = reader.getValue().getBytes(UTF8_ENCODING);
+                ser = reader.getValue()
+                        .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.warn("Error encoding the binary value into the metacard.", e);
             }
@@ -350,17 +360,20 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         }
 
         try { // trying to parse xsd:date
-            date = DatatypeConverter.parseDate(reader.getValue()).getTime();
+            date = DatatypeConverter.parseDate(reader.getValue())
+                    .getTime();
         } catch (IllegalArgumentException e) {
             LOGGER.debug(
                     "Unable to parse date, attempting to parse as xsd:dateTime, Exception was {}",
                     e);
             try { // try to parse it as a xsd:dateTime
-                date = DatatypeConverter.parseDateTime(reader.getValue()).getTime();
+                date = DatatypeConverter.parseDateTime(reader.getValue())
+                        .getTime();
             } catch (IllegalArgumentException ie) {
                 LOGGER.debug(
                         "Unable to parse date from XML; defaulting \"{}\" to current datetime.  Exception {}",
-                        reader.getNodeName(), ie);
+                        reader.getNodeName(),
+                        ie);
                 date = new Date();
             }
         }
@@ -374,13 +387,14 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     }
 
     protected Boolean isAttributeNotNull(final String attributeName, Metacard mc) {
-        return (mc.getAttribute(attributeName) != null
-                && mc.getAttribute(attributeName).getValue() != null);
+        return (mc.getAttribute(attributeName) != null && mc.getAttribute(attributeName)
+                .getValue() != null);
     }
 
     private Set<String> getBasicAttributeNames() {
-        Set<String> attrNames = new HashSet<String>(
-                BasicTypes.BASIC_METACARD.getAttributeDescriptors().size());
+        Set<String> attrNames =
+                new HashSet<String>(BasicTypes.BASIC_METACARD.getAttributeDescriptors()
+                        .size());
         for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
             attrNames.add(ad.getName());
         }

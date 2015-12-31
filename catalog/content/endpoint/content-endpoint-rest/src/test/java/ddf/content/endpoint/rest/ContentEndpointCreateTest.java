@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -213,8 +213,9 @@ public class ContentEndpointCreateTest {
             throws ContentEndpointException, ContentFrameworkException,
             MimeTypeResolutionException {
         ContentFramework framework = mock(ContentFramework.class);
-        when(framework.read(isA(ReadRequest.class))).thenThrow(
-                new ContentEndpointException("Content Item not found.", Response.Status.NOT_FOUND));
+        when(framework.read(isA(ReadRequest.class))).thenThrow(new ContentEndpointException(
+                "Content Item not found.",
+                Response.Status.NOT_FOUND));
 
         ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         endpoint.read(anyString());
@@ -227,7 +228,10 @@ public class ContentEndpointCreateTest {
         ContentFramework framework = mock(ContentFramework.class);
         ReadResponse readResponse = mock(ReadResponse.class);
 
-        ContentItem contentItem = getMockGoodContentItem(content, fileName, "contentIdValue", size,
+        ContentItem contentItem = getMockGoodContentItem(content,
+                fileName,
+                "contentIdValue",
+                size,
                 mimeType);
         when(readResponse.getContentItem()).thenReturn(contentItem);
 
@@ -241,25 +245,29 @@ public class ContentEndpointCreateTest {
         assertThat(IOUtils.toString((InputStream) response.getEntity()), equalTo(content));
 
         if (fileName != null) {
-            assertThat((String) response.getMetadata().getFirst(CONTENT_DISPOSITION),
+            assertThat((String) response.getMetadata()
+                            .getFirst(CONTENT_DISPOSITION),
                     equalToIgnoringWhiteSpace("inline; filename=" + fileName));
         } else {
-            assertThat(response.getMetadata().getFirst(CONTENT_DISPOSITION), is(nullValue()));
+            assertThat(response.getMetadata()
+                    .getFirst(CONTENT_DISPOSITION), is(nullValue()));
         }
 
         if (mimeType != null) {
-            assertThat((String) response.getMetadata().getFirst(HttpHeaders.CONTENT_TYPE),
-                    equalTo(mimeType));
+            assertThat((String) response.getMetadata()
+                    .getFirst(HttpHeaders.CONTENT_TYPE), equalTo(mimeType));
         } else {
-            assertThat((String) response.getMetadata().getFirst(HttpHeaders.CONTENT_TYPE),
+            assertThat((String) response.getMetadata()
+                            .getFirst(HttpHeaders.CONTENT_TYPE),
                     equalTo(MediaType.APPLICATION_OCTET_STREAM));
         }
 
         if (size != null) {
-            assertEquals(response.getMetadata().getFirst(HttpHeaders.CONTENT_LENGTH), size);
+            assertEquals(response.getMetadata()
+                    .getFirst(HttpHeaders.CONTENT_LENGTH), size);
         } else {
-            assertThat(response.getMetadata().getFirst(HttpHeaders.CONTENT_LENGTH),
-                    is(nullValue()));
+            assertThat(response.getMetadata()
+                    .getFirst(HttpHeaders.CONTENT_LENGTH), is(nullValue()));
         }
 
     }
@@ -288,8 +296,8 @@ public class ContentEndpointCreateTest {
         when(mapper.getFileExtensionForMimeType(eq("text/plain"))).thenReturn("txt");
         when(mapper.getMimeTypeForFileExtension(eq("txt"))).thenReturn("text/plain");
         when(mapper.getFileExtensionForMimeType(eq("application/json"))).thenReturn("json");
-        when(mapper.getMimeTypeForFileExtension(eq("json")))
-                .thenReturn("application/json;id=geojson");
+        when(mapper.getMimeTypeForFileExtension(eq("json"))).thenReturn(
+                "application/json;id=geojson");
         return mapper;
     }
 

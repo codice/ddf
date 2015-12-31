@@ -22,6 +22,7 @@ public class ApplicationServiceExceptionTest {
     private static final String TEST_MESSAGE = "TestMessage";
 
     private static final String TEST_THROWABLE_MESSAGE = "ThrowableMessage";
+
     /**
      * Tests the {@link ApplicationServiceException#ApplicationServiceException(String)} constructor
      */
@@ -44,7 +45,9 @@ public class ApplicationServiceExceptionTest {
             throw new ApplicationServiceException(TEST_MESSAGE, testThrowable);
         } catch (Exception e) {
             assertEquals(TEST_MESSAGE, e.getMessage());
-            assertEquals(TEST_THROWABLE_MESSAGE, e.getCause().getMessage());
+            assertEquals(TEST_THROWABLE_MESSAGE,
+                    e.getCause()
+                            .getMessage());
         }
     }
 
@@ -57,7 +60,9 @@ public class ApplicationServiceExceptionTest {
             Throwable testThrowable = new Throwable(TEST_THROWABLE_MESSAGE);
             throw new ApplicationServiceException(testThrowable);
         } catch (Exception e) {
-            assertEquals(TEST_THROWABLE_MESSAGE, e.getCause().getMessage());
+            assertEquals(TEST_THROWABLE_MESSAGE,
+                    e.getCause()
+                            .getMessage());
         }
     }
 }

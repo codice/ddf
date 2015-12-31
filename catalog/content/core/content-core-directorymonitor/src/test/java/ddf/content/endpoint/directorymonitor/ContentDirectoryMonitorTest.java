@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,7 +66,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "PROCESS";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, directive,
+        RouteDefinition routeDefinition = createRoute(monitoredDirectory,
+                directive,
                 copyIngestedFiles);
 
         verifyRoute(routeDefinition, monitoredDirectory, directive, copyIngestedFiles);
@@ -78,7 +79,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "PROCESS";
         boolean copyIngestedFiles = false;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, directive,
+        RouteDefinition routeDefinition = createRoute(monitoredDirectory,
+                directive,
                 copyIngestedFiles);
 
         verifyRoute(routeDefinition, monitoredDirectory, directive, copyIngestedFiles);
@@ -106,7 +108,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Simulates what container would do once all setters have been invoked
         contentDirectoryMonitor.init();
 
-        assertThat(camelContext.getRouteDefinitions().size(), is(0));
+        assertThat(camelContext.getRouteDefinitions()
+                .size(), is(0));
     }
 
     @Test
@@ -131,7 +134,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Simulates what container would do once all setters have been invoked
         contentDirectoryMonitor.init();
 
-        assertThat(camelContext.getRouteDefinitions().size(), is(0));
+        assertThat(camelContext.getRouteDefinitions()
+                .size(), is(0));
     }
 
     @Test
@@ -140,14 +144,17 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "PROCESS";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, directive,
+        RouteDefinition routeDefinition = createRoute(monitoredDirectory,
+                directive,
                 copyIngestedFiles);
 
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
 
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+        template.sendBodyAndHeader("file://" + monitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
                 INPUT_FILENAME);
 
         Thread.sleep(3000);
@@ -226,13 +233,16 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "PROCESS";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, directive,
+        RouteDefinition routeDefinition = createRoute(monitoredDirectory,
+                directive,
                 copyIngestedFiles);
 
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+        template.sendBodyAndHeader("file://" + monitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
                 INPUT_FILENAME);
 
         Thread.sleep(3000);
@@ -252,8 +262,10 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in new monitored directory
         fileContents = "Dummy data in second text file";
         FileUtils.writeStringToFile(new File("target/input_2.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + newMonitoredDirectory, fileContents,
-                Exchange.FILE_NAME, "input_2.txt");
+        template.sendBodyAndHeader("file://" + newMonitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
+                "input_2.txt");
 
         Thread.sleep(3000);
 
@@ -264,7 +276,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in original monitored directory
         fileContents = "Dummy data in third text file";
         FileUtils.writeStringToFile(new File("target/input_3.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+        template.sendBodyAndHeader("file://" + monitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
                 "input_3.txt");
 
         Thread.sleep(3000);
@@ -287,26 +301,32 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String directive = "PROCESS";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition firstRouteDefinition = createRoute(firstMonitoredDirectory, directive,
+        RouteDefinition firstRouteDefinition = createRoute(firstMonitoredDirectory,
+                directive,
                 copyIngestedFiles);
 
         String secondMonitoredDirectory = "target/inbox_2";
         directive = "STORE";
         copyIngestedFiles = true;
 
-        RouteDefinition secondRouteDefinition = createRoute(secondMonitoredDirectory, directive,
+        RouteDefinition secondRouteDefinition = createRoute(secondMonitoredDirectory,
+                directive,
                 copyIngestedFiles);
 
         // Put file in first monitored directory
         String fileContents = "text file 1";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
-        template.sendBodyAndHeader("file://" + firstMonitoredDirectory, fileContents,
-                Exchange.FILE_NAME, INPUT_FILENAME);
+        template.sendBodyAndHeader("file://" + firstMonitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
+                INPUT_FILENAME);
 
         fileContents = "text file 2";
         FileUtils.writeStringToFile(new File("target/input_2.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + secondMonitoredDirectory, fileContents,
-                Exchange.FILE_NAME, "input_2.txt");
+        template.sendBodyAndHeader("file://" + secondMonitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
+                "input_2.txt");
 
         Thread.sleep(3000);
 
@@ -346,13 +366,15 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // second
         // route that had this change in it. (So still get NPE because first route fires and cannot
         // resolve the "content" scheme)
-        camelContext.getRouteDefinitions().get(0)
+        camelContext.getRouteDefinitions()
+                .get(0)
                 .adviceWith(camelContext, new AdviceWithRouteBuilder() {
                     @Override
                     public void configure() throws Exception {
                         // weave the node in the route which has id = content://framework
                         // and replace it with the following route path
-                        weaveByToString(".*content:framework.*").replace().to("mock:result");
+                        weaveByToString(".*content:framework.*").replace()
+                                .to("mock:result");
                     }
                 });
 
@@ -417,7 +439,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
             String directive, boolean copyIngestedFiles) {
         List<FromDefinition> fromDefinitions = routeDefinition.getInputs();
         assertThat(fromDefinitions.size(), is(1));
-        String uri = fromDefinitions.get(0).getUri();
+        String uri = fromDefinitions.get(0)
+                .getUri();
         LOGGER.debug("uri = {}", uri);
         String expectedUri = "file:" + monitoredDirectory + "?moveFailed=.errors";
         if (copyIngestedFiles) {

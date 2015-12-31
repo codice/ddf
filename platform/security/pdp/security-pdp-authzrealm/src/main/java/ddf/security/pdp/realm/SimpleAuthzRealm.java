@@ -232,7 +232,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         Collection<Permission> perms = getPermissions(info);
         String curUser = "<user>";
         if (subjectPrincipal != null && subjectPrincipal.getPrimaryPrincipal() != null) {
-            curUser = subjectPrincipal.getPrimaryPrincipal().toString();
+            curUser = subjectPrincipal.getPrimaryPrincipal()
+                    .toString();
         }
         if (SecurityLogger.isDebugEnabled()) {
             SecurityLogger.logDebug("Starting permissions check for user [" + curUser + "]");
@@ -257,21 +258,23 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                     if (matchAllMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
                             SecurityLogger.logDebug(
-                                    "Mapping key " + metacardKey + " to " + matchAllMap
-                                            .get(metacardKey));
+                                    "Mapping key " + metacardKey + " to " + matchAllMap.get(
+                                            metacardKey));
                         }
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchAllMap.get(metacardKey), keyValuePermission.getValues());
+                        KeyValuePermission kvp =
+                                new KeyValuePermission(matchAllMap.get(metacardKey),
+                                        keyValuePermission.getValues());
                         matchAllPermissions.add(kvp);
                         // user specified this key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
                             SecurityLogger.logDebug(
-                                    "Mapping key " + metacardKey + " to " + matchOneMap
-                                            .get(metacardKey));
+                                    "Mapping key " + metacardKey + " to " + matchOneMap.get(
+                                            metacardKey));
                         }
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchOneMap.get(metacardKey), keyValuePermission.getValues());
+                        KeyValuePermission kvp =
+                                new KeyValuePermission(matchOneMap.get(metacardKey),
+                                        keyValuePermission.getValues());
                         matchOnePermissions.add(kvp);
                         // this key was not specified in either - default to match all with the
                         // same key value
@@ -281,18 +284,21 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                 }
 
                 CollectionPermission subjectAllCollection = new CollectionPermission(
-                        CollectionPermission.UNKNOWN_ACTION, perms);
+                        CollectionPermission.UNKNOWN_ACTION,
+                        perms);
                 KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchAllPermissions);
+                        kvcp.getAction(),
+                        matchAllPermissions);
                 KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchOnePermissions);
+                        kvcp.getAction(),
+                        matchOnePermissions);
 
                 matchAllCollection = isPermittedByExtensionAll(subjectAllCollection,
                         matchAllCollection);
                 matchOneCollection = isPermittedByExtensionOne(subjectAllCollection,
                         matchOneCollection);
-                MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(
-                        perms);
+                MatchOneCollectionPermission subjectOneCollection =
+                        new MatchOneCollectionPermission(perms);
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
@@ -338,11 +344,11 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             resultCollection.addAll(matchAllCollection.getPermissionList());
             for (PolicyExtension policyExtension : policyExtensions) {
                 try {
-                    resultCollection = policyExtension
-                            .isPermittedMatchAll(subjectAllCollection, resultCollection);
+                    resultCollection = policyExtension.isPermittedMatchAll(subjectAllCollection,
+                            resultCollection);
                 } catch (Exception e) {
-                    SecurityLogger
-                            .logWarn("Policy Extension plugin did not complete correctly.", e);
+                    SecurityLogger.logWarn("Policy Extension plugin did not complete correctly.",
+                            e);
                     LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
                 }
             }
@@ -359,11 +365,11 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             resultCollection.addAll(matchOneCollection.getPermissionList());
             for (PolicyExtension policyExtension : policyExtensions) {
                 try {
-                    resultCollection = policyExtension
-                            .isPermittedMatchOne(subjectAllCollection, resultCollection);
+                    resultCollection = policyExtension.isPermittedMatchOne(subjectAllCollection,
+                            resultCollection);
                 } catch (Exception e) {
-                    SecurityLogger
-                            .logWarn("Policy Extension plugin did not complete correctly.", e);
+                    SecurityLogger.logWarn("Policy Extension plugin did not complete correctly.",
+                            e);
                     LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
                 }
             }
@@ -384,8 +390,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             wildcardString.append(value);
             wildcardString.append(",");
         }
-        return new WildcardPermission(
-                wildcardString.toString().substring(0, wildcardString.length() - 1));
+        return new WildcardPermission(wildcardString.toString()
+                .substring(0, wildcardString.length() - 1));
     }
 
     /**
@@ -501,7 +507,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(),
+                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.",
+                            values[1].trim(),
                             values[0].trim());
                     matchAllMap.put(values[1].trim(), values[0].trim());
                 } else {
@@ -544,7 +551,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(),
+                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.",
+                            values[1].trim(),
                             values[0].trim());
                     matchOneMap.put(values[1].trim(), values[0].trim());
                 } else {

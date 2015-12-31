@@ -1,17 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,16 +19,16 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- * <p/>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -36,9 +36,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -91,8 +91,8 @@ public class X509PathTokenValidator implements TokenValidator {
 
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory
-            .getLogger(X509PathTokenValidator.class);
+    private static final org.slf4j.Logger LOGGER =
+            LoggerFactory.getLogger(X509PathTokenValidator.class);
 
     protected Merlin merlin;
 
@@ -106,7 +106,8 @@ public class X509PathTokenValidator implements TokenValidator {
     public void init() {
         try {
             merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath),
-                    X509PathTokenValidator.class.getClassLoader(), null);
+                    X509PathTokenValidator.class.getClassLoader(),
+                    null);
         } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
@@ -141,8 +142,7 @@ public class X509PathTokenValidator implements TokenValidator {
         Object token = validateTarget.getToken();
         return (token instanceof BinarySecurityTokenType) && (
                 X509_PKI_PATH.equals(((BinarySecurityTokenType) token).getValueType())
-                        || X509TokenValidator.X509_V3_TYPE
-                        .equals(((BinarySecurityTokenType) token).getValueType()));
+                        || X509TokenValidator.X509_V3_TYPE.equals(((BinarySecurityTokenType) token).getValueType()));
     }
 
     /**
@@ -170,8 +170,8 @@ public class X509PathTokenValidator implements TokenValidator {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType) validateTarget
-                .getToken();
+        BinarySecurityTokenType binarySecurityType =
+                (BinarySecurityTokenType) validateTarget.getToken();
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
@@ -188,7 +188,8 @@ public class X509PathTokenValidator implements TokenValidator {
         binarySecurity.setEncodingType(encodingType);
         binarySecurity.setValueType(binarySecurityType.getValueType());
         String data = binarySecurityType.getValue();
-        ((Text) binarySecurity.getElement().getFirstChild()).setData(data);
+        ((Text) binarySecurity.getElement()
+                .getFirstChild()).setData(data);
 
         //
         // Validate the token
@@ -199,15 +200,16 @@ public class X509PathTokenValidator implements TokenValidator {
             if (merlin != null) {
                 byte[] token = binarySecurity.getToken();
                 if (token != null) {
-                    if (binarySecurityType.getValueType().equals(X509_PKI_PATH)) {
+                    if (binarySecurityType.getValueType()
+                            .equals(X509_PKI_PATH)) {
                         X509Certificate[] certificates = merlin.getCertificatesFromBytes(token);
                         if (certificates != null) {
                             credential.setCertificates(certificates);
                         }
                     } else {
-                        X509Certificate singleCert = merlin
-                                .loadCertificate(new ByteArrayInputStream(token));
-                        credential.setCertificates(new X509Certificate[]{singleCert});
+                        X509Certificate singleCert =
+                                merlin.loadCertificate(new ByteArrayInputStream(token));
+                        credential.setCertificates(new X509Certificate[] {singleCert});
                     }
                 } else {
                     LOGGER.debug("Binary Security Token bytes were null.");
@@ -215,11 +217,9 @@ public class X509PathTokenValidator implements TokenValidator {
             }
 
             Credential returnedCredential = validator.validate(credential, requestData);
-            response.setPrincipal(
-                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            response.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
-            validateTarget.setPrincipal(
-                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            validateTarget.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);
         }

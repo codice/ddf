@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -94,7 +94,8 @@ public class CasHandler implements AuthenticationHandler {
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                 //update cache with new information
                 LOGGER.debug("Adding new CAS assertion for session {}",
-                        httpRequest.getSession(false).getId());
+                        httpRequest.getSession(false)
+                                .getId());
                 httpRequest.getSession(false)
                         .setAttribute(AbstractCasFilter.CONST_CAS_ASSERTION, assertion);
                 LOGGER.debug("Successfully set authentication token, returning result with token.");
@@ -139,16 +140,19 @@ public class CasHandler implements AuthenticationHandler {
 
         if (attributePrincipal != null) {
             LOGGER.debug("Getting proxy ticket for {}", clientConfiguration.getAddress());
-            String proxyTicket = attributePrincipal
-                    .getProxyTicketFor(clientConfiguration.getAddress());
+            String proxyTicket =
+                    attributePrincipal.getProxyTicketFor(clientConfiguration.getAddress());
             if (proxyTicket == null || proxyTicket.equals("null")) {
                 LOGGER.warn("Couldn't get proxy ticket for CAS authentication.");
             } else {
                 LOGGER.debug("proxy ticket: {}", proxyTicket);
                 LOGGER.debug("Creating AuthenticationToken with {}|{} as the credentials.",
-                        proxyTicket, clientConfiguration.getAddress());
-                token = new CASAuthenticationToken(attributePrincipal, proxyTicket,
-                        clientConfiguration.getAddress(), realm);
+                        proxyTicket,
+                        clientConfiguration.getAddress());
+                token = new CASAuthenticationToken(attributePrincipal,
+                        proxyTicket,
+                        clientConfiguration.getAddress(),
+                        realm);
             }
         } else {
             LOGGER.warn("Couldn't get attribute principle for CAS authentication.");
@@ -205,9 +209,11 @@ public class CasHandler implements AuthenticationHandler {
 
         @Override
         public void onRemoval(RemovalNotification<String, Assertion> notification) {
-            if (notification.getCause().equals(RemovalCause.EXPIRED)) {
+            if (notification.getCause()
+                    .equals(RemovalCause.EXPIRED)) {
                 LOGGER.debug("Cached CAS assertion for session with id {} has expired.",
-                        notification.getKey(), notification.getValue());
+                        notification.getKey(),
+                        notification.getValue());
             }
         }
     }

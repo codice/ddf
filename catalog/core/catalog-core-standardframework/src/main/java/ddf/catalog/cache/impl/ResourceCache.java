@@ -71,8 +71,8 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private IMap<Object, Object> cache;
 
-    private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(
-            DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
+    private ProductCacheDirListener<Object, Object> cacheListener =
+            new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
 
     private BundleContext context;
 
@@ -176,8 +176,8 @@ public class ResourceCache implements ResourceCacheInterface {
             File directory = new File(path);
 
             // Create the directory if it doesn't exist
-            if ((!directory.exists() && directory.mkdirs()) || (directory.isDirectory() && directory
-                    .canRead() && directory.canWrite())) {
+            if ((!directory.exists() && directory.mkdirs()) || (directory.isDirectory()
+                    && directory.canRead() && directory.canWrite())) {
                 LOGGER.debug("Setting product cache directory to: {}", path);
                 newProductCacheDirectoryDir = path;
             }
@@ -366,7 +366,8 @@ public class ResourceCache implements ResourceCacheInterface {
                     "Neither the cachedResource nor the metacard retrieved from the catalog can be null.");
         }
 
-        int cachedResourceHash = cachedResource.getMetacard().hashCode();
+        int cachedResourceHash = cachedResource.getMetacard()
+                .hashCode();
         MetacardImpl latestMetacardImpl = new MetacardImpl(latestMetacard);
         int latestMetacardHash = latestMetacardImpl.hashCode();
 

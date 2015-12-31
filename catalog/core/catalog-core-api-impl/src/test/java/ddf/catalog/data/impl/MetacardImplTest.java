@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,8 @@ public class MetacardImplTest {
         modDate = c.getTime();
         c.add(Calendar.YEAR, 1);
         expireDate = c.getTime();
-        mcId = UUID.randomUUID().toString();
+        mcId = UUID.randomUUID()
+                .toString();
         locWkt = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
         nsUri = new URI("http://" + MetacardImplTest.class.getName());
         resourceUri = new URI(nsUri.toString() + "/resource.html");
@@ -92,7 +93,8 @@ public class MetacardImplTest {
         mc.setSourceId("testSourceId");
         mc.setTargetNamespace(nsUri);
         mc.setTitle("testTitle");
-        mc.setThumbnail(mc.getId().getBytes());
+        mc.setThumbnail(mc.getId()
+                .getBytes());
         mc.setDescription("testDescription");
         mc.setPointOfContact("pointOfContact");
     }
@@ -211,8 +213,12 @@ public class MetacardImplTest {
     @Test
     public void testUpdatingWrappedMetacardFields() {
         HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-        descriptors.add(new AttributeDescriptorImpl("test-string", true /* indexed */, true /* stored */,
-                false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("test-string",
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
         MetacardType testType = new MetacardTypeImpl("test.type", descriptors);
 
         MetacardImpl mi = new MetacardImpl(mc);
@@ -308,8 +314,12 @@ public class MetacardImplTest {
         assertEquals(metacard.getResourceSize(), readMetacard.getResourceSize());
         assertTrue(Arrays.equals(metacard.getThumbnail(), readMetacard.getThumbnail()));
         assertEquals(metacard.getSourceId(), readMetacard.getSourceId());
-        assertEquals(metacard.getDescription(), readMetacard.getAttribute("description").getValue());
-        assertEquals(metacard.getPointOfContact(), readMetacard.getAttribute("point-of-contact").getValue());
+        assertEquals(metacard.getDescription(),
+                readMetacard.getAttribute("description")
+                        .getValue());
+        assertEquals(metacard.getPointOfContact(),
+                readMetacard.getAttribute("point-of-contact")
+                        .getValue());
 
         MetacardType metacardType = metacard.getMetacardType();
         MetacardType readMetacardType = readMetacard.getMetacardType();
@@ -323,7 +333,8 @@ public class MetacardImplTest {
 
         for (int i = 0; i < oldAd.size(); i++) {
 
-            AttributeDescriptor oldDescriptor = oldAd.iterator().next();
+            AttributeDescriptor oldDescriptor = oldAd.iterator()
+                    .next();
 
             boolean match = false;
 
@@ -377,8 +388,14 @@ public class MetacardImplTest {
         assertEquals(metacard.getExpirationDate(), readMetacard.getExpirationDate());
         assertEquals(metacard.getResourceURI(), readMetacard.getResourceURI());
         assertEquals(metacard.getResourceSize(), readMetacard.getResourceSize());
-        assertEquals(metacard.getAttribute("description").getValue(), readMetacard.getAttribute("description").getValue());
-        assertEquals(metacard.getAttribute("point-of-contact").getValue(), readMetacard.getAttribute("point-of-contact").getValue());
+        assertEquals(metacard.getAttribute("description")
+                        .getValue(),
+                readMetacard.getAttribute("description")
+                        .getValue());
+        assertEquals(metacard.getAttribute("point-of-contact")
+                        .getValue(),
+                readMetacard.getAttribute("point-of-contact")
+                        .getValue());
 
         assertTrue(Arrays.equals(metacard.getThumbnail(), readMetacard.getThumbnail()));
 
@@ -396,7 +413,8 @@ public class MetacardImplTest {
 
         for (int i = 0; i < oldAd.size(); i++) {
 
-            AttributeDescriptor oldDescriptor = oldAd.iterator().next();
+            AttributeDescriptor oldDescriptor = oldAd.iterator()
+                    .next();
 
             boolean match = false;
 
@@ -450,7 +468,8 @@ public class MetacardImplTest {
         MetacardType readMetacardType = readMetacard.getMetacardType();
 
         assertEquals(metacardType.getName(), readMetacardType.getName());
-        assertTrue(readMetacardType.getAttributeDescriptors().isEmpty());
+        assertTrue(readMetacardType.getAttributeDescriptors()
+                .isEmpty());
         assertEquals(metacardType.getAttributeDescriptor(null),
                 readMetacardType.getAttributeDescriptor(null));
 
@@ -477,7 +496,8 @@ public class MetacardImplTest {
 
         assertTrue(readMetacardType.getName() == null);
         assertTrue(readMetacardType.getAttributeDescriptor(null) == null);
-        assertTrue(readMetacardType.getAttributeDescriptors().isEmpty());
+        assertTrue(readMetacardType.getAttributeDescriptors()
+                .isEmpty());
 
         assertEquals(metacardType.getName(), readMetacardType.getName());
         assertEquals(metacardType.getAttributeDescriptor(null),
@@ -506,9 +526,14 @@ public class MetacardImplTest {
         // implementation.
         // It will use ddf.catalog.data.MetacardTypeImpl
         // which does not allow null for attribute descriptors list
-        assertEquals(0, readMetacard.getMetacardType().getAttributeDescriptors().size());
+        assertEquals(0,
+                readMetacard.getMetacardType()
+                        .getAttributeDescriptors()
+                        .size());
 
-        assertEquals(null, readMetacard.getMetacardType().getName());
+        assertEquals(null,
+                readMetacard.getMetacardType()
+                        .getName());
 
         assertEquals("someTitle", readMetacard.getTitle());
 
@@ -531,7 +556,9 @@ public class MetacardImplTest {
 
         Metacard readMetacard = serializer.deserialize(DEFAULT_SERIALIZATION_FILE_LOCATION);
 
-        assertEquals("newNameValue", readMetacard.getAttribute("newName").getValue());
+        assertEquals("newNameValue",
+                readMetacard.getAttribute("newName")
+                        .getValue());
 
     }
 

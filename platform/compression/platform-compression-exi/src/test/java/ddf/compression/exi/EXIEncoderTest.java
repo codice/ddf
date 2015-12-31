@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -70,8 +70,8 @@ public class EXIEncoderTest {
 
         GrammarCache grammarCache;
 
-        SAXTransformerFactory saxTransformerFactory = (SAXTransformerFactory) SAXTransformerFactory
-                .newInstance();
+        SAXTransformerFactory saxTransformerFactory =
+                (SAXTransformerFactory) SAXTransformerFactory.newInstance();
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         saxParserFactory.setNamespaceAware(true);
         TransformerHandler transformerHandler = saxTransformerFactory.newTransformerHandler();
@@ -91,7 +91,8 @@ public class EXIEncoderTest {
         XMLUnit.setNormalizeWhitespace(true);
         InputStream stream = getClass().getResourceAsStream(TEST_FILE);
         Diff diff = XMLUnit.compareXML(IOUtils.toString(stream),
-                stringWriter.getBuffer().toString());
+                stringWriter.getBuffer()
+                        .toString());
         IOUtils.closeQuietly(stream);
         assertTrue("The XML input file (" + TEST_FILE + ") did not match the EXI-decoded output",
                 diff.similar());

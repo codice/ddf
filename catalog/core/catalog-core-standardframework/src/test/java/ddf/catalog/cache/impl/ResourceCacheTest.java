@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -130,7 +130,10 @@ public class ResourceCacheTest {
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
         ReliableResource reliableResource = new ReliableResource(key,
-                rrCachedFile.getAbsolutePath(), new MimeType(), fileName, metacard);
+                rrCachedFile.getAbsolutePath(),
+                new MimeType(),
+                fileName,
+                metacard);
 
         resourceCache.addPendingCacheEntry(reliableResource);
         assertTrue(resourceCache.isPending(key));
@@ -153,7 +156,10 @@ public class ResourceCacheTest {
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
         ReliableResource reliableResource = new ReliableResource(key,
-                rrCachedFile.getAbsolutePath(), new MimeType(), fileName, metacard);
+                rrCachedFile.getAbsolutePath(),
+                new MimeType(),
+                fileName,
+                metacard);
 
         resourceCache.put(reliableResource);
         assertFalse(resourceCache.isPending(key));
@@ -225,7 +231,10 @@ public class ResourceCacheTest {
         assertTrue(cachedResourceFile.exists());
 
         ReliableResource cachedResource = new ReliableResource(cachedResourceMetacardKey,
-                cachedResourceFilePath, null, null, metacard);
+                cachedResourceFilePath,
+                null,
+                null,
+                metacard);
         resourceCache.validateCacheEntry(cachedResource, metacard1);
         assertFalse(cachedResourceFile.exists());
     }
@@ -270,9 +279,11 @@ public class ResourceCacheTest {
         File cachedResourceFile = new File(cachedResourceFilePath);
         assertTrue(cachedResourceFile.exists());
 
-        resourceCache
-                .put(new ReliableResource(cachedResourceMetacardKey, cachedResourceFilePath, null,
-                        "name", cachedMetacard));
+        resourceCache.put(new ReliableResource(cachedResourceMetacardKey,
+                cachedResourceFilePath,
+                null,
+                "name",
+                cachedMetacard));
         assertFalse(resourceCache.containsValid(cachedResourceMetacardKey, latestMetacard));
         assertFalse(cachedResourceFile.exists());
     }
@@ -330,20 +341,23 @@ public class ResourceCacheTest {
         }
 
         if (result) {
-            result = rrActual.getFilePath().equals(expected.getFilePath());
+            result = rrActual.getFilePath()
+                    .equals(expected.getFilePath());
 
             if (result) {
-                result = rrActual.getMimeTypeValue().equals((expected.getMimeTypeValue()));
+                result = rrActual.getMimeTypeValue()
+                        .equals((expected.getMimeTypeValue()));
 
                 if (result) {
-                    result = rrActual.getName().equals(expected.getName());
+                    result = rrActual.getName()
+                            .equals(expected.getName());
 
                     if (result) {
                         result = rrActual.getSize() == expected.getSize();
 
                         if (result) {
-                            result = rrActual.getLastTouchedMillis() == expected
-                                    .getLastTouchedMillis();
+                            result = rrActual.getLastTouchedMillis()
+                                    == expected.getLastTouchedMillis();
                         }
                     }
                 }

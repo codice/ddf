@@ -63,7 +63,8 @@ public final class CatalogMetrics
     protected final MetricRegistry metrics = new MetricRegistry();
 
     protected final JmxReporter reporter = JmxReporter.forRegistry(metrics)
-            .inDomain("ddf.metrics.catalog").build();
+            .inDomain("ddf.metrics.catalog")
+            .build();
 
     protected final Histogram resultCount;
 
@@ -118,10 +119,10 @@ public final class CatalogMetrics
         temporalQueries = metrics.meter(MetricRegistry.name(QUERIES_SCOPE, "Temporal"));
 
         exceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE));
-        unsupportedQueryExceptions = metrics
-                .meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "UnsupportedQuery"));
-        sourceUnavailableExceptions = metrics
-                .meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "SourceUnavailable"));
+        unsupportedQueryExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE,
+                "UnsupportedQuery"));
+        sourceUnavailableExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE,
+                "SourceUnavailable"));
         federationExceptions = metrics.meter(MetricRegistry.name(EXCEPTIONS_SCOPE, "Federation"));
 
         createdMetacards = metrics.meter(MetricRegistry.name(INGEST_SCOPE, "Created"));
@@ -180,21 +181,24 @@ public final class CatalogMetrics
     // PostCreate
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        createdMetacards.mark(input.getCreatedMetacards().size());
+        createdMetacards.mark(input.getCreatedMetacards()
+                .size());
         return input;
     }
 
     // PostUpdate
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        updatedMetacards.mark(input.getUpdatedMetacards().size());
+        updatedMetacards.mark(input.getUpdatedMetacards()
+                .size());
         return input;
     }
 
     // PostDelete
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        deletedMetacards.mark(input.getDeletedMetacards().size());
+        deletedMetacards.mark(input.getDeletedMetacards()
+                .size());
         return input;
     }
 
@@ -207,8 +211,8 @@ public final class CatalogMetrics
     }
 
     private void recordSourceQueryExceptions(QueryResponse response) {
-        Set<ProcessingDetails> processingDetails = (Set<ProcessingDetails>) response
-                .getProcessingDetails();
+        Set<ProcessingDetails> processingDetails =
+                (Set<ProcessingDetails>) response.getProcessingDetails();
 
         if (processingDetails == null || processingDetails.iterator() == null) {
             return;

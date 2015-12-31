@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -69,17 +69,20 @@ public class LocalResourceRetriever implements ResourceRetriever {
         for (ResourceReader reader : resourceReaders) {
             if (reader != null) {
                 String scheme = resourceUri.getScheme();
-                if (reader.getSupportedSchemes().contains(scheme)) {
+                if (reader.getSupportedSchemes()
+                        .contains(scheme)) {
                     try {
                         LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
-                                reader.getId(), resourceUri.toASCIIString());
+                                reader.getId(),
+                                resourceUri.toASCIIString());
                         resource = reader.retrieveResource(resourceUri, props);
                         if (resource != null) {
                             break;
                         } else {
                             LOGGER.debug(
                                     "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
-                                    reader.getId(), resourceUri);
+                                    reader.getId(),
+                                    resourceUri);
                         }
                     } catch (ResourceNotFoundException e) {
                         LOGGER.debug("Product not found using resource reader with name {}",
@@ -100,7 +103,9 @@ public class LocalResourceRetriever implements ResourceRetriever {
                     "Resource Readers could not find resource (or returned null resource) for URI: "
                             + resourceUri.toASCIIString() + ". Scheme: " + resourceUri.getScheme());
         }
-        LOGGER.debug("Received resource, sending back: {}", resource.getResource().getName());
+        LOGGER.debug("Received resource, sending back: {}",
+                resource.getResource()
+                        .getName());
         LOGGER.trace("EXITING: {}", methodName);
 
         return resource;

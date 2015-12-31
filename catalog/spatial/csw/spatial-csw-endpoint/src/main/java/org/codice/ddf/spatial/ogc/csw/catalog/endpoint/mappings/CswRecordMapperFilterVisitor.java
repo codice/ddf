@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -71,8 +71,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     protected static final String SPATIAL_QUERY_TAG = "spatialQueryExtraData";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswRecordMapperFilterVisitor.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(CswRecordMapperFilterVisitor.class);
 
     private List<String> sourceIds = new ArrayList<>();
 
@@ -105,8 +105,10 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
 
-        return getFactory(extraData)
-                .beyond(geometry1, geometry2, distance, UomOgcMapping.METRE.name());
+        return getFactory(extraData).beyond(geometry1,
+                geometry2,
+                distance,
+                UomOgcMapping.METRE.name());
     }
 
     @Override
@@ -116,8 +118,10 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         Expression geometry1 = visit(filter.getExpression1(), SPATIAL_QUERY_TAG);
         Expression geometry2 = visit(filter.getExpression2(), extraData);
 
-        return getFactory(extraData)
-                .dwithin(geometry1, geometry2, distance, UomOgcMapping.METRE.name());
+        return getFactory(extraData).dwithin(geometry1,
+                geometry2,
+                distance,
+                UomOgcMapping.METRE.name());
     }
 
     @Override
@@ -128,8 +132,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
         String propertyName = expression.getPropertyName();
         String name;
-        if (CswConstants.BBOX_PROP.equals(propertyName) || CswRecordMetacardType.OWS_BOUNDING_BOX
-                .equals(propertyName)) {
+        if (CswConstants.BBOX_PROP.equals(propertyName)
+                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
 
@@ -295,15 +299,16 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(Literal expression, Object extraData) {
-        if (extraData != null && extraData instanceof PropertyName && expression
-                .getValue() instanceof String) {
+        if (extraData != null && extraData instanceof PropertyName
+                && expression.getValue() instanceof String) {
             String propName = ((PropertyName) extraData).getPropertyName();
             AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(propName);
             if (attrDesc != null && attrDesc.getType() != null) {
                 String value = (String) expression.getValue();
-                Serializable convertedValue = CswRecordConverter
-                        .convertStringValueToMetacardValue(attrDesc.getType().getAttributeFormat(),
-                                value);
+                Serializable convertedValue = CswRecordConverter.convertStringValueToMetacardValue(
+                        attrDesc.getType()
+                                .getAttributeFormat(),
+                        value);
 
                 return getFactory(extraData).literal(convertedValue);
             }
@@ -362,10 +367,11 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     private boolean isTemporalProperty(Expression expr) {
         if (expr instanceof PropertyName) {
-            AttributeDescriptor attrDesc = CSW_METACARD_TYPE
-                    .getAttributeDescriptor(((PropertyName) expr).getPropertyName());
+            AttributeDescriptor attrDesc =
+                    CSW_METACARD_TYPE.getAttributeDescriptor(((PropertyName) expr).getPropertyName());
             if (attrDesc != null) {
-                return attrDesc.getType().equals(BasicTypes.DATE_TYPE);
+                return attrDesc.getType()
+                        .equals(BasicTypes.DATE_TYPE);
             }
         }
         return false;

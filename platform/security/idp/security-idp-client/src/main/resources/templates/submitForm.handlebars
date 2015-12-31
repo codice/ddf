@@ -20,13 +20,13 @@
     <title>Form Submit</title>
 </head>
 <body>
- <form id="postform" method="post" action="%s">
-     <input class="idp-form-submit" type="submit" style="display:none;" />
-     <input type="hidden" name="%s" value="%s" />
-     <input type="hidden" name="RelayState" value="%s" />
- </form>
+<form id="postform" method="post" action="%s">
+    <input class="idp-form-submit" type="submit" style="display:none;"/>
+    <input type="hidden" name="%s" value="%s"/>
+    <input type="hidden" name="RelayState" value="%s"/>
+</form>
 
- <script type="text/javascript">
+<script type="text/javascript">
      window.onload = function() {
          window.setTimeout(function () {
              window.setInterval(function () {
@@ -34,6 +34,7 @@
              }, 2000);
          }, 100);
      }
- </script>
+
+</script>
 </body>
 </html>

@@ -40,7 +40,8 @@ public interface LogoutService {
     LogoutRequest extractSamlLogoutRequest(String samlLogoutRequest)
             throws XMLStreamException, WSSecurityException;
 
-    LogoutRequest buildLogoutRequest(@NotNull String nameIdString, @NotNull String issuerOrEntityId);
+    LogoutRequest buildLogoutRequest(@NotNull String nameIdString,
+            @NotNull String issuerOrEntityId);
 
     LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue);
 

@@ -14,18 +14,18 @@
 
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-		>
+>
 
-	<bean id="transformer"
+    <bean id="transformer"
           class="ddf.catalog.transformer.queryresponse.geojson.GeoJsonQueryResponseTransformer"/>
 
-	<service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer">
-		<service-properties>
-			<entry key="id" value="geojson"/>
+    <service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer">
+        <service-properties>
+            <entry key="id" value="geojson"/>
             <!-- shortname only exists for backwards compatibility -->
             <entry key="shortname" value="geojson"/>
-			<entry key="mime-type" value="application/json"/>
-		</service-properties>
-	</service>
-  
+            <entry key="mime-type" value="application/json"/>
+        </service-properties>
+    </service>
+
 </blueprint>

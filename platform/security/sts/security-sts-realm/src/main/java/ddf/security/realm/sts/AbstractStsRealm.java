@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -65,14 +65,16 @@ import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class AbstractStsRealm extends AuthenticatingRealm
         implements STSClientConfiguration {
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(AbstractStsRealm.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(AbstractStsRealm.class));
 
     private static final String NAME = AbstractStsRealm.class.getSimpleName();
 
     private static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
-    private static final Splitter SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
+    private static final Splitter SPLITTER = Splitter.on(',')
+            .trimResults()
+            .omitEmptyStrings();
 
     protected Bus bus;
 
@@ -139,10 +141,12 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         }
 
         if (supported) {
-            LOGGER.debug("Token {} is supported by {}.", token.getClass(),
+            LOGGER.debug("Token {} is supported by {}.",
+                    token.getClass(),
                     AbstractStsRealm.class.getName());
         } else if (token != null) {
-            LOGGER.debug("Token {} is not supported by {}.", token.getClass(),
+            LOGGER.debug("Token {} is not supported by {}.",
+                    token.getClass(),
                     AbstractStsRealm.class.getName());
         } else {
             LOGGER.debug("The supplied authentication token is null. Sending back not supported.");
@@ -168,10 +172,12 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         } else if (token instanceof BaseAuthenticationToken) {
             credential = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
         } else {
-            credential = token.getCredentials().toString();
+            credential = token.getCredentials()
+                    .toString();
         }
         if (credential == null) {
-            String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
+            String msg =
+                    "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
             LOGGER.error(msg);
             throw new AuthenticationException(msg);
         } else {
@@ -259,8 +265,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             LOGGER.debug("Renewing security token from STS at: " + stsAddress + ".");
 
             if (securityToken != null) {
-                LOGGER.debug(
-                        "Telling the STS to renew a security token on behalf of the auth token");
+                LOGGER.debug("Telling the STS to renew a security token on behalf of the auth token");
                 SecurityLogger.logInfo(
                         "Telling the STS to renew a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
@@ -326,16 +331,16 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         String signaturePropertiesPath = getSignatureProperties();
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
             LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
-            Properties signatureProperties = PropertiesLoader
-                    .loadProperties(signaturePropertiesPath);
+            Properties signatureProperties =
+                    PropertiesLoader.loadProperties(signaturePropertiesPath);
             map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
 
         String encryptionPropertiesPath = getEncryptionProperties();
         if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
             LOGGER.debug("Setting encryption properties on STSClient: " + encryptionPropertiesPath);
-            Properties encryptionProperties = PropertiesLoader
-                    .loadProperties(encryptionPropertiesPath);
+            Properties encryptionProperties = PropertiesLoader.loadProperties(
+                    encryptionPropertiesPath);
             map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
         }
 
@@ -426,8 +431,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         claims.addAll(getClaims());
 
         if (contextPolicyManager != null) {
-            Collection<ContextPolicy> contextPolicies = contextPolicyManager
-                    .getAllContextPolicies();
+            Collection<ContextPolicy> contextPolicies =
+                    contextPolicyManager.getAllContextPolicies();
             Set<String> attributes = new LinkedHashSet<>();
             if (contextPolicies != null && contextPolicies.size() > 0) {
                 for (ContextPolicy contextPolicy : contextPolicies) {
@@ -453,7 +458,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
                 for (String claim : claims) {
                     LOGGER.trace("Claim: " + claim);
-                    writer.writeStartElement("ic", "ClaimType",
+                    writer.writeStartElement("ic",
+                            "ClaimType",
                             "http://schemas.xmlsoap.org/ws/2005/05/identity");
                     writer.writeAttribute("Uri", claim);
                     writer.writeAttribute("Optional", "true");
@@ -462,7 +468,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
                 writer.writeEndElement();
 
-                claimsElement = writer.getDocument().getDocumentElement();
+                claimsElement = writer.getDocument()
+                        .getDocumentElement();
             } catch (XMLStreamException e) {
                 String msg = "Unable to create claims.";
                 LOGGER.error(msg, e);
@@ -494,7 +501,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
      * Transform into formatted XML.
      */
     private String getFormattedXml(Node node) {
-        Document document = node.getOwnerDocument().getImplementation()
+        Document document = node.getOwnerDocument()
+                .getImplementation()
                 .createDocument("", "fake", null);
         Element copy = (Element) document.importNode(node, true);
         document.importNode(node, false);
@@ -504,7 +512,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
         if (null != domImplLs) {
             LSSerializer serializer = domImplLs.createLSSerializer();
-            serializer.getDomConfig().setParameter("format-pretty-print", true);
+            serializer.getDomConfig()
+                    .setParameter("format-pretty-print", true);
             return serializer.writeToString(document);
         } else {
             return "";
@@ -691,7 +700,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             if (token instanceof SAMLAuthenticationToken) {
                 SecurityToken oldToken = (SecurityToken) token.getCredentials();
                 SecurityToken newToken = (SecurityToken) info.getCredentials();
-                return oldToken.getId().equals(newToken.getId());
+                return oldToken.getId()
+                        .equals(newToken.getId());
             } else if (token instanceof BaseAuthenticationToken) {
                 String xmlCreds = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
                 if (xmlCreds != null && info.getCredentials() != null) {
@@ -699,7 +709,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 }
             } else {
                 if (token.getCredentials() != null && info.getCredentials() != null) {
-                    return token.getCredentials().equals(info.getCredentials());
+                    return token.getCredentials()
+                            .equals(info.getCredentials());
                 }
             }
             return false;

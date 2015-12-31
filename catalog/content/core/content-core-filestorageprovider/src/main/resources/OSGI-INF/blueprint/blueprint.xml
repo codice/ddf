@@ -15,16 +15,16 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<bean id="fileStoreService" class="ddf.content.provider.filesystem.FileSystemProvider">
-			<cm:managed-properties
-                    persistent-id="ddf.content.provider.filesystem.FileSystemProvider"
-                    update-strategy="container-managed"/>
-		<property name="baseContentDirectory" value=""/>
-  		<property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-	</bean> 
-	
-	<service ref="fileStoreService" interface="ddf.content.storage.StorageProvider"/>
-	
-	<reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+    <bean id="fileStoreService" class="ddf.content.provider.filesystem.FileSystemProvider">
+        <cm:managed-properties
+                persistent-id="ddf.content.provider.filesystem.FileSystemProvider"
+                update-strategy="container-managed"/>
+        <property name="baseContentDirectory" value=""/>
+        <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+    </bean>
+
+    <service ref="fileStoreService" interface="ddf.content.storage.StorageProvider"/>
+
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
 </blueprint>

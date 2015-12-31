@@ -39,9 +39,9 @@ public class DeleteAction extends CswAction {
      * included in the exception report response so the specific action within the transaction that
      * caused the error can be identified.
      *
-     * @param deleteType  the {@code DeleteType} representing the delete action
-     * @param prefixToUriMappings  the map that contains the XML namespace prefix to URI mappings
-     *                             declared in the transaction request XML
+     * @param deleteType          the {@code DeleteType} representing the delete action
+     * @param prefixToUriMappings the map that contains the XML namespace prefix to URI mappings
+     *                            declared in the transaction request XML
      */
     public DeleteAction(DeleteType deleteType, Map<String, String> prefixToUriMappings) {
         super(StringUtils.defaultIfEmpty(deleteType.getTypeName(), CswConstants.CSW_RECORD),

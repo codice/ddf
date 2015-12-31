@@ -17,7 +17,8 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
 
-    <bean id="certificatePlugin" class="org.codice.ddf.security.certificate.admin.module.CertificateAdminModule"/>
+    <bean id="certificatePlugin"
+          class="org.codice.ddf.security.certificate.admin.module.CertificateAdminModule"/>
 
     <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
              ref="certificatePlugin"/>

@@ -63,15 +63,17 @@ public class RecordViewHelpers {
             transformerProperties.addOutputProperty(OutputKeys.METHOD, "xml");
             transformerProperties.addOutputProperty(OutputKeys.INDENT, "yes");
             transformerProperties.addOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformerProperties
-                    .addOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            transformerProperties.addOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+                    "4");
 
-            String result = XMLUtils
-                    .format(builder.parse(new InputSource(new StringReader(metadata))),
+            String result =
+                    XMLUtils.format(builder.parse(new InputSource(new StringReader(metadata))),
                             transformerProperties);
 
             StringBuilder sb = new StringBuilder();
-            sb.append("<pre>").append(escapeHtml(result)).append("</pre>");
+            sb.append("<pre>")
+                    .append(escapeHtml(result))
+                    .append("</pre>");
             return new Handlebars.SafeString(sb.toString());
         } catch (SAXException e) {
             LOGGER.warn("Failed to convert metadata to a pretty string", e);

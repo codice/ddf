@@ -15,30 +15,30 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Content Directory Monitor"
+    <OCD name="Content Directory Monitor"
          id="ddf.content.core.directorymonitor.ContentDirectoryMonitor">
-		<AD
+        <AD
                 description="Specifies the directory to be monitored"
                 name="Directory Path" id="monitoredDirectoryPath" required="true"
                 type="String" default=""/>
-			
-		<AD name="Processing Directive" id="directive" required="true" type="String"
+
+        <AD name="Processing Directive" id="directive" required="true" type="String"
             default="STORE_AND_PROCESS"
             description="How ingested files are to be handled: Store Only = only store ingested file in DDF Content Repository; Process Only = only create catalog entry in Metadata Catalog for ingested file; Store and Process = do both">
-		    <Option label="Store Only" value="STORE"/>
-		    <Option label="Process Only" value="PROCESS"/>
+            <Option label="Store Only" value="STORE"/>
+            <Option label="Process Only" value="PROCESS"/>
             <Option label="Store and Process" value="STORE_AND_PROCESS"/>
         </AD>
-        
+
         <AD
                 description="Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository."
                 name="Copy Files to Backup Directory" id="copyIngestedFiles" required="false"
                 type="Boolean" default="false"/>
-	</OCD>
+    </OCD>
 
-	<Designate pid="ddf.content.core.directorymonitor.ContentDirectoryMonitor"
+    <Designate pid="ddf.content.core.directorymonitor.ContentDirectoryMonitor"
                factoryPid="ddf.content.core.directorymonitor.ContentDirectoryMonitor">
-		<Object ocdref="ddf.content.core.directorymonitor.ContentDirectoryMonitor"/>
-	</Designate>
+        <Object ocdref="ddf.content.core.directorymonitor.ContentDirectoryMonitor"/>
+    </Designate>
 
 </metatype:MetaData>

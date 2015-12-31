@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,8 +52,8 @@ import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 
 public class CatalogComponentTest extends CamelTestSupport {
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(CatalogComponentTest.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(CatalogComponentTest.class);
 
     private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
@@ -129,9 +129,10 @@ public class CatalogComponentTest extends CamelTestSupport {
             public void configure() {
                 LOGGER.debug("INSIDE RouteBuilder.configure()");
                 from("catalog:inputtransformer?" + CatalogComponent.MIME_TYPE_PARAMETER
-                                + "=text/xml&id=identity")
-                        .to("catalog:inputtransformer?" + CatalogComponent.MIME_TYPE_PARAMETER
-                                        + "=text/xml&id=xml").to("mock:result");
+                        + "=text/xml&id=identity").to(
+                        "catalog:inputtransformer?" + CatalogComponent.MIME_TYPE_PARAMETER
+                                + "=text/xml&id=xml")
+                        .to("mock:result");
 
             }
         };
@@ -143,8 +144,8 @@ public class CatalogComponentTest extends CamelTestSupport {
         CamelContext camelContext = super.createCamelContext();
 
         // Configure PojoSR to be our mock OSGi Registry
-        PojoServiceRegistry reg = new PojoServiceRegistryFactoryImpl()
-                .newPojoServiceRegistry(new HashMap());
+        PojoServiceRegistry reg =
+                new PojoServiceRegistryFactoryImpl().newPojoServiceRegistry(new HashMap());
         bundleContext = reg.getBundleContext();
 
         // Since the Camel BlueprintComponentResolver does not execute outside
@@ -185,7 +186,8 @@ public class CatalogComponentTest extends CamelTestSupport {
             assertTrue("Should be an IllegalArgumentException exception",
                     e.getCause() instanceof IllegalArgumentException);
             assertEquals("Unable to create producer for context path [unknown]",
-                    e.getCause().getMessage());
+                    e.getCause()
+                            .getMessage());
         }
     }
 
@@ -193,7 +195,8 @@ public class CatalogComponentTest extends CamelTestSupport {
     public void testInvalidContextPathForProducer2() {
         try {
             LOGGER.debug("INSIDE testInvalidContextPathForProducer2");
-            context.getEndpoint("catalog:unknown?mimeType=text/xml&id=identity").createProducer();
+            context.getEndpoint("catalog:unknown?mimeType=text/xml&id=identity")
+                    .createProducer();
             fail("Should have thrown a IllegalArgumentException");
         } catch (Exception e) {
             LOGGER.error("Failed testInvalidContextPathForProducer2", e);
@@ -209,9 +212,9 @@ public class CatalogComponentTest extends CamelTestSupport {
             LOGGER.debug("INSIDE testInvalidContextPathForConsumer");
             context.getEndpoint("catalog:unknown?mimeType=text/xml&id=identity")
                     .createConsumer(new Processor() {
-                                public void process(Exchange exchange) throws Exception {
-                                }
-                            });
+                        public void process(Exchange exchange) throws Exception {
+                        }
+                    });
             fail("Should have thrown a IllegalArgumentException");
         } catch (Exception e) {
             LOGGER.error("Failed testInvalidContextPathForConsumer", e);
@@ -266,8 +269,8 @@ public class CatalogComponentTest extends CamelTestSupport {
         // Mock the MimeTypeToTransformerMapper returning empty list of
         // InputTransformers
         List list = new ArrayList<InputTransformer>();
-        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
-                .thenReturn(list);
+        when(matchingService.findMatches(eq(InputTransformer.class),
+                isA(MimeType.class))).thenReturn(list);
 
         // Send in sample XML as InputStream to InputTransformer
         InputStream input = IOUtils.toInputStream(xmlInput);
@@ -310,8 +313,8 @@ public class CatalogComponentTest extends CamelTestSupport {
 
         // Mock the MimeTypeToTransformerMapper returning the mock XML
         // InputTransformer
-        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
-                .thenReturn((List) Arrays.asList(mockTransformer));
+        when(matchingService.findMatches(eq(InputTransformer.class),
+                isA(MimeType.class))).thenReturn((List) Arrays.asList(mockTransformer));
 
         // Send in sample XML as InputStream to InputTransformer
         InputStream input = IOUtils.toInputStream(xmlInput);
@@ -356,7 +359,9 @@ public class CatalogComponentTest extends CamelTestSupport {
 
         if (refs != null && refs.length > 0) {
             transformer = (InputTransformer) bundleContext.getService(refs[0]);
-            LOGGER.debug("Found an InputTransformer: {}", transformer.getClass().getName());
+            LOGGER.debug("Found an InputTransformer: {}",
+                    transformer.getClass()
+                            .getName());
         }
 
         LOGGER.trace("EXITING: getTransformer");
@@ -377,8 +382,8 @@ public class CatalogComponentTest extends CamelTestSupport {
 
         try {
             when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
-                    .thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
         } catch (IOException e) {
             LOGGER.debug("IOException", e);
         } catch (CatalogTransformerException e) {

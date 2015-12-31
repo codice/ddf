@@ -14,12 +14,12 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-<!-- create the bean -->
-<bean id="checksumProvider" class="org.codice.ddf.checksum.impl.CRC32ChecksumProvider">
-</bean>
+    <!-- create the bean -->
+    <bean id="checksumProvider" class="org.codice.ddf.checksum.impl.CRC32ChecksumProvider">
+    </bean>
 
-<!-- export the bean on the service registry -->
-<service ref="checksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
+    <!-- export the bean on the service registry -->
+    <service ref="checksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
 
 
 </blueprint>

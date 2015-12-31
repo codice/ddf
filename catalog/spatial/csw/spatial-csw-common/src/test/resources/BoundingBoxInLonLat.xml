@@ -12,6 +12,6 @@
  **/
 -->
 <BoundingBox crs="">
-	<LowerCorner>65.6272038662182 33.305863417212</LowerCorner>
-	<UpperCorner>65.7733371981862 33.6653407061501</UpperCorner>
+    <LowerCorner>65.6272038662182 33.305863417212</LowerCorner>
+    <UpperCorner>65.7733371981862 33.6653407061501</UpperCorner>
 </BoundingBox>

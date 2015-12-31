@@ -49,7 +49,7 @@
     </bean>
 
     <bean id="simpleSign" class="ddf.security.samlp.SimpleSign">
-        <argument ref="crypto" />
+        <argument ref="crypto"/>
     </bean>
 
     <bean id="relayStates" class="ddf.security.samlp.impl.RelayStates"/>
@@ -64,7 +64,8 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <service ref="idpHandler"             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
+    <service ref="idpHandler"
+             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
 
     <bean id="assertionConsumerService"
           class=" org.codice.ddf.security.idp.client.AssertionConsumerService">
@@ -82,15 +83,16 @@
 
     <bean id="logoutRequestService"
           class="org.codice.ddf.security.idp.client.LogoutRequestService" init-method="init">
-        <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.LogoutRequestService"
-                               update-strategy="container-managed"/>
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.security.idp.client.LogoutRequestService"
+                update-strategy="container-managed"/>
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
         <argument ref="crypto"/>
         <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
         <property name="logoutService">
-            <reference interface="ddf.security.samlp.LogoutService" />
+            <reference interface="ddf.security.samlp.LogoutService"/>
         </property>
         <property name="encryptionService" ref="encryptionService"/>
         <property name="sessionFactory" ref="sessionFactory"/>

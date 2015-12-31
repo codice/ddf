@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,18 +66,18 @@ public class MatchOneCollectionPermission extends CollectionPermission {
                             // So here we loop through all of the values assigned to that key and
                             // create new
                             // single valued key value permissions
-                            KeyValuePermission kvp = new KeyValuePermission(
-                                    ((KeyValuePermission) ourPerm).getKey());
+                            KeyValuePermission kvp =
+                                    new KeyValuePermission(((KeyValuePermission) ourPerm).getKey());
                             kvp.addValue(value);
                             if (perm.implies(kvp)) {
                                 result = true;
                                 break;
                             }
                         }
-                    // Currently we use key value permissions for everything. However, we still need
-                    // to be able to handle
-                    // permissions other than KV, so this else block will serve as the catch all for
-                    // everything else.
+                        // Currently we use key value permissions for everything. However, we still need
+                        // to be able to handle
+                        // permissions other than KV, so this else block will serve as the catch all for
+                        // everything else.
                     } else {
                         // Shiro permissions are always a "match all" condition so we need to flip
                         // the implies to make it match one
@@ -89,8 +89,8 @@ public class MatchOneCollectionPermission extends CollectionPermission {
                 }
                 if (!result) {
                     SecurityLogger.logDebug(
-                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p
-                                    .toString() + PERMISSION_END_MSG);
+                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
+                                    + p.toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }

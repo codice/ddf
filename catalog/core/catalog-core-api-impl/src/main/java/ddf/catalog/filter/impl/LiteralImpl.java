@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,7 +15,6 @@ package ddf.catalog.filter.impl;
 
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.Literal;
-
 
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use
@@ -48,7 +47,8 @@ public class LiteralImpl implements Literal {
             return null;
         }
 
-        if (value.getClass().equals(context)) {
+        if (value.getClass()
+                .equals(context)) {
             return (T) value;
         }
 

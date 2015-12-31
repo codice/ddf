@@ -68,9 +68,9 @@ public final class SolrServerFactory {
 
     public static final String[] DEFAULT_PROTOCOLS = new String[] {"TLSv1.1", "TLSv1.2"};
 
-    public static final String[] DEFAULT_CIPHER_SUITES = new String[] {
-            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"};
+    public static final String[] DEFAULT_CIPHER_SUITES =
+            new String[] {"TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"};
 
     public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
@@ -146,7 +146,8 @@ public final class SolrServerFactory {
                 server = new HttpSolrServer(coreUrl);
             }
         } catch (SolrException ex) {
-            LOGGER.error("Unable to create HTTP Solr server client ({}): {}", coreUrl,
+            LOGGER.error("Unable to create HTTP Solr server client ({}): {}",
+                    coreUrl,
                     ex.getMessage());
             return null;
         }
@@ -157,12 +158,17 @@ public final class SolrServerFactory {
 
     private static CloseableHttpClient getHttpClient() {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                getSslContext(), getProtocols(), getCipherSuites(),
+                getSslContext(),
+                getProtocols(),
+                getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 
-        return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
-                .setDefaultCookieStore(new BasicCookieStore()).setMaxConnTotal(128)
-                .setMaxConnPerRoute(32).build();
+        return HttpClients.custom()
+                .setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(new BasicCookieStore())
+                .setMaxConnTotal(128)
+                .setMaxConnPerRoute(32)
+                .build();
     }
 
     private static String[] getProtocols() {
@@ -198,17 +204,23 @@ public final class SolrServerFactory {
         SSLContext sslContext = null;
 
         try {
-            sslContext = SSLContexts.custom().loadKeyMaterial(keyStore,
-                    System.getProperty("javax.net.ssl.keyStorePassword").toCharArray())
-                    .loadTrustMaterial(trustStore).useTLS().build();
+            sslContext = SSLContexts.custom()
+                    .loadKeyMaterial(keyStore,
+                            System.getProperty("javax.net.ssl.keyStorePassword")
+                                    .toCharArray())
+                    .loadTrustMaterial(trustStore)
+                    .useTLS()
+                    .build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
             LOGGER.error("Unable to create secure HttpClient", e);
             return null;
         }
 
-        sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
-        sslContext.getDefaultSSLParameters().setWantClientAuth(true);
+        sslContext.getDefaultSSLParameters()
+                .setNeedClientAuth(true);
+        sslContext.getDefaultSSLParameters()
+                .setWantClientAuth(true);
 
         return sslContext;
     }
@@ -244,7 +256,9 @@ public final class SolrServerFactory {
             ConfigurationFileProxy givenConfigFileProxy) {
 
         LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]",
-                solrConfigXml, schemaXml, givenConfigFileProxy);
+                solrConfigXml,
+                schemaXml,
+                givenConfigFileProxy);
 
         String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
         String schemaFileName = DEFAULT_SCHEMA_XML;
@@ -269,21 +283,26 @@ public final class SolrServerFactory {
 
         File solrConfigHome = new File(solrConfigFile.getParent());
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(SolrServerFactory.class.getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(SolrServerFactory.class.getClassLoader());
 
             // NamedSPILoader uses the thread context classloader to lookup
             // codecs, posting formats, and analyzers
-            SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName,
+            SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(),
+                    solrConfigFileName,
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
-            IndexSchema indexSchema = new IndexSchema(solrConfig, schemaFileName,
+            IndexSchema indexSchema = new IndexSchema(solrConfig,
+                    schemaFileName,
                     new InputSource(FileUtils.openInputStream(solrSchemaFile)));
             SolrResourceLoader loader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
             SolrCoreContainer container = new SolrCoreContainer(loader, solrFile);
 
             String dataDirPath = null;
-            if (!ConfigurationStore.getInstance().isInMemory()) {
+            if (!ConfigurationStore.getInstance()
+                    .isInMemory()) {
                 File dataDir = configProxy.getDataDirectory();
                 if (dataDir != null) {
                     LOGGER.debug("Using data directory [{}]", dataDir);
@@ -296,10 +315,15 @@ public final class SolrServerFactory {
                 }
             }
             CoreDescriptor coreDescriptor = new CoreDescriptor(container,
-                    DEFAULT_EMBEDDED_CORE_NAME, solrConfig.getResourceLoader().getInstanceDir());
+                    DEFAULT_EMBEDDED_CORE_NAME,
+                    solrConfig.getResourceLoader()
+                            .getInstanceDir());
 
-            SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME, dataDirPath, solrConfig,
-                    indexSchema, coreDescriptor);
+            SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME,
+                    dataDirPath,
+                    solrConfig,
+                    indexSchema,
+                    coreDescriptor);
             container.register(DEFAULT_EMBEDDED_CORE_NAME, core, false);
 
             return new EmbeddedSolrServer(container, DEFAULT_EMBEDDED_CORE_NAME);
@@ -307,7 +331,8 @@ public final class SolrServerFactory {
             throw new IllegalArgumentException(
                     "Unable to parse Solr configuration file: " + solrConfigFileName, e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
     }
 
@@ -331,7 +356,10 @@ public final class SolrServerFactory {
             String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
 
             try {
-                CoreAdminRequest.createCore(coreName, instanceDir, solrServer, configFile,
+                CoreAdminRequest.createCore(coreName,
+                        instanceDir,
+                        solrServer,
+                        configFile,
                         DEFAULT_SCHEMA_XML);
             } catch (SolrServerException e) {
                 LOGGER.error("SolrServerException creating " + coreName + " core", e);
@@ -353,7 +381,8 @@ public final class SolrServerFactory {
     private static boolean solrCoreExists(SolrServer solrServer, String coreName) {
         try {
             CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, solrServer);
-            return response.getCoreStatus(coreName).get("instanceDir") != null;
+            return response.getCoreStatus(coreName)
+                    .get("instanceDir") != null;
         } catch (SolrServerException e) {
             LOGGER.info("SolrServerException getting " + coreName + " core status", e);
             return false;

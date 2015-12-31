@@ -97,11 +97,13 @@ public class TestKmlEndpoint {
         when(mockUriInfo.getBaseUri()).thenReturn(new URI("http://example.com"));
 
         URL bomberLocation = TestKmlEndpoint.class.getResource(ICONS_DIR + BOMBER_ICON);
-        bomberPath = bomberLocation.getPath().replaceAll(BOMBER_ICON, "");
+        bomberPath = bomberLocation.getPath()
+                .replaceAll(BOMBER_ICON, "");
         bomberBytes = IOUtils.toByteArray(bomberLocation.openStream());
 
         URL jetLocation = TestKmlEndpoint.class.getResource(TEST_ICONS_DIR + JET_ICON);
-        jetPath = jetLocation.getPath().replaceAll(JET_ICON, "");
+        jetPath = jetLocation.getPath()
+                .replaceAll(JET_ICON, "");
         jetBtyes = IOUtils.toByteArray(jetLocation.openStream());
 
         System.setProperty(SystemBaseUrl.HOST, TEST_HOST);
@@ -110,8 +112,8 @@ public class TestKmlEndpoint {
         System.setProperty(SystemBaseUrl.ROOT_CONTEXT, "/services");
         System.setProperty(SystemInfo.SITE_CONTACT, "example@example.com");
 
-        when(mockFramework.getSourceInfo(any(SourceInfoRequest.class)))
-                .thenReturn(mockSourceInfoResponse);
+        when(mockFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(
+                mockSourceInfoResponse);
         SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SITE_NAME, null);
         SourceDescriptorImpl remoteDescriptor = new SourceDescriptorImpl(REMOTE_SITE_NAME, null);
         descriptors.add(localDescriptor);
@@ -123,7 +125,9 @@ public class TestKmlEndpoint {
     @Test
     public void testGetKmlNetworkLink() {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         kmlEndpoint.setDescription("This is some description.");
         kmlEndpoint.setLogo(
@@ -149,19 +153,26 @@ public class TestKmlEndpoint {
             throws UnknownHostException, MalformedURLException, IllegalArgumentException,
             UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(Folder.class));
         Folder folder = (Folder) response.getFeature();
         assertThat(folder.getFeature(), notNullValue());
-        assertThat(folder.getFeature().size(), is(2));
-        assertThat(folder.getFeature().get(0), is(NetworkLink.class));
-        assertThat(folder.getFeature().get(1), is(NetworkLink.class));
-        NetworkLink nl1 = (NetworkLink) folder.getFeature().get(0);
+        assertThat(folder.getFeature()
+                .size(), is(2));
+        assertThat(folder.getFeature()
+                .get(0), is(NetworkLink.class));
+        assertThat(folder.getFeature()
+                .get(1), is(NetworkLink.class));
+        NetworkLink nl1 = (NetworkLink) folder.getFeature()
+                .get(0);
         assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
-        NetworkLink nl2 = (NetworkLink) folder.getFeature().get(1);
+        NetworkLink nl2 = (NetworkLink) folder.getFeature()
+                .get(1);
         assertThat(nl2.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
     }
 
@@ -170,20 +181,27 @@ public class TestKmlEndpoint {
             throws UnknownHostException, MalformedURLException, IllegalArgumentException,
             UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(Folder.class));
         Folder folder = (Folder) response.getFeature();
         assertThat(folder.getFeature(), notNullValue());
-        assertThat(folder.getFeature().size(), is(2));
-        assertThat(folder.getFeature().get(0), is(NetworkLink.class));
-        assertThat(folder.getFeature().get(1), is(NetworkLink.class));
-        NetworkLink nl1 = (NetworkLink) folder.getFeature().get(0);
+        assertThat(folder.getFeature()
+                .size(), is(2));
+        assertThat(folder.getFeature()
+                .get(0), is(NetworkLink.class));
+        assertThat(folder.getFeature()
+                .get(1), is(NetworkLink.class));
+        NetworkLink nl1 = (NetworkLink) folder.getFeature()
+                .get(0);
         assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
         assertThat(nl1.isVisibility(), is(false));
-        NetworkLink nl2 = (NetworkLink) folder.getFeature().get(1);
+        NetworkLink nl2 = (NetworkLink) folder.getFeature()
+                .get(1);
         assertThat(nl2.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
         assertThat(nl2.isVisibility(), is(false));
     }
@@ -193,7 +211,9 @@ public class TestKmlEndpoint {
             throws UnknownHostException, MalformedURLException, IllegalArgumentException,
             UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         kmlEndpoint.setMaxResults(250);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
@@ -201,15 +221,22 @@ public class TestKmlEndpoint {
         assertThat(response.getFeature(), is(Folder.class));
         Folder folder = (Folder) response.getFeature();
         assertThat(folder.getFeature(), notNullValue());
-        assertThat(folder.getFeature().size(), is(2));
-        assertThat(folder.getFeature().get(0), is(NetworkLink.class));
-        assertThat(folder.getFeature().get(1), is(NetworkLink.class));
-        NetworkLink nl1 = (NetworkLink) folder.getFeature().get(0);
+        assertThat(folder.getFeature()
+                .size(), is(2));
+        assertThat(folder.getFeature()
+                .get(0), is(NetworkLink.class));
+        assertThat(folder.getFeature()
+                .get(1), is(NetworkLink.class));
+        NetworkLink nl1 = (NetworkLink) folder.getFeature()
+                .get(0);
         assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
-        assertThat(nl1.getLink().getHttpQuery(), is("count=250"));
-        NetworkLink nl2 = (NetworkLink) folder.getFeature().get(1);
+        assertThat(nl1.getLink()
+                .getHttpQuery(), is("count=250"));
+        NetworkLink nl2 = (NetworkLink) folder.getFeature()
+                .get(1);
         assertThat(nl2.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
-        assertThat(nl2.getLink().getHttpQuery(), is("count=250"));
+        assertThat(nl2.getLink()
+                .getHttpQuery(), is("count=250"));
     }
 
     /**
@@ -217,7 +244,9 @@ public class TestKmlEndpoint {
      */
     @Test
     public void testGetIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         byte[] response = kmlEndpoint.getIcon(null, BOMBER_ICON);
         assertThat(response, is(bomberBytes));
@@ -228,14 +257,18 @@ public class TestKmlEndpoint {
      */
     @Test(expected = WebApplicationException.class)
     public void testExceptionGetIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         kmlEndpoint.getIcon(null, JET_ICON);
     }
 
     @Test
     public void testGetIconCustomLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         kmlEndpoint.setIconLoc(jetPath);
         byte[] response = kmlEndpoint.getIcon(null, JET_ICON);
@@ -247,7 +280,9 @@ public class TestKmlEndpoint {
      */
     @Test(expected = WebApplicationException.class)
     public void testExceptionGetCustomIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemBaseUrl(),
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding,
+                mockFramework,
+                new SystemBaseUrl(),
                 new SystemInfo());
         kmlEndpoint.setIconLoc(bomberPath);
         kmlEndpoint.getIcon(null, JET_ICON);

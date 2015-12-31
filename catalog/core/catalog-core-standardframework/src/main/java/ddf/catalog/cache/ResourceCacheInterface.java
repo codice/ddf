@@ -33,7 +33,7 @@ public interface ResourceCacheInterface {
 
     /**
      * Gets a valid resource from the cache.
-     * <p/>
+     * <p>
      * A valid resource is one where the corresponding Metacard in the Catalog has not changed since its resource was
      * cached.
      *
@@ -44,7 +44,7 @@ public interface ResourceCacheInterface {
 
     /**
      * Queries cache to determine if it contains a valid resource with the provided key.
-     * <p/>
+     * <p>
      * A valid resource is one where the corresponding Metacard in the Catalog has not changed since its resource was
      * cached.
      *

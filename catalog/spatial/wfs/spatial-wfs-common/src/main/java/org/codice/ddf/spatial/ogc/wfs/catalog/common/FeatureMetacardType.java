@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
@@ -110,9 +109,12 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
             AttributeDescriptorImpl basicAttributeDescriptor = (AttributeDescriptorImpl) ad;
             AttributeDescriptor attributeDescriptor = new AttributeDescriptorImpl(
-                    basicAttributeDescriptor.getName(), false, false,
+                    basicAttributeDescriptor.getName(),
+                    false,
+                    false,
                     basicAttributeDescriptor.isTokenized(),
-                    basicAttributeDescriptor.isMultiValued(), basicAttributeDescriptor.getType());
+                    basicAttributeDescriptor.isMultiValued(),
+                    basicAttributeDescriptor.getType());
             descriptors.add(attributeDescriptor);
         }
 
@@ -120,7 +122,8 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     private void processXmlSchema(XmlSchema schema) {
         Map<QName, XmlSchemaElement> elements = schema.getElements();
-        Iterator<XmlSchemaElement> xmlSchemaElementIterator = elements.values().iterator();
+        Iterator<XmlSchemaElement> xmlSchemaElementIterator = elements.values()
+                .iterator();
 
         while (xmlSchemaElementIterator.hasNext()) {
             Object o = xmlSchemaElementIterator.next();
@@ -143,10 +146,11 @@ public class FeatureMetacardType extends MetacardTypeImpl {
                     processXmlSchemaParticle(complexType.getParticle());
                 } else {
                     if (complexType.getContentModel() instanceof XmlSchemaComplexContent) {
-                        XmlSchemaContent content = ((XmlSchemaComplexContent) complexType
-                                .getContentModel()).getContent();
+                        XmlSchemaContent content =
+                                ((XmlSchemaComplexContent) complexType.getContentModel()).getContent();
                         if (content instanceof XmlSchemaComplexContentExtension) {
-                            XmlSchemaComplexContentExtension extension = (XmlSchemaComplexContentExtension) content;
+                            XmlSchemaComplexContentExtension extension =
+                                    (XmlSchemaComplexContentExtension) content;
                             processXmlSchemaParticle(extension.getParticle());
                         }
                     }
@@ -186,9 +190,13 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
         if (attributeType != null) {
             boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
-            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name, name,
-                    isQueryable(name) /* indexed */, true /* stored */, false /* tokenized */,
-                    multiValued, attributeType));
+            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name,
+                    name,
+                    isQueryable(name) /* indexed */,
+                    true /* stored */,
+                    false /* tokenized */,
+                    multiValued,
+                    attributeType));
         }
         if (Constants.XSD_STRING.equals(qName)) {
             textualProperties.add(propertyPrefix + name);
@@ -203,30 +211,39 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         String name = xmlSchemaElement.getName();
 
         if (qName != null && StringUtils.isNotEmpty(name) && qName.getNamespaceURI()
-                .equals(gmlNamespace) && (qName.getLocalPart().equals("TimeInstantType") || qName
-                .getLocalPart().equals("TimePeriodType"))) {
+                .equals(gmlNamespace) && (qName.getLocalPart()
+                .equals("TimeInstantType") || qName.getLocalPart()
+                .equals("TimePeriodType"))) {
             LOGGER.debug("Adding temporal property: {}", propertyPrefix + name);
             temporalProperties.add(propertyPrefix + name);
 
             boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
-            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name, name,
-                    isQueryable(name) /* indexed */, true /* stored */, false /* tokenized */,
-                    multiValued, BasicTypes.DATE_TYPE));
+            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name,
+                    name,
+                    isQueryable(name) /* indexed */,
+                    true /* stored */,
+                    false /* tokenized */,
+                    multiValued,
+                    BasicTypes.DATE_TYPE));
 
             properties.add(propertyPrefix + name);
 
             return true;
         }
 
-        if ((qName != null) && qName.getNamespaceURI().equals(gmlNamespace) && (!StringUtils
-                .isEmpty(name))) {
+        if ((qName != null) && qName.getNamespaceURI()
+                .equals(gmlNamespace) && (!StringUtils.isEmpty(name))) {
             LOGGER.debug("Adding geo property: {}", propertyPrefix + name);
             gmlProperties.add(propertyPrefix + name);
 
             boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1 ? true : false;
-            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name, name,
-                    isQueryable(name) /* indexed */, true /* stored */, false /* tokenized */,
-                    multiValued, BasicTypes.GEO_TYPE));
+            descriptors.add(new FeatureAttributeDescriptor(propertyPrefix + name,
+                    name,
+                    isQueryable(name) /* indexed */,
+                    true /* stored */,
+                    false /* tokenized */,
+                    multiValued,
+                    BasicTypes.GEO_TYPE));
 
             properties.add(propertyPrefix + name);
 
@@ -266,8 +283,9 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         // these types are unbounded and unsafe to map to any BasicTypes number values.
         // Potentially the catalog should support a BigInteger type for these types to map to
         if (Constants.XSD_INTEGER.equals(qName) || Constants.XSD_POSITIVEINTEGER.equals(qName)
-                || Constants.XSD_NEGATIVEINTEGER.equals(qName) || Constants.XSD_NONPOSITIVEINTEGER
-                .equals(qName) || Constants.XSD_NONNEGATIVEINTEGER.equals(qName)) {
+                || Constants.XSD_NEGATIVEINTEGER.equals(qName)
+                || Constants.XSD_NONPOSITIVEINTEGER.equals(qName)
+                || Constants.XSD_NONNEGATIVEINTEGER.equals(qName)) {
             return BasicTypes.STRING_TYPE;
         }
         return null;

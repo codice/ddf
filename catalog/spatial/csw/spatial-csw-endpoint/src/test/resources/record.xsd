@@ -15,7 +15,8 @@ Apr 1, 2014: Modified record.xsd for testing purposes:
             elementFormDefault="qualified" version="2.0.2">
     <xsd:annotation>
         <xsd:appinfo>
-            <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">http://schemas.opengis.net/csw/2.0.2/record.xsd
+            <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">
+                http://schemas.opengis.net/csw/2.0.2/record.xsd
             </dc:identifier>
         </xsd:appinfo>
         <xsd:documentation xml:lang="en">
@@ -69,7 +70,7 @@ Apr 1, 2014: Modified record.xsd for testing purposes:
                                  minOccurs="1" maxOccurs="unbounded"/>
                     <xsd:element ref="dc:type"
                                  minOccurs="0"/>
-                 </xsd:sequence>
+                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

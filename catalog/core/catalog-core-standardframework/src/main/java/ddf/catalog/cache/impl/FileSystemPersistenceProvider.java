@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,8 +46,8 @@ import com.hazelcast.core.MapStore;
 public class FileSystemPersistenceProvider
         implements MapLoader<String, Object>, MapStore<String, Object> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(FileSystemPersistenceProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(FileSystemPersistenceProvider.class);
 
     private static final String SER = ".ser";
 
@@ -184,7 +184,8 @@ public class FileSystemPersistenceProvider
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File file, String name) {
-                return name.toLowerCase().endsWith(SER);
+                return name.toLowerCase()
+                        .endsWith(SER);
             }
         };
         return filter;
@@ -201,7 +202,8 @@ public class FileSystemPersistenceProvider
         }
 
         for (File file : files) {
-            keys.add(file.getName().replaceFirst(SER_REGEX, ""));
+            keys.add(file.getName()
+                    .replaceFirst(SER_REGEX, ""));
         }
 
         LOGGER.debug("Leaving loadAllKeys");

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,17 +66,18 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     // *, ?, and / are escaped by the filter adapter
-    private static final String[] LUCENE_SPECIAL_CHARACTERS = new String[] {"+", "-", "&&", "||",
-            "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", ":"};
+    private static final String[] LUCENE_SPECIAL_CHARACTERS =
+            new String[] {"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~",
+                    ":"};
 
-    private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS = new String[] {"\\+", "\\-",
-            "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~",
-            "\\:"};
+    private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS =
+            new String[] {"\\+", "\\-", "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[",
+                    "\\]", "\\^", "\\\"", "\\~", "\\:"};
 
     private static final String INTERSECTS_OPERATION = "Intersects";
 
-    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(
-            new Distance(1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
+    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(new Distance(1000,
+            LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
 
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
@@ -129,9 +130,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private static double metersToDegrees(double distance) {
-        return DistanceUtils.dist2Degrees(
-                (new Distance(distance, LinearUnit.METER).getAs(LinearUnit.KILOMETER)),
-                DistanceUtils.EARTH_MEAN_RADIUS_KM);
+        return DistanceUtils.dist2Degrees((new Distance(distance,
+                LinearUnit.METER).getAs(LinearUnit.KILOMETER)), DistanceUtils.EARTH_MEAN_RADIUS_KM);
     }
 
     @Override
@@ -161,14 +161,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 for (String param : params) {
                     if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX)) {
                         if (StringUtils.contains(param, XPATH_FILTER_QUERY_INDEX)) {
-                            xpathIndexes.add(StringUtils
-                                    .substringAfter(StringUtils.substringBeforeLast(param, "\""),
-                                            XPATH_FILTER_QUERY_INDEX + ":\""));
+                            xpathIndexes.add(StringUtils.substringAfter(StringUtils.substringBeforeLast(
+                                    param,
+                                    "\""), XPATH_FILTER_QUERY_INDEX + ":\""));
                         } else if (StringUtils.startsWith(param,
                                 XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY)) {
-                            xpathFilters.add(StringUtils
-                                    .substringAfter(StringUtils.substringBeforeLast(param, "\""),
-                                            XPATH_FILTER_QUERY + ":\""));
+                            xpathFilters.add(StringUtils.substringAfter(StringUtils.substringBeforeLast(
+                                    param,
+                                    "\""), XPATH_FILTER_QUERY + ":\""));
                         }
                     }
                     Collections.addAll(queryParams, param);
@@ -178,8 +178,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         if (xpathFilters.size() > 1) {
             // More than one XPath found, need to combine
-            String filter = XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"(" + StringUtils
-                    .join(xpathFilters, operator.toLowerCase()) + ")\"";
+            String filter =
+                    XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"(" + StringUtils.join(
+                            xpathFilters,
+                            operator.toLowerCase()) + ")\"";
 
             List<String> indexes = new ArrayList<>();
             for (String xpath : xpathIndexes) {
@@ -202,7 +204,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery propertyIsFuzzy(String propertyName, String searchPhrase) {
-        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
+        String mappedPropertyName = getMappedPropertyName(propertyName,
+                AttributeFormat.STRING,
                 false);
 
         StringBuilder phraseBuilder = new StringBuilder();
@@ -210,8 +213,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             // On fuzzy searches, no text analysis is performed on the search phrase. Expect fuzzy
             // terms to be
             // case insensitive.
-            phraseBuilder.append("+").append(mappedPropertyName).append(":")
-                    .append(term.toLowerCase()).append("~ ");
+            phraseBuilder.append("+")
+                    .append(mappedPropertyName)
+                    .append(":")
+                    .append(term.toLowerCase())
+                    .append("~ ");
         }
 
         return new SolrQuery(phraseBuilder.toString());
@@ -221,14 +227,15 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public SolrQuery propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         verifyInputData(propertyName, pattern);
 
-        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
+        String mappedPropertyName = getMappedPropertyName(propertyName,
+                AttributeFormat.STRING,
                 false);
         if (isCaseSensitive) {
             mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
         }
         String searchPhrase = escapeSpecialCharacters(pattern);
-        if (!searchPhrase.contains(SOLR_WILDCARD_CHAR) && !searchPhrase
-                .contains(SOLR_SINGLE_WILDCARD_CHAR)) {
+        if (!searchPhrase.contains(SOLR_WILDCARD_CHAR) && !searchPhrase.contains(
+                SOLR_SINGLE_WILDCARD_CHAR)) {
             // Not an exact phrase
             searchPhrase = QUOTE + searchPhrase + QUOTE;
 
@@ -261,7 +268,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
         verifyInputData(propertyName, literal);
 
-        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
+        String mappedPropertyName = getMappedPropertyName(propertyName,
+                AttributeFormat.STRING,
                 true);
         return new SolrQuery(
                 mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literal) + QUOTE);
@@ -305,15 +313,20 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery propertyIsEqualTo(String propertyName, boolean literal) {
-        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.BOOLEAN, true);
+        String mappedPropertyName = getMappedPropertyName(propertyName,
+                AttributeFormat.BOOLEAN,
+                true);
         return new SolrQuery(mappedPropertyName + ":" + literal);
     }
 
     @Override
     public SolrQuery propertyIsGreaterThan(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
-                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_EXCLUSIVE_START,
+                formattedStartDate,
+                SOLR_WILDCARD_CHAR,
+                SOLR_INCLUSIVE_END);
     }
 
     @Override
@@ -344,8 +357,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     @Override
     public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
-                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_INCLUSIVE_START,
+                formattedStartDate,
+                SOLR_WILDCARD_CHAR,
+                SOLR_INCLUSIVE_END);
     }
 
     @Override
@@ -377,30 +393,42 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public SolrQuery during(String propertyName, Date startDate, Date endDate) {
         String formattedStartDate = formatDate(startDate);
         String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
-                formattedEndDate, SOLR_EXCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_EXCLUSIVE_START,
+                formattedStartDate,
+                formattedEndDate,
+                SOLR_EXCLUSIVE_END);
     }
 
     @Override
     public SolrQuery before(String propertyName, Date date) {
         String formattedEndDate = formatDate(date);
 
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
-                formattedEndDate, SOLR_EXCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_INCLUSIVE_START,
+                SOLR_WILDCARD_CHAR,
+                formattedEndDate,
+                SOLR_EXCLUSIVE_END);
     }
 
     @Override
     public SolrQuery after(String propertyName, Date startDate) {
         String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
-                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_EXCLUSIVE_START,
+                formattedStartDate,
+                SOLR_WILDCARD_CHAR,
+                SOLR_INCLUSIVE_END);
     }
 
     @Override
     public SolrQuery propertyIsLessThan(String propertyName, Date endDate) {
         String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
-                formattedEndDate, SOLR_EXCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_INCLUSIVE_START,
+                SOLR_WILDCARD_CHAR,
+                formattedEndDate,
+                SOLR_EXCLUSIVE_END);
     }
 
     @Override
@@ -431,8 +459,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     @Override
     public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, Date endDate) {
         String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
-                formattedEndDate, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_INCLUSIVE_START,
+                SOLR_WILDCARD_CHAR,
+                formattedEndDate,
+                SOLR_INCLUSIVE_END);
     }
 
     @Override
@@ -468,21 +499,28 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         // From OGC 09-026r1 and ISO 19143:2010(E), Section 7.7.3.7:
         // The PropertyIsBetween element is defined as a compact way of encoding a range check.
         // The lower and upper boundary values are inclusive.
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
-                formattedEndDate, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_INCLUSIVE_START,
+                formattedStartDate,
+                formattedEndDate,
+                SOLR_INCLUSIVE_END);
     }
 
     @Override
     public SolrQuery relative(String propertyName, long duration) {
         DateTime now = new DateTime();
-        Date start = now.minus(duration).toDate();
+        Date start = now.minus(duration)
+                .toDate();
         Date end = now.toDate();
 
         String formattedStartDate = formatDate(start);
         String formattedEndDate = formatDate(end);
 
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
-                formattedEndDate, SOLR_INCLUSIVE_END);
+        return buildDateQuery(propertyName,
+                SOLR_INCLUSIVE_START,
+                formattedStartDate,
+                formattedEndDate,
+                SOLR_INCLUSIVE_END);
     }
 
     private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate,
@@ -512,7 +550,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             SolrQuery query = null;
             if (null != pnt) {
                 String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
-                        NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+                        NEAREST_NEIGHBOR_DISTANCE_LIMIT,
+                        pnt);
 
                 query = getSolrQueryWithSort(nearestNeighborQuery);
             }
@@ -542,7 +581,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             double distanceInDegrees = metersToDegrees(distance);
             if (isPoint(geo)) {
                 Point pnt = (Point) geo;
-                String pointRadiusQuery = geoPointToCircleQuery(propertyName, distanceInDegrees,
+                String pointRadiusQuery = geoPointToCircleQuery(propertyName,
+                        distanceInDegrees,
                         pnt);
 
                 return getSolrQueryWithSort(pointRadiusQuery);
@@ -573,7 +613,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         // Bug in spatial4j that does not properly find intersection between
         // points. Therefore, converting to a point-radius to account for the
         // error.
-        if (StringUtils.isNotBlank(wkt) && wkt.toUpperCase().contains("POINT")) {
+        if (StringUtils.isNotBlank(wkt) && wkt.toUpperCase()
+                .contains("POINT")) {
             Geometry geo = getGeometry(wkt);
 
             if (geo != null) {
@@ -581,15 +622,17 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 if (isPoint(geo)) {
                     Point pnt = (Point) geo;
                     String pointRadiusQuery = geoPointToCircleQuery(propertyName,
-                            DEFAULT_ERROR_IN_DEGREES, pnt);
+                            DEFAULT_ERROR_IN_DEGREES,
+                            pnt);
 
                     return getSolrQueryWithSort(pointRadiusQuery);
                 }
-                if (MultiPoint.class.getSimpleName().equals(geo.getGeometryType())
-                        && geo.getCoordinates().length == 1) {
+                if (MultiPoint.class.getSimpleName()
+                        .equals(geo.getGeometryType()) && geo.getCoordinates().length == 1) {
                     Point pnt = GEOMETRY_FACTORY.createPoint(geo.getCoordinate());
                     String pointRadiusQuery = geoPointToCircleQuery(propertyName,
-                            DEFAULT_ERROR_IN_DEGREES, pnt);
+                            DEFAULT_ERROR_IN_DEGREES,
+                            pnt);
 
                     return getSolrQueryWithSort(pointRadiusQuery);
                 }
@@ -634,7 +677,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             final boolean isCaseSensitive) {
         // TODO should use XPath parser to make sure to only remove namespace pattern from path and not quoted text
         // replace quotes and remove namespaces
-        String xpath = pattern.replace("\"", "'").replaceAll("[\\w]+:(?!:)", "");
+        String xpath = pattern.replace("\"", "'")
+                .replaceAll("[\\w]+:(?!:)", "");
         String query = "*:*";
 
         if (StringUtils.isNotBlank(searchPhrase)) {
@@ -659,8 +703,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private SolrQuery getSolrQueryWithSort(String givenSpatialString) {
 
-        if (sortBy != null && sortBy.getPropertyName() != null && Result.DISTANCE
-                .equals(sortBy.getPropertyName().getPropertyName())) {
+        if (sortBy != null && sortBy.getPropertyName() != null
+                && Result.DISTANCE.equals(sortBy.getPropertyName()
+                .getPropertyName())) {
 
             String spatialQueryWithDistance = SCORE_DISTANCE + givenSpatialString;
 
@@ -828,7 +873,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             SolrQuery localQuery = operands.get(i);
 
             if (localQuery != null) {
-                builder.append(operator).append(localQuery.getQuery());
+                builder.append(operator)
+                        .append(localQuery.getQuery());
             } else {
                 throw new UnsupportedOperationException(
                         "Query was not interpreted properly. Query should not be null.");
@@ -851,7 +897,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private String escapeSpecialCharacters(String searchPhrase) {
-        return StringUtils.replaceEach(searchPhrase, LUCENE_SPECIAL_CHARACTERS,
+        return StringUtils.replaceEach(searchPhrase,
+                LUCENE_SPECIAL_CHARACTERS,
                 ESCAPED_LUCENE_SPECIAL_CHARACTERS);
     }
 
@@ -870,7 +917,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private boolean isPoint(Geometry geo) {
-        return geo != null && Point.class.getSimpleName().equals(geo.getGeometryType());
+        return geo != null && Point.class.getSimpleName()
+                .equals(geo.getGeometryType());
     }
 
     public void setSortPolicy(SortBy sort) {

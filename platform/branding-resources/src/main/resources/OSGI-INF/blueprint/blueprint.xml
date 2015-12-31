@@ -12,7 +12,7 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+>
 
     <bean id="provider" class="org.codice.ddf.branding.impl.BrandingResourceProviderImpl"/>
 

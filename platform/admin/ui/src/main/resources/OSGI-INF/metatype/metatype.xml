@@ -20,12 +20,12 @@
                 description="Specifies the header text to be rendered on the Administrator Console"
                 name="Header" id="header" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Specifies the footer text to be rendered on the Administrator Console"
                 name="Footer" id="footer" required="true" type="String"
                 default=""
-                />
+        />
         <AD
                 description="Specifies the style of the Header and Footer."
                 name="Style" id="style" required="true" type="String"

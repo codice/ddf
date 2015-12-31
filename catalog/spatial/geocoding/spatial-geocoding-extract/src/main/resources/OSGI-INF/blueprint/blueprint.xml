@@ -16,14 +16,16 @@
                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <bean id="geonamesExtractor" class="org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor">
+    <bean id="geonamesExtractor"
+          class="org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor">
         <cm:managed-properties persistent-id="org.codice.ddf.spatial.geocoding.extract.properties"
                                update-strategy="container-managed"/>
         <property name="geoEntryCreator" ref="geoEntryCreator"/>
         <property name="url" value="http://download.geonames.org/export/dump/"/>
     </bean>
 
-    <service ref="geonamesExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
+    <service ref="geonamesExtractor"
+             interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
 
     <reference id="geoEntryCreator" interface="org.codice.ddf.spatial.geocoding.GeoEntryCreator"/>
 </blueprint>

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,8 +25,8 @@ import org.slf4j.ext.XLogger;
 
 public class TemporalFilter {
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(TemporalFilter.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(TemporalFilter.class));
 
     private static DateTimeFormatter formatter;
 
@@ -40,7 +40,8 @@ public class TemporalFilter {
                 ISODateTimeFormat.dateTimeNoMillis().getParser(),
                 ISODateTimeFormat.basicDateTime().getParser(),
                 ISODateTimeFormat.basicDateTimeNoMillis().getParser()};
-        formatter = new DateTimeFormatterBuilder().append(null, parsers).toFormatter();
+        formatter = new DateTimeFormatterBuilder().append(null, parsers)
+                .toFormatter();
     }
 
     private Date startDate;
@@ -89,7 +90,8 @@ public class TemporalFilter {
         Date returnDate = null;
         if (date != null && !date.isEmpty()) {
             try {
-                returnDate = formatter.parseDateTime(date).toDate();
+                returnDate = formatter.parseDateTime(date)
+                        .toDate();
             } catch (IllegalArgumentException iae) {
                 LOGGER.warn(
                         "Could not parse out updated date in response, date will not being passed back.");

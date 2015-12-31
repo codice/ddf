@@ -82,7 +82,8 @@ public class UnavailableUrlsTest {
         ArgumentCaptor<Long> timeout = ArgumentCaptor.forClass(Long.class);
         ArgumentCaptor<TimeUnit> unit = ArgumentCaptor.forClass(TimeUnit.class);
 
-        Mockito.verify(scheduler).schedule(runnable.capture(), timeout.capture(), unit.capture());
+        Mockito.verify(scheduler)
+                .schedule(runnable.capture(), timeout.capture(), unit.capture());
         Mockito.reset(scheduler);
 
         return new SchedulerCapture(runnable.getValue(), timeout.getValue(), unit.getValue());

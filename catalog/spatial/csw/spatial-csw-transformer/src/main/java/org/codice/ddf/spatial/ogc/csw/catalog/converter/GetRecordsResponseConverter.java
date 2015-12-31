@@ -88,7 +88,7 @@ public class GetRecordsResponseConverter implements Converter {
 
     /**
      * Parses GetRecordsResponse XML of this form:
-     * <p/>
+     * <p>
      * <pre>
      * {@code
      *  <csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw">
@@ -118,7 +118,8 @@ public class GetRecordsResponseConverter implements Converter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
-            if (reader.getNodeName().contains("SearchResults")) {
+            if (reader.getNodeName()
+                    .contains("SearchResults")) {
                 setSearchResults(reader, cswRecords);
 
                 // Loop through the <SearchResults>, converting each
@@ -127,8 +128,9 @@ public class GetRecordsResponseConverter implements Converter {
                     reader.moveDown(); // move down to the <csw:Record> tag
                     String name = reader.getNodeName();
                     LOGGER.debug("node name = {}", name);
-                    Metacard metacard = (Metacard) context
-                            .convertAnother(null, MetacardImpl.class, transformProvider);
+                    Metacard metacard = (Metacard) context.convertAnother(null,
+                            MetacardImpl.class,
+                            transformProvider);
                     metacards.add(metacard);
 
                     // move back up to the <SearchResults> parent of the

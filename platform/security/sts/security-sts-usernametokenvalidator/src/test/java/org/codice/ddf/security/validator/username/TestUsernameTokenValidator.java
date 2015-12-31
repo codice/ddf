@@ -54,8 +54,8 @@ public class TestUsernameTokenValidator {
     public void setup() {
         try {
             Credential credential = mock(Credential.class);
-            when(niceValidator.validate(any(Credential.class), any(RequestData.class)))
-                    .thenReturn(credential);
+            when(niceValidator.validate(any(Credential.class), any(RequestData.class))).thenReturn(
+                    credential);
         } catch (WSSecurityException ignore) {
             //do nothing
         }
@@ -75,8 +75,10 @@ public class TestUsernameTokenValidator {
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(mock(Crypto.class));
         when(tokenValidatorParameters.getStsProperties()).thenReturn(stsPropertiesMBean);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
-        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
-        doCallRealMethod().when(receivedToken).getState();
+        doCallRealMethod().when(receivedToken)
+                .setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken)
+                .getState();
         when(receivedToken.isUsernameToken()).thenReturn(true);
         when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
 
@@ -101,17 +103,19 @@ public class TestUsernameTokenValidator {
         JAXBElement<?> token = null;
         if (unmarshaller != null) {
             try {
-                token = (JAXBElement<?>) unmarshaller
-                        .unmarshal(this.getClass().getResourceAsStream("/user-no-password.xml"));
+                token = (JAXBElement<?>) unmarshaller.unmarshal(this.getClass()
+                        .getResourceAsStream("/user-no-password.xml"));
             } catch (JAXBException e) {
                 fail(e.getMessage());
             }
         }
         when(receivedToken.getToken()).thenReturn(token.getValue());
 
-        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator
-                .validateToken(tokenValidatorParameters);
-        assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
+        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator.validateToken(
+                tokenValidatorParameters);
+        assertEquals(ReceivedToken.STATE.INVALID,
+                tokenValidatorResponse.getToken()
+                        .getState());
     }
 
     @Test
@@ -128,8 +132,10 @@ public class TestUsernameTokenValidator {
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(mock(Crypto.class));
         when(tokenValidatorParameters.getStsProperties()).thenReturn(stsPropertiesMBean);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
-        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
-        doCallRealMethod().when(receivedToken).getState();
+        doCallRealMethod().when(receivedToken)
+                .setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken)
+                .getState();
         when(receivedToken.isUsernameToken()).thenReturn(true);
         when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
 
@@ -154,17 +160,19 @@ public class TestUsernameTokenValidator {
         JAXBElement<?> token = null;
         if (unmarshaller != null) {
             try {
-                token = (JAXBElement<?>) unmarshaller
-                        .unmarshal(this.getClass().getResourceAsStream("/user.xml"));
+                token = (JAXBElement<?>) unmarshaller.unmarshal(this.getClass()
+                        .getResourceAsStream("/user.xml"));
             } catch (JAXBException e) {
                 fail(e.getMessage());
             }
         }
         when(receivedToken.getToken()).thenReturn(token.getValue());
 
-        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator
-                .validateToken(tokenValidatorParameters);
-        assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
+        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator.validateToken(
+                tokenValidatorParameters);
+        assertEquals(ReceivedToken.STATE.INVALID,
+                tokenValidatorResponse.getToken()
+                        .getState());
     }
 
     @Test
@@ -181,8 +189,10 @@ public class TestUsernameTokenValidator {
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(mock(Crypto.class));
         when(tokenValidatorParameters.getStsProperties()).thenReturn(stsPropertiesMBean);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
-        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
-        doCallRealMethod().when(receivedToken).getState();
+        doCallRealMethod().when(receivedToken)
+                .setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken)
+                .getState();
         when(receivedToken.isUsernameToken()).thenReturn(true);
         when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
 
@@ -207,16 +217,18 @@ public class TestUsernameTokenValidator {
         JAXBElement<?> token = null;
         if (unmarshaller != null) {
             try {
-                token = (JAXBElement<?>) unmarshaller
-                        .unmarshal(this.getClass().getResourceAsStream("/user.xml"));
+                token = (JAXBElement<?>) unmarshaller.unmarshal(this.getClass()
+                        .getResourceAsStream("/user.xml"));
             } catch (JAXBException e) {
                 fail(e.getMessage());
             }
         }
         when(receivedToken.getToken()).thenReturn(token.getValue());
 
-        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator
-                .validateToken(tokenValidatorParameters);
-        assertEquals(ReceivedToken.STATE.VALID, tokenValidatorResponse.getToken().getState());
+        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator.validateToken(
+                tokenValidatorParameters);
+        assertEquals(ReceivedToken.STATE.VALID,
+                tokenValidatorResponse.getToken()
+                        .getState());
     }
 }

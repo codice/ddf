@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -139,11 +139,13 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onStart(FileAlterationObserver observer) {
         try {
-            String directoryPath = observer.getDirectory().getCanonicalPath();
+            String directoryPath = observer.getDirectory()
+                    .getCanonicalPath();
             LOGGER.trace("starting to check directory for xacml policy update(s) " + directoryPath);
 
             if (!xacmlPolicyDirectories.isEmpty() && isXacmlPoliciesDirectoryEmpty(
-                    xacmlPolicyDirectories.iterator().next())) {
+                    xacmlPolicyDirectories.iterator()
+                            .next())) {
                 LOGGER.warn("No XACML Policies found in: {}", directoryPath);
             }
         } catch (IOException e) {
@@ -153,7 +155,8 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     public void onStop(FileAlterationObserver observer) {
         try {
-            LOGGER.trace("Done checking directory " + observer.getDirectory().getCanonicalPath());
+            LOGGER.trace("Done checking directory " + observer.getDirectory()
+                    .getCanonicalPath());
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -210,7 +213,9 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     private FileFilter getXmlFileFilter() {
         FileFilter xmlFileFilter = new FileFilter() {
             public boolean accept(File pathName) {
-                return pathName.getName().toLowerCase().endsWith(".xml");
+                return pathName.getName()
+                        .toLowerCase()
+                        .endsWith(".xml");
             }
 
         };
@@ -222,7 +227,8 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         FilenameFilter filter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".xml");
+                return name.toLowerCase()
+                        .endsWith(".xml");
             }
         };
 

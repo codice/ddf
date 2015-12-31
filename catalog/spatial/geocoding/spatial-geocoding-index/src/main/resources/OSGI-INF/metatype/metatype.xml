@@ -17,9 +17,9 @@
 
     <OCD name="GeoNames Indexer" id="org.codice.ddf.spatial.geocoding.index.properties">
         <AD
-            description="Specifies the directory to hold the GeoNames index."
-            name="Index Location" id="indexLocation" required="true" type="String"
-            default="data/geonames-index"
+                description="Specifies the directory to hold the GeoNames index."
+                name="Index Location" id="indexLocation" required="true" type="String"
+                default="data/geonames-index"
         />
     </OCD>
 

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
@@ -42,8 +41,13 @@ public class GmlEnvelopeConverter implements Converter {
         Envelope envelope = (Envelope) value;
 
         StringBuilder boxString = new StringBuilder();
-        boxString.append(envelope.getMinX()).append(",").append(envelope.getMinY()).append(" ")
-                .append(envelope.getMaxX()).append(",").append(envelope.getMaxY());
+        boxString.append(envelope.getMinX())
+                .append(",")
+                .append(envelope.getMinY())
+                .append(" ")
+                .append(envelope.getMaxX())
+                .append(",")
+                .append(envelope.getMaxY());
 
         writer.startNode(BOX_NODE_NAME);
         writer.addAttribute(SRS_NAME, SRS_VALUE);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -44,7 +44,8 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAuthorizingRealm.class);
 
-    private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+    private static final String SAML_ROLE =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private List<Expansion> expansionServiceList;
 
@@ -128,7 +129,8 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         }
         if (expansionServiceList != null) {
             for (Expansion expansionService : expansionServiceList) {
-                LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName,
+                LOGGER.debug("Expanding attributes for {} - original values: {}",
+                        attributeName,
                         attributeSet);
                 attributeSet = expansionService.expand(attributeName, attributeSet);
             }

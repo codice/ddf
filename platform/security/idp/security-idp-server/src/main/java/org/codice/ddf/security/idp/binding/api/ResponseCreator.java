@@ -65,6 +65,7 @@ public interface ResponseCreator {
         if (assertionConsumerService == null) {
             return null;
         }
-        return assertionConsumerService.getBinding().getUri();
+        return assertionConsumerService.getBinding()
+                .getUri();
     }
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,7 +61,8 @@ public class FileSystemProvider implements StorageProvider {
      */
     private static final String ID_PARAMETER = "id";
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(FileSystemProvider.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(FileSystemProvider.class));
 
     /**
      * Mapper for file extensions-to-mime types (and vice versa)
@@ -122,7 +123,8 @@ public class FileSystemProvider implements StorageProvider {
             mimeType = mimeTypeMapper.guessMimeType(new FileInputStream(file), extension);
         } catch (Exception e) {
             LOGGER.warn("Could not determine mime type for file extension = {}; defaulting to {}",
-                    extension, DEFAULT_MIME_TYPE);
+                    extension,
+                    DEFAULT_MIME_TYPE);
         }
 
         LOGGER.debug("mimeType = {}", mimeType);
@@ -183,9 +185,11 @@ public class FileSystemProvider implements StorageProvider {
                     FileUtils.deleteDirectory(dirToBeDeleted);
                 } catch (IOException e) {
                     LOGGER.info("Unable to delete directory {} for id = {}",
-                            dirToBeDeleted.getAbsolutePath(), id);
+                            dirToBeDeleted.getAbsolutePath(),
+                            id);
                 }
-                deletedContentItem = new ContentFile(null, id,
+                deletedContentItem = new ContentFile(null,
+                        id,
                         itemToBeDeleted.getMimeTypeRawData());
                 String contentUri = CONTENT_URI_PREFIX + deletedContentItem.getId();
                 LOGGER.debug("contentUri = {}", contentUri);
@@ -195,7 +199,8 @@ public class FileSystemProvider implements StorageProvider {
             throw new StorageException("Invalid ID. Cannot delete directory.");
         }
 
-        DeleteResponse response = new DeleteResponseImpl(deleteRequest, deletedContentItem,
+        DeleteResponse response = new DeleteResponseImpl(deleteRequest,
+                deletedContentItem,
                 isDeleted);
 
         LOGGER.trace("EXITING: delete");
@@ -221,8 +226,10 @@ public class FileSystemProvider implements StorageProvider {
         File createdFile = createFile(fileId);
         FileUtils.copyInputStreamToFile(item.getInputStream(), createdFile);
 
-        ContentItem contentItem = new ContentFile(createdFile, item.getId(),
-                item.getMimeTypeRawData(), item.getFilename());
+        ContentItem contentItem = new ContentFile(createdFile,
+                item.getId(),
+                item.getMimeTypeRawData(),
+                item.getFilename());
         String contentUri = CONTENT_URI_PREFIX + contentItem.getId();
         LOGGER.debug("contentUri = {}", contentUri);
         contentItem.setUri(contentUri);
@@ -337,8 +344,8 @@ public class FileSystemProvider implements StorageProvider {
             File directory = new File(path);
 
             // Create the directory if it doesn't exist
-            if ((!directory.exists() && directory.mkdirs()) || (directory.isDirectory() && directory
-                    .canRead())) {
+            if ((!directory.exists() && directory.mkdirs()) || (directory.isDirectory()
+                    && directory.canRead())) {
                 LOGGER.info("Setting base content directory to: {}", path);
                 newBaseDir = path;
             }

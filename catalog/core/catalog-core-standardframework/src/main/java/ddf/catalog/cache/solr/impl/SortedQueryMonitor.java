@@ -88,9 +88,8 @@ class SortedQueryMonitor implements Runnable {
         if (sortBy != null && sortBy.getPropertyName() != null) {
             PropertyName sortingProp = sortBy.getPropertyName();
             String sortType = sortingProp.getPropertyName();
-            SortOrder sortOrder = (sortBy.getSortOrder() == null) ?
-                    SortOrder.DESCENDING :
-                    sortBy.getSortOrder();
+            SortOrder sortOrder =
+                    (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING : sortBy.getSortOrder();
             logger.debug("Sorting type: {}", sortType);
             logger.debug("Sorting order: {}", sortBy.getSortOrder());
 
@@ -118,8 +117,8 @@ class SortedQueryMonitor implements Runnable {
                 if (query.getTimeoutMillis() < 1) {
                     future = completionService.take();
                 } else {
-                    future = completionService
-                            .poll(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+                    future = completionService.poll(getTimeRemaining(deadline),
+                            TimeUnit.MILLISECONDS);
                     if (future == null) {
                         timeoutRemainingSources(processingDetails);
                         break;
@@ -135,8 +134,8 @@ class SortedQueryMonitor implements Runnable {
 
                 if (sourceResponse == null) {
                     logger.info("Source {} returned null response", sourceId);
-                    processingDetails
-                            .add(new ProcessingDetailsImpl(sourceId, new NullPointerException()));
+                    processingDetails.add(new ProcessingDetailsImpl(sourceId,
+                            new NullPointerException()));
                 } else {
                     resultList.addAll(sourceResponse.getResults());
                     totalHits += sourceResponse.getHits();
@@ -155,8 +154,10 @@ class SortedQueryMonitor implements Runnable {
                 interruptRemainingSources(processingDetails, e);
                 break;
             } catch (ExecutionException e) {
-                logger.warn("Couldn't get results from completed federated query. {}, {}", sourceId,
-                        Exceptions.getFullMessage(e), e);
+                logger.warn("Couldn't get results from completed federated query. {}, {}",
+                        sourceId,
+                        Exceptions.getFullMessage(e),
+                        e);
 
                 processingDetails.add(new ProcessingDetailsImpl(sourceId,
                         new Exception(Exceptions.getFullMessage(e))));
@@ -165,8 +166,8 @@ class SortedQueryMonitor implements Runnable {
         logger.debug("All sources finished returning results: {}", resultList.size());
 
         returnResults.setHits(totalHits);
-        if (CachingFederationStrategy.INDEX_QUERY_MODE
-                .equals(request.getPropertyValue(CachingFederationStrategy.QUERY_MODE))) {
+        if (CachingFederationStrategy.INDEX_QUERY_MODE.equals(request.getPropertyValue(
+                CachingFederationStrategy.QUERY_MODE))) {
             QueryResponse result = cachingFederationStrategy.queryCache(request);
             returnResults.addResults(result.getResults(), true);
         } else {

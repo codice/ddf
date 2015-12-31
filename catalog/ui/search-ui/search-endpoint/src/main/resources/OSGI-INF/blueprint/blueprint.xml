@@ -37,7 +37,8 @@
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
                     availability="optional"/>
 
-    <reference-list id="actionProviders" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.*)"/>
+    <reference-list id="actionProviders" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
 
     <bean id="actionRegistry" class="org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl">
         <argument ref="actionProviders"/>
@@ -57,9 +58,6 @@
         <argument ref="actionRegistry"/>
         <argument ref="searchThreadPool"/>
     </bean>
-
-
-
 
 
 </blueprint>

@@ -14,17 +14,17 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="Guest Validator Configuration" name="Security STS Guest Validator"
+    <OCD description="Guest Validator Configuration" name="Security STS Guest Validator"
          id="ddf.security.sts.guestvalidator">
         <AD name="Supported Realms" id="supportedRealm" required="true" type="String"
             cardinality="100"
             default="karaf,ldap"
             description="The realms that this validator supports.">
         </AD>
-	</OCD>
-	
-	<Designate pid="ddf.security.sts.guestvalidator">
-	    <Object ocdref="ddf.security.sts.guestvalidator"/>
-  	</Designate>
+    </OCD>
+
+    <Designate pid="ddf.security.sts.guestvalidator">
+        <Object ocdref="ddf.security.sts.guestvalidator"/>
+    </Designate>
 
 </metatype:MetaData>

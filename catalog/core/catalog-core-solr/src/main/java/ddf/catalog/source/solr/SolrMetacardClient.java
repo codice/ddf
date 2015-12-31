@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -90,7 +90,8 @@ public class SolrMetacardClient {
         List<Result> results = new ArrayList<>();
         try {
             QueryResponse solrResponse = server.query(query, SolrRequest.METHOD.POST);
-            totalHits = solrResponse.getResults().getNumFound();
+            totalHits = solrResponse.getResults()
+                    .getNumFound();
             SolrDocumentList docs = solrResponse.getResults();
 
             for (SolrDocument doc : docs) {
@@ -153,7 +154,8 @@ public class SolrMetacardClient {
 
     protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
             throws UnsupportedQueryException {
-        solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
+        solrFilterDelegate.setSortPolicy(request.getQuery()
+                .getSortBy());
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
         if (LOGGER.isDebugEnabled()) {
@@ -163,19 +165,23 @@ public class SolrMetacardClient {
             }
         }
 
-        if (request.getQuery().getPageSize() < 1) {
+        if (request.getQuery()
+                .getPageSize() < 1) {
             query.setRows(Integer.MAX_VALUE);
         } else {
-            query.setRows(request.getQuery().getPageSize());
+            query.setRows(request.getQuery()
+                    .getPageSize());
         }
 
         /* Start Index */
-        if (request.getQuery().getStartIndex() < 1) {
+        if (request.getQuery()
+                .getStartIndex() < 1) {
             throw new UnsupportedQueryException("Start index must be greater than 0");
         }
 
         // Solr is 0-based
-        query.setStart(request.getQuery().getStartIndex() - 1);
+        query.setStart(request.getQuery()
+                .getStartIndex() - 1);
 
         removeOuterParenthesesIfFunctionPresent(query);
 
@@ -184,18 +190,21 @@ public class SolrMetacardClient {
 
     protected void removeOuterParenthesesIfFunctionPresent(SolrQuery query) {
         // Solr does not support outside parenthesis in certain queries and throws EOF exception.
-        String queryPhrase = query.getQuery().trim();
+        String queryPhrase = query.getQuery()
+                .trim();
         if (queryPhrase.matches("\\s*\\(\\s*\\{!.*\\)")) {
             query.setQuery(queryPhrase.replaceAll("^\\s*\\(\\s*|\\s*\\)$", ""));
         }
     }
 
     protected String getSortProperty(QueryRequest request, SolrQuery query) {
-        SortBy sortBy = request.getQuery().getSortBy();
+        SortBy sortBy = request.getQuery()
+                .getSortBy();
         String sortProperty = "";
 
         if (sortBy != null && sortBy.getPropertyName() != null) {
-            sortProperty = sortBy.getPropertyName().getPropertyName();
+            sortProperty = sortBy.getPropertyName()
+                    .getPropertyName();
             SolrQuery.ORDER order = SolrQuery.ORDER.desc;
 
             if (sortBy.getSortOrder() == SortOrder.ASCENDING) {
@@ -206,9 +215,9 @@ public class SolrMetacardClient {
                 query.setFields("*", RELEVANCE_SORT_FIELD);
                 query.addSort(RELEVANCE_SORT_FIELD, order);
             } else if (sortProperty.equals(Result.TEMPORAL)) {
-                query.addSort(
-                        resolver.getField(Metacard.EFFECTIVE, AttributeType.AttributeFormat.DATE,
-                                false), order);
+                query.addSort(resolver.getField(Metacard.EFFECTIVE,
+                        AttributeType.AttributeFormat.DATE,
+                        false), order);
             } else {
                 List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);
 
@@ -254,8 +263,8 @@ public class SolrMetacardClient {
     }
 
     private Double degreesToMeters(double distance) {
-        return new Distance(
-                DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM),
+        return new Distance(DistanceUtils.degrees2Dist(distance,
+                DistanceUtils.EARTH_MEAN_RADIUS_KM),
                 Distance.LinearUnit.KILOMETER).getAs(Distance.LinearUnit.METER);
     }
 
@@ -265,8 +274,8 @@ public class SolrMetacardClient {
 
         for (String solrFieldName : doc.getFieldNames()) {
             if (!resolver.isPrivateField(solrFieldName)) {
-                Serializable value = resolver
-                        .getDocValue(solrFieldName, doc.getFieldValue(solrFieldName));
+                Serializable value = resolver.getDocValue(solrFieldName,
+                        doc.getFieldValue(solrFieldName));
                 metacard.setAttribute(resolver.resolveFieldName(solrFieldName), value);
             }
         }
@@ -322,12 +331,15 @@ public class SolrMetacardClient {
                 server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
             } else {
                 int i = 0;
-                for (i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES; i < identifiers.size(); i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
+                for (
+                        i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES;
+                        i < identifiers.size(); i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
                     server.deleteByQuery(getIdentifierQuery(fieldName,
                             identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
                 }
                 server.deleteByQuery(getIdentifierQuery(fieldName,
-                        identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
+                        identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES,
+                                identifiers.size())));
             }
         }
 
@@ -347,7 +359,11 @@ public class SolrMetacardClient {
                 queryBuilder.append(" OR ");
             }
 
-            queryBuilder.append(fieldName).append(":").append(QUOTE).append(id).append(QUOTE);
+            queryBuilder.append(fieldName)
+                    .append(":")
+                    .append(QUOTE)
+                    .append(id)
+                    .append(QUOTE);
         }
         return queryBuilder.toString();
     }
@@ -358,7 +374,8 @@ public class SolrMetacardClient {
                 .setAction(AbstractUpdateRequest.ACTION.COMMIT,
                 /* waitForFlush */true,
                 /* waitToMakeVisible */true,
-                /* softCommit */true).process(server);
+                /* softCommit */true)
+                .process(server);
     }
 
 }

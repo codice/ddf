@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,8 +38,8 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
 
     public static final String SOURCE = "BasicHandler";
 
-    protected static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractBasicAuthenticationHandler.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(
+            AbstractBasicAuthenticationHandler.class);
 
     @Override
     public abstract String getAuthenticationType();
@@ -148,7 +148,8 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
                     String userPass = new String(decode);
                     String[] authComponents = userPass.split(":");
                     if (authComponents.length == 2) {
-                        token = getBaseAuthenticationToken(realm, authComponents[0],
+                        token = getBaseAuthenticationToken(realm,
+                                authComponents[0],
                                 authComponents[1]);
                     } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
                         token = getBaseAuthenticationToken(realm, authComponents[0], "");

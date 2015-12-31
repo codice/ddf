@@ -29,7 +29,7 @@ public class WssPKIHandler extends AbstractPKIHandler {
      * WS-Security compliant PKI type to use when configuring context policy.
      */
     public static final String AUTH_TYPE = "WSSPKI";
-    
+
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
@@ -39,8 +39,8 @@ public class WssPKIHandler extends AbstractPKIHandler {
     protected BaseAuthenticationToken extractAuthenticationInfo(String realm,
             X509Certificate[] certs) {
         PKIAuthenticationToken pkiToken = tokenFactory.getTokenFromCerts(certs, realm);
-        BinarySecurityTokenType binarySecurityType = pkiToken
-                .createBinarySecurityTokenType(pkiToken.getCredentials());
+        BinarySecurityTokenType binarySecurityType =
+                pkiToken.createBinarySecurityTokenType(pkiToken.getCredentials());
 
         //
         // Turn the received JAXB object into a DOM element
@@ -50,9 +50,11 @@ public class WssPKIHandler extends AbstractPKIHandler {
         binarySecurity.setEncodingType(binarySecurityType.getEncodingType());
         binarySecurity.setValueType(X509Security.X509_V3_TYPE);
         String data = binarySecurityType.getValue();
-        ((Text) binarySecurity.getElement().getFirstChild()).setData(data);
+        ((Text) binarySecurity.getElement()
+                .getFirstChild()).setData(data);
 
-        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null, "",
+        BaseAuthenticationToken baseAuthenticationToken = new BaseAuthenticationToken(null,
+                "",
                 binarySecurity.toString());
         baseAuthenticationToken.setUseWssSts(true);
         return baseAuthenticationToken;

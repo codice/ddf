@@ -18,7 +18,8 @@
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
     </bean>
 
-    <reference id="geoEntryQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+    <reference id="geoEntryQueryable"
+               interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
 
     <service ref="geoCoderLocal" interface="org.codice.ddf.spatial.geocoder.GeoCoder" ranking="50"/>
 

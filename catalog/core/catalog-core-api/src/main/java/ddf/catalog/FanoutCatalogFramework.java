@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -95,10 +95,11 @@ import ddf.catalog.util.SourcePoller;
  */
 @Deprecated
 public class FanoutCatalogFramework extends CatalogFrameworkImpl {
-    private static final String EXCEPTION_MESSAGE = "FanoutCatalogFramework does not support create, update, and delete operations";
+    private static final String EXCEPTION_MESSAGE =
+            "FanoutCatalogFramework does not support create, update, and delete operations";
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(FanoutCatalogFramework.class));
+    private static XLogger logger =
+            new XLogger(LoggerFactory.getLogger(FanoutCatalogFramework.class));
 
     /**
      * Instantiates a new FanoutCatalogFramework, ignoring the provided {@link CatalogProvider}
@@ -148,9 +149,20 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
             ExecutorService pool, SourcePoller poller) {
 
-        super(Collections.singletonList(catalog), context, preIngest, postIngest, preQuery,
-                postQuery, preResource, postResource, connectedSites, federatedSites,
-                resourceReaders, queryStrategy, pool, poller);
+        super(Collections.singletonList(catalog),
+                context,
+                preIngest,
+                postIngest,
+                preQuery,
+                postQuery,
+                preResource,
+                postResource,
+                connectedSites,
+                federatedSites,
+                resourceReaders,
+                queryStrategy,
+                pool,
+                poller);
         logger.debug("\n\n Starting FanoutCatalogFramework\n\n");
     }
 
@@ -202,8 +214,20 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
             ExecutorService pool, SourcePoller poller) {
 
-        this(context, null, preIngest, postIngest, preQuery, postQuery, preResource, postResource,
-                connectedSites, federatedSites, resourceReaders, queryStrategy, pool, poller);
+        this(context,
+                null,
+                preIngest,
+                postIngest,
+                preQuery,
+                postQuery,
+                preResource,
+                postResource,
+                connectedSites,
+                federatedSites,
+                resourceReaders,
+                queryStrategy,
+                pool,
+                poller);
     }
 
     @Override
@@ -237,9 +261,10 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
         validateQueryRequest(queryRequest);
 
         // Force an enterprise query
-        QueryResponse queryResponse = super
-                .query(new QueryRequestImpl(queryRequest.getQuery(), true, null,
-                        queryRequest.getProperties()), strategy);
+        QueryResponse queryResponse = super.query(new QueryRequestImpl(queryRequest.getQuery(),
+                true,
+                null,
+                queryRequest.getProperties()), strategy);
         queryResponse = replaceSourceId(queryResponse);
 
         logger.exit(methodName);
@@ -414,7 +439,8 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
         } catch (RuntimeException re) {
             logger.warn("Exception during runtime while performing create", re);
             throw new SourceUnavailableException(
-                    "Exception during runtime while performing getSourceInfo", re);
+                    "Exception during runtime while performing getSourceInfo",
+                    re);
 
         }
         logger.exit(methodName);
@@ -545,11 +571,14 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
             if (ResourceRequest.GET_RESOURCE_BY_ID.equals(attributeName)) {
                 String metacardId = (String) attributeValue;
-                logger.debug("Get ddf.catalog.resource.Resource By ID.  Need to obtain resource URL from metacard: "
-                        + metacardId);
+                logger.debug(
+                        "Get ddf.catalog.resource.Resource By ID.  Need to obtain resource URL from metacard: "
+                                + metacardId);
 
                 QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                        true, null, null);
+                        true,
+                        null,
+                        null);
 
                 QueryResponse queryResponse = query(queryRequest);
                 List<Result> results = queryResponse.getResults();
@@ -632,13 +661,14 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     e);
         } catch (FederationException e) {
             throw new ResourceNotSupportedException(
-                    "Error while federating query for resource's resource URI", e);
+                    "Error while federating query for resource's resource URI",
+                    e);
         }
 
         if (resourceResponse == null) {
             throw new ResourceNotFoundException(
-                    "Resource could not be found for the given attribute value: " + resourceRequest
-                            .getAttributeValue());
+                    "Resource could not be found for the given attribute value: "
+                            + resourceRequest.getAttributeValue());
         }
 
         logger.exit(methodName);

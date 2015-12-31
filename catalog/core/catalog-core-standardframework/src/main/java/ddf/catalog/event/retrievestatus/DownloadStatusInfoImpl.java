@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,7 +35,8 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
 
     private static final String UNKNOWN = "UNKNOWN";
 
-    private Map<String, ReliableResourceDownloader> downloaders = new HashMap<String, ReliableResourceDownloader>();
+    private Map<String, ReliableResourceDownloader> downloaders =
+            new HashMap<String, ReliableResourceDownloader>();
 
     private Map<String, String> downloadUsers = new HashMap<String, String>();
 
@@ -54,8 +55,8 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
         } catch (Exception e) {
             LOGGER.debug("Could not determine current user, using session id.");
         }
-        String user = SubjectUtils
-                .getName(shiroSubject, getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
+        String user = SubjectUtils.getName(shiroSubject,
+                getProperty(resourceResponse, ActivityEvent.USER_ID_KEY));
         downloadUsers.put(downloadIdentifier, user);
     }
 
@@ -72,7 +73,9 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
             }
         } else {
             for (Map.Entry<String, ReliableResourceDownloader> item : downloaders.entrySet()) {
-                if (item.getKey().substring(0, userId.length()).equals(userId)) {
+                if (item.getKey()
+                        .substring(0, userId.length())
+                        .equals(userId)) {
                     allDownloads.add(item.getKey());
                 }
             }
@@ -96,7 +99,10 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
             statusMap.put("downloadId", downloadIdentifier);
             statusMap.put("status", downloader.getReliableResourceInputStreamState());
             statusMap.put("bytesDownloaded", Long.toString(downloadedBytes));
-            statusMap.put("fileName", downloader.getResourceResponse().getResource().getName());
+            statusMap.put("fileName",
+                    downloader.getResourceResponse()
+                            .getResource()
+                            .getName());
             statusMap.put("user", downloadUsers.get(downloadIdentifier));
         }
         return statusMap;
@@ -120,8 +126,10 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
     private String getProperty(ResourceResponse resourceResponse, String property) {
         String response = "";
 
-        if (resourceResponse.getRequest().containsPropertyName(property)) {
-            response = (String) resourceResponse.getRequest().getPropertyValue(property);
+        if (resourceResponse.getRequest()
+                .containsPropertyName(property)) {
+            response = (String) resourceResponse.getRequest()
+                    .getPropertyValue(property);
             LOGGER.debug("resourceResponse {} property: {}", property, response);
         }
 

@@ -152,11 +152,11 @@
     </map>
 
 
-        <!-- Cellar MERGE POLICY -->
-    	<merge-policies>
-           	<map-merge-policy name="CELLAR_MERGE_POLICY">
-            	<class-name>org.apache.karaf.cellar.hazelcast.merge.CellarMergePolicy</class-name>
-        	</map-merge-policy>
-    	</merge-policies>
+    <!-- Cellar MERGE POLICY -->
+    <merge-policies>
+        <map-merge-policy name="CELLAR_MERGE_POLICY">
+            <class-name>org.apache.karaf.cellar.hazelcast.merge.CellarMergePolicy</class-name>
+        </map-merge-policy>
+    </merge-policies>
 
 </hazelcast>

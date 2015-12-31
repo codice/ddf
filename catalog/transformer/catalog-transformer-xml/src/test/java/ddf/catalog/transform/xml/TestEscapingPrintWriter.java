@@ -84,7 +84,8 @@ public class TestEscapingPrintWriter {
         LOGGER.info("num code points (BMP) representable by char type: {}", bmpCount);
         LOGGER.info("num valid (BMP) code points: {}", validCount);
         LOGGER.info("num undefined BMP chars: {}, example: {}", undefinedCount, sampleUndef);
-        LOGGER.info("num surrogate BMP chars: {}, example: {}", definedSurrogateCount,
+        LOGGER.info("num surrogate BMP chars: {}, example: {}",
+                definedSurrogateCount,
                 sampleSurrogate);
         LOGGER.info("num ISO BMP chars: {}, example: {}", definedIsoCount, sampleISO);
     }

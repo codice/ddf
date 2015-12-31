@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -59,15 +59,20 @@ public class SubscriptionTracker {
         LOGGER.debug("ENTERING: {}", methodName);
         LOGGER.debug("*********************************************");
 
-        String serviceId = props.get("service.id").toString();
+        String serviceId = props.get("service.id")
+                .toString();
 
         LOGGER.debug("{} has detected a subscription request({})",
-                SubscriptionTracker.class.getName(), serviceId);
+                SubscriptionTracker.class.getName(),
+                serviceId);
 
         try {
             String subscriptionId = provider.createSubscription(subscription);
             LOGGER.debug("{} Provider has created the subscription for request ({}): {}",
-                    provider.getClass().getName(), serviceId, subscriptionId);
+                    provider.getClass()
+                            .getName(),
+                    serviceId,
+                    subscriptionId);
             services.put(serviceId, subscriptionId);
         } catch (EventException e) {
             LOGGER.error("Error in creating subscription. {}", serviceId, e);
@@ -82,12 +87,14 @@ public class SubscriptionTracker {
 
         if (props != null) {
             if (props.get("service.id") != null) {
-                String serviceId = props.get("service.id").toString();
+                String serviceId = props.get("service.id")
+                        .toString();
 
                 String subscriptionId = services.get(serviceId);
 
                 LOGGER.debug("{} has detected request for subscription ({}) deletion.",
-                        SubscriptionTracker.class.getName(), serviceId);
+                        SubscriptionTracker.class.getName(),
+                        serviceId);
 
                 try {
                     provider.deleteSubscription(subscriptionId);

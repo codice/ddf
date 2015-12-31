@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Tests out the ApplicationNodeImpl code to make sure it is following the
  * interface specification.
- *
  */
 public class ApplicationNodeImplTest {
 
@@ -66,7 +65,8 @@ public class ApplicationNodeImplTest {
 
         ApplicationNodeImpl testNode = new ApplicationNodeImpl(testApp);
         // initialization test
-        assertTrue(testNode.getChildren().isEmpty());
+        assertTrue(testNode.getChildren()
+                .isEmpty());
         assertNull(testNode.getParent());
         assertEquals(testApp, testNode.getApplication());
 
@@ -77,9 +77,15 @@ public class ApplicationNodeImplTest {
         when(testChildApp.getDescription()).thenReturn(APP2_DESCRIPTION);
         ApplicationNodeImpl testChildNode = new ApplicationNodeImpl(testChildApp);
         testChildNode.setParent(testNode);
-        testNode.getChildren().add(testChildNode);
-        assertEquals(1, testNode.getChildren().size());
-        assertEquals(testChildNode, testNode.getChildren().iterator().next());
+        testNode.getChildren()
+                .add(testChildNode);
+        assertEquals(1,
+                testNode.getChildren()
+                        .size());
+        assertEquals(testChildNode,
+                testNode.getChildren()
+                        .iterator()
+                        .next());
 
         assertNotNull(testChildNode.getParent());
         assertEquals(testNode, testChildNode.getParent());
@@ -152,7 +158,8 @@ public class ApplicationNodeImplTest {
     public void testHashCode() {
         try {
             Repository testRepo = new RepositoryImpl(ApplicationNodeImpl.class.getClassLoader()
-                    .getResource(FEATURES_FILE_NAME).toURI());
+                    .getResource(FEATURES_FILE_NAME)
+                    .toURI());
             Application testApp = new ApplicationImpl(testRepo);
 
             ApplicationNode testNode = new ApplicationNodeImpl(testApp);

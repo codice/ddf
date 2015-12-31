@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,8 +32,8 @@ public class MultiPolygon extends Polygon {
     }
 
     public static CompositeGeometry toCompositeGeometry(List coordinates) {
-        com.vividsolutions.jts.geom.Polygon[] allPolygons = new com.vividsolutions.jts.geom.Polygon[coordinates
-                .size()];
+        com.vividsolutions.jts.geom.Polygon[] allPolygons =
+                new com.vividsolutions.jts.geom.Polygon[coordinates.size()];
 
         for (int i = 0; i < allPolygons.length; i++) {
             allPolygons[i] = buildPolygon((List) coordinates.get(i));
@@ -53,8 +53,9 @@ public class MultiPolygon extends Polygon {
             List<List> listOfPolygons = new ArrayList<List>();
 
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                List polygon = buildJsonPolygon(
-                        (com.vividsolutions.jts.geom.Polygon) geometry.getGeometryN(i));
+                List polygon =
+                        buildJsonPolygon((com.vividsolutions.jts.geom.Polygon) geometry.getGeometryN(
+                                i));
                 listOfPolygons.add(polygon);
             }
 
@@ -75,8 +76,8 @@ public class MultiPolygon extends Polygon {
 
         if (null != geometry) {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                CompositeGeometry compositeGeo = CompositeGeometry
-                        .getCompositeGeometry(geometry.getGeometryN(i));
+                CompositeGeometry compositeGeo =
+                        CompositeGeometry.getCompositeGeometry(geometry.getGeometryN(i));
                 if (null != compositeGeo) {
                     positions.addAll(compositeGeo.toGeoRssPositions());
                 }

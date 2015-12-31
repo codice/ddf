@@ -40,8 +40,8 @@ public class LatestCommandTest extends AbstractCommandTest {
 
         try {
             // given
-            final CatalogFramework catalogFramework = givenCatalogFramework(
-                    getResultList("id1", "id2"));
+            final CatalogFramework catalogFramework = givenCatalogFramework(getResultList("id1",
+                    "id2"));
 
             LatestCommand latestCommand = new LatestCommand() {
                 @Override

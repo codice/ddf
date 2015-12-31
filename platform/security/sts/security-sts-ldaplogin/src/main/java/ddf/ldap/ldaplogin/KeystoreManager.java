@@ -75,10 +75,14 @@ public class KeystoreManager {
             keystorePass = encryptService.decryptValue(keystorePass);
             truststorePass = encryptService.decryptValue(truststorePass);
         }
-        keystoreRegistration = registerKeystore("ks", keystoreLoc, keystorePass,
+        keystoreRegistration = registerKeystore("ks",
+                keystoreLoc,
+                keystorePass,
                 keystoreRegistration);
 
-        truststoreRegistration = registerKeystore("ts", truststoreLoc, truststorePass,
+        truststoreRegistration = registerKeystore("ts",
+                truststoreLoc,
+                truststorePass,
                 truststoreRegistration);
     }
 
@@ -106,7 +110,8 @@ public class KeystoreManager {
             keystore.setName(name);
             keystore.setKeyPasswords(keyAlias.getResolvedString() + "=" + password);
             keystore.setKeystorePassword(password);
-            keystore.setPath(new File(location).toURI().toURL());
+            keystore.setPath(new File(location).toURI()
+                    .toURL());
 
             BundleContext context = getContext();
 

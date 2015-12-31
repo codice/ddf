@@ -39,24 +39,25 @@ public class GuestValidator implements TokenValidator {
     private static final Pattern IPV6_HEX_COMPRESSED_PATTERN = Pattern.compile(
             "^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$");
 
-    private static final Pattern IPV6_STD_PATTERN = Pattern
-            .compile("^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
+    private static final Pattern IPV6_STD_PATTERN = Pattern.compile(
+            "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$");
 
     private List<String> supportedRealm;
 
     private GuestAuthenticationToken getGuestTokenFromTarget(ReceivedToken validateTarget) {
         Object token = validateTarget.getToken();
         if ((token instanceof BinarySecurityTokenType)
-                && GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE
-                .equals(((BinarySecurityTokenType) token).getValueType())) {
+                && GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE.equals(((BinarySecurityTokenType) token).getValueType())) {
             String credential = ((BinarySecurityTokenType) token).getValue();
             try {
                 BaseAuthenticationToken base = GuestAuthenticationToken.parse(credential, true);
                 return new GuestAuthenticationToken(base.getRealm(),
-                        GuestPrincipal.parseAddressFromName(base.getPrincipal().toString()));
+                        GuestPrincipal.parseAddressFromName(base.getPrincipal()
+                                .toString()));
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",
-                        GuestAuthenticationToken.class.getSimpleName(), e);
+                        GuestAuthenticationToken.class.getSimpleName(),
+                        e);
                 return null;
             }
         }
@@ -64,8 +65,10 @@ public class GuestValidator implements TokenValidator {
     }
 
     private boolean validIpAddress(String address) {
-        return IPV4_PATTERN.matcher(address).matches() || IPV6_STD_PATTERN.matcher(address)
-                .matches() || IPV6_HEX_COMPRESSED_PATTERN.matcher(address).matches();
+        return IPV4_PATTERN.matcher(address)
+                .matches() || IPV6_STD_PATTERN.matcher(address)
+                .matches() || IPV6_HEX_COMPRESSED_PATTERN.matcher(address)
+                .matches();
     }
 
     @Override
@@ -84,8 +87,8 @@ public class GuestValidator implements TokenValidator {
                 LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
             } else {
-                if (supportedRealm.contains(guestToken.getRealm()) || "*"
-                        .equals(guestToken.getRealm())) {
+                if (supportedRealm.contains(guestToken.getRealm())
+                        || "*".equals(guestToken.getRealm())) {
                     LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
                             guestToken.getRealm());
                     return true;
@@ -112,16 +115,16 @@ public class GuestValidator implements TokenValidator {
             response.setPrincipal(new GuestPrincipal(guestToken.getIpAddress()));
 
             if (guestToken.getRealm() != null) {
-                if ((supportedRealm.contains(guestToken.getRealm()) || "*"
-                        .equals(guestToken.getRealm())) && guestToken.getCredentials()
-                        .equals(GuestAuthenticationToken.GUEST_CREDENTIALS)
-                        && validIpAddress(guestToken.getIpAddress())) {
+                if ((supportedRealm.contains(guestToken.getRealm())
+                        || "*".equals(guestToken.getRealm())) && guestToken.getCredentials()
+                        .equals(GuestAuthenticationToken.GUEST_CREDENTIALS) && validIpAddress(
+                        guestToken.getIpAddress())) {
                     validateTarget.setState(ReceivedToken.STATE.VALID);
                     validateTarget.setPrincipal(new GuestPrincipal(guestToken.getIpAddress()));
                 }
             } else if (guestToken.getCredentials()
-                    .equals(GuestAuthenticationToken.GUEST_CREDENTIALS) && validIpAddress(
-                    guestToken.getIpAddress())) {
+                    .equals(GuestAuthenticationToken.GUEST_CREDENTIALS)
+                    && validIpAddress(guestToken.getIpAddress())) {
                 validateTarget.setState(ReceivedToken.STATE.VALID);
                 validateTarget.setPrincipal(new GuestPrincipal(guestToken.getIpAddress()));
             }

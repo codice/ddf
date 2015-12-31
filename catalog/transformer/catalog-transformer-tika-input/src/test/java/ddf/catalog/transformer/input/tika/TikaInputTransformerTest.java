@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,7 +41,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testJavaClass() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("CatalogFrameworkImpl.class");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -53,7 +54,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testAudioWav() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testWAV.wav");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -64,7 +66,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testAudioAiff() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testAIFF.aif");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -75,7 +78,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testAudioAu() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testAU.au");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -86,7 +90,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testAudioMidi() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testMID.mid");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -97,7 +102,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testJavaSource() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testpackage/testJAVA.java");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -108,7 +114,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testCppSource() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testCPP.cpp");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -119,7 +126,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testGroovySource() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testGROOVY.groovy");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -130,7 +138,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testTiff() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testTIFF.tif");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -142,19 +151,21 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testBmp() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testBMP.bmp");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
+        assertThat(metacard.getMetadata(),
+                containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/x-ms-bmp"));
     }
 
     @Test
     public void testGif() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testGIF.gif");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -166,7 +177,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testGeoTaggedJpeg() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testJPEG_GEO.jpg");
         
         /*
@@ -185,8 +197,8 @@ public class TikaInputTransformerTest {
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
-        assertThat((String) metacard.getAttribute(Metacard.GEOGRAPHY).getValue(),
-                is("POINT(-54.1234 12.54321)"));
+        assertThat((String) metacard.getAttribute(Metacard.GEOGRAPHY)
+                .getValue(), is("POINT(-54.1234 12.54321)"));
 
         // Reset timezone back to local time zone.
         TimeZone.setDefault(defaultTimeZone);
@@ -194,7 +206,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testCommentedJpeg() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testJPEG_commented.jpg");
         
         /*
@@ -220,7 +233,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testPng() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testPNG.png");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -232,7 +246,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testMp3() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testMP3id3v1_v2.mp3");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -245,7 +260,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testMp4() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testMP4.m4a");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -260,7 +276,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testPDF() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testPDF.pdf");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -275,7 +292,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testXml() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testXML.xml");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -288,7 +306,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testWordDoc() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testWORD.docx");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -304,7 +323,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testPpt() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testPPT.ppt");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -318,7 +338,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testPptx() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testPPT.pptx");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -326,15 +347,16 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-05-04 06:43:54 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2010-06-29 06:34:35 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "content as every other file being tested for tika content parsing"));
+        assertThat(metacard.getMetadata(),
+                containsString("content as every other file being tested for tika content parsing"));
         assertThat(metacard.getContentTypeName(),
                 is("application/vnd.openxmlformats-officedocument.presentationml.presentation"));
     }
 
     @Test
     public void testXls() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testEXCEL.xls");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -342,14 +364,15 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-10-01 16:31:43 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "Written and saved in Microsoft Excel X for Mac Service Release 1."));
+        assertThat(metacard.getMetadata(),
+                containsString("Written and saved in Microsoft Excel X for Mac Service Release 1."));
         assertThat(metacard.getContentTypeName(), is("application/vnd.ms-excel"));
     }
 
     @Test
     public void testXlsx() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testEXCEL.xlsx");
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
@@ -365,7 +388,8 @@ public class TikaInputTransformerTest {
 
     @Test
     public void testOpenOffice() throws Exception {
-        InputStream stream = Thread.currentThread().getContextClassLoader()
+        InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
                 .getResourceAsStream("testOpenOffice2.odt");
 
         /*
@@ -382,8 +406,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString(
-                "This is a sample Open Office document, written in NeoOffice 2.2.1"));
+        assertThat(metacard.getMetadata(),
+                containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
 
         // Reset timezone back to local time zone.

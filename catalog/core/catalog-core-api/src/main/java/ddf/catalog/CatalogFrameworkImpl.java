@@ -103,31 +103,31 @@ import ddf.catalog.util.SourceDescriptorComparator;
 import ddf.catalog.util.SourcePoller;
 
 /**
- *
  * CatalogFrameworkImpl is the core class of DDF. It is used for query, create,
  * update, delete, and resource retrieval operations.
  *
- * @deprecated As of release 2.3.0, replaced by 
- *             ddf.catalog.impl.CatalogFrameworkImpl in standardframework
- *             project
- *
+ * @deprecated As of release 2.3.0, replaced by
+ * ddf.catalog.impl.CatalogFrameworkImpl in standardframework
+ * project
  */
 @Deprecated
 public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFramework {
 
     // TODO make this private
-    protected static final String PRE_INGEST_ERROR = "Error during pre-ingest service invocation:\n\n";
+    protected static final String PRE_INGEST_ERROR =
+            "Error during pre-ingest service invocation:\n\n";
 
     // TODO make this private
-    protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
+    protected static final String FAILED_BY_GET_RESOURCE_PLUGIN =
+            "Error during Pre/PostResourcePlugin.";
 
     static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
 
     private static final String DEFAULT_RESOURCE_NOT_FOUND_MESSAGE = "Unknown resource request";
 
     // TODO make this final
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(CatalogFrameworkImpl.class));
+    private static XLogger logger =
+            new XLogger(LoggerFactory.getLogger(CatalogFrameworkImpl.class));
 
     /**
      * The {@link List} of {@link CatalogProvider}s to use as the local Metadata Catalog for CRUD
@@ -226,46 +226,30 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Instantiates a new CatalogFrameworkImpl
      *
+     * @param context          - The BundleContext that will be utilized by this instance.
+     * @param catalog          - The {@link CatalogProvider} used for query, create, update, and delete
+     *                         operations.
+     * @param preIngest        - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
+     *                         ingest operation.
+     * @param postIngest       - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
+     *                         operation.
+     * @param preQuery         - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
+     *                         query operation.
+     * @param postQuery        - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
+     *                         query operation.
+     * @param preResource      - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
+     *                         getResource operation.
+     * @param postResource     - A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
+     *                         getResource operation.
+     * @param connectedSources - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
+     * @param federatedSources - A {@link List} of {@link FederatedSource}(s) that will be searched on an
+     *                         enterprise query.
+     * @param resourceReaders  - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
+     * @param queryStrategy    - The default federation strategy (e.g. Sorted).
+     * @param pool             - An ExecutorService used to manage threaded operations.
+     * @param poller           - An {@link SourcePoller} used to poll source availability.
      * @deprecated Use
-     *             {@link #CatalogFrameworkImpl(BundleContext, List, List, List, List, List, List, List, List, List, List, FederationStrategy, ExecutorService, SourcePoller)}
-     *
-     * @param context
-     *            - The BundleContext that will be utilized by this instance.
-     * @param catalog
-     *            - The {@link CatalogProvider} used for query, create, update, and delete
-     *            operations.
-     * @param preIngest
-     *            - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
-     *            ingest operation.
-     * @param postIngest
-     *            - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
-     *            operation.
-     * @param preQuery
-     *            - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
-     *            query operation.
-     * @param postQuery
-     *            - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
-     *            query operation.
-     * @param preResource
-     *            - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
-     *            getResource operation.
-     * @param postResource
-     *            - A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
-     *            getResource operation.
-     * @param connectedSources
-     *            - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
-     *
-     * @param federatedSources
-     *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
-     *            enterprise query.
-     * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
-     * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted).
-     * @param pool
-     *            - An ExecutorService used to manage threaded operations.
-     * @param poller
-     *            - An {@link SourcePoller} used to poll source availability.
+     * {@link #CatalogFrameworkImpl(BundleContext, List, List, List, List, List, List, List, List, List, List, FederationStrategy, ExecutorService, SourcePoller)}
      */
     public CatalogFrameworkImpl(BundleContext context, CatalogProvider catalogProvider,
             List<PreIngestPlugin> preIngest, List<PostIngestPlugin> postIngest,
@@ -274,53 +258,49 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             List<ConnectedSource> connectedSources, List<FederatedSource> federatedSources,
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
             ExecutorService pool, SourcePoller poller) {
-        this(Collections.singletonList(catalogProvider), context, preIngest, postIngest, preQuery,
-                postQuery, preResource, postResource, connectedSources, federatedSources,
-                resourceReaders, queryStrategy, pool, poller);
+        this(Collections.singletonList(catalogProvider),
+                context,
+                preIngest,
+                postIngest,
+                preQuery,
+                postQuery,
+                preResource,
+                postResource,
+                connectedSources,
+                federatedSources,
+                resourceReaders,
+                queryStrategy,
+                pool,
+                poller);
     }
 
     /**
      * Instantiates a new CatalogFrameworkImpl
      *
-     * @param catalog
-     *            - A {@link List} of {@link CatalogProvider} used for query, create, update, and
-     *            delete operations. Only the first item in this list is used as the local catalog
-     *            provider. A list is used to be able to detect when an actual CatalogProvider is
-     *            instantiated and bound by blueprint.
-     * @param context
-     *            - The BundleContext that will be utilized by this instance.
-     * @param preIngest
-     *            - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
-     *            ingest operation.
-     * @param postIngest
-     *            - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
-     *            operation.
-     * @param preQuery
-     *            - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
-     *            query operation.
-     * @param postQuery
-     *            - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
-     *            query operation.
-     * @param preResource
-     *            - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
-     *            getResource operation.
-     * @param postResource
-     *            - A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
-     *            getResource operation.
-     * @param connectedSources
-     *            - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
-     *
-     * @param federatedSources
-     *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
-     *            enterprise query.
-     * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
-     * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted).
-     * @param pool
-     *            - An ExecutorService used to manage threaded operations.
-     * @param poller
-     *            - An {@link SourcePoller} used to poll source availability.
+     * @param catalog          - A {@link List} of {@link CatalogProvider} used for query, create, update, and
+     *                         delete operations. Only the first item in this list is used as the local catalog
+     *                         provider. A list is used to be able to detect when an actual CatalogProvider is
+     *                         instantiated and bound by blueprint.
+     * @param context          - The BundleContext that will be utilized by this instance.
+     * @param preIngest        - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
+     *                         ingest operation.
+     * @param postIngest       - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
+     *                         operation.
+     * @param preQuery         - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
+     *                         query operation.
+     * @param postQuery        - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
+     *                         query operation.
+     * @param preResource      - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
+     *                         getResource operation.
+     * @param postResource     - A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
+     *                         getResource operation.
+     * @param connectedSources - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
+     * @param federatedSources - A {@link List} of {@link FederatedSource}(s) that will be searched on an
+     *                         enterprise query.
+     * @param resourceReaders  - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
+     * @param queryStrategy    - The default federation strategy (e.g. Sorted).
+     * @param pool             - An ExecutorService used to manage threaded operations.
+     * @param poller           - An {@link SourcePoller} used to poll source availability.
      */
 
     // NOTE: The List<CatalogProvider> argument is first because when it was the second
@@ -389,12 +369,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     *
+     * <p>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
-     * @param catalogProvider
-     *            the {@link CatalogProvider} being bound to this CatalogFramework instance
+     * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework instance
      */
     public void bind(CatalogProvider catalogProvider) {
         logger.trace("ENTERING: bind with CatalogProvider arg");
@@ -411,13 +390,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     *
+     * <p>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
      *
-     * @param catalogProvider
-     *            the {@link CatalogProvider} being unbound from this CatalogFramework instance
+     * @param catalogProvider the {@link CatalogProvider} being unbound from this CatalogFramework instance
      */
     public void unbind(CatalogProvider catalogProvider) {
         logger.trace("ENTERING: unbind with CatalogProvider arg");
@@ -440,8 +418,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Sets the {@link Masker}
      *
-     * @param masker
-     *            the {@link Masker} this framework will use
+     * @param masker the {@link Masker} this framework will use
      */
     public void setMasker(Masker masker) {
         synchronized (this) {
@@ -458,8 +435,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Sets the source id to identify this framework (DDF). This is also referred to as the site
      * name.
      *
-     * @param sourceId
-     *            the sourceId to set
+     * @param sourceId the sourceId to set
      */
     public void setId(String sourceId) {
         logger.debug("Setting id = " + sourceId);
@@ -548,8 +524,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Creates a {@link Set} of {@link SourceDescriptor} based on the incoming list of
      * {@link Source}.
      *
-     * @param sources
-     *            {@link Collection} of {@link Source} to obtain descriptor information from
+     * @param sources {@link Collection} of {@link Source} to obtain descriptor information from
      * @return new {@link Set} of {@link SourceDescriptor}
      */
     private Set<SourceDescriptor> getFederatedSourceDescriptors(Collection<FederatedSource> sources,
@@ -579,8 +554,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             addCatalogSourceDescriptor(sourceDescriptors);
         }
 
-        Set<SourceDescriptor> orderedDescriptors = new TreeSet<SourceDescriptor>(
-                new SourceDescriptorComparator());
+        Set<SourceDescriptor> orderedDescriptors =
+                new TreeSet<SourceDescriptor>(new SourceDescriptorComparator());
 
         orderedDescriptors.addAll(sourceDescriptors);
         return orderedDescriptors;
@@ -598,8 +573,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Adds the local catalog's {@link SourceDescriptor} to the set of {@link SourceDescriptor}s for
      * this framework.
      *
-     * @param descriptors
-     *            the set of {@link SourceDescriptor}s to add the local catalog's descriptor to
+     * @param descriptors the set of {@link SourceDescriptor}s to add the local catalog's descriptor to
      */
     protected void addCatalogSourceDescriptor(Set<SourceDescriptor> descriptors) {
         // Even when no local catalog provider is configured should still
@@ -631,7 +605,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             if (INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on create operation, local provider not available. {}"
                                 + " metacards failed to ingest. {}",
-                        createReq.getMetacards().size(), buildIngestLog(createReq));
+                        createReq.getMetacards()
+                                .size(),
+                        buildIngestLog(createReq));
             }
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform create operation.");
@@ -653,8 +629,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             validateCreateRequest(createReq);
 
             // Call the create on the catalog
-            logger.debug("Calling catalog.create() with " + createReq.getMetacards().size()
-                    + " entries.");
+            logger.debug("Calling catalog.create() with " + createReq.getMetacards()
+                    .size() + " entries.");
             createResponse = catalog.create(createRequest);
         } catch (IngestException iee) {
             ingestError = iee;
@@ -699,7 +675,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         // building
         if (INGEST_LOGGER.isDebugEnabled()) {
             INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
-                    createReq.getMetacards().size(), buildIngestLog(createReq));
+                    createReq.getMetacards()
+                            .size(),
+                    buildIngestLog(createReq));
         }
         return createResponse;
     }
@@ -728,8 +706,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             validateUpdateRequest(updateReq);
 
             // Call the create on the catalog
-            logger.debug("Calling catalog.update() with " + updateRequest.getUpdates().size()
-                    + " updates.");
+            logger.debug("Calling catalog.update() with " + updateRequest.getUpdates()
+                    .size() + " updates.");
             updateResponse = catalog.update(updateReq);
 
             // Handle the posting of messages to pubsub
@@ -782,9 +760,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             validateDeleteRequest(deleteRequest);
 
             // Call the Provider delete method
-            logger.debug(
-                    "Calling catalog.delete() with " + deleteRequest.getAttributeValues().size()
-                            + " entries.");
+            logger.debug("Calling catalog.delete() with " + deleteRequest.getAttributeValues()
+                    .size() + " entries.");
             deleteResponse = catalog.delete(deleteRequest);
 
             // Post results to be available for pubsub
@@ -831,8 +808,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Determines if the specified {@link QueryRequest} is a federated query, meaning it is either
      * an enterprise query or it lists specific sources to be queried by their source IDs.
      *
-     * @param queryRequest
-     *            the {@link QueryRequest}
+     * @param queryRequest the {@link QueryRequest}
      * @return true if the request is an enterprise or site-specific query, false otherwise
      */
     protected boolean isFederated(QueryRequest queryRequest) {
@@ -914,8 +890,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Based on the isEnterprise and sourceIds list in the query request, the federated query may
      * include the local provider and {@link ConnectedSource}s.
      *
-     * @param queryRequest
-     *            the {@link QueryRequest}
+     * @param queryRequest the {@link QueryRequest}
      * @param strategy
      * @return the {@link QueryResponse}
      * @throws FederationException
@@ -1037,11 +1012,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Adds any exceptions to the query response's processing details.
      *
-     * @param exceptions
-     *            the set of exceptions to include in the response's {@link ProcessingDetails}. Can
-     *            be empty, but cannot be null.
-     * @param response
-     *            the {@link QueryResponse} to add the exceptions to
+     * @param exceptions the set of exceptions to include in the response's {@link ProcessingDetails}. Can
+     *                   be empty, but cannot be null.
+     * @param response   the {@link QueryResponse} to add the exceptions to
      * @return the modified {@link QueryResponse}
      */
     protected QueryResponse addProcessingDetails(Set<ProcessingDetails> exceptions,
@@ -1069,8 +1042,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * source ID in the list of null or an empty string are treated the same as the local source's
      * actual ID being in the list.
      *
-     * @param sourceIds
-     *            the list of source IDs to examine
+     * @param sourceIds the list of source IDs to examine
      * @return true if the list includes the local source's ID, false otherwise
      */
     private boolean includesLocalSources(Set<String> sourceIds) {
@@ -1083,7 +1055,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * {@link FanoutCatalogFramework} does not.
      *
      * @return true if this {@link CatalogFrameworkImpl} has a {@link CatalogProvider} configured,
-     *         false otherwise
+     * false otherwise
      */
     protected boolean hasCatalogProvider() {
         if (this.catalog != null) {
@@ -1161,8 +1133,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     "Transformer " + transformerShortname + " not found");
         } else {
             try {
-                QueryResponseTransformer transformer = (QueryResponseTransformer) context
-                        .getService(refs[0]);
+                QueryResponseTransformer transformer =
+                        (QueryResponseTransformer) context.getService(refs[0]);
                 if (response != null) {
                     return transformer.transform(response, arguments);
                 } else {
@@ -1261,8 +1233,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             // check if the resourceRequest has an ID only
             // If so, the metacard needs to be found and the ddf.catalog.resource.Resource URI
             StringBuilder resolvedSourceIdHolder = new StringBuilder();
-            URI responseURI = getResourceURI(resourceReq, resourceSourceName, isEnterprise,
-                    resolvedSourceIdHolder, requestProperties);
+            URI responseURI = getResourceURI(resourceReq,
+                    resourceSourceName,
+                    isEnterprise,
+                    resolvedSourceIdHolder,
+                    requestProperties);
 
             String resolvedSourceId = resolvedSourceIdHolder.toString();
 
@@ -1326,8 +1301,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         if (resourceResponse == null) {
             throw new ResourceNotFoundException(
-                    "Resource could not be found for the given attribute value: " + resourceReq
-                            .getAttributeValue());
+                    "Resource could not be found for the given attribute value: "
+                            + resourceReq.getAttributeValue());
         }
 
         logger.exit(methodName);
@@ -1337,8 +1312,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * To be set via Spring/Blueprint
      *
-     * @param threadPoolSize
-     *            the number of threads in the pool, 0 for an automatically-managed pool
+     * @param threadPoolSize the number of threads in the pool, 0 for an automatically-managed pool
      */
     public synchronized void setPoolSize(int poolSize) {
         logger.debug("Setting poolSize = " + poolSize);
@@ -1373,8 +1347,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * @param resourceUri
      * @param properties
      * @return the {@link ResourceResponse}
-     * @throws ResourceNotFoundException
-     *             if a {@link ResourceReader} with the input URI's scheme is not found
+     * @throws ResourceNotFoundException if a {@link ResourceReader} with the input URI's scheme is not found
      */
     protected ResourceResponse getResourceUsingResourceReader(URI resourceUri,
             Map<String, Serializable> properties) throws ResourceNotFoundException {
@@ -1391,7 +1364,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             ResourceReader reader = iterator.next();
 
             String scheme = resourceUri.getScheme();
-            if (reader.getSupportedSchemes().contains(scheme)) {
+            if (reader.getSupportedSchemes()
+                    .contains(scheme)) {
                 try {
                     logger.debug(
                             "Found an acceptable resource reader (" + reader.getId() + ") for URI "
@@ -1421,14 +1395,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     "Resource Readers could not find resource (or returned null resource) for URI: "
                             + resourceUri.toASCIIString() + ". Scheme: " + resourceUri.getScheme());
         }
-        logger.debug("Received resource, sending back: " + resource.getResource().getName());
+        logger.debug("Received resource, sending back: " + resource.getResource()
+                .getName());
         logger.exit(methodName);
         return resource;
     }
 
     /**
      * Retrieves a resource by URI.
-     *
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -1461,8 +1436,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 if (value instanceof URI) {
                     resourceUri = (URI) value;
 
-                    Query propertyEqualToUriQuery = createPropertyIsEqualToQuery(
-                            Metacard.RESOURCE_URI, resourceUri.toString());
+                    Query propertyEqualToUriQuery =
+                            createPropertyIsEqualToQuery(Metacard.RESOURCE_URI,
+                                    resourceUri.toString());
 
                     // if isEnterprise, go out and obtain the actual source
                     // where the product's metacard is stored.
@@ -1472,8 +1448,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             resourceRequest.getProperties());
 
                     QueryResponse queryResponse = query(queryRequest);
-                    if (queryResponse.getResults().size() > 0) {
-                        Metacard result = queryResponse.getResults().get(0).getMetacard();
+                    if (queryResponse.getResults()
+                            .size() > 0) {
+                        Metacard result = queryResponse.getResults()
+                                .get(0)
+                                .getMetacard();
                         federatedSite.append(result.getSourceId());
                         logger.debug(
                                 "Trying to lookup resource URI " + resourceUri + " for metacardId: "
@@ -1489,8 +1468,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
                 } else {
                     throw new ResourceNotSupportedException(
-                            "The GetResourceRequest with attribute value of class '" + value
-                                    .getClass() + "' is not supported by this instance"
+                            "The GetResourceRequest with attribute value of class '"
+                                    + value.getClass() + "' is not supported by this instance"
                                     + " of the CatalogFramework.");
                 }
             } else if (ResourceRequest.GET_RESOURCE_BY_ID.equals(name)) {
@@ -1501,14 +1480,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 if (value instanceof String) {
                     String metacardId = (String) value;
                     logger.debug("metacardId = " + metacardId + ",   site = " + site);
-                    QueryRequest queryRequest = new QueryRequestImpl(
-                            createMetacardIdQuery(metacardId), isEnterprise,
+                    QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
+                            metacardId),
+                            isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
 
                     QueryResponse queryResponse = query(queryRequest);
-                    if (queryResponse.getResults().size() > 0) {
-                        Metacard result = queryResponse.getResults().get(0).getMetacard();
+                    if (queryResponse.getResults()
+                            .size() > 0) {
+                        Metacard result = queryResponse.getResults()
+                                .get(0)
+                                .getMetacard();
 
                         resourceUri = result.getResourceURI();
                         federatedSite.append(result.getSourceId());
@@ -1527,8 +1510,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
                 } else {
                     throw new ResourceNotSupportedException(
-                            "The GetResourceRequest with attribute value of class '" + value
-                                    .getClass() + "' is not supported by this instance"
+                            "The GetResourceRequest with attribute value of class '"
+                                    + value.getClass() + "' is not supported by this instance"
                                     + " of the CatalogFramework.");
                 }
             } else {
@@ -1565,8 +1548,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Checks that the specified source is valid and available.
      *
-     * @param source
-     *            the {@link Source} to check availability of
+     * @param source the {@link Source} to check availability of
      * @return true if the {@link Source} is available, false otherwise
      */
     protected boolean sourceIsAvailable(Source source) {
@@ -1604,14 +1586,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * created in the catalog, and that the original {@link CreateRequest} is included in the
      * response.
      *
-     * @param createResponse
-     *            the original {@link CreateResponse} returned from the catalog provider
-     * @param createRequest
-     *            the original {@link CreateRequest} sent to the catalog provider
+     * @param createResponse the original {@link CreateResponse} returned from the catalog provider
+     * @param createRequest  the original {@link CreateRequest} sent to the catalog provider
      * @return the updated {@link CreateResponse}
-     * @throws IngestException
-     *             if original {@link CreateResponse} passed in is null or the {@link Metacard}s
-     *             list in the response is null
+     * @throws IngestException if original {@link CreateResponse} passed in is null or the {@link Metacard}s
+     *                         list in the response is null
      */
     protected CreateResponse validateFixCreateResponse(CreateResponse createResponse,
             CreateRequest createRequest) throws IngestException {
@@ -1622,7 +1601,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (createResponse.getRequest() == null) {
                 createResponse = new CreateResponseImpl(createRequest,
-                        createResponse.getProperties(), createResponse.getCreatedMetacards());
+                        createResponse.getProperties(),
+                        createResponse.getCreatedMetacards());
             }
         } else {
             throw new IngestException("CatalogProvider returned null CreateResponse Object.");
@@ -1635,14 +1615,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * updated in the catalog, and that the original {@link UpdateRequest} is included in the
      * response.
      *
-     * @param updateResponse
-     *            the original {@link UpdateResponse} returned from the catalog provider
-     * @param updateRequest
-     *            the original {@link UpdateRequest} sent to the catalog provider
+     * @param updateResponse the original {@link UpdateResponse} returned from the catalog provider
+     * @param updateRequest  the original {@link UpdateRequest} sent to the catalog provider
      * @return the updated {@link UpdateResponse}
-     * @throws IngestException
-     *             if original {@link UpdateResponse} passed in is null or the {@link Metacard}s
-     *             list in the response is null
+     * @throws IngestException if original {@link UpdateResponse} passed in is null or the {@link Metacard}s
+     *                         list in the response is null
      */
     protected UpdateResponse validateFixUpdateResponse(UpdateResponse updateResponse,
             UpdateRequest updateRequest) throws IngestException {
@@ -1653,7 +1630,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         "CatalogProvider returned null list of results from update method.");
             }
             if (updateResp.getRequest() == null) {
-                updateResp = new UpdateResponseImpl(updateRequest, updateResponse.getProperties(),
+                updateResp = new UpdateResponseImpl(updateRequest,
+                        updateResponse.getProperties(),
                         updateResponse.getUpdatedMetacards());
             }
         } else {
@@ -1667,14 +1645,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * deleted in the catalog, and that the original {@link DeleteRequest} is included in the
      * response.
      *
-     * @param deleteResponse
-     *            the original {@link DeleteResponse} returned from the catalog provider
-     * @param deleteRequest
-     *            the original {@link DeleteRequest} sent to the catalog provider
+     * @param deleteResponse the original {@link DeleteResponse} returned from the catalog provider
+     * @param deleteRequest  the original {@link DeleteRequest} sent to the catalog provider
      * @return the updated {@link DeleteResponse}
-     * @throws IngestException
-     *             if original {@link DeleteResponse} passed in is null or the {@link Metacard}s
-     *             list in the response is null
+     * @throws IngestException if original {@link DeleteResponse} passed in is null or the {@link Metacard}s
+     *                         list in the response is null
      */
     protected DeleteResponse validateFixDeleteResponse(DeleteResponse deleteResponse,
             DeleteRequest deleteRequest) throws IngestException {
@@ -1685,7 +1660,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         "CatalogProvider returned null list of results from delete method.");
             }
             if (delResponse.getRequest() == null) {
-                delResponse = new DeleteResponseImpl(deleteRequest, delResponse.getProperties(),
+                delResponse = new DeleteResponseImpl(deleteRequest,
+                        delResponse.getProperties(),
                         delResponse.getDeletedMetacards());
             }
         } else {
@@ -1698,14 +1674,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Validates that the {@link ResourceResponse} has a {@link ddf.catalog.resource.Resource} in it that was retrieved,
      * and that the original {@link ResourceRequest} is included in the response.
      *
-     * @param getResourceResponse
-     *            the original {@link ResourceResponse} returned from the source
-     * @param getResourceRequest
-     *            the original {@link ResourceRequest} sent to the source
+     * @param getResourceResponse the original {@link ResourceResponse} returned from the source
+     * @param getResourceRequest  the original {@link ResourceRequest} sent to the source
      * @return the updated {@link ResourceResponse}
-     * @throws ResourceNotFoundException
-     *             if the original {@link ResourceResponse} is null or the resource could not be
-     *             found
+     * @throws ResourceNotFoundException if the original {@link ResourceResponse} is null or the resource could not be
+     *                                   found
      */
     protected ResourceResponse validateFixGetResourceResponse(ResourceResponse getResourceResponse,
             ResourceRequest getResourceRequest) throws ResourceNotFoundException {
@@ -1717,7 +1690,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (getResourceResponse.getRequest() == null) {
                 resourceResponse = new ResourceResponseImpl(getResourceRequest,
-                        getResourceResponse.getProperties(), getResourceResponse.getResource());
+                        getResourceResponse.getProperties(),
+                        getResourceResponse.getResource());
             }
         } else {
             throw new ResourceNotFoundException(
@@ -1730,13 +1704,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Validates that the {@link QueryResponse} has a non-null list of {@link Result}s in it, and
      * that the original {@link QueryRequest} is included in the response.
      *
-     * @param sourceResponse
-     *            the original {@link SourceResponse} returned from the source
-     * @param queryRequest
-     *            the original {@link QueryRequest} sent to the source
+     * @param sourceResponse the original {@link SourceResponse} returned from the source
+     * @param queryRequest   the original {@link QueryRequest} sent to the source
      * @return the updated {@link QueryResponse}
-     * @throws UnsupportedQueryException
-     *             if the original {@link QueryResponse} is null or the results list is null
+     * @throws UnsupportedQueryException if the original {@link QueryResponse} is null or the results list is null
      */
     protected SourceResponse validateFixQueryResponse(SourceResponse sourceResponse,
             QueryRequest queryRequest) throws UnsupportedQueryException {
@@ -1747,7 +1718,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         "CatalogProvider returned null list of results from query method.");
             }
             if (sourceResp.getRequest() == null) {
-                sourceResp = new SourceResponseImpl(queryRequest, sourceResp.getProperties(),
+                sourceResp = new SourceResponseImpl(queryRequest,
+                        sourceResp.getProperties(),
                         sourceResp.getResults());
             }
         } else {
@@ -1761,11 +1733,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Validates that the {@link CreateRequest} is non-null and has a non-empty list of
      * {@link Metacard}s in it.
      *
-     * @param createRequest
-     *            the {@link CreateRequest}
-     * @throws IngestException
-     *             if the {@link CreateRequest} is null, or request has a null or empty list of
-     *             {@link Metacard}s
+     * @param createRequest the {@link CreateRequest}
+     * @throws IngestException if the {@link CreateRequest} is null, or request has a null or empty list of
+     *                         {@link Metacard}s
      */
     protected void validateCreateRequest(CreateRequest createRequest) throws IngestException {
         if (createRequest == null) {
@@ -1784,11 +1754,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * {@link Metacard}s in it, and a non-null attribute name (which specifies if the update is
      * being done by product URI or ID).
      *
-     * @param updateRequest
-     *            the {@link UpdateRequest}
-     * @throws IngestException
-     *             if the {@link UpdateRequest} is null, or has null or empty {@link Metacard} list,
-     *             or a null attribute name.
+     * @param updateRequest the {@link UpdateRequest}
+     * @throws IngestException if the {@link UpdateRequest} is null, or has null or empty {@link Metacard} list,
+     *                         or a null attribute name.
      */
     protected void validateUpdateRequest(UpdateRequest updateRequest) throws IngestException {
         if (updateRequest == null) {
@@ -1807,11 +1775,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * {@link Metacard}s in it, and a non-null attribute name (which specifies if the delete is
      * being done by product URI or ID).
      *
-     * @param deleteRequest
-     *            the {@link DeleteRequest}
-     * @throws IngestException
-     *             if the {@link DeleteRequest} is null, or has null or empty {@link Metacard} list,
-     *             or a null attribute name
+     * @param deleteRequest the {@link DeleteRequest}
+     * @throws IngestException if the {@link DeleteRequest} is null, or has null or empty {@link Metacard} list,
+     *                         or a null attribute name
      */
     protected void validateDeleteRequest(DeleteRequest deleteRequest) throws IngestException {
         if (deleteRequest == null) {
@@ -1830,10 +1796,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * specifies if the retrieval is being done by product URI or ID), and a non-null attribute
      * value.
      *
-     * @param getResourceRequest
-     *            the {@link ResourceRequest}
-     * @throws ResourceNotSupportedException
-     *             if the {@link ResourceRequest} is null, or has a null attribute value or name
+     * @param getResourceRequest the {@link ResourceRequest}
+     * @throws ResourceNotSupportedException if the {@link ResourceRequest} is null, or has a null attribute value or name
      */
     protected void validateGetResourceRequest(ResourceRequest getResourceRequest)
             throws ResourceNotSupportedException {
@@ -1851,10 +1815,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Validates that the {@link QueryRequest} is non-null and that the query in it is non-null.
      *
-     * @param queryRequest
-     *            the {@link QueryRequest}
-     * @throws UnsupportedQueryException
-     *             if the {@link QueryRequest} is null or the query in it is null
+     * @param queryRequest the {@link QueryRequest}
+     * @throws UnsupportedQueryException if the {@link QueryRequest} is null or the query in it is null
      */
     protected void validateQueryRequest(QueryRequest queryRequest)
             throws UnsupportedQueryException {
@@ -1879,13 +1841,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         for (int i = 0; i < metacards.size(); i++) {
             Metacard card = metacards.get(i);
-            strBuilder.append(newLine).append("Batch #: ").append(i + 1).append(" | ");
+            strBuilder.append(newLine)
+                    .append("Batch #: ")
+                    .append(i + 1)
+                    .append(" | ");
             if (card != null) {
                 if (card.getTitle() != null) {
-                    strBuilder.append("Metacard Title: ").append(card.getTitle()).append(" | ");
+                    strBuilder.append("Metacard Title: ")
+                            .append(card.getTitle())
+                            .append(" | ");
                 }
                 if (card.getId() != null) {
-                    strBuilder.append("Metacard ID: ").append(card.getId()).append(" | ");
+                    strBuilder.append("Metacard ID: ")
+                            .append(card.getId())
+                            .append(" | ");
                 }
             } else {
                 strBuilder.append("Null Metacard");
@@ -1903,12 +1872,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         Map<String, Set<String>> optionsMap = null;
         try {
             QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                    false, Collections.singletonList(getId()), null);
+                    false,
+                    Collections.singletonList(getId()),
+                    null);
             QueryResponse queryResponse = query(queryRequest);
             List<Result> results = queryResponse.getResults();
 
             if (results.size() > 0) {
-                Metacard metacard = results.get(0).getMetacard();
+                Metacard metacard = results.get(0)
+                        .getMetacard();
                 optionsMap = Collections.singletonMap(ResourceRequest.OPTION_ARGUMENT,
                         getOptionsFromLocalProvider(metacard));
             } else {
@@ -1948,12 +1920,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         try {
             QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                    true, null, null);
+                    true,
+                    null,
+                    null);
             QueryResponse queryResponse = query(queryRequest);
             List<Result> results = queryResponse.getResults();
 
             if (results.size() > 0) {
-                Metacard metacard = results.get(0).getMetacard();
+                Metacard metacard = results.get(0)
+                        .getMetacard();
                 String sourceIdOfResult = metacard.getSourceId();
 
                 if (sourceIdOfResult != null && sourceIdOfResult.equals(getId())) {
@@ -1999,13 +1974,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         try {
             logger.debug("source id to get options from: " + sourceId);
             QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                    false, Collections.singletonList(sourceId == null ? this.getId() : sourceId),
+                    false,
+                    Collections.singletonList(sourceId == null ? this.getId() : sourceId),
                     null);
             QueryResponse queryResponse = query(queryRequest);
             List<Result> results = queryResponse.getResults();
 
             if (results.size() > 0) {
-                Metacard metacard = results.get(0).getMetacard();
+                Metacard metacard = results.get(0)
+                        .getMetacard();
                 // DDF-1763: Check if the source ID passed in is null, empty,
                 // or the local provider.
                 if (StringUtils.isEmpty(sourceId) || sourceId.equals(getId())) {
@@ -2047,8 +2024,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * specified {@link Metacard}'s URI. Only look in the local provider for the specified
      * {@link Metacard}.
      *
-     * @param metacard
-     *            the {@link Metacard} to get the supported options for
+     * @param metacard the {@link Metacard} to get the supported options for
      * @return the {@link Set} of supported options for the metacard
      */
     @Deprecated
@@ -2075,13 +2051,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      * Get the supported options from the {@link ResourceReader} that matches the scheme in the
      * specified {@link Metacard}'s URI. Only look in the specified source for the {@link Metacard}.
      *
-     * @param metacard
-     *            the {@link Metacard} to get the supported options for
-     * @param sourceId
-     *            the ID of the federated source to look for the {@link Metacard}
+     * @param metacard the {@link Metacard} to get the supported options for
+     * @param sourceId the ID of the federated source to look for the {@link Metacard}
      * @return the {@link Set} of supported options for the metacard
-     * @throws ResourceNotFoundException
-     *             if the {@link Source} cannot be found for the source ID
+     * @throws ResourceNotFoundException if the {@link Source} cannot be found for the source ID
      */
     @Deprecated
     private Set<String> getOptionsFromFederatedSource(Metacard metacard, String sourceId)

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -138,7 +138,8 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "kaGiCPT4CCKdy0hx/bG/jSM1ypJnPKrPVrCkYL3Y68pzxvrFNq5NqAFCcBOCNsDN\n"
                     + "fvCSZ/XHvFyGHIuso5wNVxJyvTdhQ+vWbnpiX8qr6vTx2Wgw";
 
-    private static final String GOOD_X509_PATH_TOKEN = "MIIC9DCCAvAwggJZoAMCAQICCQCM3OBWKyKfaTANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjEZMBcGA1UEAxMQRERGIERlbW8gUm9vdCBDQTExMC8GCSqGSIb3DQEJARYiZW1haWxBZGRyZXNzPWRkZnJvb3RjYUBleGFtcGxlLm9yZzAgFw0xNTEyMTExNTQzMjNaGA8yMTE1MTExNzE1NDMyM1owcDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjESMBAGA1UEAxMJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjANBgkqhkiG9w0BAQsFAAOBgQAllrIuFrrDuf7tTvdaGxp/HLRZ8VZaIAUP7Q2fp3kA8cvGAdidvLc7RC60R5Ghogj0+AginctIcf2xv40jNcqSZzyqz1awpGC92OvKc8b6xTauTagBQnATgjbAzX7wkmf1x7xchhyLrKOcDVcScr03YUPr1m56Yl/Kq+r08dloMA==";
+    private static final String GOOD_X509_PATH_TOKEN =
+            "MIIC9DCCAvAwggJZoAMCAQICCQCM3OBWKyKfaTANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjEZMBcGA1UEAxMQRERGIERlbW8gUm9vdCBDQTExMC8GCSqGSIb3DQEJARYiZW1haWxBZGRyZXNzPWRkZnJvb3RjYUBleGFtcGxlLm9yZzAgFw0xNTEyMTExNTQzMjNaGA8yMTE1MTExNzE1NDMyM1owcDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkFaMQwwCgYDVQQKEwNEREYxDDAKBgNVBAsTA0RldjESMBAGA1UEAxMJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjANBgkqhkiG9w0BAQsFAAOBgQAllrIuFrrDuf7tTvdaGxp/HLRZ8VZaIAUP7Q2fp3kA8cvGAdidvLc7RC60R5Ghogj0+AginctIcf2xv40jNcqSZzyqz1awpGC92OvKc8b6xTauTagBQnATgjbAzX7wkmf1x7xchhyLrKOcDVcScr03YUPr1m56Yl/Kq+r08dloMA==";
 
     private static final String OPENSEARCH_SAML_SOURCE_ID = "openSearchSamlSource";
 
@@ -593,8 +594,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(onBehalfOf);
 
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .log()
                 .all()
                 .body(body)
@@ -622,8 +624,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(onBehalfOf);
 
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .
                         log()
                 .all()
@@ -648,8 +651,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(onBehalfOf);
 
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .
                         log()
                 .all()
@@ -676,8 +680,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(onBehalfOf);
 
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .log()
                 .all()
                 .body(body)
@@ -705,8 +710,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(onBehalfOf);
 
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .log()
                 .all()
                 .body(body)
@@ -783,8 +789,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(onBehalfOf);
 
         String assertionHeader = given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .log()
                 .all()
                 .body(body)
@@ -820,8 +827,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(GOOD_HOK_EXAMPLE, null);
 
         String assertionHeader = given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .log()
                 .all()
                 .body(body)
@@ -842,8 +850,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try that admin level assertion token on a restricted resource
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .header(SecurityConstants.SAML_HEADER_NAME,
                         "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
                 .when()
@@ -860,8 +869,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         String body = getSoapEnvelope(BAD_HOK_EXAMPLE, null);
 
         String assertionHeader = given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .log()
                 .all()
                 .body(body)
@@ -882,8 +892,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         //try that admin level assertion token on a restricted resource
         given().auth()
-                .certificate(KEY_STORE_PATH, PASSWORD, certAuthSettings().sslSocketFactory(
-                        SSLSocketFactory.getSystemSocketFactory()))
+                .certificate(KEY_STORE_PATH,
+                        PASSWORD,
+                        certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
                 .header(SecurityConstants.SAML_HEADER_NAME,
                         "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
                 .when()
@@ -924,12 +935,14 @@ public class TestSecurity extends AbstractIntegrationTest {
     }
 
     void getBackupKeystoreFile() throws IOException {
-        Files.copy(Paths.get(getKeystoreFilename()), Paths.get(getBackupFilename()),
+        Files.copy(Paths.get(getKeystoreFilename()),
+                Paths.get(getBackupFilename()),
                 REPLACE_EXISTING);
     }
 
     void restoreKeystoreFile() throws IOException {
-        Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()),
+        Files.copy(Paths.get(getBackupFilename()),
+                Paths.get(getKeystoreFilename()),
                 REPLACE_EXISTING);
     }
 

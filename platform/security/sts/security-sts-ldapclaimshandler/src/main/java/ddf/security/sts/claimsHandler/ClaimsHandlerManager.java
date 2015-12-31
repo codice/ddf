@@ -46,7 +46,6 @@ import ddf.security.encryption.EncryptionService;
 
 /**
  * Creates and registers LDAP and Role claims handlers.
- *
  */
 public class ClaimsHandlerManager {
 
@@ -105,9 +104,9 @@ public class ClaimsHandlerManager {
         if (props == null) {
             return;
         }
-        LOGGER.debug(
-                "Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-        String url = props.get(ClaimsHandlerManager.URL).toString();
+        LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
+        String url = props.get(ClaimsHandlerManager.URL)
+                .toString();
         Boolean startTls;
         if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
             startTls = Boolean.valueOf((String) props.get(ClaimsHandlerManager.START_TLS));
@@ -121,19 +120,29 @@ public class ClaimsHandlerManager {
         String memberNameAttribute = (String) props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
         String groupBaseDn = (String) props.get(ClaimsHandlerManager.GROUP_BASE_DN);
         String userNameAttribute = (String) props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
-        String propertyFileLocation = (String) props
-                .get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        String propertyFileLocation =
+                (String) props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
         try {
             if (encryptService != null) {
                 password = encryptService.decryptValue(password);
             }
             LDAPConnectionFactory connection1 = createLdapConnectionFactory(url, startTls);
             LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
-            registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn,
-                    userNameAttribute, objectClass, memberNameAttribute, groupBaseDn, userDn,
+            registerRoleClaimsHandler(connection1,
+                    propertyFileLocation,
+                    userBaseDn,
+                    userNameAttribute,
+                    objectClass,
+                    memberNameAttribute,
+                    groupBaseDn,
+                    userDn,
                     password);
-            registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
-                    userNameAttribute, userDn, password);
+            registerLdapClaimsHandler(connection2,
+                    propertyFileLocation,
+                    userBaseDn,
+                    userNameAttribute,
+                    userDn,
+                    password);
 
         } catch (Exception e) {
             LOGGER.warn(
@@ -168,8 +177,10 @@ public class ClaimsHandlerManager {
                 SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
                 if (keystoreLoc != null && truststoreLoc != null) {
 
-                    sslContext.init(createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
-                            createTrustManagerFactory(truststoreLoc, truststorePass).getTrustManagers(),
+                    sslContext.init(createKeyManagerFactory(keystoreLoc,
+                            keystorePass).getKeyManagers(),
+                            createTrustManagerFactory(truststoreLoc,
+                                    truststorePass).getTrustManagers(),
                             new SecureRandom());
                 }
 
@@ -181,8 +192,10 @@ public class ClaimsHandlerManager {
         }
 
         lo.setUseStartTLS(useTls);
-        lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites").split(","));
-        lo.addEnabledProtocol(System.getProperty("https.protocols").split(","));
+        lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites")
+                .split(","));
+        lo.addEnabledProtocol(System.getProperty("https.protocols")
+                .split(","));
         lo.setProviderClassLoader(ClaimsHandlerManager.class.getClassLoader());
 
         String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(":"));
@@ -198,16 +211,11 @@ public class ClaimsHandlerManager {
     /**
      * Registers a new Role-based ClaimsHandler.
      *
-     * @param connection
-     *            LdapTemplate used to query ldap for the roles.
-     * @param propertyFileLoc
-     *            File location of the property file.
-     * @param userBaseDn
-     *            Base DN to determine the roles.
-     * @param userNameAttr
-     *            Identifier that defines the user.
-     * @param groupBaseDn
-     *            Base DN of the group.
+     * @param connection      LdapTemplate used to query ldap for the roles.
+     * @param propertyFileLoc File location of the property file.
+     * @param userBaseDn      Base DN to determine the roles.
+     * @param userNameAttr    Identifier that defines the user.
+     * @param groupBaseDn     Base DN of the group.
      */
     private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute,
@@ -229,14 +237,10 @@ public class ClaimsHandlerManager {
     /**
      * Registers a new Ldap-based Claims Handler.
      *
-     * @param connection
-     *            LdapTemplate used to query ldap for the roles.
-     * @param propertyFileLoc
-     *            File location of the property file.
-     * @param userBaseDn
-     *            Base DN to determine the roles.
-     * @param userNameAttr
-     *            Identifier that defines the user.
+     * @param connection      LdapTemplate used to query ldap for the roles.
+     * @param propertyFileLoc File location of the property file.
+     * @param userBaseDn      Base DN to determine the roles.
+     * @param userNameAttr    Identifier that defines the user.
      */
     private void registerLdapClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
             String userBaseDn, String userNameAttr, String userDn, String password) {
@@ -255,10 +259,8 @@ public class ClaimsHandlerManager {
      * Utility method that registers a ClaimsHandler and returns the service
      * registration.
      *
-     * @param handler
-     *            Handler that should be registered.
-     * @param registration
-     *            Previous registration, will be used to unregister if not null.
+     * @param handler      Handler that should be registered.
+     * @param registration Previous registration, will be used to unregister if not null.
      * @return new registration for the service.
      */
     private ServiceRegistration<ClaimsHandler> registerClaimsHandler(ClaimsHandler handler,
@@ -353,8 +355,8 @@ public class ClaimsHandlerManager {
         KeyManagerFactory kmf;
         try {
             // keystore stuff
-            KeyStore keyStore = KeyStore
-                    .getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+            KeyStore keyStore =
+                    KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
             LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
             FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
             try {
@@ -387,8 +389,8 @@ public class ClaimsHandlerManager {
         TrustManagerFactory tmf;
         try {
             // truststore stuff
-            KeyStore trustStore = KeyStore
-                    .getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+            KeyStore trustStore = KeyStore.getInstance(System.getProperty(
+                    "javax.net.ssl.keyStoreType"));
             LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
             FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
             try {

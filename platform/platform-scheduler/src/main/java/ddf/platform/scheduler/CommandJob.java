@@ -123,7 +123,8 @@ public class CommandJob implements Job {
 
         String key = CommandProcessor.class.getSimpleName();
 
-        Object commandProcessorObject = ServiceStore.getInstance().getObject(key);
+        Object commandProcessorObject = ServiceStore.getInstance()
+                .getObject(key);
 
         if (commandProcessorObject != null) {
             this.commandProcessor = (CommandProcessor) commandProcessorObject;

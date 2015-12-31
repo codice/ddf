@@ -69,8 +69,7 @@ public class ListApplicationCommandTest {
         when(testAppService.getApplicationStatus(testApp)).thenReturn(testStatus);
         when(testApp.getFeatures()).thenReturn(featureSet);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
     }
 

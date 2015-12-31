@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
@@ -82,12 +81,13 @@ public class TestCswRecordMapperFilterVisitor {
     public static void setUpBeforeClass() throws Exception {
         factory = new FilterFactoryImpl();
 
-        attrExpr = factory.property(new NameImpl(
-                new QName(CswConstants.DUBLIN_CORE_SCHEMA, UNMAPPED_PROPERTY,
-                        CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
+        attrExpr = factory.property(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
+                UNMAPPED_PROPERTY,
+                CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        created = new AttributeExpressionImpl(new NameImpl(
-                new QName(CswConstants.DUBLIN_CORE_SCHEMA, Metacard.CREATED,
+        created =
+                new AttributeExpressionImpl(new NameImpl(new QName(CswConstants.DUBLIN_CORE_SCHEMA,
+                        Metacard.CREATED,
                         CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
         visitor = new CswRecordMapperFilterVisitor();
@@ -104,9 +104,10 @@ public class TestCswRecordMapperFilterVisitor {
 
     @Test
     public void testVisitWithBoundingBoxProperty() {
-        AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(
-                new QName(CswConstants.DUBLIN_CORE_SCHEMA, CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
+        AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
+                CswConstants.DUBLIN_CORE_SCHEMA,
+                CswRecordMetacardType.OWS_BOUNDING_BOX,
+                CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
@@ -116,9 +117,10 @@ public class TestCswRecordMapperFilterVisitor {
 
     @Test
     public void testVisitWithMappedName() {
-        AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(
-                new QName(CswConstants.DUBLIN_CORE_SCHEMA, CswRecordMetacardType.CSW_ALTERNATIVE,
-                        CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
+        AttributeExpressionImpl propName = new AttributeExpressionImpl(new NameImpl(new QName(
+                CswConstants.DUBLIN_CORE_SCHEMA,
+                CswRecordMetacardType.CSW_ALTERNATIVE,
+                CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
 
@@ -160,7 +162,8 @@ public class TestCswRecordMapperFilterVisitor {
         Within duplicate = (Within) obj;
 
         assertThat(duplicate.getExpression1(), equalTo(attrExpr));
-        assertThat(duplicate.getExpression2().toString(), equalTo(polygon));
+        assertThat(duplicate.getExpression2()
+                .toString(), equalTo(polygon));
 
     }
 
@@ -349,7 +352,8 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(obj, instanceOf(Or.class));
         Or duplicate = (Or) obj;
 
-        List<Class<? extends BinaryTemporalOperator>> classes = new ArrayList<Class<? extends BinaryTemporalOperator>>();
+        List<Class<? extends BinaryTemporalOperator>> classes =
+                new ArrayList<Class<? extends BinaryTemporalOperator>>();
 
         for (Filter child : duplicate.getChildren()) {
             BinaryTemporalOperator binary = (BinaryTemporalOperator) child;
@@ -422,7 +426,8 @@ public class TestCswRecordMapperFilterVisitor {
         PropertyIsLike duplicate = (PropertyIsLike) obj;
         assertThat(duplicate.getExpression(), equalTo(attrExpr));
         assertThat(duplicate.getLiteral(), equalTo("something"));
-        assertThat(visitor.getSourceIds().size(), is(2));
+        assertThat(visitor.getSourceIds()
+                .size(), is(2));
     }
 
 }

@@ -32,13 +32,16 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
 /**
  * Tests the {@link DumpCommand} output.
- *
  */
 public class DumpCommandTest extends AbstractCommandTest {
 
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
+            .reset()
+            .toString();
 
-    static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
+    static final String RED_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.RED)
+            .toString();
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -132,8 +135,8 @@ public class DumpCommandTest extends AbstractCommandTest {
         consoleOutput.interceptSystemOut();
 
         // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(
-                getResultList("id1", "id2"));
+        final CatalogFramework catalogFramework = givenCatalogFramework(getResultList("id1",
+                "id2"));
         DumpCommand command = new DumpCommand() {
             @Override
             protected CatalogFacade getCatalog() throws InterruptedException {

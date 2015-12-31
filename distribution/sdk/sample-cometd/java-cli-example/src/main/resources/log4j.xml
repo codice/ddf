@@ -45,7 +45,7 @@
     <!-- =================== -->
 
     <root>
-        <priority value="ALL" />
+        <priority value="ALL"/>
         <appender-ref ref="ddf-cli-stdout"/>
         <appender-ref ref="ddf-cli"/>
     </root>

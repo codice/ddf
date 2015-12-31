@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -84,7 +84,8 @@ public class AdminConfig {
     public Configuration waitForConfiguration(String pid, ConfigurationPredicate predicate,
             long timeoutMs) throws IOException, InterruptedException {
         LOGGER.debug("Waiting for condition {} in Configuration object [{}] to be true",
-                predicate.toString(), pid);
+                predicate.toString(),
+                pid);
 
         Configuration configuration = configAdmin.getConfiguration(pid, null);
 
@@ -101,10 +102,13 @@ public class AdminConfig {
         if (waitPeriod >= timeoutMs) {
             LOGGER.error(
                     "Timed out after waiting {}ms for condition {} to be true on configuration object {}",
-                    waitPeriod, predicate.toString(), pid);
+                    waitPeriod,
+                    predicate.toString(),
+                    pid);
             throw new InterruptedException(String.format(
                     "Timed out waiting for condition [%s] to be true in configuration object [%s]",
-                    predicate.toString(), pid));
+                    predicate.toString(),
+                    pid));
         }
 
         return configuration;

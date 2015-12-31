@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,7 +35,8 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 
 public class GeospatialEvaluator {
-    public static final String METADATA_DOD_MIL_CRS_WGS84E_2D = "http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D";
+    public static final String METADATA_DOD_MIL_CRS_WGS84E_2D =
+            "http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D";
 
     public static final String EPSG_4326 = "EPSG:4326";
 
@@ -48,8 +49,9 @@ public class GeospatialEvaluator {
         for (int whichInput = 0; whichInput < input.getNumGeometries(); ++whichInput) {
             boolean thisInputOk = false;
             for (int whichCriteria = 0;
-                    whichCriteria < criteria.getNumGeometries(); ++whichCriteria) {
-                if (criteria.getGeometryN(whichCriteria).contains(input.getGeometryN(whichInput))) {
+                 whichCriteria < criteria.getNumGeometries(); ++whichCriteria) {
+                if (criteria.getGeometryN(whichCriteria)
+                        .contains(input.getGeometryN(whichInput))) {
                     thisInputOk = true;
                     break;
                 }
@@ -73,7 +75,8 @@ public class GeospatialEvaluator {
                 // means that if geometry A is a large, and geometry B is smaller than A and is
                 // completely inside A,
                 // A and B DO NOT overlap.
-                if (criteria.getGeometryN(i).intersects(input.getGeometryN(j))) {
+                if (criteria.getGeometryN(i)
+                        .intersects(input.getGeometryN(j))) {
                     // Criteria overlaps input if any component of either overlaps a component of
                     // the other.
                     return true;
@@ -145,7 +148,8 @@ public class GeospatialEvaluator {
             // compare each geometry's closest distance to each other
             double distanceBetweenNearestPtsOnGeometries = DistanceOp.distance(input, criteria);
             LOGGER.debug("distanceBetweenNearestPtsOnGeometries = {},    distance = {}",
-                    distanceBetweenNearestPtsOnGeometries, distance);
+                    distanceBetweenNearestPtsOnGeometries,
+                    distance);
             evaluation = distanceBetweenNearestPtsOnGeometries <= distance;
         }
 
@@ -197,9 +201,10 @@ public class GeospatialEvaluator {
                 }
 
                 // Create a new polygon using the swapped coordinates
-                Polygon polygon = new Polygon(geometryFactory
-                        .createLinearRing(newCoords.toArray(new Coordinate[newCoords.size()])),
-                        null, geometryFactory);
+                Polygon polygon =
+                        new Polygon(geometryFactory.createLinearRing(newCoords.toArray(new Coordinate[newCoords.size()])),
+                                null,
+                                geometryFactory);
 
                 LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
                 // with LON,LAT ordered points
@@ -210,8 +215,8 @@ public class GeospatialEvaluator {
 
             if (geometry instanceof Point) {
                 // Create a new point using the swapped coordinates that specify LON,LAT order
-                Point point = geometryFactory.createPoint(
-                        new Coordinate(geometry.getCoordinate().y, geometry.getCoordinate().x));
+                Point point = geometryFactory.createPoint(new Coordinate(geometry.getCoordinate().y,
+                        geometry.getCoordinate().x));
 
                 LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
                 // with a LON,LAT ordered point

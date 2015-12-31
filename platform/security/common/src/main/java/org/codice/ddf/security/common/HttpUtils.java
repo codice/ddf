@@ -31,7 +31,7 @@ public class HttpUtils {
 
     /**
      * Strip a query string from a url. If the url is not valid, it will be returned as is.
-     *
+     * <p>
      * NOTE: a url with multiple query strings is still considered valid.
      *
      * @param url valid url
@@ -59,7 +59,10 @@ public class HttpUtils {
         if (u.getPort() == -1) {
             return String.format("%s://%s%s", u.getProtocol(), u.getHost(), u.getPath());
         } else {
-            return String.format("%s://%s:%s%s", u.getProtocol(), u.getHost(), u.getPort(),
+            return String.format("%s://%s:%s%s",
+                    u.getProtocol(),
+                    u.getHost(),
+                    u.getPort(),
                     u.getPath());
         }
     }
@@ -111,7 +114,8 @@ public class HttpUtils {
             response.setContentType("text/html");
             Cookie cookie = new Cookie(cookieName, "");
             URL url = null;
-            url = new URL(request.getRequestURL().toString());
+            url = new URL(request.getRequestURL()
+                    .toString());
             cookie.setDomain(url.getHost());
             cookie.setMaxAge(0);
             cookie.setPath("/");

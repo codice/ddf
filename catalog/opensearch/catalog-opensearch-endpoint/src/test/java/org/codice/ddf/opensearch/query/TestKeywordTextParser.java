@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -51,8 +51,8 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
 public class TestKeywordTextParser {
     // private static final Logger LOGGER = Logger.getLogger(TestKeywordTextParser.class);
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(OpenSearchQueryTest.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(OpenSearchQueryTest.class));
 
     @Rule
     public MethodRule watchman = new TestWatchman() {
@@ -144,8 +144,10 @@ public class TestKeywordTextParser {
             LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
             assertEquals(
                     "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
-                    0, result.parseErrors.size());
-            assertEquals("Failed to parse [" + input + "] properly.", input,
+                    0,
+                    result.parseErrors.size());
+            assertEquals("Failed to parse [" + input + "] properly.",
+                    input,
                     ParseTreeUtils.getNodeText(result.parseTreeRoot, result.inputBuffer));
 
         }
@@ -192,7 +194,8 @@ public class TestKeywordTextParser {
 
             LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
 
-            assertThat("[" + input + "] should have failed.", result.parseErrors.size(),
+            assertThat("[" + input + "] should have failed.",
+                    result.parseErrors.size(),
                     greaterThan(0));
 
         }
@@ -218,8 +221,10 @@ public class TestKeywordTextParser {
 
             assertEquals(
                     "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
-                    0, result.parseErrors.size());
-            assertEquals("Failed to parse [" + input + "] properly.", input,
+                    0,
+                    result.parseErrors.size());
+            assertEquals("Failed to parse [" + input + "] properly.",
+                    input,
                     ParseTreeUtils.getNodeText(result.parseTreeRoot, result.inputBuffer));
 
         }

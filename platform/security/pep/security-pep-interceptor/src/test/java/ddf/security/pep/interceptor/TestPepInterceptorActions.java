@@ -68,8 +68,8 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-                .thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
@@ -94,7 +94,8 @@ public class TestPepInterceptorActions {
                 assertEquals("urn:catalog:query:query-port:searchRequest", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
+        }).when(mockSubject)
+                .isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -117,8 +118,8 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-                .thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
@@ -143,7 +144,8 @@ public class TestPepInterceptorActions {
                 assertEquals("http://catalog/query/QueryPort/SearchRequest", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
+        }).when(mockSubject)
+                .isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -166,8 +168,8 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-                .thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
@@ -176,9 +178,8 @@ public class TestPepInterceptorActions {
 
         MessageInfo mockMessageInfo = mock(MessageInfo.class);
         when(messageWithAction.get(MessageInfo.class.getName())).thenReturn(mockMessageInfo);
-        when(mockMessageInfo.getExtensionAttribute(
-                new QName(Names.WSA_NAMESPACE_WSDL_METADATA, Names.WSAW_ACTION_NAME)))
-                .thenReturn("urn:catalog:query:query-port:search");
+        when(mockMessageInfo.getExtensionAttribute(new QName(Names.WSA_NAMESPACE_WSDL_METADATA,
+                Names.WSAW_ACTION_NAME))).thenReturn("urn:catalog:query:query-port:search");
 
         doAnswer(new Answer<Boolean>() {
             @Override
@@ -187,7 +188,8 @@ public class TestPepInterceptorActions {
                 assertEquals("urn:catalog:query:query-port:search", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
+        }).when(mockSubject)
+                .isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -210,8 +212,8 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction))
-                .thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
@@ -233,7 +235,8 @@ public class TestPepInterceptorActions {
                 assertEquals("urn:catalog:query:query-port:search", perm.getAction());
                 return true;
             }
-        }).when(mockSubject).isPermitted(isA(CollectionPermission.class));
+        }).when(mockSubject)
+                .isPermitted(isA(CollectionPermission.class));
 
         // This should work.
         interceptor.handleMessage(messageWithAction);
@@ -256,8 +259,8 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithoutAction))
-                .thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithoutAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);

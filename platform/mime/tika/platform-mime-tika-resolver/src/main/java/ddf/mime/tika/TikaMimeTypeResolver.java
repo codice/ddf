@@ -45,7 +45,8 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
      */
     public TikaMimeTypeResolver() {
         try {
-            config = new TikaConfig(this.getClass().getClassLoader());
+            config = new TikaConfig(this.getClass()
+                    .getClassLoader());
             if (config == null) {
                 LOGGER.warn("Config = NULL");
             }
@@ -65,7 +66,8 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
 
     @Override
     public String getName() {
-        return this.getClass().getName();
+        return this.getClass()
+                .getName();
     }
 
     @Override
@@ -108,7 +110,8 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
                 MimeType mimeType = mimeTypes.forName(contentType);
                 extension = mimeType.getExtension();
             } catch (Exception e) {
-                LOGGER.warn("Exception caught getting file extension for mime type {}", contentType,
+                LOGGER.warn("Exception caught getting file extension for mime type {}",
+                        contentType,
                         e);
             }
         }
@@ -130,7 +133,8 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
                 mimeType = tika.detect(filename);
             } catch (Exception e) {
                 LOGGER.warn("Exception caught getting mime type for file extension {}",
-                        fileExtension, e);
+                        fileExtension,
+                        e);
             }
         }
 

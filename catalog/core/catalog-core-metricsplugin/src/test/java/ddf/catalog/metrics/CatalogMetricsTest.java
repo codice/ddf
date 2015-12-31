@@ -66,7 +66,9 @@ public class CatalogMetricsTest {
 
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
-    private static Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo()
+    private static Filter idFilter = filterBuilder.attribute(Metacard.ID)
+            .is()
+            .equalTo()
             .text("metacardId");
 
     private CatalogMetrics underTest;
@@ -95,12 +97,12 @@ public class CatalogMetricsTest {
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Temporal"));
 
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
-        underTest.metrics
-                .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "UnsupportedQuery"));
-        underTest.metrics
-                .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "SourceUnavailable"));
-        underTest.metrics
-                .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "Federation"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+                "UnsupportedQuery"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+                "SourceUnavailable"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
+                "Federation"));
 
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Created"));
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.INGEST_SCOPE, "Updated"));
@@ -152,7 +154,8 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogSpatialQueryMetric() throws Exception {
-        Filter geoFilter = filterBuilder.attribute(Metacard.ANY_GEO).within()
+        Filter geoFilter = filterBuilder.attribute(Metacard.ANY_GEO)
+                .within()
                 .wkt("POLYGON ((1 1,2 1,2 2,1 2,1 1))");
 
         QueryRequest query = new QueryRequestImpl(new QueryImpl(geoFilter));
@@ -163,7 +166,8 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogTemporalQueryMetric() throws Exception {
-        Filter temporalFilter = filterBuilder.attribute(Metacard.ANY_DATE).before()
+        Filter temporalFilter = filterBuilder.attribute(Metacard.ANY_DATE)
+                .before()
                 .date(new Date());
 
         QueryRequest query = new QueryRequestImpl(new QueryImpl(temporalFilter));
@@ -174,7 +178,8 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogXpathQueryMetric() throws Exception {
-        Filter xpathFilter = filterBuilder.xpath("//node").exists();
+        Filter xpathFilter = filterBuilder.xpath("//node")
+                .exists();
 
         QueryRequest query = new QueryRequestImpl(new QueryImpl(xpathFilter));
         underTest.process(query);
@@ -184,7 +189,9 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogFuzzyQueryMetric() throws Exception {
-        Filter fuzzyFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like().fuzzyText("fuzzy");
+        Filter fuzzyFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
+                .fuzzyText("fuzzy");
 
         QueryRequest query = new QueryRequestImpl(new QueryImpl(fuzzyFilter));
         underTest.process(query);
@@ -200,13 +207,14 @@ public class CatalogMetricsTest {
         underTest.process(response);
 
         assertThat(underTest.resultCount.getCount(), is(1L));
-        assertThat(underTest.resultCount.getSnapshot().getMean(), is(50.0));
+        assertThat(underTest.resultCount.getSnapshot()
+                .getMean(), is(50.0));
     }
 
     @Test
     public void catalogExceptionMetric() throws Exception {
-        QueryResponse response = new QueryResponseImpl(
-                new QueryRequestImpl(new QueryImpl(idFilter)));
+        QueryResponse response =
+                new QueryResponseImpl(new QueryRequestImpl(new QueryImpl(idFilter)));
         Set<ProcessingDetails> details = response.getProcessingDetails();
 
         details.addAll(new HashSet<ProcessingDetails>() {

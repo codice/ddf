@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -107,9 +107,19 @@ public class TestCswSource extends TestCswSourceBase {
         CswSource source = getCswSource(createMockCsw(), mockContext);
 
         assertTrue(source.isAvailable());
-        assertEquals(10, source.getContentTypes().size());
-        Set<ContentType> expected = generateContentType(
-                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
+        assertEquals(10,
+                source.getContentTypes()
+                        .size());
+        Set<ContentType> expected = generateContentType(Arrays.asList("a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+                "h",
+                "i",
+                "j"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -119,9 +129,19 @@ public class TestCswSource extends TestCswSourceBase {
         CswSource source = getCswSource(createMockCsw(), mockContext);
 
         assertTrue(source.isAvailable());
-        assertEquals(10, source.getContentTypes().size());
-        Set<ContentType> expected = generateContentType(
-                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
+        assertEquals(10,
+                source.getContentTypes()
+                        .size());
+        Set<ContentType> expected = generateContentType(Arrays.asList("a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+                "h",
+                "i",
+                "j"));
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -130,23 +150,35 @@ public class TestCswSource extends TestCswSourceBase {
             throws CswException, UnsupportedQueryException, SecurityServiceException {
         Csw mockCsw = createMockCsw();
 
-        List<String> expectedNames = new LinkedList<>(
-                Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
+        List<String> expectedNames = new LinkedList<>(Arrays.asList("a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+                "h",
+                "i",
+                "j"));
 
         ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(
                 ServiceRegistration.class);
         LOGGER.info("mockRegisteredMetacardType: {}", mockRegisteredMetacardType);
         doReturn(mockRegisteredMetacardType).when(mockContext)
-                .registerService(eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
+                .registerService(eq(MetacardType.class.getName()),
+                        any(CswRecordMetacardType.class),
                         Matchers.<Dictionary<String, ?>>any());
-        ServiceReference<?> mockServiceReference = (ServiceReference<?>) mock(
-                ServiceReference.class);
-        doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
+        ServiceReference<?> mockServiceReference =
+                (ServiceReference<?>) mock(ServiceReference.class);
+        doReturn(mockServiceReference).when(mockRegisteredMetacardType)
+                .getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(expectedNames);
 
         CswSource source = getCswSource(mockCsw, mockContext);
 
-        assertEquals(10, source.getContentTypes().size());
+        assertEquals(10,
+                source.getContentTypes()
+                        .size());
 
         Set<ContentType> expected = generateContentType(expectedNames);
         assertThat(source.getContentTypes(), is(expected));
@@ -155,8 +187,10 @@ public class TestCswSource extends TestCswSourceBase {
 
         when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
 
-        QueryImpl propertyIsLikeQuery = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text("*"));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text("*"));
 
         expectedNames.add("dataset");
         expectedNames.add("dataset 2");
@@ -165,7 +199,9 @@ public class TestCswSource extends TestCswSourceBase {
 
         source.query(new QueryRequestImpl(propertyIsLikeQuery));
 
-        assertEquals(13, source.getContentTypes().size());
+        assertEquals(13,
+                source.getContentTypes()
+                        .size());
         assertThat(source.getContentTypes(), is(expected));
     }
 
@@ -188,8 +224,10 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl propertyIsLikeQuery = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         propertyIsLikeQuery.setPageSize(pageSize);
 
         CswSource cswSource = getCswSource(mockCsw, mockContext);
@@ -201,7 +239,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Verify
         Assert.assertNotNull(response);
-        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getResults()
+                .size(), is(numRecordsReturned));
         assertThat(response.getHits(), is(numRecordsMatched));
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
         try {
@@ -244,8 +283,10 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -259,7 +300,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Verify
         Assert.assertNotNull(response);
-        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getResults()
+                .size(), is(numRecordsReturned));
         assertThat(response.getHits(), is(numRecordsMatched));
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
         try {
@@ -269,13 +311,22 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
-        assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
-        assertThat(
-                cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0)
-                        .toString(), equalTo(TITLE));
-        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
-                is(SortOrderType.DESC));
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .size(), is(1));
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .get(0)
+                .getPropertyName()
+                .getContent()
+                .get(0)
+                .toString(), equalTo(TITLE));
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .get(0)
+                .getSortOrder(), is(SortOrderType.DESC));
     }
 
     @Test
@@ -297,8 +348,10 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -312,7 +365,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Verify
         Assert.assertNotNull(response);
-        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getResults()
+                .size(), is(numRecordsReturned));
         assertThat(response.getHits(), is(numRecordsMatched));
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
         try {
@@ -322,7 +376,8 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
         assertThat(cswQuery.getSortBy(), nullValue());
     }
 
@@ -344,8 +399,10 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -359,7 +416,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Verify
         Assert.assertNotNull(response);
-        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getResults()
+                .size(), is(numRecordsReturned));
         assertThat(response.getHits(), is(numRecordsMatched));
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
         try {
@@ -369,13 +427,22 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
-        assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
-        assertThat(
-                cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0)
-                        .toString(), equalTo(Metacard.TITLE));
-        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
-                is(SortOrderType.DESC));
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .size(), is(1));
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .get(0)
+                .getPropertyName()
+                .getContent()
+                .get(0)
+                .toString(), equalTo(Metacard.TITLE));
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .get(0)
+                .getSortOrder(), is(SortOrderType.DESC));
     }
 
     @Test
@@ -396,8 +463,10 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
@@ -411,7 +480,8 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Verify
         Assert.assertNotNull(response);
-        assertThat(response.getResults().size(), is(numRecordsReturned));
+        assertThat(response.getResults()
+                .size(), is(numRecordsReturned));
         assertThat(response.getHits(), is(numRecordsMatched));
         ArgumentCaptor<GetRecordsType> captor = ArgumentCaptor.forClass(GetRecordsType.class);
         try {
@@ -421,13 +491,22 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
-        assertThat(cswQuery.getSortBy().getSortProperty().size(), is(1));
-        assertThat(
-                cswQuery.getSortBy().getSortProperty().get(0).getPropertyName().getContent().get(0)
-                        .toString(), equalTo(Metacard.MODIFIED));
-        assertThat(cswQuery.getSortBy().getSortProperty().get(0).getSortOrder(),
-                is(SortOrderType.DESC));
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .size(), is(1));
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .get(0)
+                .getPropertyName()
+                .getContent()
+                .get(0)
+                .toString(), equalTo(Metacard.MODIFIED));
+        assertThat(cswQuery.getSortBy()
+                .getSortProperty()
+                .get(0)
+                .getSortOrder(), is(SortOrderType.DESC));
     }
 
     /**
@@ -453,8 +532,9 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl propertyIsEqualToQuery = new QueryImpl(
-                builder.attribute(Metacard.CONTENT_TYPE).is().text(format));
+        QueryImpl propertyIsEqualToQuery = new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .text(format));
         propertyIsEqualToQuery.setPageSize(pageSize);
 
         CswSource cswSource = getCswSource(mockCsw, mockContext, CswRecordMetacardType.CSW_FORMAT);
@@ -512,8 +592,12 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        Filter ctfilter = builder.attribute(Metacard.CONTENT_TYPE).is().text(format);
-        Filter versionFilter = builder.attribute(Metacard.CONTENT_TYPE_VERSION).is().like()
+        Filter ctfilter = builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .text(format);
+        Filter versionFilter = builder.attribute(Metacard.CONTENT_TYPE_VERSION)
+                .is()
+                .like()
                 .text(version);
         Filter filter = builder.allOf(ctfilter, versionFilter);
 
@@ -604,7 +688,9 @@ public class TestCswSource extends TestCswSourceBase {
         expectedXml = expectedXml.replace("END_DATE_TIME", fmt.print(endDate));
 
         // Single absolute time range to search across
-        Filter temporalFilter = builder.attribute(Metacard.EFFECTIVE).is().during()
+        Filter temporalFilter = builder.attribute(Metacard.EFFECTIVE)
+                .is()
+                .during()
                 .dates(startDate.toDate(), endDate.toDate());
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
@@ -708,9 +794,13 @@ public class TestCswSource extends TestCswSourceBase {
 
         // Single absolute time range to search across
         FilterFactory filterFactory = new FilterFactoryImpl();
-        Filter temporalFilter1 = builder.attribute(Metacard.EFFECTIVE).is().during()
+        Filter temporalFilter1 = builder.attribute(Metacard.EFFECTIVE)
+                .is()
+                .during()
                 .dates(startDate.toDate(), endDate.toDate());
-        Filter temporalFilter2 = builder.attribute(Metacard.EFFECTIVE).is().during()
+        Filter temporalFilter2 = builder.attribute(Metacard.EFFECTIVE)
+                .is()
+                .during()
                 .dates(startDate2.toDate(), endDate2.toDate());
         Filter temporalFilter = filterFactory.or(temporalFilter1, temporalFilter2);
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
@@ -750,14 +840,16 @@ public class TestCswSource extends TestCswSourceBase {
             throws CswException, UnsupportedQueryException, SecurityServiceException {
         // Setup
         CapabilitiesType mockCapabilitiesType = mock(CapabilitiesType.class);
-        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
-                .thenReturn(mockCapabilitiesType);
+        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(
+                mockCapabilitiesType);
 
         CswSource cswSource = getCswSource(mockCsw, mockContext);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
-        QueryImpl propertyIsLikeQuery = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text("junk"));
+        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text("junk"));
         propertyIsLikeQuery.setPageSize(10);
 
         cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
@@ -788,8 +880,10 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put("receiveTimeout", 10000);
         cswSource.refresh(configuration);
 
-        assertEquals(cswSource.getConnectionTimeout().intValue(), 10000);
-        assertEquals(cswSource.getReceiveTimeout().intValue(), 10000);
+        assertEquals(cswSource.getConnectionTimeout()
+                .intValue(), 10000);
+        assertEquals(cswSource.getReceiveTimeout()
+                .intValue(), 10000);
     }
 
     @Test
@@ -823,11 +917,16 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, null, expectedQname.toString(),
+        CswSource cswSource = getCswSource(mockCsw,
+                mockContext,
+                null,
+                expectedQname.toString(),
                 expectedQname.getPrefix());
 
         cswSource.setCswUrl(URL);
@@ -844,10 +943,13 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
 
-        assertThat(cswQuery.getTypeNames().size(), is(1));
-        assertThat(cswQuery.getTypeNames().get(0), is(expectedQname));
+        assertThat(cswQuery.getTypeNames()
+                .size(), is(1));
+        assertThat(cswQuery.getTypeNames()
+                .get(0), is(expectedQname));
     }
 
     @Test
@@ -869,8 +971,10 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        QueryImpl query = new QueryImpl(
-                builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase));
         query.setPageSize(pageSize);
 
         // Verify passing a null config for qname/prefix falls back to CSW Record
@@ -889,10 +993,14 @@ public class TestCswSource extends TestCswSourceBase {
         }
         GetRecordsType getRecordsType = captor.getValue();
 
-        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery().getValue();
+        QueryType cswQuery = (QueryType) getRecordsType.getAbstractQuery()
+                .getValue();
 
-        assertThat(cswQuery.getTypeNames().size(), is(1));
-        assertThat(cswQuery.getTypeNames().get(0).toString(), is(CSW_RECORD_QNAME));
+        assertThat(cswQuery.getTypeNames()
+                .size(), is(1));
+        assertThat(cswQuery.getTypeNames()
+                .get(0)
+                .toString(), is(CSW_RECORD_QNAME));
     }
 
     @Test
@@ -913,16 +1021,28 @@ public class TestCswSource extends TestCswSourceBase {
             }
             metacards.add(metacard);
         }
-        recordCollection.getCswRecords().addAll(metacards);
+        recordCollection.getCswRecords()
+                .addAll(metacards);
         List<Result> results = cswSource.createResults(recordCollection);
 
         assertThat(results, notNullValue());
-        assertThat(results.size(), is(recordCollection.getCswRecords().size()));
-        assertThat(results.get(0).getMetacard().getResourceURI(),
-                is(recordCollection.getCswRecords().get(0).getResourceURI()));
-        assertThat(results.get(1).getMetacard().getResourceURI(), is(URI.create(
-                recordCollection.getCswRecords().get(1).getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
-                        .getValue().toString())));
+        assertThat(results.size(),
+                is(recordCollection.getCswRecords()
+                        .size()));
+        assertThat(results.get(0)
+                        .getMetacard()
+                        .getResourceURI(),
+                is(recordCollection.getCswRecords()
+                        .get(0)
+                        .getResourceURI()));
+        assertThat(results.get(1)
+                        .getMetacard()
+                        .getResourceURI(),
+                is(URI.create(recordCollection.getCswRecords()
+                        .get(1)
+                        .getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                        .getValue()
+                        .toString())));
 
     }
 
@@ -953,14 +1073,20 @@ public class TestCswSource extends TestCswSourceBase {
             String queryTypeQName, String queryTypePrefix) {
 
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
-                contentMapping, queryTypeQName, queryTypePrefix);
+                contentMapping,
+                queryTypeQName,
+                queryTypePrefix);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
 
         SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
-        doReturn(csw).when(mockFactory).getClient();
-        doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
+        doReturn(csw).when(mockFactory)
+                .getClient();
+        doReturn(csw).when(mockFactory)
+                .getClientForSubject(any(Subject.class));
 
-        CswSource cswSource = new CswSource(mockContext, cswSourceConfiguration, mockProvider,
+        CswSource cswSource = new CswSource(mockContext,
+                cswSourceConfiguration,
+                mockProvider,
                 mockFactory);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
@@ -973,7 +1099,10 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     private CswSource getCswSource(Csw csw, BundleContext context, String contentMapping) {
-        return getCswSource(csw, context, contentMapping, CSW_RECORD_QNAME,
+        return getCswSource(csw,
+                context,
+                contentMapping,
+                CSW_RECORD_QNAME,
                 CswConstants.CSW_NAMESPACE_PREFIX);
     }
 }

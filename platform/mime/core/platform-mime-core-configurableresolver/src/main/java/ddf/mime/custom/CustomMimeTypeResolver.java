@@ -30,7 +30,6 @@ import ddf.mime.MimeTypeResolver;
  * Currently used to add image/nitf mime type support.
  *
  * @since 2.1.0
- *
  */
 public class CustomMimeTypeResolver implements MimeTypeResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomMimeTypeResolver.class);
@@ -129,8 +128,8 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             String mimeType = StringUtils.substringAfter(mimeTypeMapping, "=");
 
             customFileExtensionsToMimeTypesMap.put(fileExtension, mimeType);
-            List<String> fileExtensions = (List<String>) customMimeTypesToFileExtensionsMap
-                    .get(mimeType);
+            List<String> fileExtensions = (List<String>) customMimeTypesToFileExtensionsMap.get(
+                    mimeType);
             if (fileExtensions == null) {
                 LOGGER.debug("Creating fileExtensions array for mime type: {}", mimeType);
                 fileExtensions = new ArrayList<String>();
@@ -174,7 +173,8 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         if (StringUtils.isNotEmpty(mimeType)) {
             List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(mimeType);
             if (fileExtensions != null && fileExtensions.size() > 0) {
-                LOGGER.debug("{} file extensions found for mime type = {} ", fileExtensions.size(),
+                LOGGER.debug("{} file extensions found for mime type = {} ",
+                        fileExtensions.size(),
                         mimeType);
 
                 fileExtension = fileExtensions.get(0);

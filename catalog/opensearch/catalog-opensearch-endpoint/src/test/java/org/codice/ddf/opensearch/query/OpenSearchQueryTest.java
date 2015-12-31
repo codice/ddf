@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -72,8 +72,8 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.TemporalFilter;
 
 public class OpenSearchQueryTest {
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(OpenSearchQueryTest.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(OpenSearchQueryTest.class));
 
     private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
@@ -111,7 +111,10 @@ public class OpenSearchQueryTest {
     }
 
     private Filter getKeywordAttributeFilter(String keyword) {
-        return FILTER_BUILDER.attribute(Metacard.ANY_TEXT).is().like().text(keyword);
+        return FILTER_BUILDER.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(keyword);
     }
 
     @Test
@@ -164,40 +167,41 @@ public class OpenSearchQueryTest {
     @Test
     public void testComplexContextualFilterGroups() {
         // Test Group
-        testKeywordFiler("( (Apple) AND ((Orange OR Banana)   ) NOT (Strawberry )  )", FILTER_BUILDER
-                        .allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("Apple"), FILTER_BUILDER
-                                        .anyOf(getKeywordAttributeFilter("Orange"),
-                                                getKeywordAttributeFilter("Banana"))),
-                                FILTER_BUILDER.not(getKeywordAttributeFilter("Strawberry"))));
+        testKeywordFiler("( (Apple) AND ((Orange OR Banana)   ) NOT (Strawberry )  )",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("Apple"),
+                        FILTER_BUILDER.anyOf(getKeywordAttributeFilter("Orange"),
+                                getKeywordAttributeFilter("Banana"))),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("Strawberry"))));
     }
 
     @Test
     public void testComplexContextualFilterMixedBooleanOperators() {
         // Test Boolean Operators
         testKeywordFiler("A AND B OR C", FILTER_BUILDER.anyOf(// OR
-                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
-                                getKeywordAttributeFilter("B")), // A AND B
-                        getKeywordAttributeFilter("C"))); // C
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), // A AND B
+                getKeywordAttributeFilter("C"))); // C
 
         testKeywordFiler("  A AND B AND C", FILTER_BUILDER.allOf(// AND
-                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
-                                getKeywordAttributeFilter("B")), // A AND B
-                        getKeywordAttributeFilter("C"))); // C
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), // A AND B
+                getKeywordAttributeFilter("C"))); // C
 
-        testKeywordFiler("A AND B OR C NOT D  ", FILTER_BUILDER.allOf(FILTER_BUILDER
-                        .anyOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
-                                getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
-                FILTER_BUILDER.not(getKeywordAttributeFilter("D"))));
+        testKeywordFiler("A AND B OR C NOT D  ",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.anyOf(FILTER_BUILDER.allOf(
+                        getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("D"))));
 
         testKeywordFiler("A B OR (C NOT D)", FILTER_BUILDER.anyOf(// OR
-                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
-                                getKeywordAttributeFilter("B")), // A AND B
-                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("C"),
-                                FILTER_BUILDER.not(getKeywordAttributeFilter("D"))))); // C NOT D
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), // A AND B
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("C"),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("D"))))); // C NOT D
 
         testKeywordFiler("A (\"test\") OR test2", FILTER_BUILDER.anyOf(// OR
-                FILTER_BUILDER
-                        .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("test")),
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("test")),
                 // A AND (test test2)
                 getKeywordAttributeFilter("test2"))); // test2
     }
@@ -205,46 +209,58 @@ public class OpenSearchQueryTest {
     @Test
     public void testComplexContextualFilterNOTOperator() {
         // Test NOT Operator
-        testKeywordFiler("A NOT B", FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A NOT B",
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                         FILTER_BUILDER.not(getKeywordAttributeFilter("B"))));
-        testKeywordFiler("A NOT \"B\"", FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A NOT \"B\"",
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                         FILTER_BUILDER.not(getKeywordAttributeFilter("B"))));
-        testKeywordFiler("A NOT   A", FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A NOT   A",
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                         FILTER_BUILDER.not(getKeywordAttributeFilter("A"))));
-        testKeywordFiler("NOT    NOT NOT", FILTER_BUILDER.allOf(getKeywordAttributeFilter("NOT"),
+        testKeywordFiler("NOT    NOT NOT",
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("NOT"),
                         FILTER_BUILDER.not(getKeywordAttributeFilter("NOT"))));
     }
 
     @Test
     public void testComplexContextualFilterOROperator() {
         // Test OR Operator
-        testKeywordFiler("A OR B", FILTER_BUILDER
-                .anyOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")));
-        testKeywordFiler("(A OR A)", FILTER_BUILDER
-                .anyOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("A")));
-        testKeywordFiler("OR OR OR OR OR OR OR", FILTER_BUILDER.anyOf(FILTER_BUILDER
-                        .anyOf(FILTER_BUILDER.anyOf(getKeywordAttributeFilter("OR"),
-                                        getKeywordAttributeFilter("OR")),
-                                getKeywordAttributeFilter("OR")), getKeywordAttributeFilter("OR")));
+        testKeywordFiler("A OR B",
+                FILTER_BUILDER.anyOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")));
+        testKeywordFiler("(A OR A)",
+                FILTER_BUILDER.anyOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("A")));
+        testKeywordFiler("OR OR OR OR OR OR OR",
+                FILTER_BUILDER.anyOf(FILTER_BUILDER.anyOf(FILTER_BUILDER.anyOf(
+                        getKeywordAttributeFilter("OR"),
+                        getKeywordAttributeFilter("OR")), getKeywordAttributeFilter("OR")),
+                        getKeywordAttributeFilter("OR")));
     }
 
     @Test
     public void testComplexContextualFilterANDOperator() {
         // Test AND Operator
-        testKeywordFiler("A AND 999", FILTER_BUILDER
-                .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("999")));
+        testKeywordFiler("A AND 999",
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("999")));
         // TODO with the new keyword query grammar, this... probably shouldn't be allowed?
         // testKeywordFiler("AND AND", FILTER_BUILDER.allOf(getKeywordAttributeFilter("AND"),
         // getKeywordAttributeFilter("AND")));
-        testKeywordFiler("A B C D", FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER
-                        .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")),
-                        getKeywordAttributeFilter("C")), getKeywordAttributeFilter("D")));
-        testKeywordFiler("A B C AND D", FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER
-                        .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")),
-                        getKeywordAttributeFilter("C")), getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND AND AND C", FILTER_BUILDER.allOf(FILTER_BUILDER
-                        .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("AND")),
-                getKeywordAttributeFilter("C")));
+        testKeywordFiler("A B C D",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(
+                        getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
+                        getKeywordAttributeFilter("D")));
+        testKeywordFiler("A B C AND D",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(
+                        getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
+                        getKeywordAttributeFilter("D")));
+        testKeywordFiler("A AND AND AND C",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("AND")), getKeywordAttributeFilter("C")));
     }
 
     @Test
@@ -259,26 +275,34 @@ public class OpenSearchQueryTest {
     @Test
     public void testComplexContextualFilterOrderOfPrecedence() {
         // Test Order of Precedence
-        testKeywordFiler("A OR B   OR C OR D", FILTER_BUILDER.anyOf(FILTER_BUILDER.anyOf(FILTER_BUILDER
-                        .anyOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")),
-                        getKeywordAttributeFilter("C")), getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND B AND   C AND D  ", FILTER_BUILDER.allOf(FILTER_BUILDER
-                        .allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
-                                getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
-                getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND (B AND C) AND D", FILTER_BUILDER.allOf(FILTER_BUILDER
-                        .allOf(getKeywordAttributeFilter("A"), FILTER_BUILDER
-                                .allOf(getKeywordAttributeFilter("B"),
-                                        getKeywordAttributeFilter("C"))),
-                getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND (\"B\" AND \"C\")", FILTER_BUILDER
-                        .allOf(getKeywordAttributeFilter("A"), FILTER_BUILDER
-                                .allOf(getKeywordAttributeFilter("B"),
-                                        getKeywordAttributeFilter("C"))));
+        testKeywordFiler("A OR B   OR C OR D",
+                FILTER_BUILDER.anyOf(FILTER_BUILDER.anyOf(FILTER_BUILDER.anyOf(
+                        getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
+                        getKeywordAttributeFilter("D")));
+        testKeywordFiler("A AND B AND   C AND D  ",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(
+                        getKeywordAttributeFilter("A"),
+                        getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
+                        getKeywordAttributeFilter("D")));
+        testKeywordFiler("A AND (B AND C) AND D",
+                FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("B"),
+                                getKeywordAttributeFilter("C"))), getKeywordAttributeFilter("D")));
+        testKeywordFiler("A AND (\"B\" AND \"C\")",
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("B"),
+                                getKeywordAttributeFilter("C"))));
     }
 
     private void testKeywordFiler(String inputKeywordPhrase, Filter expectedFilter) {
-        OpenSearchQuery osq = new OpenSearchQuery(null, 0, 0, "relevance", "asc", 0, FILTER_BUILDER);
+        OpenSearchQuery osq = new OpenSearchQuery(null,
+                0,
+                0,
+                "relevance",
+                "asc",
+                0,
+                FILTER_BUILDER);
 
         LOGGER.info("Testing filter: " + inputKeywordPhrase);
         osq.addContextualFilter(inputKeywordPhrase, null);
@@ -292,7 +316,12 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selector = null;
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selector);
         Filter filter = query.getFilter();
@@ -301,8 +330,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -320,7 +349,12 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selector = "//fileTitle";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selector);
         Filter filter = query.getFilter();
@@ -329,8 +363,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -348,7 +382,12 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selectors = "//fileTitle,//nitf";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selectors);
         Filter filter = query.getFilter();
@@ -357,8 +396,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -378,7 +417,12 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTemporalFilter(temporalFilter);
         Filter filter = query.getFilter();
@@ -387,16 +431,20 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
         List<Filter> filters = getFilters(map, DuringImpl.class.getName());
         assertEquals(1, filters.size());
 
-        verifyTemporalFilter(filters.get(0), temporalFilter.getStartDate().toString(),
-                temporalFilter.getEndDate().toString(), false);
+        verifyTemporalFilter(filters.get(0),
+                temporalFilter.getStartDate()
+                        .toString(),
+                temporalFilter.getEndDate()
+                        .toString(),
+                false);
     }
 
     @Test
@@ -408,7 +456,12 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTemporalFilter(startDate, endDate, dateOffset);
         Filter filter = query.getFilter();
@@ -417,16 +470,20 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
         List<Filter> filters = getFilters(map, DuringImpl.class.getName());
         assertEquals(1, filters.size());
 
-        verifyTemporalFilter(filters.get(0), temporalFilter.getStartDate().toString(),
-                temporalFilter.getEndDate().toString(), false);
+        verifyTemporalFilter(filters.get(0),
+                temporalFilter.getStartDate()
+                        .toString(),
+                temporalFilter.getEndDate()
+                        .toString(),
+                false);
     }
 
     @Test
@@ -437,7 +494,12 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTemporalFilter(temporalFilter);
         Filter filter = query.getFilter();
@@ -446,8 +508,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -466,7 +528,12 @@ public class OpenSearchQueryTest {
         TemporalFilter temporalFilter = new TemporalFilter(startDate, endDate);
         LOGGER.debug(temporalFilter.toString());
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTemporalFilter(startDate, endDate, dateOffset);
         Filter filter = query.getFilter();
@@ -475,8 +542,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -491,7 +558,12 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selector = null;
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selector);
 
@@ -509,8 +581,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         List<Filter> andFilters = getFilters(map, AndImpl.class.getName());
         assertEquals(1, andFilters.size());
@@ -554,7 +626,12 @@ public class OpenSearchQueryTest {
     public void testBboxSpatialFilter() throws Exception {
         String bboxCorners = "0,10,20,30";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addBBoxSpatialFilter(bboxCorners);
 
@@ -564,8 +641,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -588,13 +665,17 @@ public class OpenSearchQueryTest {
 
         String[] expectedCoords = bboxCorners.split(",");
 
-        double[] lowerCornerCoords = bbox.getEnvelope().getLowerCorner().getCoordinate();
+        double[] lowerCornerCoords = bbox.getEnvelope()
+                .getLowerCorner()
+                .getCoordinate();
         LOGGER.debug("lowerCornerCoords:  [0] = " + lowerCornerCoords[0] + ",   [1] = "
                 + lowerCornerCoords[1]);
         assertEquals(Double.parseDouble(expectedCoords[0]), lowerCornerCoords[0], DOUBLE_DELTA);
         assertEquals(Double.parseDouble(expectedCoords[1]), lowerCornerCoords[1], DOUBLE_DELTA);
 
-        double[] upperCornerCoords = bbox.getEnvelope().getUpperCorner().getCoordinate();
+        double[] upperCornerCoords = bbox.getEnvelope()
+                .getUpperCorner()
+                .getCoordinate();
         LOGGER.debug("upperCornerCoords:  [0] = " + upperCornerCoords[0] + ",   [1] = "
                 + upperCornerCoords[1]);
         assertEquals(Double.parseDouble(expectedCoords[2]), upperCornerCoords[0], DOUBLE_DELTA);
@@ -607,7 +688,12 @@ public class OpenSearchQueryTest {
         String lat = "20";
         String radius = "5000";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addSpatialDistanceFilter(lon, lat, radius);
         Filter filter = query.getFilter();
@@ -616,8 +702,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         List<Filter> filters = getFilters(map, DWithinImpl.class.getName());
         assertEquals(1, filters.size());
@@ -633,7 +719,8 @@ public class OpenSearchQueryTest {
 
         // Luckily we know what type the geometry expression should be, so we can cast it
         PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-        double[] coords = point.getCentroid().getCoordinate();
+        double[] coords = point.getCentroid()
+                .getCoordinate();
 
         LOGGER.debug("coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
         assertEquals(Double.parseDouble(lon), coords[0], DOUBLE_DELTA);
@@ -647,7 +734,12 @@ public class OpenSearchQueryTest {
         String latLon = "0,10,0,30,20,30,20,10,0,10";
         String lonLat = "10,0,30,0,30,20,10,20,10,0";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addPolygonSpatialFilter(latLon);
 
@@ -657,8 +749,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -681,7 +773,8 @@ public class OpenSearchQueryTest {
 
         // WKT is lon/lat, polygon is lat/lon
         String[] expectedCoords = lonLat.split(",");
-        Coordinate[] coords = polygon.getJTSGeometry().getCoordinates();
+        Coordinate[] coords = polygon.getJTSGeometry()
+                .getCoordinates();
         int i = 0;
         for (Coordinate coord : coords) {
             LOGGER.debug("coord " + (i + 1) + ": x = " + coord.x + ",   y = " + coord.y);
@@ -697,7 +790,12 @@ public class OpenSearchQueryTest {
         String type = "nitf";
         String versions = "";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTypeFilter(type, versions);
         Filter filter = query.getFilter();
@@ -706,8 +804,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -722,7 +820,12 @@ public class OpenSearchQueryTest {
         String type = "*";
         String versions = "collectorPosition";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTypeFilter(type, versions);
         Filter filter = query.getFilter();
@@ -731,8 +834,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -761,7 +864,12 @@ public class OpenSearchQueryTest {
         String type = "*";
         String versions = "v20,invalid_version,*";
 
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addTypeFilter(type, versions);
         Filter filter = query.getFilter();
@@ -770,8 +878,8 @@ public class OpenSearchQueryTest {
 
         VerificationVisitor verificationVisitor = new VerificationVisitor();
         filter.accept(verificationVisitor, null);
-        HashMap<String, FilterStatus> map = (HashMap<String, FilterStatus>) verificationVisitor
-                .getMap();
+        HashMap<String, FilterStatus> map =
+                (HashMap<String, FilterStatus>) verificationVisitor.getMap();
 
         printFilterStatusMap(map);
 
@@ -822,7 +930,8 @@ public class OpenSearchQueryTest {
         Geometry geometry2 = parser2.parse(geometryWkt2);
 
         assertTrue(geometry2.intersects(geometry));
-        double[] coords = geometry.getCentroid().getCoordinate();
+        double[] coords = geometry.getCentroid()
+                .getCoordinate();
         LOGGER.debug("coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
     }
 
@@ -840,7 +949,8 @@ public class OpenSearchQueryTest {
         Geometry geometry = parser.parse(geometryWkt);
         CoordinateReferenceSystem crs = geometry.getCoordinateReferenceSystem();
         assertNotNull(crs);
-        double[] coords = geometry.getCentroid().getCoordinate();
+        double[] coords = geometry.getCentroid()
+                .getCoordinate();
         LOGGER.debug("coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
 
         // String geometryWkt2 = "POINT( 10 20 )";
@@ -851,7 +961,8 @@ public class OpenSearchQueryTest {
         // keeping the CRS hint set ...
         parser2.setFactory(new PrimitiveFactoryImpl(DefaultGeographicCRS.WGS84));
         Geometry geometry2 = parser2.parse(geometryWkt2);
-        double[] coords2 = geometry2.getCentroid().getCoordinate();
+        double[] coords2 = geometry2.getCentroid()
+                .getCoordinate();
         LOGGER.debug("coords[0] = " + coords2[0] + ",   coords[1] = " + coords2[1]);
 
         // This fails - why?
@@ -886,9 +997,9 @@ public class OpenSearchQueryTest {
         LOGGER.debug("endDate = " + endDate);
 
         // Test date between start and end dates
-        Filter filter = filterFactory
-                .between(filterFactory.literal(dateInRange), filterFactory.literal(startDate),
-                        filterFactory.literal(endDate));
+        Filter filter = filterFactory.between(filterFactory.literal(dateInRange),
+                filterFactory.literal(startDate),
+                filterFactory.literal(endDate));
 
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
@@ -903,9 +1014,9 @@ public class OpenSearchQueryTest {
         Date outOfRange = calendar.getTime();
         String outOfRangeDate = dateFormatter.format(outOfRange);
 
-        filter = filterFactory
-                .between(filterFactory.literal(outOfRangeDate), filterFactory.literal(startDate),
-                        filterFactory.literal(endDate));
+        filter = filterFactory.between(filterFactory.literal(outOfRangeDate),
+                filterFactory.literal(startDate),
+                filterFactory.literal(endDate));
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
@@ -917,9 +1028,9 @@ public class OpenSearchQueryTest {
         Date outOfRange2 = calendar.getTime();
         String outOfRangeDate2 = dateFormatter.format(outOfRange2);
 
-        filter = filterFactory
-                .between(filterFactory.literal(outOfRangeDate2), filterFactory.literal(startDate),
-                        filterFactory.literal(endDate));
+        filter = filterFactory.between(filterFactory.literal(outOfRangeDate2),
+                filterFactory.literal(startDate),
+                filterFactory.literal(endDate));
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
@@ -927,9 +1038,9 @@ public class OpenSearchQueryTest {
         assertFalse(result);
 
         // Test date that is equal to start date
-        filter = filterFactory
-                .between(filterFactory.literal(startDate), filterFactory.literal(startDate),
-                        filterFactory.literal(endDate));
+        filter = filterFactory.between(filterFactory.literal(startDate),
+                filterFactory.literal(startDate),
+                filterFactory.literal(endDate));
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
@@ -937,9 +1048,9 @@ public class OpenSearchQueryTest {
         assertTrue(result);
 
         // Test date that is equal to end date
-        filter = filterFactory
-                .between(filterFactory.literal(endDate), filterFactory.literal(startDate),
-                        filterFactory.literal(endDate));
+        filter = filterFactory.between(filterFactory.literal(endDate),
+                filterFactory.literal(startDate),
+                filterFactory.literal(endDate));
         LOGGER.debug(transform.transform(filter));
 
         result = filter.evaluate(null);
@@ -951,7 +1062,12 @@ public class OpenSearchQueryTest {
     public void testCompoundFilter() throws Exception {
         String searchTerm = "cat";
         String selectors = "//fileTitle,//nitf";
-        OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
+        OpenSearchQuery query = new OpenSearchQuery(null,
+                0,
+                10,
+                "relevance",
+                "desc",
+                30000,
                 FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selectors);
 
@@ -993,7 +1109,8 @@ public class OpenSearchQueryTest {
         // searchTerm, false );
         // Filter filter = filterFactory.like( filterFactory.property( Query.ANY_TEXT ), searchTerm,
         // "*", "?", "\\" );
-        Calendar.getInstance().getTime();
+        Calendar.getInstance()
+                .getTime();
         String startDate = "2011-10-8T05:48:27.891-07:00";
         String endDate = "2011-10-10T06:18:27.581-07:00";
 
@@ -1088,8 +1205,12 @@ public class OpenSearchQueryTest {
         Period period = (Period) literalWrapper.evaluate(null);
 
         // Extract the start and end dates from the filter
-        Date start = period.getBeginning().getPosition().getDate();
-        Date end = period.getEnding().getPosition().getDate();
+        Date start = period.getBeginning()
+                .getPosition()
+                .getDate();
+        Date end = period.getEnding()
+                .getPosition()
+                .getDate();
 
         if (reformatDates) {
             String formattedStartDate = reformatDate(start);
@@ -1118,7 +1239,8 @@ public class OpenSearchQueryTest {
         if (expectedVersion.contains("*")) {
             verifyLikeFilter(childFilters.get(1), "metadata-content-type-version", expectedVersion);
         } else {
-            verifyEqualsFilter(childFilters.get(1), "metadata-content-type-version",
+            verifyEqualsFilter(childFilters.get(1),
+                    "metadata-content-type-version",
                     expectedVersion);
         }
 
@@ -1143,8 +1265,8 @@ public class OpenSearchQueryTest {
         assertTrue(filter instanceof IsEqualsToImpl);
 
         IsEqualsToImpl equalsFilter = (IsEqualsToImpl) filter;
-        AttributeExpressionImpl expression1 = (AttributeExpressionImpl) equalsFilter
-                .getExpression1();
+        AttributeExpressionImpl expression1 =
+                (AttributeExpressionImpl) equalsFilter.getExpression1();
         LOGGER.debug("propertyName = " + expression1.getPropertyName());
         assertEquals(expectedPropertyName, expression1.getPropertyName());
 

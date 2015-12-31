@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
@@ -70,15 +69,14 @@ public class TestCswTransformProvider {
 
     private static final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
 
-
     @Test
     public void testMarshalCswRecord() throws Exception {
-        when(mockMetacardManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
-                .thenReturn(mockCswRecordConverter);
+        when(mockMetacardManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockCswRecordConverter);
 
-        when(mockCswRecordConverter.transform(any(Metacard.class), any(Map.class))).thenReturn(
-                new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
-                        new MimeType(MediaType.APPLICATION_XML)));
+        when(mockCswRecordConverter.transform(any(Metacard.class),
+                any(Map.class))).thenReturn(new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
+                new MimeType(MediaType.APPLICATION_XML)));
 
         StringWriter stringWriter = new StringWriter();
         HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
@@ -99,12 +97,12 @@ public class TestCswTransformProvider {
 
     @Test
     public void testMarshalOtherSchema() throws Exception {
-        when(mockMetacardManager.getTransformerBySchema(OTHER_SCHEMA))
-                .thenReturn(mockMetacardTransformer);
+        when(mockMetacardManager.getTransformerBySchema(OTHER_SCHEMA)).thenReturn(
+                mockMetacardTransformer);
 
-        when(mockMetacardTransformer.transform(any(Metacard.class), any(Map.class))).thenReturn(
-                new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
-                        new MimeType(MediaType.APPLICATION_XML)));
+        when(mockMetacardTransformer.transform(any(Metacard.class),
+                any(Map.class))).thenReturn(new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
+                new MimeType(MediaType.APPLICATION_XML)));
 
         StringWriter stringWriter = new StringWriter();
         HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
@@ -139,11 +137,11 @@ public class TestCswTransformProvider {
 
     @Test
     public void testUnmarshalCswRecord() throws Exception {
-        when(mockInputManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
-                .thenReturn(mockCswRecordConverter);
+        when(mockInputManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockCswRecordConverter);
 
-        HierarchicalStreamReader reader = new WstxDriver()
-                .createReader(new StringReader(getRecord()));
+        HierarchicalStreamReader reader =
+                new WstxDriver().createReader(new StringReader(getRecord()));
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
 
@@ -167,12 +165,15 @@ public class TestCswTransformProvider {
         StringReader stringReader = new StringReader(getRecord());
         StaxDriver driver = new StaxDriver();
         driver.setRepairingNamespace(true);
-        driver.getQnameMap().setDefaultNamespace(CswConstants.CSW_OUTPUT_SCHEMA);
-        driver.getQnameMap().setDefaultPrefix(CswConstants.CSW_NAMESPACE_PREFIX);
+        driver.getQnameMap()
+                .setDefaultNamespace(CswConstants.CSW_OUTPUT_SCHEMA);
+        driver.getQnameMap()
+                .setDefaultPrefix(CswConstants.CSW_NAMESPACE_PREFIX);
 
         // Have to use XppReader in order to preserve the namespaces.
         HierarchicalStreamReader reader = new XppReader(new StringReader(getRecord()),
-                XmlPullParserFactory.newInstance().newPullParser());
+                XmlPullParserFactory.newInstance()
+                        .newPullParser());
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
         context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, "http://example.com/schema");
@@ -194,15 +195,15 @@ public class TestCswTransformProvider {
     @Test
     public void testUnmarshalOtherSchema() throws Exception {
         InputTransformer mockInputTransformer = mock(InputTransformer.class);
-        when(mockInputManager.getTransformerBySchema(OTHER_SCHEMA))
-                .thenReturn(mockInputTransformer);
+        when(mockInputManager.getTransformerBySchema(OTHER_SCHEMA)).thenReturn(mockInputTransformer);
 
         when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(getMetacard());
 
         // XppReader is not namespace aware so it will read the XML and ignore the namespaces
         // WstxReader is namespace aware. It may fail for XML fragments.
         HierarchicalStreamReader reader = new XppReader(new StringReader(getRecord()),
-                XmlPullParserFactory.newInstance().newPullParser());
+                XmlPullParserFactory.newInstance()
+                        .newPullParser());
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
         context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
@@ -219,13 +220,12 @@ public class TestCswTransformProvider {
         assertThat(outputSchema, is(OTHER_SCHEMA));
     }
 
-
     @Test(expected = ConversionException.class)
     public void testUnmarshalNoTransformers() throws Exception {
         when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(null);
 
-        HierarchicalStreamReader reader = new WstxDriver()
-                .createReader(new StringReader(getRecord()));
+        HierarchicalStreamReader reader =
+                new WstxDriver().createReader(new StringReader(getRecord()));
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
 
@@ -243,14 +243,14 @@ public class TestCswTransformProvider {
         namespaces.put("xmlns:dc", "http://purl.org/dc/elements/1.1/");
         namespaces.put("xmlns:dct", "http://purl.org/dc/terms/");
 
-        HierarchicalStreamReader reader = new XppReader(
-                new StringReader(getRecordMissingNamespaces()),
-                XmlPullParserFactory.newInstance().newPullParser());
+        HierarchicalStreamReader reader =
+                new XppReader(new StringReader(getRecordMissingNamespaces()),
+                        XmlPullParserFactory.newInstance()
+                                .newPullParser());
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
         context.put(CswConstants.NAMESPACE_DECLARATIONS, namespaces);
         context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
-
 
         ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
 

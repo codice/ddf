@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,15 +39,18 @@ public class ConfigurationPropertyMatches implements ConfigurationPredicate {
     @Override
     public boolean test(Configuration configuration) {
         if ((configuration == null) || (configuration.getProperties() == null) || (
-                configuration.getProperties().get(propertyName) == null)) {
+                configuration.getProperties()
+                        .get(propertyName) == null)) {
             return false;
         }
 
-        return ((String) configuration.getProperties().get(propertyName)).matches(valueRegex);
+        return ((String) configuration.getProperties()
+                .get(propertyName)).matches(valueRegex);
     }
 
     public String toString() {
-        return String
-                .format("property [%s] matches regular expression [%s]", propertyName, valueRegex);
+        return String.format("property [%s] matches regular expression [%s]",
+                propertyName,
+                valueRegex);
     }
 }

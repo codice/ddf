@@ -157,15 +157,13 @@ public class TestCommandJob {
             @Override
             public Subject getSystemSubject() {
                 Subject subject = mock(Subject.class);
-                when(subject.execute(Matchers.<Callable<Object>>any()))
-                        .thenAnswer(new Answer<Object>() {
-                            @Override
-                            public Object answer(InvocationOnMock invocation) throws Throwable {
-                                Callable<Object> callable = (Callable<Object>) invocation
-                                        .getArguments()[0];
-                                return callable.call();
-                            }
-                        });
+                when(subject.execute(Matchers.<Callable<Object>>any())).thenAnswer(new Answer<Object>() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
+                        return callable.call();
+                    }
+                });
                 return subject;
             }
         };
@@ -188,7 +186,8 @@ public class TestCommandJob {
     private CommandProcessor getCommandProcessor(CommandSession session) {
         CommandProcessor processor = mock(CommandProcessor.class);
 
-        when(processor.createSession(isNull(InputStream.class), isA(PrintStream.class),
+        when(processor.createSession(isNull(InputStream.class),
+                isA(PrintStream.class),
                 isA(PrintStream.class))).thenReturn(session);
         return processor;
     }
