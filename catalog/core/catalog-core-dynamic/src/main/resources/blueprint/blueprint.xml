@@ -15,23 +15,10 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="ddf-catalog" interface="ddf.catalog.CatalogFramework"/>
-
-    <bean id="transformer" class="net.frogmouth.ddf.nitfinputtransformer.NitfInputTransformer">
-        <property name="catalog" ref="ddf-catalog"/>
+    <bean id="dynamicBeanFactory" class="ddf.catalog.data.dynamic.impl.MetacardFactoryImpl">
     </bean>
-    
-    <service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
-        <service-properties>
-            <entry key="id" value="nitf" />
-            <entry key="title" value="NITF Input Transformer" />
-            <entry key="description" value="Creates Metacards from NITF's." />
-            <entry key="mime-type">
-                <list>
-                    <value>image/nitf</value>
-                </list>
-            </entry>
-        </service-properties>
+
+    <service ref="dynamicBeanFactory" interface="ddf.catalog.data.dynamic.api.MetacardFactory">
     </service>
 
 </blueprint>

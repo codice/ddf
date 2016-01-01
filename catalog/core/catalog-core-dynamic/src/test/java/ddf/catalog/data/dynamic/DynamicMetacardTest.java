@@ -1,28 +1,3 @@
-package ddf.catalog.data.dynamic;
-
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeImpl;
-import junit.framework.TestCase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
-
 /**
  * Copyright (c) Codice Foundation
  * <p/>
@@ -36,26 +11,59 @@ import java.util.UUID;
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+package ddf.catalog.data.dynamic;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import junit.framework.TestCase;
+
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.dynamic.api.MetacardFactory;
+import ddf.catalog.data.dynamic.impl.DynamicMetacard;
+import ddf.catalog.data.dynamic.impl.MetacardFactoryImpl;
+import ddf.catalog.data.impl.AttributeImpl;
+
 public class DynamicMetacardTest extends TestCase {
     private static final String DEFAULT_SERIALIZATION_FILE_LOCATION = "target/metacard1.ser";
 
-    DynamicMetacard mc;
+    private MetacardFactory metacardFactory = new MetacardFactoryImpl();
 
-    Date createdDate;
+    private DynamicMetacard mc;
 
-    Date effectiveDate;
+    private Date createdDate;
 
-    Date expireDate;
+    private Date effectiveDate;
 
-    Date modDate;
+    private Date expireDate;
 
-    String mcId;
+    private Date modDate;
 
-    String locWkt;
+    private String mcId;
 
-    URI resourceUri;
+    private String locWkt;
 
-    URI nsUri;
+    private URI resourceUri;
+
+    private URI nsUri;
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +79,7 @@ public class DynamicMetacardTest extends TestCase {
         locWkt = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
         nsUri = new URI("http://" + DynamicMetacardTest.class.getName());
         resourceUri = new URI(nsUri.toString() + "/resource.html");
-        mc = MetacardFactory.newInstance(DynamicMetacard.DYNAMIC);
+        mc = metacardFactory.newInstance(DynamicMetacard.DYNAMIC);
 //      mc.setContentTypeName("testContentType");
         mc.setAttribute(Metacard.CONTENT_TYPE, "testContentType");
 //        mc.setContentTypeVersion("testContentTypeVersion");
@@ -109,7 +117,7 @@ public class DynamicMetacardTest extends TestCase {
 
     @Test
     public void testMetacardTypeAsNull() throws IllegalAccessException, InstantiationException {
-        DynamicMetacard dmc = MetacardFactory.newInstance(null);
+        DynamicMetacard dmc = metacardFactory.newInstance(null);
         Assert.assertNotNull(dmc);
     }
 
@@ -126,7 +134,7 @@ public class DynamicMetacardTest extends TestCase {
         Element rootElement = document.createElement("test");
         document.appendChild(rootElement);
 
-        DynamicMetacard metacard = MetacardFactory.newInstance(DynamicMetacard.DYNAMIC);
+        DynamicMetacard metacard = metacardFactory.newInstance(DynamicMetacard.DYNAMIC);
         String xml = "<xml/>";
         metacard.setAttribute(Metacard.METADATA, xml);
         metacard.setAttribute(Metacard.ID, "id1");
@@ -137,7 +145,7 @@ public class DynamicMetacardTest extends TestCase {
      */
     @Test
     public void testMetacardImplAttributes() {
-        DynamicMetacard metacard = MetacardFactory.newInstance(DynamicMetacard.DYNAMIC);
+        DynamicMetacard metacard = metacardFactory.newInstance(DynamicMetacard.DYNAMIC);
         Date now = new Date();
         metacard.setAttribute(Metacard.EFFECTIVE, now);
         assertEquals(now, metacard.getEffectiveDate());
@@ -148,7 +156,7 @@ public class DynamicMetacardTest extends TestCase {
      */
     @Test
     public void testMetacardAttributes() {
-        DynamicMetacard metacard = MetacardFactory.newInstance(DynamicMetacard.DYNAMIC);
+        DynamicMetacard metacard = metacardFactory.newInstance(DynamicMetacard.DYNAMIC);
         Date now = new Date();
         metacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
         assertEquals(now, metacard.getEffectiveDate());
@@ -156,7 +164,7 @@ public class DynamicMetacardTest extends TestCase {
 
     @Test
     public void testMetacardImpl() {
-        DynamicMetacard metacard = MetacardFactory.newInstance();
+        DynamicMetacard metacard = metacardFactory.newInstance();
         assertEquals(null, metacard.getContentTypeName());
         assertEquals(null, metacard.getContentTypeNamespace());
         assertEquals(null, metacard.getContentTypeVersion());
@@ -178,7 +186,7 @@ public class DynamicMetacardTest extends TestCase {
 //        assertEquals(null, metacard.getPointOfContact());
         assertEquals(null, metacard.getAttribute(Metacard.POINT_OF_CONTACT));
 
-        metacard = MetacardFactory.newInstance(DynamicMetacard.DYNAMIC);
+        metacard = metacardFactory.newInstance(DynamicMetacard.DYNAMIC);
         assertEquals(null, metacard.getContentTypeName());
         assertEquals(null, metacard.getContentTypeNamespace());
         assertEquals(null, metacard.getContentTypeVersion());
@@ -306,7 +314,7 @@ public class DynamicMetacardTest extends TestCase {
     public void testSerializationSingle()
             throws IOException, ClassNotFoundException, URISyntaxException {
 
-        DynamicMetacard metacard = MetacardFactory.newInstance();
+        DynamicMetacard metacard = metacardFactory.newInstance();
 
         Date now = new Date();
 //        metacard.setTitle("Flagstaff");
@@ -454,7 +462,7 @@ public class DynamicMetacardTest extends TestCase {
     public void testSerializingEmptyMetacard() throws IOException, ClassNotFoundException {
 
 //        MetacardImpl metacard = new MetacardImpl();
-        DynamicMetacard metacard = MetacardFactory.newInstance();
+        DynamicMetacard metacard = metacardFactory.newInstance();
 
         Serializer<Metacard> serializer = new Serializer<Metacard>();
 
@@ -564,7 +572,7 @@ public class DynamicMetacardTest extends TestCase {
     @Test()
     public void testDeserializingHiddenAttribute() throws IOException, ClassNotFoundException {
 //        MetacardImpl metacard = new MetacardImpl();
-        DynamicMetacard metacard = MetacardFactory.newInstance();
+        DynamicMetacard metacard = metacardFactory.newInstance();
 
         metacard.setAttribute(new AttributeImpl("newName", "newNameValue"));
 

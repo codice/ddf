@@ -11,11 +11,12 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.data.dynamic;
+package ddf.catalog.data.dynamic.impl;
+
+import org.apache.commons.beanutils.DynaProperty;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
-import org.apache.commons.beanutils.DynaProperty;
 
 /**
  * Implements the {@link AttributeDescriptor} and {@link AttributeType} for dynamic

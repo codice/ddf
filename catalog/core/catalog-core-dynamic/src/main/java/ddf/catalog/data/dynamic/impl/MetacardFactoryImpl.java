@@ -11,22 +11,23 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.data.dynamic;
-
-import ddf.catalog.data.Metacard;
-import org.apache.commons.beanutils.LazyDynaBean;
-import org.apache.commons.beanutils.LazyDynaClass;
+package ddf.catalog.data.dynamic.impl;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.beanutils.LazyDynaBean;
+import org.apache.commons.beanutils.LazyDynaClass;
+
+import ddf.catalog.data.Metacard;
+
 /**
- * MetacardFactory is used to manage registered metacard types and to generate instances of
+ * MetacardFactoryImpl is used to manage registered metacard types and to generate instances of
  * requested types. This class includes the definition for the basic DynamicMetacard and ensures
  * that all generated metacards include the DynamicMetacard properties.
  */
-public class MetacardFactory {
+public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.MetacardFactory {
     private static Map<String, LazyDynaClass> dynaClassMap = new HashMap<>();
 
     private static MetacardPropertyDescriptor[] metacardPropertyDescriptors;
@@ -61,7 +62,8 @@ public class MetacardFactory {
      * Generates an instance of the default DynamicMetacard.
      * @return an instance of the default DynamicMetacard
      */
-    public static DynamicMetacard newInstance() {
+    @Override
+    public DynamicMetacard newInstance() {
         return newInstance(DynamicMetacard.DYNAMIC);
     }
 
@@ -71,7 +73,8 @@ public class MetacardFactory {
      * @param name the name of the type of metacard to create
      * @return an instance of the specified type of metacard, or null if the specified type has not been registered
      */
-    public static DynamicMetacard newInstance(String name)  { //throws InstantiationException, IllegalAccessException {
+    @Override
+    public DynamicMetacard newInstance(String name)  { //throws InstantiationException, IllegalAccessException {
         LazyDynaBean lazyDynaBean = null;
         LazyDynaClass dynaClass = dynaClassMap.get(name);
         if (dynaClass != null) {
@@ -86,7 +89,8 @@ public class MetacardFactory {
      * {@link DynamicMetacard} - useful for combining with other property descriptors to generate a new type of metacard.
      * @return array of {@link MetacardAttributeDescriptor}s
      */
-    public static MetacardPropertyDescriptor[] getBaseMetacardPropertyDescriptors() {
+    @Override
+    public MetacardPropertyDescriptor[] getBaseMetacardPropertyDescriptors() {
         return metacardPropertyDescriptors;
     }
 
@@ -95,7 +99,8 @@ public class MetacardFactory {
      * new class.
      * @param dynaClass describes the property set that will be included in this new metacard type
      */
-    public static void addDynaClass(LazyDynaClass dynaClass) {
+    @Override
+    public void addDynaClass(LazyDynaClass dynaClass) {
         if (dynaClass != null) {
             dynaClassMap.put(dynaClass.getName(), dynaClass);
         }

@@ -130,7 +130,7 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.39</minimum>
+                                            <minimum>0.38</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
@@ -163,7 +163,10 @@
                             el-api,
                             javax.interceptor-api
                         </Embed-Dependency>
-                        <Export-Package/>
+                        <Export-Package>
+                            ddf.catalog.data.dynamic,
+                            org.apache.commons.beanutils
+                        </Export-Package>
                         <Import-Package>
                             ddf.catalog;version="[2.0,3)",
                             ddf.catalog.data;version="[2.0,3)",

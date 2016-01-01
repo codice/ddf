@@ -11,13 +11,19 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.data.dynamic;
+package ddf.catalog.data.dynamic.impl;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeImpl;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
@@ -26,26 +32,24 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
 
 /**
  * Implements the {@link Metacard}'s required attributes using dynamic beans. This allows for the
  * creation and modification of beans on the fly.<br/>
- *
+ * <p/>
  * <p>
  * <b>Serialization Note</b><br/>
- *
+ * <p/>
  * <p>
  * This class is {@link Serializable} and care should be taken with compatibility if changes are
  * made.
  * </p>
- *
+ * <p/>
  * For backward and forward compatibility, {@link ObjectOutputStream#defaultWriteObject()} is
  * invoked when this object is serialized because it provides "enhanced flexibility" (Joshua Block
  * <u>Effective Java</u>, Second Edition <i>Item 75</i>). Invoking
@@ -54,7 +58,7 @@ import java.util.*;
  * fields, those fields will be ignored and the deserialization will still take place. In addition,
  * {@link ObjectInputStream#defaultReadObject()} is necessary to facilitate any of the written
  * fields. </p>
- *
+ * <p/>
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
  * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
@@ -62,7 +66,7 @@ import java.util.*;
  * </p>
  */
 public class DynamicMetacard implements Metacard, MetacardType {
-    private static final Logger logger = LoggerFactory.getLogger(DynamicMetacard.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicMetacard.class);
 
     // the base metacard for dynamic metacards
     public static final String DYNAMIC = "dynamic";
@@ -84,10 +88,15 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
     // Constants used in addition to those from Metacard
     public static final String LOCATION = "location";
+
     public static final String SOURCE_ID = "sourceId";
+
     public static final String METACARD_TYPE = "metacardType";
+
     public static final String CONTENT_TYPE_NAMESPACE = "contentTypeNamespace";
+
     public static final String CONTENT_TYPE_NAME = "contentTypeName";
+
     public static final String CONTENT_TYPE_VERSION = "contentTypeVersion";
 
     private LazyDynaBean bean;
@@ -110,6 +119,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
     /**
      * Returns the property of this DynamicMetacard as a {@link Attribute}.
+     *
      * @param s name of the attribute whose value(s) are to be retrieved
      * @return Attribute object containing the name and attributes for the specified property
      */
@@ -144,6 +154,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
     /**
      * Sets a metacard property specified by the name and value(s) in the given {@link Attribute}.
      * If a property of the given name does not exist, it is created dynamically.
+     *
      * @param attribute Attribute to be set on the current metacard
      */
     @Override
@@ -156,7 +167,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
                 bean.set(name, values);
             } else {
                 if (value instanceof URI) {
-                    value = ((URI)value).toString();
+                    value = ((URI) value).toString();
                 }
                 bean.set(name, value);
             }
@@ -165,6 +176,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
     /**
      * Returns an instance of a {@link MetacardType} the describes this {@link Metacard} instance.
+     *
      * @return a {@link MetacardType} that describes this {@link Metacard} instance
      */
     @Override
@@ -382,6 +394,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
     /**
      * Returns the value for the given attribute name as a string
+     *
      * @param attributeName
      * @return string value of the given attribute, or null
      */
@@ -391,13 +404,19 @@ public class DynamicMetacard implements Metacard, MetacardType {
         if (o instanceof String) {
             s = (String) o;
         } else {
-            logger.warn("Unexpected data type retrieving {}: {}", attributeName, o == null ? "null" : o.getClass().getName());
+            LOGGER.warn("Unexpected data type retrieving {}: {}",
+                    attributeName,
+                    o == null ?
+                            "null" :
+                            o.getClass()
+                                    .getName());
         }
         return s;
     }
 
     /**
      * Returns the value for the given attribute name as a Date
+     *
      * @param attributeName
      * @return Date value of the given attribute or null if the value is not a Date
      */
@@ -407,13 +426,19 @@ public class DynamicMetacard implements Metacard, MetacardType {
         if (o instanceof Date) {
             date = (Date) o;
         } else {
-            logger.warn("Unexpected data type retrieving {}: {}", attributeName, o == null ? "null" : o.getClass().getName());
+            LOGGER.warn("Unexpected data type retrieving {}: {}",
+                    attributeName,
+                    o == null ?
+                            "null" :
+                            o.getClass()
+                                    .getName());
         }
         return date;
     }
 
     /**
      * Returns the value for the given attribute name as a byte[]
+     *
      * @param attributeName
      * @return byte[] value of the given attribute or null if the value is not a byte[]
      */
@@ -426,7 +451,12 @@ public class DynamicMetacard implements Metacard, MetacardType {
                 binary = null;
             }
         } else {
-            logger.warn("Unexpected data type retrieving {}: {}", attributeName, o == null ? "null" : o.getClass().getName());
+            LOGGER.warn("Unexpected data type retrieving {}: {}",
+                    attributeName,
+                    o == null ?
+                            "null" :
+                            o.getClass()
+                                    .getName());
         }
         return binary;
     }
@@ -434,6 +464,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
     /**
      * Returns the value for the given attribute name as a URI. URIs can be stored as Strings so
      * try to convert a String to a URI if possible.
+     *
      * @param attributeName
      * @return URI value of the given attribute or null if it cannot be converted into a URI
      */
@@ -446,40 +477,52 @@ public class DynamicMetacard implements Metacard, MetacardType {
             try {
                 uri = new URI((String) o);
             } catch (URISyntaxException e) {
-                logger.warn("Error converting String to URI for {}: {}", attributeName, e.getMessage());
+                LOGGER.warn("Error converting String to URI for {}: {}",
+                        attributeName,
+                        e.getMessage());
             }
         } else {
-            logger.warn("Unexpected data type retrieving {}: {}", attributeName, o == null ? "null" : o.getClass().getName());
+            LOGGER.warn("Unexpected data type retrieving {}: {}",
+                    attributeName,
+                    o == null ?
+                            "null" :
+                            o.getClass()
+                                    .getName());
         }
         return uri;
     }
 
     /**
      * Returns the name representing the equivalent {@link MetacardType} name.
+     *
      * @return string value of the given attribute
      */
     @Override
     public String getName() {
-        return bean.getDynaClass().getName();
+        return bean.getDynaClass()
+                .getName();
     }
 
     /**
      * Returns a set of {@link AttributeDescriptor}s describing all the attributes
      * of this Dynamic Metacard.
+     *
      * @return the set of {@link AttributeDescriptor}s for this metacard
      */
     @Override
     public Set<AttributeDescriptor> getAttributeDescriptors() {
-        DynaProperty[] properties = bean.getDynaClass().getDynaProperties();
+        DynaProperty[] properties = bean.getDynaClass()
+                .getDynaProperties();
         Set<AttributeDescriptor> descriptors = new HashSet<>();
         for (DynaProperty property : properties) {
-           descriptors.add(new MetacardAttributeDescriptor(property));
+            descriptors.add(new MetacardAttributeDescriptor(property));
         }
         return descriptors;
     }
 
     /**
      * Returns the {@link AttributeDescriptor} for the specified attribute.
+     *
      * @param s name of the attribute whose descriptor is to be returned
      * @return the {@link AttributeDescriptor} for the named attribute
      */
@@ -491,13 +534,15 @@ public class DynamicMetacard implements Metacard, MetacardType {
     /**
      * Adds another value to the given attribute. If the attribute is not a multi-valued
      * attribute, it replaces the current value with the provided value.
-     * @param name name of the attribute to set
+     *
+     * @param name  name of the attribute to set
      * @param value the value to be set
      */
     public void addAttribute(String name, Object value) {
-        DynaProperty dynaProperty = bean.getDynaClass().getDynaProperty(name);
+        DynaProperty dynaProperty = bean.getDynaClass()
+                .getDynaProperty(name);
         if (value instanceof URI) {
-            value = ((URI)value).toString();
+            value = ((URI) value).toString();
         }
 
         try {
@@ -507,37 +552,51 @@ public class DynamicMetacard implements Metacard, MetacardType {
                 if (dynaProperty.isIndexed()) {
                     bean.set(name, bean.size(name), value);
                 } else {
-                    logger.warn("Can't add another value to a simple attribute {} - replacing value.", name);
+                    LOGGER.warn(
+                            "Can't add another value to a simple attribute {} - replacing value.",
+                            name);
                     bean.set(name, value);
                 }
             }
         } catch (ConversionException e) {
-            logger.warn("Unable to to convert provided value of class {} to attribute {} value of class {} - no action taken.",
-                    value.getClass().getSimpleName(), name, dynaProperty.getContentType().getSimpleName());
+            LOGGER.warn(
+                    "Unable to to convert provided value of class {} to attribute {} value of class {} - no action taken.",
+                    value.getClass()
+                            .getSimpleName(),
+                    name,
+                    dynaProperty.getContentType()
+                            .getSimpleName());
         } catch (IllegalArgumentException e) {
-            logger.warn("Attribute {} has different than expected cardinality - no action taken", name);
+            LOGGER.warn("Attribute {} has different than expected cardinality - no action taken",
+                    name);
         } catch (IndexOutOfBoundsException e) {
-            logger.warn("Trying to set attribute {} at index {} which is out of range.", name, bean.size(name));
+            LOGGER.warn("Trying to set attribute {} at index {} which is out of range.",
+                    name,
+                    bean.size(name));
         } catch (NullPointerException e) {
-            logger.warn("Trying to set primitive type for attribute {} to a null value - no action taken", name);
+            LOGGER.warn(
+                    "Trying to set primitive type for attribute {} to a null value - no action taken",
+                    name);
         }
     }
 
     /**
      * Sets the value of the given attribute. If the attribute is a multi-valued
      * attribute, it adds the given value to the current collection.
-     * @param name name of the attribute to set
+     *
+     * @param name  name of the attribute to set
      * @param value the value to be set
      */
     public void setAttribute(String name, Object value) {
-        DynaProperty dynaProperty = bean.getDynaClass().getDynaProperty(name);
+        DynaProperty dynaProperty = bean.getDynaClass()
+                .getDynaProperty(name);
         if (value == null) {
             bean.set(name, value);
             return;
         }
 
         if (value instanceof URI) {
-            value = ((URI)value).toString();
+            value = ((URI) value).toString();
         }
 
         try {
@@ -545,21 +604,33 @@ public class DynamicMetacard implements Metacard, MetacardType {
                 bean.set(name, value);
             } else {
                 if (dynaProperty.isIndexed()) {
-                    logger.warn("Trying to set multivalue attribute {} with a single value - adding it to the list.", name);
+                    LOGGER.warn(
+                            "Trying to set multivalue attribute {} with a single value - adding it to the list.",
+                            name);
                     bean.set(name, bean.size(name), value);
                 } else {
                     bean.set(name, value);
                 }
             }
         } catch (ConversionException e) {
-            logger.warn("Unable to to convert provided value of class {} to attribute {} value of class {} - no action taken.",
-                    value.getClass().getSimpleName(), name, dynaProperty.getContentType().getSimpleName());
+            LOGGER.warn(
+                    "Unable to to convert provided value of class {} to attribute {} value of class {} - no action taken.",
+                    value.getClass()
+                            .getSimpleName(),
+                    name,
+                    dynaProperty.getContentType()
+                            .getSimpleName());
         } catch (IllegalArgumentException e) {
-            logger.warn("Attribute {} has different than expected cardinality - no action taken", name);
+            LOGGER.warn("Attribute {} has different than expected cardinality - no action taken",
+                    name);
         } catch (IndexOutOfBoundsException e) {
-            logger.warn("Trying to set attribute {} at index {} which is out of range.", name, bean.size(name));
+            LOGGER.warn("Trying to set attribute {} at index {} which is out of range.",
+                    name,
+                    bean.size(name));
         } catch (NullPointerException e) {
-            logger.warn("Trying to set primitive type for attribute {} to a null value - no action taken", name);
+            LOGGER.warn(
+                    "Trying to set primitive type for attribute {} to a null value - no action taken",
+                    name);
         }
     }
 }
