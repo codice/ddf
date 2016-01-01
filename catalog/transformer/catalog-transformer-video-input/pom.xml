@@ -22,11 +22,19 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tika-input-transformer</artifactId>
-    <name>DDF :: Catalog :: Transformer :: Input :: Tika</name>
+    <artifactId>video-input-transformer</artifactId>
+    <name>DDF :: Catalog :: Transformer :: Input :: Video</name>
     <packaging>bundle</packaging>
-
     <dependencies>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
@@ -36,48 +44,12 @@
             <artifactId>tika-parsers</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.imgscalr</groupId>
-            <artifactId>imgscalr-lib</artifactId>
-            <version>4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jai-imageio</groupId>
-            <artifactId>jai-imageio-core-standalone</artifactId>
-            <version>1.2-pre-dr-b04-2014-09-13</version>
-        </dependency>
-        <dependency>
-            <groupId>net.java.dev.jai-imageio</groupId>
-            <artifactId>jai-imageio-jpeg2000</artifactId>
-            <version>1.2-pre-dr-b04-2014-09-13</version>
-        </dependency>
-        <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -88,19 +60,15 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package/>
                         <Embed-Dependency>
                             catalog-transformer-common,
-                            imgscalr-lib,
-                            guava,
-                            jai-imageio-core-standalone,
-                            jai-imageio-jpeg2000,
                             Saxon-HE
                         </Embed-Dependency>
                         <Private-Package>
-                            ddf.catalog.transformer.input.tika,
+                            ddf.catalog.transformer.input.video,
                             ddf.catalog.data.impl
                         </Private-Package>
-                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -122,22 +90,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.40</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.41</minimum>
+                                            <minimum>0.83</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.89</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

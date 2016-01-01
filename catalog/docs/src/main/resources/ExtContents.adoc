@@ -3249,7 +3249,7 @@ The Tika Input Transformer is the default input transformer responsible for tran
 The Tika input transformer is given a service ranking (prioity) of -1 so that it is guaranteed to be the last input transformer that is invoked. This allows any registered input transformer that are more specific for any of these document types to be invoked instead of this rudimentary default input transformer.
 
 ====== Installing and Uninstalling
-Install the catalog-transformer-tika feature using the Web Console (http://localhost:8181/system/console) or System Console. This feature is uninstalled by default.
+This transformer is installed by default. To install or uninstall manually, use the `tika-input-transformer` feature in the Admin Console (https://localhost:8993/admin) under DDF Catalog -> Features or use the System Console.
 
 ====== Configuring
 None
@@ -3259,29 +3259,29 @@ Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice doc
 
 ====== Service Properties
 
-[cols="2,5" options="header"]
+[cols="2,5a" options="header"]
 |===
 
 |Key
 |Value
 
 |mime-type	
-|application/pdf
-application/vnd.openxmlformats-officedocument.wordprocessingml.document
-application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-application/vnd.openxmlformats-officedocument.presentationml.presentation
-application/vnd.openxmlformats-officedocument.presentationml.presentation
-application/vnd.ms-powerpoint.presentation.macroenabled.12
-application/vnd.ms-powerpoint.slideshow.macroenabled.12
-application/vnd.openxmlformats-officedocument.presentationml.slideshow
-application/vnd.ms-powerpoint.template.macroenabled.12
-application/vnd.oasis.opendocument.text
+|* application/pdf
+* application/vnd.openxmlformats-officedocument.wordprocessingml.document
+* application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+* application/vnd.openxmlformats-officedocument.presentationml.presentation
+* application/vnd.openxmlformats-officedocument.presentationml.presentation
+* application/vnd.ms-powerpoint.presentation.macroenabled.12
+* application/vnd.ms-powerpoint.slideshow.macroenabled.12
+* application/vnd.openxmlformats-officedocument.presentationml.slideshow
+* application/vnd.ms-powerpoint.template.macroenabled.12
+* application/vnd.oasis.opendocument.text
 
 |shortname	 
 |
 
 |id	 
-|
+|tika
 
 |title	
 |Tika Input Transformer
@@ -3294,6 +3294,46 @@ application/vnd.oasis.opendocument.text
 
 ====== Implementation Details
 This input transformer maps the metadata common across all mime types to applicable metacard attributes in the default MetacardType.
+
+===== Video Input Transformer
+The video input transformer is responsible for creating Catalog metacards from certain video file types. Currently, it is responsible for handling MPEG-2 transport streams as well as MPEG-4, AVI, MOV, and WMV videos. This input transformer uses Apache Tika to extract basic metadata from the video files and applies more sophisticated methods to extract more meaningful metadata from these types of video.
+
+====== Installing and Uninstalling
+This transformer is installed by default. To install or uninstall manually, use the `video-input-transformer` feature in the Admin Console (https://localhost:8993/admin) under DDF Catalog -> Features or use the System Console.
+
+====== Configuring
+None
+
+====== Using
+Use the video input transformer for ingesting video files into the DDF Content Repository and/or the Metadata Catalog.
+
+====== Service Properties
+[cols="2,5a" options="header"]
+|===
+|Key
+|Value
+
+|mime-type
+|* video/avi
+* video/msvideo
+* video/vnd.avi
+* video/x-msvideo
+* video/mp4
+* video/MP2T
+* video/mpeg
+* video/quicktime
+* video/wmv
+* video/x-ms-wmv
+
+|shortname
+|video
+
+|id
+|video
+
+|description
+|Detects and extracts metadata from various video file formats.
+|===
 
 ===== GeoJSON Input Transformer
 The GeoJSON input transformer is responsible for translating specific GeoJSON into a Catalog metacard. 
