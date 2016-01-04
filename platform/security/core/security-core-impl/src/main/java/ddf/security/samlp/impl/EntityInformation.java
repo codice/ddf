@@ -45,8 +45,6 @@ import ddf.security.samlp.SamlProtocol.Binding;
 public class EntityInformation {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityInformation.class);
 
-    private static final Binding PREFERRED_BINDING = Binding.HTTP_REDIRECT;
-
     private final String signingCertificate;
 
     private final String encryptionCertificate;
@@ -58,6 +56,8 @@ public class EntityInformation {
     private final Map<Binding, ServiceInfo> logoutServices;
 
     private final Set<Binding> supportedBindings;
+
+    protected static final Binding PREFERRED_BINDING = Binding.HTTP_REDIRECT;
 
     private EntityInformation(Builder builder) {
         signingCertificate = builder.signingCertificate;

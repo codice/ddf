@@ -19,7 +19,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -107,6 +106,7 @@ import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityManager;
@@ -873,7 +873,8 @@ public class IdpEndpoint implements Idp {
 
     private Response handleLogoutResponse(Cookie cookie, LogoutState logoutState,
             LogoutResponse logoutObject, SamlProtocol.Binding incomingBinding) throws IdpException {
-        if (!StatusCode.SUCCESS_URI.equals(logoutObject.getStatus()
+        if (logoutObject != null && logoutObject.getStatus() != null && logoutObject.getStatus()
+                .getStatusCode() != null && !StatusCode.SUCCESS_URI.equals(logoutObject.getStatus()
                 .getStatusCode()
                 .getValue())) {
             logoutState.setPartialLogout(true);
@@ -911,9 +912,9 @@ public class IdpEndpoint implements Idp {
 
         try {
             SignableSAMLObject logoutObject;
-            String relay;
-            String entityId;
-            String samlType;
+            String relay = "";
+            String entityId = "";
+            SamlProtocol.Type samlType;
 
             Optional<String> nextTarget = logoutState.getNextTarget();
             if (nextTarget.isPresent()) {
@@ -928,8 +929,8 @@ public class IdpEndpoint implements Idp {
                                 systemBaseUrl.constructUrl("/idp/logout", true));
                 logoutState.setCurrentRequestId(logoutRequest.getID());
                 logoutObject = logoutRequest;
+                samlType = SamlProtocol.Type.REQUEST;
                 relay = "";
-                samlType = "SAMLRequest";
             } else {
                 // No more targets, respond to original issuer
                 entityId = logoutState.getOriginalIssuer();
@@ -940,8 +941,8 @@ public class IdpEndpoint implements Idp {
                         "/idp/logout",
                         true), status, logoutState.getOriginalRequestId());
                 relay = logoutState.getInitialRelayState();
-                logoutStates.decode(cookie.getValue(), true);
-                samlType = "SAMLResponse";
+                LogoutState decode = logoutStates.decode(cookie.getValue(), true);
+                samlType = SamlProtocol.Type.RESPONSE;
             }
 
             LOGGER.debug("Responding to [{}] with a [{}] and relay state [{}]",
@@ -984,18 +985,8 @@ public class IdpEndpoint implements Idp {
     }
 
     private Response getSamlRedirectResponse(XMLObject samlResponse, String targetUrl,
-            String relayState, String reqres)
+            String relayState, SamlProtocol.Type samlType)
             throws IOException, SimpleSign.SignatureException, WSSecurityException {
-        Document doc = DOMUtils.createDocument();
-        doc.appendChild(doc.createElement("root"));
-        URI location = signSamlGetResponse(samlResponse, targetUrl, relayState, reqres);
-        String redirectUpdated = redirectPage.replace("{{redirect}}", location.toString());
-        return Response.ok(redirectUpdated)
-                .build();
-    }
-
-    private URI signSamlGetResponse(XMLObject samlResponse, String targetUrl, String relayState,
-            String reqres) throws IOException, SimpleSign.SignatureException, WSSecurityException {
         LOGGER.debug("Signing SAML response for redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
@@ -1003,19 +994,21 @@ public class IdpEndpoint implements Idp {
                 URLEncoder.encode(RestSecurity.deflateAndBase64Encode(DOM2Writer.nodeToString(
                         OpenSAMLUtil.toDom(samlResponse, doc, false))), "UTF-8");
         String requestToSign = String.format("%s=%s&RelayState=%s",
-                reqres,
+                samlType.getKey(),
                 encodedResponse,
                 relayState);
         UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
-        uriBuilder.queryParam(reqres, encodedResponse);
+        uriBuilder.queryParam(samlType.getKey(), encodedResponse);
         uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
         new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
         LOGGER.debug("Signing successful.");
-        return uriBuilder.build();
+        return Response.ok(HtmlResponseTemplate.getRedirectPage(uriBuilder.build()
+                .toString()))
+                .build();
     }
 
     private Response getSamlPostResponse(SignableSAMLObject samlObject, String targetUrl,
-            String relayState, String reqres)
+            String relayState, SamlProtocol.Type samlType)
             throws SimpleSign.SignatureException, WSSecurityException {
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
@@ -1025,12 +1018,10 @@ public class IdpEndpoint implements Idp {
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc));
         String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
                 StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-        String submitFormUpdated = submitForm.replace("{{" + Idp.ACS_URL + "}}", targetUrl);
-        submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_TYPE + "}}", reqres);
-        submitFormUpdated = submitFormUpdated.replace("{{" + Idp.SAML_RESPONSE + "}}",
-                encodedSamlResponse);
-        submitFormUpdated = submitFormUpdated.replace("{{" + Idp.RELAY_STATE + "}}", relayState);
-        return Response.ok(submitFormUpdated)
+        return Response.ok(HtmlResponseTemplate.getPostPage(targetUrl,
+                samlType,
+                encodedSamlResponse,
+                relayState))
                 .build();
     }
 

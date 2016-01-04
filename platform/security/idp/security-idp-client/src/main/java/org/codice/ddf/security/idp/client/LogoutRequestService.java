@@ -57,6 +57,7 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
 
@@ -410,14 +411,12 @@ public class LogoutRequestService {
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
         String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
                 StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
-        String singleLogoutLocation = idpMetadata.getSingleLogoutLocation();
-        String submitFormUpdated = String.format(submitForm,
-                singleLogoutLocation,
-                SAML_RESPONSE,
+
+        return Response.ok(HtmlResponseTemplate.getPostPage(idpMetadata.getSingleLogoutLocation(),
+                SamlProtocol.Type.RESPONSE,
                 encodedSamlResponse,
-                relayState);
-        Response.ResponseBuilder ok = Response.ok(submitFormUpdated);
-        return ok.build();
+                relayState))
+                .build();
     }
 
     private Response getSamlpRedirectLogoutResponse(String relayState, LogoutResponse samlResponse)
@@ -429,9 +428,9 @@ public class LogoutRequestService {
         URI location = logoutMessage.signSamlGetResponse(samlResponse,
                 new URI(idpMetadata.getSingleLogoutLocation()),
                 relayState);
-        String redirectUpdated = String.format(redirectPage, location.toString());
-        Response.ResponseBuilder ok = Response.ok(redirectUpdated);
-        return ok.build();
+
+        return Response.ok(HtmlResponseTemplate.getRedirectPage(location.toString()))
+                .build();
     }
 
     private String decodeBase64(String encoded) {

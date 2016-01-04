@@ -184,7 +184,24 @@ public class SamlProtocol {
         }
     }
 
+    public enum Type {
+        REQUEST("SAMLRequest"),
+        RESPONSE("SAMLResponse"),
+        NULL("");
+
+        private final String key;
+
+        Type(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return key;
+        }
+    }
+
     private SamlProtocol() {
+
     }
 
     public static Response createResponse(Issuer issuer, Status status, String requestId,
