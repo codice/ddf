@@ -476,7 +476,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     @Test
     public void testExportOnTopOfNestedFile() throws ConfigurationFileException, IOException {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         File file = getExportDirectory().toFile();
         file.mkdir();
         File fileEtc = getExportDirectory().resolve("etc").toFile();
@@ -531,7 +531,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testWarningForAbsolutePathOutsideDdfHome() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         File systemProperties = new File(ddfHome + "/etc/system.properties");
         File testFile = new File("../cat.txt");
         FileUtils.copyFile(systemProperties, testFile);
@@ -553,7 +553,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testWarningForAbsolutePathInsideDdfHome() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         System.setProperty("javax.net.ssl.keyStore", ddfHome + "/etc/keystores/serverKeystore.jks");
         String response = console.runCommand(EXPORT_COMMAND);
@@ -573,7 +573,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testWarningForRelativePathOutsideDdfHome() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
         File systemProperties = new File(ddfHome + "/etc/system.properties");
         File testFile = new File("../cat.txt");
         FileUtils.copyFile(systemProperties, testFile);
@@ -596,7 +596,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testFailureWithoutSystemPropertiesFile() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         File systemProperties = Paths.get(ddfHome, "etc", "system.properties")
                 .toFile();
@@ -623,7 +623,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testFailureWithoutUsersPropertiesFile() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         File usersProperties = Paths.get(ddfHome, "etc", "users.properties")
                 .toFile();
@@ -650,7 +650,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testFailureWithoutWSSecurityDirectory() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         Paths.get(ddfHome, "etc", "ws-security")
                 .toFile().renameTo(Paths.get(ddfHome, "etc", "ws-security-copy").toFile());
@@ -671,7 +671,7 @@ public class TestPlatform extends AbstractIntegrationTest {
      */
     @Test
     public void testFailureWithoutPDPDirectory() throws Exception {
-        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         Paths.get(ddfHome, "etc", "pdp")
                 .toFile().renameTo(Paths.get(ddfHome, "etc", "pdp-copy").toFile());
