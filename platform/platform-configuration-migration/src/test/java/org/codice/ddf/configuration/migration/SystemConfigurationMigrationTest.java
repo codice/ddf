@@ -242,7 +242,8 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
     @Test
@@ -287,7 +288,8 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
     @Test
@@ -331,7 +333,8 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
     @Test(expected = MigrationException.class)

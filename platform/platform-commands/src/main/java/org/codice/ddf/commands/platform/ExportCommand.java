@@ -28,6 +28,14 @@ import org.codice.ddf.configuration.status.MigrationWarning;
 @Command(scope = PlatformCommands.NAMESPACE, name = "config-export", description = "Exports configurations")
 public class ExportCommand extends PlatformCommands {
 
+    private static final String STARTING_EXPORT_MESSAGE = "Exporting current configurations to %s.";
+
+    private static final String SUCCESSFUL_EXPORT_MESSAGE = "Successfully exported all configurations.";
+
+    private static final String FAILED_EXPORT_MESSAGE = "Failed to export all configurations to %s.";
+
+    private static final String ERROR_EXPORT_MESSAGE = "An error was encountered while executing this command. %s";
+
     protected final ConfigurationMigrationService configurationMigrationService;
 
     protected final Path defaultExportDirectory;
@@ -40,18 +48,21 @@ public class ExportCommand extends PlatformCommands {
 
     @Override
     protected Object doExecute() {
-        outputInfoMessage(
-                String.format("Exporting current configurations to %s.", defaultExportDirectory));
-        Collection<MigrationWarning> migrationWarnings = configurationMigrationService
-                .export(defaultExportDirectory);
-        if (migrationWarnings.isEmpty()) {
-            outputSuccessMessage(String.format("Successfully exported all configurations."));
-        } else {
-            for (MigrationWarning migrationWarning : migrationWarnings) {
-                outputWarningMessage(migrationWarning.getMessage());
+        outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, defaultExportDirectory));
+        try {
+            Collection<MigrationWarning> migrationWarnings = configurationMigrationService
+                    .export(defaultExportDirectory);
+
+            if (migrationWarnings.isEmpty()) {
+                outputSuccessMessage(String.format(SUCCESSFUL_EXPORT_MESSAGE));
+            } else {
+                for (MigrationWarning migrationWarning : migrationWarnings) {
+                    outputWarningMessage(migrationWarning.getMessage());
+                }
+                outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, defaultExportDirectory));
             }
-            outputWarningMessage(String.format("Failed to export all configurations to %s.",
-                    defaultExportDirectory));
+        } catch (Exception e) {
+            outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e.getMessage()));
         }
         return null;
     }

@@ -457,11 +457,9 @@ public class TestPlatform extends AbstractIntegrationTest {
                 "issuer",
                 "server");
         assertThatDirectoryContains(getExportSubDirectory("ws-security", "issuer"),
-                "encryption.properties",
-                "signature.properties");
+                "encryption.properties", "signature.properties");
         assertThatDirectoryContains(getExportSubDirectory("ws-security", "server"),
-                "encryption.properties",
-                "signature.properties");
+                "encryption.properties", "signature.properties");
     }
 
     @Test
@@ -470,11 +468,25 @@ public class TestPlatform extends AbstractIntegrationTest {
         File file = getExportDirectory().toFile();
         file.createNewFile();
         String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(
+                String.format("Should not have been able to export to %s.", getExportDirectory()),
+                response, containsString("Unable to create export directories."));
+        file.delete();
+    }
+
+    @Test
+    public void testExportOnTopOfNestedFile() throws ConfigurationFileException, IOException {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+        File file = getExportDirectory().toFile();
+        file.mkdir();
+        File fileEtc = getExportDirectory().resolve("etc").toFile();
+        fileEtc.createNewFile();
+        String response = console.runCommand(EXPORT_COMMAND);
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                        getExportDirectory()),
                 response,
-                containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+                containsString("Unable to create export directories."));
+        fileEtc.delete();
         file.delete();
     }
 
@@ -490,9 +502,8 @@ public class TestPlatform extends AbstractIntegrationTest {
         managedServiceNewConfig1.addConfigurationFileAndWait(configAdmin);
         console.runCommand(EXPORT_COMMAND);
 
-        assertThat("Saved configuration should be exported.", getPathToExportedConfig(
-                managedServiceNewConfig1.pid).toFile()
-                .isFile(), is(true));
+        assertThat("Saved configuration should be exported.",
+                getPathToExportedConfig(managedServiceNewConfig1.pid).toFile().isFile(), is(true));
     }
 
     /**
@@ -514,36 +525,35 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     /**
-     * Tests that absolute paths pointing outside ddfHome fail to export
+     * Tests that absolute paths pointing outside ddfHome causes a warning
      *
      * @throws Exception
      */
     @Test
-    public void testFailureForAbsolutePathOutsideDdfHome() throws Exception {
-        FileUtils.deleteQuietly(getExportDirectory().toFile());
+    public void testWarningForAbsolutePathOutsideDdfHome() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
         File systemProperties = new File(ddfHome + "/etc/system.properties");
         File testFile = new File("../cat.txt");
         FileUtils.copyFile(systemProperties, testFile);
 
         System.setProperty("javax.net.ssl.keyStore", ddfHome + "/../cat.txt");
         String response = console.runCommand(EXPORT_COMMAND);
-        assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
-                response,
-                containsString(String.format("Failed to export all configurations to %s",
+        assertThat(
+                String.format("Should not have been able to export to %s.", getExportDirectory()),
+                response, containsString(String.format("Failed to export all configurations to %s",
                         getExportDirectory())));
         System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
         testFile.delete();
     }
 
     /**
-     * Tests that absolute paths pointing inside ddfHome fail to export
+     * Tests that absolute paths pointing inside ddfHome causes a warning
      *
      * @throws Exception
      */
     @Test
-    public void testFailureForAbsolutePathInsideDdfHome() throws Exception {
-        FileUtils.deleteQuietly(getExportDirectory().toFile());
+    public void testWarningForAbsolutePathInsideDdfHome() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
 
         System.setProperty("javax.net.ssl.keyStore", ddfHome + "/etc/keystores/serverKeystore.jks");
         String response = console.runCommand(EXPORT_COMMAND);
@@ -557,13 +567,13 @@ public class TestPlatform extends AbstractIntegrationTest {
     }
 
     /**
-     * Tests that relative paths that point outside ddfHom fails to export
+     * Tests that relative paths that point outside ddfHome causes a warning
      *
      * @throws Exception
      */
     @Test
-    public void testRelativePathOutsideDdfHome() throws Exception {
-        FileUtils.deleteQuietly(getExportDirectory().toFile());
+    public void testWarningForRelativePathOutsideDdfHome() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
         File systemProperties = new File(ddfHome + "/etc/system.properties");
         File testFile = new File("../cat.txt");
         FileUtils.copyFile(systemProperties, testFile);
@@ -577,6 +587,102 @@ public class TestPlatform extends AbstractIntegrationTest {
                         getExportDirectory())));
         System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
         testFile.delete();
+    }
+
+    /**
+     * Tests that when system properties file is missing, export fails
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailureWithoutSystemPropertiesFile() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        File systemProperties = Paths.get(ddfHome, "etc", "system.properties")
+                .toFile();
+
+        // back up sys.prop to restore after appending to it
+        File systemPropertiesCopy = Paths.get(ddfHome, "etc", "system.properties.copy")
+                .toFile();
+        FileUtils.copyFile(systemProperties, systemPropertiesCopy);
+        systemProperties.delete();
+
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(
+                String.format("Should not have been able to export to %s.", getExportDirectory()),
+                response, containsString("An error was encountered while executing this command."));
+
+        FileUtils.copyFile(systemPropertiesCopy, systemProperties);
+        systemPropertiesCopy.delete();
+    }
+
+    /**
+     * Tests that when system properties file is missing, export fails
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailureWithoutUsersPropertiesFile() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        File usersProperties = Paths.get(ddfHome, "etc", "users.properties")
+                .toFile();
+
+        // back up sys.prop to restore after appending to it
+        File usersPropertiesCopy = Paths.get(ddfHome, "etc", "users.properties.copy")
+                .toFile();
+        FileUtils.copyFile(usersProperties, usersPropertiesCopy);
+        usersProperties.delete();
+
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(
+                String.format("Should not have been able to export to %s.", getExportDirectory()),
+                response, containsString("An error was encountered while executing this command."));
+
+        FileUtils.copyFile(usersPropertiesCopy, usersProperties);
+        usersPropertiesCopy.delete();
+    }
+
+    /**
+     * Tests that when system properties file is missing, export fails
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailureWithoutWSSecurityDirectory() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        Paths.get(ddfHome, "etc", "ws-security")
+                .toFile().renameTo(Paths.get(ddfHome, "etc", "ws-security-copy").toFile());
+
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(
+                String.format("Should not have been able to export to %s.", getExportDirectory()),
+                response, containsString("An error was encountered while executing this command."));
+
+        Paths.get(ddfHome, "etc", "ws-security-copy")
+                .toFile().renameTo(Paths.get(ddfHome, "etc", "ws-security").toFile());
+    }
+
+    /**
+     * Tests that when system properties file is missing, export fails
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFailureWithoutPDPDirectory() throws Exception {
+        FileUtils.deleteDirectory(getExportDirectory().toFile());
+
+        Paths.get(ddfHome, "etc", "pdp")
+                .toFile().renameTo(Paths.get(ddfHome, "etc", "pdp-copy").toFile());
+
+        String response = console.runCommand(EXPORT_COMMAND);
+        assertThat(
+                String.format("Should not have been able to export to %s.", getExportDirectory()),
+                response, containsString("An error was encountered while executing this command."));
+
+        Paths.get(ddfHome, "etc", "pdp-copy")
+                .toFile().renameTo(Paths.get(ddfHome, "etc", "pdp").toFile());
     }
 
     /**

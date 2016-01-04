@@ -55,13 +55,31 @@ public class SystemConfigurationMigration {
 
     private static final String USERS_PROPERTIES = "etc/users.properties";
 
+    private static final String ABSOLUTE_PATH_WARNING =
+            "The value for property [%s] is set to a path [%s] that is absolute; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
+    private static final String OUTSIDE_PATH_WARNING =
+            "The value for property [%s] is set to a path [%s] that is outside [%s]; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
+    private static final String UNREAL_PATH_WARNING =
+            "The value for property [%s] is set to a path [%s] that could not coerced into a real path; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
     private Path ddfHome;
 
     public SystemConfigurationMigration(Path ddfHome) throws MigrationException {
         this.ddfHome = getRealPath(ddfHome);
     }
 
-    public Collection<MigrationWarning> export(Path exportDirectory) {
+    public Collection<MigrationWarning> export(Path exportDirectory) throws MigrationException {
         exportSystemFiles(exportDirectory);
 
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
@@ -96,7 +114,7 @@ public class SystemConfigurationMigration {
             String propertyWithPath) {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         String keystore = getProperty(propertyWithPath);
-        migrationWarnings.addAll(verifyPathIsNotAbsolute(propertyWithPath, Paths.get(keystore)));
+        migrationWarnings.addAll(checkIfPathIsMigratable(propertyWithPath, Paths.get(keystore)));
         if (migrationWarnings.isEmpty()) {
             Path source = ddfHome.resolve(keystore);
             copyFile(source, constructDestination(source, exportDirectory));
@@ -110,7 +128,7 @@ public class SystemConfigurationMigration {
         Properties properties = readPropertiesFile(encryptionPropertiesFile);
         String crlLocation = properties.getProperty(CRL_PROP_KEY);
         if (StringUtils.isNotBlank(crlLocation)) {
-            migrationWarnings.addAll(verifyPathIsNotAbsolute(CRL_PROP_KEY, Paths.get(crlLocation)));
+            migrationWarnings.addAll(checkIfPathIsMigratable(CRL_PROP_KEY, Paths.get(crlLocation)));
             if (migrationWarnings.isEmpty()) {
                 Path source = ddfHome.resolve(crlLocation);
                 copyFile(source, constructDestination(source, exportDirectory));
@@ -128,8 +146,7 @@ public class SystemConfigurationMigration {
             Path destination = constructDestination(source, exportDirectory);
             copyDirectory(source, destination);
         } catch (MigrationException e) {
-            LOGGER.info(String.format("Unable to copy %s. It doesn't exist.", SECURITY_DIRECTORY),
-                    e);
+            LOGGER.info(String.format("Unable to copy %s. It doesn't exist.", SECURITY_DIRECTORY), e);
         }
     }
 
@@ -177,16 +194,27 @@ public class SystemConfigurationMigration {
         }
     }
 
-    private Collection<MigrationWarning> verifyPathIsNotAbsolute(String propertyName, Path path)
-            throws MigrationException {
+    /*
+        Checks is a file is able to be migrated.  Returns warnings if the path is absolute,
+        if the path leads somewhere outside DDF Home, or if there is an issue turning it into
+        a real path.
+     */
+    private Collection<MigrationWarning> checkIfPathIsMigratable(String propertyName, Path path) {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
-        if (path.isAbsolute()) {
-            String message = String
-                    .format("The value for property [%s] is set to a path [%s] that is absolute; "
-                                    + "therefore, the file will not be included in the export.  "
-                                    + "Check that the file exists on the system you're migrating to "
-                                    + "or update the property value and export again.",
-                            propertyName, path.toString());
+        try {
+            if (path.isAbsolute()) {
+                String message = String
+                        .format(ABSOLUTE_PATH_WARNING, propertyName, path.toString());
+                LOGGER.debug(message);
+                migrationWarnings.add(new MigrationWarning(message));
+            } else if (!getRealPath(ddfHome.resolve(path)).startsWith(ddfHome)) {
+                String message = String.format(OUTSIDE_PATH_WARNING, propertyName, path.toString(),
+                        ddfHome.toString());
+                LOGGER.debug(message);
+                migrationWarnings.add(new MigrationWarning(message));
+            }
+        } catch (MigrationException e) {
+            String message = String.format(UNREAL_PATH_WARNING, propertyName, path.toString());
             LOGGER.debug(message);
             migrationWarnings.add(new MigrationWarning(message));
         }
