@@ -1,4 +1,5 @@
 = Integrating {branding} Spatial App
 include::config.adoc[]
 
+== Overview
 include::IntContents.adoc[]
