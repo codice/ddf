@@ -210,6 +210,23 @@ public class IdpEndpointTest {
     }
 
     @Test
+    public void testShowGetLoginNoRelayState() throws WSSecurityException {
+        String samlRequest = authNRequestGet;
+        String signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+        String signature = authNRequestGetSignature;
+        idpEndpoint.setStrictSignature(false);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.isSecure()).thenReturn(true);
+        Response response = idpEndpoint.showGetLogin(samlRequest, null, signatureAlgorithm,
+                signature, request);
+        assertThat(response.getEntity()
+                .toString(), containsString("SAMLRequest"));
+        assertThat(response.getEntity()
+                .toString(), containsString("ACSURL"));
+    }
+
+    @Test
     public void testShowGetLoginNotSecure() throws WSSecurityException {
         String samlRequest = authNRequestGet;
         String relayState = "ef95c04b-6c05-4d12-b65f-dd32fed8811e";
