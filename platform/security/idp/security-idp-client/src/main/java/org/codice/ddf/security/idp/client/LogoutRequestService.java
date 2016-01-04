@@ -53,7 +53,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
-import ddf.security.samlp.LogoutService;
+import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
@@ -84,7 +84,7 @@ public class LogoutRequestService {
 
     private SystemCrypto systemCrypto;
 
-    private LogoutService logoutService;
+    private LogoutMessage logoutMessage;
 
     private String submitForm;
 
@@ -145,7 +145,7 @@ public class LogoutRequestService {
                     return buildLogoutResponse(msg);
                 }
                 logout();
-                LogoutRequest logoutRequest = logoutService.buildLogoutRequest(name, getEntityId());
+                LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(name, getEntityId());
 
                 String relayState = relayStates.encode(name);
 
@@ -210,7 +210,7 @@ public class LogoutRequestService {
         LOGGER.debug("Configuring SAML Response for Redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        URI location = logoutService.signSamlGetRequest(logoutRequest,
+        URI location = logoutMessage.signSamlGetRequest(logoutRequest,
                 new URI(idpMetadata.getSingleLogoutLocation()),
                 relayState);
         String redirectUpdated = String.format(redirectPage, location.toString());
@@ -232,7 +232,7 @@ public class LogoutRequestService {
                 new SamlValidator.Builder(simpleSign).buildAndValidate(request.getRequestURL()
                         .toString(), SamlProtocol.Binding.HTTP_POST, logoutRequest);
                 LogoutResponse logoutResponse =
-                        logoutService.buildLogoutResponse(logoutRequest.getIssuer()
+                        logoutMessage.buildLogoutResponse(logoutRequest.getIssuer()
                                 .getValue(), StatusCode.SUCCESS_URI);
 
                 return getSamlpPostLogoutResponse(relayState, logoutResponse);
@@ -282,7 +282,7 @@ public class LogoutRequestService {
                                 .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
                 logout();
                 String entityId = getEntityId();
-                LogoutResponse logoutResponse = logoutService.buildLogoutResponse(entityId,
+                LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(entityId,
                         StatusCode.SUCCESS_URI);
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (IOException e) {
@@ -325,7 +325,7 @@ public class LogoutRequestService {
             throws IdpClientException {
         LogoutResponse logoutResponse;
         try {
-            logoutResponse = logoutService.extractSamlLogoutResponse(logoutResponseStr);
+            logoutResponse = logoutMessage.extractSamlLogoutResponse(logoutResponseStr);
         } catch (XMLStreamException | WSSecurityException e) {
             throw new IdpClientException("Unable to parse logout response.", e);
         }
@@ -349,7 +349,7 @@ public class LogoutRequestService {
 
         LogoutRequest logoutRequest;
         try {
-            logoutRequest = logoutService.extractSamlLogoutRequest(logoutRequestStr);
+            logoutRequest = logoutMessage.extractSamlLogoutRequest(logoutRequestStr);
         } catch (XMLStreamException | WSSecurityException e) {
             throw new IdpClientException("Unable to parse logout request.", e);
         }
@@ -415,7 +415,7 @@ public class LogoutRequestService {
         LOGGER.debug("Configuring SAML Response for Redirect.");
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
-        URI location = logoutService.signSamlGetResponse(samlResponse,
+        URI location = logoutMessage.signSamlGetResponse(samlResponse,
                 new URI(idpMetadata.getSingleLogoutLocation()),
                 relayState);
         String redirectUpdated = String.format(redirectPage, location.toString());
@@ -443,8 +443,8 @@ public class LogoutRequestService {
         this.systemCrypto = systemCrypto;
     }
 
-    public void setLogoutService(LogoutService logoutService) {
-        this.logoutService = logoutService;
+    public void setLogoutMessage(LogoutMessage logoutMessage) {
+        this.logoutMessage = logoutMessage;
     }
 
     public void setEncryptionService(EncryptionService encryptionService) {

@@ -25,11 +25,11 @@ import java.time.Instant
 import static java.time.Instant.now
 import static org.apache.commons.lang.StringUtils.isNotBlank
 
-class LogoutServiceSpec extends Specification {
+class LogoutMessageSpec extends Specification {
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
-    LogoutServiceImpl logoutService;
+    LogoutMessageImpl logoutMessage;
 
     final String ENCRYPT_PREFIX = "ENCRYPTED "
 
@@ -55,9 +55,9 @@ class LogoutServiceSpec extends Specification {
         }
 
         System.setProperty("javax.net.ssl.keyStore", jksFile.getAbsolutePath());
-        logoutService = new LogoutServiceImpl()
-        injectBuilders(logoutService)
-        logoutService.systemCrypto = new SystemCrypto(
+        logoutMessage = new LogoutMessageImpl()
+        injectBuilders(logoutMessage)
+        logoutMessage.systemCrypto = new SystemCrypto(
                 encryptionFile.absolutePath,
                 signatureFile.absolutePath,
                 encryptionService)
@@ -65,13 +65,13 @@ class LogoutServiceSpec extends Specification {
 
     void copyResourceToFile(File file, String resource) throws IOException {
         file.withOutputStream { fileOutputStream ->
-            LogoutServiceSpec.class.getResourceAsStream(resource).withStream { resourceStream ->
+            LogoutMessageSpec.class.getResourceAsStream(resource).withStream { resourceStream ->
                 IOUtils.copy(resourceStream, fileOutputStream)
             };
         };
     }
 
-    void injectBuilders(LogoutServiceImpl plugin) {
+    void injectBuilders(LogoutMessageImpl plugin) {
         plugin.logoutRequestBuilder = new LogoutRequestBuilder()
         plugin.logoutResponseBuilder = new LogoutResponseBuilder()
         plugin.nameIDBuilder = new NameIDBuilder()
@@ -88,7 +88,7 @@ class LogoutServiceSpec extends Specification {
 
     def "build valid logout request"() {
         when:
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(NAME_ID, ISSUER_ID)
+        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID)
 
 
         then:
@@ -101,7 +101,7 @@ class LogoutServiceSpec extends Specification {
 
     def "build logout request with invalid info"() {
         when:
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(nameId, issuerId, id)
+        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(nameId, issuerId, id)
 
         then:
         thrown(IllegalArgumentException)
@@ -119,7 +119,7 @@ class LogoutServiceSpec extends Specification {
 
     def "build logout response with valid info and inResponseTo"() {
         when:
-        LogoutResponse logoutResponse = logoutService.buildLogoutResponse(
+        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(
                 ISSUER_ID,
                 StatusCode.SUCCESS_URI,
                 IN_RESPONSE_TO)
@@ -135,7 +135,7 @@ class LogoutServiceSpec extends Specification {
 
     def "build logout response with no inResponseTo"() {
         when:
-        LogoutResponse logoutResponse = logoutService.buildLogoutResponse(
+        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(
                 "issuer",
                 StatusCode.SUCCESS_URI)
 
@@ -145,13 +145,13 @@ class LogoutServiceSpec extends Specification {
 
     def "verify signed saml request"() {
         setup:
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(NAME_ID, ISSUER_ID)
+        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID)
 
         def target = new URI("https://mytarget.com")
         def relayState = "MyRelayStateGuid"
 
         when:
-        URI signedRequest = logoutService.signSamlGetRequest(logoutRequest, target, relayState)
+        URI signedRequest = logoutMessage.signSamlGetRequest(logoutRequest, target, relayState)
 
         then:
         signedRequest.toString().startsWith(target.toString())
@@ -162,13 +162,13 @@ class LogoutServiceSpec extends Specification {
 
     def "verify signed saml response"() {
         setup:
-        LogoutRequest logoutRequest = logoutService.buildLogoutRequest(NAME_ID, ISSUER_ID)
+        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID)
 
         def target = new URI("https://mytarget.com")
         def relayState = "MyRelayStateGuid"
 
         when:
-        URI signedRequest = logoutService.signSamlGetResponse(logoutRequest, target, relayState)
+        URI signedRequest = logoutMessage.signSamlGetResponse(logoutRequest, target, relayState)
 
         then:
         signedRequest.toString().startsWith(target.toString())

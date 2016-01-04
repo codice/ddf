@@ -89,8 +89,8 @@
         <argument ref="crypto"/>
         <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
-        <property name="logoutService">
-            <reference interface="ddf.security.samlp.LogoutService" />
+        <property name="logoutMessage">
+            <reference interface="ddf.security.samlp.LogoutMessage" />
         </property>
         <property name="encryptionService" ref="encryptionService"/>
         <property name="sessionFactory" ref="sessionFactory"/>
