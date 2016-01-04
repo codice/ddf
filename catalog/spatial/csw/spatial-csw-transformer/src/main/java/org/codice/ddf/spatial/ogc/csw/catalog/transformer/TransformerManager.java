@@ -1,23 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +29,16 @@ public class TransformerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManager.class);
 
-    private static final String MIME_TYPE = "mime-type";
+    protected static final String MIME_TYPE = "mime-type";
 
-    private static final String SCHEMA = "schema";
+    protected static final String SCHEMA = "schema";
+
+    protected static final String ID = "id";
 
     private final List<ServiceReference> serviceRefs;
 
-    private final BundleContext context;
-
-    public TransformerManager(BundleContext context, List<ServiceReference> serviceReferences) {
+    public TransformerManager(List<ServiceReference> serviceReferences) {
         this.serviceRefs = serviceReferences;
-        this.context = context;
     }
 
     public List<String> getAvailableMimeTypes() {
@@ -50,7 +49,11 @@ public class TransformerManager {
         return getAvailableProperty(SCHEMA);
     }
 
-    private List<String> getAvailableProperty(String propertyName) {
+    public List<String> getAvailableIds() {
+        return getAvailableProperty(ID);
+    }
+
+    public List<String> getAvailableProperty(String propertyName) {
         List<String> properties = new ArrayList<String>();
 
         for (ServiceReference serviceRef : serviceRefs) {
@@ -70,21 +73,11 @@ public class TransformerManager {
         return getTransformerByProperty(MIME_TYPE, mimeType);
     }
 
-    public <T> T getCswQueryResponseTransformer() {
-        LOGGER.trace("Looking up transformer id='csw'");
-        for (ServiceReference serviceRef : serviceRefs) {
-            Object propertyObject = serviceRef.getProperty("id");
-            if (propertyObject != null && propertyObject instanceof String) {
-                if ("csw".equals((String) propertyObject)) {
-                    LOGGER.trace("Found CSW Transformer");
-                    return (T) context.getService(serviceRef);
-                }
-            }
-        }
-        return null;
+    public <T> T getTransformerById(String id) {
+        return getTransformerByProperty(ID, id);
     }
 
-    private <T> T getTransformerByProperty(String property, String value) {
+    public <T> T getTransformerByProperty(String property, String value) {
         if (value == null) {
             return null;
         }
@@ -95,7 +88,7 @@ public class TransformerManager {
                 if (value.equals((String) propertyObject)) {
                     LOGGER.trace("Found transformer for property: {} == value: {}", property,
                             value);
-                    T serviceObject = (T) context.getService(serviceRef);
+                    T serviceObject = (T) getBundleContext().getService(serviceRef);
                     LOGGER.trace("Transformer is {}", serviceObject);
                     return serviceObject;
                 }
@@ -103,5 +96,9 @@ public class TransformerManager {
         }
         LOGGER.debug("Did not find transformer for property: {} == value: {}", property, value);
         return null;
+    }
+
+    protected BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(this.getClass()).getBundleContext();
     }
 }

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
 import java.io.IOException;
@@ -77,8 +76,8 @@ public class CswRecordCollectionMessageBodyWriter
     @Override
     public void writeTo(CswRecordCollection recordCollection, Class<?> type, Type genericType,
             Annotation[] annotations, MediaType mediaType,
-            MultivaluedMap<String, Object> httpHeaders, OutputStream outStream) throws IOException,
-            WebApplicationException {
+            MultivaluedMap<String, Object> httpHeaders, OutputStream outStream)
+            throws IOException, WebApplicationException {
 
         final String mimeType = recordCollection.getMimeType();
         LOGGER.debug(
@@ -90,7 +89,7 @@ public class CswRecordCollectionMessageBodyWriter
                 .isNotBlank(mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
             transformer = transformerManager.getTransformerByMimeType(mimeType);
         } else {
-            transformer = transformerManager.getCswQueryResponseTransformer();
+            transformer = transformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
             if (recordCollection.getElementName() != null) {
                 arguments.put(CswConstants.ELEMENT_NAMES,
                         recordCollection.getElementName().toArray());

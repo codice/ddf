@@ -235,7 +235,7 @@ public class TestCswRecordConverter {
         xstream.alias("csw:Record", MetacardImpl.class);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse("src/test/resources/Csw_Record.xml");
+        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml").getPath());
         HierarchicalStreamReader reader = new DomReader(doc);
         DataHolder holder = xstream.newDataHolder();
         holder.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
@@ -466,7 +466,7 @@ public class TestCswRecordConverter {
         xstream.alias("csw:Record", MetacardImpl.class);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse("src/test/resources/Csw_Record.xml");
+        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml").getPath());
         HierarchicalStreamReader reader = new DomReader(doc);
         DataHolder holder = xstream.newDataHolder();
         holder.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
@@ -585,7 +585,7 @@ public class TestCswRecordConverter {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse("src/test/resources/Csw_Record.xml");
+        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml").getPath());
         HierarchicalStreamReader reader = new DomReader(doc);
 
         Map<String, String> metacardAttributeMappings = this.getMetacardAttributeMappings();
