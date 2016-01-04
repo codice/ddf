@@ -73,6 +73,11 @@ define([
                 this.listenTo(wreqr.vent, 'search:clearfilters', this.clearFilters);
 
                 this.filters = new Filter.Collection();
+                var that = this;
+
+                this.listenTo(this.filters, 'change:north change:south change:east change:west', function(model) {
+                    that.setFilterBBox(model);
+                });
 
                 if (this.get('scheduled')) {
                     this.startSearch();
@@ -113,6 +118,15 @@ define([
 
                 }
                 this.set(result);
+            },
+
+            setFilterBBox: function(model) {
+                var north = parseFloat(model.get('north'));
+                var south = parseFloat(model.get('south'));
+                var west = parseFloat(model.get('west'));
+                var east = parseFloat(model.get('east'));
+
+                model.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
             },
 
             setBboxLatLon: function () {
@@ -236,7 +250,7 @@ define([
                     }));
                 }
 
-                // spacial stuff.
+                // spatial stuff.
                 var north = this.get('north'),
                     south = this.get('south'),
                     west = this.get('west'),

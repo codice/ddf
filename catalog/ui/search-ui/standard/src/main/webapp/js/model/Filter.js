@@ -20,7 +20,7 @@ define([
     "use strict";
 
 
-    var excludeFromCQL = [Properties.filters.SOURCE_ID, Properties.filters.ANY_GEO];
+    var excludeFromCQL = [Properties.filters.SOURCE_ID, Properties.filters.GEO_FIELD_NAME];
 
     var Filter = {};
 

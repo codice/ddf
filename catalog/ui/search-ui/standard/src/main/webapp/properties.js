@@ -30,6 +30,7 @@ define(function (require) {
         filters: {
             METADATA_CONTENT_TYPE: 'metadata-content-type',
             SOURCE_ID: 'source-id',
+            GEO_FIELD_NAME: 'anyGeo',
             ANY_GEO: 'geometry',
             ANY_TEXT: 'anyText',
             OPERATIONS : {
