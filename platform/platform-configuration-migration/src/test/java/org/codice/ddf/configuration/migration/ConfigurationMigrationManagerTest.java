@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
-import org.codice.ddf.configuration.status.ConfigurationFileException;
 import org.codice.ddf.configuration.status.MigrationException;
 import org.junit.Before;
 import org.junit.Test;
@@ -115,7 +114,7 @@ public class ConfigurationMigrationManagerTest {
     public void exportWhenConfigurationAdminMigratorThrowsConfigurationFileException()
             throws Exception {
         when(Files.createDirectories(exportPath)).thenReturn(exportPath);
-        doThrow(new ConfigurationFileException("")).when(configurationAdminMigration)
+        doThrow(new MigrationException("")).when(configurationAdminMigration)
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =

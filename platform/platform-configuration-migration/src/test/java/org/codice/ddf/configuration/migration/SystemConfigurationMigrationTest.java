@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -176,10 +177,9 @@ public class SystemConfigurationMigrationTest {
     }
 
     /**
-     * Verify that if an absolute path is encountered during the export, an exception is thrown. All
-     * paths must be relative to ddf home.
+     * Verify that if an absolute path is encountered during the export, a warning is returned.
      */
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportAbsolutePaths() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, keystoreAbsolutePath.toString());
@@ -196,10 +196,11 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportTrustoreAbsolutePath() throws Exception {
         // Setup
         Path truststoreAbsolutePath = ddfHome.resolve(Paths.get(TRUSTSTORE_REL_PATH));
@@ -217,10 +218,11 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportInvalidTrustoreRelativePath() throws Exception {
         // Setup
         Path invalidTruststoreRelativepath = tempDir.getRoot().toPath()
@@ -240,10 +242,11 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportKeystoreAbsolutePath() throws Exception {
         // Setup
         Path keystoreAbsolutePath = ddfHome.resolve(Paths.get(KEYSTORE_REL_PATH));
@@ -261,10 +264,11 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportInvalidKeystoreRelativePath() throws Exception {
         // Setup
         Path invalidKeystoreRelativepath = tempDir.getRoot().toPath()
@@ -284,10 +288,11 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportCrlAbsolutePath() throws Exception {
         // Setup
         Path crlAbsolutePath = ddfHome.resolve(Paths.get(KEYSTORE_REL_PATH));
@@ -305,10 +310,11 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void testExportInvalidCrlRelativePath() throws Exception {
         // Setup
         Path invalidCrlRelativePath = tempDir.getRoot().toPath().resolve(INVALID_CRL_REL_PATH);
@@ -327,7 +333,8 @@ public class SystemConfigurationMigrationTest {
         };
 
         // Perform Test
-        securityConfigurationMigrator.export(exportDirectory);
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(exportDirectory).isEmpty());
     }
 
     @Test(expected = MigrationException.class)

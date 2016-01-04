@@ -46,7 +46,8 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
-import org.codice.ddf.configuration.status.ConfigurationStatus;
+import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -135,10 +136,10 @@ public class ConfigurationAdminMigrationTest {
     private Configuration configuration;
 
     @Mock
-    private ConfigurationStatus configStatus1;
+    private MigrationWarning configStatus1;
 
     @Mock
-    private ConfigurationStatus configStatus2;
+    private MigrationWarning configStatus2;
 
     // TODO - Remove class and use PowerMock if needed
     private static class ConfigurationAdminMigrationUnderTest extends ConfigurationAdminMigration {
@@ -730,9 +731,9 @@ public class ConfigurationAdminMigrationTest {
     public void testGetFailedConfigurationFilesTwoFilesInFailedDirectory() throws Exception {
         when(configPath1.getFileName()).thenReturn(configPath1);
         when(configPath2.getFileName()).thenReturn(configPath2);
-        Path[] expectedPaths = new Path[2];
-        expectedPaths[0] = configPath1;
-        expectedPaths[1] = configPath2;
+        String[] expectedPaths = new String[2];
+        expectedPaths[0] = configPath1.toString();
+        expectedPaths[1] = configPath2.toString();
 
         setUpTwoConfigFileIterator(failedDirectoryStream);
         ConfigurationAdminMigration configurationAdminMigration = new ConfigurationAdminMigration(
@@ -749,20 +750,18 @@ public class ConfigurationAdminMigrationTest {
             }
         };
 
-        Collection<ConfigurationStatus> configurationStatusMessages =
+        Collection<MigrationWarning> configurationStatusMessages =
                 configurationAdminMigration.getFailedConfigurationFiles();
-        Collection<Path> actualPaths = new ArrayList<>();
-        for (ConfigurationStatus configStatus : configurationStatusMessages) {
-            actualPaths.add(configStatus.getPath());
+        Collection<String> actualPaths = new ArrayList<>();
+        for (MigrationWarning configStatus : configurationStatusMessages) {
+            actualPaths.add(configStatus.getMessage());
         }
         assertThat(
                 "Incorrect number for files returned from configurationAdminMigration.getFailedConfigurationFiles()",
-                configurationStatusMessages.size(),
-                is(2));
+                configurationStatusMessages.size(), is(2));
         assertThat(
                 "Incorrect files returned from configurationAdminMigration.getFailedConfigurationFiles()",
-                actualPaths,
-                hasItems(expectedPaths));
+                actualPaths, hasItems(expectedPaths));
     }
 
     @Test
@@ -783,7 +782,7 @@ public class ConfigurationAdminMigrationTest {
             }
         };
 
-        Collection<ConfigurationStatus> configurationStatusMessages =
+        Collection<MigrationWarning> configurationStatusMessages =
                 configurationAdminMigration.getFailedConfigurationFiles();
 
         assertThat("The failed directory does not contain the correct number of files",
@@ -851,7 +850,7 @@ public class ConfigurationAdminMigrationTest {
         configurationAdminMigration.export(null);
     }
 
-    @Test(expected = IOException.class)
+    @Test(expected = MigrationException.class)
     public void testExportListConfigurationsIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -862,7 +861,7 @@ public class ConfigurationAdminMigrationTest {
         configurationAdminMigration.export(exportedDirectoryPath);
     }
 
-    @Test(expected = ConfigurationFileException.class)
+    @Test(expected = MigrationException.class)
     public void testExportListConfigurationsInvalidSyntaxException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -873,7 +872,7 @@ public class ConfigurationAdminMigrationTest {
         configurationAdminMigration.export(exportedDirectoryPath);
     }
 
-    @Test(expected = ConfigurationFileException.class)
+    @Test(expected = MigrationException.class)
     public void testExportConfigurationFileException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();
@@ -886,7 +885,7 @@ public class ConfigurationAdminMigrationTest {
         configurationAdminMigration.export(exportedDirectoryPath);
     }
 
-    @Test(expected = IOException.class)
+    @Test(expected = MigrationException.class)
     public void testConfigFileExportConfigIOException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
         setUpDefaultDirectoryExpectations();

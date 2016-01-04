@@ -18,7 +18,7 @@ import java.util.Collection;
 
 /**
  * The {@link ConfigurationStatusService} interface provides a method that
- * returns a {@link Collection} of {@link ConfigurationStatus} objects. 
+ * returns a {@link Collection} of {@link MigrationWarning} objects.
  * <p/>
  * Implementers of this interface provide status information about configuration files
  * that failed to import (i.e. configuration files that were move to the failed 
@@ -33,6 +33,6 @@ public interface ConfigurationStatusService {
      * 
      * @throws IOException when the failed directory cannot be read.
      */
-    public Collection<ConfigurationStatus> getFailedConfigurationFiles() throws IOException;
+    public Collection<MigrationWarning> getFailedConfigurationFiles() throws IOException;
     
 }

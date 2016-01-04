@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,8 +21,8 @@ import java.util.Collection;
 import javax.validation.constraints.NotNull;
 
 import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.configuration.status.ConfigurationStatus;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
+import org.codice.ddf.configuration.status.MigrationWarning;
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "config-status", description = "Lists import status of configuration files.")
 public class ConfigStatusCommand extends PlatformCommands {
@@ -43,35 +43,35 @@ public class ConfigStatusCommand extends PlatformCommands {
     @Override
     protected Object doExecute() {
         try {
-            Collection<ConfigurationStatus> configStatusMessages = getFailedImports();
-            
+            Collection<MigrationWarning> configStatusMessages = getFailedImports();
+
             if (configStatusMessages == null) {
                 outputErrorMessage(NO_CONFIG_STATUS_MESSAGE);
                 return null;
             }
 
-            if (configStatusMessages.isEmpty()){
+            if (configStatusMessages.isEmpty()) {
                 outputSuccessMessage(SUCCESSFUL_IMPORT_MESSAGE);
                 return null;
             }
 
-            for (ConfigurationStatus configStatus : configStatusMessages) {
+            for (MigrationWarning configStatus : configStatusMessages) {
                 outputErrorMessage(constructErrorMessage(configStatus));
             }
         } catch (IOException | RuntimeException e) {
-            String message = "An error was encountered while executing this command. "
-                    + e.getMessage();
+            String message =
+                    "An error was encountered while executing this command. " + e.getMessage();
             outputErrorMessage(message);
         }
 
         return null;
     }
 
-    private Collection<ConfigurationStatus> getFailedImports() throws IOException {
+    private Collection<MigrationWarning> getFailedImports() throws IOException {
         return configStatusService.getFailedConfigurationFiles();
     }
-    
-    private String constructErrorMessage(ConfigurationStatus configStatus) {
-        return String.format(FAILED_IMPORT_MESSAGE, configStatus.getPath().toString());
+
+    private String constructErrorMessage(MigrationWarning configStatus) {
+        return String.format(FAILED_IMPORT_MESSAGE, configStatus.getMessage());
     }
 }

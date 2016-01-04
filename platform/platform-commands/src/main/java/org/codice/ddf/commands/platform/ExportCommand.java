@@ -14,10 +14,11 @@
 package org.codice.ddf.commands.platform;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 
 /**
  * Executes the export method in {@link ConfigurationMigrationService}.  Configurations
@@ -26,6 +27,14 @@ import org.codice.ddf.configuration.status.MigrationException;
  */
 @Command(scope = PlatformCommands.NAMESPACE, name = "config-export", description = "Exports configurations")
 public class ExportCommand extends PlatformCommands {
+
+    private static final String STARTING_EXPORT_MESSAGE = "Exporting current configurations to %s.";
+
+    private static final String SUCCESSFUL_EXPORT_MESSAGE = "Successfully exported all configurations.";
+
+    private static final String FAILED_EXPORT_MESSAGE = "Failed to export all configurations to %s.";
+
+    private static final String ERROR_EXPORT_MESSAGE = "An error was encountered while executing this command. %s";
 
     protected final ConfigurationMigrationService configurationMigrationService;
 
@@ -39,13 +48,21 @@ public class ExportCommand extends PlatformCommands {
 
     @Override
     protected Object doExecute() {
+        outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, defaultExportDirectory));
         try {
-            configurationMigrationService.export(defaultExportDirectory);
-            outputSuccessMessage(String.format("Exported current configurations to %s.",
-                    defaultExportDirectory));
-        } catch (MigrationException e) {
-            outputErrorMessage(String.format("Failed to export all configurations to %s. %s",
-                    defaultExportDirectory, e.getMessage()));
+            Collection<MigrationWarning> migrationWarnings = configurationMigrationService
+                    .export(defaultExportDirectory);
+
+            if (migrationWarnings.isEmpty()) {
+                outputSuccessMessage(String.format(SUCCESSFUL_EXPORT_MESSAGE));
+            } else {
+                for (MigrationWarning migrationWarning : migrationWarnings) {
+                    outputWarningMessage(migrationWarning.getMessage());
+                }
+                outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, defaultExportDirectory));
+            }
+        } catch (Exception e) {
+            outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e.getMessage()));
         }
         return null;
     }

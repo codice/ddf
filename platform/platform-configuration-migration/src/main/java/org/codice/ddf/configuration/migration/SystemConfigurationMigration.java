@@ -18,11 +18,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SystemConfigurationMigration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystemConfigurationMigration.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(SystemConfigurationMigration.class);
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
@@ -51,67 +55,89 @@ public class SystemConfigurationMigration {
 
     private static final String USERS_PROPERTIES = "etc/users.properties";
 
+    private static final String ABSOLUTE_PATH_WARNING =
+            "The value for property [%s] is set to a path [%s] that is absolute; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
+    private static final String OUTSIDE_PATH_WARNING =
+            "The value for property [%s] is set to a path [%s] that is outside [%s]; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
+    private static final String UNREAL_PATH_WARNING =
+            "The value for property [%s] is set to a path [%s] that could not coerced into a real path; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
     private Path ddfHome;
 
     public SystemConfigurationMigration(Path ddfHome) throws MigrationException {
         this.ddfHome = getRealPath(ddfHome);
     }
 
-    public void export(Path exportDirectory) throws MigrationException {
-        exportSecurity(exportDirectory);
+    public Collection<MigrationWarning> export(Path exportDirectory) throws MigrationException {
         exportSystemFiles(exportDirectory);
+
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+        migrationWarnings.addAll(exportSecurity(exportDirectory));
+        return migrationWarnings;
     }
 
-    private void exportSecurity(Path exportDirectory) throws MigrationException {
+    private Collection<MigrationWarning> exportSecurity(Path exportDirectory) {
         exportSecurityDirectory(exportDirectory);
-        exportKeystores(exportDirectory);
-        exportWsSecurity(exportDirectory);
-        exportCrl(exportDirectory);
-        exportPdpPolicies(exportDirectory);
+        exportDirectory(exportDirectory, WS_SECURITY_DIR);
+        exportDirectory(exportDirectory, PDP_POLICIES_DIR);
+
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+        migrationWarnings.addAll(exportCrl(exportDirectory));
+        migrationWarnings.addAll(exportKeystores(exportDirectory));
+        return migrationWarnings;
     }
 
-    private void exportSystemFiles(Path exportDirectory) throws MigrationException {
-        exportUsersProperties(exportDirectory);
-        exportSystemProperties(exportDirectory);
+    private void exportSystemFiles(Path exportDirectory) {
+        copyFile(ddfHome.resolve(SYSTEM_PROPERTIES), exportDirectory.resolve(SYSTEM_PROPERTIES));
+        copyFile(ddfHome.resolve(USERS_PROPERTIES), exportDirectory.resolve(USERS_PROPERTIES));
     }
 
-    private void exportKeystores(Path exportDirectory) throws MigrationException {
-        exportKeystore(exportDirectory);
-        exportTruststore(exportDirectory);
+    private Collection<MigrationWarning> exportKeystores(Path exportDirectory) {
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+        migrationWarnings.addAll(exportExternalFile(exportDirectory, KEYSTORE_SYSTEM_PROP));
+        migrationWarnings.addAll(exportExternalFile(exportDirectory, TRUSTSTORE_SYSTEM_PROP));
+        return migrationWarnings;
     }
 
-    private void exportKeystore(Path exportDirectory) throws MigrationException {
-        String keystore = getProperty(KEYSTORE_SYSTEM_PROP);
-        verifyPathIsNotAbsolute(Paths.get(keystore));
-        Path source = getRealPath(ddfHome.resolve(keystore));
-        verifyWithinDdfHome(source);
-        Path destination = constructDestination(source, exportDirectory);
-        copyFile(source, destination);
+    private Collection<MigrationWarning> exportExternalFile(Path exportDirectory,
+            String propertyWithPath) {
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+        String keystore = getProperty(propertyWithPath);
+        migrationWarnings.addAll(checkIfPathIsMigratable(propertyWithPath, Paths.get(keystore)));
+        if (migrationWarnings.isEmpty()) {
+            Path source = ddfHome.resolve(keystore);
+            copyFile(source, constructDestination(source, exportDirectory));
+        }
+        return migrationWarnings;
     }
 
-    private void exportTruststore(Path exportDirectory) throws MigrationException {
-        String truststore = getProperty(TRUSTSTORE_SYSTEM_PROP);
-        verifyPathIsNotAbsolute(Paths.get(truststore));
-        Path source = getRealPath(ddfHome.resolve(truststore));
-        verifyWithinDdfHome(source);
-        Path destination = constructDestination(source, exportDirectory);
-        copyFile(source, destination);
-    }
-
-    private void exportCrl(Path exportDirectory) throws MigrationException {
+    private Collection<MigrationWarning> exportCrl(Path exportDirectory) {
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         Path encryptionPropertiesFile = ddfHome.resolve(FILE_CONTAINING_CRL_LOCATION);
         Properties properties = readPropertiesFile(encryptionPropertiesFile);
         String crlLocation = properties.getProperty(CRL_PROP_KEY);
         if (StringUtils.isNotBlank(crlLocation)) {
-            verifyPathIsNotAbsolute(Paths.get(crlLocation));
-            Path source = getRealPath(ddfHome.resolve(crlLocation));
-            verifyWithinDdfHome(source);
-            Path destination = constructDestination(source, exportDirectory);
-            copyFile(source, destination);
+            migrationWarnings.addAll(checkIfPathIsMigratable(CRL_PROP_KEY, Paths.get(crlLocation)));
+            if (migrationWarnings.isEmpty()) {
+                Path source = ddfHome.resolve(crlLocation);
+                copyFile(source, constructDestination(source, exportDirectory));
+            }
         } else {
-            LOGGER.warn("Unable to find CRL location in [%s] using property [%s].",
+            LOGGER.debug("Unable to find CRL location in [%s] using property [%s].",
                     encryptionPropertiesFile.toString(), CRL_PROP_KEY);
         }
+        return migrationWarnings;
     }
 
     private void exportSecurityDirectory(Path exportDirectory) {
@@ -120,39 +146,18 @@ public class SystemConfigurationMigration {
             Path destination = constructDestination(source, exportDirectory);
             copyDirectory(source, destination);
         } catch (MigrationException e) {
-            LOGGER.info(String.format("Unable to copy %s. It doesn't exist.", SECURITY_DIRECTORY),
-                    e);
+            LOGGER.info(String.format("Unable to copy %s. It doesn't exist.", SECURITY_DIRECTORY), e);
         }
     }
 
-    private Path constructDestination(Path pathToExport, Path exportDirectory)
-        throws MigrationException {
+    private Path constructDestination(Path pathToExport, Path exportDirectory) {
         Path destination = exportDirectory.resolve(ddfHome.relativize(pathToExport));
         return destination;
     }
 
-    private void exportWsSecurity(Path exportDirectory) throws MigrationException {
-        Path source = ddfHome.resolve(Paths.get(WS_SECURITY_DIR));
-        Path destination = constructDestination(source, exportDirectory);
-        copyDirectory(source, destination);
-    }
-
-    private void exportSystemProperties(Path exportDirectory) throws MigrationException {
-        Path source = ddfHome.resolve(SYSTEM_PROPERTIES);
-        Path destination = exportDirectory.resolve(SYSTEM_PROPERTIES);
-        copyFile(source, destination);
-    }
-
-    private void exportUsersProperties(Path exportDirectory) throws MigrationException {
-        Path source = ddfHome.resolve(USERS_PROPERTIES);
-        Path destination = exportDirectory.resolve(USERS_PROPERTIES);
-        copyFile(source, destination);
-    }
-
-    private void exportPdpPolicies(Path exportDirectory) throws MigrationException {
-        Path source = ddfHome.resolve(Paths.get(PDP_POLICIES_DIR));
-        Path destination = constructDestination(source, exportDirectory);
-        copyDirectory(source, destination);
+    private void exportDirectory(Path destinationRoot, String directoryToCopy) {
+        Path source = ddfHome.resolve(Paths.get(directoryToCopy));
+        copyDirectory(source, constructDestination(source, destinationRoot));
     }
 
     private String getProperty(String property) throws MigrationException {
@@ -181,30 +186,39 @@ public class SystemConfigurationMigration {
         try {
             FileUtils.copyDirectory(source.toFile(), destination.toFile());
         } catch (IOException e) {
-            String message = String.format("Unable to copy [%s] to [%s].", source.toAbsolutePath()
-                    .toString(), source.toAbsolutePath().toString());
+            String message = String
+                    .format("Unable to copy [%s] to [%s].", source.toAbsolutePath().toString(),
+                            source.toAbsolutePath().toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
     }
 
-    private void verifyWithinDdfHome(Path path) throws MigrationException {
-        if (!getRealPath(path).startsWith(ddfHome)) {
-            String message = String.format("The path [%s] is outside of [%s].", path.toString(),
-                    ddfHome.toString());
-            LOGGER.error(message);
-            throw new MigrationException(message);
+    /*
+        Checks is a file is able to be migrated.  Returns warnings if the path is absolute,
+        if the path leads somewhere outside DDF Home, or if there is an issue turning it into
+        a real path.
+     */
+    private Collection<MigrationWarning> checkIfPathIsMigratable(String propertyName, Path path) {
+        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+        try {
+            if (path.isAbsolute()) {
+                String message = String
+                        .format(ABSOLUTE_PATH_WARNING, propertyName, path.toString());
+                LOGGER.debug(message);
+                migrationWarnings.add(new MigrationWarning(message));
+            } else if (!getRealPath(ddfHome.resolve(path)).startsWith(ddfHome)) {
+                String message = String.format(OUTSIDE_PATH_WARNING, propertyName, path.toString(),
+                        ddfHome.toString());
+                LOGGER.debug(message);
+                migrationWarnings.add(new MigrationWarning(message));
+            }
+        } catch (MigrationException e) {
+            String message = String.format(UNREAL_PATH_WARNING, propertyName, path.toString());
+            LOGGER.debug(message);
+            migrationWarnings.add(new MigrationWarning(message));
         }
-    }
-
-    private void verifyPathIsNotAbsolute(Path path) throws MigrationException {
-        if (path.isAbsolute()) {
-            String message = String.format(
-                    "The path [%s] is absolute. This path must be relative to [%s].",
-                    path.toString(), ddfHome);
-            LOGGER.error(message);
-            throw new MigrationException(message);
-        }
+        return migrationWarnings;
     }
 
     Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
@@ -213,8 +227,8 @@ public class SystemConfigurationMigration {
             properties.load(inputStream);
             return properties;
         } catch (IOException e) {
-            String message = String.format("Unable to read properties file [%s].",
-                    propertiesFile.toString());
+            String message = String
+                    .format("Unable to read properties file [%s].", propertiesFile.toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
@@ -225,8 +239,8 @@ public class SystemConfigurationMigration {
             Path realPath = path.toRealPath();
             return realPath;
         } catch (IOException e) {
-            String message = String.format("Unable to construct real path from [%s].",
-                    path.toString());
+            String message = String
+                    .format("Unable to construct real path from [%s].", path.toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }

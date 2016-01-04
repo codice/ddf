@@ -15,10 +15,12 @@
 package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.status.MigrationException;
+import org.codice.ddf.configuration.status.MigrationWarning;
 
 /**
  * Service that provides a way to migrate configurations from one instance of DDF to another.  This
@@ -31,6 +33,7 @@ public interface ConfigurationMigrationService {
      *
      * @param exportDirectory path to export configurations
      * @throws MigrationException thrown if one or more Configurations couldn't be exported
+     * @return MigrationWarning returned if there were non-fatal issues when exporting
      */
-    void export(@NotNull Path exportDirectory) throws MigrationException;
+    Collection<MigrationWarning> export(@NotNull Path exportDirectory) throws MigrationException;
 }
