@@ -467,12 +467,13 @@ public class TestPlatform extends AbstractIntegrationTest {
         FileUtils.deleteQuietly(getExportDirectory().toFile());
         File file = getExportDirectory().toFile();
         file.createNewFile();
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        file.delete();
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString("Unable to create export directories."));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                            getExportDirectory()), response, containsString("Unable to create export directories."));
+        } finally {
+            file.delete();
+        }
     }
 
     @Test
@@ -482,13 +483,14 @@ public class TestPlatform extends AbstractIntegrationTest {
         file.mkdir();
         File fileEtc = getExportDirectory().resolve("etc").toFile();
         fileEtc.createNewFile();
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        fileEtc.delete();
-        file.delete();
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString("Unable to create export directories."));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                            getExportDirectory()), response, containsString("Unable to create export directories."));
+        } finally {
+            fileEtc.delete();
+            file.delete();
+        }
     }
 
     /**
@@ -537,14 +539,15 @@ public class TestPlatform extends AbstractIntegrationTest {
         FileUtils.copyFile(systemProperties, testFile);
 
         System.setProperty("javax.net.ssl.keyStore", ddfHome + "/../cat.txt");
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
-        testFile.delete();
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                    getExportDirectory()), response, containsString(
+                    String.format("Failed to export all configurations to %s", getExportDirectory())));
+        } finally {
+            System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
+            testFile.delete();
+        }
     }
 
     /**
@@ -557,14 +560,15 @@ public class TestPlatform extends AbstractIntegrationTest {
         FileUtils.deleteQuietly(getExportDirectory().toFile());
 
         System.setProperty("javax.net.ssl.keyStore", ddfHome + "/etc/keystores/serverKeystore.jks");
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
-        FileUtils.deleteQuietly(getExportDirectory().toFile());
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                    getExportDirectory()), response, containsString(
+                    String.format("Failed to export all configurations to %s", getExportDirectory())));
+        } finally {
+            System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
+            FileUtils.deleteQuietly(getExportDirectory().toFile());
+        }
     }
 
     /**
@@ -580,14 +584,16 @@ public class TestPlatform extends AbstractIntegrationTest {
         FileUtils.copyFile(systemProperties, testFile);
 
         System.setProperty("javax.net.ssl.keyStore", "../cat.txt");
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
-        testFile.delete();
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                    getExportDirectory()), response, containsString(
+                    String.format("Failed to export all configurations to %s",
+                            getExportDirectory())));
+        } finally {
+            System.setProperty("javax.net.ssl.keyStore", "etc/keystores/serverKeystore.jks");
+            testFile.delete();
+        }
     }
 
     /**
@@ -599,23 +605,18 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void testFailureWithoutSystemPropertiesFile() throws Exception {
         FileUtils.deleteQuietly(getExportDirectory().toFile());
 
-        File systemProperties = Paths.get(ddfHome, "etc", "system.properties")
-                .toFile();
+        Paths.get(ddfHome, "etc", "system.properties")
+                .toFile().renameTo(Paths.get(ddfHome, "etc", "system.properties.copy").toFile());
 
-        // back up sys.prop to restore after appending to it
-        File systemPropertiesCopy = Paths.get(ddfHome, "etc", "system.properties.copy")
-                .toFile();
-        FileUtils.copyFile(systemProperties, systemPropertiesCopy);
-        systemProperties.delete();
-
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        FileUtils.copyFile(systemPropertiesCopy, systemProperties);
-        systemPropertiesCopy.delete();
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString("An error was encountered while executing this command."));
-
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                    getExportDirectory()), response,
+                    containsString("An error was encountered while executing this command."));
+        } finally {
+            Paths.get(ddfHome, "etc", "system.properties.copy").toFile()
+                    .renameTo(Paths.get(ddfHome, "etc", "system.properties").toFile());
+        }
     }
 
     /**
@@ -627,22 +628,18 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void testFailureWithoutUsersPropertiesFile() throws Exception {
         FileUtils.deleteQuietly(getExportDirectory().toFile());
 
-        File usersProperties = Paths.get(ddfHome, "etc", "users.properties")
-                .toFile();
+        Paths.get(ddfHome, "etc", "users.properties")
+                .toFile().renameTo(Paths.get(ddfHome, "etc", "users.properties.copy").toFile());
 
-        // back up sys.prop to restore after appending to it
-        File usersPropertiesCopy = Paths.get(ddfHome, "etc", "users.properties.copy")
-                .toFile();
-        FileUtils.copyFile(usersProperties, usersPropertiesCopy);
-        usersProperties.delete();
-
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        FileUtils.copyFile(usersPropertiesCopy, usersProperties);
-        usersPropertiesCopy.delete();
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString("An error was encountered while executing this command."));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                            getExportDirectory()), response,
+                    containsString("An error was encountered while executing this command."));
+        } finally {
+            Paths.get(ddfHome, "etc", "users.properties.copy")
+                    .toFile().renameTo(Paths.get(ddfHome, "etc", "users.properties").toFile());
+        }
 
     }
 
@@ -658,13 +655,15 @@ public class TestPlatform extends AbstractIntegrationTest {
         Paths.get(ddfHome, "etc", "ws-security")
                 .toFile().renameTo(Paths.get(ddfHome, "etc", "ws-security-copy").toFile());
 
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        Paths.get(ddfHome, "etc", "ws-security-copy").toFile()
-                .renameTo(Paths.get(ddfHome, "etc", "ws-security").toFile());
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString("An error was encountered while executing this command."));
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                            getExportDirectory()), response,
+                    containsString("An error was encountered while executing this command."));
+        } finally {
+            Paths.get(ddfHome, "etc", "ws-security-copy").toFile()
+                    .renameTo(Paths.get(ddfHome, "etc", "ws-security").toFile());
+        }
 
     }
 
@@ -680,14 +679,15 @@ public class TestPlatform extends AbstractIntegrationTest {
         Paths.get(ddfHome, "etc", "pdp")
                 .toFile().renameTo(Paths.get(ddfHome, "etc", "pdp-copy").toFile());
 
-        String response = console.runCommand(EXPORT_COMMAND);
-        // restore to initial state
-        Paths.get(ddfHome, "etc", "pdp-copy")
-                .toFile().renameTo(Paths.get(ddfHome, "etc", "pdp").toFile());
-        assertThat(
-                String.format("Should not have been able to export to %s.", getExportDirectory()),
-                response, containsString("An error was encountered while executing this command."));
-
+        try {
+            String response = console.runCommand(EXPORT_COMMAND);
+            assertThat(String.format("Should not have been able to export to %s.",
+                            getExportDirectory()), response,
+                    containsString("An error was encountered while executing this command."));
+        } finally {
+            Paths.get(ddfHome, "etc", "pdp-copy")
+                    .toFile().renameTo(Paths.get(ddfHome, "etc", "pdp").toFile());
+        }
     }
 
     /**
@@ -712,22 +712,19 @@ public class TestPlatform extends AbstractIntegrationTest {
 
         FileUtils.writeStringToFile(systemProperties, "testtesttest", true);
 
-        String secondExportMessage = console.runCommand(EXPORT_COMMAND);
-        File secondExport = getExportSubDirectory("system.properties").toFile();
-        long secondLength = secondExport.length();
+        try {
+            String secondExportMessage = console.runCommand(EXPORT_COMMAND);
+            File secondExport = getExportSubDirectory("system.properties").toFile();
+            long secondLength = secondExport.length();
 
-        // restore to initial state
-        FileUtils.copyFile(systemPropertiesCopy, systemProperties);
-        systemPropertiesCopy.delete();
-        assertThat("The first export failed to export",
-                firstExportMessage,
-                not(containsString("Failed to export all configurations")));
-        assertThat("The second export failed to export",
-                secondExportMessage,
-                not(containsString("Failed to export all configurations")));
-        assertThat("The second failed to modify the first export's files.",
-                firstLength,
-                is(not(equalTo(secondLength))));
+            assertThat("The first export failed to export", firstExportMessage, not(containsString("Failed to export all configurations")));
+            assertThat("The second export failed to export", secondExportMessage, not(containsString("Failed to export all configurations")));
+            assertThat("The second failed to modify the first export's files.", firstLength, is(not(equalTo(secondLength))));
+        } finally {
+
+            FileUtils.copyFile(systemPropertiesCopy, systemProperties);
+            systemPropertiesCopy.delete();
+        }
 
     }
 

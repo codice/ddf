@@ -5508,6 +5508,7 @@ property which provides the path to system key store.
 The files referred to in the system configuration files will be included in the export process only if the path is relative to `DDF_HOME`.
 Using absolute paths in those cases will cause the `platform:config-export` command to display warnings about those files and exclude them from the export process.
 The export process itself will not be aborted.
+====
 
 
 ==== Import Configuration Settings
