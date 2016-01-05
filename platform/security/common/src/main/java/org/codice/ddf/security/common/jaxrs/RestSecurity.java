@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -72,7 +73,8 @@ public final class RestSecurity {
         }
     }
 
-    public static void setUserOnClient(String username, String password, Client client) {
+    public static void setUserOnClient(String username, String password, Client client)
+            throws UnsupportedEncodingException {
         if (client != null && username != null && password != null) {
             if (!StringUtils.startsWithIgnoreCase(client.getCurrentURI().getScheme(), "https")) {
                 if (Boolean.valueOf(
@@ -92,8 +94,9 @@ public final class RestSecurity {
             }
             String basicCredentials = username + ":" + password;
             String encodedHeader = BASIC_HEADER_PREFIX + new String(
-                    Base64.encodeBase64(basicCredentials.getBytes()));
+                    Base64.encodeBase64(basicCredentials.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
             client.header(AUTH_HEADER, encodedHeader);
+
         }
     }
 
@@ -139,7 +142,7 @@ public final class RestSecurity {
             tokenStream.write(value.getBytes(StandardCharsets.UTF_8));
             tokenStream.close();
 
-            return new String(Base64.encodeBase64(valueBytes.toByteArray()));
+            return new String(Base64.encodeBase64(valueBytes.toByteArray()), StandardCharsets.UTF_8.name());
         }
     }
 
@@ -147,7 +150,7 @@ public final class RestSecurity {
         byte[] deflatedValue = Base64.decodeBase64(base64EncodedValue);
         InputStream is = new InflaterInputStream(new ByteArrayInputStream(deflatedValue),
                 new Inflater(GZIP_COMPATIBLE));
-        return IOUtils.toString(is, "UTF-8");
+        return IOUtils.toString(is, StandardCharsets.UTF_8.name());
     }
 
 }

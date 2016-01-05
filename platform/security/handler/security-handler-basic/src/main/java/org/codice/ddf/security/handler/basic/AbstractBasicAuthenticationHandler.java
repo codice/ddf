@@ -14,6 +14,7 @@
 package org.codice.ddf.security.handler.basic;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -145,7 +146,7 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
             if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
                 byte[] decode = Base64.decode(authInfo);
                 if (decode != null) {
-                    String userPass = new String(decode);
+                    String userPass = new String(decode, StandardCharsets.UTF_8);
                     String[] authComponents = userPass.split(":");
                     if (authComponents.length == 2) {
                         token = getBaseAuthenticationToken(realm, authComponents[0],

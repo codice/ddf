@@ -16,6 +16,7 @@ package ddf.catalog.transformer.xml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.activation.MimeType;
@@ -65,7 +66,7 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 
         try {
             String xmlString = metacardMarshaller.marshal(metacard, arguments);
-            ByteArrayInputStream bais = new ByteArrayInputStream(xmlString.getBytes());
+            ByteArrayInputStream bais = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
             return new BinaryContentImpl(bais, MIME_TYPE);
         } catch (XmlPullParserException | IOException e) {
             throw new CatalogTransformerException(e);

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -193,7 +194,8 @@ public class LogoutRequestService {
         simpleSign.signSamlObject(logoutRequest);
         LOGGER.debug("Converting SAML Request to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(logoutRequest, doc));
-        String encodedSamlRequest = new String(Base64.encodeBase64(assertionResponse.getBytes()));
+        String encodedSamlRequest = new String(Base64.encodeBase64(assertionResponse.getBytes(
+                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         String singleLogoutLocation = idpMetadata.getSingleLogoutLocation();
         String submitFormUpdated = String.format(submitForm,
                 singleLogoutLocation,
@@ -398,7 +400,8 @@ public class LogoutRequestService {
         simpleSign.signSamlObject(samlResponse);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes()));
+        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
+                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
         String singleLogoutLocation = idpMetadata.getSingleLogoutLocation();
         String submitFormUpdated = String.format(submitForm,
                 singleLogoutLocation,
@@ -424,7 +427,8 @@ public class LogoutRequestService {
     }
 
     private String decodeBase64(String encoded) {
-        return new String(Base64.decodeBase64(encoded.getBytes()));
+        return new String(Base64.decodeBase64(encoded.getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8);
     }
 
     private Response buildLogoutResponse(String message) {

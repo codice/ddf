@@ -77,6 +77,7 @@
         <antlr.version>4.3</antlr.version>
         <lux.woodstox.version>4.1.1</lux.woodstox.version>
         <guava.version>18.0</guava.version>
+        <findbugs.version>3.0.1</findbugs.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
@@ -503,10 +504,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>${findbugs.version}</version>
                 <configuration>
                     <effort>Max</effort>
-                    <threshold>Low</threshold>
+                    <threshold>High</threshold>
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
@@ -884,7 +885,7 @@
         <profile>
             <id>findbugs</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -919,7 +920,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>${findbugs.version}</version>
                         <configuration>
                             <excludeFilterFile>
                                 ${project.build.directory}/target/classes/findbugs-exclude.xml
@@ -930,7 +931,7 @@
                                 <id>generate-findbugs</id>
                                 <phase>compile</phase>
                                 <goals>
-                                    <goal>findbugs</goal>
+                                    <goal>check</goal>
                                 </goals>
                             </execution>
                         </executions>

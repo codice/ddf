@@ -716,7 +716,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             String timestamp = getCalendarTime(timestamps.get(i));
             row = sheet.createRow((short) rowCount);
             row.createCell(0).setCellValue(timestamp);
-            row.createCell(1).setCellValue(new Double(values.get(i)));
+            row.createCell(1).setCellValue(values.get(i));
             rowCount++;
         }
 

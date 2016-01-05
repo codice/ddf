@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
@@ -360,8 +361,8 @@ public class AssertionConsumerService {
     private org.opensaml.saml2.core.Response extractSamlResponse(String samlResponse) {
         org.opensaml.saml2.core.Response response = null;
         try {
-            Document responseDoc =
-                    StaxUtils.read(new ByteArrayInputStream(samlResponse.getBytes()));
+            Document responseDoc = StaxUtils.read(new ByteArrayInputStream(samlResponse.getBytes(
+                    StandardCharsets.UTF_8)));
             XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
 
             if (responseXmlObject instanceof org.opensaml.saml2.core.Response) {
@@ -375,7 +376,8 @@ public class AssertionConsumerService {
     }
 
     private String decodeBase64(String encoded) {
-        return new String(Base64.decodeBase64(encoded.getBytes()));
+        return new String(Base64.decodeBase64(encoded.getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8);
     }
 
     public Filter getLoginFilter() {

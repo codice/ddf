@@ -67,10 +67,18 @@ public class DumpCommand extends CatalogCommands {
     private static List<MetacardTransformer> transformers = null;
 
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
-            .appendDays().appendSuffix(" day", " days").appendSeparator(" ").appendHours()
-            .appendSuffix(" hour", " hours").appendSeparator(" ").appendMinutes()
-            .appendSuffix(" minute", " minutes").appendSeparator(" ").appendSeconds()
-            .appendSuffix(" second", " seconds").toFormatter();
+            .appendDays()
+            .appendSuffix(" day", " days")
+            .appendSeparator(" ")
+            .appendHours()
+            .appendSuffix(" hour", " hours")
+            .appendSeparator(" ")
+            .appendMinutes()
+            .appendSuffix(" minute", " minutes")
+            .appendSeparator(" ")
+            .appendSeconds()
+            .appendSuffix(" second", " seconds")
+            .toFormatter();
 
     @Argument(name = "Dump directory path", description = "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.", index = 0, multiValued = false, required = true)
     String dirPath = null;
@@ -152,15 +160,21 @@ public class DumpCommand extends CatalogCommands {
         if ((createdAfter != null) && (createdBefore != null)) {
             DateTime createStartDateTime = DateTime.parse(createdAfter);
             DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED).is().during()
+            createdFilter = builder.attribute(Metacard.CREATED)
+                    .is()
+                    .during()
                     .dates(createStartDateTime.toDate(), createEndDateTime.toDate());
         } else if (createdAfter != null) {
             DateTime createStartDateTime = DateTime.parse(createdAfter);
-            createdFilter = builder.attribute(Metacard.CREATED).is().after()
+            createdFilter = builder.attribute(Metacard.CREATED)
+                    .is()
+                    .after()
                     .date(createStartDateTime.toDate());
         } else if (createdBefore != null) {
             DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED).is().before()
+            createdFilter = builder.attribute(Metacard.CREATED)
+                    .is()
+                    .before()
                     .date(createEndDateTime.toDate());
         }
 
@@ -168,15 +182,21 @@ public class DumpCommand extends CatalogCommands {
         if ((modifiedAfter != null) && (modifiedBefore != null)) {
             DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
             DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().during()
+            modifiedFilter = builder.attribute(Metacard.MODIFIED)
+                    .is()
+                    .during()
                     .dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
         } else if (modifiedAfter != null) {
             DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().after()
+            modifiedFilter = builder.attribute(Metacard.MODIFIED)
+                    .is()
+                    .after()
                     .date(modifiedStartDateTime.toDate());
         } else if (modifiedBefore != null) {
             DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().before()
+            modifiedFilter = builder.attribute(Metacard.MODIFIED)
+                    .is()
+                    .before()
                     .date(modifiedEndDateTime.toDate());
         }
 
@@ -192,7 +212,10 @@ public class DumpCommand extends CatalogCommands {
             filter = modifiedFilter;
         } else {
             // Don't filter by date range
-            filter = builder.attribute(Metacard.ID).is().like().text(WILDCARD);
+            filter = builder.attribute(Metacard.ID)
+                    .is()
+                    .like()
+                    .text(WILDCARD);
         }
 
         if (cqlFilter != null) {
@@ -213,11 +236,17 @@ public class DumpCommand extends CatalogCommands {
         SourceResponse response = catalog.query(new QueryRequestImpl(query, props));
 
         BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
-        RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-        final ExecutorService executorService = new ThreadPoolExecutor(multithreaded, multithreaded,
-                0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
+        RejectedExecutionHandler rejectedExecutionHandler =
+                new ThreadPoolExecutor.CallerRunsPolicy();
+        final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                multithreaded,
+                0L,
+                TimeUnit.MILLISECONDS,
+                blockingQueue,
+                rejectedExecutionHandler);
 
-        while (response.getResults().size() > 0) {
+        while (response.getResults()
+                .size() > 0) {
             response = catalog.query(new QueryRequestImpl(query, props));
 
             if (multithreaded > 1) {
@@ -244,7 +273,8 @@ public class DumpCommand extends CatalogCommands {
                 }
             }
 
-            if (response.getResults().size() < pageSize || pageSize == -1) {
+            if (response.getResults()
+                    .size() < pageSize || pageSize == -1) {
                 break;
             }
 
@@ -276,17 +306,18 @@ public class DumpCommand extends CatalogCommands {
             throws IOException, CatalogTransformerException {
 
         if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(
-                    new FileOutputStream(getOutputFile(dumpLocation, metacard)))) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(
+                    dumpLocation,
+                    metacard)))) {
                 oos.writeObject(new MetacardImpl(metacard));
                 oos.flush();
             }
         } else {
 
             BinaryContent binaryContent;
-            try (FileOutputStream fos = new FileOutputStream(
-                    getOutputFile(dumpLocation, metacard))) {
-                if (metacard != null) {
+            if (metacard != null) {
+                try (FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation,
+                        metacard))) {
                     for (MetacardTransformer transformer : transformers) {
                         binaryContent = transformer.transform(metacard, new HashMap<>());
                         if (binaryContent != null) {
@@ -332,7 +363,7 @@ public class DumpCommand extends CatalogCommands {
                     "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
 
         } catch (InvalidSyntaxException e) {
-            console.printf("Fail to get MetacardTransformer references. ", e);
+            console.printf("Fail to get MetacardTransformer references due to %s", e.getMessage());
         }
         if (refs == null || refs.length == 0) {
             return null;

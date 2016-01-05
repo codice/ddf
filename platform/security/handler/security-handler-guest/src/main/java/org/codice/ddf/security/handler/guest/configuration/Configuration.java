@@ -14,6 +14,7 @@
 package org.codice.ddf.security.handler.guest.configuration;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -83,7 +84,7 @@ public class Configuration {
 
         String configString = JSONValue.toJSONString(configObj);
         response = Response
-                .ok(new ByteArrayInputStream(configString.getBytes()), mimeType.toString()).build();
+                .ok(new ByteArrayInputStream(configString.getBytes(StandardCharsets.UTF_8)), mimeType.toString()).build();
 
         return response;
     }

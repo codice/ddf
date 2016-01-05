@@ -54,16 +54,17 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
     private static final Logger LOGGER = LoggerFactory
             .getLogger(GeoJsonQueryResponseTransformer.class);
 
-    public static MimeType defaultMimeType = null;
+    protected static final MimeType DEFAULT_MIME_TYPE = new MimeType();
 
     static {
         try {
-            defaultMimeType = new MimeType("application/json");
+            DEFAULT_MIME_TYPE.setPrimaryType("application");
+            DEFAULT_MIME_TYPE.setSubType("json");
         } catch (MimeTypeParseException e) {
-            LOGGER.warn("Trying to set defaultMimeType", e);
+            LOGGER.info("Failure creating MIME type", e);
+            throw new ExceptionInInitializerError(e);
         }
     }
-
     public static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
@@ -113,12 +114,12 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
 
         return new ddf.catalog.data.BinaryContentImpl(
                 new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
-                defaultMimeType);
+                DEFAULT_MIME_TYPE);
     }
 
     @Override
     public String toString() {
         return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName() + ", id="
-                + ID + ", MIME Type=" + defaultMimeType + "}";
+                + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
     }
 }

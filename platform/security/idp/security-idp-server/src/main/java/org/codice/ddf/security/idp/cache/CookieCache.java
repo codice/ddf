@@ -126,7 +126,7 @@ public class CookieCache {
     /**
      * Listens for removal notifications from the cache and logs each time a removal is performed.
      */
-    private class RemovalListenerLogger implements RemovalListener<String, DataWrapper> {
+    private static class RemovalListenerLogger implements RemovalListener<String, DataWrapper> {
 
         @Override
         public void onRemoval(RemovalNotification<String, DataWrapper> notification) {

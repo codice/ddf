@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -123,7 +124,7 @@ public class OgcUrlResourceReader implements ResourceReader {
                 strBuilder.append(resourceURI);
                 strBuilder.append("\");</script></html>");
                 return new ResourceResponseImpl(new ResourceImpl(new ByteArrayInputStream(
-                        strBuilder.toString().getBytes()), detectedMimeType, resource.getName()));
+                        strBuilder.toString().getBytes(StandardCharsets.UTF_8)), detectedMimeType, resource.getName()));
             }
         }
         return response;

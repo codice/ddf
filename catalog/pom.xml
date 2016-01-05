@@ -490,6 +490,11 @@
                 <artifactId>logback-classic</artifactId>
                 <version>0.9.24</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>findbugs</artifactId>
+                <version>${findbugs.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>

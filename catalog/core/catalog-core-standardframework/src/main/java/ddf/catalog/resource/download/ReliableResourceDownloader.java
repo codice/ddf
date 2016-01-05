@@ -163,15 +163,15 @@ public class ReliableResourceDownloader implements Runnable {
         if (downloaderConfig.isCacheEnabled()) {
 
             CacheKey keyMaker = null;
-
+            String key = null;
             try {
                 keyMaker = new CacheKey(metacard, resourceResponse.getRequest());
+                key = keyMaker.generateKey();
             } catch(IllegalArgumentException e) {
                 LOGGER.info("Cannot create cache key for resource with metacard ID = {}",
                         metacard.getId());
+                return resourceResponse;
             }
-
-            String key = keyMaker.generateKey();
 
             if (!resourceCache.isPending(key)) {
 

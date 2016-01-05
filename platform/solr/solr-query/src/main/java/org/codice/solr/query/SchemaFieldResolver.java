@@ -52,7 +52,7 @@ public class SchemaFieldResolver {
 
     public static final String BINARY_SUFFIX = "_bin";
 
-    public static final String[] FORMAT_SUFFIXES = new String[] {OBJECT_SUFFIX, LONG_SUFFIX,
+    private static final String[] FORMAT_SUFFIXES = new String[] {OBJECT_SUFFIX, LONG_SUFFIX,
             INTEGER_SUFFIX, SHORT_SUFFIX, FLOAT_SUFFIX, DOUBLE_SUFFIX, BOOLEAN_SUFFIX, GEO_SUFFIX,
             TEXT_SUFFIX, XML_SUFFIX, DATE_SUFFIX, BINARY_SUFFIX};
 

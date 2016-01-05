@@ -56,7 +56,7 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 public class LandingPage extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private BrandingPlugin branding;
+    private transient BrandingPlugin branding;
 
     private String title;
 
@@ -94,7 +94,7 @@ public class LandingPage extends HttpServlet {
 
     private String logoToUse;
 
-    private BrandingResourceProvider provider;
+    private transient BrandingResourceProvider provider;
 
     public String getTitle() {
         return title;
@@ -203,7 +203,7 @@ public class LandingPage extends HttpServlet {
                 final Date firstDate = dateFromString(firstDateString);
                 final Date secondDate = dateFromString(secondDateString);
                 // Sort the dates in descending order (most recent first).
-                return -firstDate.compareTo(secondDate);
+                return secondDate.compareTo(firstDate);
             }
         });
     }

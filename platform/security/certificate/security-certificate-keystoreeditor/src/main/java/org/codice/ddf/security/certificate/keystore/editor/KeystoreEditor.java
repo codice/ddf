@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -378,7 +379,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 //if it isn't one of the stores we support, it might be a key or cert by itself
             } else if (isPemParsable(type, fileName)) {
                 //This is the catch all case for PEM, P7B, etc. with common file extensions if the mime type isn't read correctly in the browser
-                Reader reader = new BufferedReader(new InputStreamReader(inputStream));
+                Reader reader = new BufferedReader(new InputStreamReader(inputStream,
+                        StandardCharsets.UTF_8));
                 PEMParser pemParser = new PEMParser(reader);
                 Object object;
                 boolean setEntry = false;

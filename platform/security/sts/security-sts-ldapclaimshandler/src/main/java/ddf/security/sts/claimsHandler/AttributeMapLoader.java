@@ -13,6 +13,7 @@
  */
 package ddf.security.sts.claimsHandler;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -96,7 +97,7 @@ public class AttributeMapLoader {
         String credential = null;
         if (principal instanceof X500Principal) {
             X500Principal x500p = (X500Principal) principal;
-            credential = new String(x500p.getEncoded());
+            credential = new String(x500p.getEncoded(), StandardCharsets.UTF_8);
         } else if (principal instanceof WSUsernameTokenPrincipalImpl) {
             credential = ((WSUsernameTokenPrincipalImpl) principal).getPassword();
         }

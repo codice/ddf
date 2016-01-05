@@ -65,9 +65,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     private static Properties describableProperties = new Properties();
 
     static {
-        try (InputStream propertiesStream = SolrHttpCatalogProvider.class
-                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
-            describableProperties.load(propertiesStream);
+        try (InputStream inputStream = SolrHttpCatalogProvider.class.getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(inputStream);
         } catch (IOException e) {
             LOGGER.info("Did not load properties properly.", e);
         }
@@ -249,7 +248,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
             }
         } else {
             // sets to null
-            url = urlValue;
+            url = null;
         }
     }
 

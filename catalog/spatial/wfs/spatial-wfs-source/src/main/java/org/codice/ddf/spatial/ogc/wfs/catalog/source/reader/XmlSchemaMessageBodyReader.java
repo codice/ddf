@@ -67,7 +67,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
         inStream.reset();
         String count = COUNT_XPATH_BUILDER.evaluate(camelContext, input);
         // See if there exactly one instance of "xsd:schema" in this doc
-        if (Integer.valueOf(count) == 1) {
+        if (Integer.parseInt(count) == 1) {
             XmlSchema schema = null;
             XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
             schemaCollection.init();

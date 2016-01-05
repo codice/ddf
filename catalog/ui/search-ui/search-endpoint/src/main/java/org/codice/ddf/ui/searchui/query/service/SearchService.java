@@ -159,9 +159,9 @@ public class SearchService {
         if (o != null) {
             if (o instanceof Number) {
                 if (targetClass.equals(Double.class)) {
-                    return (T) new Double(((Number) o).doubleValue());
+                    return (T) Double.valueOf(((Number) o).doubleValue());
                 } else if (targetClass.equals(Long.class)) {
-                    return (T) new Long(((Number) o).longValue());
+                    return (T) Long.valueOf(((Number) o).longValue());
                 } else {
                     // unhandled conversion so trying best effort
                     return (T) o;
@@ -265,8 +265,8 @@ public class SearchService {
         // default values
         String sortField = Result.TEMPORAL;
         String sortOrder = DEFAULT_SORT_ORDER;
-        Long startIndex = startIndexLng == null ? DEFAULT_START_INDEX : startIndexLng;
-        Long count = countLng == null ? DEFAULT_COUNT : countLng;
+        Long startIndex = startIndexLng == null ? Long.valueOf(DEFAULT_START_INDEX) : startIndexLng;
+        Long count = countLng == null ? Long.valueOf(DEFAULT_COUNT) : countLng;
         long maxTimeout = maxTimeoutLng == null ? DEFAULT_TIMEOUT : maxTimeoutLng;
 
         // Updated to use the passed in index if valid (=> 1)

@@ -47,7 +47,7 @@ public class TestPage extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPage.class);
 
-    private ProxyFilter proxyFilter;
+    private transient ProxyFilter proxyFilter;
 
     public TestPage(ProxyFilter proxyFilter) {
         super();

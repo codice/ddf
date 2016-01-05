@@ -24,6 +24,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,11 +69,10 @@ public final class SolrServerFactory {
 
     public static final String DEFAULT_CORE_NAME = "core1";
 
-    public static final String[] DEFAULT_PROTOCOLS = new String[] {"TLSv1.1", "TLSv1.2"};
+    public static final List<String> DEFAULT_PROTOCOLS = Collections.unmodifiableList(Arrays.asList("TLSv1.1", "TLSv1.2"));
 
-    public static final String[] DEFAULT_CIPHER_SUITES = new String[] {
-            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"};
+    public static final List<String> DEFAULT_CIPHER_SUITES = Collections.unmodifiableList(Arrays.asList("TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"));
 
     public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
@@ -169,7 +171,7 @@ public final class SolrServerFactory {
         if (System.getProperty("https.protocols") != null) {
             return StringUtils.split(System.getProperty("https.protocols"), ",");
         } else {
-            return DEFAULT_PROTOCOLS;
+            return DEFAULT_PROTOCOLS.toArray(new String[DEFAULT_PROTOCOLS.size()]);
         }
     }
 
@@ -177,7 +179,7 @@ public final class SolrServerFactory {
         if (System.getProperty("https.cipherSuites") != null) {
             return StringUtils.split(System.getProperty("https.cipherSuites"), ",");
         } else {
-            return DEFAULT_CIPHER_SUITES;
+            return DEFAULT_CIPHER_SUITES.toArray(new String[DEFAULT_CIPHER_SUITES.size()]);
         }
     }
 

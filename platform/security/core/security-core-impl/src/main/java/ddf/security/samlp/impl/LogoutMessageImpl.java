@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -79,7 +80,7 @@ public class LogoutMessageImpl implements LogoutMessage {
     public SignableSAMLObject extractXmlObject(@NotNull String samlLogoutResponse)
             throws WSSecurityException, XMLStreamException {
         Document responseDoc =
-                StaxUtils.read(new ByteArrayInputStream(samlLogoutResponse.getBytes()));
+                StaxUtils.read(new ByteArrayInputStream(samlLogoutResponse.getBytes(StandardCharsets.UTF_8)));
         XMLObject xmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
         if (xmlObject instanceof SignableSAMLObject) {
             return (SignableSAMLObject) xmlObject;
@@ -89,7 +90,8 @@ public class LogoutMessageImpl implements LogoutMessage {
 
     private <T extends SAMLObject> T extract(@NotNull String samlObject, @NotNull Class<T> clazz)
             throws WSSecurityException, XMLStreamException {
-        Document responseDoc = StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes()));
+        Document responseDoc = StaxUtils.read(new ByteArrayInputStream(samlObject.getBytes(
+                StandardCharsets.UTF_8)));
         XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
         if (clazz.isAssignableFrom(responseXmlObject.getClass())) {
             return clazz.cast(responseXmlObject);

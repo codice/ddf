@@ -74,7 +74,7 @@ public class MetacardValueResolver implements ValueResolver {
         return Collections.emptySet();
     }
 
-    private class MetacardWrapper {
+    private static class MetacardWrapper {
         Metacard metacard;
 
         MetacardWrapper(Metacard metacard) {

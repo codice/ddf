@@ -14,7 +14,9 @@
 package org.codice.ddf.security.handler.api;
 
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -89,8 +91,13 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         BaseAuthenticationToken baseAuthenticationToken = null;
         org.apache.xml.security.Init.init();
 
-        byte[] token = Base64.decode(stringBST);
-        String unencodedCreds = isEncoded && token != null ? new String(token) : stringBST;
+        String unencodedCreds = null;
+        try {
+            unencodedCreds = isEncoded ? new String(Base64.decode(stringBST), StandardCharsets.UTF_8.name()) : stringBST;
+        } catch (UnsupportedEncodingException e) {
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE,
+                    "Exception decoding specified credentials. Unable to find required components.");
+        }
         if (!StringUtils.isEmpty(unencodedCreds) && unencodedCreds.startsWith(BST_PRINCIPAL)) {
             String[] components = unencodedCreds.split(NEWLINE);
             if (components.length == 3) {
@@ -142,8 +149,13 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
             }
         }
         LOGGER.trace("Credential String: {}", retVal);
-        String encodedCreds = Base64
-                .encodeBytes(builder.toString().getBytes(), Base64.DONT_BREAK_LINES);
+        String encodedCreds = null;
+        try {
+            encodedCreds = Base64
+                    .encodeBytes(builder.toString().getBytes(StandardCharsets.UTF_8.name()), Base64.DONT_BREAK_LINES);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warn("Unable to encode credentials", e);
+        }
         LOGGER.trace("BST: {}", encodedCreds);
         return encodedCreds;
     }

@@ -196,9 +196,11 @@ class CswUnmarshallHelper {
             reader.moveUp();
         }
 
-        for (String attrName : attributes.keySet()) {
-            Attribute attr = attributes.get(attrName);
+        for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
+            Attribute attr = entry.getValue();
             mc.setAttribute(attr);
+
+            String attrName = entry.getKey();
 
             // If this CSW attribute also maps to a basic metacard attribute,
             // (e.g., title, modified date, etc.)

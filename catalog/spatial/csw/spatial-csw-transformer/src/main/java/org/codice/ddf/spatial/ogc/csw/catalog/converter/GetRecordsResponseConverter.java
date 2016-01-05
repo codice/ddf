@@ -166,8 +166,8 @@ public class GetRecordsResponseConverter implements Converter {
         LOGGER.debug("numberOfRecordsMatched = {}", numberOfRecordsMatched);
         String numberOfRecordsReturned = reader.getAttribute("numberOfRecordsReturned");
         LOGGER.debug("numberOfRecordsReturned = {}", numberOfRecordsReturned);
-        cswRecords.setNumberOfRecordsMatched(Long.valueOf(numberOfRecordsMatched));
-        cswRecords.setNumberOfRecordsReturned(Long.valueOf(numberOfRecordsReturned));
+        cswRecords.setNumberOfRecordsMatched(Long.parseLong(numberOfRecordsMatched));
+        cswRecords.setNumberOfRecordsReturned(Long.parseLong(numberOfRecordsReturned));
 
     }
 }

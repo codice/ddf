@@ -16,6 +16,9 @@ package ddf.catalog.pubsub.criteria.temporal;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+import org.codice.ddf.platform.util.DateUtils;
+
 public class TemporalEvaluationCriteriaImpl implements TemporalEvaluationCriteria {
     private Date end;
 
@@ -25,21 +28,29 @@ public class TemporalEvaluationCriteriaImpl implements TemporalEvaluationCriteri
 
     public TemporalEvaluationCriteriaImpl(Date end, Date start, Date input) {
         super();
-        this.end = end;
-        this.start = start;
-        this.input = input;
+        Validate.notNull(start);
+        Validate.notNull(input);
+        if (end != null) {
+            this.end = new Date(end.getTime());
+        }
+        if (start != null) {
+            this.start = new Date(start.getTime());
+        }
+        if (input != null) {
+            this.input = new Date(input.getTime());
+        }
     }
 
     public Date getEnd() {
-        return end;
+        return DateUtils.copy(end);
     }
 
     public Date getInput() {
-        return input;
+        return DateUtils.copy(input);
     }
 
     public Date getStart() {
-        return start;
+        return DateUtils.copy(start);
     }
 
 }

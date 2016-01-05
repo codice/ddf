@@ -112,6 +112,14 @@ public class TestBackupCommand {
         assertThat(consoleOutput.getOutput(), containsString(String.format("Backup command failed due to: %d", HttpStatus.SC_NOT_FOUND)));
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void testSystemPropertiesNotSet() throws Exception {
+
+        BackupCommand backupCommand = new BackupCommand();
+        backupCommand.doExecute();
+    }
+
+
     private ResponseWrapper mockResponse(int statusCode, String responseBody) {
         return new ResponseWrapper(prepareResponse(statusCode, responseBody));
     }

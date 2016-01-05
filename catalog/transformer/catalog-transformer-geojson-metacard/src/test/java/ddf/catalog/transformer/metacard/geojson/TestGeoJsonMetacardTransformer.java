@@ -99,7 +99,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -158,7 +158,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -201,7 +201,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -244,7 +244,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -288,7 +288,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -341,7 +341,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -380,7 +380,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -434,7 +434,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
@@ -479,7 +479,7 @@ public class TestGeoJsonMetacardTransformer {
         BinaryContent content = transformer.transform(metacard, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonMetacardTransformer.defaultMimeType.getBaseType());
+                GeoJsonMetacardTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);

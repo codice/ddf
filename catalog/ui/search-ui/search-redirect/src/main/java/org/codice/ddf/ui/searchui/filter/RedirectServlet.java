@@ -35,9 +35,11 @@ import org.slf4j.LoggerFactory;
  */
 public class RedirectServlet extends HttpServlet {
 
-    private Logger logger = LoggerFactory.getLogger(RedirectServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedirectServlet.class);
 
-    private RedirectConfiguration redirectConfiguration;
+    private static final long serialVersionUID = 1L;
+
+    private transient RedirectConfiguration redirectConfiguration;
 
     @Override
     public void service(HttpServletRequest servletRequest,
@@ -45,15 +47,15 @@ public class RedirectServlet extends HttpServlet {
         if (StringUtils.isNotBlank(redirectConfiguration.getDefaultUri())) {
             URI uri = URI.create(redirectConfiguration.getDefaultUri());
             if (uri.isAbsolute()) {
-                logger.warn("Redirecting /search to an absolute URI: " + redirectConfiguration
+                LOGGER.warn("Redirecting /search to an absolute URI: {}", redirectConfiguration
                         .getDefaultUri());
             } else {
-                logger.info("Redirecting /search to a relative URI: " + redirectConfiguration
+                LOGGER.info("Redirecting /search to a relative URI: {}", redirectConfiguration
                         .getDefaultUri());
             }
             servletResponse.sendRedirect(redirectConfiguration.getDefaultUri());
         } else {
-            logger.warn("Search page redirection has not been configured.");
+            LOGGER.warn("Search page redirection has not been configured.");
             servletResponse.sendError(404);
         }
     }

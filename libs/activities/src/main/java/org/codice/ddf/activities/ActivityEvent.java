@@ -314,7 +314,7 @@ public class ActivityEvent extends HashMap<String, Object> {
      */
     public Long getBytesRead() {
         try {
-            Long bytes = new Long(this.get(BYTES_READ_KEY).toString());
+            Long bytes = Long.valueOf(this.get(BYTES_READ_KEY).toString());
             return bytes;
         } catch (NumberFormatException nfe) {
             LOGGER.debug("Received invalid number of bytes. ", nfe.getMessage());
