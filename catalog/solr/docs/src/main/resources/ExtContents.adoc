@@ -1,6 +1,8 @@
-                     
-== Overview
 
-The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
+This section supports developers creating extensions of the existing framework.
 
-This page supports developers creating extensions of the existing framework.
+=== Whitelist
+
+The following packages have been exported by the DDF Catalog application and are approved for use by third parties:
+
+None.
