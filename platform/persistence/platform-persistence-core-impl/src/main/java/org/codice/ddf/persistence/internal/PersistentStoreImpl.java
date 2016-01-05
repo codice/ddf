@@ -19,12 +19,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -108,24 +108,7 @@ public class PersistentStoreImpl implements PersistentStore {
         solrInputDocument.addField("createddate_tdt", now);
 
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            if (entry.getKey().equals(PersistentItem.ID)) {
-                solrInputDocument.addField(entry.getKey(), entry.getValue());
-            } else if (entry.getKey().endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
-                @SuppressWarnings("unchecked")
-                Set<String> values = (Set<String>) entry.getValue();
-                if (values != null && !values.isEmpty()) {
-                    for (String value : values) {
-                        solrInputDocument.addField(entry.getKey(), value);
-                    }
-                }
-            } else if (entry.getKey().endsWith(PersistentItem.XML_SUFFIX) || entry.getKey()
-                    .endsWith(PersistentItem.TEXT_SUFFIX)) {
-                solrInputDocument.addField(entry.getKey(), entry.getValue());
-            } else if (entry.getKey().endsWith(PersistentItem.LONG_SUFFIX)) {
-                solrInputDocument.addField(entry.getKey(), entry.getValue());
-            } else if (entry.getKey().endsWith(PersistentItem.INT_SUFFIX)) {
-                solrInputDocument.addField(entry.getKey(), entry.getValue());
-            }
+            solrInputDocument.addField(entry.getKey(), entry.getValue());
         }
 
         try {
@@ -175,7 +158,7 @@ public class PersistentStoreImpl implements PersistentStore {
                     "The type of object(s) to retrieve must be non-null and not blank, e.g., notification, metacard, etc.");
         }
 
-        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> results = new ArrayList<>();
 
         // Set Solr Core name to type and create/connect to Solr Core
         SolrServer coreSolrServer = getSolrCore(type);
@@ -204,18 +187,24 @@ public class PersistentStoreImpl implements PersistentStore {
                 Collection<String> fieldNames = doc.getFieldNames();
                 for (String name : fieldNames) {
                     LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
-                    if (name.endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
-                        result.addProperty(name, (Set<String>) doc.getFieldValue(name));
+                    if (name.endsWith(PersistentItem.TEXT_SUFFIX)
+                            && doc.getFieldValues(name).size() > 1) {
+                        result.addProperty(name,
+                                doc.getFieldValues(name)
+                                        .stream()
+                                        .filter(s -> s instanceof String)
+                                        .map(s -> (String) s)
+                                        .collect(Collectors.toSet()));
                     } else if (name.endsWith(PersistentItem.XML_SUFFIX)) {
-                        result.addXmlProperty(name, (String) doc.getFieldValue(name));
+                        result.addXmlProperty(name, (String) doc.getFirstValue(name));
                     } else if (name.endsWith(PersistentItem.TEXT_SUFFIX)) {
-                        result.addProperty(name, (String) doc.getFieldValue(name));
+                        result.addProperty(name, (String) doc.getFirstValue(name));
                     } else if (name.endsWith(PersistentItem.LONG_SUFFIX)) {
-                        result.addProperty(name, (Long) doc.getFieldValue(name));
+                        result.addProperty(name, (Long) doc.getFirstValue(name));
                     } else if (name.endsWith(PersistentItem.INT_SUFFIX)) {
-                        result.addProperty(name, (Integer) doc.getFieldValue(name));
+                        result.addProperty(name, (Integer) doc.getFirstValue(name));
                     } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
-                        result.addProperty(name, (Date) doc.getFieldValue(name));
+                        result.addProperty(name, (Date) doc.getFirstValue(name));
                     } else {
                         LOGGER.info("Not adding field {} because it has invalid suffix", name);
                     }
@@ -240,7 +229,7 @@ public class PersistentStoreImpl implements PersistentStore {
         if (coreSolrServer == null) {
             return 0;
         }
-        List<String> idsToDelete = new ArrayList<String>();
+        List<String> idsToDelete = new ArrayList<>();
         for (Map<String, Object> item : itemsToDelete) {
             String uuid = (String) item.get(PersistentItem.ID);
             if (StringUtils.isNotBlank(uuid)) {

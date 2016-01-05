@@ -35,9 +35,6 @@ public class PersistentItem extends HashMap<String, Object> {
 
     public static final String DATE_SUFFIX = "_tdt";
 
-    // for Set<String>
-    public static final String TEXT_SET_SUFFIX = "_txt_set";
-
     private static final String[] SUFFIXES = new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX,
             LONG_SUFFIX, DATE_SUFFIX};
 
@@ -81,7 +78,7 @@ public class PersistentItem extends HashMap<String, Object> {
     }
 
     public void addProperty(String name, Set<String> value) {
-        addProperty(name, TEXT_SET_SUFFIX, value);
+        addProperty(name, TEXT_SUFFIX, value);
     }
 
     public void addProperty(String name, Date value) {
@@ -123,7 +120,7 @@ public class PersistentItem extends HashMap<String, Object> {
     }
 
     public Set<String> getTextSetProperty(String name) {
-        return (Set<String>) getProperty(name + TEXT_SET_SUFFIX);
+        return (Set<String>) getProperty(name + TEXT_SUFFIX);
     }
 
     public Object getProperty(String name) {

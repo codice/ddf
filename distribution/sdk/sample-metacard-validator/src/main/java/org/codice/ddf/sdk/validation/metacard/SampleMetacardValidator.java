@@ -29,6 +29,8 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
 
     private static String[] validWords = new String[] {"test", "default", "sample"};
 
+    private String id = "sample-validator";
+
     @Override
     public String getVersion() {
         return "1.0";
@@ -36,12 +38,16 @@ public class SampleMetacardValidator implements MetacardValidator, Describable {
 
     @Override
     public String getId() {
-        return "sample-validator";
+        return id;
     }
 
     @Override
     public String getTitle() {
         return "Sample Metacard Validator";
+    }
+
+    public void setId(String newId) {
+        id = newId;
     }
 
     @Override

@@ -120,7 +120,7 @@ public class WaitCondition {
         } catch (Exception e) {
             String message = String
                     .format("%s: Unexpected exception [%s] caught while waiting for expectation to be met",
-                            description, e.getMessage());
+                            description, e);
             LOGGER.error(message);
             fail(message);
         }

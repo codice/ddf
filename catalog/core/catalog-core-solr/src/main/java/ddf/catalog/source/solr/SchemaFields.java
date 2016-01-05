@@ -63,6 +63,8 @@ public class SchemaFields {
 
     public static final String METACARD_TYPE_OBJECT_FIELD_NAME = "metacard_type" + OBJECT_SUFFIX;
 
+    public static final String SORT_KEY_SUFFIX = "_sk";
+
     private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<>();
 
     private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<>();
