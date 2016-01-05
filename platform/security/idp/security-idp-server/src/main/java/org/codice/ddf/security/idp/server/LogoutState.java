@@ -31,6 +31,8 @@ public class LogoutState {
 
     private String originalRequestId;
 
+    private String currentRequestId;
+
     private boolean partialLogout = false;
 
     public LogoutState(Set<String> spDescriptors) {
@@ -89,5 +91,13 @@ public class LogoutState {
 
     public void setPartialLogout(boolean partialLogout) {
         this.partialLogout = partialLogout;
+    }
+
+    public String getCurrentRequestId() {
+        return currentRequestId;
+    }
+
+    public void setCurrentRequestId(String currentRequestId) {
+        this.currentRequestId = currentRequestId;
     }
 }

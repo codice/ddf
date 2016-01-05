@@ -145,6 +145,12 @@ public class LogoutMessageImpl implements LogoutMessage {
                 id);
     }
 
+    /**
+     *  @apiNote ONLY use this method in error cases when creating a valid response pass the inResponseTo id
+     * @param issuerOrEntityId the issuer or entity id to use when building the response
+     * @param statusCodeValue the success, failure or partial logout status code
+     * @return LogoutResponse
+     */
     @Override
     public LogoutResponse buildLogoutResponse(@NotNull String issuerOrEntityId,
             @NotNull String statusCodeValue) {

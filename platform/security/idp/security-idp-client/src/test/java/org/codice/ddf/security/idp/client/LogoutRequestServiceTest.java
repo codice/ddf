@@ -224,7 +224,8 @@ public class LogoutRequestServiceTest {
         when(logoutRequest.getIssuer()).thenReturn(issuer);
         when(issuer.getValue()).thenReturn(issuerStr);
         when(logoutMessage.buildLogoutResponse(eq(issuerStr),
-                eq(StatusCode.SUCCESS_URI))).thenReturn(logoutResponse);
+                eq(StatusCode.SUCCESS_URI),
+                anyString())).thenReturn(logoutResponse);
         when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.POST_BINDING);
         when(idpMetadata.getSingleLogoutLocation()).thenReturn(postLogoutUrl);
         Response response = logoutRequestService.postLogoutRequest(encodedSamlRequest,

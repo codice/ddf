@@ -704,13 +704,13 @@ public class IdpEndpoint implements Idp {
     /**
      * aka HTTP-Redirect
      *
-     * @param samlRequest
-     * @param samlResponse
-     * @param relayState
-     * @param signatureAlgorithm
-     * @param signature
-     * @param request
-     * @return Response
+     * @param samlRequest the base64 encoded saml request
+     * @param samlResponse the base64 encoded saml response
+     * @param relayState the UUID that references the logout state
+     * @param signatureAlgorithm this signing algorithm
+     * @param signature the signature of the url
+     * @param request the http servlet request
+     * @return Response redirecting to an service provider
      * @throws WSSecurityException
      * @throws IdpException
      */
@@ -723,8 +723,6 @@ public class IdpEndpoint implements Idp {
             @QueryParam(SSOConstants.SIG_ALG) final String signatureAlgorithm,
             @QueryParam(SSOConstants.SIGNATURE) final String signature,
             @Context final HttpServletRequest request) throws WSSecurityException, IdpException {
-        // TODO - if ID present in request, Validate InResponseTo field - https://codice.atlassian.net/browse/DDF-1725
-        // also don't forget to do POST
         LogoutState logoutState = getLogoutState(request);
         Cookie cookie = getCookie(request);
 
@@ -751,6 +749,7 @@ public class IdpEndpoint implements Idp {
                 LogoutResponse logoutResponse =
                         logoutMessage.extractSamlLogoutResponse(RestSecurity.inflateBase64(
                                 samlResponse));
+                String requestId = logoutState != null ? logoutState.getCurrentRequestId() : null;
                 validateRedirect(relayState,
                         signatureAlgorithm,
                         signature,
@@ -758,7 +757,8 @@ public class IdpEndpoint implements Idp {
                         samlResponse,
                         logoutResponse,
                         logoutResponse.getIssuer()
-                                .getValue());
+                                .getValue(),
+                        requestId);
                 return handleLogoutResponse(cookie,
                         logoutState,
                         logoutResponse,
@@ -778,21 +778,38 @@ public class IdpEndpoint implements Idp {
     void validateRedirect(String relayState, String signatureAlgorithm, String signature,
             HttpServletRequest request, String samlString, ValidatingXMLObject logoutRequest,
             String issuer) throws ValidationException {
+        validateRedirect(relayState,
+                signatureAlgorithm,
+                signature,
+                request,
+                samlString,
+                logoutRequest,
+                issuer,
+                null);
+    }
+
+    void validateRedirect(String relayState, String signatureAlgorithm, String signature,
+            HttpServletRequest request, String samlString, ValidatingXMLObject logoutRequest,
+            String issuer, String requestId) throws ValidationException {
         if (strictSignature) {
             if (isEmpty(signature) || isEmpty(signatureAlgorithm) || isEmpty(issuer)) {
                 throw new ValidationException("No signature present for AuthnRequest.");
             }
-            String signingCertificate = serviceProviders.get(issuer)
-                    .getSigningCertificate();
+            SamlValidator.Builder validator =
+                    new SamlValidator.Builder(new SimpleSign(systemCrypto)).setRedirectParams(
+                            relayState,
+                            signature,
+                            signatureAlgorithm,
+                            samlString,
+                            serviceProviders.get(issuer)
+                                    .getSigningCertificate());
 
-            new SamlValidator.Builder(new SimpleSign(systemCrypto)).setRedirectParams(relayState,
-                    signature,
-                    signatureAlgorithm,
-                    samlString,
-                    serviceProviders.get(issuer)
-                            .getSigningCertificate())
-                    .buildAndValidate(request.getRequestURL()
-                            .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
+            if (requestId != null) {
+                validator.setRequestId(requestId);
+            }
+
+            validator.buildAndValidate(request.getRequestURL()
+                    .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
         }
     }
 
@@ -820,7 +837,8 @@ public class IdpEndpoint implements Idp {
                 LogoutResponse logoutResponse =
                         logoutMessage.extractSamlLogoutResponse(RestSecurity.inflateBase64(
                                 samlResponse));
-                validatePost(request, logoutResponse);
+                String requestId = logoutState != null ? logoutState.getCurrentRequestId() : null;
+                validatePost(request, logoutResponse, requestId);
                 return handleLogoutResponse(cookie,
                         logoutState,
                         logoutResponse,
@@ -837,8 +855,18 @@ public class IdpEndpoint implements Idp {
 
     void validatePost(HttpServletRequest request, SignableSAMLObject samlObject)
             throws ValidationException {
+        validatePost(request, samlObject, null);
+    }
+
+    void validatePost(HttpServletRequest request, SignableSAMLObject samlObject,
+            String requestId) throws ValidationException {
         if (strictSignature) {
-            new SamlValidator.Builder(new SimpleSign(systemCrypto)).buildAndValidate(request.getRequestURL()
+            SamlValidator.Builder validator =
+                    new SamlValidator.Builder(new SimpleSign(systemCrypto));
+            if (requestId != null) {
+                validator.setRequestId(requestId);
+            }
+            validator.buildAndValidate(request.getRequestURL()
                     .toString(), SamlProtocol.Binding.HTTP_POST, samlObject);
         }
     }
@@ -895,8 +923,11 @@ public class IdpEndpoint implements Idp {
                         .equals(entityId)) {
                     return continueLogout(logoutState, cookie, incomingBinding);
                 }
-                logoutObject = logoutMessage.buildLogoutRequest(logoutState.getNameId(),
-                        systemBaseUrl.constructUrl("/idp/logout", true));
+                LogoutRequest logoutRequest =
+                        logoutMessage.buildLogoutRequest(logoutState.getNameId(),
+                                systemBaseUrl.constructUrl("/idp/logout", true));
+                logoutState.setCurrentRequestId(logoutRequest.getID());
+                logoutObject = logoutRequest;
                 relay = "";
                 samlType = "SAMLRequest";
             } else {
