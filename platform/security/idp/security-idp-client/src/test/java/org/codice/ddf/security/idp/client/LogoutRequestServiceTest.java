@@ -16,10 +16,8 @@ package org.codice.ddf.security.idp.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +40,7 @@ import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
 import org.opensaml.xmlsec.signature.SignableXMLObject;
 
@@ -52,7 +51,6 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.RelayStates;
 
@@ -95,9 +93,8 @@ public class LogoutRequestServiceTest {
     private class MockLogoutRequestService extends LogoutRequestService {
 
         public MockLogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata,
-                SystemCrypto systemCrypto, SystemBaseUrl systemBaseUrl,
-                RelayStates<String> relayStates) {
-            super(simpleSign, idpMetadata, systemCrypto, systemBaseUrl, relayStates);
+                SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
+            super(simpleSign, idpMetadata, systemBaseUrl, relayStates);
         }
 
         @Override
@@ -123,7 +120,6 @@ public class LogoutRequestServiceTest {
 
         logoutRequestService = new MockLogoutRequestService(simpleSign,
                 idpMetadata,
-                systemCrypto,
                 systemBaseUrl,
                 relayStates);
         logoutRequestService.setEncryptionService(encryptionService);
@@ -246,8 +242,9 @@ public class LogoutRequestServiceTest {
         when(logoutRequest.getVersion()).thenReturn(SAMLVersion.VERSION_20);
         when(logoutRequest.getID()).thenReturn("id");
         when(issuer.getValue()).thenReturn(issuerStr);
-        when(logoutMessage.buildLogoutResponse(eq(issuerStr), eq(StatusCode.SUCCESS))).thenReturn(
-                logoutResponse);
+        when(logoutMessage.buildLogoutResponse(eq(issuerStr),
+                eq(StatusCode.SUCCESS),
+                anyString())).thenReturn(logoutResponse);
         when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.POST_BINDING);
         when(idpMetadata.getSingleLogoutLocation()).thenReturn(postLogoutUrl);
         Response response = logoutRequestService.postLogoutRequest(encodedSamlRequest,
@@ -379,9 +376,19 @@ public class LogoutRequestServiceTest {
         LogoutRequest logoutRequest = mock(LogoutRequest.class);
         when(logoutMessage.extractSamlLogoutRequest(eq("deflatedSamlRequest"))).thenReturn(
                 logoutRequest);
-        doThrow(new ValidationException()).when(logoutRequest)
-                .validate(anyBoolean());
-        Response response = logoutRequestService.getLogoutRequest(deflatedSamlRequest,
+
+        LogoutRequestService lrs = new LogoutRequestService(simpleSign,
+                idpMetadata,
+                systemBaseUrl,
+                relayStates);
+
+        lrs.setEncryptionService(encryptionService);
+        lrs.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
+        lrs.setLogoutMessage(logoutMessage);
+        lrs.setRequest(request);
+        lrs.setSessionFactory(sessionFactory);
+        lrs.init();
+        Response response = lrs.getLogoutRequest(deflatedSamlRequest,
                 null,
                 relayState,
                 signatureAlgorithm,
@@ -450,9 +457,18 @@ public class LogoutRequestServiceTest {
         LogoutResponse logoutResponse = mock(LogoutResponse.class);
         when(logoutMessage.extractSamlLogoutResponse(eq("deflatedSamlResponse"))).thenReturn(
                 logoutResponse);
-        doThrow(new ValidationException()).when(logoutResponse)
-                .validate(anyBoolean());
-        Response response = logoutRequestService.getLogoutRequest(null,
+        LogoutRequestService lrs = new LogoutRequestService(simpleSign,
+                idpMetadata,
+                systemBaseUrl,
+                relayStates);
+
+        lrs.setEncryptionService(encryptionService);
+        lrs.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
+        lrs.setLogoutMessage(logoutMessage);
+        lrs.setRequest(request);
+        lrs.setSessionFactory(sessionFactory);
+        lrs.init();
+        Response response = lrs.getLogoutRequest(null,
                 deflatedSamlResponse,
                 relayState,
                 signatureAlgorithm,

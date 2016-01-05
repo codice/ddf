@@ -83,12 +83,12 @@ public class IdpHandler implements AuthenticationHandler {
     public static final String UNABLE_TO_SIGN_SAML_AUTHN_REQUEST =
             "Unable to sign SAML Authn Request";
 
-    private static XMLObjectBuilderFactory builderFactory =
-            XMLObjectProviderRegistrySupport.getBuilderFactory();
-
     static {
         OpenSAMLUtil.initSamlEngine();
     }
+
+    private static XMLObjectBuilderFactory builderFactory =
+            XMLObjectProviderRegistrySupport.getBuilderFactory();
 
     @SuppressWarnings("unchecked")
     private static SAMLObjectBuilder<AuthnRequest> authnRequestBuilder =
