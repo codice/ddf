@@ -293,12 +293,12 @@ public class SolrCache implements SolrCacheMBean {
     }
 
     public String getMetacardId(SolrDocument doc) {
-        return doc.getFieldValue(METACARD_ID_NAME)
+        return doc.getFirstValue(METACARD_ID_NAME)
                 .toString();
     }
 
     public String getMetacardSource(SolrDocument doc) {
-        return doc.getFieldValue(METACARD_SOURCE_NAME)
+        return doc.getFirstValue(METACARD_SOURCE_NAME)
                 .toString();
     }
 

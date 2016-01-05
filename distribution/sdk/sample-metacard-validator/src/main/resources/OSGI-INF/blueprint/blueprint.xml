@@ -28,4 +28,19 @@
         </bean>
     </service>
 
+    <service interface="ddf.catalog.validation.MetacardValidator" >
+        <bean class="org.codice.ddf.sdk.validation.metacard.SampleMetacardValidator">
+            <!--<cm:managed-properties persistent-id="SampleMetacardValidator"-->
+            <!--update-strategy="container-managed"/>-->
+            <property name="validWords">
+                <array value-type="java.lang.String">
+                    <value>Metacard-1</value>
+                </array>
+            </property>
+            <property name="id">
+                <value>sample-validator2</value>
+            </property>
+        </bean>
+    </service>
+
 </blueprint>
