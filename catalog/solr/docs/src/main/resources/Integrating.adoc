@@ -1,4 +1,5 @@
 = Integrating {branding} Solr Catalog Application
 include::config.adoc[]
-                     
+
+== Overview
 include::IntContents.adoc[]
