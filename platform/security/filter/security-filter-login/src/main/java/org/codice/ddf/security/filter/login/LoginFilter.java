@@ -53,7 +53,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.apache.wss4j.dom.WSDocInfo;
-import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
@@ -69,16 +69,16 @@ import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.joda.time.DateTime;
-import org.opensaml.Configuration;
-import org.opensaml.common.SAMLObjectBuilder;
-import org.opensaml.common.SAMLVersion;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.Status;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.saml2.core.StatusMessage;
-import org.opensaml.saml2.core.SubjectConfirmation;
-import org.opensaml.xml.XMLObjectBuilderFactory;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.saml.common.SAMLObjectBuilder;
+import org.opensaml.saml.common.SAMLVersion;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.StatusMessage;
+import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -130,7 +130,8 @@ public class LoginFilter implements Filter {
 
     private static SAMLObjectBuilder<Issuer> issuerBuilder;
 
-    private static XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+    private static XMLObjectBuilderFactory builderFactory =
+            XMLObjectProviderRegistrySupport.getBuilderFactory();
 
     private final Object lock = new Object();
 
@@ -661,8 +662,8 @@ public class LoginFilter implements Filter {
                                         ((SecurityAssertion) principal).getSecurityToken()
                                                 .getToken();
 
-                                LOGGER.trace("SAML Assertion returned: {}",
-                                        XMLUtils.prettyFormat(samlToken));
+                                LOGGER.trace("SAML Assertion returned: {}", XMLUtils.prettyFormat(
+                                        samlToken));
                             }
                             SecurityToken securityToken =
                                     ((SecurityAssertion) principal).getSecurityToken();

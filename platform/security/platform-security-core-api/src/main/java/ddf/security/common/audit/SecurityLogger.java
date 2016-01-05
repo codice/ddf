@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,9 +26,8 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
-import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.wss4j.common.principal.SAMLTokenPrincipal;
-import org.apache.wss4j.dom.WSSecurityEngineResult;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.apache.wss4j.dom.handler.WSHandlerResult;
 import org.slf4j.Logger;
@@ -44,7 +43,6 @@ import ddf.security.SecurityConstants;
 
 /**
  * Class that contains utility methods for logging common security messages.
- *
  */
 public final class SecurityLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
@@ -55,8 +53,8 @@ public final class SecurityLogger {
 
     private static String requestIpAndPortMessage(Message message) {
         if (message != null) {
-            HttpServletRequest servletRequest = (HttpServletRequest) message
-                    .get(AbstractHTTPDestination.HTTP_REQUEST);
+            HttpServletRequest servletRequest = (HttpServletRequest) message.get(
+                    AbstractHTTPDestination.HTTP_REQUEST);
             // pull out the ip and port of the incoming connection so we know
             // who is trying to get access
             if (servletRequest != null) {
@@ -70,8 +68,7 @@ public final class SecurityLogger {
     /**
      * Log all of the information associated with the security assertion for this message
      *
-     * @param message
-     *            CXF Message containing the SAML assertion.
+     * @param message CXF Message containing the SAML assertion.
      */
     public static void logSecurityAssertionInfo(Message message) {
         if (message != null) {
@@ -100,7 +97,8 @@ public final class SecurityLogger {
      * Transform into formatted XML.
      */
     public static String getFormattedXml(Node node) {
-        DOMImplementation impl = node.getOwnerDocument().getImplementation();
+        DOMImplementation impl = node.getOwnerDocument()
+                .getImplementation();
         if (null != impl) {
             Document document = impl.createDocument("", "fake", null);
             Element copy = (Element) document.importNode(node, true);
@@ -109,11 +107,12 @@ public final class SecurityLogger {
             document.appendChild(copy);
             DOMImplementation domImpl = document.getImplementation();
             if (domImpl != null) {
-                DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl
-                        .getFeature("LS", "3.0");
+                DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS",
+                        "3.0");
                 if (domImplLs != null) {
                     LSSerializer serializer = domImplLs.createLSSerializer();
-                    serializer.getDomConfig().setParameter("format-pretty-print", true);
+                    serializer.getDomConfig()
+                            .setParameter("format-pretty-print", true);
                     return serializer.writeToString(document);
                 }
             }
@@ -183,22 +182,20 @@ public final class SecurityLogger {
         SecurityToken token = null;
         if (message != null) {
             TokenStore tokenStore = getTokenStore(message);
-            Principal principal = (Principal) message.get(WSS4JInInterceptor.PRINCIPAL_RESULT);
-            if (!(principal instanceof SAMLTokenPrincipal)) {
-                // Try to find the SAMLTokenPrincipal if it exists
-                List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
-                if (wsResults != null) {
-                    for (Object wsResult : wsResults) {
-                        if (wsResult instanceof WSHandlerResult) {
-                            List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
-                                    .getResults();
-                            for (WSSecurityEngineResult wsseResult : wsseResults) {
-                                Object principalResult = wsseResult
-                                        .get(WSSecurityEngineResult.TAG_PRINCIPAL);
-                                if (principalResult instanceof SAMLTokenPrincipal) {
-                                    principal = (SAMLTokenPrincipal) principalResult;
-                                    break;
-                                }
+            Principal principal = null;
+            // Try to find the SAMLTokenPrincipal if it exists
+            List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
+            if (wsResults != null) {
+                for (Object wsResult : wsResults) {
+                    if (wsResult instanceof WSHandlerResult) {
+                        List<WSSecurityEngineResult> wsseResults =
+                                ((WSHandlerResult) wsResult).getResults();
+                        for (WSSecurityEngineResult wsseResult : wsseResults) {
+                            Object principalResult =
+                                    wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                            if (principalResult instanceof SAMLTokenPrincipal) {
+                                principal = (SAMLTokenPrincipal) principalResult;
+                                break;
                             }
                         }
                     }
@@ -213,21 +210,22 @@ public final class SecurityLogger {
     }
 
     private static TokenStore getTokenStore(Message message) {
-        EndpointInfo info = message.getExchange().get(Endpoint.class).getEndpointInfo();
+        EndpointInfo info = message.getExchange()
+                .get(Endpoint.class)
+                .getEndpointInfo();
         synchronized (info) {
-            TokenStore tokenStore = (TokenStore) message.getContextualProperty(
-                    org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+            TokenStore tokenStore =
+                    (TokenStore) message.getContextualProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
             if (tokenStore == null) {
-                tokenStore = (TokenStore) info.getProperty(
-                        org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+                tokenStore =
+                        (TokenStore) info.getProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
             }
             if (tokenStore == null) {
                 TokenStoreFactory tokenStoreFactory = TokenStoreFactory.newInstance();
-                tokenStore = tokenStoreFactory.newTokenStore(
-                        org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE,
-                        message);
-                info.setProperty(
-                        org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE,
+                tokenStore =
+                        tokenStoreFactory.newTokenStore(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE,
+                                message);
+                info.setProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE,
                         tokenStore);
             }
             return tokenStore;

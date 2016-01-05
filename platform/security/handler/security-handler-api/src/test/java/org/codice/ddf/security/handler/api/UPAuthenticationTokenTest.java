@@ -17,8 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.Base64;
+
 import org.junit.Test;
-import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,8 @@ public class UPAuthenticationTokenTest {
     @Test
     public void testGetBinarySecurityToken() throws Exception {
         UPAuthenticationToken token = new UPAuthenticationToken(TEST_NAME, TEST_PW, TEST_REALM);
-        String expectedBST = Base64.encodeBytes(TEST_CREDS.getBytes(), Base64.DONT_BREAK_LINES);
+        String expectedBST = Base64.getEncoder()
+                .encodeToString(TEST_CREDS.getBytes());
         assertEquals(expectedBST, token.getEncodedCredentials());
     }
 
@@ -77,8 +79,11 @@ public class UPAuthenticationTokenTest {
     public void testParse() throws Exception {
         // test normal case
         BaseAuthenticationToken bat = UPAuthenticationToken.parse(TEST_CREDS, false);
-        UPAuthenticationToken upt = new UPAuthenticationToken(bat.getPrincipal().toString(),
-                bat.getCredentials().toString(), bat.getRealm());
+        UPAuthenticationToken upt = new UPAuthenticationToken(bat.getPrincipal()
+                .toString(),
+                bat.getCredentials()
+                        .toString(),
+                bat.getRealm());
         assertNotNull(upt);
         assertEquals(TEST_NAME, upt.getUsername());
         assertEquals(TEST_PW, upt.getPassword());

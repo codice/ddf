@@ -15,6 +15,7 @@ package org.codice.ddf.security.handler.basic;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,7 +30,6 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +39,8 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
 
     public static final String SOURCE = "BasicHandler";
 
-    protected static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractBasicAuthenticationHandler.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(
+            AbstractBasicAuthenticationHandler.class);
 
     @Override
     public abstract String getAuthenticationType();
@@ -144,12 +144,14 @@ public abstract class AbstractBasicAuthenticationHandler implements Authenticati
             String authInfo = parts[1];
 
             if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
-                byte[] decode = Base64.decode(authInfo);
+                byte[] decode = Base64.getDecoder()
+                        .decode(authInfo);
                 if (decode != null) {
                     String userPass = new String(decode, StandardCharsets.UTF_8);
                     String[] authComponents = userPass.split(":");
                     if (authComponents.length == 2) {
-                        token = getBaseAuthenticationToken(realm, authComponents[0],
+                        token = getBaseAuthenticationToken(realm,
+                                authComponents[0],
                                 authComponents[1]);
                     } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
                         token = getBaseAuthenticationToken(realm, authComponents[0], "");

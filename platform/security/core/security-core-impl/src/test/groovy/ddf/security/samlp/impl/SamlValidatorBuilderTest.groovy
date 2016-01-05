@@ -15,9 +15,9 @@ package ddf.security.samlp.impl
 
 import ddf.security.samlp.SamlProtocol
 import ddf.security.samlp.SimpleSign
-import org.opensaml.saml2.core.ArtifactResponse
-import org.opensaml.saml2.core.LogoutRequest
-import org.opensaml.saml2.core.LogoutResponse
+import org.opensaml.saml.saml2.core.ArtifactResponse
+import org.opensaml.saml.saml2.core.LogoutRequest
+import org.opensaml.saml.saml2.core.LogoutResponse
 import spock.lang.Specification
 
 import java.time.Duration

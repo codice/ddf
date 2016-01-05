@@ -20,11 +20,11 @@ import java.util.Arrays;
 
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
-import org.opensaml.saml2.core.AttributeQuery;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.core.AttributeQuery;
+import org.opensaml.saml.saml2.core.LogoutRequest;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 public class SamlProtocolTest {
 
@@ -145,7 +145,7 @@ public class SamlProtocolTest {
     @Test
     public void testCreateAttributeQueryWithDestination() {
         AttributeQuery attributeQuery = SamlProtocol.createAttributeQuery(SamlProtocol.createIssuer(
-                "myissuer"),
+                        "myissuer"),
                 SamlProtocol.createSubject(SamlProtocol.createNameID("mynameid")),
                 "mydestination");
         assertEquals("myissuer",

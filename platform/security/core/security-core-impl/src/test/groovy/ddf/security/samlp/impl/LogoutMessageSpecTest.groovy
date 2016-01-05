@@ -5,10 +5,11 @@ import ddf.security.samlp.SystemCrypto
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.opensaml.common.SAMLVersion
-import org.opensaml.saml2.core.LogoutRequest
-import org.opensaml.saml2.core.LogoutResponse
-import org.opensaml.saml2.core.StatusCode
+import org.opensaml.saml.common.SAMLVersion
+import org.opensaml.saml.saml2.core.LogoutRequest
+import org.opensaml.saml.saml2.core.LogoutResponse
+import org.opensaml.saml.saml2.core.StatusCode
+
 import spock.lang.Specification
 
 import java.time.Instant

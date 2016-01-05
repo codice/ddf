@@ -30,7 +30,7 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
-import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -50,7 +50,7 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
 
     @Override
     public Response getSamlpResponse(String relayState, AuthnRequest authnRequest,
-            org.opensaml.saml2.core.Response samlResponse, NewCookie cookie,
+            org.opensaml.saml.saml2.core.Response samlResponse, NewCookie cookie,
             String responseTemplate)
             throws IOException, SimpleSign.SignatureException, WSSecurityException {
         LOGGER.debug("Configuring SAML Response for Redirect.");
@@ -65,7 +65,7 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
         return ok.build();
     }
 
-    protected URI signSamlGetResponse(org.opensaml.saml2.core.Response samlResponse,
+    protected URI signSamlGetResponse(org.opensaml.saml.saml2.core.Response samlResponse,
             AuthnRequest authnRequest, String relayState)
             throws WSSecurityException, SimpleSign.SignatureException, IOException {
         LOGGER.debug("Signing SAML response for redirect.");

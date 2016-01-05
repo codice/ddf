@@ -41,6 +41,8 @@ import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.cxf.ws.security.tokenstore.TokenStore;
+import org.apache.cxf.ws.security.tokenstore.TokenStoreUtils;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.policy.SP11Constants;
@@ -49,6 +51,8 @@ import org.apache.wss4j.policy.SPConstants;
 import org.apache.wss4j.policy.model.IssuedToken;
 import org.codice.ddf.platform.util.http.UnavailableUrls;
 import org.codice.ddf.security.common.HttpUtils;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
@@ -71,8 +75,8 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
 
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            SecureProxyServiceFactoryImpl.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SecureProxyServiceFactoryImpl.class);
 
     private final UnavailableUrls unavailableWsdls = new UnavailableUrls();
 
@@ -109,7 +113,9 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         LOGGER.debug("Creating proxy service");
 
         WebServiceProperties<ProxyServiceType> wsp = new WebServiceProperties<>(serviceClass,
-                serviceName, endpointName, endpointAddress);
+                serviceName,
+                endpointName,
+                endpointAddress);
         SecurityToken securityToken = getSecurityToken(wsp, securityAssertion);
         ProxyServiceType proxyServiceType = createSecureClientFactory(wsp, securityToken);
 

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader;
 
 import java.io.IOException;
@@ -18,10 +18,12 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.Provider;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
@@ -34,10 +36,12 @@ import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 
 /**
  */
+@Provider
+@Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
 public class TransactionMessageBodyReader implements MessageBodyReader<CswTransactionRequest> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TransactionMessageBodyReader.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TransactionMessageBodyReader.class);
 
     private Converter cswRecordConverter;
 

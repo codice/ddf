@@ -25,7 +25,8 @@
     <packaging>pom</packaging>
     <properties>
         <jasypt.version>1.9.0</jasypt.version>
-        <wss4j.version>2.0.3</wss4j.version>
+        <wss4j.version>2.1.4</wss4j.version>
+        <opensaml.version>3.1.1</opensaml.version>
         <powermock.agent>${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar</powermock.agent>
     </properties>
     <dependencyManagement>
@@ -186,6 +187,21 @@
                 <groupId>xalan</groupId>
                 <artifactId>xalan</artifactId>
                 <version>2.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-core</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-soap-impl</artifactId>
+                <version>${opensaml.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

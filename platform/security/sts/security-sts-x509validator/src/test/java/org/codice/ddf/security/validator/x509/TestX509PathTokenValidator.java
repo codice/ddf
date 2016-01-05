@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
+import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -52,11 +53,11 @@ public class TestX509PathTokenValidator {
         try {
             X509Certificate mockCert = mock(X509Certificate.class);
             X509Certificate[] x509Certificates = new X509Certificate[] {mockCert};
-            when(x509PathTokenValidator.merlin.getCertificatesFromBytes(any(byte[].class)))
-                    .thenReturn(x509Certificates);
+            when(x509PathTokenValidator.merlin.getCertificatesFromBytes(any(byte[].class))).thenReturn(
+                    x509Certificates);
 
-            when(x509PathTokenValidator.merlin.loadCertificate(any(InputStream.class)))
-                    .thenReturn(mockCert);
+            when(x509PathTokenValidator.merlin.loadCertificate(any(InputStream.class))).thenReturn(
+                    mockCert);
         } catch (WSSecurityException e) {
             //ignore
         }
@@ -82,8 +83,8 @@ public class TestX509PathTokenValidator {
             when(x509Certificate.getSubjectX500Principal()).thenReturn(x500Principal);
             X509Certificate[] x509Certificates = new X509Certificate[] {x509Certificate};
             when(credential.getCertificates()).thenReturn(x509Certificates);
-            when(validator.validate(any(Credential.class), any(RequestData.class)))
-                    .thenReturn(credential);
+            when(validator.validate(any(Credential.class), any(RequestData.class))).thenReturn(
+                    credential);
         } catch (WSSecurityException e) {
             //ignore
         }
@@ -95,8 +96,10 @@ public class TestX509PathTokenValidator {
         Crypto crypto = mock(Crypto.class);
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(crypto);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
-        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
-        doCallRealMethod().when(receivedToken).getState();
+        doCallRealMethod().when(receivedToken)
+                .setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken)
+                .getState();
         when(tokenParameters.getToken()).thenReturn(receivedToken);
         when(receivedToken.isBinarySecurityToken()).thenReturn(true);
 
@@ -104,14 +107,17 @@ public class TestX509PathTokenValidator {
         when(binarySecurityTokenType.getValueType()).thenReturn(type);
 
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
-        when(binarySecurityTokenType.getEncodingType())
-                .thenReturn(X509PathTokenValidator.BASE64_ENCODING);
+        when(binarySecurityTokenType.getEncodingType()).thenReturn(X509PathTokenValidator.BASE64_ENCODING);
         when(binarySecurityTokenType.getValue()).thenReturn("data");
 
-        TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator
-                .validateToken(tokenParameters);
+        when(tokenParameters.getWebServiceContext()).thenReturn(mock(WebServiceContext.class));
 
-        assertEquals(ReceivedToken.STATE.VALID, tokenValidatorResponse.getToken().getState());
+        TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator.validateToken(
+                tokenParameters);
+
+        assertEquals(ReceivedToken.STATE.VALID,
+                tokenValidatorResponse.getToken()
+                        .getState());
     }
 
     @Test
@@ -125,8 +131,8 @@ public class TestX509PathTokenValidator {
             when(x509Certificate.getSubjectX500Principal()).thenReturn(x500Principal);
             X509Certificate[] x509Certificates = new X509Certificate[] {x509Certificate};
             when(credential.getCertificates()).thenReturn(x509Certificates);
-            when(validator.validate(any(Credential.class), any(RequestData.class))).thenThrow(
-                    new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR));
+            when(validator.validate(any(Credential.class),
+                    any(RequestData.class))).thenThrow(new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR));
         } catch (WSSecurityException e) {
             //ignore
         }
@@ -138,20 +144,24 @@ public class TestX509PathTokenValidator {
         Crypto crypto = mock(Crypto.class);
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(crypto);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
-        doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
-        doCallRealMethod().when(receivedToken).getState();
+        doCallRealMethod().when(receivedToken)
+                .setState(any(ReceivedToken.STATE.class));
+        doCallRealMethod().when(receivedToken)
+                .getState();
         when(tokenParameters.getToken()).thenReturn(receivedToken);
         when(receivedToken.isBinarySecurityToken()).thenReturn(true);
         BinarySecurityTokenType binarySecurityTokenType = mock(BinarySecurityTokenType.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
-        when(binarySecurityTokenType.getEncodingType())
-                .thenReturn(X509PathTokenValidator.BASE64_ENCODING);
+        when(binarySecurityTokenType.getEncodingType()).thenReturn(X509PathTokenValidator.BASE64_ENCODING);
         when(binarySecurityTokenType.getValueType()).thenReturn("valuetype");
         when(binarySecurityTokenType.getValue()).thenReturn("data");
+        when(tokenParameters.getWebServiceContext()).thenReturn(mock(WebServiceContext.class));
 
-        TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator
-                .validateToken(tokenParameters);
+        TokenValidatorResponse tokenValidatorResponse = x509PathTokenValidator.validateToken(
+                tokenParameters);
 
-        assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
+        assertEquals(ReceivedToken.STATE.INVALID,
+                tokenValidatorResponse.getToken()
+                        .getState());
     }
 }

@@ -1,38 +1,64 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
  * agreements. See the NOTICE file distributed with this work for additional information regarding
  * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
- * <p/>
+ * <p>
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
  * agreements. See the NOTICE file distributed with this work for additional information regarding
  * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License. You may obtain a
  * copy of the License at
- * <p/>
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ * <p>
+ * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+ * agreements. See the NOTICE file distributed with this work for additional information regarding
+ * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -75,13 +101,13 @@ import org.apache.wss4j.common.crypto.CryptoFactory;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.apache.wss4j.common.token.X509Security;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.WSDocInfo;
-import org.apache.wss4j.dom.WSSConfig;
-import org.apache.wss4j.dom.WSSecurityEngineResult;
+import org.apache.wss4j.dom.engine.WSSConfig;
+import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.message.token.UsernameToken;
-import org.apache.wss4j.dom.message.token.X509Security;
 import org.apache.wss4j.dom.processor.Processor;
 import org.apache.wss4j.dom.processor.SAMLTokenProcessor;
 import org.slf4j.Logger;
@@ -94,13 +120,15 @@ import org.w3c.dom.Element;
  */
 public class StsIssueTest {
 
-    private static final String SAML2_TOKEN_TYPE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+    private static final String SAML2_TOKEN_TYPE =
+            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
     // Might need later.
     // private static final String PUBLIC_KEY_KEYTYPE =
     // "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey";
 
-    private static final String BEARER_KEYTYPE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer";
+    private static final String BEARER_KEYTYPE =
+            "http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer";
 
     private static final String CAS_ID = "#CAS";
 
@@ -154,13 +182,21 @@ public class StsIssueTest {
         writer.writeAttribute(URI, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid");
         writer.writeEndElement();
 
-        Element claims = writer.getDocument().getDocumentElement();
+        Element claims = writer.getDocument()
+                .getDocumentElement();
 
         // Get a token
-        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE,
-                oboToken.getElement(), bus, StsAddresses.valueOf(portType.toString()).toString(),
-                WsdlLocations.valueOf(portType.toString()).toString(),
-                EndPoints.valueOf(portType.toString()).toString(), claims);
+        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE,
+                BEARER_KEYTYPE,
+                oboToken.getElement(),
+                bus,
+                StsAddresses.valueOf(portType.toString())
+                        .toString(),
+                WsdlLocations.valueOf(portType.toString())
+                        .toString(),
+                EndPoints.valueOf(portType.toString())
+                        .toString(),
+                claims);
 
         if (token != null) {
             validateSecurityToken(token);
@@ -206,13 +242,21 @@ public class StsIssueTest {
         writer.writeAttribute(URI, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid");
         writer.writeEndElement();
 
-        Element claims = writer.getDocument().getDocumentElement();
+        Element claims = writer.getDocument()
+                .getDocumentElement();
 
         // Get a token
-        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE,
-                oboToken.getElement(), bus, StsAddresses.valueOf(portType.toString()).toString(),
-                WsdlLocations.valueOf(portType.toString()).toString(),
-                EndPoints.valueOf(portType.toString()).toString(), claims);
+        SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE,
+                BEARER_KEYTYPE,
+                oboToken.getElement(),
+                bus,
+                StsAddresses.valueOf(portType.toString())
+                        .toString(),
+                WsdlLocations.valueOf(portType.toString())
+                        .toString(),
+                EndPoints.valueOf(portType.toString())
+                        .toString(),
+                claims);
 
         if (token != null) {
             validateSecurityToken(token);
@@ -247,7 +291,8 @@ public class StsIssueTest {
         writer.writeAttribute("URI", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
         writer.writeEndElement();
 
-        Element claims = writer.getDocument().getDocumentElement();
+        Element claims = writer.getDocument()
+                .getDocumentElement();
 
         // Alerternatively we can use a certificate to request a SAML
         X509Security oboToken = new X509Security(doc);
@@ -259,11 +304,17 @@ public class StsIssueTest {
             oboToken.setX509Certificate(certs[0]);
 
             // Get a token
-            SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE,
-                    oboToken.getElement(), bus,
-                    StsAddresses.valueOf(portType.toString()).toString(),
-                    WsdlLocations.valueOf(portType.toString()).toString(),
-                    EndPoints.valueOf(portType.toString()).toString(), claims);
+            SecurityToken token = requestSecurityToken(SAML2_TOKEN_TYPE,
+                    BEARER_KEYTYPE,
+                    oboToken.getElement(),
+                    bus,
+                    StsAddresses.valueOf(portType.toString())
+                            .toString(),
+                    WsdlLocations.valueOf(portType.toString())
+                            .toString(),
+                    EndPoints.valueOf(portType.toString())
+                            .toString(),
+                    claims);
             if (token != null) {
                 validateSecurityToken(token);
             }
@@ -361,8 +412,8 @@ public class StsIssueTest {
         requestData.setSigVerCrypto(crypto);
 
         Processor processor = new SAMLTokenProcessor();
-        return processor.handleToken(token.getToken(), requestData,
-                new WSDocInfo(token.getToken().getOwnerDocument()));
+        return processor.handleToken(token.getToken(), requestData, new WSDocInfo(token.getToken()
+                .getOwnerDocument()));
     }
 
     // Enum defining the Port Types
@@ -372,8 +423,7 @@ public class StsIssueTest {
 
     // Enum defining the Wsdl Locations
     public enum WsdlLocations {
-        TRANSPORT(
-                "https://localhost:8993/services/SecurityTokenService/Transport?wsdl"), UT_ENCRYPTED(
+        TRANSPORT("https://localhost:8993/services/SecurityTokenService/Transport?wsdl"), UT_ENCRYPTED(
                 "https://localhost:8993/services/SecurityTokenService/UTEncrypted?wsdl"), X509(
                 "https://localhost:8993/services/SecurityTokenService/X509?wsdl"), UT(
                 "https://localhost:8993/services/SecurityTokenService/UT?wsdl");
@@ -392,8 +442,7 @@ public class StsIssueTest {
 
     // Enum defining the STS Endpoints
     public enum EndPoints {
-        TRANSPORT(
-                "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}Transport_Port"), UT_ENCRYPTED(
+        TRANSPORT("{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}Transport_Port"), UT_ENCRYPTED(
                 "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UTEncrypted_Port"), X509(
                 "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}X509_Port"), UT(
                 "{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}UT_Port");

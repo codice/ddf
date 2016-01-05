@@ -56,9 +56,8 @@ import org.codice.ddf.security.filter.websso.WebSSOFilter;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.opensaml.saml2.metadata.EntityDescriptor;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.validation.ValidationException;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -67,6 +66,7 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.RelayStates;
 
 @Path("sso")
@@ -181,7 +181,7 @@ public class AssertionConsumerService {
     public Response processSamlResponse(String authnResponse, String relayState) {
         LOGGER.trace(authnResponse);
 
-        org.opensaml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
+        org.opensaml.saml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
         if (samlResponse == null) {
             return Response.serverError()
                     .entity("Unable to parse AuthN response.")
@@ -222,10 +222,10 @@ public class AssertionConsumerService {
                 .build();
     }
 
-    private boolean validateResponse(org.opensaml.saml2.core.Response samlResponse) {
+    private boolean validateResponse(org.opensaml.saml.saml2.core.Response samlResponse) {
         try {
-            samlResponse.registerValidator(new AuthnResponseValidator(simpleSign));
-            samlResponse.validate(false);
+            AuthnResponseValidator validator = new AuthnResponseValidator(simpleSign);
+            validator.validate(samlResponse);
         } catch (ValidationException e) {
             LOGGER.warn("Invalid AuthN response received from " + samlResponse.getIssuer(), e);
             return false;
@@ -238,7 +238,7 @@ public class AssertionConsumerService {
         this.sessionFactory = sessionFactory;
     }
 
-    private boolean login(org.opensaml.saml2.core.Response samlResponse) {
+    private boolean login(org.opensaml.saml.saml2.core.Response samlResponse) {
         if (!request.isSecure()) {
             return false;
         }
@@ -358,15 +358,15 @@ public class AssertionConsumerService {
         return certs[0];
     }
 
-    private org.opensaml.saml2.core.Response extractSamlResponse(String samlResponse) {
-        org.opensaml.saml2.core.Response response = null;
+    private org.opensaml.saml.saml2.core.Response extractSamlResponse(String samlResponse) {
+        org.opensaml.saml.saml2.core.Response response = null;
         try {
             Document responseDoc = StaxUtils.read(new ByteArrayInputStream(samlResponse.getBytes(
                     StandardCharsets.UTF_8)));
             XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
 
-            if (responseXmlObject instanceof org.opensaml.saml2.core.Response) {
-                response = (org.opensaml.saml2.core.Response) responseXmlObject;
+            if (responseXmlObject instanceof org.opensaml.saml.saml2.core.Response) {
+                response = (org.opensaml.saml.saml2.core.Response) responseXmlObject;
             }
         } catch (XMLStreamException | WSSecurityException e) {
             LOGGER.debug("Failed to convert AuthN response string to object.", e);
