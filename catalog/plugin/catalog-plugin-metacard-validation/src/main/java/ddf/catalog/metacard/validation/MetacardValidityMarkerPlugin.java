@@ -47,6 +47,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             .getLogger(MetacardValidityMarkerPlugin.class);
 
     public static final String VALIDATION_ERRORS = BasicTypes.VALIDATION_ERRORS;
+
     public static final String VALIDATION_WARNINGS = BasicTypes.VALIDATION_WARNINGS;
 
     public CreateRequest process(CreateRequest input)

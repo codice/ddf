@@ -18,11 +18,12 @@
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
     </type-converters>
 
-    <bean id="metacardValidatorList" class="ddf.catalog.util.impl.SortedServiceList" />
+    <bean id="metacardValidatorList" class="ddf.catalog.util.impl.SortedServiceList"/>
     <reference-list id="metacardValidators"
                     interface="ddf.catalog.validation.MetacardValidator"
                     availability="optional">
-        <reference-listener ref="metacardValidatorList" bind-method="bindPlugin" unbind-method="unbindPlugin" />
+        <reference-listener ref="metacardValidatorList" bind-method="bindPlugin"
+                            unbind-method="unbindPlugin"/>
     </reference-list>
 
     <reference id="filterBuilder"
@@ -32,31 +33,45 @@
 
 
     <!-- Pre-Ingest Metacard Validation Marker Plugin -->
-    <bean id="pre-ingest-plugin" class="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
+    <bean id="pre-ingest-plugin"
+          class="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <cm:managed-properties
                 persistent-id="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin"
                 update-strategy="container-managed"/>
         <property name="metacardValidators" ref="metacardValidatorList"/>
         <property name="enforcedMetacardValidators">
-            <list />
+            <list/>
         </property>
 
     </bean>
 
     <!-- Pre-Query Metacard Validity Checker Plugin -->
-    <bean id="pre-query-plugin" class="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin">
+    <bean id="pre-query-plugin"
+          class="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin">
         <!--<cm:managed-properties-->
-                <!--persistent-id="MetacardValidityCheckerPlugin"-->
-                <!--update-strategy="container-managed"/>-->
+        <!--persistent-id="MetacardValidityCheckerPlugin"-->
+        <!--update-strategy="container-managed"/>-->
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
 
     </bean>
 
 
+    <!-- Post-Query Metacard Validity Filter Plugin -->
+    <bean id="post-query-plugin"
+          class="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
+        <cm:managed-properties
+                persistent-id="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"
+                update-strategy="container-managed"/>
+        <property name="attributeMap">
+            <list/>
+        </property>
+    </bean>
+
 
     <!-- Register in the OSGi Service Registry -->
     <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
     <service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>
+    <service ref="post-query-plugin" interface="ddf.catalog.plugin.PostQueryPlugin" ranking="100"/>
 
 </blueprint>

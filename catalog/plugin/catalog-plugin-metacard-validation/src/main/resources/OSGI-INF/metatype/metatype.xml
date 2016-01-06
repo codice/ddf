@@ -15,11 +15,21 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Metacard Validation Plugin"
+
+    <OCD name="Metacard Validation Filter Plugin"
+         id="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
+        <AD
+                description="Mapping of Metacard SECURITY attribute to user attribute."
+                name="Attribute map" id="attributeMap" required="false" type="String"
+                default="invalid-state=system-admin" cardinality="100"/>
+    </OCD>
+
+    <OCD name="Metacard Validation Marker Plugin"
          id="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <AD
                 description="ID of Metacard Validator to enforce."
-                name="Enforced Validators" id="enforcedMetacardValidators" required="false" type="String"
+                name="Enforced Validators" id="enforcedMetacardValidators" required="false"
+                type="String"
                 default="" cardinality="100"/>
     </OCD>
 
@@ -27,6 +37,12 @@
             pid="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <Object
                 ocdref="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin"/>
+    </Designate>
+
+    <Designate
+            pid="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
+        <Object
+                ocdref="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"/>
     </Designate>
 
 </metatype:MetaData>
