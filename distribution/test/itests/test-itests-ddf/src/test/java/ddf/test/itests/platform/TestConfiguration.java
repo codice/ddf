@@ -58,7 +58,7 @@ import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
 import ddf.test.itests.AbstractIntegrationTest;
 
 /**
- * Note: Tests prefixed with [A-Z]RunFirst NEED to run before any other tests.  For this reason, we
+ * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we
  * use the @FixMethodOrder(MethodSorters.NAME_ASCENDING) annotation.
  */
 @RunWith(PaxExam.class)
@@ -70,7 +70,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final String EXPORT_COMMAND = "platform:config-export";
     
-    private static final String PLATFORM_CONFIG_STATUS_COMMAND = "platform:config-status";
+    private static final String STATUS_COMMAND = "platform:config-status";
 
     private static final String SUCCESSFUL_IMPORT_MESSAGE = "All config files imported successfully.";
 
@@ -144,25 +144,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
         FileUtils.cleanDirectory(getPathToProcessedDirectory().toFile());
         FileUtils.cleanDirectory(getPathToFailedDirectory().toFile());
 
-        if (Files.exists(SYSTEM_PROPERTIES_COPY)) {
-            FileUtils.deleteQuietly(SYSTEM_PROPERTIES.toFile());
-            SYSTEM_PROPERTIES_COPY.toFile().renameTo(SYSTEM_PROPERTIES.toFile());
-        }
-
-        if (Files.exists(USERS_PROPERTIES_COPY)) {
-            FileUtils.deleteQuietly(USERS_PROPERTIES.toFile());
-            USERS_PROPERTIES_COPY.toFile().renameTo(USERS_PROPERTIES.toFile());
-        }
-
-        if (Files.exists(WS_SECURITY_COPY)) {
-            FileUtils.deleteQuietly(WS_SECURITY.toFile());
-            WS_SECURITY_COPY.toFile().renameTo(WS_SECURITY.toFile());
-        }
-
-        if (Files.exists(PDP_COPY)) {
-            FileUtils.deleteQuietly(PDP.toFile());
-            PDP_COPY.toFile().renameTo(PDP.toFile());
-        }
+        restoreBackup(SYSTEM_PROPERTIES_COPY, SYSTEM_PROPERTIES);
+        restoreBackup(USERS_PROPERTIES_COPY, USERS_PROPERTIES);
+        restoreBackup(WS_SECURITY_COPY, WS_SECURITY);
+        restoreBackup(PDP_COPY, PDP);
 
         System.setProperty(KEYSTORE_PROPERTY, "etc" + File.separator + "keystores"
                 + File.separator + "serverKeystore.jks");
@@ -202,19 +187,19 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void bRunFirstTestCreateNewManagedServiceConfigurationFile() throws Exception {
+    public void aRunFirstTestCreateNewManagedServiceConfigurationFile() throws Exception {
         managedServiceNewConfig1.addConfigurationFileAndWait(configAdmin);
         managedServiceNewConfig1.assertFileMovedToProcessedDirectory();
     }
 
     @Test
-    public void cRunFirstTestStartUpWithExistingManagedServiceFactoryConfigurationFile() throws Exception {
+    public void aRunFirstTestStartUpWithExistingManagedServiceFactoryConfigurationFile() throws Exception {
         managedServiceFactoryStartupConfig.assertConfigurationPropertiesSet(configAdmin);
         managedServiceFactoryStartupConfig.assertFileMovedToProcessedDirectory();
     }
     
     @Test
-    public void dRunFirstTestStartUpWithInvalidFile() {
+    public void aRunFirstTestStartUpWithInvalidFile() {
         invalidStartupConfigFile.assertFileMovedToFailedDirectory();
     }
 
@@ -332,7 +317,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testWarningForAbsolutePathOutsideDdfHome() throws Exception {
+    public void testExportWarningForAbsolutePathOutsideDdfHome() throws Exception {
         resetInitialState();
         
         FileUtils.copyFile(SYSTEM_PROPERTIES.toFile(), new File(TEST_FILE));
@@ -352,7 +337,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testWarningForAbsolutePathInsideDdfHome() throws Exception {
+    public void testExportWarningForAbsolutePathInsideDdfHome() throws Exception {
         resetInitialState();
         
         System.setProperty(KEYSTORE_PROPERTY, ddfHome + File.separator + "etc"
@@ -371,7 +356,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testWarningForRelativePathOutsideDdfHome() throws Exception {
+    public void testExportWarningForRelativePathOutsideDdfHome() throws Exception {
         resetInitialState();
 
         File systemProperties = new File(ddfHome + File.separator + "etc" + File.separator
@@ -394,7 +379,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testFailureWithoutSystemPropertiesFile() throws Exception {
+    public void testExportFailureWithoutSystemPropertiesFile() throws Exception {
         resetInitialState();
         
         SYSTEM_PROPERTIES.toFile().renameTo(SYSTEM_PROPERTIES_COPY.toFile());
@@ -412,7 +397,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testFailureWithoutUsersPropertiesFile() throws Exception {
+    public void testExportFailureWithoutUsersPropertiesFile() throws Exception {
         resetInitialState();
         
         USERS_PROPERTIES.toFile().renameTo(USERS_PROPERTIES_COPY.toFile());
@@ -430,7 +415,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testFailureWithoutWSSecurityDirectory() throws Exception {
+    public void testExportFailureWithoutWSSecurityDirectory() throws Exception {
         resetInitialState();
         
         WS_SECURITY.toFile().renameTo(WS_SECURITY_COPY.toFile());
@@ -448,7 +433,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testFailureWithoutPDPDirectory() throws Exception {
+    public void testExportFailureWithoutPDPDirectory() throws Exception {
         resetInitialState();
         
         PDP.toFile().renameTo(PDP_COPY.toFile());
@@ -494,7 +479,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         
         addConfigurationFileAndWaitForSuccessfulProcessing(VALID_CONFIG_FILE_1,
                 getResourceAsStream(VALID_CONFIG_FILE_1));
-        String output = console.runCommand(PLATFORM_CONFIG_STATUS_COMMAND);
+        String output = console.runCommand(STATUS_COMMAND);
         assertThat(output, containsString(SUCCESSFUL_IMPORT_MESSAGE));
         assertThat(Files.exists(getPathToProcessedDirectory().resolve(VALID_CONFIG_FILE_1)), is(true));
     }
@@ -507,7 +492,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 getResourceAsStream(INVALID_CONFIG_FILE_1));
         addConfigurationFileAndWaitForFailedProcessing(INVALID_CONFIG_FILE_2,
                 getResourceAsStream(INVALID_CONFIG_FILE_2));
-        String output = console.runCommand(PLATFORM_CONFIG_STATUS_COMMAND);
+        String output = console.runCommand(STATUS_COMMAND);
         assertThat(output,
                 containsString(String.format(FAILED_IMPORT_MESSAGE, INVALID_CONFIG_FILE_1)));
         assertThat(output,
@@ -519,22 +504,21 @@ public class TestConfiguration extends AbstractIntegrationTest {
     @Test
     public void testConfigStatusFailedImportReimportSuccessful() throws Exception {
         resetInitialState();
-        
-        SECONDS.sleep(10);
+
         InputStream is = getResourceAsStream(VALID_CONFIG_FILE_1);
         InputStream invalidConfigFileAsInputStream = replaceTextInResource(is, "service.pid",
                 "invalid");
         String invalidConfigFileName = VALID_CONFIG_FILE_1;
         addConfigurationFileAndWaitForFailedProcessing(invalidConfigFileName,
                 invalidConfigFileAsInputStream);
-        String output1 = console.runCommand(PLATFORM_CONFIG_STATUS_COMMAND);
+        String output1 = console.runCommand(STATUS_COMMAND);
         assertThat(output1,
                 containsString(String.format(FAILED_IMPORT_MESSAGE, invalidConfigFileName)));
         assertThat(Files.exists(getPathToFailedDirectory().resolve(invalidConfigFileName)), is(true));
         SECONDS.sleep(10);
         addConfigurationFileAndWaitForSuccessfulProcessing(VALID_CONFIG_FILE_1,
                 getResourceAsStream(VALID_CONFIG_FILE_1));
-        String output2 = console.runCommand(PLATFORM_CONFIG_STATUS_COMMAND);
+        String output2 = console.runCommand(STATUS_COMMAND);
         assertThat(output2, containsString(SUCCESSFUL_IMPORT_MESSAGE));
         assertThat(Files.exists(getPathToProcessedDirectory().resolve(VALID_CONFIG_FILE_1)), is(true));
     }
@@ -618,6 +602,13 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThat(String.format("Files missing in %s directory", path.toString()),
                 keystoreFiles,
                 arrayContainingInAnyOrder(fileNames));
+    }
+    
+    private void restoreBackup(Path copy, Path original) {
+        if (Files.exists(copy)) {
+            FileUtils.deleteQuietly(original.toFile());
+            copy.toFile().renameTo(original.toFile());
+        }
     }
     
     /**
