@@ -57,7 +57,6 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
 
@@ -83,8 +82,6 @@ public class LogoutRequestService {
     @Context
     private HttpServletRequest request;
 
-    private SystemCrypto systemCrypto;
-
     private LogoutMessage logoutMessage;
 
     private String submitForm;
@@ -102,11 +99,9 @@ public class LogoutRequestService {
     private long logOutPageTimeOut = 3600000;
 
     public LogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata,
-            SystemCrypto systemCrypto, SystemBaseUrl systemBaseUrl,
-            RelayStates<String> relayStates) {
+            SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
         this.simpleSign = simpleSign;
         this.idpMetadata = idpMetadata;
-        this.systemCrypto = systemCrypto;
         this.baseUrl = systemBaseUrl;
         this.relayStates = relayStates;
 
@@ -165,8 +160,7 @@ public class LogoutRequestService {
 
     }
 
-    private Response getLogoutRequest(String relayState, LogoutRequest logoutRequest)
-            throws IdpClientException {
+    private Response getLogoutRequest(String relayState, LogoutRequest logoutRequest) {
         try {
 
             String binding = idpMetadata.getSingleLogoutBinding();
@@ -176,12 +170,12 @@ public class LogoutRequestService {
                 return getSamlpRedirectLogoutRequest(relayState, logoutRequest);
             } else {
                 return buildLogoutResponse(
-                        "The IDP does not support either POST or Redirect bindings.");
+                        "The identity provider does not support either POST or Redirect bindings.");
             }
         } catch (Exception e) {
             String msg = "Failed to create logout request";
             LOGGER.error(msg, e);
-            throw new IdpClientException(msg, e);
+            return buildLogoutResponse(msg);
         }
     }
 
@@ -224,36 +218,58 @@ public class LogoutRequestService {
     @Produces(MediaType.APPLICATION_FORM_URLENCODED)
     public Response postLogoutRequest(@FormParam(SAML_REQUEST) String encodedSamlRequest,
             @FormParam(SAML_REQUEST) String encodedSamlResponse,
-            @FormParam(RELAY_STATE) String relayState) throws IdpClientException {
+            @FormParam(RELAY_STATE) String relayState) {
 
         if (encodedSamlRequest != null) {
-            LogoutRequest logoutRequest =
-                    processSamlLogoutRequest(decodeBase64(encodedSamlRequest));
-
             try {
+                LogoutRequest logoutRequest = logoutMessage.extractSamlLogoutRequest(decodeBase64(
+                        encodedSamlRequest));
+                if (logoutRequest == null) {
+                    String msg = "Unable to parse logout request.";
+                    LOGGER.error(msg);
+                    return buildLogoutResponse(msg);
+                }
+
                 new SamlValidator.Builder(simpleSign).buildAndValidate(request.getRequestURL()
                         .toString(), SamlProtocol.Binding.HTTP_POST, logoutRequest);
+                logout();
                 LogoutResponse logoutResponse =
                         logoutMessage.buildLogoutResponse(logoutRequest.getIssuer()
                                 .getValue(), StatusCode.SUCCESS_URI);
 
-                return getSamlpPostLogoutResponse(relayState, logoutResponse);
-            } catch (SimpleSign.SignatureException | WSSecurityException e) {
+                return getLogoutResponse(relayState, logoutResponse);
+            } catch (WSSecurityException e) {
                 String msg = "Failed to sign logout response.";
                 LOGGER.error(msg, e);
                 return buildLogoutResponse(msg);
             } catch (ValidationException e) {
-                throw new IdpClientException("Unable to validate", e);
+                String msg = "Unable to validate";
+                LOGGER.error(msg, e);
+                return buildLogoutResponse(msg);
+            } catch (XMLStreamException e) {
+                String msg = "Unable to parse logout request.";
+                LOGGER.error(msg, e);
+                return buildLogoutResponse(msg);
             }
         } else {
-
-            LogoutResponse logoutResponse =
-                    processLogoutResponse(decodeBase64(encodedSamlResponse));
             try {
+                LogoutResponse logoutResponse =
+                        logoutMessage.extractSamlLogoutResponse(decodeBase64(encodedSamlResponse));
+                if (logoutResponse == null) {
+                    String msg = "Unable to parse logout response.";
+                    LOGGER.error(msg);
+                    return buildLogoutResponse(msg);
+                }
                 new SamlValidator.Builder(simpleSign).buildAndValidate(request.getRequestURL()
                         .toString(), SamlProtocol.Binding.HTTP_POST, logoutResponse);
             } catch (ValidationException e) {
-                throw new IdpClientException("Unable to validate", e);
+                String msg = "Unable to validate";
+                LOGGER.error(msg, e);
+                return buildLogoutResponse(msg);
+            } catch (WSSecurityException | XMLStreamException e) {
+                String msg = "Unable to parse logout response.";
+                LOGGER.warn(msg, e);
+                return buildLogoutResponse(msg);
             }
             String nameId = "You";
             if (relayState != null) {
@@ -268,13 +284,18 @@ public class LogoutRequestService {
     public Response getLogoutRequest(@QueryParam(SAML_REQUEST) String deflatedSamlRequest,
             @QueryParam(SAML_RESPONSE) String deflatedSamlResponse,
             @QueryParam(RELAY_STATE) String relayState,
-            @QueryParam(SIG_ALG) String signatureAlgorithm, @QueryParam(SIGNATURE) String signature)
-            throws IdpClientException {
+            @QueryParam(SIG_ALG) String signatureAlgorithm,
+            @QueryParam(SIGNATURE) String signature) {
 
         if (deflatedSamlRequest != null) {
             try {
-                LogoutRequest logoutRequest = processSamlLogoutRequest(RestSecurity.inflateBase64(
-                        deflatedSamlRequest));
+                LogoutRequest logoutRequest =
+                        logoutMessage.extractSamlLogoutRequest(RestSecurity.inflateBase64(
+                                deflatedSamlRequest));
+                if (logoutRequest == null) {
+                    String msg = "Unable to parse logout request.";
+                    return buildLogoutResponse(msg);
+                }
                 new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
                         signature,
                         signatureAlgorithm,
@@ -294,13 +315,23 @@ public class LogoutRequestService {
             } catch (ValidationException e) {
                 String msg = "Unable to validate";
                 LOGGER.warn(msg, e);
-                throw new IdpClientException(msg, e);
+                return buildLogoutResponse(msg);
+            } catch (WSSecurityException | XMLStreamException e) {
+                String msg = "Unable to parse logout request.";
+                LOGGER.warn(msg, e);
+                return buildLogoutResponse(msg);
             }
         } else {
             try {
 
-                LogoutResponse logoutResponse = processLogoutResponse(RestSecurity.inflateBase64(
-                        deflatedSamlResponse));
+                LogoutResponse logoutResponse =
+                        logoutMessage.extractSamlLogoutResponse(RestSecurity.inflateBase64(
+                                deflatedSamlResponse));
+                if (logoutResponse == null) {
+                    String msg = "Unable to parse logout response.";
+                    LOGGER.error(msg);
+                    return buildLogoutResponse(msg);
+                }
                 new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
                         signature,
                         signatureAlgorithm,
@@ -318,23 +349,15 @@ public class LogoutRequestService {
                 LOGGER.warn(msg, e);
                 return buildLogoutResponse(msg);
             } catch (ValidationException e) {
-                throw new IdpClientException("Unable to validate", e);
+                String msg = "Unable to validate";
+                LOGGER.warn(msg, e);
+                return buildLogoutResponse(msg);
+            } catch (WSSecurityException | XMLStreamException e) {
+                String msg = "Unable to parse logout response.";
+                LOGGER.warn(msg, e);
+                return buildLogoutResponse(msg);
             }
         }
-    }
-
-    private LogoutResponse processLogoutResponse(String logoutResponseStr)
-            throws IdpClientException {
-        LogoutResponse logoutResponse;
-        try {
-            logoutResponse = logoutMessage.extractSamlLogoutResponse(logoutResponseStr);
-        } catch (XMLStreamException | WSSecurityException e) {
-            throw new IdpClientException("Unable to parse logout response.", e);
-        }
-        if (logoutResponse == null) {
-            throw new IdpClientException("Unable to parse logout response.");
-        }
-        return logoutResponse;
     }
 
     private String getEntityId() {
@@ -345,23 +368,6 @@ public class LogoutRequestService {
         return String.format("https://%s:%s%s/saml", hostname, port, rootContext);
     }
 
-    private LogoutRequest processSamlLogoutRequest(String logoutRequestStr)
-            throws IdpClientException {
-        LOGGER.trace(logoutRequestStr);
-
-        LogoutRequest logoutRequest;
-        try {
-            logoutRequest = logoutMessage.extractSamlLogoutRequest(logoutRequestStr);
-        } catch (XMLStreamException | WSSecurityException e) {
-            throw new IdpClientException("Unable to parse logout request.", e);
-        }
-        if (logoutRequest == null) {
-            throw new IdpClientException("Unable to parse logout request.");
-        }
-
-        return logoutRequest;
-    }
-
     private void logout() {
         HttpSession session = sessionFactory.getOrCreateSession(request);
 
@@ -370,8 +376,7 @@ public class LogoutRequestService {
         tokenHolder.remove("idp");
     }
 
-    private Response getLogoutResponse(String relayState, LogoutResponse samlResponse)
-            throws IdpClientException {
+    private Response getLogoutResponse(String relayState, LogoutResponse samlResponse) {
         try {
 
             String binding = idpMetadata.getSingleLogoutBinding();
@@ -381,12 +386,12 @@ public class LogoutRequestService {
                 return getSamlpRedirectLogoutResponse(relayState, samlResponse);
             } else {
                 return buildLogoutResponse(
-                        "The IDP does not support either POST or Redirect bindings.");
+                        "The identity provider does not support either POST or Redirect bindings.");
             }
         } catch (Exception e) {
             String msg = "Failed to create logout response";
             LOGGER.error(msg, e);
-            throw new IdpClientException(msg, e);
+            return buildLogoutResponse(msg);
         }
 
     }
@@ -441,10 +446,6 @@ public class LogoutRequestService {
 
     public void setRequest(HttpServletRequest request) {
         this.request = request;
-    }
-
-    public void setSystemCrypto(SystemCrypto systemCrypto) {
-        this.systemCrypto = systemCrypto;
     }
 
     public void setLogoutMessage(LogoutMessage logoutMessage) {

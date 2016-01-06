@@ -59,7 +59,8 @@ public class IdpLogoutActionProvider implements ActionProvider {
                 String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
                 nameIdTimestamp = encryptionService.encrypt(nameIdTimestamp);
                 logoutUrl = new URL(new SystemBaseUrl().constructUrl(
-                        "/saml/logout/request" + "?EncryptedNameIdTime=" + nameIdTimestamp, true));
+                        "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp,
+                        true));
 
             } catch (MalformedURLException e) {
                 LOGGER.info("Unable to resolve URL: {}",

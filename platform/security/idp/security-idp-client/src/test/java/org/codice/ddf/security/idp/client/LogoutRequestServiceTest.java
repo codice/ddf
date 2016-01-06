@@ -16,13 +16,16 @@ package org.codice.ddf.security.idp.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -37,7 +40,9 @@ import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.StatusCode;
+import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml2.core.impl.LogoutResponseBuilder;
+import org.opensaml.xml.validation.ValidationException;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.util.SecurityTokenHolder;
@@ -46,7 +51,6 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.RelayStates;
 
 public class LogoutRequestServiceTest {
@@ -77,19 +81,18 @@ public class LogoutRequestServiceTest {
 
     private SystemBaseUrl systemBaseUrl;
 
-    private SystemCrypto systemCrypto;
-
     private SimpleSign simpleSign;
 
     private HttpSession session;
 
     private SecurityTokenHolder securityTokenHolder;
 
+    private static final long LOGOUT_PAGE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
+
     @Before
     public void setup() {
         simpleSign = mock(SimpleSign.class);
         idpMetadata = mock(IdpMetadata.class);
-        systemCrypto = mock(SystemCrypto.class);
         systemBaseUrl = new SystemBaseUrl();
         relayStates = mock(RelayStates.class);
         sessionFactory = mock(SessionFactory.class);
@@ -101,15 +104,13 @@ public class LogoutRequestServiceTest {
 
         logoutRequestService = new LogoutRequestService(simpleSign,
                 idpMetadata,
-                systemCrypto,
                 systemBaseUrl,
                 relayStates);
         logoutRequestService.setEncryptionService(encryptionService);
-        logoutRequestService.setLogOutPageTimeOut(3600000);
+        logoutRequestService.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
         logoutRequestService.setLogoutMessage(logoutMessage);
         logoutRequestService.setRequest(request);
         logoutRequestService.setSessionFactory(sessionFactory);
-        logoutRequestService.setSystemCrypto(systemCrypto);
 
         logoutRequestService.init();
 
@@ -124,7 +125,7 @@ public class LogoutRequestServiceTest {
     }
 
     @Test
-    public void testSendLogoutRequest() throws Exception {
+    public void testSendLogoutRequestGetRedirectRequest() throws Exception {
         String encryptedNameIdWithTime = nameId + "\n" + time;
         when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
         when(logoutMessage.signSamlGetRequest(any(LogoutRequest.class),
@@ -140,7 +141,77 @@ public class LogoutRequestServiceTest {
     }
 
     @Test
-    public void testPostLogoutRequest() throws Exception {
+    public void testSendLogoutRequestGetPostRequest() throws Exception {
+        String encryptedNameIdWithTime = nameId + "\n" + time;
+        when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
+        when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.POST_BINDING);
+        when(idpMetadata.getSingleLogoutLocation()).thenReturn(postLogoutUrl);
+        LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
+        when(logoutMessage.buildLogoutRequest(eq(nameId), anyString())).thenReturn(logoutRequest);
+        Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertTrue("Expected logout url of " + postLogoutUrl,
+                response.getEntity()
+                        .toString()
+                        .contains(postLogoutUrl));
+
+    }
+
+    @Test
+    public void testSendLogoutRequestTimeout() throws Exception {
+        Long badTime = (time - TimeUnit.DAYS.toMillis(1));
+        String encryptedNameIdWithTime = nameId + "\n" + badTime;
+        when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + badTime);
+        Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = String.format(
+                "Logout request was older than %sms old so it was rejected. Please refresh page and request again.",
+                LOGOUT_PAGE_TIMEOUT)
+                .replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+
+    }
+
+    @Test
+    public void testSendLogoutRequestInvalidNumberOfParams() throws Exception {
+        String encryptedNameIdWithTime = nameId + "\n" + time;
+        when(encryptionService.decrypt(any(String.class))).thenReturn(nameId);
+        Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg =
+                "Failed to decrypt logout request params. Invalid number of params.".replaceAll(" ",
+                        "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+
+    }
+
+    @Test
+    public void testSendLogoutRequestNoSupportedBindings() throws Exception {
+        String encryptedNameIdWithTime = nameId + "\n" + time;
+        when(encryptionService.decrypt(any(String.class))).thenReturn(nameId + "\n" + time);
+        when(idpMetadata.getSingleLogoutBinding()).thenReturn(
+                "urn:oasis:names:tc:SAML:2.0:bindings:SOAP");
+        Response response = logoutRequestService.sendLogoutRequest(encryptedNameIdWithTime);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg =
+                "The identity provider does not support either POST or Redirect bindings.".replaceAll(
+                        " ",
+                        "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+
+    }
+
+    @Test
+    public void getPostLogoutRequest() throws Exception {
         String relayState = UUID.randomUUID()
                 .toString();
         String encodedSamlRequest = "encodedSamlRequest";
@@ -164,6 +235,22 @@ public class LogoutRequestServiceTest {
                 response.getEntity()
                         .toString()
                         .contains(postLogoutUrl));
+    }
+
+    @Test
+    public void getPostLogoutRequestNotParsable() throws Exception {
+        String relayState = UUID.randomUUID()
+                .toString();
+        String encodedSamlRequest = "encodedSamlRequest";
+        Response response = logoutRequestService.postLogoutRequest(encodedSamlRequest,
+                null,
+                relayState);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = "Unable to parse logout request.".replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
     }
 
     @Test
@@ -193,6 +280,24 @@ public class LogoutRequestServiceTest {
     }
 
     @Test
+    public void testPostLogoutRequestResponseNotParsable() throws Exception {
+        String relayState = UUID.randomUUID()
+                .toString();
+        String encodedSamlResponse = "encodedSamlRequest";
+        when(logoutMessage.extractSamlLogoutResponse(any(String.class))).thenReturn(null);
+        Response response = logoutRequestService.postLogoutRequest(null,
+                encodedSamlResponse,
+                relayState);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = "Unable to parse logout response.".replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+
+    }
+
+    @Test
     public void testGetLogoutRequest() throws Exception {
         String signature = "signature";
         String signatureAlgorithm = "sha1";
@@ -218,6 +323,52 @@ public class LogoutRequestServiceTest {
     }
 
     @Test
+    public void testGetLogoutRequestNotParsable() throws Exception {
+        String signature = "signature";
+        String signatureAlgorithm = "sha1";
+        String relayState = UUID.randomUUID()
+                .toString();
+        String deflatedSamlRequest = RestSecurity.deflateAndBase64Encode("deflatedSamlRequest");
+        when(logoutMessage.extractSamlLogoutRequest(eq("deflatedSamlRequest"))).thenReturn(null);
+        Response response = logoutRequestService.getLogoutRequest(deflatedSamlRequest,
+                null,
+                relayState,
+                signatureAlgorithm,
+                signature);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = "Unable to parse logout request.".replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+    }
+
+    @Test
+    public void testGetLogoutRequestInvalidSignature() throws Exception {
+        String signature = "signature";
+        String signatureAlgorithm = "sha1";
+        String relayState = UUID.randomUUID()
+                .toString();
+        String deflatedSamlRequest = RestSecurity.deflateAndBase64Encode("deflatedSamlRequest");
+        LogoutRequest logoutRequest = mock(LogoutRequest.class);
+        when(logoutMessage.extractSamlLogoutRequest(eq("deflatedSamlRequest"))).thenReturn(
+                logoutRequest);
+        doThrow(new ValidationException()).when(logoutRequest)
+                .validate(anyBoolean());
+        Response response = logoutRequestService.getLogoutRequest(deflatedSamlRequest,
+                null,
+                relayState,
+                signatureAlgorithm,
+                signature);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = "Unable to validate".replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+    }
+
+    @Test
     public void testGetLogoutRequestResponse() throws Exception {
         String signature = "signature";
         String signatureAlgorithm = "sha1";
@@ -237,5 +388,51 @@ public class LogoutRequestServiceTest {
                 response.getLocation()
                         .toString()
                         .contains("logged+out+successfully."));
+    }
+
+    @Test
+    public void testGetLogoutRequestResponseNotParsable() throws Exception {
+        String signature = "signature";
+        String signatureAlgorithm = "sha1";
+        String relayState = UUID.randomUUID()
+                .toString();
+        String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode("deflatedSamlResponse");
+        when(logoutMessage.extractSamlLogoutResponse(eq("deflatedSamlResponse"))).thenReturn(null);
+        Response response = logoutRequestService.getLogoutRequest(null,
+                deflatedSamlResponse,
+                relayState,
+                signatureAlgorithm,
+                signature);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = "Unable to parse logout response.".replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
+    }
+
+    @Test
+    public void testGetLogoutRequestResponseInvalidSignature() throws Exception {
+        String signature = "signature";
+        String signatureAlgorithm = "sha1";
+        String relayState = UUID.randomUUID()
+                .toString();
+        String deflatedSamlResponse = RestSecurity.deflateAndBase64Encode("deflatedSamlResponse");
+        LogoutResponse logoutResponse = mock(LogoutResponse.class);
+        when(logoutMessage.extractSamlLogoutResponse(eq("deflatedSamlResponse"))).thenReturn(
+                logoutResponse);
+        doThrow(new ValidationException()).when(logoutResponse)
+                .validate(anyBoolean());
+        Response response = logoutRequestService.getLogoutRequest(null,
+                deflatedSamlResponse,
+                relayState,
+                signatureAlgorithm,
+                signature);
+        assertEquals(Response.Status.SEE_OTHER.getStatusCode(), response.getStatus());
+        String msg = "Unable to validate".replaceAll(" ", "+");
+        assertTrue("Expected message containing " + msg,
+                response.getLocation()
+                        .getQuery()
+                        .contains(msg));
     }
 }
