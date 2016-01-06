@@ -34,6 +34,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,6 +151,22 @@ public class TestCommandJob {
 
         verifySessionCalls(command, session, 1, 1);
 
+    }
+
+    @Test
+    public void testNullContext() throws JobExecutionException {
+        CommandJob job = getCommandJob();
+        job.doExecute(null);
+    }
+
+    @Test
+    public void testNullMergedJobDataMap() throws JobExecutionException {
+        CommandJob job = getCommandJob();
+
+        JobExecutionContext jobExecutionContext = mock(JobExecutionContext.class);
+        when(jobExecutionContext.getMergedJobDataMap()).thenReturn(null);
+
+        job.doExecute(jobExecutionContext);
     }
 
     private CommandJob getCommandJob() {
