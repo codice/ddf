@@ -1,0 +1,1732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">10</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">20</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1431376434000</longProp>
+        <longProp name="ThreadGroup.end_time">1431376434000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="false"/>
+        <hashTree>
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While Controller" enabled="true">
+            <stringProp name="WhileController.condition">offset_count &gt; 20000</stringProp>
+          </WhileController>
+          <hashTree>
+            <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Offset Counter" enabled="true">
+              <stringProp name="CounterConfig.start">250</stringProp>
+              <stringProp name="CounterConfig.end">20000</stringProp>
+              <stringProp name="CounterConfig.incr">250</stringProp>
+              <stringProp name="CounterConfig.name">offset_count</stringProp>
+              <stringProp name="CounterConfig.format"></stringProp>
+              <boolProp name="CounterConfig.per_user">true</boolProp>
+              <boolProp name="CounterConfig.reset_on_tg_iteration">true</boolProp>
+            </CounterConfig>
+            <hashTree/>
+            <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+              <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;*&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;250&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:offset&gt;${offset_count}&lt;/quer:offset&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+              <stringProp name="SoapSampler.xml_data_file"></stringProp>
+              <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+              <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+            </SoapSampler>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Single Criteria" enabled="true"/>
+        <hashTree>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;willing&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword Fuzzy (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;willing&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;true&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;war&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Datatype (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;blueForce&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Datatype/Version (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;facility&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Polygon (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POLYGON((45 35,45 40,50 40,50 35,45 35))&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:maxNeighborResults&gt;0&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:spatialType&gt;CONTAINS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Point-Radius (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POINT(40 37)&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit&gt;Nautical Mile&lt;/quer:linearUnit&gt;
+               &lt;quer:maxNeighborResults&gt;25&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius&gt;150&lt;/quer:radius&gt;
+               &lt;quer:spatialType&gt;POINT_RADIUS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Point-Radius (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POLYGON((5 15,5 60,75 60,75 15,5 15))&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:maxNeighborResults&gt;0&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:spatialType&gt;OVERLAPS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Temporal Absolute (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-06T21:57:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-06T22:00:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Temporal Large (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-06T15:27:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-06T22:00:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Entry CatalogID" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:entryCriteria&gt;
+               &lt;!--You have a CHOICE of the next 2 items at this level--&gt;
+               &lt;quer:catalogId&gt;9247316f30ee482a0a0c244f1dd4b07b&lt;/quer:catalogId&gt;
+            &lt;/quer:entryCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;false&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Entry DAD" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:entryCriteria&gt;
+               &lt;quer:dataAccessDescriptor&gt;
+                  &lt;data:className xmlns:data=&quot;http://mil.dcgs/mdf/webservice/data&quot;&gt;N/A&lt;/data:className&gt;
+                  &lt;data:uri xmlns:data=&quot;http://mil.dcgs/mdf/webservice/data&quot;&gt;N/A&lt;/data:uri&gt;
+                  &lt;data:id xmlns:data=&quot;http://mil.dcgs/mdf/webservice/data&quot;&gt;9247316f30ee482a0a0c244f1dd4b07b&lt;/data:id&gt;
+                  &lt;data:size xmlns:data=&quot;http://mil.dcgs/mdf/webservice/data&quot;&gt;N/A&lt;/data:size&gt;
+               &lt;/quer:dataAccessDescriptor&gt;
+            &lt;/quer:entryCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;false&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Keyword and Datatype" enabled="false"/>
+        <hashTree>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Datatype (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;happening&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;iir&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Datatype (Medium)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;water&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;nitf&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;75&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Datatype (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;white&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;exploitationRequirement&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;nitf&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;Resource&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;product&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;150&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Datatype/Version (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;touched&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;correlatedTrack&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Datatype/Version (Medium)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;bill&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;trackSummary&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;75&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Datatype/Version (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;String&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;facility&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20_Army&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;blueForce&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;rfi&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;redForce&lt;/quer:extensionTypeName&gt;
+                  &lt;quer:version&gt;DIB20&lt;/quer:version&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;150&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword Only (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;singing&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Datatype Only (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;mission&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Keyword and Temporal" enabled="false"/>
+        <hashTree>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Temporal (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;dinner&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-06T22:57:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-07T09:00:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Temporal (Medium)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;transportation&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-06T14:22:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-08T05:55:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;75&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Temporal (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;place&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-07T14:22:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-09T05:55:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;150&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Temporal (Small/L)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;over&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-06T22:57:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-09T09:00:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Temporal (Medium/L)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;Obama&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-06T14:12:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-09T06:55:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;75&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword and Temporal (Large/L)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;other&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-07T00:24:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-10T05:55:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;150&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Keyword Only (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:contextualCriteria&gt;
+               &lt;quer:searchPhrase&gt;Sheen&lt;/quer:searchPhrase&gt;
+               &lt;quer:fuzzySearch&gt;false&lt;/quer:fuzzySearch&gt;
+               &lt;quer:caseSensitiveSearch&gt;false&lt;/quer:caseSensitiveSearch&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:textPathSection xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+            &lt;/quer:contextualCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;RELEVANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Temporal Only (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:temporalCriteria&gt;
+               &lt;quer:absoluteSearchCriterion&gt;
+                  &lt;quer:fromDate&gt;2011-04-08T14:12:18.720-04:00&lt;/quer:fromDate&gt;
+                  &lt;quer:toDate&gt;2011-04-08T14:15:00.000-04:00&lt;/quer:toDate&gt;
+               &lt;/quer:absoluteSearchCriterion&gt;
+               &lt;quer:timeType&gt;EFFECTIVE&lt;/quer:timeType&gt;
+            &lt;/quer:temporalCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Spatial and Datatype" enabled="false"/>
+        <hashTree>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Polygon and Datatype (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POLYGON((-45 -35,-45 -40,-50 -40,-50 -35,-45 -35))&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:maxNeighborResults&gt;0&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:spatialType&gt;CONTAINS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;trackSummary&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Polygon and Datatype (Mediuml)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POLYGON((-140 27,-140 40,-100 40,-100 27,-140 27))&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:maxNeighborResults&gt;0&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:spatialType&gt;OVERLAPS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;iir&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;75&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Polygon and Datatype (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POLYGON((-120 7,-120 40,-60 40,-60 7,-120 7))&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:maxNeighborResults&gt;0&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:spatialType&gt;OVERLAPS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;correlatedTrack&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;150&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Point-Radius and Datatype (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POINT(40 37)&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit&gt;Nautical Mile&lt;/quer:linearUnit&gt;
+               &lt;quer:maxNeighborResults&gt;25&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius&gt;150&lt;/quer:radius&gt;
+               &lt;quer:spatialType&gt;POINT_RADIUS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;jieddoProduct&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;DISTANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;ASCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Point-Radius and Datatype (Medium)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POINT(-111 50)&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit&gt;Meter&lt;/quer:linearUnit&gt;
+               &lt;quer:maxNeighborResults&gt;25&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius&gt;1100000&lt;/quer:radius&gt;
+               &lt;quer:spatialType&gt;POINT_RADIUS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;video&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;DISTANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;ASCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;75&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Point-Radius and Datatype (Large)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+               &lt;quer:geometryWKT&gt;POINT(65 -5)&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit&gt;Kilometer&lt;/quer:linearUnit&gt;
+               &lt;quer:maxNeighborResults&gt;25&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius&gt;3000&lt;/quer:radius&gt;
+               &lt;quer:spatialType&gt;POINT_RADIUS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;!--1 or more repetitions:--&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;exploitationRequirement&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;DISTANCE&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;ASCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;150&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Spatial Polygon Only (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:spatialCriteria&gt;
+              &lt;quer:geometryWKT&gt;POLYGON((110 37,110 43,115 43,115 37,110 37))&lt;/quer:geometryWKT&gt;
+               &lt;quer:linearUnit xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:maxNeighborResults&gt;0&lt;/quer:maxNeighborResults&gt;
+               &lt;quer:radius xsi:nil=&quot;true&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;/&gt;
+               &lt;quer:spatialType&gt;CONTAINS&lt;/quer:spatialType&gt;
+            &lt;/quer:spatialCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+          <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Datatype Only (Small)" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/mdf-dib20-ws/QueryService</stringProp>
+            <stringProp name="HTTPSamper.xml_data">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:quer=&quot;http://mil.dcgs/mdf/webservice/query&quot;&gt;
+   &lt;soapenv:Header/&gt;
+   &lt;soapenv:Body&gt;
+      &lt;quer:compoundSearch&gt;
+         &lt;quer:compoundCriteria&gt;
+            &lt;quer:typeCriteria&gt;
+               &lt;quer:extension&gt;
+                  &lt;quer:extensionTypeName&gt;lineOfCommunication&lt;/quer:extensionTypeName&gt;
+               &lt;/quer:extension&gt;
+            &lt;/quer:typeCriteria&gt;
+            &lt;quer:sortPolicy&gt;
+               &lt;quer:sortPolicyId&gt;TEMPORAL&lt;/quer:sortPolicyId&gt;
+               &lt;quer:order&gt;DESCENDING&lt;/quer:order&gt;
+            &lt;/quer:sortPolicy&gt;
+         &lt;/quer:compoundCriteria&gt;
+         &lt;quer:searchCriteriaParameters&gt;
+            &lt;quer:enterpriseSearch&gt;false&lt;/quer:enterpriseSearch&gt;
+            &lt;quer:maximumResults&gt;25&lt;/quer:maximumResults&gt;
+            &lt;quer:metadataAsString&gt;true&lt;/quer:metadataAsString&gt;
+            &lt;quer:searchTimeOut&gt;240000&lt;/quer:searchTimeOut&gt;
+            &lt;quer:countTotalResults&gt;true&lt;/quer:countTotalResults&gt;
+         &lt;/quer:searchCriteriaParameters&gt;
+      &lt;/quer:compoundSearch&gt;
+   &lt;/soapenv:Body&gt;
+&lt;/soapenv:Envelope&gt;</stringProp>
+            <stringProp name="SoapSampler.xml_data_file"></stringProp>
+            <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.query/CatalogQueryServiceBinding/compoundSearch</stringProp>
+            <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+          </SoapSampler>
+          <hashTree/>
+        </hashTree>
+        <ResultCollector guiclass="RespTimeGraphVisualizer" testclass="ResultCollector" testname="Response Time Graph" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename">/home/smajeski/jmeter/test.csv</stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="StatGraphVisualizer" testclass="ResultCollector" testname="Aggregate Graph" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

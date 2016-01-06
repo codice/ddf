@@ -1,0 +1,1790 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">10</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">10</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1431376434000</longProp>
+        <longProp name="ThreadGroup.end_time">1431376434000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="DDMS Only" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-ddms/IngestService</stringProp>
+          <stringProp name="HTTPSamper.xml_data">&lt;env:Envelope xmlns:env=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:enc=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:ns0=&quot;java:mil.dcgs.mdf.webservice.ingest&quot; xmlns:ans1=&quot;java:mil.dcgs.mdf.webservice.data&quot;&gt;
+   &lt;env:Body&gt;
+      &lt;ns0:createCatalogEntry&gt;   
+        &lt;ns0:entry&gt;
+            &lt;ans1:siteName/&gt;
+            &lt;ans1:id/&gt;
+            &lt;ans1:dataAccessDescriptor&gt;
+               &lt;ans1:className&gt;N/A&lt;/ans1:className&gt;
+               &lt;ans1:uri&gt;N/A&lt;/ans1:uri&gt;
+               &lt;ans1:id&gt;N/A&lt;/ans1:id&gt;
+               &lt;ans1:size&gt;N/A&lt;/ans1:size&gt;
+            &lt;/ans1:dataAccessDescriptor&gt;
+            &lt;ans1:effectiveDate&gt;2011-03-06T10:59:25.093-04:00&lt;/ans1:effectiveDate&gt;
+            &lt;ans1:expirationDate&gt;2011-03-07T10:59:25.093-04:00&lt;/ans1:expirationDate&gt;
+            &lt;ans1:geometryWKT&gt;POINT (10 20)&lt;/ans1:geometryWKT&gt;
+            &lt;ans1:metadata&gt;&lt;![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;ddms:Resource xmlns:ddms=&quot;http://metadata.dod.mil/mdr/ns/DDMS/2.0/&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:ICISM=&quot;urn:us:gov:ic:ism:v2&quot; xmlns:isr = &quot;urn:us:gov:cryp:ddms:isr&quot;&gt;  
+&lt;ddms:identifier ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:title ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;Bulk Ingest9&lt;/ddms:title&gt;
+&lt;ddms:description ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;soapUI Core Test&lt;/ddms:description&gt;
+&lt;ddms:language ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:dates ddms:posted=&quot;2001-12-17T09:30:47.0Z&quot; ddms:created=&quot;2001-12-17T09:30:47.0Z&quot; ddms:validTil=&quot;2001-12-17T09:30:47.0Z&quot; ddms:infoCutOff=&quot;2001-12-17T09:30:47.0Z&quot;/&gt;
+&lt;ddms:rights ddms:privacyAct=&quot;false&quot; ddms:copyright=&quot;false&quot; ddms:intellectualProperty=&quot;false&quot;/&gt;
+&lt;ddms:source ddms:schemaHref=&quot;http://www.altova.com&quot; ddms:qualifier=&quot;String&quot; ddms:schemaQualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:type ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:creator&gt;
+ &lt;ddms:Organization&gt;
+  &lt;ddms:name&gt;MACE&lt;/ddms:name&gt;
+  &lt;ddms:phone&gt;703-464-9020&lt;/ddms:phone&gt;
+  &lt;ddms:email&gt;support@macefusion.com&lt;/ddms:email&gt;
+ &lt;/ddms:Organization&gt;
+&lt;/ddms:creator&gt;
+&lt;ddms:format&gt;
+ &lt;ddms:Media&gt;
+  &lt;ddms:mimeType&gt;String&lt;/ddms:mimeType&gt;
+  &lt;ddms:extent ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+  &lt;ddms:medium&gt;String&lt;/ddms:medium&gt;
+ &lt;/ddms:Media&gt;
+&lt;/ddms:format&gt;
+&lt;ddms:subjectCoverage&gt;
+ &lt;ddms:Subject&gt;
+  &lt;ddms:category ddms:code=&quot;String&quot; ddms:qualifier=&quot;http://www.altova.com&quot; ddms:label=&quot;String&quot;/&gt;
+ &lt;/ddms:Subject&gt;
+&lt;/ddms:subjectCoverage&gt;
+&lt;ddms:virtualCoverage ddms:address=&quot;String&quot; ddms:protocol=&quot;String&quot;/&gt;
+&lt;ddms:temporalCoverage&gt;
+ &lt;ddms:TimePeriod&gt;
+  &lt;ddms:name&gt;Unknown&lt;/ddms:name&gt;
+  &lt;ddms:start&gt;Unknown&lt;/ddms:start&gt;
+  &lt;ddms:end&gt;Unknown&lt;/ddms:end&gt;
+ &lt;/ddms:TimePeriod&gt;
+&lt;/ddms:temporalCoverage&gt;
+&lt;ddms:geospatialCoverage&gt;
+ &lt;ddms:GeospatialExtent&gt;
+  &lt;ddms:geographicIdentifier&gt;
+   &lt;ddms:name&gt;String&lt;/ddms:name&gt;
+  &lt;/ddms:geographicIdentifier&gt;
+ &lt;/ddms:GeospatialExtent&gt;
+&lt;/ddms:geospatialCoverage&gt;
+&lt;ddms:security ICISM:classification=&quot;U&quot; ICISM:disseminationControls=&quot;FOUO&quot; ICISM:ownerProducer=&quot;USA&quot; /&gt;
+&lt;/ddms:Resource&gt;]]&gt;&lt;/ans1:metadata&gt;
+            &lt;ans1:thumbnail xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:createdDate xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:modifiedDate xsi:nil=&quot;true&quot;/&gt;
+         &lt;/ns0:entry&gt;
+      &lt;/ns0:createCatalogEntry&gt;
+   &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;</stringProp>
+          <stringProp name="SoapSampler.xml_data_file"></stringProp>
+          <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.ingest/CatalogIngestServicePort/createCatalogEntryRequest</stringProp>
+          <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+        </SoapSampler>
+        <hashTree/>
+        <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="NITF" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-ddms/IngestService</stringProp>
+          <stringProp name="HTTPSamper.xml_data">&lt;env:Envelope xmlns:env=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:enc=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:ns0=&quot;java:mil.dcgs.mdf.webservice.ingest&quot; xmlns:ans1=&quot;java:mil.dcgs.mdf.webservice.data&quot;&gt;
+   &lt;env:Body&gt;
+      &lt;ns0:createCatalogEntry&gt;   
+        &lt;ns0:entry&gt;
+            &lt;ans1:siteName/&gt;
+            &lt;ans1:id/&gt;
+            &lt;ans1:dataAccessDescriptor&gt;
+               &lt;ans1:className&gt;N/A&lt;/ans1:className&gt;
+               &lt;ans1:uri&gt;N/A&lt;/ans1:uri&gt;
+               &lt;ans1:id&gt;N/A&lt;/ans1:id&gt;
+               &lt;ans1:size&gt;N/A&lt;/ans1:size&gt;
+            &lt;/ans1:dataAccessDescriptor&gt;
+            &lt;ans1:effectiveDate&gt;2011-03-06T10:59:25.093-04:00&lt;/ans1:effectiveDate&gt;
+            &lt;ans1:expirationDate&gt;2011-03-06T10:59:25.093-04:00&lt;/ans1:expirationDate&gt;
+            &lt;ans1:geometryWKT&gt;POINT (10 20)&lt;/ans1:geometryWKT&gt;
+            &lt;ans1:metadata&gt;&lt;![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;ddms:Resource xmlns:ddms=&quot;http://metadata.dod.mil/mdr/ns/DDMS/2.0/&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:ICISM=&quot;urn:us:gov:ic:ism:v2&quot; xmlns:isr = &quot;urn:us:gov:cryp:ddms:isr&quot;&gt;  
+&lt;ddms:identifier ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:title ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;Bulk Ingest10&lt;/ddms:title&gt;
+&lt;ddms:description ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;soapUI Core Test&lt;/ddms:description&gt;
+&lt;ddms:language ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:dates ddms:posted=&quot;2001-12-17T09:30:47.0Z&quot; ddms:created=&quot;2001-12-17T09:30:47.0Z&quot; ddms:validTil=&quot;2001-12-17T09:30:47.0Z&quot; ddms:infoCutOff=&quot;2001-12-17T09:30:47.0Z&quot;/&gt;
+&lt;ddms:rights ddms:privacyAct=&quot;false&quot; ddms:copyright=&quot;false&quot; ddms:intellectualProperty=&quot;false&quot;/&gt;
+&lt;ddms:source ddms:schemaHref=&quot;http://www.altova.com&quot; ddms:qualifier=&quot;String&quot; ddms:schemaQualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:type ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:creator&gt;
+ &lt;ddms:Organization&gt;
+  &lt;ddms:name&gt;MACE&lt;/ddms:name&gt;
+  &lt;ddms:phone&gt;703-464-9020&lt;/ddms:phone&gt;
+  &lt;ddms:email&gt;support@macefusion.com&lt;/ddms:email&gt;
+ &lt;/ddms:Organization&gt;
+&lt;/ddms:creator&gt;
+&lt;ddms:format&gt;
+ &lt;ddms:Media&gt;
+  &lt;ddms:mimeType&gt;String&lt;/ddms:mimeType&gt;
+  &lt;ddms:extent ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+  &lt;ddms:medium&gt;String&lt;/ddms:medium&gt;
+ &lt;/ddms:Media&gt;
+&lt;/ddms:format&gt;
+&lt;ddms:subjectCoverage&gt;
+ &lt;ddms:Subject&gt;
+  &lt;ddms:category ddms:code=&quot;String&quot; ddms:qualifier=&quot;http://www.altova.com&quot; ddms:label=&quot;String&quot;/&gt;
+ &lt;/ddms:Subject&gt;
+&lt;/ddms:subjectCoverage&gt;
+&lt;ddms:virtualCoverage ddms:address=&quot;String&quot; ddms:protocol=&quot;String&quot;/&gt;
+&lt;ddms:temporalCoverage&gt;
+ &lt;ddms:TimePeriod&gt;
+  &lt;ddms:name&gt;Unknown&lt;/ddms:name&gt;
+  &lt;ddms:start&gt;Unknown&lt;/ddms:start&gt;
+  &lt;ddms:end&gt;Unknown&lt;/ddms:end&gt;
+ &lt;/ddms:TimePeriod&gt;
+&lt;/ddms:temporalCoverage&gt;
+&lt;ddms:geospatialCoverage&gt;
+ &lt;ddms:GeospatialExtent&gt;
+  &lt;ddms:geographicIdentifier&gt;
+   &lt;ddms:name&gt;String&lt;/ddms:name&gt;
+  &lt;/ddms:geographicIdentifier&gt;
+ &lt;/ddms:GeospatialExtent&gt;
+&lt;/ddms:geospatialCoverage&gt;
+&lt;ddms:security ICISM:classification=&quot;U&quot; ICISM:disseminationControls=&quot;FOUO&quot; ICISM:ownerProducer=&quot;USA&quot; /&gt;
+&lt;content xmlns=&quot;http://dcgs.mil/metadata&quot; xmlns:pass=&quot;http://peoc3t.us.army.mil/abcs&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:crypto=&quot;urn:us:gov:cryp:ddms:sigint&quot; xmlns:gml=&quot;http://www.opengis.net/gml&quot;&gt;
+&lt;nitf xmlns=&quot;http://dcgs.mil/metadata&quot;&gt;
+ &lt;header&gt;
+  &lt;version&gt;1.1&lt;/version&gt;
+  &lt;fileDateTime&gt;2001-12-17T09:30:47.0Z&lt;/fileDateTime&gt;
+  &lt;fileTitle&gt;MACE Random Data76032&lt;/fileTitle&gt;
+  &lt;complexityLevel&gt;String&lt;/complexityLevel&gt;
+  &lt;originatorName&gt;String&lt;/originatorName&gt;
+  &lt;originatingStationId&gt;String&lt;/originatingStationId&gt;
+  &lt;security&gt;
+   &lt;classification&gt;UnClass&lt;/classification&gt;
+   &lt;classificationOwnerProducer&gt;NMTOKEN&lt;/classificationOwnerProducer&gt;
+   &lt;disseminationControl&gt;SG1&lt;/disseminationControl&gt;
+   &lt;dataCategory&gt;Unrestricted&lt;/dataCategory&gt;
+   &lt;releasableTo&gt;String&lt;/releasableTo&gt;
+   &lt;SCIControls&gt;String&lt;/SCIControls&gt;
+   &lt;SARIdentifier&gt;String&lt;/SARIdentifier&gt;
+   &lt;FGIOpen&gt;String&lt;/FGIOpen&gt;
+   &lt;FGIProtected&gt;String&lt;/FGIProtected&gt;
+   &lt;nonICMarkings&gt;String&lt;/nonICMarkings&gt;
+   &lt;codeWords&gt;aaaaaaaaaaa&lt;/codeWords&gt;
+   &lt;controlCode&gt;aa&lt;/controlCode&gt;
+   &lt;releaseInstruction&gt;String&lt;/releaseInstruction&gt;
+   &lt;controlNumber&gt;String&lt;/controlNumber&gt;
+   &lt;classificationInfo&gt;
+    &lt;system&gt;String&lt;/system&gt;
+    &lt;authority&gt;String&lt;/authority&gt;
+    &lt;authorityType&gt;O&lt;/authorityType&gt;
+    &lt;text&gt;String&lt;/text&gt;
+    &lt;reason&gt;String&lt;/reason&gt;
+    &lt;date&gt;1967-08-13&lt;/date&gt;
+   &lt;/classificationInfo&gt;
+   &lt;declassificationInfo&gt;
+    &lt;type&gt;DD&lt;/type&gt;
+    &lt;date&gt;1967-08-13&lt;/date&gt;
+    &lt;security&gt;
+     &lt;classification&gt;UnClass&lt;/classification&gt;
+     &lt;classificationOwnerProducer&gt;NMTOKEN&lt;/classificationOwnerProducer&gt;
+     &lt;disseminationControl&gt;SG1&lt;/disseminationControl&gt;
+     &lt;dataCategory&gt;Unrestricted&lt;/dataCategory&gt;
+     &lt;releasableTo&gt;String&lt;/releasableTo&gt;
+     &lt;SCIControls&gt;String&lt;/SCIControls&gt;
+     &lt;SARIdentifier&gt;String&lt;/SARIdentifier&gt;
+     &lt;FGIOpen&gt;String&lt;/FGIOpen&gt;
+     &lt;FGIProtected&gt;String&lt;/FGIProtected&gt;
+     &lt;nonICMarkings&gt;String&lt;/nonICMarkings&gt;
+    &lt;/security&gt;
+   &lt;/declassificationInfo&gt;
+  &lt;/security&gt;
+ &lt;/header&gt;
+ &lt;image&gt;
+  &lt;header&gt;
+   &lt;id&gt;String&lt;/id&gt;
+   &lt;dateTime&gt;2001-12-17T09:30:47.0Z&lt;/dateTime&gt;
+   &lt;title&gt;String&lt;/title&gt;
+   &lt;source&gt;String&lt;/source&gt;
+   &lt;numberOfRows&gt;2&lt;/numberOfRows&gt;
+   &lt;numberOfColumns&gt;2&lt;/numberOfColumns&gt;
+   &lt;band&gt;
+    &lt;numberOfBands&gt;9&lt;/numberOfBands&gt;
+    &lt;representation&gt;B&lt;/representation&gt;
+    &lt;subcategory&gt;token&lt;/subcategory&gt;
+   &lt;/band&gt;
+   &lt;bitsPerPixelPerBand&gt;1&lt;/bitsPerPixelPerBand&gt;
+   &lt;representation&gt;BCS-A&lt;/representation&gt;
+   &lt;category&gt;VIS&lt;/category&gt;
+   &lt;mode&gt;B&lt;/mode&gt;
+   &lt;magnification&gt;1.0&lt;/magnification&gt;
+   &lt;compression&gt;
+    &lt;scheme&gt;NC&lt;/scheme&gt;
+    &lt;rateCode&gt;token&lt;/rateCode&gt;
+   &lt;/compression&gt;
+   &lt;security&gt;
+    &lt;classification&gt;UnClass&lt;/classification&gt;
+    &lt;classificationOwnerProducer&gt;NMTOKEN&lt;/classificationOwnerProducer&gt;
+    &lt;disseminationControl&gt;SG1&lt;/disseminationControl&gt;
+    &lt;dataCategory&gt;Unrestricted&lt;/dataCategory&gt;
+    &lt;releasableTo&gt;String&lt;/releasableTo&gt;
+    &lt;SCIControls&gt;String&lt;/SCIControls&gt;
+    &lt;SARIdentifier&gt;String&lt;/SARIdentifier&gt;
+    &lt;FGIOpen&gt;String&lt;/FGIOpen&gt;
+    &lt;FGIProtected&gt;String&lt;/FGIProtected&gt;
+    &lt;nonICMarkings&gt;String&lt;/nonICMarkings&gt;
+    &lt;codeWords&gt;aaaaaaaaaaa&lt;/codeWords&gt;
+    &lt;controlCode&gt;aa&lt;/controlCode&gt;
+    &lt;releaseInstruction&gt;String&lt;/releaseInstruction&gt;
+    &lt;controlNumber&gt;String&lt;/controlNumber&gt;
+    &lt;classificationInfo&gt;
+     &lt;system&gt;String&lt;/system&gt;
+     &lt;authority&gt;String&lt;/authority&gt;
+     &lt;authorityType&gt;O&lt;/authorityType&gt;
+     &lt;text&gt;String&lt;/text&gt;
+     &lt;reason&gt;String&lt;/reason&gt;
+     &lt;date&gt;1967-08-13&lt;/date&gt;
+    &lt;/classificationInfo&gt;
+    &lt;declassificationInfo&gt;
+     &lt;type&gt;DD&lt;/type&gt;
+     &lt;date&gt;1967-08-13&lt;/date&gt;
+     &lt;security&gt;
+      &lt;classification&gt;UnClass&lt;/classification&gt;
+      &lt;classificationOwnerProducer&gt;NMTOKEN&lt;/classificationOwnerProducer&gt;
+      &lt;disseminationControl&gt;SG1&lt;/disseminationControl&gt;
+      &lt;dataCategory&gt;Unrestricted&lt;/dataCategory&gt;
+      &lt;releasableTo&gt;String&lt;/releasableTo&gt;
+      &lt;SCIControls&gt;String&lt;/SCIControls&gt;
+      &lt;SARIdentifier&gt;String&lt;/SARIdentifier&gt;
+      &lt;FGIOpen&gt;String&lt;/FGIOpen&gt;
+      &lt;FGIProtected&gt;String&lt;/FGIProtected&gt;
+      &lt;nonICMarkings&gt;String&lt;/nonICMarkings&gt;
+     &lt;/security&gt;
+    &lt;/declassificationInfo&gt;
+   &lt;/security&gt;
+   &lt;coverage&gt;
+    &lt;point&gt;
+     &lt;coordinate&gt;
+      &lt;ellipsoid&gt;
+       &lt;latitude&gt;-90.000&lt;/latitude&gt;
+       &lt;longitude&gt;-180.000&lt;/longitude&gt;
+      &lt;/ellipsoid&gt;
+      &lt;text&gt;String&lt;/text&gt;
+     &lt;/coordinate&gt;
+     &lt;elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/elevation&gt;
+    &lt;/point&gt;
+    &lt;point&gt;
+     &lt;coordinate&gt;
+      &lt;ellipsoid&gt;
+       &lt;latitude&gt;-90.000&lt;/latitude&gt;
+       &lt;longitude&gt;-180.000&lt;/longitude&gt;
+      &lt;/ellipsoid&gt;
+      &lt;text&gt;String&lt;/text&gt;
+     &lt;/coordinate&gt;
+     &lt;elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/elevation&gt;
+    &lt;/point&gt;
+    &lt;point&gt;
+     &lt;coordinate&gt;
+      &lt;ellipsoid&gt;
+       &lt;latitude&gt;-90.000&lt;/latitude&gt;
+       &lt;longitude&gt;-180.000&lt;/longitude&gt;
+      &lt;/ellipsoid&gt;
+      &lt;text&gt;String&lt;/text&gt;
+     &lt;/coordinate&gt;
+     &lt;elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/elevation&gt;
+    &lt;/point&gt;
+    &lt;point&gt;
+     &lt;coordinate&gt;
+      &lt;ellipsoid&gt;
+       &lt;latitude&gt;-90.000&lt;/latitude&gt;
+       &lt;longitude&gt;-180.000&lt;/longitude&gt;
+      &lt;/ellipsoid&gt;
+      &lt;text&gt;String&lt;/text&gt;
+     &lt;/coordinate&gt;
+     &lt;elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/elevation&gt;
+    &lt;/point&gt;
+   &lt;/coverage&gt;
+   &lt;target&gt;
+    &lt;id&gt;aaaaaaaaaaaaaaa&lt;/id&gt;
+    &lt;suffix&gt;String&lt;/suffix&gt;
+   &lt;/target&gt;
+   &lt;comment&gt;text&lt;/comment&gt;
+  &lt;/header&gt;
+  &lt;mensrb&gt;
+   &lt;acftloc&gt;
+    &lt;latitude&gt;-90.000&lt;/latitude&gt;
+    &lt;longitude&gt;-180.000&lt;/longitude&gt;
+   &lt;/acftloc&gt;
+   &lt;acftlocaccy&gt;String&lt;/acftlocaccy&gt;
+   &lt;acftalt&gt;000000&lt;/acftalt&gt;
+   &lt;rploc&gt;
+    &lt;latitude&gt;-90.000&lt;/latitude&gt;
+    &lt;longitude&gt;-180.000&lt;/longitude&gt;
+   &lt;/rploc&gt;
+   &lt;rplocaccy&gt;String&lt;/rplocaccy&gt;
+   &lt;rpelv&gt;-01000&lt;/rpelv&gt;
+   &lt;ofpcr&gt;-9999.9&lt;/ofpcr&gt;
+   &lt;ofpca&gt;-9999.9&lt;/ofpca&gt;
+   &lt;cosgrz&gt;0.00000&lt;/cosgrz&gt;
+   &lt;rgcrp&gt;0000000&lt;/rgcrp&gt;
+   &lt;rlmap&gt;L&lt;/rlmap&gt;
+   &lt;rprow&gt;00000&lt;/rprow&gt;
+   &lt;rpcol&gt;00000&lt;/rpcol&gt;
+   &lt;crnc&gt;-1.0000000&lt;/crnc&gt;
+   &lt;crec&gt;-1.0000000&lt;/crec&gt;
+   &lt;crdc&gt;-1.0000000&lt;/crdc&gt;
+   &lt;caznc&gt;-1.0000000&lt;/caznc&gt;
+   &lt;cazec&gt;-1.0000000&lt;/cazec&gt;
+   &lt;cazdc&gt;-1.0000000&lt;/cazdc&gt;
+   &lt;calnc&gt;-1.0000000&lt;/calnc&gt;
+   &lt;calec&gt;-1.0000000&lt;/calec&gt;
+   &lt;caldc&gt;-1.0000000&lt;/caldc&gt;
+   &lt;totaltilescols&gt;001&lt;/totaltilescols&gt;
+   &lt;totaltilesrows&gt;00001&lt;/totaltilesrows&gt;
+  &lt;/mensrb&gt;
+ &lt;/image&gt;
+&lt;/nitf&gt;
+&lt;/content&gt;
+&lt;/ddms:Resource&gt;]]&gt;&lt;/ans1:metadata&gt;
+            &lt;ans1:thumbnail xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:createdDate xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:modifiedDate xsi:nil=&quot;true&quot;/&gt;
+         &lt;/ns0:entry&gt;
+      &lt;/ns0:createCatalogEntry&gt;
+   &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;</stringProp>
+          <stringProp name="SoapSampler.xml_data_file"></stringProp>
+          <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.ingest/CatalogIngestServicePort/createCatalogEntryRequest</stringProp>
+          <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+        </SoapSampler>
+        <hashTree/>
+        <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="ACO" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-ddms/IngestService</stringProp>
+          <stringProp name="HTTPSamper.xml_data">&lt;env:Envelope xmlns:env=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:enc=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:ns0=&quot;java:mil.dcgs.mdf.webservice.ingest&quot; xmlns:ans1=&quot;java:mil.dcgs.mdf.webservice.data&quot;&gt;
+   &lt;env:Body&gt;
+      &lt;ns0:createCatalogEntry&gt;   
+        &lt;ns0:entry&gt;
+            &lt;ans1:siteName/&gt;
+            &lt;ans1:id/&gt;
+            &lt;ans1:dataAccessDescriptor&gt;
+               &lt;ans1:className&gt;N/A&lt;/ans1:className&gt;
+               &lt;ans1:uri&gt;N/A&lt;/ans1:uri&gt;
+               &lt;ans1:id&gt;N/A&lt;/ans1:id&gt;
+               &lt;ans1:size&gt;N/A&lt;/ans1:size&gt;
+            &lt;/ans1:dataAccessDescriptor&gt;
+            &lt;ans1:effectiveDate&gt;2011-03-06T10:59:25.093-04:00&lt;/ans1:effectiveDate&gt;
+            &lt;ans1:expirationDate&gt;2011-03-07T10:59:25.093-04:00&lt;/ans1:expirationDate&gt;
+            &lt;ans1:geometryWKT&gt;POINT (10 20)&lt;/ans1:geometryWKT&gt;
+            &lt;ans1:metadata&gt;&lt;![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;ddms:Resource xmlns:ddms=&quot;http://metadata.dod.mil/mdr/ns/DDMS/2.0/&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:ICISM=&quot;urn:us:gov:ic:ism:v2&quot; xmlns:isr = &quot;urn:us:gov:cryp:ddms:isr&quot;&gt;  
+&lt;ddms:identifier ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:title ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;Bulk Ingest4&lt;/ddms:title&gt;
+&lt;ddms:description ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;soapUI Core Test&lt;/ddms:description&gt;
+&lt;ddms:language ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:dates ddms:posted=&quot;2001-12-17T09:30:47.0Z&quot; ddms:created=&quot;2001-12-17T09:30:47.0Z&quot; ddms:validTil=&quot;2001-12-17T09:30:47.0Z&quot; ddms:infoCutOff=&quot;2001-12-17T09:30:47.0Z&quot;/&gt;
+&lt;ddms:rights ddms:privacyAct=&quot;false&quot; ddms:copyright=&quot;false&quot; ddms:intellectualProperty=&quot;false&quot;/&gt;
+&lt;ddms:source ddms:schemaHref=&quot;http://www.altova.com&quot; ddms:qualifier=&quot;String&quot; ddms:schemaQualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:type ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:creator&gt;
+ &lt;ddms:Organization&gt;
+  &lt;ddms:name&gt;MACE&lt;/ddms:name&gt;
+  &lt;ddms:phone&gt;703-464-9020&lt;/ddms:phone&gt;
+  &lt;ddms:email&gt;support@macefusion.com&lt;/ddms:email&gt;
+ &lt;/ddms:Organization&gt;
+&lt;/ddms:creator&gt;
+&lt;ddms:format&gt;
+ &lt;ddms:Media&gt;
+  &lt;ddms:mimeType&gt;String&lt;/ddms:mimeType&gt;
+  &lt;ddms:extent ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+  &lt;ddms:medium&gt;String&lt;/ddms:medium&gt;
+ &lt;/ddms:Media&gt;
+&lt;/ddms:format&gt;
+&lt;ddms:subjectCoverage&gt;
+ &lt;ddms:Subject&gt;
+  &lt;ddms:category ddms:code=&quot;String&quot; ddms:qualifier=&quot;http://www.altova.com&quot; ddms:label=&quot;String&quot;/&gt;
+ &lt;/ddms:Subject&gt;
+&lt;/ddms:subjectCoverage&gt;
+&lt;ddms:virtualCoverage ddms:address=&quot;String&quot; ddms:protocol=&quot;String&quot;/&gt;
+&lt;ddms:temporalCoverage&gt;
+ &lt;ddms:TimePeriod&gt;
+  &lt;ddms:name&gt;Unknown&lt;/ddms:name&gt;
+  &lt;ddms:start&gt;Unknown&lt;/ddms:start&gt;
+  &lt;ddms:end&gt;Unknown&lt;/ddms:end&gt;
+ &lt;/ddms:TimePeriod&gt;
+&lt;/ddms:temporalCoverage&gt;
+&lt;ddms:geospatialCoverage&gt;
+ &lt;ddms:GeospatialExtent&gt;
+  &lt;ddms:geographicIdentifier&gt;
+   &lt;ddms:name&gt;String&lt;/ddms:name&gt;
+  &lt;/ddms:geographicIdentifier&gt;
+ &lt;/ddms:GeospatialExtent&gt;
+&lt;/ddms:geospatialCoverage&gt;
+&lt;ddms:security ICISM:classification=&quot;U&quot; ICISM:disseminationControls=&quot;FOUO&quot; ICISM:ownerProducer=&quot;USA&quot; /&gt;
+&lt;content xmlns=&quot;http://dcgs.mil/metadata&quot; xmlns:pass=&quot;http://peoc3t.us.army.mil/abcs&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:crypto=&quot;urn:us:gov:cryp:ddms:sigint&quot; xmlns:gml=&quot;http://www.opengis.net/gml&quot; xmlns:mtf=&quot;urn:mtf:mil:usmtf:2000&quot;&gt;
+&lt;s:airspace_control_order mtfid=&quot;ACO&quot; xmlns:s=&quot;urn:mtf:mil:usmtf:2000&quot;&gt;
+ &lt;s:exercise_identification set-seq=&quot;1&quot; setid=&quot;EXER&quot;&gt;
+  &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:amplification&gt;
+  &lt;s:exercise_nickname ff-seq=&quot;1&quot;&gt; &lt;/s:exercise_nickname&gt;
+  &lt;s:exercise_message_additional_identifier ff-seq=&quot;2&quot;&gt; &lt;/s:exercise_message_additional_identifier&gt;
+ &lt;/s:exercise_identification&gt;
+ &lt;s:operation_identification_data set-seq=&quot;2&quot; setid=&quot;OPER&quot;&gt;
+  &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:amplification&gt;
+  &lt;s:operation_codeword ff-seq=&quot;1&quot;&gt; &lt;/s:operation_codeword&gt;
+  &lt;s:plan_originator_and_number ff-seq=&quot;2&quot;&gt;     &lt;/s:plan_originator_and_number&gt;
+  &lt;s:option_nickname ff-seq=&quot;3&quot;&gt; &lt;/s:option_nickname&gt;
+  &lt;s:secondary_option_nickname ff-seq=&quot;4&quot;&gt; &lt;/s:secondary_option_nickname&gt;
+ &lt;/s:operation_identification_data&gt;
+ &lt;s:message_identification set-seq=&quot;3&quot; setid=&quot;MSGID&quot;&gt;
+  &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:amplification&gt;
+  &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:narrative_information&gt;
+  &lt;s:message_text_format_identifier ff-seq=&quot;1&quot;&gt;  &lt;/s:message_text_format_identifier&gt;
+  &lt;s:originator ff-seq=&quot;2&quot;&gt; &lt;/s:originator&gt;
+  &lt;s:message_serial_number ff-seq=&quot;3&quot;&gt; &lt;/s:message_serial_number&gt;
+  &lt;s:month_name ff-seq=&quot;4&quot;&gt;JAN&lt;/s:month_name&gt;
+  &lt;s:qualifier ff-seq=&quot;5&quot;&gt;AMP&lt;/s:qualifier&gt;
+  &lt;s:serial_number_of_qualifier ff-seq=&quot;6&quot;&gt;1&lt;/s:serial_number_of_qualifier&gt;
+ &lt;/s:message_identification&gt;
+ &lt;s:reference set-seq=&quot;4&quot; setid=&quot;REF&quot;&gt;
+  &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:amplification&gt;
+  &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:narrative_information&gt;
+  &lt;s:serial_letter ff-seq=&quot;1&quot;&gt;A&lt;/s:serial_letter&gt;
+  &lt;s:type_of_reference ff-seq=&quot;2&quot;&gt;
+   &lt;s:message_text_format_identifier ffirn-fudn=&quot;50-9&quot;&gt;  &lt;/s:message_text_format_identifier&gt;
+  &lt;/s:type_of_reference&gt;
+  &lt;s:originator ff-seq=&quot;3&quot;&gt; &lt;/s:originator&gt;
+  &lt;s:date_and_or_time_of_reference ff-seq=&quot;4&quot;&gt;
+   &lt;s:date_of_reference_year_month_day ffirn-fudn=&quot;75-10&quot;&gt;
+    &lt;s:year&gt;9990&lt;/s:year&gt;
+    &lt;s:month_numeric&gt;01&lt;/s:month_numeric&gt;
+    &lt;s:day&gt;30&lt;/s:day&gt;
+   &lt;/s:date_of_reference_year_month_day&gt;
+  &lt;/s:date_and_or_time_of_reference&gt;
+  &lt;s:serial_number_of_reference ff-seq=&quot;5&quot;&gt; &lt;/s:serial_number_of_reference&gt;
+  &lt;s:special_notation ff-seq=&quot;6&quot;&gt;PASEP&lt;/s:special_notation&gt;
+  &lt;s:group_of_fields&gt;
+   &lt;s:sic_code_or_filing_number ff-seq=&quot;7&quot;&gt;
+    &lt;s:sic_code ffirn-fudn=&quot;332-1&quot;&gt;000&lt;/s:sic_code&gt;
+   &lt;/s:sic_code_or_filing_number&gt;
+  &lt;/s:group_of_fields&gt;
+ &lt;/s:reference&gt;
+ &lt;s:amplification set-seq=&quot;5&quot; setid=&quot;AMPN&quot;&gt;
+  &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+ &lt;/s:amplification&gt;
+ &lt;s:narrative_information set-seq=&quot;6&quot; setid=&quot;NARR&quot;&gt;
+  &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+ &lt;/s:narrative_information&gt;
+ &lt;s:airspace_control_order_identification_segment seg-seq=&quot;7&quot;&gt;
+  &lt;s:airspace_control_order_identification set-seq=&quot;7&quot; setid=&quot;ACOID&quot;&gt;
+   &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:amplification&gt;
+   &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;MACE Random Data26461&lt;/s:free_text&gt;
+   &lt;/s:narrative_information&gt;
+   &lt;s:area_of_validity ff-seq=&quot;1&quot;&gt;  &lt;/s:area_of_validity&gt;
+   &lt;s:aco_serial_number ff-seq=&quot;2&quot;&gt;30&lt;/s:aco_serial_number&gt;
+  &lt;/s:airspace_control_order_identification&gt;
+  &lt;s:geodetic_datum_1 set-seq=&quot;8&quot; setid=&quot;GEODATUM&quot;&gt;
+   &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:amplification&gt;
+   &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:narrative_information&gt;
+   &lt;s:geodetic_datum ff-seq=&quot;1&quot;&gt;INDIAN&lt;/s:geodetic_datum&gt;
+  &lt;/s:geodetic_datum_1&gt;
+  &lt;s:period_of_time set-seq=&quot;9&quot; setid=&quot;PERIOD&quot;&gt;
+   &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:amplification&gt;
+   &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:narrative_information&gt;
+   &lt;s:start_time ff-seq=&quot;1&quot;&gt;
+    &lt;s:start_day_time ffirn-fudn=&quot;143-44&quot;&gt;
+     &lt;s:day&gt;30&lt;/s:day&gt;
+     &lt;s:hour_time&gt;20&lt;/s:hour_time&gt;
+     &lt;s:minute_time&gt;50&lt;/s:minute_time&gt;
+     &lt;s:time_zone&gt;A&lt;/s:time_zone&gt;
+    &lt;/s:start_day_time&gt;
+   &lt;/s:start_time&gt;
+   &lt;s:stop_time ff-seq=&quot;2&quot;&gt;
+    &lt;s:termination_day_time ffirn-fudn=&quot;143-13&quot;&gt;
+     &lt;s:day&gt;30&lt;/s:day&gt;
+     &lt;s:hour_time&gt;20&lt;/s:hour_time&gt;
+     &lt;s:minute_time&gt;50&lt;/s:minute_time&gt;
+     &lt;s:time_zone&gt;A&lt;/s:time_zone&gt;
+    &lt;/s:termination_day_time&gt;
+   &lt;/s:stop_time&gt;
+   &lt;s:stop_time_modifier ff-seq=&quot;3&quot;&gt;
+    &lt;s:military_day_time ffirn-fudn=&quot;143-1&quot;&gt;
+     &lt;s:day&gt;30&lt;/s:day&gt;
+     &lt;s:hour_time&gt;20&lt;/s:hour_time&gt;
+     &lt;s:minute_time&gt;50&lt;/s:minute_time&gt;
+     &lt;s:time_zone&gt;A&lt;/s:time_zone&gt;
+    &lt;/s:military_day_time&gt;
+   &lt;/s:stop_time_modifier&gt;
+  &lt;/s:period_of_time&gt;
+  &lt;s:general_text_information_1 set-seq=&quot;10&quot; setid=&quot;GENTEXT&quot;&gt;
+   &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:narrative_information&gt;
+   &lt;s:gentext_text_indicator ff-seq=&quot;1&quot;&gt; &lt;/s:gentext_text_indicator&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;2&quot;&gt;&lt;/s:free_text&gt;
+  &lt;/s:general_text_information_1&gt;
+  &lt;s:airspace_control_means_status set-seq=&quot;11&quot; setid=&quot;ACMSTAT&quot;&gt;
+   &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:amplification&gt;
+   &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+    &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+   &lt;/s:narrative_information&gt;
+   &lt;s:airspace_control_means_status ff-seq=&quot;1&quot;&gt;CHANG&lt;/s:airspace_control_means_status&gt;
+   &lt;s:group_of_fields&gt;
+    &lt;s:airspace_control_means_identifier ff-seq=&quot;2&quot;&gt;
+     &lt;s:airspace_control_means_identifying_designator ffirn-fudn=&quot;2211-3&quot;&gt;0&lt;/s:airspace_control_means_identifying_designator&gt;
+    &lt;/s:airspace_control_means_identifier&gt;
+   &lt;/s:group_of_fields&gt;
+  &lt;/s:airspace_control_means_status&gt;
+  &lt;s:airspace_control_means_identification_segment seg-seq=&quot;12&quot;&gt;
+   &lt;s:airspace_control_means_identification set-seq=&quot;12&quot; setid=&quot;ACMID&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:type_of_airspace_control_means ff-seq=&quot;1&quot;&gt;
+     &lt;s:type_of_airspace_control_means ffirn-fudn=&quot;2211-2&quot;&gt;CORRTE&lt;/s:type_of_airspace_control_means&gt;
+    &lt;/s:type_of_airspace_control_means&gt;
+    &lt;s:airspace_control_means_identifier ff-seq=&quot;2&quot;&gt;
+     &lt;s:airspace_control_means_identifying_designator ffirn-fudn=&quot;2211-3&quot;&gt;0&lt;/s:airspace_control_means_identifying_designator&gt;
+    &lt;/s:airspace_control_means_identifier&gt;
+    &lt;s:type_of_airspace_shape ff-seq=&quot;3&quot;&gt;LINE&lt;/s:type_of_airspace_shape&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:airspace_usage ff-seq=&quot;4&quot;&gt;
+      &lt;s:airspace_usage ffirn-fudn=&quot;2211-4&quot;&gt;ADVRTE&lt;/s:airspace_usage&gt;
+     &lt;/s:airspace_usage&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:airspace_control_means_identification&gt;
+   &lt;s:geodetic_datum_2 set-seq=&quot;13&quot; setid=&quot;GEODATUM&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:geodetic_datum ff-seq=&quot;1&quot;&gt;INDIAN&lt;/s:geodetic_datum&gt;
+   &lt;/s:geodetic_datum_2&gt;
+   &lt;s:airspace_shape_polyarc set-seq=&quot;14&quot; setid=&quot;POLYARC&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:origin_of_bearing ff-seq=&quot;1&quot;&gt;
+     &lt;s:origin_of_bearing_lat_long_minutes ffirn-fudn=&quot;469-36&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:origin_of_bearing_lat_long_minutes&gt;
+    &lt;/s:origin_of_bearing&gt;
+    &lt;s:beginning_radial_bearing_true ff-seq=&quot;2&quot;&gt;
+     &lt;s:bearing_in_degrees&gt;350&lt;/s:bearing_in_degrees&gt;
+     &lt;s:angular_measurement_reference_true&gt;T&lt;/s:angular_measurement_reference_true&gt;
+    &lt;/s:beginning_radial_bearing_true&gt;
+    &lt;s:radius_in_nautical_miles_meters_or_kilometers ff-seq=&quot;3&quot;&gt;
+     &lt;s:context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_5_character_max&gt;
+     &lt;s:unit_of_linear_measurement_m_km_nm&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm&gt;
+    &lt;/s:radius_in_nautical_miles_meters_or_kilometers&gt;
+    &lt;s:ending_radial_bearing_true ff-seq=&quot;4&quot;&gt;
+     &lt;s:bearing_in_degrees&gt;350&lt;/s:bearing_in_degrees&gt;
+     &lt;s:angular_measurement_reference_true&gt;T&lt;/s:angular_measurement_reference_true&gt;
+    &lt;/s:ending_radial_bearing_true&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:position_or_point ff-seq=&quot;5&quot;&gt;
+      &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+       &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+       &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+       &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+       &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+       &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+       &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+      &lt;/s:position_or_point_lat_long_minutes&gt;
+     &lt;/s:position_or_point&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:airspace_shape_polyarc&gt;
+   &lt;s:airspace_shape_radarc set-seq=&quot;15&quot; setid=&quot;RADARC&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:origin_of_bearing ff-seq=&quot;1&quot;&gt;
+     &lt;s:origin_of_bearing_lat_long_minutes ffirn-fudn=&quot;469-36&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:origin_of_bearing_lat_long_minutes&gt;
+    &lt;/s:origin_of_bearing&gt;
+    &lt;s:beginning_radial_bearing_true ff-seq=&quot;2&quot;&gt;
+     &lt;s:bearing_in_degrees&gt;350&lt;/s:bearing_in_degrees&gt;
+     &lt;s:angular_measurement_reference_true&gt;T&lt;/s:angular_measurement_reference_true&gt;
+    &lt;/s:beginning_radial_bearing_true&gt;
+    &lt;s:ending_radial_bearing_true ff-seq=&quot;3&quot;&gt;
+     &lt;s:bearing_in_degrees&gt;350&lt;/s:bearing_in_degrees&gt;
+     &lt;s:angular_measurement_reference_true&gt;T&lt;/s:angular_measurement_reference_true&gt;
+    &lt;/s:ending_radial_bearing_true&gt;
+    &lt;s:inner_radius_in_nautical_miles_meters_or_kilometers ff-seq=&quot;4&quot;&gt;
+     &lt;s:context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_5_character_max&gt;
+     &lt;s:unit_of_linear_measurement_m_km_nm&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm&gt;
+    &lt;/s:inner_radius_in_nautical_miles_meters_or_kilometers&gt;
+    &lt;s:outer_radius_in_nautical_miles_meters_or_kilometers ff-seq=&quot;5&quot;&gt;
+     &lt;s:context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_5_character_max&gt;
+     &lt;s:unit_of_linear_measurement_m_km_nm&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm&gt;
+    &lt;/s:outer_radius_in_nautical_miles_meters_or_kilometers&gt;
+   &lt;/s:airspace_shape_radarc&gt;
+   &lt;s:airspace_shape_track set-seq=&quot;16&quot; setid=&quot;1TRACK&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:track_leg ff-seq=&quot;1&quot;&gt;90&lt;/s:track_leg&gt;
+     &lt;s:beginning_point ff-seq=&quot;2&quot;&gt;
+      &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+       &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+       &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+       &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+       &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+       &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+       &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+      &lt;/s:position_or_point_lat_long_minutes&gt;
+     &lt;/s:beginning_point&gt;
+     &lt;s:ending_point ff-seq=&quot;3&quot;&gt;
+      &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+       &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+       &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+       &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+       &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+       &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+       &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+      &lt;/s:position_or_point_lat_long_minutes&gt;
+     &lt;/s:ending_point&gt;
+     &lt;s:track_width ff-seq=&quot;4&quot;&gt;
+      &lt;s:context_quantity_dec_pt_for_tenths_permitted_4_char_max_1&gt;0&lt;/s:context_quantity_dec_pt_for_tenths_permitted_4_char_max_1&gt;
+      &lt;s:unit_of_linear_measurement_m_km_nm_1&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm_1&gt;
+      &lt;s:lateral_adjustment_indicator_left&gt;L&lt;/s:lateral_adjustment_indicator_left&gt;
+      &lt;s:hyphen&gt;-&lt;/s:hyphen&gt;
+      &lt;s:context_quantity_dec_pt_for_tenths_permitted_4_char_max_2&gt;0&lt;/s:context_quantity_dec_pt_for_tenths_permitted_4_char_max_2&gt;
+      &lt;s:unit_of_linear_measurement_m_km_nm_2&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm_2&gt;
+      &lt;s:lateral_adjustment_indicator_right&gt;R&lt;/s:lateral_adjustment_indicator_right&gt;
+     &lt;/s:track_width&gt;
+     &lt;s:vertical_dimension ff-seq=&quot;5&quot;&gt;
+      &lt;s:vertical_dimension_base_ref_point_to_relative_altitude ffirn-fudn=&quot;2341-1&quot;&gt;
+       &lt;s:altitude_base_reference_point&gt;GL&lt;/s:altitude_base_reference_point&gt;
+       &lt;s:hyphen&gt;-&lt;/s:hyphen&gt;
+       &lt;s:max_altitude_hundreds_of_feet&gt;990&lt;/s:max_altitude_hundreds_of_feet&gt;
+       &lt;s:altitude_unit_of_measurement_indicator&gt;AGL&lt;/s:altitude_unit_of_measurement_indicator&gt;
+      &lt;/s:vertical_dimension_base_ref_point_to_relative_altitude&gt;
+     &lt;/s:vertical_dimension&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:airspace_shape_track&gt;
+   &lt;s:shape_polygon set-seq=&quot;17&quot; setid=&quot;POLYGON&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:position_or_point ff-seq=&quot;1&quot;&gt;
+      &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+       &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+       &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+       &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+       &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+       &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+       &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+      &lt;/s:position_or_point_lat_long_minutes&gt;
+     &lt;/s:position_or_point&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:shape_polygon&gt;
+   &lt;s:shape_circle set-seq=&quot;18&quot; setid=&quot;CIRCLE&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:center_of_circle ff-seq=&quot;1&quot;&gt;
+     &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:position_or_point_lat_long_minutes&gt;
+    &lt;/s:center_of_circle&gt;
+    &lt;s:radius_in_nautical_miles_meters_or_kilometers ff-seq=&quot;2&quot;&gt;
+     &lt;s:context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_5_character_max&gt;
+     &lt;s:unit_of_linear_measurement_m_km_nm&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm&gt;
+    &lt;/s:radius_in_nautical_miles_meters_or_kilometers&gt;
+   &lt;/s:shape_circle&gt;
+   &lt;s:airspace_shape_corridor set-seq=&quot;19&quot; setid=&quot;CORRIDOR&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:width_in_nautical_miles_meters_or_kilometers ff-seq=&quot;1&quot;&gt;
+     &lt;s:context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_5_character_max&gt;
+     &lt;s:unit_of_linear_measurement_m_km_nm&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm&gt;
+    &lt;/s:width_in_nautical_miles_meters_or_kilometers&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:position_or_point ff-seq=&quot;2&quot;&gt;
+      &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+       &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+       &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+       &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+       &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+       &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+       &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+      &lt;/s:position_or_point_lat_long_minutes&gt;
+     &lt;/s:position_or_point&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:airspace_shape_corridor&gt;
+   &lt;s:shape_point set-seq=&quot;20&quot; setid=&quot;APOINT&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:airspace_point ff-seq=&quot;1&quot;&gt;
+     &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:position_or_point_lat_long_minutes&gt;
+    &lt;/s:airspace_point&gt;
+   &lt;/s:shape_point&gt;
+   &lt;s:airspace_shape_orbit set-seq=&quot;21&quot; setid=&quot;AORBIT&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:first_point_for_orbit ff-seq=&quot;1&quot;&gt;
+     &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:position_or_point_lat_long_minutes&gt;
+    &lt;/s:first_point_for_orbit&gt;
+    &lt;s:second_point_for_orbit ff-seq=&quot;2&quot;&gt;
+     &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:position_or_point_lat_long_minutes&gt;
+    &lt;/s:second_point_for_orbit&gt;
+    &lt;s:width_in_nautical_miles_meters_or_kilometers ff-seq=&quot;3&quot;&gt;
+     &lt;s:context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_5_character_max&gt;
+     &lt;s:unit_of_linear_measurement_m_km_nm&gt;NM&lt;/s:unit_of_linear_measurement_m_km_nm&gt;
+    &lt;/s:width_in_nautical_miles_meters_or_kilometers&gt;
+    &lt;s:orbit_alignment ff-seq=&quot;4&quot;&gt;C&lt;/s:orbit_alignment&gt;
+   &lt;/s:airspace_shape_orbit&gt;
+   &lt;s:geometric_composite_line set-seq=&quot;22&quot; setid=&quot;GEOLINE&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:position_or_point ff-seq=&quot;1&quot;&gt;
+      &lt;s:position_or_point_lat_long_minutes ffirn-fudn=&quot;469-88&quot;&gt;
+       &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+       &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+       &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+       &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+       &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+       &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+      &lt;/s:position_or_point_lat_long_minutes&gt;
+     &lt;/s:position_or_point&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:geometric_composite_line&gt;
+   &lt;s:vertical_dimension_of_the_effective_level set-seq=&quot;23&quot; setid=&quot;EFFLEVEL&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:vertical_dimension ff-seq=&quot;1&quot;&gt;
+     &lt;s:vertical_dimension_base_ref_point_to_relative_altitude ffirn-fudn=&quot;2341-1&quot;&gt;
+      &lt;s:altitude_base_reference_point&gt;GL&lt;/s:altitude_base_reference_point&gt;
+      &lt;s:hyphen&gt;-&lt;/s:hyphen&gt;
+      &lt;s:max_altitude_hundreds_of_feet&gt;990&lt;/s:max_altitude_hundreds_of_feet&gt;
+      &lt;s:altitude_unit_of_measurement_indicator&gt;AGL&lt;/s:altitude_unit_of_measurement_indicator&gt;
+     &lt;/s:vertical_dimension_base_ref_point_to_relative_altitude&gt;
+    &lt;/s:vertical_dimension&gt;
+   &lt;/s:vertical_dimension_of_the_effective_level&gt;
+   &lt;s:airspace_time_period set-seq=&quot;24&quot; setid=&quot;APERIOD&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:airspace_time_mode ff-seq=&quot;1&quot;&gt;DISCRETE&lt;/s:airspace_time_mode&gt;
+    &lt;s:day_time_and_month_of_start ff-seq=&quot;2&quot;&gt;
+     &lt;s:day&gt;30&lt;/s:day&gt;
+     &lt;s:hour_time&gt;20&lt;/s:hour_time&gt;
+     &lt;s:minute_time&gt;50&lt;/s:minute_time&gt;
+     &lt;s:time_zone&gt;A&lt;/s:time_zone&gt;
+     &lt;s:month_name&gt;JAN&lt;/s:month_name&gt;
+    &lt;/s:day_time_and_month_of_start&gt;
+    &lt;s:stop_time ff-seq=&quot;3&quot;&gt;
+     &lt;s:day_time_and_month_of_stop ffirn-fudn=&quot;2044-6&quot;&gt;
+      &lt;s:day&gt;30&lt;/s:day&gt;
+      &lt;s:hour_time&gt;20&lt;/s:hour_time&gt;
+      &lt;s:minute_time&gt;50&lt;/s:minute_time&gt;
+      &lt;s:time_zone&gt;A&lt;/s:time_zone&gt;
+      &lt;s:month_name&gt;JAN&lt;/s:month_name&gt;
+     &lt;/s:day_time_and_month_of_stop&gt;
+    &lt;/s:stop_time&gt;
+    &lt;s:interval_frequency ff-seq=&quot;4&quot;&gt;BIWEEKLY&lt;/s:interval_frequency&gt;
+    &lt;s:interval_duration ff-seq=&quot;5&quot;&gt;
+     &lt;s:interval_duration ffirn-fudn=&quot;1281-1&quot;&gt;
+      &lt;s:context_quantity_1_999&gt;1&lt;/s:context_quantity_1_999&gt;
+      &lt;s:unit_of_time_measurement_day_wk_biwk_mon_yr&gt;DAY&lt;/s:unit_of_time_measurement_day_wk_biwk_mon_yr&gt;
+     &lt;/s:interval_duration&gt;
+    &lt;/s:interval_duration&gt;
+   &lt;/s:airspace_time_period&gt;
+   &lt;s:control_point set-seq=&quot;25&quot; setid=&quot;CNTRLPT&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:control_point_type ff-seq=&quot;1&quot;&gt;IP&lt;/s:control_point_type&gt;
+    &lt;s:control_point_name ff-seq=&quot;2&quot;&gt; &lt;/s:control_point_name&gt;
+    &lt;s:control_point_location ff-seq=&quot;3&quot;&gt;
+     &lt;s:control_point_lat_long_minutes ffirn-fudn=&quot;469-64&quot;&gt;
+      &lt;s:latitude_degrees&gt;90&lt;/s:latitude_degrees&gt;
+      &lt;s:latitude_minute_angular&gt;50&lt;/s:latitude_minute_angular&gt;
+      &lt;s:latitudinal_hemisphere&gt;N&lt;/s:latitudinal_hemisphere&gt;
+      &lt;s:longitude_degrees&gt;180&lt;/s:longitude_degrees&gt;
+      &lt;s:longitude_minute_angular&gt;50&lt;/s:longitude_minute_angular&gt;
+      &lt;s:longitudinal_hemisphere&gt;E&lt;/s:longitudinal_hemisphere&gt;
+     &lt;/s:control_point_lat_long_minutes&gt;
+    &lt;/s:control_point_location&gt;
+    &lt;s:control_point_altitude ff-seq=&quot;4&quot;&gt;
+     &lt;s:vertical_dimension_base_ref_point_to_relative_altitude ffirn-fudn=&quot;2341-1&quot;&gt;
+      &lt;s:altitude_base_reference_point&gt;GL&lt;/s:altitude_base_reference_point&gt;
+      &lt;s:hyphen&gt;-&lt;/s:hyphen&gt;
+      &lt;s:max_altitude_hundreds_of_feet&gt;990&lt;/s:max_altitude_hundreds_of_feet&gt;
+      &lt;s:altitude_unit_of_measurement_indicator&gt;AGL&lt;/s:altitude_unit_of_measurement_indicator&gt;
+     &lt;/s:vertical_dimension_base_ref_point_to_relative_altitude&gt;
+    &lt;/s:control_point_altitude&gt;
+   &lt;/s:control_point&gt;
+   &lt;s:controlling_authority set-seq=&quot;26&quot; setid=&quot;CONTAUTH&quot;&gt;
+    &lt;s:amplification setid=&quot;AMPN&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:amplification&gt;
+    &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+     &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+    &lt;/s:narrative_information&gt;
+    &lt;s:operational_control_authority ff-seq=&quot;1&quot;&gt; &lt;/s:operational_control_authority&gt;
+    &lt;s:group_of_fields&gt;
+     &lt;s:frequency ff-seq=&quot;2&quot;&gt;
+      &lt;s:specific_radio_frequency ffirn-fudn=&quot;566-1&quot;&gt;
+       &lt;s:context_quantity_decimal_pt_permitted_11_character_max&gt;0&lt;/s:context_quantity_decimal_pt_permitted_11_character_max&gt;
+       &lt;s:radio_frequency_unit_of_measurement&gt;HZ&lt;/s:radio_frequency_unit_of_measurement&gt;
+      &lt;/s:specific_radio_frequency&gt;
+     &lt;/s:frequency&gt;
+    &lt;/s:group_of_fields&gt;
+   &lt;/s:controlling_authority&gt;
+  &lt;/s:airspace_control_means_identification_segment&gt;
+ &lt;/s:airspace_control_order_identification_segment&gt;
+ &lt;s:general_text_information_2 set-seq=&quot;27&quot; setid=&quot;GENTEXT&quot;&gt;
+  &lt;s:narrative_information setid=&quot;NARR&quot;&gt;
+   &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;{{ContentId}}&lt;/s:free_text&gt;
+  &lt;/s:narrative_information&gt;
+  &lt;s:gentext_text_indicator ff-seq=&quot;1&quot;&gt; &lt;/s:gentext_text_indicator&gt;
+  &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;2&quot;&gt;&lt;/s:free_text&gt;
+ &lt;/s:general_text_information_2&gt;
+ &lt;s:remarks setid=&quot;RMKS&quot;&gt;
+  &lt;s:free_text xml:space=&quot;default&quot; ff-seq=&quot;1&quot;&gt;&lt;/s:free_text&gt;
+ &lt;/s:remarks&gt;
+ &lt;s:message_downgrading_or_declassification_data set-seq=&quot;28&quot; setid=&quot;DECL&quot;&gt;
+  &lt;s:source_for_classification ff-seq=&quot;1&quot;&gt;
+   &lt;s:derivative_source_for_classification ffirn-fudn=&quot;679-1&quot;&gt; &lt;/s:derivative_source_for_classification&gt;
+  &lt;/s:source_for_classification&gt;
+  &lt;s:reason_for_classification ff-seq=&quot;2&quot;&gt;15A&lt;/s:reason_for_classification&gt;
+  &lt;s:group_of_fields&gt;
+   &lt;s:downgrade_instructions_date ff-seq=&quot;3&quot;&gt;
+    &lt;s:downgrading_or_declassification_instructions ffirn-fudn=&quot;679-2&quot;&gt; &lt;/s:downgrading_or_declassification_instructions&gt;
+   &lt;/s:downgrade_instructions_date&gt;
+   &lt;s:downgrading_or_declassification_exemption_code ff-seq=&quot;4&quot;&gt;X0&lt;/s:downgrading_or_declassification_exemption_code&gt;
+  &lt;/s:group_of_fields&gt;
+ &lt;/s:message_downgrading_or_declassification_data&gt;
+&lt;/s:airspace_control_order&gt;
+&lt;/content&gt;
+&lt;/ddms:Resource&gt;
+]]&gt;&lt;/ans1:metadata&gt;
+            &lt;ans1:thumbnail xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:createdDate xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:modifiedDate xsi:nil=&quot;true&quot;/&gt;
+         &lt;/ns0:entry&gt;
+      &lt;/ns0:createCatalogEntry&gt;
+   &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;</stringProp>
+          <stringProp name="SoapSampler.xml_data_file"></stringProp>
+          <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.ingest/CatalogIngestServicePort/createCatalogEntryRequest</stringProp>
+          <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+        </SoapSampler>
+        <hashTree/>
+        <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="TACREP" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-ddms/IngestService</stringProp>
+          <stringProp name="HTTPSamper.xml_data">&lt;env:Envelope xmlns:env=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:enc=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:ns0=&quot;java:mil.dcgs.mdf.webservice.ingest&quot; xmlns:ans1=&quot;java:mil.dcgs.mdf.webservice.data&quot;&gt;
+   &lt;env:Body&gt;
+      &lt;ns0:createCatalogEntry&gt;   
+        &lt;ns0:entry&gt;
+            &lt;ans1:siteName/&gt;
+            &lt;ans1:id/&gt;
+            &lt;ans1:dataAccessDescriptor&gt;
+               &lt;ans1:className&gt;N/A&lt;/ans1:className&gt;
+               &lt;ans1:uri&gt;N/A&lt;/ans1:uri&gt;
+               &lt;ans1:id&gt;N/A&lt;/ans1:id&gt;
+               &lt;ans1:size&gt;N/A&lt;/ans1:size&gt;
+            &lt;/ans1:dataAccessDescriptor&gt;
+            &lt;ans1:effectiveDate&gt;2011-03-06T10:59:25.093-04:00&lt;/ans1:effectiveDate&gt;
+            &lt;ans1:expirationDate&gt;2011-03-07T10:59:25.093-04:00&lt;/ans1:expirationDate&gt;
+            &lt;ans1:geometryWKT&gt;POINT (10 20)&lt;/ans1:geometryWKT&gt;
+            &lt;ans1:metadata&gt;&lt;![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;ddms:Resource xmlns:ddms=&quot;http://metadata.dod.mil/mdr/ns/DDMS/2.0/&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:ICISM=&quot;urn:us:gov:ic:ism:v2&quot; xmlns:isr = &quot;urn:us:gov:cryp:ddms:isr&quot;&gt;  
+&lt;ddms:identifier ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:title ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;Bulk Ingest8&lt;/ddms:title&gt;
+&lt;ddms:description ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;soapUI Core Test&lt;/ddms:description&gt;
+&lt;ddms:language ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:dates ddms:posted=&quot;2001-12-17T09:30:47.0Z&quot; ddms:created=&quot;2001-12-17T09:30:47.0Z&quot; ddms:validTil=&quot;2001-12-17T09:30:47.0Z&quot; ddms:infoCutOff=&quot;2001-12-17T09:30:47.0Z&quot;/&gt;
+&lt;ddms:rights ddms:privacyAct=&quot;false&quot; ddms:copyright=&quot;false&quot; ddms:intellectualProperty=&quot;false&quot;/&gt;
+&lt;ddms:source ddms:schemaHref=&quot;http://www.altova.com&quot; ddms:qualifier=&quot;String&quot; ddms:schemaQualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:type ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:creator&gt;
+ &lt;ddms:Organization&gt;
+  &lt;ddms:name&gt;MACE&lt;/ddms:name&gt;
+  &lt;ddms:phone&gt;703-464-9020&lt;/ddms:phone&gt;
+  &lt;ddms:email&gt;support@macefusion.com&lt;/ddms:email&gt;
+ &lt;/ddms:Organization&gt;
+&lt;/ddms:creator&gt;
+&lt;ddms:format&gt;
+ &lt;ddms:Media&gt;
+  &lt;ddms:mimeType&gt;String&lt;/ddms:mimeType&gt;
+  &lt;ddms:extent ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+  &lt;ddms:medium&gt;String&lt;/ddms:medium&gt;
+ &lt;/ddms:Media&gt;
+&lt;/ddms:format&gt;
+&lt;ddms:subjectCoverage&gt;
+ &lt;ddms:Subject&gt;
+  &lt;ddms:category ddms:code=&quot;String&quot; ddms:qualifier=&quot;http://www.altova.com&quot; ddms:label=&quot;String&quot;/&gt;
+ &lt;/ddms:Subject&gt;
+&lt;/ddms:subjectCoverage&gt;
+&lt;ddms:virtualCoverage ddms:address=&quot;String&quot; ddms:protocol=&quot;String&quot;/&gt;
+&lt;ddms:temporalCoverage&gt;
+ &lt;ddms:TimePeriod&gt;
+  &lt;ddms:name&gt;Unknown&lt;/ddms:name&gt;
+  &lt;ddms:start&gt;Unknown&lt;/ddms:start&gt;
+  &lt;ddms:end&gt;Unknown&lt;/ddms:end&gt;
+ &lt;/ddms:TimePeriod&gt;
+&lt;/ddms:temporalCoverage&gt;
+&lt;ddms:geospatialCoverage&gt;
+ &lt;ddms:GeospatialExtent&gt;
+  &lt;ddms:geographicIdentifier&gt;
+   &lt;ddms:name&gt;String&lt;/ddms:name&gt;
+  &lt;/ddms:geographicIdentifier&gt;
+ &lt;/ddms:GeospatialExtent&gt;
+&lt;/ddms:geospatialCoverage&gt;
+&lt;ddms:security ICISM:classification=&quot;U&quot; ICISM:disseminationControls=&quot;FOUO&quot; ICISM:ownerProducer=&quot;USA&quot; /&gt;
+&lt;content xmlns=&quot;http://dcgs.mil/metadata&quot; xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot; xmlns:mtf=&quot;urn:mtf:mil:usmtf:2000&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+&lt;mtf:tactical_report mtfid=&quot;TACREP&quot;&gt;
+  &lt;exercise_identification xmlns=&quot;&quot; set-seq=&quot;1&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;MACE Random Data69983&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;exercise_nickname ff-seq=&quot;1&quot;&gt;BRAVE SHIELD&lt;/exercise_nickname&gt;
+ &lt;exercise_message_additional_identifier ff-seq=&quot;2&quot;&gt;A&lt;/exercise_message_additional_identifier&gt;
+  &lt;/exercise_identification&gt;
+  &lt;message_identification xmlns=&quot;&quot; set-seq=&quot;3&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;message_text_format_identifier ff-seq=&quot;1&quot;&gt;AA&lt;/message_text_format_identifier&gt;
+ &lt;originator ff-seq=&quot;2&quot;&gt;A&lt;/originator&gt;
+ &lt;message_serial_number ff-seq=&quot;3&quot;&gt;A&lt;/message_serial_number&gt;
+ &lt;month_name ff-seq=&quot;4&quot;&gt;JAN&lt;/month_name&gt;
+ &lt;qualifier ff-seq=&quot;5&quot;&gt;AMP&lt;/qualifier&gt;
+ &lt;serial_number_of_qualifier ff-seq=&quot;6&quot;&gt;999&lt;/serial_number_of_qualifier&gt;
+  &lt;/message_identification&gt;
+  &lt;reference xmlns=&quot;&quot; set-seq=&quot;4&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;serial_letter ff-seq=&quot;1&quot;&gt;A&lt;/serial_letter&gt;
+ &lt;type_of_reference ff-seq=&quot;2&quot;&gt;
+   &lt;message_text_format_identifier&gt;AA&lt;/message_text_format_identifier&gt;
+ &lt;/type_of_reference&gt;
+ &lt;originator ff-seq=&quot;3&quot;&gt;A&lt;/originator&gt;
+ &lt;date_and_or_time_of_reference ff-seq=&quot;4&quot;&gt;
+   &lt;date_of_reference_year_month_day&gt;
+  &lt;year&gt;2004&lt;/year&gt;
+  &lt;month_numeric&gt;01&lt;/month_numeric&gt;
+  &lt;day&gt;01&lt;/day&gt;
+   &lt;/date_of_reference_year_month_day&gt;
+ &lt;/date_and_or_time_of_reference&gt;
+ &lt;serial_number_of_reference ff-seq=&quot;5&quot;&gt;A&lt;/serial_number_of_reference&gt;
+ &lt;special_notation ff-seq=&quot;6&quot;&gt;NOTAL&lt;/special_notation&gt;
+ &lt;group_of_fields&gt;
+   &lt;sic_code_or_filing_number ff-seq=&quot;7&quot;&gt;
+  &lt;sic_code&gt;AAA&lt;/sic_code&gt;
+   &lt;/sic_code_or_filing_number&gt;
+ &lt;/group_of_fields&gt;
+  &lt;/reference&gt;
+  &lt;alerting_data xmlns=&quot;&quot; set-seq=&quot;7&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;alert_word ff-seq=&quot;1&quot;&gt;CONCENTRATION&lt;/alert_word&gt;
+  &lt;/alerting_data&gt;
+  &lt;activity_data xmlns=&quot;&quot; set-seq=&quot;8&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;activity_type ff-seq=&quot;1&quot;&gt;
+ &lt;activity_type&gt;BOMB&lt;/activity_type&gt;
+ &lt;/activity_type&gt;
+ &lt;effective_day_time ff-seq=&quot;2&quot;&gt;
+   &lt;day&gt;01&lt;/day&gt;
+   &lt;hour_time&gt;00&lt;/hour_time&gt;
+   &lt;minute_time&gt;00&lt;/minute_time&gt;
+   &lt;time_zone&gt;A&lt;/time_zone&gt;
+ &lt;/effective_day_time&gt;
+ &lt;unit_identifier ff-seq=&quot;3&quot;&gt;
+   &lt;name&gt;A&lt;/name&gt;
+ &lt;/unit_identifier&gt;
+  &lt;/activity_data&gt;
+  &lt;target_acquisition_credibility xmlns=&quot;&quot; set-seq=&quot;9&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;target_acquisition_agency ff-seq=&quot;1&quot;&gt;IRAIR&lt;/target_acquisition_agency&gt;
+ &lt;accuracy_of_reported_target_location_in_meters ff-seq=&quot;2&quot;&gt;999&lt;/accuracy_of_reported_target_location_in_meters&gt;
+ &lt;evaluation_of_reliability ff-seq=&quot;3&quot;&gt;A&lt;/evaluation_of_reliability&gt;
+  &lt;/target_acquisition_credibility&gt;
+  &lt;maritime_operations_data_segment xmlns=&quot;&quot;&gt;
+ &lt;maritime_operations_data set-seq=&quot;10&quot;&gt;
+   &lt;amplification&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/amplification&gt;
+   &lt;narrative_information&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/narrative_information&gt;
+   &lt;day_time ff-seq=&quot;1&quot;&gt;
+  &lt;military_day_time&gt;
+    &lt;day&gt;01&lt;/day&gt;
+    &lt;hour_time&gt;00&lt;/hour_time&gt;
+    &lt;minute_time&gt;00&lt;/minute_time&gt;
+    &lt;time_zone&gt;A&lt;/time_zone&gt;
+  &lt;/military_day_time&gt;
+   &lt;/day_time&gt;
+   &lt;quantity_of_targets ff-seq=&quot;2&quot;&gt;9999999&lt;/quantity_of_targets&gt;
+   &lt;target_identifier ff-seq=&quot;3&quot;&gt;
+  &lt;target_product_designator&gt;AF&lt;/target_product_designator&gt;
+   &lt;/target_identifier&gt;
+   &lt;type_of_subject ff-seq=&quot;4&quot;&gt;
+  &lt;subject_type&gt;AAAH&lt;/subject_type&gt;
+   &lt;/type_of_subject&gt;
+   &lt;primary_identifier ff-seq=&quot;5&quot;&gt;
+  &lt;ship_class_name&gt;A&lt;/ship_class_name&gt;
+   &lt;/primary_identifier&gt;
+   &lt;subject_continuity_code ff-seq=&quot;6&quot;&gt;
+  &lt;organization_identification&gt;
+    &lt;unit_number&gt;9999&lt;/unit_number&gt;
+    &lt;hyphen_1&gt;-&lt;/hyphen_1&gt;
+    &lt;organization_type&gt;ADMIN&lt;/organization_type&gt;
+    &lt;hyphen_2&gt;-&lt;/hyphen_2&gt;
+    &lt;echelon_level&gt;ASSR&lt;/echelon_level&gt;
+  &lt;/organization_identification&gt;
+   &lt;/subject_continuity_code&gt;
+   &lt;location_designator ff-seq=&quot;7&quot;&gt;
+  &lt;location_lat_long_seconds&gt;
+    &lt;latitude_degrees&gt;35&lt;/latitude_degrees&gt;
+    &lt;latitude_minute_angular&gt;45&lt;/latitude_minute_angular&gt;
+    &lt;latitude_second_angular&gt;00&lt;/latitude_second_angular&gt;
+    &lt;latitudinal_hemisphere&gt;N&lt;/latitudinal_hemisphere&gt;
+    &lt;longitude_degrees&gt;034&lt;/longitude_degrees&gt;
+    &lt;longitude_minute_angular&gt;12&lt;/longitude_minute_angular&gt;
+    &lt;longitude_second_angular&gt;00&lt;/longitude_second_angular&gt;
+    &lt;longitudinal_hemisphere&gt;E&lt;/longitudinal_hemisphere&gt;
+  &lt;/location_lat_long_seconds&gt;
+   &lt;/location_designator&gt;
+   &lt;group_of_fields&gt;
+  &lt;position_orientation ff-seq=&quot;8&quot;&gt;
+    &lt;radius&gt;
+   &lt;context_quantity_k_permitted_4_character_maximum&gt;9999&lt;/context_quantity_k_permitted_4_character_maximum&gt;
+   &lt;linear_dimension_unit_of_measurement&gt;CM&lt;/linear_dimension_unit_of_measurement&gt;
+    &lt;/radius&gt;
+  &lt;/position_orientation&gt;
+   &lt;/group_of_fields&gt;
+ &lt;/maritime_operations_data&gt;
+ &lt;air_operations_data set-seq=&quot;11&quot;&gt;
+   &lt;amplification&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/amplification&gt;
+   &lt;narrative_information&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/narrative_information&gt;
+   &lt;time_of_activity ff-seq=&quot;1&quot;&gt;
+  &lt;military_day_time&gt;
+    &lt;day&gt;01&lt;/day&gt;
+    &lt;hour_time&gt;00&lt;/hour_time&gt;
+    &lt;minute_time&gt;00&lt;/minute_time&gt;
+    &lt;time_zone&gt;A&lt;/time_zone&gt;
+  &lt;/military_day_time&gt;
+   &lt;/time_of_activity&gt;
+   &lt;quantity_of_targets ff-seq=&quot;2&quot;&gt;9999999&lt;/quantity_of_targets&gt;
+   &lt;target ff-seq=&quot;3&quot;&gt;
+  &lt;target_product_designator&gt;AF&lt;/target_product_designator&gt;
+   &lt;/target&gt;
+   &lt;subject_type ff-seq=&quot;4&quot;&gt;
+  &lt;subject_type&gt;AA&lt;/subject_type&gt;
+   &lt;/subject_type&gt;
+   &lt;primary_identifier ff-seq=&quot;5&quot;&gt;
+  &lt;aircraft_name&gt;A&lt;/aircraft_name&gt;
+   &lt;/primary_identifier&gt;
+   &lt;subject_identifier ff-seq=&quot;6&quot;&gt;
+  &lt;organization_identification&gt;
+    &lt;unit_number&gt;9999&lt;/unit_number&gt;
+    &lt;hyphen_1&gt;-&lt;/hyphen_1&gt;
+    &lt;organization_type&gt;ADMIN&lt;/organization_type&gt;
+    &lt;hyphen_2&gt;-&lt;/hyphen_2&gt;
+    &lt;echelon_level&gt;ASSR&lt;/echelon_level&gt;
+  &lt;/organization_identification&gt;
+   &lt;/subject_identifier&gt;
+   &lt;location ff-seq=&quot;7&quot;&gt;
+  &lt;location_lat_long_seconds&gt;
+    &lt;latitude_degrees&gt;00&lt;/latitude_degrees&gt;
+    &lt;latitude_minute_angular&gt;00&lt;/latitude_minute_angular&gt;
+    &lt;latitude_second_angular&gt;00&lt;/latitude_second_angular&gt;
+    &lt;latitudinal_hemisphere&gt;N&lt;/latitudinal_hemisphere&gt;
+    &lt;longitude_degrees&gt;000&lt;/longitude_degrees&gt;
+    &lt;longitude_minute_angular&gt;00&lt;/longitude_minute_angular&gt;
+    &lt;longitude_second_angular&gt;00&lt;/longitude_second_angular&gt;
+    &lt;longitudinal_hemisphere&gt;E&lt;/longitudinal_hemisphere&gt;
+  &lt;/location_lat_long_seconds&gt;
+   &lt;/location&gt;
+   &lt;group_of_fields&gt;
+  &lt;position_orientation ff-seq=&quot;8&quot;&gt;
+    &lt;radius&gt;
+   &lt;context_quantity_k_permitted_4_character_maximum&gt;9999&lt;/context_quantity_k_permitted_4_character_maximum&gt;
+   &lt;linear_dimension_unit_of_measurement&gt;CM&lt;/linear_dimension_unit_of_measurement&gt;
+    &lt;/radius&gt;
+  &lt;/position_orientation&gt;
+   &lt;/group_of_fields&gt;
+ &lt;/air_operations_data&gt;
+ &lt;ground_operations_data set-seq=&quot;12&quot;&gt;
+   &lt;amplification&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/amplification&gt;
+   &lt;narrative_information&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/narrative_information&gt;
+   &lt;time ff-seq=&quot;1&quot;&gt;
+  &lt;military_day_time&gt;
+    &lt;day&gt;01&lt;/day&gt;
+    &lt;hour_time&gt;00&lt;/hour_time&gt;
+    &lt;minute_time&gt;00&lt;/minute_time&gt;
+    &lt;time_zone&gt;A&lt;/time_zone&gt;
+  &lt;/military_day_time&gt;
+   &lt;/time&gt;
+   &lt;quantity_of_targets ff-seq=&quot;2&quot;&gt;9999999&lt;/quantity_of_targets&gt;
+   &lt;target_identifier ff-seq=&quot;3&quot;&gt;
+  &lt;target_product_designator&gt;AF&lt;/target_product_designator&gt;
+   &lt;/target_identifier&gt;
+   &lt;subject_type ff-seq=&quot;4&quot;&gt;
+  &lt;subject_type&gt;AA&lt;/subject_type&gt;
+   &lt;/subject_type&gt;
+   &lt;primary_identifier ff-seq=&quot;5&quot;&gt;
+  &lt;equipment_name&gt;A&lt;/equipment_name&gt;
+   &lt;/primary_identifier&gt;
+   &lt;subject_identifier ff-seq=&quot;6&quot;&gt;
+  &lt;organization_identification&gt;
+    &lt;unit_number&gt;9999&lt;/unit_number&gt;
+    &lt;hyphen_1&gt;-&lt;/hyphen_1&gt;
+    &lt;organization_type&gt;ADMIN&lt;/organization_type&gt;
+    &lt;hyphen_2&gt;-&lt;/hyphen_2&gt;
+    &lt;echelon_level&gt;ASSR&lt;/echelon_level&gt;
+  &lt;/organization_identification&gt;
+   &lt;/subject_identifier&gt;
+   &lt;location ff-seq=&quot;7&quot;&gt;
+  &lt;location_lat_long_seconds&gt;
+    &lt;latitude_degrees&gt;00&lt;/latitude_degrees&gt;
+    &lt;latitude_minute_angular&gt;00&lt;/latitude_minute_angular&gt;
+    &lt;latitude_second_angular&gt;00&lt;/latitude_second_angular&gt;
+    &lt;latitudinal_hemisphere&gt;N&lt;/latitudinal_hemisphere&gt;
+    &lt;longitude_degrees&gt;000&lt;/longitude_degrees&gt;
+    &lt;longitude_minute_angular&gt;00&lt;/longitude_minute_angular&gt;
+    &lt;longitude_second_angular&gt;00&lt;/longitude_second_angular&gt;
+    &lt;longitudinal_hemisphere&gt;E&lt;/longitudinal_hemisphere&gt;
+  &lt;/location_lat_long_seconds&gt;
+   &lt;/location&gt;
+   &lt;group_of_fields&gt;
+  &lt;position_orientation ff-seq=&quot;8&quot;&gt;
+    &lt;radius&gt;
+   &lt;context_quantity_k_permitted_4_character_maximum&gt;9999&lt;/context_quantity_k_permitted_4_character_maximum&gt;
+   &lt;linear_dimension_unit_of_measurement&gt;CM&lt;/linear_dimension_unit_of_measurement&gt;
+    &lt;/radius&gt;
+  &lt;/position_orientation&gt;
+   &lt;/group_of_fields&gt;
+ &lt;/ground_operations_data&gt;
+ &lt;supplementary_operations_data set-seq=&quot;13&quot;&gt;
+   &lt;amplification&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/amplification&gt;
+   &lt;narrative_information&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/narrative_information&gt;
+   &lt;group_of_fields&gt;
+  &lt;supplementary_operational_information ff-seq=&quot;1&quot;&gt;
+    &lt;own_location_utm_10_meter&gt;
+   &lt;utm_grid_zone_column&gt;01&lt;/utm_grid_zone_column&gt;
+   &lt;utm_grid_zone_row&gt;C&lt;/utm_grid_zone_row&gt;
+    &lt;utm_100_000_meter_square_column&gt;A&lt;/utm_100_000_meter_square_column&gt;
+    &lt;utm_100_000_meter_square_row&gt;A&lt;/utm_100_000_meter_square_row&gt;
+   &lt;utm_10_meter_easting&gt;0000&lt;/utm_10_meter_easting&gt;
+   &lt;utm_10_meter_northing&gt;0000&lt;/utm_10_meter_northing&gt;
+    &lt;/own_location_utm_10_meter&gt;
+  &lt;/supplementary_operational_information&gt;
+   &lt;/group_of_fields&gt;
+ &lt;/supplementary_operations_data&gt;
+  &lt;/maritime_operations_data_segment&gt;
+ &lt;track_data xmlns=&quot;&quot; set-seq=&quot;14&quot;&gt;
+   &lt;amplification&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/amplification&gt;
+   &lt;narrative_information&gt;
+  &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+   &lt;/narrative_information&gt;
+   &lt;subject_identity ff-seq=&quot;1&quot;&gt;
+  &lt;organization_identification&gt;
+    &lt;unit_number&gt;9999&lt;/unit_number&gt;
+    &lt;hyphen_1&gt;-&lt;/hyphen_1&gt;
+    &lt;organization_type&gt;ADMIN&lt;/organization_type&gt;
+    &lt;hyphen_2&gt;-&lt;/hyphen_2&gt;
+    &lt;echelon_level&gt;ASSR&lt;/echelon_level&gt;
+  &lt;/organization_identification&gt;
+   &lt;/subject_identity&gt;
+   &lt;location_designator ff-seq=&quot;2&quot;&gt;
+  &lt;location_lat_long_seconds&gt;
+    &lt;latitude_degrees&gt;00&lt;/latitude_degrees&gt;
+    &lt;latitude_minute_angular&gt;00&lt;/latitude_minute_angular&gt;
+    &lt;latitude_second_angular&gt;00&lt;/latitude_second_angular&gt;
+    &lt;latitudinal_hemisphere&gt;N&lt;/latitudinal_hemisphere&gt;
+    &lt;longitude_degrees&gt;000&lt;/longitude_degrees&gt;
+    &lt;longitude_minute_angular&gt;00&lt;/longitude_minute_angular&gt;
+    &lt;longitude_second_angular&gt;00&lt;/longitude_second_angular&gt;
+    &lt;longitudinal_hemisphere&gt;E&lt;/longitudinal_hemisphere&gt;
+  &lt;/location_lat_long_seconds&gt;
+   &lt;/location_designator&gt;
+   &lt;time ff-seq=&quot;3&quot;&gt;
+  &lt;military_time&gt;
+    &lt;hour_time&gt;00&lt;/hour_time&gt;
+    &lt;minute_time&gt;00&lt;/minute_time&gt;
+    &lt;time_zone&gt;A&lt;/time_zone&gt;
+  &lt;/military_time&gt;
+   &lt;/time&gt;
+   &lt;group_of_fields&gt;
+  &lt;track_amplification_data ff-seq=&quot;4&quot;&gt;
+    &lt;speed_of_movement&gt;
+   &lt;context_quantity_decimal_pt_permitted_5_character_max&gt;0&lt;/context_quantity_decimal_pt_permitted_5_character_max&gt;
+   &lt;unit_of_speed_velocity_measurement&gt;KPH&lt;/unit_of_speed_velocity_measurement&gt;
+    &lt;/speed_of_movement&gt;
+  &lt;/track_amplification_data&gt;
+   &lt;/group_of_fields&gt;
+ &lt;/track_data&gt;
+  &lt;communications_data xmlns=&quot;&quot; set-seq=&quot;15&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;specific_radio_frequency ff-seq=&quot;1&quot;&gt;
+   &lt;context_quantity_decimal_pt_permitted_11_character_max&gt;0&lt;/context_quantity_decimal_pt_permitted_11_character_max&gt;
+   &lt;radio_frequency_unit_of_measurement&gt;GHZ&lt;/radio_frequency_unit_of_measurement&gt;
+ &lt;/specific_radio_frequency&gt;
+ &lt;bandwidth ff-seq=&quot;2&quot;&gt;
+   &lt;radio_frequency_bandwidth_in_megahertz&gt;0.1&lt;/radio_frequency_bandwidth_in_megahertz&gt;
+ &lt;/bandwidth&gt;
+ &lt;group_of_fields&gt;
+   &lt;ew_call_sign ff-seq=&quot;3&quot;&gt;A&lt;/ew_call_sign&gt;
+ &lt;/group_of_fields&gt;
+  &lt;/communications_data&gt;
+  &lt;electronics_emitter_data xmlns=&quot;&quot; set-seq=&quot;16&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;specific_radio_frequency ff-seq=&quot;1&quot;&gt;
+   &lt;context_quantity_decimal_pt_permitted_11_character_max&gt;0&lt;/context_quantity_decimal_pt_permitted_11_character_max&gt;
+   &lt;radio_frequency_unit_of_measurement&gt;GHZ&lt;/radio_frequency_unit_of_measurement&gt;
+ &lt;/specific_radio_frequency&gt;
+ &lt;group_of_fields&gt;
+   &lt;emitter_parameters ff-seq=&quot;2&quot;&gt;
+  &lt;pulse_repetition_interval_in_microseconds&gt;000000.0&lt;/pulse_repetition_interval_in_microseconds&gt;
+   &lt;/emitter_parameters&gt;
+ &lt;/group_of_fields&gt;
+  &lt;/electronics_emitter_data&gt;
+  &lt;cross_reference_line xmlns=&quot;&quot; set-seq=&quot;17&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;sigint_report_serial ff-seq=&quot;1&quot;&gt;
+   &lt;sigint_spot_report_serial&gt;AAAAAAAAA&lt;/sigint_spot_report_serial&gt;
+ &lt;/sigint_report_serial&gt;
+ &lt;sigint_report_release_time ff-seq=&quot;2&quot;&gt;
+   &lt;day&gt;01&lt;/day&gt;
+   &lt;hour_time&gt;00&lt;/hour_time&gt;
+   &lt;minute_time&gt;00&lt;/minute_time&gt;
+   &lt;time_zone&gt;A&lt;/time_zone&gt;
+ &lt;mandatory_space_1&gt;&amp;#x20;&lt;/mandatory_space_1&gt;
+   &lt;month_name&gt;JAN&lt;/month_name&gt;
+ &lt;mandatory_space_2&gt;&amp;#x20;&lt;/mandatory_space_2&gt;
+   &lt;year&gt;2004&lt;/year&gt;
+ &lt;/sigint_report_release_time&gt;
+ &lt;group_of_fields&gt;
+   &lt;sigint_collection_task_number ff-seq=&quot;3&quot;&gt;
+  &lt;sigint_numerical_tasking_register_snutr&gt;00000&lt;/sigint_numerical_tasking_register_snutr&gt;
+   &lt;/sigint_collection_task_number&gt;
+ &lt;/group_of_fields&gt;
+  &lt;/cross_reference_line&gt;
+  &lt;signature xmlns=&quot;&quot; set-seq=&quot;19&quot;&gt;
+ &lt;amplification&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/amplification&gt;
+ &lt;narrative_information&gt;
+   &lt;free_text ff-seq=&quot;1&quot;&gt;:/:&lt;/free_text&gt;
+ &lt;/narrative_information&gt;
+ &lt;acoustic_source ff-seq=&quot;1&quot;&gt;A&lt;/acoustic_source&gt;
+ &lt;acoustic_frequency_nearest_one_thousandth_hertz ff-seq=&quot;2&quot;&gt;
+   &lt;context_quantity_3_decimal_places_required_8_char_max&gt;0.000&lt;/context_quantity_3_decimal_places_required_8_char_max&gt;
+   &lt;unit_of_acoustic_frequency_measurement&gt;HZ&lt;/unit_of_acoustic_frequency_measurement&gt;
+ &lt;/acoustic_frequency_nearest_one_thousandth_hertz&gt;
+ &lt;harmonic ff-seq=&quot;3&quot;&gt;0&lt;/harmonic&gt;
+ &lt;revolutions_per_minute ff-seq=&quot;4&quot;&gt;0&lt;/revolutions_per_minute&gt;
+ &lt;turns_per_knot ff-seq=&quot;5&quot;&gt;
+   &lt;context_quantity_decimal_pt_permitted_4_character_max&gt;0&lt;/context_quantity_decimal_pt_permitted_4_character_max&gt;
+   &lt;turns_per_knot_unit_of_measurement&gt;TPK&lt;/turns_per_knot_unit_of_measurement&gt;
+ &lt;/turns_per_knot&gt;
+ &lt;verified_day_time ff-seq=&quot;6&quot;&gt;
+   &lt;day&gt;01&lt;/day&gt;
+   &lt;hour_time&gt;00&lt;/hour_time&gt;
+   &lt;minute_time&gt;00&lt;/minute_time&gt;
+   &lt;time_zone&gt;A&lt;/time_zone&gt;
+   &lt;context_quantity_0_9&gt;9&lt;/context_quantity_0_9&gt;
+ &lt;/verified_day_time&gt;
+ &lt;month_name ff-seq=&quot;7&quot;&gt;JAN&lt;/month_name&gt;
+ &lt;sensor_code ff-seq=&quot;8&quot;&gt;TRAM&lt;/sensor_code&gt;
+ &lt;detection_status ff-seq=&quot;9&quot;&gt;DOWNSHIFT&lt;/detection_status&gt;
+  &lt;/signature&gt;
+  &lt;message_downgrading_or_declassification_data xmlns=&quot;&quot; set-seq=&quot;20&quot;&gt;
+ &lt;source_for_classification ff-seq=&quot;1&quot;&gt;
+   &lt;derivative_source_for_classification&gt;A&lt;/derivative_source_for_classification&gt;
+ &lt;/source_for_classification&gt;
+ &lt;group_of_fields&gt;
+   &lt;downgrade_instructions_date ff-seq=&quot;3&quot;&gt;
+  &lt;downgrading_or_declassification_instructions&gt;A&lt;/downgrading_or_declassification_instructions&gt;
+   &lt;/downgrade_instructions_date&gt;
+   &lt;downgrading_or_declassification_exemption_code ff-seq=&quot;4&quot;&gt;X0&lt;/downgrading_or_declassification_exemption_code&gt;
+ &lt;/group_of_fields&gt;
+  &lt;/message_downgrading_or_declassification_data&gt;
+&lt;/mtf:tactical_report&gt;
+&lt;/content&gt;
+&lt;/ddms:Resource&gt;
+]]&gt;&lt;/ans1:metadata&gt;
+            &lt;ans1:thumbnail xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:createdDate xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:modifiedDate xsi:nil=&quot;true&quot;/&gt;
+         &lt;/ns0:entry&gt;
+      &lt;/ns0:createCatalogEntry&gt;
+   &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;</stringProp>
+          <stringProp name="SoapSampler.xml_data_file"></stringProp>
+          <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.ingest/CatalogIngestServicePort/createCatalogEntryRequest</stringProp>
+          <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+        </SoapSampler>
+        <hashTree/>
+        <SoapSampler guiclass="SoapSamplerGui" testclass="SoapSampler" testname="Weather" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="SoapSampler.URL_DATA">https://localhost:8993/services/public/mdf-ddms/IngestService</stringProp>
+          <stringProp name="HTTPSamper.xml_data">&lt;env:Envelope xmlns:env=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:enc=&quot;http://schemas.xmlsoap.org/soap/encoding/&quot; xmlns:ns0=&quot;java:mil.dcgs.mdf.webservice.ingest&quot; xmlns:ans1=&quot;java:mil.dcgs.mdf.webservice.data&quot;&gt;
+   &lt;env:Body&gt;
+      &lt;ns0:createCatalogEntry&gt;   
+        &lt;ns0:entry&gt;
+            &lt;ans1:siteName/&gt;
+            &lt;ans1:id/&gt;
+            &lt;ans1:dataAccessDescriptor&gt;
+               &lt;ans1:className&gt;N/A&lt;/ans1:className&gt;
+               &lt;ans1:uri&gt;N/A&lt;/ans1:uri&gt;
+               &lt;ans1:id&gt;N/A&lt;/ans1:id&gt;
+               &lt;ans1:size&gt;N/A&lt;/ans1:size&gt;
+            &lt;/ans1:dataAccessDescriptor&gt;
+            &lt;ans1:effectiveDate&gt;2011-03-06T10:59:25.093-04:00&lt;/ans1:effectiveDate&gt;
+            &lt;ans1:expirationDate&gt;2011-03-07T10:59:25.093-04:00&lt;/ans1:expirationDate&gt;
+            &lt;ans1:geometryWKT&gt;POINT (10 20)&lt;/ans1:geometryWKT&gt;
+            &lt;ans1:metadata&gt;&lt;![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;ddms:Resource xmlns:ddms=&quot;http://metadata.dod.mil/mdr/ns/DDMS/2.0/&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:ICISM=&quot;urn:us:gov:ic:ism:v2&quot; xmlns:isr = &quot;urn:us:gov:cryp:ddms:isr&quot;&gt;  
+&lt;ddms:identifier ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:title ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;Bulk Ingest8&lt;/ddms:title&gt;
+&lt;ddms:description ICISM:classification=&quot;U&quot; ICISM:ownerProducer=&quot;USA&quot;&gt;soapUI Core Test&lt;/ddms:description&gt;
+&lt;ddms:language ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:dates ddms:posted=&quot;2001-12-17T09:30:47.0Z&quot; ddms:created=&quot;2001-12-17T09:30:47.0Z&quot; ddms:validTil=&quot;2001-12-17T09:30:47.0Z&quot; ddms:infoCutOff=&quot;2001-12-17T09:30:47.0Z&quot;/&gt;
+&lt;ddms:rights ddms:privacyAct=&quot;false&quot; ddms:copyright=&quot;false&quot; ddms:intellectualProperty=&quot;false&quot;/&gt;
+&lt;ddms:source ddms:schemaHref=&quot;http://www.altova.com&quot; ddms:qualifier=&quot;String&quot; ddms:schemaQualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:type ddms:qualifier=&quot;String&quot; ddms:value=&quot;String&quot;/&gt;
+&lt;ddms:creator&gt;
+ &lt;ddms:Organization&gt;
+  &lt;ddms:name&gt;MACE&lt;/ddms:name&gt;
+  &lt;ddms:phone&gt;703-464-9020&lt;/ddms:phone&gt;
+  &lt;ddms:email&gt;support@macefusion.com&lt;/ddms:email&gt;
+ &lt;/ddms:Organization&gt;
+&lt;/ddms:creator&gt;
+&lt;ddms:format&gt;
+ &lt;ddms:Media&gt;
+  &lt;ddms:mimeType&gt;String&lt;/ddms:mimeType&gt;
+  &lt;ddms:extent ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+  &lt;ddms:medium&gt;String&lt;/ddms:medium&gt;
+ &lt;/ddms:Media&gt;
+&lt;/ddms:format&gt;
+&lt;ddms:subjectCoverage&gt;
+ &lt;ddms:Subject&gt;
+  &lt;ddms:category ddms:code=&quot;String&quot; ddms:qualifier=&quot;http://www.altova.com&quot; ddms:label=&quot;String&quot;/&gt;
+ &lt;/ddms:Subject&gt;
+&lt;/ddms:subjectCoverage&gt;
+&lt;ddms:virtualCoverage ddms:address=&quot;String&quot; ddms:protocol=&quot;String&quot;/&gt;
+&lt;ddms:temporalCoverage&gt;
+ &lt;ddms:TimePeriod&gt;
+  &lt;ddms:name&gt;Unknown&lt;/ddms:name&gt;
+  &lt;ddms:start&gt;Unknown&lt;/ddms:start&gt;
+  &lt;ddms:end&gt;Unknown&lt;/ddms:end&gt;
+ &lt;/ddms:TimePeriod&gt;
+&lt;/ddms:temporalCoverage&gt;
+&lt;ddms:geospatialCoverage&gt;
+ &lt;ddms:GeospatialExtent&gt;
+  &lt;ddms:geographicIdentifier&gt;
+   &lt;ddms:name&gt;String&lt;/ddms:name&gt;
+  &lt;/ddms:geographicIdentifier&gt;
+ &lt;/ddms:GeospatialExtent&gt;
+&lt;/ddms:geospatialCoverage&gt;
+&lt;ddms:security ICISM:classification=&quot;U&quot; ICISM:disseminationControls=&quot;FOUO&quot; ICISM:ownerProducer=&quot;USA&quot; /&gt;
+&lt;content xmlns=&quot;http://dcgs.mil/metadata&quot; xmlns:pass=&quot;http://peoc3t.us.army.mil/abcs&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:crypto=&quot;urn:us:gov:cryp:ddms:sigint&quot; xmlns:gml=&quot;http://www.opengis.net/gml&quot;&gt;
+&lt;dcgs:weatherWarningsAndForecasts xmlns:dcgs=&quot;http://dcgs.mil/metadata&quot; xmlns:weather=&quot;http://dcgs.mil/metadata/weather&quot; xmlns:ddms=&quot;http://metadata.dod.mil/mdr/ns/DDMS/2.0/&quot;&gt;
+ &lt;ddms:identifier ddms:qualifier=&quot;http://www.altova.com&quot; ddms:value=&quot;String&quot;/&gt;
+ &lt;ddms:Subject&gt;
+  &lt;ddms:category ddms:code=&quot;String&quot; ddms:qualifier=&quot;http://www.altova.com&quot; ddms:label=&quot;String&quot;/&gt;
+ &lt;/ddms:Subject&gt;
+ &lt;weather:weatherArea&gt;
+  &lt;weather:point&gt;
+   &lt;dcgs:coordinate&gt;
+    &lt;dcgs:ellipsoid&gt;
+     &lt;dcgs:latitude&gt;-90.000&lt;/dcgs:latitude&gt;
+     &lt;dcgs:longitude&gt;-180.000&lt;/dcgs:longitude&gt;
+    &lt;/dcgs:ellipsoid&gt;
+    &lt;dcgs:text&gt;${Data Generator#MACERandomizer}&lt;/dcgs:text&gt;
+   &lt;/dcgs:coordinate&gt;
+   &lt;dcgs:elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/dcgs:elevation&gt;
+  &lt;/weather:point&gt;
+  &lt;weather:point&gt;
+   &lt;dcgs:coordinate&gt;
+    &lt;dcgs:ellipsoid&gt;
+     &lt;dcgs:latitude&gt;-90.000&lt;/dcgs:latitude&gt;
+     &lt;dcgs:longitude&gt;-180.000&lt;/dcgs:longitude&gt;
+    &lt;/dcgs:ellipsoid&gt;
+    &lt;dcgs:text&gt;String&lt;/dcgs:text&gt;
+   &lt;/dcgs:coordinate&gt;
+   &lt;dcgs:elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/dcgs:elevation&gt;
+  &lt;/weather:point&gt;
+  &lt;weather:point&gt;
+   &lt;dcgs:coordinate&gt;
+    &lt;dcgs:ellipsoid&gt;
+     &lt;dcgs:latitude&gt;-90.000&lt;/dcgs:latitude&gt;
+     &lt;dcgs:longitude&gt;-180.000&lt;/dcgs:longitude&gt;
+    &lt;/dcgs:ellipsoid&gt;
+    &lt;dcgs:text&gt;String&lt;/dcgs:text&gt;
+   &lt;/dcgs:coordinate&gt;
+   &lt;dcgs:elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/dcgs:elevation&gt;
+  &lt;/weather:point&gt;
+  &lt;weather:point&gt;
+   &lt;dcgs:coordinate&gt;
+    &lt;dcgs:ellipsoid&gt;
+     &lt;dcgs:latitude&gt;-90.000&lt;/dcgs:latitude&gt;
+     &lt;dcgs:longitude&gt;-180.000&lt;/dcgs:longitude&gt;
+    &lt;/dcgs:ellipsoid&gt;
+    &lt;dcgs:text&gt;String&lt;/dcgs:text&gt;
+   &lt;/dcgs:coordinate&gt;
+   &lt;dcgs:elevation factor=&quot;1&quot; uom=&quot;mm&quot;&gt;0.0&lt;/dcgs:elevation&gt;
+  &lt;/weather:point&gt;
+ &lt;/weather:weatherArea&gt;
+ &lt;weather:Remarks&gt;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&lt;/weather:Remarks&gt;
+ &lt;weather:SymbolCode&gt;GA-------------&lt;/weather:SymbolCode&gt;
+ &lt;weather:SymbolName&gt;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&lt;/weather:SymbolName&gt;
+ &lt;ddms:temporalCoverage&gt;
+  &lt;ddms:TimePeriod&gt;
+   &lt;ddms:name&gt;Unknown&lt;/ddms:name&gt;
+   &lt;ddms:start&gt;Unknown&lt;/ddms:start&gt;
+   &lt;ddms:end&gt;Unknown&lt;/ddms:end&gt;
+  &lt;/ddms:TimePeriod&gt;
+ &lt;/ddms:temporalCoverage&gt;
+ &lt;weather:message&gt;Warning&lt;/weather:message&gt;
+&lt;/dcgs:weatherWarningsAndForecasts&gt;
+&lt;/content&gt;
+&lt;/ddms:Resource&gt;
+]]&gt;&lt;/ans1:metadata&gt;
+            &lt;ans1:thumbnail xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:createdDate xsi:nil=&quot;true&quot;/&gt;
+            &lt;ans1:modifiedDate xsi:nil=&quot;true&quot;/&gt;
+         &lt;/ns0:entry&gt;
+      &lt;/ns0:createCatalogEntry&gt;
+   &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;</stringProp>
+          <stringProp name="SoapSampler.xml_data_file"></stringProp>
+          <stringProp name="SoapSampler.SOAP_ACTION">java:mil.dcgs.mdf.webservice.ingest/CatalogIngestServicePort/createCatalogEntryRequest</stringProp>
+          <stringProp name="SoapSampler.SEND_SOAP_ACTION">false</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+        </SoapSampler>
+        <hashTree/>
+        <ResultCollector guiclass="RespTimeGraphVisualizer" testclass="ResultCollector" testname="Response Time Graph" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="StatGraphVisualizer" testclass="ResultCollector" testname="Aggregate Graph" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <threadCounts>true</threadCounts>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
