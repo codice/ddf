@@ -99,6 +99,7 @@ import com.google.common.collect.Maps;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.MetadataConfigurationParser;
@@ -114,11 +115,14 @@ import ddf.security.service.SecurityServiceException;
 @Path("/")
 public class IdpEndpoint implements Idp {
 
+    public static final String SERVICES_IDP_PATH = "/services/idp";
+
+    public static final ImmutableSet<UsageType> USAGE_TYPES = ImmutableSet.of(UsageType.UNSPECIFIED,
+            UsageType.SIGNING);
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
 
     private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
-
-    public static final String SERVICES_IDP_PATH = "/services/idp";
 
     protected CookieCache cookieCache = new CookieCache();
 
@@ -143,9 +147,6 @@ public class IdpEndpoint implements Idp {
     private LogoutMessage logoutMessage;
 
     private RelayStates<LogoutState> logoutStates;
-
-    public static final ImmutableSet<UsageType> USAGE_TYPES = ImmutableSet.of(UsageType.UNSPECIFIED,
-            UsageType.SIGNING);
 
     public IdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath,
             EncryptionService encryptionService) {
@@ -254,7 +255,7 @@ public class IdpEndpoint implements Idp {
             }
             X509Certificate[] certs = (X509Certificate[]) request.getAttribute(CERTIFICATES_ATTR);
             boolean hasCerts = (certs != null && certs.length > 0);
-            boolean hasCookie = getSamlAssertion(request, authnRequest.isForceAuthn()) != null;
+            boolean hasCookie = hasValidCookie(request, authnRequest.isForceAuthn());
             if ((authnRequest.isPassive() && hasCerts) || hasCookie) {
                 LOGGER.debug("Received Passive & PKI AuthnRequest.");
                 org.opensaml.saml2.core.Response samlpResponse;
@@ -574,21 +575,42 @@ public class IdpEndpoint implements Idp {
     }
 
     private synchronized Element getSamlAssertion(HttpServletRequest request) {
-        return getSamlAssertion(request, false);
-    }
-
-    private synchronized Element getSamlAssertion(HttpServletRequest request, boolean forceAuthn) {
         Element samlToken = null;
         Cookie cookie = getCookie(request);
         if (cookie != null) {
-            LOGGER.debug("Retrieving cookie from cache.");
-            if (forceAuthn) {
-                cookieCache.removeSamlAssertion(cookie.getValue());
-            } else {
-                samlToken = cookieCache.getSamlAssertion(cookie.getValue());
-            }
+            LOGGER.debug("Retrieving cookie {}:{} from cache.",
+                    cookie.getValue(),
+                    cookie.getName());
+            String key = cookie.getValue();
+            LOGGER.debug("Retrieving SAML Token from cookie.");
+            samlToken = cookieCache.getSamlAssertion(key);
         }
         return samlToken;
+    }
+
+    private synchronized boolean hasValidCookie(HttpServletRequest request, boolean forceAuthn) {
+        Cookie cookie = getCookie(request);
+        if (cookie != null) {
+            LOGGER.debug("Retrieving cookie {}:{} from cache.",
+                    cookie.getValue(),
+                    cookie.getName());
+            String key = cookie.getValue();
+            LOGGER.debug("Retrieving SAML Token from cookie.");
+            Element samlToken = cookieCache.getSamlAssertion(key);
+
+            if (samlToken != null) {
+                String assertionId = samlToken.getAttribute("ID");
+                SecurityToken securityToken = new SecurityToken(assertionId, samlToken, null);
+                SecurityAssertionImpl assertion = new SecurityAssertionImpl(securityToken);
+
+                if (forceAuthn || !assertion.isPresentlyValid()) {
+                    cookieCache.removeSamlAssertion(key);
+                    return false;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     private synchronized LogoutState getLogoutState(HttpServletRequest request) {
@@ -683,12 +705,14 @@ public class IdpEndpoint implements Idp {
      * aka HTTP-Redirect
      *
      * @param samlRequest
+     * @param samlResponse
      * @param relayState
      * @param signatureAlgorithm
      * @param signature
      * @param request
-     * @return
+     * @return Response
      * @throws WSSecurityException
+     * @throws IdpException
      */
     @Override
     @GET
@@ -859,9 +883,9 @@ public class IdpEndpoint implements Idp {
 
         try {
             SignableSAMLObject logoutObject;
-            String relay = "";
-            String entityId = "";
-            String samlType = "";
+            String relay;
+            String entityId;
+            String samlType;
 
             Optional<String> nextTarget = logoutState.getNextTarget();
             if (nextTarget.isPresent()) {
@@ -873,6 +897,7 @@ public class IdpEndpoint implements Idp {
                 }
                 logoutObject = logoutMessage.buildLogoutRequest(logoutState.getNameId(),
                         systemBaseUrl.constructUrl("/idp/logout", true));
+                relay = "";
                 samlType = "SAMLRequest";
             } else {
                 // No more targets, respond to original issuer
@@ -884,7 +909,7 @@ public class IdpEndpoint implements Idp {
                         "/idp/logout",
                         true), status, logoutState.getOriginalRequestId());
                 relay = logoutState.getInitialRelayState();
-                LogoutState decode = logoutStates.decode(cookie.getValue(), true);
+                logoutStates.decode(cookie.getValue(), true);
                 samlType = "SAMLResponse";
             }
 
@@ -906,7 +931,10 @@ public class IdpEndpoint implements Idp {
                         relay,
                         samlType);
             case HTTP_POST:
-                return getSamlPostResponse(logoutObject, entityServiceInfo.getUrl(), relay, samlType);
+                return getSamlPostResponse(logoutObject,
+                        entityServiceInfo.getUrl(),
+                        relay,
+                        samlType);
             default:
                 LOGGER.debug("No supported binding available for SP [{}].", entityId);
                 logoutState.setPartialLogout(true);
