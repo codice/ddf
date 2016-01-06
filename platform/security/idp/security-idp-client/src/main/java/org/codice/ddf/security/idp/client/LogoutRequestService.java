@@ -235,7 +235,7 @@ public class LogoutRequestService {
                 logout();
                 LogoutResponse logoutResponse =
                         logoutMessage.buildLogoutResponse(logoutRequest.getIssuer()
-                                .getValue(), StatusCode.SUCCESS_URI);
+                                .getValue(), StatusCode.SUCCESS_URI, logoutRequest.getID());
 
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (WSSecurityException e) {
@@ -272,8 +272,9 @@ public class LogoutRequestService {
                 return buildLogoutResponse(msg);
             }
             String nameId = "You";
-            if (relayState != null) {
-                nameId = relayStates.decode(relayState);
+            String decodedValue;
+            if (relayState != null && (decodedValue = relayStates.decode(relayState)) != null) {
+                nameId = decodedValue;
             }
             return buildLogoutResponse(nameId + " logged out successfully.");
 
@@ -306,7 +307,8 @@ public class LogoutRequestService {
                 logout();
                 String entityId = getEntityId();
                 LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(entityId,
-                        StatusCode.SUCCESS_URI);
+                        StatusCode.SUCCESS_URI,
+                        logoutRequest.getID());
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (IOException e) {
                 String msg = "Unable to decode and inflate logout request.";
@@ -340,8 +342,9 @@ public class LogoutRequestService {
                         .buildAndValidate(request.getRequestURL()
                                 .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutResponse);
                 String nameId = "You";
-                if (relayState != null) {
-                    nameId = relayStates.decode(relayState);
+                String decodedValue;
+                if (relayState != null && (decodedValue = relayStates.decode(relayState)) != null) {
+                    nameId = decodedValue;
                 }
                 return buildLogoutResponse(nameId + " logged out successfully.");
             } catch (IOException e) {
