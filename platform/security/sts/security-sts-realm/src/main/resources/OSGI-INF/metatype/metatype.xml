@@ -78,7 +78,7 @@
             type="String"
             cardinality="100"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
-            description="Comma-delimited list of claims that should be requested by the STS.">
+            description="List of claims that should be requested by the STS Client.">
         </AD>
     </OCD>
 

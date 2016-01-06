@@ -60,19 +60,19 @@ This bundle is not installed by default and can be added by installing the `secu
 |Additional Description
 
 |Server Name
-|https://server:8993
+|https://localhost:8993
 |This is the name of the server that is calling CAS. The URL is used during CAS redirection to redirect back to the calling server.
 
 |CAS Server URL
-|https://cas:8443/cas
+|https://localhost:8443/cas
 |The main URL to the CAS Web application.
 
 |CAS Server Login URL
-|https://cas:8443/cas/login
+|https://localhost:8443/cas/login
 |URL to the login page of CAS (generally ends in /login)
 
 |Proxy Callback URL
-|https://server:8993/sso
+|https://localhost:8993/sso
 |Full URL of the callback service that CAS hits to create proxy tickets.
 
 |Proxy Receptor URL
@@ -424,39 +424,26 @@ The DDF LDAP application allows the user to configure either an embedded or a st
 |Feature Located In
 |Description/Link to Bundle Page
 
-|ldap-embedded
-|ldap
+|opendj-embedded-server
+|opendj-embedded
 |Embedded LDAP Configuration
 
 |===
 
-=== Configuring a Standalone LDAP Server
+=== Installing the Embedded LDAP Server
 
-In some production environments it is suggested that the LDAP server be run separate from the DDF installation. Due to the minimal number of dependencies that the embedded LDAP application requires, this app can be run using a minimal install of DDF that uses much less memory and CPU than a standard installation.
+The embedded OpenDJ LDAP server can be installed for testing purposes.
 
-==== Run a Standalone Embedded LDAP Instance
+==== Run the Embedded LDAP Instance
 
-. Obtain and unzip the DDF kernel (`ddf-distribution-kernel-<VERSION>.zip`). 
-. Start the distribution.
-. When the kernel is loaded up with the DDF logo at the command prompt, execute:
-----
-la
-----
-which is short for "list all." 
-
-[WARNING]
-====
-Since the kernel does not include all apps, if you were to do a "`list`" instead of "`la`," no results would be returned at this point.
-====
-. Verify that all bundles are `Active`. 
-. Deploy the Embedded LDAP app by copying the `ldap-embedded-app-<VERSION>.kar` file into the `<DISTRIBUTION_HOME>/deploy` directory. You can verify that theLDAP server is installed by checking the DDF log or by performing an `la` and verifying that the OpenDJ bundle is in the Active state. Additionally, it should be responding to LDAP requests on the default ports, 1389 and 1636.
-. To perform any of the configurations identified below, the web console will need to be installed by executing:
-----
-features:install webconsole
-----
+. Unzip and install DDF
+. Run the installer at https://localhost:8993/admin
+. After the install is complete, click the *Manage* button in the upper right hand corner
+. Click the *Play* icon on the Opendj Embedded application tile
+. The embedded LDAP is now installed.
 
 ==== Configuration
-The configuration options are located on the standard DDF configuration web console under the title *LDAP Server*. It currently contains three configuration options.
+The configuration options are located on the DDF Admin Console under *Opendj Embedded -> Configuration -> LDAP Server*. It currently contains three configuration options.
 
 [cols="1,7" options="header"]
 |===
@@ -465,7 +452,7 @@ The configuration options are located on the standard DDF configuration web cons
 |Description
 
 |LDAP Port
-|Sets the port for LDAP (plaintext and StartTLS). 0 will disable the port.
+|Sets the port for LDAP (plaintext and startTLS). 0 will disable the port.
 
 |LDAPS Port
 |Sets the port for LDAPS. 0 will disable the port.
@@ -482,19 +469,17 @@ If the location is left blank, the default base LDIF file will be used that come
 
 ==== Trust Certificates
 
-For LDAPS to function correctly, it is important that the LDAP server is configured with a keystore file that trusts the clients it is connecting to and vice versa. Complete the following procedure to provide your own keystore information for the LDAP. 
+For LDAPS or startTLS to function correctly, it is important that the LDAP server is configured with a keystore file that trusts the clients it is connecting to and vice versa. Complete the following procedure to provide your own keystore information for the LDAP. 
 
-. Navigate to the `/etc/keystores` folder in the kernel distribution folder.
-. Find the `serverKeystore.jks` file and replace it with a keystore file valid for your operating environment.
-. If the DDF kernel is running, restart it so the changes will take place
+. The embedded LDAP server is not recommended for production use as it has hardcoded keystores and truststores with localhost certificates. These cannot be changed unless the embedded server bundle is re-built with new stores.
 
 ==== Connect to a Standalone LDAP Server
 
-DDF instances can connect to an external LDAP server by installing and configuring the `security-sts-server` feature detailed here.
+DDF instances can connect to an external LDAP server by installing and configuring the `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features detailed here.
 
 === Embedded LDAP Configuration
 
-The Embedded LDAP application contains an LDAP server (OpenDJ version 2.4.6) that has a default set of schemas and users loaded to help facilitate authentication and authorization testing.
+The Embedded LDAP application contains an LDAP server (OpenDJ version 2.6.2) that has a default set of schemas and users loaded to help facilitate authentication and authorization testing.
 
 ==== Default Settings
 
@@ -680,7 +665,7 @@ The configuration options are located on the standard DDF configuration web cons
 |Description
 
 |LDAP Port
-|Sets the port for LDAP (plaintext and StartTLS). 0 will disable the port.
+|Sets the port for LDAP (plaintext and startTLS). 0 will disable the port.
 
 |LDAPS Port
 |Sets the port for LDAPS. 0 will disable the port.
@@ -870,10 +855,6 @@ The Security STS application contains the bundles and services necessary to run 
 |Located in Feature
 |Description/Link to Bundle Page
 
-|security-sts-clientconfig
-|security-sts-realm
-|Security STS Client Config
-
 |security-sts-realm
 |security-sts-realm
 |Security STS Realm
@@ -883,7 +864,7 @@ The Security STS application contains the bundles and services necessary to run 
 |Security STS LDAP Login
 
 |security-sts-ldapclaimshandler
-|security-sts-server
+|security-sts-ldapclaimshandler
 |Security STS LDAP Claims Handler
 
 |security-sts-server
@@ -906,13 +887,13 @@ The DDF Security STS Client Config bundle keeps track and exposes configurations
 
 ==== Installation
 
-This bundle is not installed by default and can be added by installing the `security-sts-realm` feature.
+This bundle is installed by default.
 
 ==== Configuration
 
 ===== Settings
 
-Settings can be found in the web console under *Configuration -> Security STS Client*.
+Settings can be found in the Admin Console under *{branding} Security -> Configuration -> Security STS Client*.
 [cols="1,2,2" options="header"]
 |===
 
@@ -920,8 +901,20 @@ Settings can be found in the web console under *Configuration -> Security STS C
 |Default Value
 |Additional Information
 
-|STS Address
-|https://server:8993/services/SecurityTokenService
+|SAML Assertion Type
+|SAML v2.0
+|The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding.
+
+|SAML Key Size
+|256
+|The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding.
+
+|Use Key
+|true
+|Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding.
+
+|STS WSDL Address
+|https://localhost:8993/services/SecurityTokenService?wsdl
 |The hostname of the remote server should match the certificate that the server is using.
 
 |STS Endpoint Name
@@ -933,20 +926,20 @@ Settings can be found in the web console under *Configuration -> Security STS C
 |
  
 |Signature Properties
-|etc/ws-security/client/signature.properties
-|
+|etc/ws-security/server/signature.properties
+|Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
  
 |Encryption Properties
-|etc/ws-security/client/encryption.properties
-|
+|etc/ws-security/server/encryption.properties
+|Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
  
 |STS Properties
-|etc/ws-security/client/signature.properties
-|
+|etc/ws-security/server/signature.properties
+|Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system.
  
 |Claims
 |<List of Claims>
-|
+|List of claims that should be requested by the STS Client.
  
 |===
 
@@ -995,14 +988,14 @@ This means that two different users with the same username in different LDAP ser
 ==== Installation
 
 This bundle is not installed by default and can be added by installing the
-`security-sts-server`
+`security-sts-ldapclaimshandler`
  feature.
 
 ==== Configuration
 
 ===== Settings
 
-Settings can be found in the web console under *Configuration -> Security STS LDAP and Roles Claims Handler*.
+Settings can be found in the Admin Console under *{branding} Security -> Configuration -> Security STS LDAP and Roles Claims Handler*.
 
 [cols="3" options="header"]
 |===
@@ -1097,7 +1090,7 @@ This bundle is not installed by default and can be added by installing the `sec
 
 ===== Settings
 
-Configuration settings can be found in the web console under *Configuration -> Security STS LDAP Login*.
+Configuration settings can be found in the Admin Console under *{branding} Security -> Configuration -> Security STS LDAP Login*.
 
 [cols="3" options="header"]
 |===
@@ -1131,8 +1124,8 @@ Configuration settings can be found in the web console under *Configuration ->�
 |
  
 |SSL Keystore Alias
-|server
-|This alias is used when connecting to the LDAP using SSL (LDAPS).
+|localhost
+|This alias is used when connecting to the LDAP using SSL/TLS (LDAPS) or startTLS.
 
 |===
 
@@ -1144,13 +1137,13 @@ None
 ===== Exported Services
 None
 
-=== Security STS Realm
+=== Security STS Service
 
-The DDF Security STS Realm performs authentication of a user by delegating the authentication request to an STS. This is different than the realms located within the Security PDP application as those ones only perform authorization and not authentication.
+The DDF Security STS Service performs authentication of a user by delegating the authentication request to an STS. This is different than the services located within the Security PDP application as those ones only perform authorization and not authentication.
 
 
 ==== Installation
-This bundle is installed by default and should not be uninstalled unless the security framework is not being used.
+This bundle is installed by default and should not be uninstalled.
 
 ==== Configuration
 
@@ -1195,12 +1188,12 @@ The DDF Security STS Server is a bundle that starts up an implementation of the 
 
 [NOTE]
 ====
-The WSDL for the STS is located at the `security-sts-server/sr/main/resources/META-INF/sts/wsdl/ws-trust-1.4-service.wsdl` within the source code.
+The WSDL for the STS is located at the `security-sts-server/src/main/resources/META-INF/sts/wsdl/ws-trust-1.4-service.wsdl` within the source code.
 ====
 
 ==== Installation
 
-This bundle is not installed by default and can be added by installing the `security-sts-server` feature.
+This bundle is installed by default and is required for DDF to operate.
 
 ==== Configuration
 
@@ -1273,14 +1266,14 @@ The DDF Security PDP application contains services that are able to perform auth
 |Security PDP XACML Realm
 
 |security-pdp-authzrealm
-|security-pdp-simple
-|Security PDP AuthZ Realm
+|security-pdp-java
+|Security PDP Java Realm
 
 |===
 
-=== Security PDP AuthZ Realm
+=== Security PDP Java Realm
 
-The DDF Security PDP AuthZ Realm exposes a realm service that makes decisions on authorization requests using the attributes stored within the metacard to determine if access should be granted. Unlike the Security PDP XACML Realm, this realm does not use XACML and does not delegate decisions to an external processing engine. Decisions are made based on "match-all" and "match-one" logic. The configuration below provides the mapping between user attributes and metacard attributes - one map exists for each type of mapping (each map may contain multiple values).
+The DDF Security PDP Java Realm exposes a realm service that makes decisions on authorization requests using the attributes stored within the metacard to determine if access should be granted. Unlike the Security PDP XACML Realm, this realm does not use XACML and does not delegate decisions to an external processing engine. Decisions are made based on "match-all" and "match-one" logic. The configuration below provides the mapping between user attributes and metacard attributes - one map exists for each type of mapping (each map may contain multiple values).
 
 * Match-All Mapping:  This mapping is used to guarantee that all values present in the specified metacard attribute exist in the corresponding user attribute.
 
@@ -1288,13 +1281,13 @@ The DDF Security PDP AuthZ Realm exposes a realm service that makes decisions on
 
 ==== Installation
 
-This bundle is not installed by default and can be added by installing the `security-pdp-java` feature.
+This bundle is installed by default and can be added by installing the `security-pdp-java` feature if it was uninstalled previously.
 
 ==== Configuration
 
 ===== Settings
 
-Settings can be found in the web console under *Configuration -> Security Simple AuthZ Realm*.
+Settings can be found in the Admin Console (https://localhost:8993/admin) under *{branding} Security -> Configuration -> Security Simple AuthZ Realm*.
 
 [cols="1,1,6" options="header"]
 |===
@@ -1302,14 +1295,6 @@ Settings can be found in the web console under *Configuration -> Security Simpl
 |Configuration Name
 |Default Value
 |Additional Description
-
-|Roles
-|admin
-|Add all the roles that allow access to restricted actions. Any user that has any one of these roles will be allowed access to restricted actions.
-
-|Open Action List
-|
-|Add any actions that will not be restricted by role. Any action listed here will automatically be allowed to be performed by any user in any role.
 
 |Match-All Mappings
 | 
@@ -1390,17 +1375,13 @@ The `GuestInterceptor` is installed by default with DDF Security Application.
 
 ==== Configuring via the Admin Console
 
-. Navigate to the DDF Admin Console -> Configuration
-. Select “ Security STS Guest Claims Handler”
+. Navigate to the Admin Console at https://localhost:8993/admin
+. Click the {branding} Security application tile
+. Click the *Configuration* tab
+. Click the *Security STS Guest Claims Handler* configuration
 . Click the + next to Attributes to add a new attribute
-. Add the following attribute: +
- “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest”
-. Repeat the steps above to add another new attribute: +
- “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest”
-. Click save
-. Now select “Security Simple AuthZ Realm”
-. Under role, add guest so Roles value is: “admin,guest”
-. Click save.
+. Add any addtional attributes that you want every user to have
+. Click *Save changes*
 
 Once these configurations have been added, the GuestInterceptor is ready for use. Both secure and non-secure requests will be accepted by all secure DDF service endpoints.
 
