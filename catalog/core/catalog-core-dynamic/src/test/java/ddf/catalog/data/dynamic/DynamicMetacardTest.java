@@ -118,7 +118,7 @@ public class DynamicMetacardTest extends TestCase {
     @Test
     public void testMetacardTypeAsNull() throws IllegalAccessException, InstantiationException {
         DynamicMetacard dmc = metacardFactory.newInstance(null);
-        Assert.assertNotNull(dmc);
+        Assert.assertNull(dmc);
     }
 
     /**

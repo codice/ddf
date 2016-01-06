@@ -86,15 +86,14 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
     @Override
     public DynamicMetacard newInstance(String name)  { //throws InstantiationException, IllegalAccessException {
         LOGGER.debug("Creating a new metacard of type {}", name);
+        DynamicMetacard dynamicMetacard = null;
         LazyDynaBean lazyDynaBean = null;
         LazyDynaClass dynaClass = dynaClassMap.get(name);
         if (dynaClass != null) {
             lazyDynaBean = new LazyDynaBean(dynaClass);
-        } else {
-            LOGGER.debug("Metacard with name {} not registered, returning basic dynamic metacard.", name);
+            dynamicMetacard = new DynamicMetacard(lazyDynaBean);
         }
-        DynamicMetacard dynaMetacard = new DynamicMetacard(lazyDynaBean);
-        return dynaMetacard;
+        return dynamicMetacard;
     }
 
     /**
