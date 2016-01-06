@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.LazyDynaBean;
 import org.apache.commons.beanutils.LazyDynaClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 
@@ -28,11 +30,14 @@ import ddf.catalog.data.Metacard;
  * that all generated metacards include the DynamicMetacard properties.
  */
 public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.MetacardFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardFactoryImpl.class);
+
     private static Map<String, LazyDynaClass> dynaClassMap = new HashMap<>();
 
     private static MetacardPropertyDescriptor[] metacardPropertyDescriptors;
 
     static {
+        LOGGER.debug("Adding basic dynamic property descriptors");
         metacardPropertyDescriptors = new MetacardPropertyDescriptor[]{
                 new MetacardPropertyDescriptor(Metacard.CREATED, Date.class),
                 new MetacardPropertyDescriptor(Metacard.MODIFIED, Date.class),
@@ -54,8 +59,13 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
                 new MetacardPropertyDescriptor(Metacard.RESOURCE_SIZE, String.class),
                 new MetacardPropertyDescriptor(Metacard.SECURITY, Map.class)
         };
+        LOGGER.debug("Registering dynamic metacard type iwth name: {}", DynamicMetacard.DYNAMIC);
         dynaClassMap.put(DynamicMetacard.DYNAMIC, new LazyDynaClass(DynamicMetacard.DYNAMIC, null,
                 metacardPropertyDescriptors));
+    }
+
+    public MetacardFactoryImpl() {
+        LOGGER.debug("Created instance of MetacardFactoryImpl");
     }
 
     /**
@@ -75,10 +85,13 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
      */
     @Override
     public DynamicMetacard newInstance(String name)  { //throws InstantiationException, IllegalAccessException {
+        LOGGER.debug("Creating a new metacard of type {}", name);
         LazyDynaBean lazyDynaBean = null;
         LazyDynaClass dynaClass = dynaClassMap.get(name);
         if (dynaClass != null) {
             lazyDynaBean = new LazyDynaBean(dynaClass);
+        } else {
+            LOGGER.debug("Metacard with name {} not registered, returning basic dynamic metacard.", name);
         }
         DynamicMetacard dynaMetacard = new DynamicMetacard(lazyDynaBean);
         return dynaMetacard;
@@ -102,6 +115,7 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
     @Override
     public void addDynaClass(LazyDynaClass dynaClass) {
         if (dynaClass != null) {
+            LOGGER.debug("Registering new dynamic metacard type with name {}", dynaClass.getName());
             dynaClassMap.put(dynaClass.getName(), dynaClass);
         }
     }

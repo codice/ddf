@@ -15,10 +15,9 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="dynamicBeanFactory" class="ddf.catalog.data.dynamic.impl.MetacardFactoryImpl">
-    </bean>
+    <bean id="dynamicBeanFactory" class="ddf.catalog.data.dynamic.impl.MetacardFactoryImpl" />
 
-    <service ref="dynamicBeanFactory" interface="ddf.catalog.data.dynamic.api.MetacardFactory">
+    <service id="dynBeanFactory" ref="dynamicBeanFactory" interface="ddf.catalog.data.dynamic.api.MetacardFactory">
     </service>
 
 </blueprint>

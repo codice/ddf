@@ -20,6 +20,7 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-core-dynamic</artifactId>
+    <packaging>bundle</packaging>
     <name>DDF :: Catalog :: Core :: Dynamic :: Impl</name>
     <description>Dynamic Implementations of the DDF Catalog Core API</description>
     <dependencies>
@@ -47,6 +48,16 @@
             <artifactId>commons-digester3</artifactId>
             <version>3.2</version>
             <classifier>with-deps</classifier>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>logkit</groupId>
+            <artifactId>logkit</artifactId>
+            <version>1.0.1</version>
         </dependency>
 <!--
         <dependency>
@@ -151,7 +162,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
-                <version>2.3.6</version>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
@@ -159,12 +169,16 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             commons-beanutils,
+                            commons-logging,
+                            logkit,
                             cdi-api,
                             el-api,
-                            javax.interceptor-api
+                            javax.interceptor-api,
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Export-Package>
-                            ddf.catalog.data.dynamic,
+                            ddf.catalog.data.dynamic.api,
+                            ddf.catalog.data.dynamic.impl,
                             org.apache.commons.beanutils
                         </Export-Package>
                         <Import-Package>
@@ -179,12 +193,13 @@
                             ddf.catalog.transform;version="[2.0,3)",
                             ddf.catalog.util;version="[2.0,3)",
                             ddf.catalog.validation;version="[2.0,3)",
+                            org.apache.log4j;version="[1.2,3)",
                             *
                         </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
-            <!-- Generate Javadocs for this project -->
+             <!--Generate Javadocs for this project-->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
