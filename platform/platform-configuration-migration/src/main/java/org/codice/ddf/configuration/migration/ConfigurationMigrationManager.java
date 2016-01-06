@@ -18,9 +18,13 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
@@ -34,34 +38,61 @@ import org.slf4j.LoggerFactory;
  * {@link org.osgi.service.cm.Configuration} objects as well as any other configuration files
  * needed.
  */
-public class ConfigurationMigrationManager implements ConfigurationMigrationService {
+public class ConfigurationMigrationManager
+        implements ConfigurationMigrationService, ConfigurationMigrationManagerMBean {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ConfigurationMigrationManager.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ConfigurationMigrationManager.class);
 
-    private ConfigurationAdminMigration configurationAdminMigration;
+    private static final String CLASS_NAME = ConfigurationMigrationManager.class.getName();
 
-    private SystemConfigurationMigration systemConfigurationMigration;
+    private static final String OBJECT_NAME = CLASS_NAME + ":service=configuration-migration";
+
+    private final ConfigurationAdminMigration configurationAdminMigration;
+
+    private final SystemConfigurationMigration systemConfigurationMigration;
+
+    private final MBeanServer mBeanServer;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param configurationAdminMigration  object used to export {@link org.osgi.service.cm.Configuration}
      *                                     objects from {@link org.osgi.service.cm.ConfigurationAdmin}
      * @param systemConfigurationMigration object used to export other system configuration files
+     * @param mBeanServer                  object used to register this object as an MBean
      */
     public ConfigurationMigrationManager(
             @NotNull ConfigurationAdminMigration configurationAdminMigration,
-            @NotNull SystemConfigurationMigration systemConfigurationMigration) {
+            @NotNull SystemConfigurationMigration systemConfigurationMigration,
+            @NotNull MBeanServer mBeanServer) {
         notNull(configurationAdminMigration, "ConfigurationAdminMigration cannot be null");
         notNull(systemConfigurationMigration, "SystemConfigurationMigration cannot be null");
+        notNull(mBeanServer, "MBeanServer cannot be null");
 
         this.configurationAdminMigration = configurationAdminMigration;
         this.systemConfigurationMigration = systemConfigurationMigration;
+        this.mBeanServer = mBeanServer;
+    }
+
+    public void init() throws Exception {
+        ObjectName objectName = new ObjectName(OBJECT_NAME);
+
+        try {
+            mBeanServer.registerMBean(this, objectName);
+        } catch (InstanceAlreadyExistsException e) {
+            LOGGER.info("{} already registered as an MBean. Re-registering.", CLASS_NAME);
+
+            mBeanServer.unregisterMBean(objectName);
+            mBeanServer.registerMBean(this, objectName);
+
+            LOGGER.info("Successfully re-registered {} as an MBean.", CLASS_NAME);
+        }
     }
 
     @Override
-    public Collection<MigrationWarning> export(@NotNull Path exportDirectory) throws MigrationException {
+    public Collection<MigrationWarning> export(@NotNull Path exportDirectory)
+            throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
 
@@ -79,5 +110,13 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
             throw new MigrationException(message, e);
         }
         return migrationWarnings;
+    }
+
+    @Override
+    public Collection<MigrationWarning> export(@NotNull String exportDirectory)
+            throws MigrationException {
+        notNull(exportDirectory, "Export directory cannot be null");
+
+        return export(Paths.get(exportDirectory));
     }
 }
