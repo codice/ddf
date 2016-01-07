@@ -281,7 +281,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                         attribute = null;
                         break;
                     default:
-                        LOGGER.warn("Unexpected end element: {}", localName);
                         break;
                     }
                     break;
