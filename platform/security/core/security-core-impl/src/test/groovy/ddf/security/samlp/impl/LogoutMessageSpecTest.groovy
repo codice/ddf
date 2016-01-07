@@ -2,7 +2,6 @@ package ddf.security.samlp.impl
 
 import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.SystemCrypto
-import org.apache.commons.io.IOUtils
 import org.apache.cxf.rs.security.saml.sso.SSOConstants
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -10,14 +9,6 @@ import org.opensaml.common.SAMLVersion
 import org.opensaml.saml2.core.LogoutRequest
 import org.opensaml.saml2.core.LogoutResponse
 import org.opensaml.saml2.core.StatusCode
-import org.opensaml.saml2.core.impl.IssuerBuilder
-import org.opensaml.saml2.core.impl.LogoutRequestBuilder
-import org.opensaml.saml2.core.impl.LogoutResponseBuilder
-import org.opensaml.saml2.core.impl.NameIDBuilder
-import org.opensaml.saml2.core.impl.StatusBuilder
-import org.opensaml.saml2.core.impl.StatusCodeBuilder
-import org.opensaml.ws.soap.soap11.impl.BodyBuilder
-import org.opensaml.ws.soap.soap11.impl.EnvelopeBuilder
 import spock.lang.Specification
 
 import java.time.Instant
@@ -25,7 +16,7 @@ import java.time.Instant
 import static java.time.Instant.now
 import static org.apache.commons.lang.StringUtils.isNotBlank
 
-class LogoutMessageSpec extends Specification {
+class LogoutMessageSpecTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
@@ -34,7 +25,9 @@ class LogoutMessageSpec extends Specification {
     final String ENCRYPT_PREFIX = "ENCRYPTED "
 
     final String NAME_ID = "MyNameId"
+
     final String ISSUER_ID = "MyIssuerId"
+
     final String IN_RESPONSE_TO = "InResponseToID"
 
     void setup() {
@@ -50,40 +43,27 @@ class LogoutMessageSpec extends Specification {
         copyResourceToFile(encryptionFile, "/encryption.properties")
 
         EncryptionService encryptionService = Mock(EncryptionService.class) {
-            decrypt(_ as String) >> { String data -> data.substring(ENCRYPT_PREFIX.length()) }
-            encrypt(_ as String) >> { String data -> "$ENCRYPT_PREFIX$data" }
+            decrypt(_ as String) >> {String data -> data.substring(ENCRYPT_PREFIX.length())}
+            encrypt(_ as String) >> {String data -> "$ENCRYPT_PREFIX$data"}
         }
 
         System.setProperty("javax.net.ssl.keyStore", jksFile.getAbsolutePath());
         logoutMessage = new LogoutMessageImpl()
-        injectBuilders(logoutMessage)
-        logoutMessage.systemCrypto = new SystemCrypto(
-                encryptionFile.absolutePath,
+        logoutMessage.systemCrypto = new SystemCrypto(encryptionFile.absolutePath,
                 signatureFile.absolutePath,
                 encryptionService)
     }
 
     void copyResourceToFile(File file, String resource) throws IOException {
-        file.withOutputStream { fileOutputStream ->
-            LogoutMessageSpec.class.getResourceAsStream(resource).withStream { resourceStream ->
-                IOUtils.copy(resourceStream, fileOutputStream)
-            };
+        file.withOutputStream {fileOutputStream ->
+            LogoutMessageSpecTest.class.getResourceAsStream(resource).
+                    withStream {resourceStream -> fileOutputStream << resourceStream
+                    };
         };
     }
 
-    void injectBuilders(LogoutMessageImpl plugin) {
-        plugin.logoutRequestBuilder = new LogoutRequestBuilder()
-        plugin.logoutResponseBuilder = new LogoutResponseBuilder()
-        plugin.nameIDBuilder = new NameIDBuilder()
-        plugin.issuerBuilder = new IssuerBuilder()
-        plugin.statusBuilder = new StatusBuilder()
-        plugin.envelopeBuilder = new EnvelopeBuilder()
-        plugin.bodyBuilder = new BodyBuilder()
-        plugin.statusCodeBuilder = new StatusCodeBuilder()
-    }
-
     void cleanup() {
-
+        // This method is for any cleanup that should run after each test
     }
 
     def "build valid logout request"() {
@@ -96,7 +76,8 @@ class LogoutMessageSpec extends Specification {
         NAME_ID.equals(logoutRequest.nameID.value)
         ISSUER_ID.equals(logoutRequest.issuer.value)
         SAMLVersion.VERSION_20.equals(logoutRequest.version)
-        now().isAfter(Instant.ofEpochMilli(logoutRequest.issueInstant.millis))
+        now().
+                isAfter(Instant.ofEpochMilli(logoutRequest.issueInstant.millis))
     }
 
     def "build logout request with invalid info"() {
@@ -119,8 +100,7 @@ class LogoutMessageSpec extends Specification {
 
     def "build logout response with valid info and inResponseTo"() {
         when:
-        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(
-                ISSUER_ID,
+        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(ISSUER_ID,
                 StatusCode.SUCCESS_URI,
                 IN_RESPONSE_TO)
 
@@ -130,13 +110,13 @@ class LogoutMessageSpec extends Specification {
         StatusCode.SUCCESS_URI.equals(logoutResponse.status.statusCode.value)
         IN_RESPONSE_TO.equals(logoutResponse.inResponseTo)
         SAMLVersion.VERSION_20.equals(logoutResponse.version)
-        now().isAfter(Instant.ofEpochMilli(logoutResponse.issueInstant.millis))
+        now().
+                isAfter(Instant.ofEpochMilli(logoutResponse.issueInstant.millis))
     }
 
     def "build logout response with no inResponseTo"() {
         when:
-        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(
-                "issuer",
+        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse("issuer",
                 StatusCode.SUCCESS_URI)
 
         then:
@@ -154,25 +134,31 @@ class LogoutMessageSpec extends Specification {
         URI signedRequest = logoutMessage.signSamlGetRequest(logoutRequest, target, relayState)
 
         then:
-        signedRequest.toString().startsWith(target.toString())
-        signedRequest.toString().contains("${SSOConstants.RELAY_STATE}=")
-        signedRequest.toString().contains("${SSOConstants.SAML_REQUEST}=")
+        signedRequest.toString().
+                startsWith(target.toString())
+        signedRequest.toString().
+                contains("${SSOConstants.RELAY_STATE}=")
+        signedRequest.toString().
+                contains("${SSOConstants.SAML_REQUEST}=")
 
     }
 
     def "verify signed saml response"() {
         setup:
-        LogoutRequest logoutRequest = logoutMessage.buildLogoutRequest(NAME_ID, ISSUER_ID)
+        LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(NAME_ID, ISSUER_ID)
 
         def target = new URI("https://mytarget.com")
         def relayState = "MyRelayStateGuid"
 
         when:
-        URI signedRequest = logoutMessage.signSamlGetResponse(logoutRequest, target, relayState)
+        URI signedRequest = logoutMessage.signSamlGetResponse(logoutResponse, target, relayState)
 
         then:
-        signedRequest.toString().startsWith(target.toString())
-        signedRequest.toString().contains("${SSOConstants.RELAY_STATE}=")
-        signedRequest.toString().contains("${SSOConstants.SAML_REQUEST}=")
+        signedRequest.toString().
+                startsWith(target.toString())
+        signedRequest.toString().
+                contains("${SSOConstants.RELAY_STATE}=")
+        signedRequest.toString().
+                contains("${SSOConstants.SAML_RESPONSE}=")
     }
 }

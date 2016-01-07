@@ -70,6 +70,10 @@ public class MetadataConfigurationParser {
 
     private final Consumer<EntityDescriptor> updateCallback;
 
+    static {
+        OpenSAMLUtil.initSamlEngine();
+    }
+
     public MetadataConfigurationParser(List<String> entityDescriptions) throws IOException {
         this(entityDescriptions, null);
     }
