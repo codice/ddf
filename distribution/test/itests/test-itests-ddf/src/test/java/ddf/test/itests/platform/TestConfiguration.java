@@ -382,7 +382,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportFailureWithoutSystemPropertiesFile() throws Exception {
         resetInitialState();
         
-        SYSTEM_PROPERTIES.toFile().renameTo(SYSTEM_PROPERTIES_COPY.toFile());
+        FileUtils.moveFile(SYSTEM_PROPERTIES.toFile(), SYSTEM_PROPERTIES_COPY.toFile());
 
         String response = console.runCommand(EXPORT_COMMAND);
         
@@ -400,7 +400,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportFailureWithoutUsersPropertiesFile() throws Exception {
         resetInitialState();
         
-        USERS_PROPERTIES.toFile().renameTo(USERS_PROPERTIES_COPY.toFile());
+        FileUtils.moveFile(USERS_PROPERTIES.toFile(), USERS_PROPERTIES_COPY.toFile());
 
         String response = console.runCommand(EXPORT_COMMAND);
         
@@ -418,7 +418,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportFailureWithoutWSSecurityDirectory() throws Exception {
         resetInitialState();
         
-        WS_SECURITY.toFile().renameTo(WS_SECURITY_COPY.toFile());
+        FileUtils.moveDirectory(WS_SECURITY.toFile(), WS_SECURITY_COPY.toFile());
 
         String response = console.runCommand(EXPORT_COMMAND);
 
@@ -436,7 +436,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportFailureWithoutPDPDirectory() throws Exception {
         resetInitialState();
         
-        PDP.toFile().renameTo(PDP_COPY.toFile());
+        FileUtils.moveDirectory(PDP.toFile(), PDP_COPY.toFile());
 
         String response = console.runCommand(EXPORT_COMMAND);
         assertThat(
@@ -603,14 +603,17 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 keystoreFiles,
                 arrayContainingInAnyOrder(fileNames));
     }
-    
-    private void restoreBackup(Path copy, Path original) {
-        if (Files.exists(copy)) {
+      
+    private void restoreBackup(Path copy, Path original) throws IOException {
+        if (Files.exists(copy) && Files.isDirectory(copy)) {
             FileUtils.deleteQuietly(original.toFile());
-            copy.toFile().renameTo(original.toFile());
+            FileUtils.moveDirectory(copy.toFile(), original.toFile());
+        } else if (Files.exists(copy) && !Files.isDirectory(copy)) {
+            FileUtils.deleteQuietly(original.toFile());
+            FileUtils.moveFile(copy.toFile(), original.toFile());
         }
     }
-    
+  
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
      * file.
