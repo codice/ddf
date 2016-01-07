@@ -19,19 +19,20 @@ The {branding} Admin application is installed by default with a standard install
 |ID
 |Description
 
-|Admin UI Configuration
+|Admin Console Configuration
 |`org.codice.admin.ui.configuration`
-|Customization options for Admin UI elements.
+|Customization options for Admin Console elements.
 
 |Configuration Admin JMX Bridge
 |`ddf.ui.admin.api`
 |List of Configuration Filters
+|===
 
 ==== Defining Platform Settings
 
-The platform settings can be configured by a file located in `DDF_HOME/etc/ddf.platform.config.cfg`
+The platform settings can be configured by the `<INSTALL_HOME>/etc/system.properties` file.
 
-The settings in this file can be changed at any time during the {branding} lifecycle (before installation, after, or during run-time) and will immediately update the corresponding properties for the platform global configuration.
+The settings in this file can be changed at any time during the {branding} lifecycle (before installation, after, or during run-time) and will take effect after a system restart.
 
 === Console Commands
 
@@ -53,17 +54,18 @@ None.
 
 === Administrative User Interface
 
-The Admin UI is the centralized location for administering the system.
-The Admin UI allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
+The Admin Console is the centralized location for administering the system.
+The Admin Console allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
+The default address for the Admin Console is \https://localhost:8993/admin.
 
 ==== Modules
 
-The Admin UI is a modular system that can be expanded with additional modules as necessary.
+The Admin Console is a modular system that can be expanded with additional modules as necessary.
 {branding} comes with the Configurations module and the Installation modules.
-However, new modules can be added, and each module is presented in its own tab of the Admin UI.
+However, new modules can be added, and each module is presented in its own tab of the Admin Console.
 
 Modules are single components that implement the `org.codice.ddf.ui.admin.api.module.AdminModule` interface.
-Once they implement and expose themselves as a service, they are added in to the Admin UI as a new tab.
+Once they implement and expose themselves as a service, they are added in to the Admin Console as a new tab.
 
 ==== Included Modules
 
@@ -177,7 +179,7 @@ The configuration module allows administrators to change bundle and service conf
 . Install the module if it is not pre-installed.
 `features:install admin-modules-configuration`
 
-. Open a web browser and navigate to the Admin UI page.
+. Open a web browser and navigate to the Admin Console page.
 
 `http://DDF_HOST:DDF_PORT/admin`
 
