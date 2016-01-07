@@ -102,13 +102,13 @@ class LogoutMessageSpecTest extends Specification {
     def "build logout response with valid info and inResponseTo"() {
         when:
         LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(ISSUER_ID,
-                StatusCode.SUCCESS_URI,
+                StatusCode.SUCCESS,
                 IN_RESPONSE_TO)
 
         then:
         isNotBlank(logoutResponse.ID)
         ISSUER_ID.equals(logoutResponse.issuer.value)
-        StatusCode.SUCCESS_URI.equals(logoutResponse.status.statusCode.value)
+        StatusCode.SUCCESS.equals(logoutResponse.status.statusCode.value)
         IN_RESPONSE_TO.equals(logoutResponse.inResponseTo)
         SAMLVersion.VERSION_20.equals(logoutResponse.version)
         now().
@@ -118,7 +118,7 @@ class LogoutMessageSpecTest extends Specification {
     def "build logout response with no inResponseTo"() {
         when:
         LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse("issuer",
-                StatusCode.SUCCESS_URI)
+                StatusCode.SUCCESS )
 
         then:
         logoutResponse.inResponseTo == null

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -183,19 +184,25 @@ public final class SecurityLogger {
         if (message != null) {
             TokenStore tokenStore = getTokenStore(message);
             Principal principal = null;
-            // Try to find the SAMLTokenPrincipal if it exists
-            List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
-            if (wsResults != null) {
-                for (Object wsResult : wsResults) {
-                    if (wsResult instanceof WSHandlerResult) {
-                        List<WSSecurityEngineResult> wsseResults =
-                                ((WSHandlerResult) wsResult).getResults();
-                        for (WSSecurityEngineResult wsseResult : wsseResults) {
-                            Object principalResult =
-                                    wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
-                            if (principalResult instanceof SAMLTokenPrincipal) {
-                                principal = (SAMLTokenPrincipal) principalResult;
-                                break;
+            SecurityContext context = message.get(SecurityContext.class);
+            if (context != null) {
+                principal = context.getUserPrincipal();
+            }
+            if (!(principal instanceof SAMLTokenPrincipal)) {
+                // Try to find the SAMLTokenPrincipal if it exists
+                List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
+                if (wsResults != null) {
+                    for (Object wsResult : wsResults) {
+                        if (wsResult instanceof WSHandlerResult) {
+                            List<WSSecurityEngineResult> wsseResults =
+                                    ((WSHandlerResult) wsResult).getResults();
+                            for (WSSecurityEngineResult wsseResult : wsseResults) {
+                                Object principalResult =
+                                        wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                                if (principalResult instanceof SAMLTokenPrincipal) {
+                                    principal = (SAMLTokenPrincipal) principalResult;
+                                    break;
+                                }
                             }
                         }
                     }

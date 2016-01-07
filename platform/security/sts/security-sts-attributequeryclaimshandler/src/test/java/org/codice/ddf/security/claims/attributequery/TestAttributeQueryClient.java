@@ -39,8 +39,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.soap.config.XMLObjectProviderInitializer;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -122,9 +122,8 @@ public class TestAttributeQueryClient {
 
     @BeforeClass
     public static void init() throws InitializationException {
+        InitializationService.initialize();
         OpenSAMLUtil.initSamlEngine();
-        XMLObjectProviderInitializer initializer = new XMLObjectProviderInitializer();
-        initializer.init();
     }
 
     @Before

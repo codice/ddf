@@ -40,10 +40,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.soap.config.XMLObjectProviderInitializer;
 import org.w3c.dom.Document;
 
 import com.google.common.base.Charsets;
@@ -118,9 +118,8 @@ public class TestAttributeQueryClaimsHandler {
 
     @BeforeClass
     public static void init() throws InitializationException {
+        InitializationService.initialize();
         OpenSAMLUtil.initSamlEngine();
-        XMLObjectProviderInitializer initializer = new XMLObjectProviderInitializer();
-        initializer.init();
     }
 
     @Before
@@ -144,8 +143,8 @@ public class TestAttributeQueryClaimsHandler {
         attributeQueryClaimsHandler.setIssuer(ISSUER);
         attributeQueryClaimsHandler.setDestination(DESTINATION);
         attributeQueryClaimsHandler.setAttributeMapLocation(TestAttributeQueryClaimsHandler.class.getClassLoader()
-                        .getResource("attributeMap.properties")
-                        .getPath());
+                .getResource("attributeMap.properties")
+                .getPath());
 
         cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8);

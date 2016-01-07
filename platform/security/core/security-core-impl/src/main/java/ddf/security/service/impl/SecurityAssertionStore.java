@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cxf.message.Message;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreUtils;
@@ -48,23 +49,29 @@ public final class SecurityAssertionStore {
         if (message != null) {
             TokenStore tokenStore = getTokenStore(message);
             Principal principal = null;
-            // Try to find the SAMLTokenPrincipal if it exists
-            List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
-            if (wsResults != null) {
-                for (Object wsResult : wsResults) {
-                    if (wsResult instanceof WSHandlerResult) {
-                        List<WSSecurityEngineResult> wsseResults =
-                                ((WSHandlerResult) wsResult).getResults();
+            SecurityContext context = message.get(SecurityContext.class);
+            if (context != null) {
+                principal = context.getUserPrincipal();
+            }
+            if (!(principal instanceof SAMLTokenPrincipal)) {
+                // Try to find the SAMLTokenPrincipal if it exists
+                List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
+                if (wsResults != null) {
+                    for (Object wsResult : wsResults) {
+                        if (wsResult instanceof WSHandlerResult) {
+                            List<WSSecurityEngineResult> wsseResults =
+                                    ((WSHandlerResult) wsResult).getResults();
 
-                        for (WSSecurityEngineResult wsseResult : wsseResults) {
-                            Object principalResult =
-                                    wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
-                            if (principalResult instanceof SAMLTokenPrincipal) {
-                                principal = (SAMLTokenPrincipal) principalResult;
-                                break;
+                            for (WSSecurityEngineResult wsseResult : wsseResults) {
+                                Object principalResult =
+                                        wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                                if (principalResult instanceof SAMLTokenPrincipal) {
+                                    principal = (SAMLTokenPrincipal) principalResult;
+                                    break;
+                                }
                             }
-                        }
 
+                        }
                     }
                 }
             }
@@ -115,6 +122,7 @@ public final class SecurityAssertionStore {
      * @param message
      * @return TokenStore
      */
+
     public static TokenStore getTokenStore(Message message) {
         return TokenStoreUtils.getTokenStore(message);
     }

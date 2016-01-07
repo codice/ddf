@@ -2,14 +2,19 @@ package org.codice.ddf.security.idp.server
 
 import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.LogoutMessage
+import ddf.security.samlp.ValidationException
 import ddf.security.samlp.impl.LogoutMessageImpl
 import ddf.security.samlp.impl.RelayStates
+import ddf.security.samlp.impl.SamlValidator
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.ddf.security.common.jaxrs.RestSecurity
+import org.joda.time.DateTime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.opensaml.saml2.core.*
-import org.opensaml.xml.validation.ValidationException
+import org.opensaml.saml.common.SAMLVersion
+import org.opensaml.saml.common.SignableSAMLObject
+import org.opensaml.saml.saml2.core.*
+import org.opensaml.xmlsec.signature.SignableXMLObject
 import org.w3c.dom.Element
 import spock.lang.Specification
 
@@ -29,6 +34,23 @@ class IdpEndpointSpecTest extends Specification {
         OpenSAMLUtil.initSamlEngine()
     }
 
+    private static class MockIdpEndpoint extends IdpEndpoint {
+
+        MockIdpEndpoint(String signaturePropertiesPath, String encryptionPropertiesPath, EncryptionService encryptionService) {
+            super(signaturePropertiesPath, encryptionPropertiesPath, encryptionService)
+        }
+
+        @Override
+        void validateRedirect(String relayState, String signatureAlgorithm, String signature,
+                              HttpServletRequest request, String samlString, SignableXMLObject logoutRequest,
+                              String issuer, String requestId) throws ValidationException {
+        }
+        @Override
+        void validatePost(HttpServletRequest request, SignableSAMLObject samlObject, String requestId)
+                throws ValidationException {
+        }
+    }
+
     void setup() {
         System.setProperty("org.codice.ddf.system.hostname", "localhost")
         System.setProperty("javax.net.ssl.keyStorePassword", "changeit")
@@ -42,12 +64,12 @@ class IdpEndpointSpecTest extends Specification {
         copyResourceToFile(encryptionFile, "/encryption.properties")
 
         EncryptionService encryptionService = Mock(EncryptionService.class) {
-            decrypt(_ as String) >> {String data -> data.substring(ENCRYPT_PREFIX.length())}
-            encrypt(_ as String) >> {String data -> "$ENCRYPT_PREFIX$data"}
+            decrypt(_ as String) >> { String data -> data.substring(ENCRYPT_PREFIX.length()) }
+            encrypt(_ as String) >> { String data -> "$ENCRYPT_PREFIX$data" }
         }
 
         System.setProperty("javax.net.ssl.keyStore", jksFile.getAbsolutePath());
-        idpEndpoint = new IdpEndpoint(signatureFile.absolutePath,
+        idpEndpoint = new MockIdpEndpoint(signatureFile.absolutePath,
                 encryptionFile.absolutePath,
                 encryptionService)
         idpEndpoint.strictSignature = true
@@ -57,69 +79,15 @@ class IdpEndpointSpecTest extends Specification {
     }
 
     void copyResourceToFile(File file, String resource) throws IOException {
-        file.withOutputStream {fileOutputStream ->
+        file.withOutputStream { fileOutputStream ->
             IdpEndpointSpecTest.class.getResourceAsStream(resource).
-                    withStream {resourceStream -> fileOutputStream << resourceStream
+                    withStream { resourceStream -> fileOutputStream << resourceStream
                     };
         };
     }
 
     void cleanup() {
         // This method is for any cleanup that should run after each test
-    }
-
-    def "test validateRedirect with empty param"() {
-        setup:
-        def relayState = "bla"
-        def request = Mock(HttpServletRequest)
-        def samlString = "bla"
-        def logoutRequest = Mock(LogoutRequest)
-
-        when:
-        idpEndpoint.validateRedirect(relayState,
-                sigAlg,
-                signature,
-                request,
-                samlString,
-                logoutRequest,
-                issuer)
-
-        then:
-        thrown(ValidationException)
-
-        where:
-        signature | sigAlg | issuer
-        "bla"     | "bla"  | ""
-        "bla"     | ""     | "bla"
-        ""        | "bla"  | "bla"
-        null      | null   | null
-    }
-
-    def "test validateRedirect"() {
-        setup:
-        def relayState = "relayState"
-        def samlString = "b64deflatedsamlstring"
-        def sig = "mysignature"
-        def sigAlg = "signaturealgorithm"
-        def issuer = sp1entityid
-
-        def request = Mock(HttpServletRequest) {
-            getRequestURL() >> new StringBuffer("destinationurl")
-
-        }
-        def logoutRequest = Mock(LogoutRequest)
-
-        when:
-        idpEndpoint.validateRedirect(relayState,
-                sigAlg,
-                sig,
-                request,
-                samlString,
-                logoutRequest,
-                issuer)
-
-        then:
-        notThrown(ValidationException)
     }
 
     def "process redirect logout initial with only self sp"() {
@@ -143,7 +111,7 @@ class IdpEndpointSpecTest extends Specification {
                 getID() >> requestId
             }
             buildLogoutResponse(_ as String, _ as String, _ as String) >>
-                    {String issuer, String statusCode, String inResponseTo ->
+                    { String issuer, String statusCode, String inResponseTo ->
                         return new LogoutMessageImpl().buildLogoutResponse(issuer,
                                 statusCode,
                                 inResponseTo)
@@ -221,12 +189,12 @@ class IdpEndpointSpecTest extends Specification {
                 }
                 getStatus() >> Mock(Status) {
                     getStatusCode() >> Mock(StatusCode) {
-                        getValue() >> StatusCode.SUCCESS_URI
+                        getValue() >> StatusCode.SUCCESS
                     }
                 }
                 getID() >> responseId
             }
-            buildLogoutRequest(_ as String, _ as String) >> {String name, String target ->
+            buildLogoutRequest(_ as String, _ as String) >> { String name, String target ->
                 return new LogoutMessageImpl().buildLogoutRequest(name, targetSp)
             }
         }
@@ -284,12 +252,12 @@ class IdpEndpointSpecTest extends Specification {
                 }
                 getStatus() >> Mock(Status) {
                     getStatusCode() >> Mock(StatusCode) {
-                        getValue() >> StatusCode.REQUEST_DENIED_URI
+                        getValue() >> StatusCode.REQUEST_DENIED
                     }
                 }
                 getID() >> responseId
             }
-            buildLogoutRequest(_ as String, _ as String) >> {String name, String target ->
+            buildLogoutRequest(_ as String, _ as String) >> { String name, String target ->
                 return new LogoutMessageImpl().buildLogoutRequest(name, targetSp)
             }
         }
@@ -337,7 +305,7 @@ class IdpEndpointSpecTest extends Specification {
                 getID() >> requestId
             }
             buildLogoutResponse(_ as String, _ as String, _ as String) >>
-                    {String issuer, String statusCode, String inResponseTo ->
+                    { String issuer, String statusCode, String inResponseTo ->
                         return new LogoutMessageImpl().buildLogoutResponse(issuer,
                                 statusCode,
                                 inResponseTo)
@@ -369,8 +337,8 @@ class IdpEndpointSpecTest extends Specification {
         setup:
         def samlObject = RestSecurity.deflateAndBase64Encode("b64deflatedsamlstring")
         idpEndpoint.logoutMessage = Mock(LogoutMessage) {
-            extractSamlLogoutRequest(_ as String) >> {throw new XMLStreamException()}
-            extractSamlLogoutResponse(_ as String) >> {throw new XMLStreamException()}
+            extractSamlLogoutRequest(_ as String) >> { throw new XMLStreamException() }
+            extractSamlLogoutResponse(_ as String) >> { throw new XMLStreamException() }
         }
         def request = Mock(HttpServletRequest) {
             getRequestURL() >> new StringBuffer("destinationurl")

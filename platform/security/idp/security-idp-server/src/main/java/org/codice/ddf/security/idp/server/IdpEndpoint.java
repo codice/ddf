@@ -1056,4 +1056,8 @@ public class IdpEndpoint implements Idp {
     public void setLogoutStates(RelayStates<LogoutState> logoutStates) {
         this.logoutStates = logoutStates;
     }
+
+    public RelayStates<LogoutState> getLogoutStates(){
+        return this.logoutStates;
+    }
 }
