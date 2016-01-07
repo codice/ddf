@@ -31,6 +31,7 @@ import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInvertState;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -149,8 +150,15 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
 
     IndexWriter createIndexWriter(final boolean create, final Directory directory)
             throws IOException {
+
         final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(ANALYZER);
-        indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
+
+        // Set to CREATE mode if the index does not exist.
+        if(!DirectoryReader.indexExists(directory)) {
+            indexWriterConfig.setOpenMode(OpenMode.CREATE);
+        } else {
+            indexWriterConfig.setOpenMode(create ? OpenMode.CREATE : OpenMode.APPEND);
+        }
         indexWriterConfig.setSimilarity(SIMILARITY);
         return new IndexWriter(directory, indexWriterConfig);
     }

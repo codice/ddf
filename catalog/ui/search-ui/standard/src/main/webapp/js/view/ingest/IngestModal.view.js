@@ -54,13 +54,12 @@ define([
                 var view = this;
                 view.$('[data-toggle="upload-popover"]').popover();
                 view.fileUploadListRegion.show(new UploadList({collection: view.collection}));
-                $.ajaxSetup({
-                    headers: {directive: "STORE_AND_PROCESS"}
-                });
+
                 this.$('.fileupload').fileupload({
                     url: '/services/content',
                     paramName: 'file',
                     dataType: 'json',
+                    formData: {directive: "STORE_AND_PROCESS"},
                     maxFileSize: 5000000,
                     add: function (e, data) {
 // this overrides the add to use our own model to control when the upload actually happens.

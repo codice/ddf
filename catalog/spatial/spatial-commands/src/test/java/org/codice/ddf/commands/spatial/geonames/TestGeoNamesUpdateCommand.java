@@ -66,6 +66,11 @@ public class TestGeoNamesUpdateCommand {
                 extractionCallback.updateProgress(100);
                 assertThat(consoleInterceptor.getOutput(), containsString("100%"));
             }
+
+            @Override
+            public void setUrl(String url) {
+                return;
+            }
         });
 
         final GeoEntryExtractor geoEntryUrlExtractor = spy(new GeoEntryExtractor() {
@@ -82,6 +87,11 @@ public class TestGeoNamesUpdateCommand {
                 assertThat(consoleInterceptor.getOutput(), containsString("50%"));
                 extractionCallback.updateProgress(100);
                 assertThat(consoleInterceptor.getOutput(), containsString("100%"));
+            }
+
+            @Override
+            public void setUrl(String url) {
+                return;
             }
         });
 

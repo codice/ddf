@@ -98,6 +98,11 @@ public class TestGeoNamesLuceneIndexerExceptions {
                         throw new GeoEntryExtractionException("Unable to add entry.", e);
                     }
                 }
+
+                @Override
+                public void setUrl(String url) {
+                    return;
+                }
             };
 
             geoNamesLuceneIndexer.updateIndex("", geoEntryExtractor, true, null);
@@ -126,15 +131,14 @@ public class TestGeoNamesLuceneIndexerExceptions {
     }
 
     @Test
-    public void testExceptionWhenAppendingToNonexistentIndex() {
+    public void testExceptionWhenAppendingToNonexistentIndex() throws IOException {
+        geoNamesLuceneIndexer = new GeoNamesLuceneIndexer();
+        geoNamesLuceneIndexer.setIndexLocation(ABSOLUTE_PATH + TEST_PATH + "missing_index");
         try {
-            geoNamesLuceneIndexer = new GeoNamesLuceneIndexer();
-            geoNamesLuceneIndexer.setIndexLocation(ABSOLUTE_PATH + TEST_PATH + "missing_index");
-            geoNamesLuceneIndexer.updateIndex(null, false, null);
-            fail("Should have thrown a GeoEntryIndexingException because 'missing_index' is not "
-                    + "an existing Lucene index.");
+            geoNamesLuceneIndexer.updateIndex(Collections.singletonList(GEO_ENTRY), true, null);
         } catch (GeoEntryIndexingException e) {
             assertThat(e.getCause(), instanceOf(IOException.class));
         }
+
     }
 }

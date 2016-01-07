@@ -1,4 +1,3 @@
-<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,15 +9,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="
-  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+/*global define, require */
 
-    <bean id="metricsPlugin" class="org.codice.ddf.platform.ui.MetricsPlugin" />
+// #Main Application
+define([
+    'backbone.marionette',
+    'bootstrap'
+], function (Marionette) {
+    'use strict';
 
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
-             ref="metricsPlugin"/>
+    var Application = {};
 
-</blueprint>
+    Application.App = new Marionette.Application();
+
+    //add regions
+    Application.App.addRegions({
+        mainRegion: 'main'
+    });
+
+    Application.App.addInitializer(function () {
+        require(['js/module']);
+    });
+
+    return Application;
+});

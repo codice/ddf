@@ -205,6 +205,11 @@ public class TestGeoNamesLuceneIndexer extends TestBase {
                             throw new GeoEntryExtractionException("Unable to add entry.", e);
                         }
                     }
+
+                    @Override
+                    public void setUrl(String url) {
+                        return;
+                    }
                 }, true, progressCallback);
 
         verify(indexWriter, times(9)).addDocument(documentArgumentCaptor.capture());

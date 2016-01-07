@@ -21,6 +21,13 @@ import java.util.List;
  * GeoNames resources.
  */
 public interface GeoEntryExtractor {
+
+    /**
+     * Sets the url
+     * @param url
+     */
+    void setUrl(String url);
+
     /**
      * Extracts GeoNames entries from a resource as {@link GeoEntry} objects, all at once, providing
      * updates about the extraction progress.

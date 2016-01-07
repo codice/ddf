@@ -16,9 +16,16 @@
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="metricsPlugin" class="org.codice.ddf.platform.ui.MetricsPlugin" />
+    <bean id="spatialPlugin" class="org.codice.ddf.spatial.admin.module.GeocodingModulePlugin"/>
 
     <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
-             ref="metricsPlugin"/>
+             ref="spatialPlugin"/>
 
+    <bean id="geocoding" class="org.codice.ddf.spatial.admin.module.service.Geocoding">
+        <property name="geoEntryIndexer" ref="geoEntryIndexer"/>
+        <property name="geoEntryExtractor" ref="geoEntryExtractor"/>
+    </bean>
+
+    <reference id="geoEntryIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer" availability="optional"/>
+    <reference id="geoEntryExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"  availability="optional"/>
 </blueprint>

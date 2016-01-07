@@ -1,4 +1,3 @@
-<!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,15 +9,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="
-  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+/*global define*/
+define([
+        'icanhaz'
+    ],
+    function (ich) {
+        "use strict";
+        var helper, helpers = {
+            is: function (value, test, options) {
+                if (value === test) {
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            }
+        };
 
-    <bean id="metricsPlugin" class="org.codice.ddf.platform.ui.MetricsPlugin" />
-
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
-             ref="metricsPlugin"/>
-
-</blueprint>
+        for (helper in helpers) {
+            if (helpers.hasOwnProperty(helper)) {
+                ich.addHelper(helper, helpers[helper]);
+            }
+        }
+});
