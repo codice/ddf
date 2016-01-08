@@ -138,10 +138,10 @@
             <ref component-id="CswResourceComparator"/>
         </jaxrs:resourceComparator>
         <jaxrs:providers>
+            <ref component-id="transactionMessageBodyReader"/>
             <ref component-id="cswJaxbElementProvider"/>
             <ref component-id="cswExceptionMapperProvider"/>
             <ref component-id="cswRecordCollectionWriter"/>
-            <ref component-id="transactionMessageBodyReader"/>
         </jaxrs:providers>
     </jaxrs:server>
 

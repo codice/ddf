@@ -20,12 +20,12 @@ import javax.validation.constraints.NotNull;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.opensaml.common.SAMLObject;
-import org.opensaml.common.SignableSAMLObject;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.metadata.IDPSSODescriptor;
-import org.opensaml.xml.XMLObject;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.LogoutRequest;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.w3c.dom.Element;
 
 public interface LogoutMessage {

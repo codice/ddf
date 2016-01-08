@@ -16,11 +16,12 @@ package org.codice.ddf.security.handler.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Base64;
+
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.opensaml.xml.util.Base64;
 
 public class BSTAuthenticationTokenTest {
 
@@ -37,11 +38,13 @@ public class BSTAuthenticationTokenTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Test
     public void testParse() throws WSSecurityException {
         // test normal case
         BaseAuthenticationToken bat = BSTAuthenticationToken.parse(TEST_STRING, false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
-                bat.getCredentials(), bat.getRealm());
+                bat.getCredentials(),
+                bat.getRealm());
         assertNotNull(mockToken);
         assertEquals(PRINCIPAL, mockToken.getPrincipal());
         assertEquals(CREDENTIALS, mockToken.getCredentials());
@@ -51,72 +54,75 @@ public class BSTAuthenticationTokenTest {
     @Test
     public void testParsePrincipal() throws WSSecurityException {
         // Empty Prinicpal
-        BaseAuthenticationToken bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_PRINCIPAL + "" + BSTAuthenticationToken.NEWLINE
-                                + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
-                                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                                + REALM, false);
+        BaseAuthenticationToken bat = BSTAuthenticationToken.parse(
+                BSTAuthenticationToken.BST_PRINCIPAL + "" + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
+                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + REALM,
+                false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
-                bat.getCredentials(), bat.getRealm());
+                bat.getCredentials(),
+                bat.getRealm());
         assertNotNull(mockToken);
         assertEquals("", mockToken.getPrincipal());
         assertEquals(CREDENTIALS, mockToken.getCredentials());
         assertEquals(REALM, mockToken.getRealm());
         // Missing Principal
         expectedException.expect(WSSecurityException.class);
-        bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                        + "realm", false);
+        bat = BSTAuthenticationToken.parse(
+                BSTAuthenticationToken.BST_CREDENTIALS + "name" + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_REALM + "realm", false);
     }
 
     @Test
     public void testParseCredentials() throws WSSecurityException {
         // Empty Credentials
-        BaseAuthenticationToken bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL
-                        + BSTAuthenticationToken.NEWLINE +
+        BaseAuthenticationToken bat = BSTAuthenticationToken.parse(
+                BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL + BSTAuthenticationToken.NEWLINE +
                         BSTAuthenticationToken.BST_CREDENTIALS + "" + BSTAuthenticationToken.NEWLINE
                         + BSTAuthenticationToken.BST_REALM + REALM, false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
-                bat.getCredentials(), bat.getRealm());
+                bat.getCredentials(),
+                bat.getRealm());
         assertNotNull(mockToken);
         assertEquals(PRINCIPAL, mockToken.getPrincipal());
         assertEquals("", mockToken.getCredentials());
         assertEquals(REALM, mockToken.getRealm());
         // Missing Credentials
         expectedException.expect(WSSecurityException.class);
-        bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                        + "realm", false);
+        bat = BSTAuthenticationToken.parse(
+                BSTAuthenticationToken.BST_CREDENTIALS + "name" + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_REALM + "realm", false);
     }
 
     @Test
     public void testParseRealm() throws WSSecurityException {
-        BaseAuthenticationToken bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_CREDENTIALS
-                        + CREDENTIALS + BSTAuthenticationToken.NEWLINE
-                        + BSTAuthenticationToken.BST_REALM, false);
+        BaseAuthenticationToken bat = BSTAuthenticationToken.parse(
+                BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
+                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM, false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
-                bat.getCredentials(), bat.getRealm());
+                bat.getCredentials(),
+                bat.getRealm());
         assertNotNull(mockToken);
         assertEquals(PRINCIPAL, mockToken.getPrincipal());
         assertEquals(CREDENTIALS, mockToken.getCredentials());
         assertEquals("", mockToken.getRealm());
 
         expectedException.expect(WSSecurityException.class);
-        bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL
-                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_CREDENTIALS
-                + CREDENTIALS + BSTAuthenticationToken.NEWLINE, false);
+        bat = BSTAuthenticationToken.parse(
+                BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
+                        + BSTAuthenticationToken.NEWLINE, false);
     }
 
     @Test
     public void testParseDecode() throws WSSecurityException {
         // make sure we unencode if necessary
-        BaseAuthenticationToken bat = BSTAuthenticationToken
-                .parse(Base64.encodeBytes(TEST_STRING.getBytes(), Base64.DONT_BREAK_LINES), true);
+        BaseAuthenticationToken bat = BSTAuthenticationToken.parse(Base64.getEncoder()
+                .encodeToString(TEST_STRING.getBytes()), true);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
-                bat.getCredentials(), bat.getRealm());
+                bat.getCredentials(),
+                bat.getRealm());
         assertNotNull(mockToken);
         assertEquals(PRINCIPAL, mockToken.getPrincipal());
         assertEquals(CREDENTIALS, mockToken.getCredentials());

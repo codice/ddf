@@ -39,9 +39,11 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.xml.XMLObject;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Document;
 
 import com.google.common.base.Charsets;
@@ -115,7 +117,8 @@ public class TestAttributeQueryClaimsHandler {
     }
 
     @BeforeClass
-    public static void init() {
+    public static void init() throws InitializationException {
+        InitializationService.initialize();
         OpenSAMLUtil.initSamlEngine();
     }
 

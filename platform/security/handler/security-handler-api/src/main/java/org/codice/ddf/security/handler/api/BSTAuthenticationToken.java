@@ -14,9 +14,9 @@
 package org.codice.ddf.security.handler.api;
 
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSConstants;
-import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,13 +90,9 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         BaseAuthenticationToken baseAuthenticationToken = null;
         org.apache.xml.security.Init.init();
 
-        String unencodedCreds = null;
-        try {
-            unencodedCreds = isEncoded ? new String(Base64.decode(stringBST), StandardCharsets.UTF_8.name()) : stringBST;
-        } catch (UnsupportedEncodingException e) {
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE,
-                    "Exception decoding specified credentials. Unable to find required components.");
-        }
+        String unencodedCreds = isEncoded ?
+                new String(Base64.getDecoder().decode(stringBST), StandardCharsets.UTF_8) :
+                stringBST;
         if (!StringUtils.isEmpty(unencodedCreds) && unencodedCreds.startsWith(BST_PRINCIPAL)) {
             String[] components = unencodedCreds.split(NEWLINE);
             if (components.length == 3) {
@@ -144,18 +139,15 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         if (LOGGER.isTraceEnabled()) {
             String[] lines = retVal.split(NEWLINE);
             if (lines.length >= 3) {
-                LOGGER.trace("Credentials String: {}\n{}\n{}", lines[0], BST_CREDENTIALS + "******",
+                LOGGER.trace("Credentials String: {}\n{}\n{}",
+                        lines[0],
+                        BST_CREDENTIALS + "******",
                         lines[2]);
             }
         }
         LOGGER.trace("Credential String: {}", retVal);
-        String encodedCreds = null;
-        try {
-            encodedCreds = Base64
-                    .encodeBytes(builder.toString().getBytes(StandardCharsets.UTF_8.name()), Base64.DONT_BREAK_LINES);
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.warn("Unable to encode credentials", e);
-        }
+        String encodedCreds = Base64.getEncoder().encodeToString(builder.toString().getBytes(
+                StandardCharsets.UTF_8));
         LOGGER.trace("BST: {}", encodedCreds);
         return encodedCreds;
     }
@@ -169,11 +161,12 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         Marshaller marshaller = null;
 
         BinarySecurityTokenType binarySecurityTokenType = createBinarySecurityTokenType(credential);
-        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
-                new QName(
+        JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement =
+                new JAXBElement<BinarySecurityTokenType>(new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType);
+                        "BinarySecurityToken"),
+                        BinarySecurityTokenType.class,
+                        binarySecurityTokenType);
 
         if (BINARY_TOKEN_CONTEXT != null) {
             try {

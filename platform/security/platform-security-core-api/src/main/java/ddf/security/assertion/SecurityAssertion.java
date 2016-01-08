@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.AuthnStatement;
-import org.opensaml.saml2.core.AuthzDecisionStatement;
+import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.opensaml.saml.saml2.core.AuthzDecisionStatement;
 
 /**
  * This class serves as a wrapper for a CXF SecurityToken

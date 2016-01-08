@@ -20,7 +20,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.impl.EntityInformation;
@@ -44,7 +44,7 @@ public interface ResponseCreator {
      * @throws WSSecurityException
      */
     Response getSamlpResponse(String relayState, AuthnRequest authnRequest,
-            org.opensaml.saml2.core.Response samlResponse, NewCookie cookie,
+            org.opensaml.saml.saml2.core.Response samlResponse, NewCookie cookie,
             String responseTemplate)
             throws IOException, SimpleSign.SignatureException, WSSecurityException;
 
@@ -65,6 +65,7 @@ public interface ResponseCreator {
         if (assertionConsumerService == null) {
             return null;
         }
-        return assertionConsumerService.getBinding().getUri();
+        return assertionConsumerService.getBinding()
+                .getUri();
     }
 }

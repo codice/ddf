@@ -2,8 +2,8 @@ package ddf.security.samlp.impl
 
 import ddf.security.samlp.MetadataConfigurationParser
 import org.apache.wss4j.common.saml.OpenSAMLUtil
-import org.opensaml.saml2.core.AuthnRequest
-import org.opensaml.saml2.metadata.EntityDescriptor
+import org.opensaml.saml.saml2.core.AuthnRequest
+import org.opensaml.saml.saml2.metadata.EntityDescriptor
 import spock.lang.Specification
 
 import java.lang.reflect.Field

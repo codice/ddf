@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,28 +26,20 @@ import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.security.common.HttpUtils;
 import org.joda.time.DateTime;
-import org.opensaml.common.SAMLVersion;
-import org.opensaml.common.SignableSAMLObject;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.validation.ValidatingXMLObject;
-import org.opensaml.xml.validation.ValidationException;
-import org.opensaml.xml.validation.Validator;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.common.SAMLVersion;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.LogoutRequest;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.xmlsec.signature.SignableXMLObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.ValidationException;
 
-/**
- * The SamlValidator class is available for validating Saml objects (such as
- * <code>LogoutRequest</code> and <code>LogoutResponse</code> objects.
- * <br/>
- * To use, simply create a new builder with <code>new SamlValidator.Builder()</code>
- * and set any necessary information.
- */
-public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
+public abstract class SamlValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SamlValidator.class);
 
     protected final Builder builder;
@@ -56,13 +48,7 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
         this.builder = builder;
     }
 
-    @Override
-    public final void validate(ValidatingXMLObject xmlObject) throws ValidationException {
-        // This is intentionally an instance equality check
-        if (xmlObject != builder.xmlObject) {
-            throw new ValidationException("Cannot validate a different target.");
-        }
-
+    public final void validate() throws ValidationException {
         checkTimestamp();
         checkSamlVersion();
         checkId();
@@ -195,7 +181,7 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
 
         /**
          * Utility method that calls the
-         * {@link #build(String, SamlProtocol.Binding, ValidatingXMLObject)} method
+         * {@link #build(String, SamlProtocol.Binding, SignableXMLObject)} method
          * and then validates the object.
          *
          * @param destination The actual endpoint that the saml object was sent to,
@@ -206,11 +192,10 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
          * @throws ValidationException
          */
         public void buildAndValidate(@NotNull String destination,
-                @NotNull SamlProtocol.Binding binding, @NotNull ValidatingXMLObject xmlObject)
+                @NotNull SamlProtocol.Binding binding, @NotNull SignableXMLObject xmlObject)
                 throws IllegalStateException, ValidationException {
-            Validator<ValidatingXMLObject> validator = build(destination, binding, xmlObject);
-            xmlObject.registerValidator(validator);
-            xmlObject.validate(false);
+            SamlValidator validator = build(destination, binding, xmlObject);
+            validator.validate();
         }
 
         /**
@@ -222,7 +207,7 @@ public abstract class SamlValidator implements Validator<ValidatingXMLObject> {
          * @throws IllegalStateException
          */
         public SamlValidator build(@NotNull String destination,
-                @NotNull SamlProtocol.Binding binding, @NotNull ValidatingXMLObject xmlObject)
+                @NotNull SamlProtocol.Binding binding, @NotNull SignableXMLObject xmlObject)
                 throws IllegalStateException, ValidationException {
             if (binding == null) {
                 throw new IllegalArgumentException("Binding cannot be null!");

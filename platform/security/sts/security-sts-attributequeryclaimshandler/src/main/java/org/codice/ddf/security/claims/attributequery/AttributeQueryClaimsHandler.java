@@ -27,9 +27,9 @@ import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,8 +182,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                     String claimValue = attribute.getDOM()
                             .getTextContent();
                     if (attributeMap.containsKey(claimValue)) {
-                        claimsCollection.add(createSingleValuedClaim(claimType,
-                                attributeMap.get(claimValue)));
+                        claimsCollection.add(createSingleValuedClaim(claimType, attributeMap.get(
+                                claimValue)));
                     } else {
                         claimsCollection.add(createSingleValuedClaim(claimType, claimValue));
                     }

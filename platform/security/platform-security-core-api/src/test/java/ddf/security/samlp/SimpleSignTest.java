@@ -44,7 +44,7 @@ import org.bouncycastle.util.io.pem.PemWriter;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensaml.xml.XMLObject;
+import org.opensaml.core.xml.XMLObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -109,8 +109,8 @@ public class SimpleSignTest {
 
         Document responseDoc = StaxUtils.read(new ByteArrayInputStream(cannedResponse.getBytes()));
         XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        org.opensaml.saml2.core.Response response =
-                (org.opensaml.saml2.core.Response) responseXmlObject;
+        org.opensaml.saml.saml2.core.Response response =
+                (org.opensaml.saml.saml2.core.Response) responseXmlObject;
         simpleSign.signSamlObject(response);
 
         Document doc = DOMUtils.createDocument();
@@ -118,7 +118,7 @@ public class SimpleSignTest {
         String responseMessage = DOM2Writer.nodeToString(requestElement);
         responseDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
         responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        response = (org.opensaml.saml2.core.Response) responseXmlObject;
+        response = (org.opensaml.saml.saml2.core.Response) responseXmlObject;
         simpleSign.validateSignature(response.getSignature(),
                 response.getDOM()
                         .getOwnerDocument());
@@ -129,8 +129,8 @@ public class SimpleSignTest {
 
         Document responseDoc = StaxUtils.read(new ByteArrayInputStream(cannedResponse.getBytes()));
         XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        org.opensaml.saml2.core.Response response =
-                (org.opensaml.saml2.core.Response) responseXmlObject;
+        org.opensaml.saml.saml2.core.Response response =
+                (org.opensaml.saml.saml2.core.Response) responseXmlObject;
         simpleSign.signSamlObject(response);
 
         Document doc = DOMUtils.createDocument();
@@ -139,7 +139,7 @@ public class SimpleSignTest {
         String responseMessage = DOM2Writer.nodeToString(requestElement);
         responseDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
         responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
-        response = (org.opensaml.saml2.core.Response) responseXmlObject;
+        response = (org.opensaml.saml.saml2.core.Response) responseXmlObject;
         simpleSign.validateSignature(response.getSignature(),
                 response.getDOM()
                         .getOwnerDocument());
@@ -154,9 +154,9 @@ public class SimpleSignTest {
         simpleSign = new SimpleSign(systemCrypto);
         String deflatedSamlResponse = deflateAndBase64Encode(cannedResponse);
 
-        String queryParams = String.format("SAMLResponse=%s&RelayState=%s",
-                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
-                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
+        String queryParams = String.format("SAMLResponse=%s&RelayState=%s", URLEncoder.encode(
+                deflatedSamlResponse,
+                "UTF-8"), URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
         String idpRequest = SINGLE_SIGN_ON_LOCATION + "?" + queryParams;
         UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
         simpleSign.signUriString(queryParams, idpUri);
@@ -170,7 +170,8 @@ public class SimpleSignTest {
 
         String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
                 SAML_RESPONSE,
-                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                URLEncoder.encode(deflatedSamlResponse,
+                        "UTF-8"),
                 RELAY_STATE,
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
                 SIG_ALG,
@@ -190,9 +191,9 @@ public class SimpleSignTest {
 
         String deflatedSamlResponse = deflateAndBase64Encode(cannedResponse);
 
-        String queryParams = String.format("SAMLResponse=%s&RelayState=%s",
-                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
-                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
+        String queryParams = String.format("SAMLResponse=%s&RelayState=%s", URLEncoder.encode(
+                deflatedSamlResponse,
+                "UTF-8"), URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
         String idpRequest = SINGLE_SIGN_ON_LOCATION + "?" + queryParams;
         UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
         simpleSign.signUriString(queryParams, idpUri);
@@ -207,7 +208,8 @@ public class SimpleSignTest {
 
         String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
                 SAML_RESPONSE,
-                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                URLEncoder.encode(deflatedSamlResponse,
+                        "UTF-8"),
                 RELAY_STATE,
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
                 SIG_ALG,

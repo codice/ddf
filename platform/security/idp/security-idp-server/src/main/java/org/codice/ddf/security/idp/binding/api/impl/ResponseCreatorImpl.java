@@ -16,7 +16,7 @@ package org.codice.ddf.security.idp.binding.api.impl;
 import java.util.Map;
 
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
-import org.opensaml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +43,10 @@ public abstract class ResponseCreatorImpl implements ResponseCreator {
 
     public String getAssertionConsumerServiceURL(AuthnRequest authnRequest) {
         LOGGER.debug("Attempting to determine AssertionConsumerServiceURL.");
-        EntityInformation.ServiceInfo assertionConsumerService = serviceProviders.get(authnRequest.getIssuer()
-                    .getValue()).getAssertionConsumerService(authnRequest, null);
+        EntityInformation.ServiceInfo assertionConsumerService =
+                serviceProviders.get(authnRequest.getIssuer()
+                        .getValue())
+                        .getAssertionConsumerService(authnRequest, null);
         if (assertionConsumerService == null) {
             throw new IllegalArgumentException(
                     "No valid AssertionConsumerServiceURL available for given AuthnRequest.");

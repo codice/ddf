@@ -35,24 +35,23 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SAMLKeyInfo;
 import org.apache.wss4j.common.saml.SAMLUtil;
 import org.apache.wss4j.dom.WSDocInfo;
-import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 import org.apache.wss4j.dom.validate.Validator;
-import org.opensaml.common.SignableSAMLObject;
-import org.opensaml.common.impl.SAMLObjectContentReference;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.security.SAMLSignatureProfileValidator;
-import org.opensaml.xml.security.x509.BasicX509Credential;
-import org.opensaml.xml.security.x509.X509KeyInfoGeneratorFactory;
-import org.opensaml.xml.signature.KeyInfo;
-import org.opensaml.xml.signature.Signature;
-import org.opensaml.xml.signature.SignatureConstants;
-import org.opensaml.xml.signature.SignatureValidator;
-import org.opensaml.xml.validation.ValidationException;
+import org.opensaml.saml.common.SAMLObjectContentReference;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
+import org.opensaml.xmlsec.signature.KeyInfo;
+import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -81,8 +80,7 @@ public class SimpleSign {
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
         signature.setSignatureAlgorithm(sigAlgo);
 
-        BasicX509Credential signingCredential = new BasicX509Credential();
-        signingCredential.setEntityCertificate(certificates[0]);
+        BasicX509Credential signingCredential = new BasicX509Credential(certificates[0]);
         signingCredential.setPrivateKey(privateKey);
 
         signature.setSigningCredential(signingCredential);
@@ -93,7 +91,7 @@ public class SimpleSign {
         try {
             KeyInfo keyInfo = x509KeyInfoGeneratorFactory.newInstance().generate(signingCredential);
             signature.setKeyInfo(keyInfo);
-        } catch (org.opensaml.xml.security.SecurityException e) {
+        } catch (org.opensaml.security.SecurityException e) {
             throw new SignatureException("Error generating KeyInfo from signing credential", e);
         }
 
@@ -105,15 +103,14 @@ public class SimpleSign {
         }
 
         samlObject.setSignature(signature);
-        SAMLObjectContentReference contentRef =
-                (SAMLObjectContentReference)signature.getContentReferences().get(0);
+        SAMLObjectContentReference contentRef = (SAMLObjectContentReference) signature
+                .getContentReferences().get(0);
         contentRef.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA1);
         samlObject.releaseDOM();
         samlObject.releaseChildrenDOM(true);
     }
 
-    public void signUriString(String queryParams, UriBuilder uriBuilder)
-            throws SignatureException {
+    public void signUriString(String queryParams, UriBuilder uriBuilder) throws SignatureException {
         X509Certificate[] certificates = getSignatureCertificates();
         String sigAlgo = getSignatureAlgorithm(certificates[0]);
         PrivateKey privateKey = getSignaturePrivateKey();
@@ -196,7 +193,9 @@ public class SimpleSign {
         }
 
         if (issuerCerts == null) {
-            throw new SignatureException("No certs were found to sign the request using name: " + crypto.getSignatureAlias());
+            throw new SignatureException(
+                    "No certs were found to sign the request using name: " + crypto
+                            .getSignatureAlias());
         }
 
         return issuerCerts;
@@ -205,8 +204,8 @@ public class SimpleSign {
     private PrivateKey getSignaturePrivateKey() throws SignatureException {
         PrivateKey privateKey;
         try {
-            privateKey = crypto.getSignatureCrypto().getPrivateKey(crypto.getSignatureAlias(),
-                    crypto.getSignaturePassword());
+            privateKey = crypto.getSignatureCrypto()
+                    .getPrivateKey(crypto.getSignatureAlias(), crypto.getSignaturePassword());
         } catch (WSSecurityException e) {
             throw new SignatureException(e);
         }
@@ -271,26 +270,25 @@ public class SimpleSign {
         }
     }
 
-    private void validateSignatureAndSamlKey(Signature signature, SAMLKeyInfo samlKeyInfo) throws SignatureException {
+    private void validateSignatureAndSamlKey(Signature signature, SAMLKeyInfo samlKeyInfo)
+            throws SignatureException {
         SAMLSignatureProfileValidator validator = new SAMLSignatureProfileValidator();
         try {
             validator.validate(signature);
-        } catch (ValidationException e) {
+        } catch (org.opensaml.xmlsec.signature.support.SignatureException e) {
             throw new SignatureException("Error validating the SAMLKey signature", e);
         }
 
-        BasicX509Credential credential = new BasicX509Credential();
+        BasicX509Credential credential = null;
         if (samlKeyInfo.getCerts() != null) {
-            credential.setEntityCertificate(samlKeyInfo.getCerts()[0]);
-        } else if (samlKeyInfo.getPublicKey() != null) {
-            credential.setPublicKey(samlKeyInfo.getPublicKey());
+            credential = new BasicX509Credential(samlKeyInfo.getCerts()[0]);
         } else {
-            throw new SignatureException("Can't get X509Certificate or PublicKey to verify signature.");
+            throw new SignatureException(
+                    "Can't get X509Certificate or PublicKey to verify signature.");
         }
-        SignatureValidator sigValidator = new SignatureValidator(credential);
         try {
-            sigValidator.validate(signature);
-        } catch (ValidationException e) {
+            SignatureValidator.validate(signature, credential);
+        } catch (org.opensaml.xmlsec.signature.support.SignatureException e) {
             throw new SignatureException("Error validating the XML signature", e);
         }
     }

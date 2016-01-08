@@ -84,8 +84,7 @@
         </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
-            <version>2.6.1</version>
+            <artifactId>opensaml-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

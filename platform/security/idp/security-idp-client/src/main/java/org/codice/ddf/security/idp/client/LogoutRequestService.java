@@ -42,10 +42,10 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.xml.validation.ValidationException;
+import org.opensaml.saml.saml2.core.LogoutRequest;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.xmlsec.signature.SignableXMLObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -57,6 +57,7 @@ import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
@@ -236,7 +237,7 @@ public class LogoutRequestService {
                 logout();
                 LogoutResponse logoutResponse =
                         logoutMessage.buildLogoutResponse(logoutRequest.getIssuer()
-                                .getValue(), StatusCode.SUCCESS_URI, logoutRequest.getID());
+                                .getValue(), StatusCode.SUCCESS, logoutRequest.getID());
 
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (WSSecurityException e) {
@@ -298,17 +299,15 @@ public class LogoutRequestService {
                     String msg = "Unable to parse logout request.";
                     return buildLogoutResponse(msg);
                 }
-                new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
-                        signature,
+                buildAndValidateSaml(deflatedSamlRequest,
+                        relayState,
                         signatureAlgorithm,
-                        deflatedSamlRequest,
-                        idpMetadata.getSigningCertificate())
-                        .buildAndValidate(request.getRequestURL()
-                                .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutRequest);
+                        signature,
+                        logoutRequest);
                 logout();
                 String entityId = getEntityId();
                 LogoutResponse logoutResponse = logoutMessage.buildLogoutResponse(entityId,
-                        StatusCode.SUCCESS_URI,
+                        StatusCode.SUCCESS,
                         logoutRequest.getID());
                 return getLogoutResponse(relayState, logoutResponse);
             } catch (IOException e) {
@@ -335,13 +334,11 @@ public class LogoutRequestService {
                     LOGGER.error(msg);
                     return buildLogoutResponse(msg);
                 }
-                new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
-                        signature,
+                buildAndValidateSaml(deflatedSamlResponse,
+                        relayState,
                         signatureAlgorithm,
-                        deflatedSamlResponse,
-                        idpMetadata.getSigningCertificate())
-                        .buildAndValidate(request.getRequestURL()
-                                .toString(), SamlProtocol.Binding.HTTP_REDIRECT, logoutResponse);
+                        signature,
+                        logoutResponse);
                 String nameId = "You";
                 String decodedValue;
                 if (relayState != null && (decodedValue = relayStates.decode(relayState)) != null) {
@@ -362,6 +359,18 @@ public class LogoutRequestService {
                 return buildLogoutResponse(msg);
             }
         }
+    }
+
+    protected void buildAndValidateSaml(String samlRequest, String relayState,
+            String signatureAlgorithm, String signature, SignableXMLObject xmlObject)
+            throws ValidationException {
+        new SamlValidator.Builder(simpleSign).setRedirectParams(relayState,
+                signature,
+                signatureAlgorithm,
+                samlRequest,
+                idpMetadata.getSigningCertificate())
+                .buildAndValidate(request.getRequestURL()
+                        .toString(), SamlProtocol.Binding.HTTP_REDIRECT, xmlObject);
     }
 
     private String getEntityId() {

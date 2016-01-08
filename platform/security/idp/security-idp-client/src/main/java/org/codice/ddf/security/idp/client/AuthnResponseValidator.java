@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,17 +13,16 @@
  */
 package org.codice.ddf.security.idp.client;
 
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.StatusCode;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.validation.ValidationException;
-import org.opensaml.xml.validation.Validator;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.ValidationException;
 
-public class AuthnResponseValidator implements Validator {
+public class AuthnResponseValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthnResponseValidator.class);
 
@@ -33,7 +32,6 @@ public class AuthnResponseValidator implements Validator {
         this.simpleSign = simpleSign;
     }
 
-    @Override
     public void validate(XMLObject xmlObject) throws ValidationException {
         if (!(xmlObject instanceof Response)) {
             throw new ValidationException("Invalid AuthN response XML.");
@@ -44,7 +42,7 @@ public class AuthnResponseValidator implements Validator {
         String status = authnResponse.getStatus()
                 .getStatusCode()
                 .getValue();
-        if (!StatusCode.SUCCESS_URI.equals(status)) {
+        if (!StatusCode.SUCCESS.equals(status)) {
             throw new ValidationException(
                     "AuthN request was unsuccessful.  Received status: " + status);
         }

@@ -88,15 +88,12 @@
             </list>
         </property>
         <property name="conditionsProvider" ref="SAMLConditionsProvider"/>
-        <property name="subjectProvider" ref="SAMLSubjectProvider"/>
     </bean>
 
     <bean id="SAMLConditionsProvider"
           class="org.apache.cxf.sts.token.provider.DefaultConditionsProvider">
         <property name="acceptClientLifetime" value="true"/>
     </bean>
-
-    <bean id="SAMLSubjectProvider" class="ddf.security.sts.SAMLSubjectProvider"/>
 
     <bean id="utDelegationHandler"
           class="org.apache.cxf.sts.token.delegation.UsernameTokenDelegationHandler"/>
@@ -201,7 +198,7 @@
         <argument value="${ddf.home}/etc/ws-security/issuer/signature.properties"/>
     </bean>
 
-    <bean id="STSProperties" class="org.apache.cxf.sts.StaticSTSProperties">
+    <bean id="STSProperties" class="ddf.security.sts.StaticStsProperties">
         <property name="signatureCryptoProperties"
                   ref="signatureProps"/>
         <property name="callbackHandler"
@@ -231,6 +228,8 @@
             <ref component-id="SubjectDNConstraintsInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:properties>
+            <entry key="ws-security.callback-handler"
+                   value="ddf.security.sts.PropertyCallbackHandler" />
             <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
             <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
             <entry key="ws-security.enableRevocation" value="true"/>

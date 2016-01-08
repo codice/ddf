@@ -17,13 +17,13 @@ import java.util.Map;
 
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.xml.validation.ValidationException;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.EntityInformation;
 
 public class PostValidator extends ValidatorImpl implements Validator {

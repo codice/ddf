@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,11 +13,10 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.util.Base64;
 
-import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +33,10 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
         this(principal, certificates, BaseAuthenticationToken.DEFAULT_REALM);
     }
 
-    public PKIAuthenticationToken(Object principal, String encodedCerts, String realm)
-            throws UnsupportedEncodingException {
-        this(principal, encodedCerts.getBytes(StandardCharsets.UTF_8.name()), realm);
-        credentials = Base64.decode(encodedCerts);
+    public PKIAuthenticationToken(Object principal, String encodedCerts, String realm) {
+        this(principal, encodedCerts.getBytes(StandardCharsets.UTF_8), realm);
+        credentials = Base64.getDecoder()
+                .decode(encodedCerts);
     }
 
     public PKIAuthenticationToken(Object principal, byte[] certificates, String realm) {
@@ -67,7 +66,8 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
     @Override
     public String getCredentials() {
         if (credentials instanceof byte[]) {
-            return Base64.encodeBytes((byte[]) credentials, Base64.DONT_BREAK_LINES);
+            return Base64.getEncoder()
+                    .encodeToString((byte[]) credentials);
         }
         return "";
     }
