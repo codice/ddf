@@ -1,6 +1,6 @@
 
-This section discusses the several extension points and components permitted by the Distributed Data Framework ({branding}) Catalog API.
-Using code examples, diagrams, and references to specific instances of the Catalog API, this guide provides details on how to develop and integrate various {branding} components.
+This section discusses the several extension points and components permitted by the Distributed Data Framework ({branding}) APIs.
+Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and integrate various {branding} components.
 
 === Building {branding}
 
@@ -202,9 +202,9 @@ More information on OSGi is available at http://www.osgi.org/.
 
 Apache Karaf is a FOSS product that includes an OSGi framework and adds extra functionality, including:
 
-Web Administration Console:: Useful for configuring bundles, installing/uninstalling features, and viewing services.
-System Console:: Provides command line administration of the OSGi container. All functionality in the Web Administration Console can also be performed via this command line console.
-Logging:: Provides centralized logging to a single log file (data/logs/ddf.log) utilizing log4j.
+Admin Console:: Useful for configuring applications, installing/uninstalling features, and viewing services such as metrics.
+System Console:: Provides command line administration of the OSGi container. All functionality in the Admin Console can also be performed via this command line console.
+Logging:: Provides centralized logging to data/log/ddf.log. Security logging is provided at data/log/security.log. Ingest error logging can be viewed in data/log/ingest_error.log.
 Provisioning:: Of libraries or applications.
 Security:: Provides a security framework based on Java Authentication and Authorization Service (JAAS).
 Deployer:: Provides hot deployment of new bundles by dropping them into the <INSTALL_DIR>/deploy directory.
@@ -395,7 +395,7 @@ Eclipse Equinox
 |OSGi Enterprise Specification
 |4.2
 |Apache Aries (Blueprint) +
-Apache Felix FileInstall and ConfigurationAdmin and Web Console (for Metatype support)
+Apache Felix FileInstall and ConfigurationAdmin
 |===
 
 [IMPORTANT]
@@ -996,6 +996,11 @@ To retrieve the subject, the token is sent through Shiro to the STS Realm where 
 If the Subject is returned, the request moves to the Authorization Filter to check permissions on the user.
 If the user has the correct permissions to access that web context, the request is allowed to hit the endpoint.
 
+[NOTE]
+====
+This diagram does not yet include the SAML 2.0 Web SSO integration.
+====
+
 ==== Encryption Service
 
 The encryption service and encryption command, which are based on http://www.jasypt.org/[Jasypt], provide an easy way for developers to add encryption capabilities to {branding}.
@@ -1069,44 +1074,20 @@ Each of these user (or subject) claims will be converted to a KeyValuePermission
 These permission objects will be implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
-==== Filter Policies
-The procedure for setting up a policy differs depending on which PDP implementation installed.
-The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
-
-. Open the https://localhost:8993/system/console/configuration.*
-. Click on the Authz Security Settings configuration.
-. Add any roles that are allowed to access protected services.
-. Add any SOAP actions that are not to be protected by the PDP.
-. Add any attribute mappings necessary to map between subject claims and metacard values.
-.. For example, the above example would require two Match All mappings of claim1=entry1 and claim2=entry2
-.. Match One mappings would contain claim3=entry3 and claim4=entry4.
-
-[NOTE]
-====
-See the Security PDP AuthZ Realm (Java PDP) section of this documentation for a description of the configuration page.
-====
-
-With the security-pdp-java feature configured in this way, the above Metacard would be displayed to the user.
-
-The XACML PDP is explained in more detail in the XACML Policy Decision Point (PDP) section of this documentation.
-It the administrator's responsibility to write a XACML policy capable of returning the correct response message.
-The Java-based PDP should perform adequately in most situations.
-It is possible to install the security-pdp-java and security-pdp-xacml features at the same time.
-The system could be configured in this way in order to allow the Java PDP to handle most cases and only have XACML policies to handle more complex situations than what the Java PDP is designed for.
-Keep in mind that this would be a very complex configuration with both PDPs installed, and this should only be performed if you understand the complex details.
-
 ==== Filter a New Type of Metacard
+
 To enable filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record.
 The plugin must set the security attribute to a map of list of values extracted from the metacard.
-Note that in {branding}, there is no default plugin that populates the security attribute on the metacard.
-A plugin must be created to populate these fields in order for filtering to work correctly.
+Note that, in {branding}, there is no default plugin that parses a metacard to populate the security attribute. There are plugins that utilize the Metacard.SECURITY attribute to control operations such as ingest, however.
+A plugin must be created to populate the security attribute field with additional details in order for filtering to work correctly for the specific metadata ingested into {branding}.
 
 ==== Security Token Service
-The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.
+
+The Security Token Service (STS) is a service running in {branding} that generates SAML v2.0 assertions.
 These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.
 
 The STS is an extension of Apache CXF-STS.
-It is a SOAP web service that utilizes WS-Security policies.
+It is a SOAP web service that utilizes WS-Trust.
 The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints.
 Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page.
 This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
@@ -1120,22 +1101,10 @@ The token issuer creates a SAML 2.0 assertion and associates it with the subject
 The STS server sends an assertion back to the requestor, which is used in both SOAP and REST cases.
 
 ===== Using the Security Token Service (STS)
-Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request.
+
+The STS can be used to generate SAML v2.0 assertions via a SOAP web service request.
 Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates.
-It also supports retrieving claims using LDAP.
-
-====== Standalone Installation
-The STS cannot currently be installed on a kernel distribution of {branding}.
-To run a STS-only {branding} installation, uninstall the catalog components that are not being used.
-The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode.
-This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
-
-.Unnecessary Features
-* catalog-core-standardframework
-* catalog-solr-embedded-provider
-* catalog-opensearch-endpoint
-* catalog-opensearch-souce
-* catalog-rest-endpoint
+It also supports retrieving claims using LDAP and properties files.
 
 ===== STS Claims Handlers
 Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
@@ -1210,9 +1179,8 @@ public interface ClaimsHandler {
 ----
 . Deploy the bundle.
 
-If the new claims handler is hitting an external service that is secured with SSL, a developer may have to add the root CA of the external site to the {branding} trustStore and add a valid certificate into the {branding} keyStore.
-Doing so will allow the SSL to encrypt messages that will be accepted by the external service.
-For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
+If the new claims handler is hitting an external service that is secured with SSL/TLS, a developer may need to add the root CA of the external site to the {branding} trustStore and add a valid certificate into the {branding} keyStore. For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
+
 
 ===== STS WS-Trust WSDL Document
 
@@ -2149,400 +2117,6 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 </soap:Envelope>
 ----
 
-==== Authz filter
-
-The Authz filter determines authentication of the subject properties by calling the policy manager.
-It then sends the subject through Shiro to a SimpleAuthZ Realm
-
-[NOTE]
-====
-The SimpleAuthz realm can be replaced by a XACML implementation of the same functionality.
-====
-
-The SimpleAuthZ realm will call the expansion service to translate any properties associated with the subject and returns a boolean value if authorization is met.
-Upon receiving the correct value, the AuthZ filter allows access to the endpoint.
-
-
-==== XACML Policy Decision Point (PDP)
-
-After unzipping the {branding} distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.
-This is the directory in which the PDP will look for XACML policies every 60 seconds.
-A sample XACML policy is located at the end of this page.
-Information on specific bundle configurations and names can be found on the Security PDP application page.
-
-===== Creating a Policy
-This document assumes familiarity with the XACML schema and does not go into detail on the XACML language.
-There are some {branding}-specific items that need to be considered, when creating a policy, to be compatible with the XACMLRealm.
-When creating a policy, a target is used to indicate that a certain action should be run only for one type of request.
-Targets can be used on both the main policy element and any individual rules.
-Generally targets are geared toward the actions that are set in the request.
-
-====== Actions
-For {branding}, these actions are populated by various components in the security API.
-The actions and their population location are identified in the following table.
-
-[cols="1,1,1,5"]
-|===
-
-|Operation
-|Action-id Value
-|Component Setting the action
-|Description
-
-|Filtering
-|filter
-|security-pdp-xacmlrealm
-|When performing any filtering, the XACMLRealm will set the action-id to "filter".
-
-|Service
-|<SOAPAction>
-|security-pep-interceptor
-|If the PEP Interceptor is added to any SOAP-based web services for service authorization, the action-id will be the SOAPAction of the incoming request. This allows the XACML policy to have specific rules for individual services within the system.
-
-|===
-
-[NOTE]
-====
-These are only the action-id values that are currently created by the components that come with {branding}.
-Additional components can be created and added to {branding} to identify specific action-ids.
-====
-
-In the examples below, the policy has specified targets for the above type of calls.
-For the filtering code, the target was set for "filter", and the Service validation code targets were geared toward two services: query and LocalSiteName.
-In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
-
-====== Attributes
-Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
-
-====== Subject
-The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category.
-The name of the claim is used for the *AttributeId* value.
-Examples of the items being populated are available at the end of this page.
-
-====== Resource
-The attributes for resources are obtained through the permissions process.
-When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject.
-These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property.
-When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category.
-
-===== Example Requests and Responses
-The following items are a sample request, response, and the corresponding policy.
-For the XACML PDP, the request is made by the XACML realm (security-pdp-xacmlrealm), passed to the XACML processing engine (security-pdp-xacmlprocessor), which reads the policy and outputs a response.
-
-====== Policy
-This is the sample policy that was used for the following sample request and responses.
-The policy was made to handle the following actions: filter, query, and LocalSiteName.
-The filter action is used to compare subject's SUBJECT_ACCESS attributes to metacard's RESOURCE_ACCESS attributes.
-The query and LocalSiteName actions differ, as they are used to perform service authorization.
-For a query, the user must be associated with the country code ATA (Antarctica), and a LocalSiteName action can be performed by anyone.
-
-.Policy
-[source,xml,linenums]
-----
-<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="xpath-target-single-req" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" Version="1.0">
-    <PolicyDefaults>
-        <XPathVersion>http://www.w3.org/TR/1999/REC-xpath-19991116</XPathVersion>
-    </PolicyDefaults>
-    <Target>
-        <AnyOf>
-            <AllOf>
-                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-                </Match>
-            </AllOf>
-            <AllOf>
-                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-                </Match>
-            </AllOf>
-            <AllOf>
-                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
-                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-                </Match>
-            </AllOf>
-        </AnyOf>
-    </Target>
-    <Rule Effect="Permit" RuleId="permit-filter">
-        <Target>
-            <AnyOf>
-                <AllOf>
-                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-                    </Match>
-                </AllOf>
-            </AnyOf>
-        </Target>
-        <Condition>
-            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
-                <AttributeDesignator AttributeId="RESOURCE_ACCESS" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-                <AttributeDesignator AttributeId="SUBJECT_ACCESS" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
-            </Apply>
-        </Condition>
-    </Rule>
-    <Rule Effect="Permit" RuleId="permit-action">
-        <Target>
-            <AnyOf>
-                <AllOf>
-                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-                        <AttributeDesignator AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-                    </Match>
-                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-                    </Match>
-                </AllOf>
-                <AllOf>
-                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
-                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
-                    </Match>
-                </AllOf>
-            </AnyOf>
-        </Target>
-    </Rule>
-    <Rule Effect="Deny" RuleId="deny-read"/>
-</Policy>
-----
-
-===== Service Authorization
-
-====== Allowed Query
-
-.Request
-[source,xml,linenums]
-----
-<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-        </Attribute>
-    </Attributes>
-</Request>
-----
-
-.Response
-[source,xml,linenums]
-----
-<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <Result>
-        <Decision>Permit</Decision>
-        <Status>
-            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-        </Status>
-    </Result>
-</Response>
-----
-
-====== Denied Query
-
-.Request
-[source,xml,linenums]
-----
-<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User USA</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
-        </Attribute>
-    </Attributes>
-</Request>
-----
-
-.Response
-[source,xml,linenums]
-----
-<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <Result>
-        <Decision>Deny</Decision>
-        <Status>
-            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-        </Status>
-    </Result>
-</Response>
-----
-
-===== Metacard Authorization
-
-====== Subject Permitted
-All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's SUBJECT_ACCESS attributes.
-
-.Request
-[source,xml,linenums]
-----
-<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
-        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-    </Attributes>
-</Request>
-----
-
-.Response
-[source,xml,linenums]
-----
-<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <Result>
-        <Decision>Deny</Decision>
-        <Status>
-            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-        </Status>
-    </Result>
-</Response>
-----
-
-====== Subject Denied
-The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject did not have.
-
-.Request
-[source,xml,linenums]
-----
-<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
-        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">C</AttributeValue>
-        </Attribute>
-    </Attributes>
-</Request>
-----
-
-.Response
-[source,xml,linenums]
-----
-<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <Result>
-        <Decision>Deny</Decision>
-        <Status>
-            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-        </Status>
-    </Result>
-</Response>
-----
-
 === Expansion Service
 The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to {branding} during user attribute and metadata card processing.
 In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
@@ -2605,134 +2179,6 @@ The examples below use the following collection of rule sets:
 |===
 
 Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
-
-==== Instances and Configuration
-It is expected that multiple instances of the expansion service will be running at the same time.
-Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service.
-The following table lists the two pre-defined instances used by {branding} for expanding user attributes and metacard attributes respectively.
-
-[cols="1,3,5" options="header"]
-|===
-|Property Name
-|Value
-|Description
-
-|mapping
-|security.user.attribute.mapping
-|This instance is configured with rules that expand the user's attribute values for security checking.
-
-|mapping
-|security.metacard.attribute.mapping
-|This instance is configured with rules that expand the metacard's security attributes before comparing with the user's attributes.
-
-|===
-
-Each instance of the expansion service can be configured using a configuration file.
-The configuration file can have three different types of lines:
-
-comments:: any line prefixed with the # character is ignored as a comment (for readability, blank lines are also ignored)
-attribute separator:: a line starting with separator= defines the attribute separator string.
-rule:: all other lines are assumed to be rules defined in a string format `<key>:<original value>:<new value>`
-
-The following configuration file defines the rules shown above in the example table (using the space as a separator):
-
-----
-# This defines the separator that will be used when the expansion string contains multiple
-# values - each will be separated by this string. The expanded string will be split at the
-# separator string and each resulting attributed added to the attribute set (duplicates are
-# suppressed). No value indicates the default value of ' ' (space).
-separator=
-
-# The following rules define the attribute expansion to be performed. The rules are of the
-# form:
-#       <attribute name>:<original value>:<expanded value>
-# The rules are ordered, so replacements from the first rules may be found in the original
-# values of subsequent rules.
-Location:Goodyear:Goodyear AZ
-Location:AZ:AZ USA
-Location:CA:CA USA
-Title:VP-Sales:VP-Sales VP Sales
-Title:VP-Engineering:VP-Engineering VP Engineering
-----
-
-==== Expansion Commands
-[cols="2,1,4" options="header"]
-|===
-
-|Title
-|Namespace
-|Description
-
-|{branding}::Security::Expansion::Commands
-|security
-|The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active rule set.
-
-|===
-
-===== Expansion Commands
-[cols="2"]
-|===
-|security:expand        |security:expansions
-|===
-
-===== Command Descriptions
-
-[cols="1,5" options="header"]
-|===
-
-|Command
-|Description
-
-|expand
-|Runs the expansion service on the provided data returning the expanded value.
-
-|expansions
-|Dumps the ruleset for each active expansion service.
-
-|===
-
-==== Expansion Command Examples and Explanation
-
-===== `security:expansions`
-The `security:expansions` command dumps the ruleset for each active expansion service.
-It takes no arguments and displays each rule on a separate line in the form: `<attribute name> : <original string> : <expanded string>`.
-The following example shows the results of executing the expansions command with no active expansion service.
-
-[source]
-----
-ddf@local>security:expansions
-No expansion services currently available.
-----
-
-After installing the expansions service and configuring it with an appropriate set of rules, the expansions command will provide output similar to the following:
-
-[source]
-----
-ddf@local>security:expansions
-Location : Goodyear : Goodyear AZ
-Location : AZ : AZ USA
-Location : CA : CA USA
-Title : VP-Sales : VP-Sales VP Sales
-Title : VP-Engineering : VP-Engineering VP Engineering
-----
-
-===== `security:expand`
-
-The security:expand command runs the expansion service on the provided data.
-It takes an attribute and an original value, expands the original value using the current expansion service and rule set and dumps the results.
-For the rule set shown above, the expand command produces the following results:
-
-[source]
-----
-ddf@local>security:expand Location Goodyear
-[Goodyear, USA, AZ]
-
-ddf@local>security:expand Title VP-Engineering
-[VP-Engineering, Engineering, VP]
-
-ddf@local>expand Title "VP-Engineering Manager"
-[VP-Engineering, Engineering, VP, Manager]
-----
 
 === Securing SOAP
 
@@ -2953,261 +2399,14 @@ The client is responsible for connecting securely with the load balancer, and th
 
 [WARNING]
 ====
-The {branding} Load Balancer cannot run on the same port as the {branding} Web Console or other web services.
+The {branding} Load Balancer cannot run on the same port as the {branding} Admin Console or other web services.
 If you would like the load balancer to run on this port, change the web console port to a different port number.
 This configuration parameter can be found in the *Pax Web Runtime configuration*.
 ====
 
-==== {branding} STOMP
-
-The {branding} STOMP application allows query subscription messages to be sent to the {branding} server via STOMP protocol.
-
-Subscription query messages are defined in JSON format following a defined schema. These messages allow for the management of subscriptions using create, time to live (TTL), update, and delete functions. Catalog queries  within the message are defined in CQL format. Results are sent to a STOMP-based topic, which can be subscribed to via a STOMP-based client. Content results will be delivered over time as the subscription query matches incoming data published to the {branding} catalog.
-
-==== STOMP
-STOMP is a streaming text-based messaging protocol that supports the delivery of messages as well as publish and subscribe.
-STOMP mimics HTTP and can utilize TCP-IP, thus making it compatible with many different programming languages.
-STOMP is very simple to implement and can easily be tested.
-For more information, refer to http://stomp.github.io/.
-
-===== Common Query Language (CQL)
-Common Query Language or CQL is a query language the the OGC has chosen for expressing data filtering.
-The power of CQL is its strong integration into GeoTools, which helps to represent complex queries as text strings.
-For more information, refer to http://docs.geotools.org/latest/userguide/library/cql/index.html
-
-==== Publish and Subscribe Query Subscription Message
-Subscriptions are stateful and will survive when the server is restarted.
-Subscription messages are specified in a JSON format.
-The schema section specifies the values that construct this message, along with the defaults.
-The sections below describe the meaning of the message values.
-
-===== Subscription Identifier (`subscriptionId`)
-The subscription identifier is a unique string that is provided by the query subscription requester.
-The preferred value should be a generated UUID.
-
-Example: “`subscriptionId” : "faf4e8493h389fh4398f3h0040`"
-
-===== Action (`action`)
-
-The action value tells the system what action should take place.
-The following actions are available:
-
-* `CREATE:` Creates a new subscription
-* `UPDATE:` Updates an existing subscription (requires subscriptionId)
-* `DELETE:` Deletes an existing subscription (requires subscritionId)
-
-Example: `"action" : "CREATE"`
-
-===== Subscription Time to Live (`subscriptionTtlType` and `subscriptionTtl`)
-
-A time to live value can be set on a subscription by providing values for the TTL type and TTL.
-The subscriptionTtlType value describes the type of TTL that will be used.
-The following values are available for `subscriptionTtlType`:
-
-* `MILLISECONDS`
-* `SECONDS`
-* `MINUTES`
-* `HOURS`
-* `MONTHS`
-* `YEARS`
-
-The subscriptionTtl value is an integer value that specifies the quantity of the subscriptionTtlType.
-For example, a value of 60 for subscriptionTtl along with a value of 'HOURS' for subscriptionTtlType tells the system that the subscription should last for 60 hours. If a value of 0, -9, or no value is set for subscriptionTtl, the time to live will be infinite.
-
-Example:   "`subscriptionTtlType`" : "`HOURS`", "`subscriptionTtl`" : 90
-
-===== Query String (`queryString`)
-The query string allows the user to specify a query that can filter targeted results.
-Query string values are specified in CQL format.
-See the CQL section for more information on using this format.
-
-Example: "`queryString`" : "`anyText LIKE 'Red Truck'`"
-
-===== Sources (sources)
-Source targets can be specified in the message.
-Sources will be passed on to all queries to retrieve the correct results from all of the correct sources.
-The sources value is an array.
-
-Example: `"sources" : [ "source1", "source2", "source3" ]`
-
-===== Creation Date and Last Modified Date (`creationDate` and `lastModifiedDate`)
-
-The creation date and last modified date are values that are written into the subscription by the system.
-The creation date specifies the date and time that the subscription was created in the system.
-The last modified date specifies the date and time of the last change to the subscription.
-The user can specify these values in the subscription message, but it will be ignored.
-
-==== {branding} STOMP Setup
-{branding} STOMP can be found at https://github.com/codice/ddf-stomp.
-When building {branding} STOMP a KAR application file is provided.
-This file can be added to the {branding} server by placing the file in the deploy folder. Once the application has been deployed it is best to restart {branding}.
-
-===== Configuration
-{branding} STOMP has a default configuration that it utilizes.
-By default, the STOMP server within {branding} STOMP runs on port 61613.
-To change this port number, modifications must be made to activemq.xml and the {branding} configuration.
-The activemq.xml file can be found in the etc/ directory of {branding}.
-Open the file and navigate to the bottom of the page.
-An entry for transportConnector reads stomp://0.0.0.0:61613.
-The port number at the end can be changed to the desired choice.
-Once chosen, save the file and exit.
-
-The second half of configuring the port number and other options can be found in the {branding} configuration web console.
-Upon selecting the Configurations tab, look for the configuration named Publish Subscribe Subscription Query Service.
-This configuration has the following options:
-
-Destination Topic Name:: The topic destination where query subscription messages are sent.
-Subscription Topic Name:: The prefix of the topic where subscription results are sent.
-STOMP Host:: The host name of the STOMP server.
-STOMP Port:: The port number of the STOMP server.
-Default Max Results:: The maximum number of results to return from a given query.
-Default Request Timeout:: The maximum time to wait before a request is timed out.
-Transformer ID:: ID that specifies the format in which results are produced (default: geojson).
-See Extending Catalog Transformers for more information.
-Once these configurations have been made, it is best to restart the {branding} server.
-
-===== Send a Subscription Message
-Subscription messages can be sent to the system using a STOMP-based client.
-STOMP is a standardized publish subscribe messaging protocol that utilizes the HTTP protocol for sending data.
-Connections to the system are asynchronous.
-For more information, refer to the section on STOMP.
-To connect the STOMP client to the system, the following information is typically required: STOMP server host, STOMP port, user name, password, and topic name.
-The username, password, port, and topic name can be found in the publish subscribe query subscriptions configuration.
-Refer to the Configuration section for more information.
-
-The Gozirra STOMP client (http://www.germane-software.com/software/Java/Gozirra/) and the Fuse Source STOMP client (https://github.com/fusesource/stompjms) have both been used successfully to test functionality.
-
-===== Subscribe or Results
-
-A STOMP-based client can be used to retrieve results from a query subscription.
-STOMP is a standardized publish subscribe messaging protocol that utilizes the HTTP protocol for receiving data.
-Connections to the system are asynchronous.
-For more information, refer to the section on STOMP.
-To connect the STOMP client to the system, the following information is typically required: STOMP server host, STOMP port, user name, password, and topic name.
-The username, password, port, and topic name can be found in the publish subscribe query subscriptions configuration.
-Refer to the Configuration section for more information.
-The topic name for subscription results, which is found in the configuration, is a partial name.
-The end of the topic name will include the subscription id.
-For example, if the partial topic name was “/topic/result/”, and the subscription ID for the subscription was “faf4e8493h389fh4398f3h0040”, the actual topic name that would be subscribed to is: “/topic/result/faf4e8493h389fh4398f3h0040”.
-This is the full topic name that would be used with your STOMP client to retrieve results.
-
-The Gozirra STOMP client (http://www.germane-software.com/software/Java/Gozirra/) and the Fuse Source STOMP client (https://github.com/fusesource/stompjms) have both been used sucessfully to test functionality.
-
-===== Returned Messages
-Return messages will be delivered back to a subscribing STOMP client.
-All delivered messages are returned in GeoJSON format.
-When a subscription is first submitted, an initial query is executed on existing data in the catalog.
-All results based on this query are immediately returned to the subscribing STOMP client via the defined topic.
-As content is added to the catalog (when these items match the query in the subscription), the content items are immediately returned to the subscribing STOMP client via the defined topic.
-
-Examples
-
-Create a new subscription that will last for 90 hours and searches for any text that is matching red car:
-
-[source,javascript,linenums]
-----
-{
-  "subscriptionId" : "faf4e8493h389fh4398f3h0060",
-  "action" : "CREATE",
-  "subscriptionTtlType" : "HOURS",
-  "subscriptionTtl" : 90,
-  "queryString" : "anyText LIKE 'red car'"
-}
-----
-
-Update a previous subscription to last for three months instead of 90 hours:
-[source,javascript,linenums]
-----
-{
-  "subscriptionId" : "faf4e8493h389fh4398f3h0060",
-  "action" : "UPDATE",
-  "subscriptionTtlType" : "MONTHS",
-  "subscriptionTtl" : 3,
-  "queryString" : "anyText LIKE 'red car'"
-}
-----
-
-Delete the previous subscription:
-[source,javascript,linenums]
-----
-{
-  "subscriptionId" : "faf4e8493h389fh4398f3h0060",
-  "action" : "DELETE"
-}
-----
-
-==== Architecture
-The API is set up to utilize STOMP as the protocol for receiving subscription management messages.
-External third party applications will utilize STOMP to send commands for subscription management and delivery.
-
-===== Subscription Message Schema
-The messages sent over STOMP will be in JSON format.
-The messages used for subscription management utilize the following schema:
-
-[source,javascript,linenums]
-----
-{
-"type":"object",
-"$schema": "http://json-schema.org/draft-03/schema",
-"id": "http://jsonschema.net",
-"required":false,
-"properties":{
-"queryString": {
-"type":"string",
-"id": "http://jsonschema.net/searchPhrase",
-"required":true
-},
-"sources": {
-"type":"array",
-"id": "http://jsonschema.net/sources",
-"required":false,
-"items":
-{
-"type":"string",
-"id": "http://jsonschema.net/sources/0",
-"required":false
-}
-},
-
-"subscriptionId": {
-"type":"string",
-"id": "http://jsonschema.net/subscriptionId",
-"required":true
-},
-"action": {
-"type":"string",
-"id": "http://jsonschema.net/subscriptionId",
-"required":true
-},
-"subscriptionTtl": {
-"type":"number",
-"id": "http://jsonschema.net/subscriptionId",
-"required":false
-},
-"subscriptionTtlType": {
-"type":"number",
-"id": "http://jsonschema.net/subscriptionId",
-"required":false
-},
-"creationDate": {
-"type":"number",
-"id": "http://jsonschema.net/subscriptionId",
-"required":false
-},
-"lastModifiedDate": {
-"type":"number",
-"id": "http://jsonschema.net/subscriptionId",
-"required":false
-},
- }
-}
-----
-
-
-
 === Developing {branding} Applications
 The {branding} applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles.
-These features can be installed/uninstalled using the Web Console or command line console.
+These features can be installed/uninstalled using the Admin Console or command line console.
 {branding} applications also consist of one or more OSGi bundles and, possibly, supplemental external files.
 These applications are packaged as Karaf KAR files for easy download and installation.
 These applications can be stored on a file system or a Maven repository.
@@ -3217,7 +2416,7 @@ It is a jar file that contains a feature descriptor file and one or more OSGi bu
 The feature descriptor file identifies the application's name, the set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
 
 ==== Creating a KAR File
-The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal (available as of Karaf v2.2.5, which {branding} 2.X is based upon).
+The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal.
 This goal reads all of the features specified in the features descriptor file.
 For each feature in this file, it resolves the bundles defined in the feature.
 All bundles are then packaged into the KAR archive.
@@ -3282,6 +2481,12 @@ Sub-directories under src/main/resources can be used, e.g., etc/security.
 
 ==== Installing a KAR File
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
-This KAR file should be placed in the `<DDF_INSTALL_DIR>/deploy` directory of the running {branding} instance. {branding} then detects that a file with a .kar file extension has been placed in this monitored directory, unzips the KAR file into the `<DDF_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
-The user can then go to the Web Console's Features tab and verify the new feature(s) is installed.
+To install manually, the KAR file can be placed in the `<DDF_INSTALL_DIR>/deploy` directory of the running {branding} instance. {branding} then detects that a file with a .kar file extension has been placed in this monitored directory, unzips the KAR file into the `<DDF_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
+To install via the Admin Console:
+. Navigate to https://localhost:8993/admin
+. Click the *Manage* button in the upper right
+. Click the *Add an Application* tile
+. Upload the KAR file via the popup window
+. Click *Save Changes* to activate
+The new application can be viewed via the Admin Console's Active Applications list.
 

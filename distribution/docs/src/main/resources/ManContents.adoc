@@ -91,7 +91,7 @@ init 6
 
 [IMPORTANT]
 ====
-The Administration Web Console is not compatible with Internet Explorer.
+The Admin Console is not compatible with Internet Explorer 9.
 ====
 
 ==== Installation Procedures
@@ -606,8 +606,8 @@ NOTE: This *DOES* change the port the system runs on.
 |Trust Store
 |trustStore
 |String
-|The trust store used for outgoing SSL connections. Path is relative to ddf.home.
-|etc/keystores/clientTruststore.jks
+|The trust store used for SSL/TLS connections. Path is relative to ddf.home.
+|etc/keystores/serverTruststore.jks
 |yes
 
 |Trust Store Password
@@ -620,8 +620,8 @@ NOTE: This *DOES* change the port the system runs on.
 |Key Store
 |keyStore
 |String
-|The key store used for outgoing SSL connections. Path is relative to karaf.home.
-|etc/keystores/clientKeystore.jks
+|The key store used for SSL/TLS connections. Path is relative to karaf.home.
+|etc/keystores/serverKeystore.jks
 |yes
 
 |Key Store Password
@@ -685,7 +685,7 @@ Features may have dependencies on other features and will auto-install them as n
 
 ====== Uninstall Features
 
-. Open the admin console.
+. Open the Admin Console.
 .. `https://localhost:8993/admin`
 .. Enter Username and Password.
 . Select the appropriate application.
@@ -694,12 +694,16 @@ Features may have dependencies on other features and will auto-install them as n
 
 ====== Add Feature Repositories
 
-. Open the web administration console.
-.. `https://localhost:8993/system/console`
+. Open the Admin Console.
+.. `https://localhost:8993/admin`
 .. Enter Username and Password
-. Select the Features tab.
-. Enter the URL of the feature repository (see below) to be added.
+. Select the *Manage* button in the upper right.
+. Select the Add an Application tile
+. Upload a new .kar, .jar, or enter the URL of the feature repository (see below) to be added.
+. Select the Maven URL tab
+. Enter a valid URL for the feature repository
 . Select the *Add URL* button.
+. Select the *Save Changes* button.
 . The new feature repository is added to the list of *Feature Repositories* above the URL field.
 
 There are several ways a new feature repository can be discovered based on the URL entered:
@@ -713,19 +717,6 @@ Repositories to be searched by {branding} can be configured in one of several wa
 * Set the org.ops4j.pax.url.mvn.settings property in the `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.url.mvn.cfg` file to the maven `settings.xml` file that specifies the repository(ies) to be searched. A `settings.xml` template file for this configuration is provided in `<DDF_INSTALL_DIR>/etc/templates/settings.xml`
 * Create a maven `settings.xml` file in the `<USER_HOME_DIR>/.m2` directory of the user running DDF that specifies the repository(ies) to be searched (this method is typical for a developer).
 * The simplest approach is to specify the fully qualified URL to the feature repository.
-
-===== Known Issues
-
-====== Blank Web Console
-{branding} uses Pax Web as part of its HTTP support. Modifying the Pax Web runtime configuration in the web console may cause the web console to freeze.
-
-====== Solution
-Use the configuration instructions according to the hardening instructions.
-Additional Information
-For more information on the Web Console refer to http://felix.apache.org/site/apache-felix-web-console.html
-
-===== Additional Information
-For more information on the Web Console refer to http://felix.apache.org/site/apache-felix-web-console.html
 
 ==== Configuring {branding} Using the System Console
 Follow these steps to configure {branding} using the system console.
@@ -823,7 +814,7 @@ Since certain bundles can only be configured using the new `.config` file format
 ==== HTTP Port Configuration
 [IMPORTANT]
 ====
-Do not use the Web Administration Console to change the HTTP port. While the Web Administration Console's Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
+Do not use the Admin Console to change the HTTP port. While the Admin Console's Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
 ====
 
 ====== Multiple Local {branding} Nodes
@@ -852,22 +843,22 @@ Edit the port numbers in the files in the {branding} install folder. The line nu
 |44444
 |i.e. 44445
 
-|etc/org.ops4j.pax.web.cfg
-|9
+|etc/system.properties
+|37
+|8993
+|i.e. 8994
+
+|" "
+|38
 |8181
 |i.e. 8281
 
 |" "
-|22
+|39
 |8993
 |i.e. 8994
 
 |===
-
-[WARNING]
-====
-Be sure to note the port number that replaced 8181 then enter that number in the Web Console under the Configuration tab for the *Platform Global Configuration → {branding} Port* entry. Also edit the sitename so that there are no duplicates on your local machine.
-====
 
 [WARNING]
 ====
@@ -1004,32 +995,30 @@ requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identi
 whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
 
-// isn't this gone?
-////
 ==== Enable and Configure HTTP to HTTPS Proxy
 
 What it does: This feature proxies http to https.
 
-When to use: Use this feature when you have legacy clients that can’t use HTTPS.
+When to use: Use this feature when you have legacy clients that can’t use HTTPS and you do not want HTTP enabled for the entire container via the etc/org.ops4j.pax.web.cfg file.
 
 
 ===== How to install this feature using the DDF terminal:
-	Note: If DDF has not been installed, use the “How to install this feature using the AdminUI” guide found below
+	Note: If DDF has not been installed, use the “How to install this feature using the Admin Console” guide found below
 
 1.) Launch the DDF application.
 
 2.) In the DDF console, type the command “features:install platform-http-proxy”
 
-===== How to install this feature using the AdminUI:
+===== How to install this feature using the Admin Console:
 
 
 1.) Navigate your browser to https://localhost:8993/admin/index.html. The admin console appears.
 
-1.a) If this is not a new install, skip to step 9
+1.a) If this is not a new install, skip to step 11
 
-2.) At the admin console, click on “Start” to begin the setup process. The general settings page will appear.
+2.) At the admin console, click on “Start” to begin the setup process. The guest attributes page will appear.
 
-3.) Configure the general settings by entering in values for the “Protocol”, “Host”, “Port”, “Site Name”, and “Organization.” Descriptions for these settings can be found on the “Configure general settings” page.
+3.) Configure the guest attributes with any attributes that you want *EVERY* user to have.
 
 4.) Click “Next” and the “Setup Types” page appears.
 
@@ -1037,19 +1026,23 @@ When to use: Use this feature when you have legacy clients that can’t use HTTP
 
 6.) [Optional] Click “Customize” and a window appears allowing you to customize which features will be included in your installation.
 
-7.) Click “Next” and the installation begins
+7.) Click “Next” and the application installation begins
 
-8.) Once the installation is finished, click “Finish” to conclude the setup and the page will refresh.
+8.) Configure the system configuration settings by entering in values for the “Host”, “HTTP Port”, “HTTPS Port”, “Site Name”, “Site Contact”, "Version", and “Organization.” Descriptions for these settings can be found on the “System configuration settings” page. If the hostname is changed from localhost, a trust/key store must be provided with the correct certificates.
 
-9.) On the left hand side of the screen, select the “Applications” tab.
+9.) Click “Next” and the system installation begins. If the hostname or ports were changed, you will be redirected to the location of the Admin Console
 
-10.) Under “Active Applications” choose the “>” arrow under “DDF Platform”. This will bring up the configuration page for the DDF Platform application. This arrow is shown here circled in red:
+10.) Once the installation is finished, click “Finish” to conclude the setup and the page will refresh.
+
+11) On the left hand side of the screen, select the “Applications” tab.
+
+12.) Under “Active Applications” click the “DDF Platform” application tile. This will bring up the configuration page for the DDF Platform application. This arrow is shown here circled in red:
 
 image::platform_circled.png[Platform Circled]
 
-11.) Under the “DDF Platform” heading, choose the “Features” tab. The features tab shows us all the features we can install to the currently selected app.
+13.) Under the “DDF Platform” heading, choose the “Features” tab. The features tab shows us all the features we can install to the currently selected app.
 
-12.) Scroll through the list of features and find “platform-http-proxy.” The feature will be listed as “Uninstalled” click on the arrow button to the right of the word “Uninstalled” in order to install the platform-http-proxy. This arrow button is shown here circled in red:
+14.) Scroll through the list of features and find “platform-http-proxy.” The feature will be listed as “Uninstalled” click on the *Play* button to the right of the word “Uninstalled” in order to install the platform-http-proxy. This *Play* button is shown here circled in red:
 
 image::proxy_install_circled.png[Proxy Install Button Circled]
 
@@ -1061,7 +1054,7 @@ Note: The hostname should be set by default. Only configure the proxy if this is
 
 2.) On the left hand side of the screen, select the “Applications” tab.
 
-3.) Under “Active Applications” choose the “>” arrow under “DDF Platform”. This will bring up the configuration page for the DDF Platform application. This arrow is shown here circled in red:
+3.) Under “Active Applications” click the “DDF Platform” application tile. This will bring up the configuration page for the DDF Platform application. This arrow is shown here circled in red:
 
 image::platform_circled.png[Platform Circled]
 
@@ -1073,7 +1066,6 @@ image::platform_circled.png[Platform Circled]
 
 7.) Click “Save changes” to save the Hostname.
 
-////
 ===== Enable SSL for Clients
 
 In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties. These values are configured in the <{branding}_INSTALL_DIR>/etc/system.properties file. The following values can be set:
@@ -1123,7 +1115,7 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 ==== Configuring {branding} with New Certificates
 {branding} ships with a default security certificate configured to identify the {branding} instance machine as "localhost."
 This allows the {branding} distribution to be unzipped and run immediately in a secure manner.
-If the installer was used to install the {branding} and a hostname other than 'localhost' was given, a new cert for the hostname was generated and added to the keystore.
+If the installer was used to install the {branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
 If the hostname was left as 'localhost' or the hostname was changed after installation, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificate that uses the fully qualified hostname of the server running the {branding} instance.
 
 ==== Important Terms
@@ -1137,7 +1129,7 @@ If the hostname was left as 'localhost' or the hostname was changed after instal
 
 |{branding}_HOME
 |The path to the unzipped {branding} distribution
-|/opt/ddf/ddf-2.6.0
+|/opt/ddf/ddf-2.9.0
 
 |alias
 |The nickname given to a certificate within a keystore to make it easily identifiable.
@@ -1241,22 +1233,12 @@ See IETF RFC 5246 for more information.
 By default Solr, STS server, STS client and the rest of the services use the system property 'org.codice.ddf.system.hostname' which is defaulted to 'localhost' and not to the fully qualified domain name of the {branding} instance.
 Assuming the {branding} instance is providing these servcies, the configuration must be updated to use the {branding} instance's *fully qualified domain name* as the service provider.
 
-This can be done by editing the system.properties in <INSTALL_DIRECTORY>/etc/
-
-[IMPORTANT]
-====
-The process of changing the configuration can cause users to loose access to the {branding} instance via the Web.
-This includes losing access to the *Admin UI* (https://localhost:8993/admin) and the *Felix console* (https://localhost:8993/system/console).
-Without access to these bundles, it is not possible to configure the {branding} instance through a Web browser.
-====
-
-[TIP]
-====
-Even if Web access is lost, the {branding} instance can still be configured using the {branding} command line console.
-====
+This can be done by editing the system.properties in <INSTALL_DIRECTORY>/etc/ or during the installer at https://localhost:8993/admin
 
 . Start the {branding} instance, if it is not already running.
 . Go to https://localhost:8993/admin and step through the installer setting the hostname to the instance's FQDN and the port to correct value.
+.. If the hostname is changed during the install to something other than `localhost` a new keystore and truststore must be provided
+.. When changing the hostname for testing or development purposes, the installer can be started with a ?dev=true URL query parameter. This will cause the system to automatically generate self signed certificates for any hostname that is entered during the install process.
 
 ===== Configure Files in HOME Directory Hierarchy
 
@@ -1267,11 +1249,11 @@ Changing these values without also changing the passwords of the JKS causes unde
 ====
 * In `<DDF_HOME>/etc/user.properties`, modify the line:
 ----
-localhost=localhost,group,admin,manager,viewer,webconsole
+localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
 ----
 To be:
 ----
-<FQDN>=<PASSWORD>,group,admin,manager,viewer,webconsole
+<FQDN>=<PASSWORD>,group,admin,manager,viewer,webconsole,system-admin
 ----
 
 * Next ,configure `<DDF_HOME>/etc/system.properties`
@@ -1284,6 +1266,19 @@ javax.net.ssl.keyStorePassword=<NewPassword>
 javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
 javax.net.ssl.trustStorePassword=<NewPassword>
 javax.net.ssl.keyStoreType=jks
+
+# Set the global url properties
+org.codice.ddf.system.protocol=https://
+org.codice.ddf.system.hostname=<FQDN>
+org.codice.ddf.system.httpsPort=8993
+org.codice.ddf.system.httpPort=8181
+org.codice.ddf.system.port=8993
+org.codice.ddf.system.rootContext=/services
+
+# HTTPS Specific settings. If making a Secure Connection not leveraging the HTTPS Java libraries and
+# classes (e.g. if you are using secure sockets directly) then you will have to set this directly
+https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
+https.protocols=TLSv1.1,TLSv1.2
 ----
 
 ===== Creating and Installing Keys and Certificates
@@ -1292,14 +1287,14 @@ To create a private key and certificate signed by the Demo Certificate Authority
 To use the scripts, run them out of the <DDF_HOME>/etc/certs directory. For *NIX, use the CertNew.sh script.
 
 ----
-sh CertNew.sh my.server.com
+sh CertNew.sh <FQDN>
 ----
 
 The above command creates a new entry in the keystore for a server named my.server.com.
 To create and install the certificates on Windows, use the CertNew.cmd file in the same directory.
 
 ----
-CertNew my.server.com
+CertNew <FQDN>
 ----
 
 To install a certificate signed by a different Certificate Authority, see <<Import into a Java Keystore (JKS)>>.
@@ -1325,49 +1320,13 @@ If the command responds with an error message such as unknown host, then modify 
 
 ====
 
-==== Configuring WSS Security
-
-* Add system console to whitelisted contexts.
-** `https://localhost:8993/admin`
-*** Select {branding} Security.
-*** Select *Configuration* tab.
-*** Select the *Web Context Policy Manager*.
-*** Add `/system/console` to the Whitelisted Contexts
-
-
 [NOTE]
 ====
 By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled. To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
 
 Enable Backup Plugin: true
 
-Assumes hostname of 'ddf'
 ====
-
-* Configure Catalog External Solr Catalog Provider
-** Change the HTTP URL to: `https://ddf:8993/solr`
-* Configure Persistent Store
-** Solr URL: `https://ddf:8993/solr`
-* Configure Catalog Federation Strategy
-** Change Solr URL to: `https://ddf:8993/solr`
-* Configure Security STS Client
-** Change the STS WSDL Address to: `https://ddf:8993/services/SecurityTokenService?wsdl`
-* Configure Security STS Server
-** SAML Assertion Lifetime: `86400`
-** Change Token Issuer to: `ddf`
-** Change Signature Username to: `ddf`
-** Change Encryption Username to: `ddf`
-* Configure Security STS LDAP Login
-** `features:install security-sts-ldaplogin`
-** LDAP URL: `ldaps://ddf:1636`
-** SSL Keystore Alias: `ddf`
-** Configure Platform Global Configuration
-** Protocol: `https`
-** Host: `ddf`
-** Port: `8993`
-* Configure the Web Context Policy Manager
-** In White Listed Contexts, add /sso
-* Configuring the Embedded LDAP
 
 [IMPORTANT]
 ====
@@ -1378,65 +1337,15 @@ The Embedded LDAP has hard-coded values for the keystore path, truststore path, 
 A workaround is to modify `config.ldif` as seen in the steps below and hot deploy `opendj-embedded-app-<version>.kar.`
 ====
 
-** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`.  This needs to be modified to password.
+** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`.  This needs to be modified.
 *** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
 *** `ds-cfg-key-store-type: JKS`
 *** `ds-cfg-key-store-pin: password`
 *** `cn: JKS`
-** The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified to password.
+** The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
 *** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 *** `ds-cfg-trust-store-pin: password`
 *** `cn: JKS`
-** If using the default keystores and certificates, start the `opendj-embedded
-app:start opendj-embedded`
-** Shutdown {branding}
-*** `<ddf-home>/bin/shutdown -f`
-** Add the newly created keystore and truststore
-*** put the newly created `serverKeystore.jks` in `<ddf-home>/etc/keystores`
-*** put the newly created `serverTruststore.jks` in `<ddf-home>/etc/keystores`
-** Configure system properties
-*** In `<ddf-home>/etc/system.properties`, modify the keystore and truststore paths and passwords as appropriate.
-
-.system.properties
-[source]
-----
-#START DDF SETTINGS
-# Set the keystore and truststore Java properties
-javax.net.ssl.keyStore=etc/keystores/serverKeystore.jks
-javax.net.ssl.keyStorePassword=password
-javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
-javax.net.ssl.trustStorePassword=password
-javax.net.ssl.keyStoreType=jks
-
-# Set the global url properties
-org.codice.ddf.system.protocol=https://
-org.codice.ddf.system.hostname=ddf
-org.codice.ddf.system.httpsPort=8993
-org.codice.ddf.system.httpPort=8181
-org.codice.ddf.system.port=8993
-org.codice.ddf.system.rootContext=/services
-
-# HTTPS Specific settings. If making a Secure Connection not leveraging the HTTPS Jaav libraries and
-# classes (e.g. if you are using secure sockets directly) then you will have to set this directly
-https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
-https.protocols=TLSv1,TLSv1.1,TLSv1.2
-----
-
-* Configure users properties
-** In `<ddf-home>/etc/users.properties`, change `localhost=localhost,admin` to `ddf=ddf,admin`
-
-* Start ddf
-** For Windows, run `<ddf-home>/bin/ddf.bat`
-** For *Nix, run `<ddf-home>/bin/ddf`
-** Admin Console: `https://ddf:8993/admin`
-** Search UI: https://ddf:8993/search
-
-* Remove system/console from whitelist
-** `https://localhost:8993/admin`
-*** Select {branding} Security.
-*** Select *Configuration* tab.
-*** Select the *Web Context Policy Manager*.
-*** Remove `/system/console` from the Whitelisted Contexts
 
 ==== Configuring DDF to use an LDAP server
 
@@ -1502,7 +1411,7 @@ An essential part to the {branding} Clustering solution is the ability to manage
 The goal of the {branding} Cluster solution is to keep applications and configurations synchronized on every {branding} server. When setting up a {branding} server, it is recommended that only one server is setup per machine (virtual or non-virtual). This means that for each physical machine or virtual machine (VM) that is setup, only one instance of the {branding} is deployed on it. This configuration provides the least complexity in configuration of the {branding} Cluster and allows the {branding} server itself to utilize the resources of the entire system. It is also recommended that all {branding} servers and systems be configured the same. This means that all {branding} server platforms have the same configurations and applications running initially. Also, ensure that all physical and virtual systems running the {branding} servers have the same configuration (e.g., operating system, memory, CPU, etc.).
 
 ====== Start and Configure New {branding} Server Node Clusters
-Before starting your {branding} cluster nodes, you must first setup your node network configurations. See the Configuring {branding} Clustering For Multicast & Unicast section for more information. To view all of the available nodes, navigate in your browser to the {branding} Admin Console (https://localhost:8993/admin) and click on the tab labeled “Clustered Groups”. Under the group “default”, you should see all running {branding} nodes that have been clustered. It is also possible to move all instances into a named group. In order to perform this action, you must have access to one of the {branding} command line shells directly or utilize Gogo located at https://localhost:8993/system/console/gogo.
+Before starting your {branding} cluster nodes, you must first setup your node network configurations. See the Configuring {branding} Clustering For Multicast & Unicast section for more information. To view all of the available nodes, navigate in your browser to the {branding} Admin Console (https://localhost:8993/admin) and click on the tab labeled “Clustered Groups”. Under the group “default”, you should see all running {branding} nodes that have been clustered. It is also possible to move all instances into a named group. In order to perform this action, you must have access to one of the {branding} command line shells directly.
 
 [source,bash]
 ----
@@ -1567,14 +1476,13 @@ Once you have setup the new node, you can follow the instructions above to add t
 Application management within the cluster has been designed to function as if you were only managing one instance of {branding}.
 All {branding} applications are handled at the feature level.
 Therefore, the Features section of the Admin Console can be used to manage all applications within the {branding} Cluster.
-The Features section of the Web Console can be accessed by navigating to \https://localhost:8993/system/console/features/features in a web browser.
+The Features section of the Admin Console can be accessed by navigating to \https://localhost:8993/admin in a web browser.
+From here you can select the System tab on the left and then the Features tab at the top to see a list of every feature available on the system.
 Credentials may be required (username and password) to access the console.
 
-From the Features console, the following functions are available:
+From the System -> Features page, the following functions are available:
 
 * Provide a listing of the available features and repositories in the cluster
-* Add new repositories to the cluster
-* Remove existing repositories from the cluster
 * Install features from repositories into the cluster
 * Uninstall or remove features from the cluster
 
@@ -1582,16 +1490,18 @@ From the Features console, the following functions are available:
 
 Just as with Application Management, managing configurations within a cluster was designed to function as if you were configuring one instance of {branding}.
 There are two areas where {branding} configurations can be modified.
-Most modifications will occur within the Configurations section of the Web Console.
-The Web Console can be accessed by navigating to https://localhost:8993/system/console in a web browser.
+Most modifications will occur within the Configurations section of the Admin Console.
+The Admin Console can be accessed by navigating to https://localhost:8993/admin in a web browser.
 Credentials may be required (username and password) to access the console.
 
-From the Configuration console, the following features are available:
+From the Applications tab, the following features are available:
 
-* Provide a listing of the available configurations
-* Edit configuration values in the cluster
-* Unbind the configuration from the bundle
-* Remove the configuration from the cluster
+* Provide a listing of the installed applications
+* Install applications
+* Uninstall applications
+* Add new applications
+* Upgrade existing applications
+* Edit configurations for applications
 
 For more information on using the console, refer to the {branding} User's Guide.
 
@@ -1695,7 +1605,7 @@ In most cases, the {branding} system console should provide you with a listing o
 There are times when the cluster can become out of sync.
 This instance may occur if a system has been offline for some time.
 One way to verify the synchronized lists of the cluster is to run cluster commands from the command line.
-In order to perform these actions, you must have access to one of the {branding} command line shells directly or through the use of http://localhost:8993/system/console/gogo[Gogo].
+In order to perform these actions, you must have access to one of the {branding} command line shells directly.
 Once at the command line, execute the following command to see the list of deployed features for your cluster:
 
 [source,bash]
@@ -1797,36 +1707,6 @@ from 7: req=192.168.1.110:5701 time=2 ms
 
 The output will provide you with a typical ping result showing connectivity and response times.
 
-==== Configuring Catalog Provider
-This scenario describes how to reconfigure {branding} to use a different catalog provider.
-This scenario assumes {branding} is already running.
-
-.Use of the Dummy Catalog Provider
-[NOTE]
-====
-This scenario uses the Dummy Catalog Provider as the catalog provider {branding} is being reconfigured to use.
-This is because the Dummy Catalog Provider is the only other catalog provider shipped with {branding} out of the box.
-The Dummy Catalog Provider should never be used in a production environment.
-It is only used for testing purposes.
-====
-
-===== Reconfigure
-
-. Uninstall a Catalog Provider (if installed) by completing the procedure in the Uninstalling Features section.
-. Install the new Catalog Provider by installing its feature `ddf-provider-dummy` by completing the instructions in the Installing Features section.
-. Verify {branding} is running with the Dummy Provider as its Catalog Provider.
-.. Select the Services tab in the Web Console.
-.. Locate the column labeled Bundle on the right.
-If {branding} is running with the Dummy Provider, there is an entry labeled ddf.providers.provider-dummy, as shown below.
-
-.New catalog provider Dummy Provider installed
-[source,bash]
-----
-Id      Type(s)                                              Bundle
-325     [ddf.catalog.source.CatalogProvider]                 ddf.providers.provider-dummy (175)
-          osgi.service.blueprint.compname DummyProvider
-----
-
 ==== Configuring Notifications
 
 Notifications are messages that are sent to clients to inform them of some significant event happening in {branding}.
@@ -1834,7 +1714,7 @@ Clients must subscribe to a {branding} notification channel to receive these mes
 
 ===== Usage
 {branding} notifications are currently being utilized in the {branding} Catalog application for resource retrieval.
-When a user initiates a resource retrieval via the {branding} Standard UI, {branding} opens the channel `/ddf/notification/catalog/downloads`, where notifications indicating the progress of that resource download are sent.
+When a user initiates a resource retrieval via the {branding} Standard Search UI, {branding} opens the channel `/ddf/notification/catalog/downloads`, where notifications indicating the progress of that resource download are sent.
 Any client interested in receiving these progress notifications must subscribe to that channel.
 When {branding} starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.
 If the resource download fails, a notification with a status of "Failed" will be broadcast.
@@ -1842,7 +1722,7 @@ Or, if the resource download is being attempted again after a failure, "Retry" w
 
 When a notification is received, {branding} Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.
 
-Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.
+Behind the scenes, the {branding} Standard Search UI invokes the REST endpoint to retrieve a resource.
 In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.
 This allows the CometD server to know which subscriber is interested in the notification.
 For example, \http://{branding}_HOST:8993/services/catalog/sources/ddf.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
@@ -1951,7 +1831,7 @@ org.codice.ddf.system.version=${project.version}          #this instances versio
 org.codice.ddf.system.organization=${organization.name}   #who owns/runs this instance
 ----
 
-The above properties (along with any other system properties) are available to be used as variable parameters in input url fields within the admin UI. For example if you wanted to enter the url for the csw service you could write
+The above properties (along with any other system properties) are available to be used as variable parameters in input url fields within the Admin Console. For example if you wanted to enter the url for the local csw service you could write
 ----
 ${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
 ----
@@ -1966,24 +1846,6 @@ The variable version is longer but will not need to be changed if the system hos
 
 === Managing Web Service Security
 
-==== Configuring WSS
-
-* Add system console to whitelisted contexts
-** `https://localhost:8993/admin`
-*** Navigate to the DDF Security
-*** Navigate to Web Context Policy Manager
-*** Add /system/console to the Whitelisted Contexts
-
-
-[NOTE]
-====
-By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled. To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
-
-Enable Backup Plugin: true
-
-Assumes a hostname of 'ddf'
-====
-
 [IMPORTANT]
 ====
 {branding} is enabled with an Insecure Defaults Service which will warn users/admins if the system is configured with insecure defaults.
@@ -1991,94 +1853,6 @@ Assumes a hostname of 'ddf'
 A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use."
 
 A detailed view is available of the properties to update.
-====
-
-* Configure Catalog External Solr Catalog Provider
-** Change the HTTP URL to: `https://ddf:8993/solr`
-* Configure Persistent Store
-** Solr URL: `https://ddf:8993/solr`
-* Configure Catalog Federation Strategy
-** Change Solr URL to: `https://ddf:8993/solr`
-* Configure Security STS Client
-** Change the STS WSDL Address to: `https://ddf:8993/services/SecurityTokenService?wsdl`
-* Configure Security STS Server
-** SAML Assertion Lifetime: `86400`
-** Change Token Issuer to: `ddf`
-** Change Signature Username to: `ddf`
-** Change Encryption Username to: `ddf`
-* Configure Security STS LDAP Login
-** `features:install security-sts-ldaplogin`
-** LDAP URL: `ldaps://ddf:1636`
-** SSL Keystore Alias: `ddf`
-** Configure Platform Global Configuration
-** Protocol: `https`
-** Host: `ddf`
-** Port: `8993`
-* Configure the Web Context Policy Manager
-** In White Listed Contexts, add /sso
-* Install and Configure the Embedded LDAP
-
-[IMPORTANT]
-====
-The Embedded LDAP is not recommended for production use. It is only recommended to be used for development purposes or extremely small server loads.
-
-The Embedded LDAP has hard-coded values for the keystore path, truststore path, keystore password, and truststore password (`https://github.com/codice/opendj-osgi/blob/d5021cbac4db831467ceb109ffd7ffd2c734dcd4/embedded/opendj-embedded-server/src/main/resources/config/config.ldif`). So if you are using a non-default keystore and non-default truststore the Embedded LDAP will not work. You will see errors in `<ddf-home>/etc/org.codice.opendj/ldap/logs/errors` similar to the one below:
-
-`21/Jan/2015:08:58:57 -0700] category=CORE severity=NOTICE msgID=458891 msg=The Directory Server has sent an alert notification generated by class org.opends.server.protocols.ldap.LDAPConnectionHandler (alert type org.opends.server.LDAPHandlerDisabledByConsecutiveFailures, alert ID 2425016):  The LDAP connection handler defined in configuration entry cn=LDAP Connection Handler,cn=Connection Handlers,cn=config has experienced consecutive failures while trying to accept client connections:  An error occurred while attempting to initialize the SSL context for use in the LDAP Connection Handler:  An error occurred while trying to load the keystore contents from file ../../keystores/serverKeystore.jks:  IOException(Keystore was tampered with, or password was incorrect) (id=1310782) (LDAPConnectionHandler.java:1324 LDAPConnectionHandler.java:1255 LDAPConnectionHandler.java:1091 LDAPConnectionHandler.java:974).  This connection handler will be disabled`
-
-A workaround is to modify `config.ldif` as seen in the steps below and hot deploy `opendj-embedded-app-<version>.kar.`
-====
-
-** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`.  This needs to be modified to password.
-*** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
-*** `ds-cfg-key-store-type: JKS`
-*** `ds-cfg-key-store-pin: password`
-*** `cn: JKS`
-** The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified to password.
-*** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
-*** `ds-cfg-trust-store-pin: password`
-*** `cn: JKS`
-** If using the default keystores and certificates, start the `opendj-embedded
-app:start opendj-embedded`
-** Shutdown {branding}
-*** `<ddf-home>/bin/shutdown -f`
-** Add the newly created keystore and truststore
-*** put the newly created `serverKeystore.jks` in `<ddf-home>/etc/keystores`
-*** put the newly created `serverTruststore.jks` in `<ddf-home>/etc/keystores`
-** Configure system properties
-*** In `<ddf-home>/etc/system.properties`, modify the keystore and truststore paths and passwords as appropriate.
-
-.system.properties
-[source]
-----
-#START DDF SETTINGS
-# Set the keystore and truststore Java properties
-javax.net.ssl.keyStore=etc/keystores/serverKeystore.jks
-javax.net.ssl.keyStorePassword=password
-javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
-javax.net.ssl.trustStorePassword=password
-javax.net.ssl.keyStoreType=jks
-
-# HTTPS Specific settings.  If making a Secure Connection not leveraging the HTTPS Java libraries and
-# classes (e.g. if you are using secure sockets directly) then you will have to set this directly
-https.cipherSuites=TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA
-https.protocols=TLSv1,TLSv1.1,TLSv1.2
-----
-
-* Configure users properties
-** In `<ddf-home>/etc/users.properties`, change `localhost=localhost,admin` to `ddf=ddf,admin`
-
-* Start ddf
-** For Windows, run `<ddf-home>/bin/ddf.bat`
-** For *Nix, run `<ddf-home>/bin/ddf`
-** Admin Console: `https://ddf:8993/admin`
-** Search UI: https://ddf:8993/search
-
-* Remove system/console from whitelist
-** `https://localhost:8993/admin`
-*** Navigate to DDF Security
-*** Navigate to the Web Context Policy Manager
-*** Remove `/system/console` from the Whitelisted Contexts
 
 ===== Auditing
 
@@ -2087,7 +1861,7 @@ https.protocols=TLSv1,TLSv1.1,TLSv1.2
 The Audit Log default location is DISTRIBUTION_HOME/data/log/security.log
 ====
 
-===== CAS (SSO) Authentication
+===== CAS Authentication
 
 [NOTE]
 ====
@@ -2782,7 +2556,7 @@ This page details general management operations of using certificates in {brandi
 [cols="5" options="header"]
 |===
 
-|Alias
+|Host
 |Keystore
 |Truststore
 |Configuration Location
@@ -2791,7 +2565,7 @@ This page details general management operations of using certificates in {brandi
 |localhost
 |serverKeystore.jks
 |serverTruststore.jks
-|File: etc/org.ops4j.pax.web.cfg
+|File: etc/system.properties
 
 File: etc/ws-security/server/encryption.properties
 
@@ -2843,10 +2617,10 @@ The following steps define the procedure for signing a certificate for the token
 ----
 cat client.crt >> client.key
 openssl pkcs12 -export -in client.key -out client.p12
-keytool -importkeystore -srckeystore client.p12 -destkeystore clientKeystore.jks -srcstoretype pkcs12 -alias 1
-keytool -changealias -alias 1 -destalias client -keystore clientKeystore.jks
-keytool -importcert -file ca.crt -keystore clientKeystore.jks -alias "ca"
-keytool -importcert -file ca-root.crt -keystore clientKeystore.jks -alias "ca-root"
+keytool -importkeystore -srckeystore client.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
+keytool -changealias -alias 1 -destalias client -keystore serverKeystore.jks
+keytool -importcert -file ca.crt -keystore serverKeystore.jks -alias "ca"
+keytool -importcert -file ca-root.crt -keystore serverKeystore.jks -alias "ca-root"
 ----
 +
 .  Create the truststore using just the CA certificate. Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
@@ -3099,22 +2873,22 @@ Each of these user (or subject) claims will be converted to a KeyValuePermission
 These permission objects will be implied against the permission object generated from the metacard record.
 In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
 
-===== Redaction Policies
+===== Filter Policies
 
 The procedure for setting up a policy differs depending on which PDP implementation installed.
 The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
 
-. Open the https://localhost:8993/system/console/configuration.*
-. Click on the Authz Security Settings configuration.
-. Add any roles that are allowed to access protected services.
-. Add any SOAP actions that are not to be protected by the PDP.
+. Open the Admin Console at https://localhost:8993/admin
+. Click the {branding} Security application tile
+. Click the *Configuration* tab
+. Click on the Security Simple AuthZ Realm configuration.
 . Add any attribute mappings necessary to map between subject claims and metacard values.
 .. For example, the above example would require two Match All mappings of claim1=entry1 and claim2=entry2
 .. Match One mappings would contain claim3=entry3 and claim4=entry4.
 
 [NOTE]
 ====
-See the Security PDP AuthZ Realm section of this documentation for a description of the configuration page.
+See the Security PDP Java Realm section of this documentation for a description of the configuration page.
 ====
 
 With the security-pdp-java feature configured in this way, the above Metacard would be displayed to the user.
@@ -3126,68 +2900,7 @@ It is possible to install the security-pdp-java and security-pdp-xacml features 
 The system could be configured in this way in order to allow the Java PDP to handle most cases and only have XACML policies to handle more complex situations than what the Java PDP is designed for.
 Keep in mind that this would be a very complex configuration with both PDPs installed, and this should only be performed if you understand the complex details.
 
-===== Redact a New Type of Metacard
-
-To enable redaction/filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record.
-The plugin must set the security attribute to a map of list of values extracted from the metacard.
-Note that, in {branding}, there is no default plugin that populates the security attribute on the metacard.
-A plugin must be created to populate these fields in order for redaction/filtering to work correctly.
-
-Example redacted record:
-[source,xml,linenums]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns2:id="99f494b22f4341e9a3ba3ef6a5fe8734">
-    <type>ddf.metacard</type>
-    <source>ddf.distribution</source>
-    <stringxml name="metadata">
-        <value>
-            <meta:Resource xmlns:meta="...">
-                <meta:identifier meta:qualifier="http://metadata/noaccess" meta:value="REDACTED"/>
-                <meta:title>REDACTED</meta:title>
-                <meta:creator>
-                    <meta:Organization>
-                        <meta:name>REDACTED</meta:name>
-                    </meta:Organization>
-                </meta:creator>
-                <meta:subjectCoverage>
-                    <meta:Subject>
-                        <meta:category meta:label="REDACTED"/>
-                    </meta:Subject>
-                </meta:subjectCoverage>
-                <meta:security SEC:controls="A B" SEC:group="X" SEC:origin="USA"/>
-            </meta:Resource>
-        </value>
-    </stringxml>
-    <string name="resource-uri">
-        <value>catalog://metadata/noaccess</value>
-    </string>
-    <string name="title">
-        <value>REDACTED</value>
-    </string>
-    <string name="resource-size">
-        <value>REDACTED</value>
-    </string>
-</metacard>
-----
-
-==== Security Token Service
-The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.
-These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.
-
-The STS is an extension of Apache CXF-STS.
-It is a SOAP web service that utilizes WS-Security policies.
-The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints.
-Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page.
-This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
-
-===== Using the Security Token Service (STS)
-
-Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request.
-Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates.
-It also supports retrieving claims using LDAP.
-
-===== Standalone Installation
+===== Standalone Security Token Service (STS) Installation
 
 The STS cannot currently be installed on a kernel distribution of {branding}.
 To run a STS-only {branding} installation, uninstall the catalog components that are not being used.
@@ -3208,1007 +2921,10 @@ An example in action would be the LDAPClaimsHandler that takes in the user's cre
 These attributes are then mapped and added to the SAML assertion being created.
 Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
 
-////
-Move to extending
-
-====== Add a Custom Claims Handler
-
 ====== Description
 
 A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
-
-====== Motivation
-
-A developer may want to add a custom claims handler to retrieve attributes from an external attribute store.
-
-====== Steps
-The following steps define the procedure for adding a custom claims handler to the STS.
-
-. The new claims handler must implement the org.apache.cxf.sts.claims.ClaimsHander interface.
-+
-[source,java,linenums]
-----
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
-package org.apache.cxf.sts.claims;
-
-import java.net.URI;
-import java.util.List;
-
-/**
- * This interface provides a pluggable way to handle Claims.
- */
-public interface ClaimsHandler {
-
-    List<URI> getSupportedClaimTypes();
-
-    ClaimCollection retrieveClaimValues(RequestClaimCollection claims, ClaimsParameters parameters);
-
-}
-----
-+
-.  Expose the new claims handler as an OSGi service under the `org.apache.cxf.sts.claims.ClaimsHandler` interface.
-+
-[source,xml,linenums]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-
-    <bean id="CustomClaimsHandler" class="security.sts.claimsHandler.CustomClaimsHandler" />
-
-    <service ref="customClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
-
-</blueprint>
-----
-. Deploy the bundle.
-
-If the new claims handler is hitting an external service that is secured with SSL, a developer may have to add the root CA of the external site to the {branding} trustStore and add a valid certificate into the {branding} keyStore. Doing so will allow the SSL to encrypt messages that will be accepted by the external service. For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
-
-==== STS WS-Trust WSDL Document
-
-[NOTE]
-====
-This XML file is found inside of the STS bundle and is named ws-trust-1.4-service.wsdl.
-====
-
-[source,xml,linenums]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:tns="http://docs.oasis-open.org/ws-sx/ws-trust/200512/" xmlns:wstrust="http://docs.oasis-open.org/ws-sx/ws-trust/200512/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsap10="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" targetNamespace="http://docs.oasis-open.org/ws-sx/ws-trust/200512/">
-    <wsdl:types>
-        <xs:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-            <xs:element name="RequestSecurityToken" type="wst:AbstractRequestSecurityTokenType"/>
-            <xs:element name="RequestSecurityTokenResponse" type="wst:AbstractRequestSecurityTokenType"/>
-            <xs:complexType name="AbstractRequestSecurityTokenType">
-                <xs:sequence>
-                    <xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-                <xs:attribute name="Context" type="xs:anyURI" use="optional"/>
-                <xs:anyAttribute namespace="##other" processContents="lax"/>
-            </xs:complexType>
-            <xs:element name="RequestSecurityTokenCollection" type="wst:RequestSecurityTokenCollectionType"/>
-            <xs:complexType name="RequestSecurityTokenCollectionType">
-                <xs:sequence>
-                    <xs:element name="RequestSecurityToken" type="wst:AbstractRequestSecurityTokenType" minOccurs="2" maxOccurs="unbounded"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="RequestSecurityTokenResponseCollection" type="wst:RequestSecurityTokenResponseCollectionType"/>
-            <xs:complexType name="RequestSecurityTokenResponseCollectionType">
-                <xs:sequence>
-                    <xs:element ref="wst:RequestSecurityTokenResponse" minOccurs="1" maxOccurs="unbounded"/>
-                </xs:sequence>
-                <xs:anyAttribute namespace="##other" processContents="lax"/>
-            </xs:complexType>
-        </xs:schema>
-    </wsdl:types>
-    <!-- WS-Trust defines the following GEDs -->
-    <wsdl:message name="RequestSecurityTokenMsg">
-        <wsdl:part name="request" element="wst:RequestSecurityToken"/>
-    </wsdl:message>
-    <wsdl:message name="RequestSecurityTokenResponseMsg">
-        <wsdl:part name="response" element="wst:RequestSecurityTokenResponse"/>
-    </wsdl:message>
-    <wsdl:message name="RequestSecurityTokenCollectionMsg">
-        <wsdl:part name="requestCollection" element="wst:RequestSecurityTokenCollection"/>
-    </wsdl:message>
-    <wsdl:message name="RequestSecurityTokenResponseCollectionMsg">
-        <wsdl:part name="responseCollection" element="wst:RequestSecurityTokenResponseCollection"/>
-    </wsdl:message>
-    <!-- This portType an example of a Requestor (or other) endpoint that
-         Accepts SOAP-based challenges from a Security Token Service -->
-    <wsdl:portType name="WSSecurityRequestor">
-        <wsdl:operation name="Challenge">
-            <wsdl:input message="tns:RequestSecurityTokenResponseMsg"/>
-            <wsdl:output message="tns:RequestSecurityTokenResponseMsg"/>
-        </wsdl:operation>
-    </wsdl:portType>
-    <!-- This portType is an example of an STS supporting full protocol -->
-    <wsdl:portType name="STS">
-        <wsdl:operation name="Cancel">
-            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Cancel" message="tns:RequestSecurityTokenMsg"/>
-            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/CancelFinal" message="tns:RequestSecurityTokenResponseMsg"/>
-        </wsdl:operation>
-        <wsdl:operation name="Issue">
-            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" message="tns:RequestSecurityTokenMsg"/>
-            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal" message="tns:RequestSecurityTokenResponseCollectionMsg"/>
-        </wsdl:operation>
-        <wsdl:operation name="Renew">
-            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Renew" message="tns:RequestSecurityTokenMsg"/>
-            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/RenewFinal" message="tns:RequestSecurityTokenResponseMsg"/>
-        </wsdl:operation>
-        <wsdl:operation name="Validate">
-            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate" message="tns:RequestSecurityTokenMsg"/>
-            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/ValidateFinal" message="tns:RequestSecurityTokenResponseMsg"/>
-        </wsdl:operation>
-        <wsdl:operation name="KeyExchangeToken">
-            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/KET" message="tns:RequestSecurityTokenMsg"/>
-            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/KETFinal" message="tns:RequestSecurityTokenResponseMsg"/>
-        </wsdl:operation>
-        <wsdl:operation name="RequestCollection">
-            <wsdl:input message="tns:RequestSecurityTokenCollectionMsg"/>
-            <wsdl:output message="tns:RequestSecurityTokenResponseCollectionMsg"/>
-        </wsdl:operation>
-    </wsdl:portType>
-    <!-- This portType is an example of an endpoint that accepts
-         Unsolicited RequestSecurityTokenResponse messages -->
-    <wsdl:portType name="SecurityTokenResponseService">
-        <wsdl:operation name="RequestSecurityTokenResponse">
-            <wsdl:input message="tns:RequestSecurityTokenResponseMsg"/>
-        </wsdl:operation>
-    </wsdl:portType>
-    <wsdl:binding name="STS_Binding" type="wstrust:STS">
-        <wsp:PolicyReference URI="#STS_policy"/>
-        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-        <wsdl:operation name="Issue">
-            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="Validate">
-            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="Cancel">
-            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Cancel"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="Renew">
-            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Renew"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="KeyExchangeToken">
-            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/KeyExchangeToken"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="RequestCollection">
-            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/RequestCollection"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-    </wsdl:binding>
-    <wsp:Policy wsu:Id="STS_policy">
-        <wsp:ExactlyOne>
-            <wsp:All>
-                <wsap10:UsingAddressing/>
-                <wsp:ExactlyOne>
-                    <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                        <wsp:Policy>
-                            <sp:TransportToken>
-                                <wsp:Policy>
-                                    <sp:HttpsToken>
-                                        <wsp:Policy/>
-                                    </sp:HttpsToken>
-                                </wsp:Policy>
-                            </sp:TransportToken>
-                            <sp:AlgorithmSuite>
-                                <wsp:Policy>
-                                    <sp:Basic128/>
-                                </wsp:Policy>
-                            </sp:AlgorithmSuite>
-                            <sp:Layout>
-                                <wsp:Policy>
-                                    <sp:Lax/>
-                                </wsp:Policy>
-                            </sp:Layout>
-                            <sp:IncludeTimestamp/>
-                        </wsp:Policy>
-                    </sp:TransportBinding>
-                </wsp:ExactlyOne>
-                <sp:Wss11 xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                    <wsp:Policy>
-                        <sp:MustSupportRefKeyIdentifier/>
-                        <sp:MustSupportRefIssuerSerial/>
-                        <sp:MustSupportRefThumbprint/>
-                        <sp:MustSupportRefEncryptedKey/>
-                    </wsp:Policy>
-                </sp:Wss11>
-                <sp:Trust13 xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                    <wsp:Policy>
-                        <sp:MustSupportIssuedTokens/>
-                        <sp:RequireClientEntropy/>
-                        <sp:RequireServerEntropy/>
-                    </wsp:Policy>
-                </sp:Trust13>
-            </wsp:All>
-        </wsp:ExactlyOne>
-    </wsp:Policy>
-    <wsp:Policy wsu:Id="Input_policy">
-        <wsp:ExactlyOne>
-            <wsp:All>
-                <sp:SignedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                    <sp:Body/>
-                    <sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="From" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="FaultTo" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="ReplyTo" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="MessageID" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="RelatesTo" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing"/>
-                </sp:SignedParts>
-                <sp:EncryptedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                    <sp:Body/>
-                </sp:EncryptedParts>
-            </wsp:All>
-        </wsp:ExactlyOne>
-    </wsp:Policy>
-    <wsp:Policy wsu:Id="Output_policy">
-        <wsp:ExactlyOne>
-            <wsp:All>
-                <sp:SignedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                    <sp:Body/>
-                    <sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="From" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="FaultTo" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="ReplyTo" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="MessageID" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="RelatesTo" Namespace="http://www.w3.org/2005/08/addressing"/>
-                    <sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing"/>
-                </sp:SignedParts>
-                <sp:EncryptedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
-                    <sp:Body/>
-                </sp:EncryptedParts>
-            </wsp:All>
-        </wsp:ExactlyOne>
-    </wsp:Policy>
-    <wsdl:service name="SecurityTokenService">
-        <wsdl:port name="STS_Port" binding="tns:STS_Binding">
-            <soap:address location="https://localhost:8993/services/SecurityTokenService"/>
-        </wsdl:port>
-    </wsdl:service>
-</wsdl:definitions>
-----
-end move
-////
-
-==== Example Request and Responses for a SAML Assertion
-
-A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion. The {branding} STS offers several different ways to request a SAML assertion. For help in understanding the various request and response formats, samples have been provided. The samples are divided out into different request token types.
-
-Most endpoints that have been used in {branding} require the X.509 PublicKey SAML assertion.
-
-==== BinarySecurityToken (CAS) SAML Security Token Request/Response
-
-===== BinarySecurityToken (CAS) Sample Request/Response
-
-====== Request
-
-.Sample Request
-[source,xml,linenums]
-----
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Header>
-        <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</Action>
-        <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:60652909-faca-4e4a-a4a7-8a5ce243a7cb</MessageID>
-        <To xmlns="http://www.w3.org/2005/08/addressing">https://server:8993/services/SecurityTokenService</To>
-        <ReplyTo xmlns="http://www.w3.org/2005/08/addressing">
-            <Address>http://www.w3.org/2005/08/addressing/anonymous</Address>
-        </ReplyTo>
-        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
-            <wsu:Timestamp wsu:Id="TS-1">
-                <wsu:Created>2013-04-29T18:35:10.688Z</wsu:Created>
-                <wsu:Expires>2013-04-29T18:40:10.688Z</wsu:Expires>
-            </wsu:Timestamp>
-        </wsse:Security>
-    </soap:Header>
-    <soap:Body>
-        <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-            <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
-            <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
-                <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-                    <wsa:Address>https://server:8993/services/SecurityTokenService</wsa:Address>
-                </wsa:EndpointReference>
-            </wsp:AppliesTo>
-            <wst:Claims xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity">
-                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
-                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
-                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"/>
-                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"/>
-                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
-            </wst:Claims>
-            <wst:OnBehalfOf>
-                <BinarySecurityToken ValueType="#CAS" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ns1:Id="CAS" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">U1QtMTQtYUtmcDYxcFRtS0FxZG1pVDMzOWMtY2FzfGh0dHBzOi8vdG9rZW5pc3N1ZXI6ODk5My9zZXJ2aWNlcy9TZWN1cml0eVRva2VuU2VydmljZQ==</BinarySecurityToken>
-            </wst:OnBehalfOf>
-            <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
-            <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
-            <wst:UseKey>
-                <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-                    <ds:X509Data>
-                        <ds:X509Certificate>
-MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ
-MA4GA1UECAwHQXJpem9uYTERMA8GA1UEBwwIR29vZHllYXIxGDAWBgNVBAoMD0xvY2toZWVkIE1h
-cnRpbjENMAsGA1UECwwESTRDRTEPMA0GA1UEAwwGY2xpZW50MRwwGgYJKoZIhvcNAQkBFg1pNGNl
-QGxtY28uY29tMB4XDTEyMDYyMDE5NDMwOVoXDTIyMDYxODE5NDMwOVowgYoxCzAJBgNVBAYTAlVT
-MRAwDgYDVQQIDAdBcml6b25hMREwDwYDVQQHDAhHb29keWVhcjEYMBYGA1UECgwPTG9ja2hlZWQg
-TWFydGluMQ0wCwYDVQQLDARJNENFMQ8wDQYDVQQDDAZjbGllbnQxHDAaBgkqhkiG9w0BCQEWDWk0
-Y2VAbG1jby5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIpHxCBLYE7xfDLcITS9SsPG
-4Q04Z6S32/+TriGsRgpGTj/7GuMG7oJ98m6Ws5cTYl7nyunyHTkZuP7rBzy4esDIHheyx18EgdSJ
-vvACgGVCnEmHndkf9bWUlAOfNaxW+vZwljUkRUVdkhPbPdPwOcMdKg/SsLSNjZfsQIjoWd4rAgMB
-AAGjUDBOMB0GA1UdDgQWBBQx11VLtYXLvFGpFdHnhlNW9+lxBDAfBgNVHSMEGDAWgBQx11VLtYXL
-vFGpFdHnhlNW9+lxBDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHYs2OI0K6yVXzyS
-sKcv2fmfw6XCICGTnyA7BOdAjYoqq6wD+33dHJUCFDqye7AWdcivuc7RWJt9jnlfJZKIm2BHcDTR
-Hhk6CvjJ14Gf40WQdeMHoX8U8b0diq7Iy5Ravx+zRg7SdiyJUqFYjRh/O5tywXRT1+freI3bwAN0
-L6tQ
-</ds:X509Certificate>
-                    </ds:X509Data>
-                </ds:KeyInfo>
-            </wst:UseKey>
-            <wst:Renewing/>
-        </wst:RequestSecurityToken>
-    </soap:Body>
-</soap:Envelope>
-----
-
-====== Response
-
-.Sample Response
-[source,xml,linenums]
-----
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Header>
-        <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal</Action>
-        <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:7a6fde04-9013-41ef-b08b-0689ffa9c93e</MessageID>
-        <To xmlns="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</To>
-        <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:60652909-faca-4e4a-a4a7-8a5ce243a7cb</RelatesTo>
-        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
-            <wsu:Timestamp wsu:Id="TS-2">
-                <wsu:Created>2013-04-29T18:35:11.459Z</wsu:Created>
-                <wsu:Expires>2013-04-29T18:40:11.459Z</wsu:Expires>
-            </wsu:Timestamp>
-        </wsse:Security>
-    </soap:Header>
-    <soap:Body>
-        <RequestSecurityTokenResponseCollection xmlns="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:ns2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns3="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns:ns5="http://docs.oasis-open.org/ws-sx/ws-trust/200802">
-            <RequestSecurityTokenResponse>
-                <TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</TokenType>
-                <RequestedSecurityToken>
-                    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_BDC44EB8593F47D1B213672605113671" IssueInstant="2013-04-29T18:35:11.370Z" Version="2.0" xsi:type="saml2:AssertionType">
-                        <saml2:Issuer>tokenissuer</saml2:Issuer>
-                        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-                            <ds:SignedInfo>
-                                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-                                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
-                                <ds:Reference URI="#_BDC44EB8593F47D1B213672605113671">
-                                    <ds:Transforms>
-                                        <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
-                                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
-                                            <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs"/>
-                                        </ds:Transform>
-                                    </ds:Transforms>
-                                    <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-                                    <ds:DigestValue>6wnWbft6Pz5XOF5Q9AG59gcGwLY=</ds:DigestValue>
-                                </ds:Reference>
-                            </ds:SignedInfo>
-                            <ds:SignatureValue>h+NvkgXGdQtca3/eKebhAKgG38tHp3i2n5uLLy8xXXIg02qyKgEP0FCowp2LiYlsQU9YjKfSwCUbH3WR6jhbAv9zj29CE+ePfEny7MeXvgNl3wId+vcHqti/DGGhhgtO2Mbx/tyX1BhHQUwKRlcHajxHeecwmvV7D85NMdV48tI=</ds:SignatureValue>
-                            <ds:KeyInfo>
-                                <ds:X509Data>
-                                    <ds:X509Certificate>MIIDmjCCAwOgAwIBAgIBBDANBgkqhkiG9w0BAQQFADB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMH
-QXJpem9uYTERMA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4
-YW1wbGUxEDAOBgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBMB4XDTEzMDQwOTE4MzcxMVoXDTIz
-MDQwNzE4MzcxMVowgaYxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQHEwhH
-b29keWVhcjEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UECxMHRXhh
-bXBsZTEUMBIGA1UEAxMLdG9rZW5pc3N1ZXIxJjAkBgkqhkiG9w0BCQEWF3Rva2VuaXNzdWVyQGV4
-YW1wbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDfktpA8Lrp9rTfRibKdgtxtN9
-uB44diiIqq3JOzDGfDhGLu6mjpuHO1hrKItv42hBOhhmH7lS9ipiaQCIpVfgIG63MB7fa5dBrfGF
-G69vFrU1Lfi7IvsVVsNrtAEQljOMmw9sxS3SUsRQX+bD8jq7Uj1hpoF7DdqpV8Kb0COOGwIDAQAB
-o4IBBjCCAQIwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2Vy
-dGlmaWNhdGUwHQYDVR0OBBYEFD1mHviop2Tc4HaNu8yPXR6GqWP1MIGnBgNVHSMEgZ8wgZyAFBcn
-en6/j05DzaVwORwrteKc7TZOoXmkdzB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMHQXJpem9uYTER
-MA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4YW1wbGUxEDAO
-BgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBggkAwXk7OcwO7gwwDQYJKoZIhvcNAQEEBQADgYEA
-PiTX5kYXwdhmijutSkrObKpRbQkvkkzcyZlO6VrAxRQ+eFeN6NyuyhgYy5K6l/sIWdaGou5iJOQx
-2pQYWx1v8Klyl0W22IfEAXYv/epiO89hpdACryuDJpioXI/X8TAwvRwLKL21Dk3k2b+eyCgA0O++
-HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
-                                </ds:X509Data>
-                            </ds:KeyInfo>
-                        </ds:Signature>
-                        <saml2:Subject>
-                            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">srogers</saml2:NameID>
-                            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
-                                <saml2:SubjectConfirmationData xsi:type="saml2:KeyInfoConfirmationDataType">
-                                    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-                                        <ds:X509Data>
-                                            <ds:X509Certificate>MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ
-MA4GA1UECAwHQXJpem9uYTERMA8GA1UEBwwIR29vZHllYXIxGDAWBgNVBAoMD0xvY2toZWVkIE1h
-cnRpbjENMAsGA1UECwwESTRDRTEPMA0GA1UEAwwGY2xpZW50MRwwGgYJKoZIhvcNAQkBFg1pNGNl
-QGxtY28uY29tMB4XDTEyMDYyMDE5NDMwOVoXDTIyMDYxODE5NDMwOVowgYoxCzAJBgNVBAYTAlVT
-MRAwDgYDVQQIDAdBcml6b25hMREwDwYDVQQHDAhHb29keWVhcjEYMBYGA1UECgwPTG9ja2hlZWQg
-TWFydGluMQ0wCwYDVQQLDARJNENFMQ8wDQYDVQQDDAZjbGllbnQxHDAaBgkqhkiG9w0BCQEWDWk0
-Y2VAbG1jby5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIpHxCBLYE7xfDLcITS9SsPG
-4Q04Z6S32/+TriGsRgpGTj/7GuMG7oJ98m6Ws5cTYl7nyunyHTkZuP7rBzy4esDIHheyx18EgdSJ
-vvACgGVCnEmHndkf9bWUlAOfNaxW+vZwljUkRUVdkhPbPdPwOcMdKg/SsLSNjZfsQIjoWd4rAgMB
-AAGjUDBOMB0GA1UdDgQWBBQx11VLtYXLvFGpFdHnhlNW9+lxBDAfBgNVHSMEGDAWgBQx11VLtYXL
-vFGpFdHnhlNW9+lxBDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHYs2OI0K6yVXzyS
-sKcv2fmfw6XCICGTnyA7BOdAjYoqq6wD+33dHJUCFDqye7AWdcivuc7RWJt9jnlfJZKIm2BHcDTR
-Hhk6CvjJ14Gf40WQdeMHoX8U8b0diq7Iy5Ravx+zRg7SdiyJUqFYjRh/O5tywXRT1+freI3bwAN0
-L6tQ</ds:X509Certificate>
-                                        </ds:X509Data>
-                                    </ds:KeyInfo>
-                                </saml2:SubjectConfirmationData>
-                            </saml2:SubjectConfirmation>
-                        </saml2:Subject>
-                        <saml2:Conditions NotBefore="2013-04-29T18:35:11.407Z" NotOnOrAfter="2013-04-29T19:05:11.407Z">
-                            <saml2:AudienceRestriction>
-                                <saml2:Audience>https://server:8993/services/SecurityTokenService</saml2:Audience>
-                            </saml2:AudienceRestriction>
-                        </saml2:Conditions>
-                        <saml2:AuthnStatement AuthnInstant="2013-04-29T18:35:11.392Z">
-                            <saml2:AuthnContext>
-                                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
-                            </saml2:AuthnContext>
-                        </saml2:AuthnStatement>
-                        <saml2:AttributeStatement>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">srogers@example.com</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">Steve Rogers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">avengers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue>
-                            </saml2:Attribute>
-                        </saml2:AttributeStatement>
-                    </saml2:Assertion>
-                </RequestedSecurityToken>
-                <RequestedAttachedReference>
-                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
-                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_BDC44EB8593F47D1B213672605113671</ns3:KeyIdentifier>
-                    </ns3:SecurityTokenReference>
-                </RequestedAttachedReference>
-                <RequestedUnattachedReference>
-                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
-                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_BDC44EB8593F47D1B213672605113671</ns3:KeyIdentifier>
-                    </ns3:SecurityTokenReference>
-                </RequestedUnattachedReference>
-                <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-                    <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-                        <wsa:Address>https://server:8993/services/SecurityTokenService</wsa:Address>
-                    </wsa:EndpointReference>
-                </wsp:AppliesTo>
-                <Lifetime>
-                    <ns2:Created>2013-04-29T18:35:11.444Z</ns2:Created>
-                    <ns2:Expires>2013-04-29T19:05:11.444Z</ns2:Expires>
-                </Lifetime>
-            </RequestSecurityTokenResponse>
-        </RequestSecurityTokenResponseCollection>
-    </soap:Body>
-</soap:Envelope>
-----
-
-===== UsernameToken Bearer SAML Security Token Request/Response
-
-To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
-
-A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer.
-
-====== Request
-*Explanation*
-
-* WS-Addressing header with Action, To, and Message ID
-* Valid, non-expired timestamp
-* Username Token containing a username and password that the STS will authenticate
-* Issued over HTTPS
-* KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer
-* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
-
-.Sample Request
-[source,xml,linenums]
-----
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
-        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
-            <wsu:Timestamp wsu:Id="TS-1">
-                <wsu:Created>2013-04-29T17:47:37.817Z</wsu:Created>
-                <wsu:Expires>2013-04-29T17:57:37.817Z</wsu:Expires>
-            </wsu:Timestamp>
-            <wsse:UsernameToken wsu:Id="UsernameToken-1">
-                <wsse:Username>srogers</wsse:Username>
-                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password1</wsse:Password>
-            </wsse:UsernameToken>
-        </wsse:Security>
-        <wsa:Action>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>
-        <wsa:MessageID>uuid:a1bba87b-0f00-46cc-975f-001391658cbe</wsa:MessageID>
-        <wsa:To>https://server:8993/services/SecurityTokenService</wsa:To>
-    </soap:Header>
-    <soap:Body>
-        <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-            <wst:SecondaryParameters>
-                <t:TokenType xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</t:TokenType>
-                <t:KeyType xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512">http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</t:KeyType>
-                <t:Claims xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity">
-                    <!--Add any additional claims you want to grab for the service-->
-                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid"/>
-                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
-                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
-                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
-                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"/>
-                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"/>
-                </t:Claims>
-            </wst:SecondaryParameters>
-            <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
-            <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
-                <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-                    <wsa:Address>https://server:8993/services/QueryService</wsa:Address>
-                </wsa:EndpointReference>
-            </wsp:AppliesTo>
-            <wst:Renewing/>
-        </wst:RequestSecurityToken>
-    </soap:Body>
-</soap:Envelope>
-----
-
-====== Response
-This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:
-
-The `saml2:Assertion` block contains the entire SAML assertion.
-
-The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
-
-The `AttributeStatement` block contains all the Claims requested.
-
-The `Lifetime` block indicates the valid time interval in which the SAML assertion can be used.
-
-.Sample Response
-[source,xml,linenums]
-----
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Header>
-        <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal</Action>
-        <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:eee4c6ef-ac10-4cbc-a53c-13d960e3b6e8</MessageID>
-        <To xmlns="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</To>
-        <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">uuid:a1bba87b-0f00-46cc-975f-001391658cbe</RelatesTo>
-        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
-            <wsu:Timestamp wsu:Id="TS-2">
-                <wsu:Created>2013-04-29T17:49:12.624Z</wsu:Created>
-                <wsu:Expires>2013-04-29T17:54:12.624Z</wsu:Expires>
-            </wsu:Timestamp>
-        </wsse:Security>
-    </soap:Header>
-    <soap:Body>
-        <RequestSecurityTokenResponseCollection xmlns="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:ns2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns3="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns:ns5="http://docs.oasis-open.org/ws-sx/ws-trust/200802">
-            <RequestSecurityTokenResponse>
-                <TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</TokenType>
-                <RequestedSecurityToken>
-                    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_7437C1A55F19AFF22113672577526132" IssueInstant="2013-04-29T17:49:12.613Z" Version="2.0" xsi:type="saml2:AssertionType">
-                        <saml2:Issuer>tokenissuer</saml2:Issuer>
-                        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-                            <ds:SignedInfo>
-                                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-                                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
-                                <ds:Reference URI="#_7437C1A55F19AFF22113672577526132">
-                                    <ds:Transforms>
-                                        <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
-                                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
-                                            <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs"/>
-                                        </ds:Transform>
-                                    </ds:Transforms>
-                                    <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-                                    <ds:DigestValue>ReOqEbGZlyplW5kqiynXOjPnVEA=</ds:DigestValue>
-                                </ds:Reference>
-                            </ds:SignedInfo>
-                            <ds:SignatureValue>X5Kzd54PrKIlGVV2XxzCmWFRzHRoybF7hU6zxbEhSLMR0AWS9R7Me3epq91XqeOwvIDDbwmE/oJNC7vI0fIw/rqXkx4aZsY5a5nbAs7f+aXF9TGdk82x2eNhNGYpViq0YZJfsJ5WSyMtG8w5nRekmDMy9oTLsHG+Y/OhJDEwq58=</ds:SignatureValue>
-                            <ds:KeyInfo>
-                                <ds:X509Data>
-                                    <ds:X509Certificate>MIIDmjCCAwOgAwIBAgIBBDANBgkqhkiG9w0BAQQFADB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMH
-QXJpem9uYTERMA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4
-YW1wbGUxEDAOBgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBMB4XDTEzMDQwOTE4MzcxMVoXDTIz
-MDQwNzE4MzcxMVowgaYxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQHEwhH
-b29keWVhcjEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UECxMHRXhh
-bXBsZTEUMBIGA1UEAxMLdG9rZW5pc3N1ZXIxJjAkBgkqhkiG9w0BCQEWF3Rva2VuaXNzdWVyQGV4
-YW1wbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDfktpA8Lrp9rTfRibKdgtxtN9
-uB44diiIqq3JOzDGfDhGLu6mjpuHO1hrKItv42hBOhhmH7lS9ipiaQCIpVfgIG63MB7fa5dBrfGF
-G69vFrU1Lfi7IvsVVsNrtAEQljOMmw9sxS3SUsRQX+bD8jq7Uj1hpoF7DdqpV8Kb0COOGwIDAQAB
-o4IBBjCCAQIwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2Vy
-dGlmaWNhdGUwHQYDVR0OBBYEFD1mHviop2Tc4HaNu8yPXR6GqWP1MIGnBgNVHSMEgZ8wgZyAFBcn
-en6/j05DzaVwORwrteKc7TZOoXmkdzB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMHQXJpem9uYTER
-MA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4YW1wbGUxEDAO
-BgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBggkAwXk7OcwO7gwwDQYJKoZIhvcNAQEEBQADgYEA
-PiTX5kYXwdhmijutSkrObKpRbQkvkkzcyZlO6VrAxRQ+eFeN6NyuyhgYy5K6l/sIWdaGou5iJOQx
-2pQYWx1v8Klyl0W22IfEAXYv/epiO89hpdACryuDJpioXI/X8TAwvRwLKL21Dk3k2b+eyCgA0O++
-HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
-                                </ds:X509Data>
-                            </ds:KeyInfo>
-                        </ds:Signature>
-                        <saml2:Subject>
-                            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">srogers</saml2:NameID>
-                            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
-                        </saml2:Subject>
-                        <saml2:Conditions NotBefore="2013-04-29T17:49:12.614Z" NotOnOrAfter="2013-04-29T18:19:12.614Z">
-                            <saml2:AudienceRestriction>
-                                <saml2:Audience>https://server:8993/services/QueryService</saml2:Audience>
-                            </saml2:AudienceRestriction>
-                        </saml2:Conditions>
-                        <saml2:AuthnStatement AuthnInstant="2013-04-29T17:49:12.613Z">
-                            <saml2:AuthnContext>
-                                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
-                            </saml2:AuthnContext>
-                        </saml2:AuthnStatement>
-                        <saml2:AttributeStatement>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">srogers@example.com</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">Steve Rogers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">avengers</saml2:AttributeValue>
-                            </saml2:Attribute>
-                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                                <saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue>
-                            </saml2:Attribute>
-                        </saml2:AttributeStatement>
-                    </saml2:Assertion>
-                </RequestedSecurityToken>
-                <RequestedAttachedReference>
-                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
-                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_7437C1A55F19AFF22113672577526132</ns3:KeyIdentifier>
-                    </ns3:SecurityTokenReference>
-                </RequestedAttachedReference>
-                <RequestedUnattachedReference>
-                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
-                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_7437C1A55F19AFF22113672577526132</ns3:KeyIdentifier>
-                    </ns3:SecurityTokenReference>
-                </RequestedUnattachedReference>
-                <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-                    <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-                        <wsa:Address>https://server:8993/services/QueryService</wsa:Address>
-                    </wsa:EndpointReference>
-                </wsp:AppliesTo>
-                <Lifetime>
-                    <ns2:Created>2013-04-29T17:49:12.620Z</ns2:Created>
-                    <ns2:Expires>2013-04-29T18:19:12.620Z</ns2:Expires>
-                </Lifetime>
-            </RequestSecurityTokenResponse>
-        </RequestSecurityTokenResponseCollection>
-    </soap:Body>
-</soap:Envelope>
-----
-
-===== X.509 PublicKey SAML Security Token Request/Response
-
-In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
-
-An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS.
-
-====== Request
-*Explanation*
-The STS that comes with {branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.  See the request block below for an example of how these components should be populated.
-* WS-Addressing header containing Action, To, and MessageID blocks
-* Valid, non-expired timestamp
-* Issued over HTTPS
-* TokenType of http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
-* KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
-* X509 Certificate as the Proof of Possession or POP.  This needs to be the certificate of the client that will be both requesting the SAML assertion and using the SAML assertion to issue a query
-* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc.  If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
-** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password.
-
-.Sample Request
-[source,xml,linenums]
-----
-<soapenv:Envelope xmlns:ns="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-   <soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
-      <wsa:Action>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>
-      <wsa:MessageID>uuid:527243af-94bd-4b5c-a1d8-024fd7e694c5</wsa:MessageID>
-      <wsa:To>https://server:8993/services/SecurityTokenService</wsa:To>
-      <wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-         <wsu:Timestamp wsu:Id="TS-17">
-            <wsu:Created>2014-02-19T17:30:40.771Z</wsu:Created>
-            <wsu:Expires>2014-02-19T19:10:40.771Z</wsu:Expires>
-         </wsu:Timestamp>
-
-         <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
-         <wsse:UsernameToken wsu:Id="UsernameToken-16">
-            <wsse:Username>pparker</wsse:Username>
-            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password1</wsse:Password>
-            <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">LCTD+5Y7hlWIP6SpsEg9XA==</wsse:Nonce>
-            <wsu:Created>2014-02-19T17:30:37.355Z</wsu:Created>
-         </wsse:UsernameToken>
-      </wsse:Security>
-   </soapenv:Header>
-   <soapenv:Body>
-      <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
-         <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
-         <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
-
-         <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
-         <wst:Claims Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity">
-            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
-            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
-            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
-            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"/>
-            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"/>
-         </wst:Claims>
-         <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
-            <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
-            <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-            <wsa:Address>https://server:8993/services/QueryService</wsa:Address>
-            </wsa:EndpointReference>
-         </wsp:AppliesTo>
-         <wst:UseKey>
-            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-               <ds:X509Data>
-                  <ds:X509Certificate>MIIFGDCCBACgAwIBAgICJe0wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
-D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP
-RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjU0OVoXDTE2MDUwNzAwMjU0OVowaTELMAkGA1UEBhMC
-VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx
-EzARBgNVBAsTCkNPTlRSQUNUT1IxDzANBgNVBAMTBmNsaWVudDCCASIwDQYJKoZIhvcNAQEBBQAD
-ggEPADCCAQoCggEBAOq6L1/jjZ5cyhjhHEbOHr5WQpboKACYbrsn8lg85LGNoAfcwImr9KBmOxGb
-ZCxHYIhkW7pJ+kppyH8DDMviIvvdkvrAIU0l8OBRn2wReCBGQ01Imdc3+WzFF2svW75d6wii2ZVd
-eMvUO15p/pAD/sdIfXmAfyu8+tqtiO8KVZGkTnlg3AMzfeSrkci5UHMVWj0qUSuzLk9SAg/9STgb
-Kf2xBpHUYecWFSB+dTpdZN2pC85tj9xIoWGh5dFWG1fPcYRgzGPxsybiGOylbJ7rHDJuL7IIIyx5
-EnkCuxmQwoQ6XQAhiWRGyPlY08w1LZixI2v+Cv/ZjUfIHv49I9P4Mt8CAwEAAaOCAdUwggHRMB8G
-A1UdIwQYMBaAFCMUNCBNXy43NZLBBlnDjDplNZJoMB0GA1UdDgQWBBRPGiX6zZzKTqQSx/tjg6hx
-9opDoTAOBgNVHQ8BAf8EBAMCBaAwgdoGA1UdHwSB0jCBzzA2oDSgMoYwaHR0cDovL2NybC5nZHMu
-bml0LmRpc2EubWlsL2NybC9ET0RKSVRDQ0FfMjcuY3JsMIGUoIGRoIGOhoGLbGRhcDovL2NybC5n
-ZHMubml0LmRpc2EubWlsL2NuJTNkRE9EJTIwSklUQyUyMENBLTI3JTJjb3UlM2RQS0klMmNvdSUz
-ZERvRCUyY28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUz9jZXJ0aWZpY2F0ZXJldm9jYXRp
-b25saXN0O2JpbmFyeTAjBgNVHSAEHDAaMAsGCWCGSAFlAgELBTALBglghkgBZQIBCxIwfQYIKwYB
-BQUHAQEEcTBvMD0GCCsGAQUFBzAChjFodHRwOi8vY3JsLmdkcy5uaXQuZGlzYS5taWwvc2lnbi9E
-T0RKSVRDQ0FfMjcuY2VyMC4GCCsGAQUFBzABhiJodHRwOi8vb2NzcC5uc24wLnJjdnMubml0LmRp
-c2EubWlsMA0GCSqGSIb3DQEBBQUAA4IBAQCGUJPGh4iGCbr2xCMqCq04SFQ+iaLmTIFAxZPFvup1
-4E9Ir6CSDalpF9eBx9fS+Z2xuesKyM/g3YqWU1LtfWGRRIxzEujaC4YpwHuffkx9QqkwSkXXIsim
-EhmzSgzxnT4Q9X8WwalqVYOfNZ6sSLZ8qPPFrLHkkw/zIFRzo62wXLu0tfcpOr+iaJBhyDRinIHr
-hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
-8KASjJBFeHPirMV1oddJ5ydZCQ+Jmnpbwq+XsCxg1LjC4dmbjKVr9s4QK+/JLNjxD8IkJiZE</ds:X509Certificate>
-               </ds:X509Data>
-            </ds:KeyInfo>
-         </wst:UseKey>
-      </wst:RequestSecurityToken>
-   </soapenv:Body>
-</soapenv:Envelope>
-----
-
-====== Response
-
-*Explanation*
-This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.
-
-The `saml2:Assertion` block contains the entire SAML assertion.
-
-The `Signature` block contains a signature from the STS's private key.
-The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.
-
-The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.
-The `AttributeStatement` block contains all of the claims requested.
-
-.Sample Response
-[source,xml,linenums]
-----
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-   <soap:Header>
-      <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal</Action>
-      <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:b46c35ad-3120-4233-ae07-b9e10c7911f3</MessageID>
-      <To xmlns="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</To>
-      <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">uuid:527243af-94bd-4b5c-a1d8-024fd7e694c5</RelatesTo>
-      <wsse:Security soap:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
-         <wsu:Timestamp wsu:Id="TS-90DBA0754E55B4FE7013928310431357">
-            <wsu:Created>2014-02-19T17:30:43.135Z</wsu:Created>
-            <wsu:Expires>2014-02-19T17:35:43.135Z</wsu:Expires>
-         </wsu:Timestamp>
-      </wsse:Security>
-   </soap:Header>
-   <soap:Body>
-      <ns2:RequestSecurityTokenResponseCollection xmlns="http://docs.oasis-open.org/ws-sx/ws-trust/200802" xmlns:ns2="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:ns3="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns4="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns5="http://www.w3.org/2005/08/addressing">
-         <ns2:RequestSecurityTokenResponse>
-            <ns2:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</ns2:TokenType>
-            <ns2:RequestedSecurityToken>
-               <saml2:Assertion ID="_90DBA0754E55B4FE7013928310431176" IssueInstant="2014-02-19T17:30:43.117Z" Version="2.0" xsi:type="saml2:AssertionType" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                  <saml2:Issuer>tokenissuer</saml2:Issuer>
-                  <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-                     <ds:SignedInfo>
-                        <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-                        <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
-                        <ds:Reference URI="#_90DBA0754E55B4FE7013928310431176">
-                           <ds:Transforms>
-                              <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
-                              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
-                                 <ec:InclusiveNamespaces PrefixList="xs" xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"/>
-                              </ds:Transform>
-                           </ds:Transforms>
-                           <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-                           <ds:DigestValue>/bEGqsRGHVJbx298WPmGd8I53zs=</ds:DigestValue>
-                        </ds:Reference>
-                     </ds:SignedInfo>
-                     <ds:SignatureValue>
-mYR7w1/dnuh8Z7t9xjCb4XkYQLshj+UuYlGOuTwDYsUPcS2qI0nAgMD1VsDP7y1fDJxeqsq7HYhFKsnqRfebMM4WLH1D/lJ4rD4UO+i9l3tuiHml7SN24WM1/bOqfDUCoDqmwG8afUJ3r4vmTNPftwOss8BZ/8ODgZzm08ndlkxDfvcN7OrExbV/3/45JwF/MMPZoqvi2MJGfX56E9fErJNuzezpWnRqPOlWPxyffKMAlVaB9zF6gvVnUqcW2k/Z8X9lN7O5jouBI281ZnIfsIPuBJERFtYNVDHsIXM1pJnrY6FlKIaOsi55LQu3Ruir/n82pU7BT5aWtxwrn7akBg==                    </ds:SignatureValue>
-                     <ds:KeyInfo>
-                        <ds:X509Data>
-                           <ds:X509Certificate>MIIFHTCCBAWgAwIBAgICJe8wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
-D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP
-RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjYzN1oXDTE2MDUwNzAwMjYzN1owbjELMAkGA1UEBhMC
-VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx
-EzARBgNVBAsTCkNPTlRSQUNUT1IxFDASBgNVBAMTC3Rva2VuaXNzdWVyMIIBIjANBgkqhkiG9w0B
-AQEFAAOCAQ8AMIIBCgKCAQEAx01/U4M1wG+wL1JxX2RL1glj101FkJXMk3KFt3zD//N8x/Dcwwvs
-ngCQjXrV6YhbB2V7scHwnThPv3RSwYYiO62z+g6ptfBbKGGBLSZOzLe3fyJR4RxblFKsELFgPHfX
-vgUHS/keG5uSRk9S/Okqps/yxKB7+ZlxeFxsIz5QywXvBpMiXtc2zF+M7BsbSIdSx5LcPcDFBwjF
-c66rE3/y/25VMht9EZX1QoKr7f8rWD4xgd5J6DYMFWEcmiCz4BDJH9sftw+n1P+CYgrhwslWGqxt
-cDME9t6SWR3GLT4Sdtr8ziIM5uUteEhPIV3rVC3/u23JbYEeS8mpnp0bxt5eHQIDAQABo4IB1TCC
-AdEwHwYDVR0jBBgwFoAUIxQ0IE1fLjc1ksEGWcOMOmU1kmgwHQYDVR0OBBYEFGBjdkdey+bMHMhC
-Z7gwiQ/mJf5VMA4GA1UdDwEB/wQEAwIFoDCB2gYDVR0fBIHSMIHPMDagNKAyhjBodHRwOi8vY3Js
-Lmdkcy5uaXQuZGlzYS5taWwvY3JsL0RPREpJVENDQV8yNy5jcmwwgZSggZGggY6GgYtsZGFwOi8v
-Y3JsLmdkcy5uaXQuZGlzYS5taWwvY24lM2RET0QlMjBKSVRDJTIwQ0EtMjclMmNvdSUzZFBLSSUy
-Y291JTNkRG9EJTJjbyUzZFUuUy4lMjBHb3Zlcm5tZW50JTJjYyUzZFVTP2NlcnRpZmljYXRlcmV2
-b2NhdGlvbmxpc3Q7YmluYXJ5MCMGA1UdIAQcMBowCwYJYIZIAWUCAQsFMAsGCWCGSAFlAgELEjB9
-BggrBgEFBQcBAQRxMG8wPQYIKwYBBQUHMAKGMWh0dHA6Ly9jcmwuZ2RzLm5pdC5kaXNhLm1pbC9z
-aWduL0RPREpJVENDQV8yNy5jZXIwLgYIKwYBBQUHMAGGImh0dHA6Ly9vY3NwLm5zbjAucmN2cy5u
-aXQuZGlzYS5taWwwDQYJKoZIhvcNAQEFBQADggEBAIHZQTINU3bMpJ/PkwTYLWPmwCqAYgEUzSYx
-bNcVY5MWD8b4XCdw5nM3GnFlOqr4IrHeyyOzsEbIebTe3bv0l1pHx0Uyj059nAhx/AP8DjVtuRU1
-/Mp4b6uJ/4yaoMjIGceqBzHqhHIJinG0Y2azua7eM9hVbWZsa912ihbiupCq22mYuHFP7NUNzBvV
-j03YUcsy/sES5sRx9Rops/CBN+LUUYOdJOxYWxo8oAbtF8ABE5ATLAwqz4ttsToKPUYh1sxdx5Ef
-APeZ+wYDmMu4OfLckwnCKZgkEtJOxXpdIJHY+VmyZtQSB0LkR5toeH/ANV4259Ia5ZT8h2/vIJBg
-6B4=</ds:X509Certificate>
-                        </ds:X509Data>
-                     </ds:KeyInfo>
-                  </ds:Signature>
-                  <saml2:Subject>
-                     <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">pparker</saml2:NameID>
-                     <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
-                        <saml2:SubjectConfirmationData xsi:type="saml2:KeyInfoConfirmationDataType">
-                           <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-                              <ds:X509Data>
-                                 <ds:X509Certificate>MIIFGDCCBACgAwIBAgICJe0wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
-D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP
-RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjU0OVoXDTE2MDUwNzAwMjU0OVowaTELMAkGA1UEBhMC
-VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx
-EzARBgNVBAsTCkNPTlRSQUNUT1IxDzANBgNVBAMTBmNsaWVudDCCASIwDQYJKoZIhvcNAQEBBQAD
-ggEPADCCAQoCggEBAOq6L1/jjZ5cyhjhHEbOHr5WQpboKACYbrsn8lg85LGNoAfcwImr9KBmOxGb
-ZCxHYIhkW7pJ+kppyH8DDMviIvvdkvrAIU0l8OBRn2wReCBGQ01Imdc3+WzFF2svW75d6wii2ZVd
-eMvUO15p/pAD/sdIfXmAfyu8+tqtiO8KVZGkTnlg3AMzfeSrkci5UHMVWj0qUSuzLk9SAg/9STgb
-Kf2xBpHUYecWFSB+dTpdZN2pC85tj9xIoWGh5dFWG1fPcYRgzGPxsybiGOylbJ7rHDJuL7IIIyx5
-EnkCuxmQwoQ6XQAhiWRGyPlY08w1LZixI2v+Cv/ZjUfIHv49I9P4Mt8CAwEAAaOCAdUwggHRMB8G
-A1UdIwQYMBaAFCMUNCBNXy43NZLBBlnDjDplNZJoMB0GA1UdDgQWBBRPGiX6zZzKTqQSx/tjg6hx
-9opDoTAOBgNVHQ8BAf8EBAMCBaAwgdoGA1UdHwSB0jCBzzA2oDSgMoYwaHR0cDovL2NybC5nZHMu
-bml0LmRpc2EubWlsL2NybC9ET0RKSVRDQ0FfMjcuY3JsMIGUoIGRoIGOhoGLbGRhcDovL2NybC5n
-ZHMubml0LmRpc2EubWlsL2NuJTNkRE9EJTIwSklUQyUyMENBLTI3JTJjb3UlM2RQS0klMmNvdSUz
-ZERvRCUyY28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUz9jZXJ0aWZpY2F0ZXJldm9jYXRp
-b25saXN0O2JpbmFyeTAjBgNVHSAEHDAaMAsGCWCGSAFlAgELBTALBglghkgBZQIBCxIwfQYIKwYB
-BQUHAQEEcTBvMD0GCCsGAQUFBzAChjFodHRwOi8vY3JsLmdkcy5uaXQuZGlzYS5taWwvc2lnbi9E
-T0RKSVRDQ0FfMjcuY2VyMC4GCCsGAQUFBzABhiJodHRwOi8vb2NzcC5uc24wLnJjdnMubml0LmRp
-c2EubWlsMA0GCSqGSIb3DQEBBQUAA4IBAQCGUJPGh4iGCbr2xCMqCq04SFQ+iaLmTIFAxZPFvup1
-4E9Ir6CSDalpF9eBx9fS+Z2xuesKyM/g3YqWU1LtfWGRRIxzEujaC4YpwHuffkx9QqkwSkXXIsim
-EhmzSgzxnT4Q9X8WwalqVYOfNZ6sSLZ8qPPFrLHkkw/zIFRzo62wXLu0tfcpOr+iaJBhyDRinIHr
-hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
-8KASjJBFeHPirMV1oddJ5ydZCQ+Jmnpbwq+XsCxg1LjC4dmbjKVr9s4QK+/JLNjxD8IkJiZE</ds:X509Certificate>
-                              </ds:X509Data>
-                           </ds:KeyInfo>
-                        </saml2:SubjectConfirmationData>
-                     </saml2:SubjectConfirmation>
-                  </saml2:Subject>
-                  <saml2:Conditions NotBefore="2014-02-19T17:30:43.119Z" NotOnOrAfter="2014-02-19T18:00:43.119Z"/>
-                  <saml2:AuthnStatement AuthnInstant="2014-02-19T17:30:43.117Z">
-                     <saml2:AuthnContext>
-                        <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
-                     </saml2:AuthnContext>
-                  </saml2:AuthnStatement>
-
-                  <!-- This block will only be included if Claims were requested in the RST. -->
-                  <saml2:AttributeStatement>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">pparker</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">pparker@example.com</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">pparker</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">Peter Parker</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">avengers</saml2:AttributeValue>
-                     </saml2:Attribute>
-                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-                        <saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue>
-                     </saml2:Attribute>
-                  </saml2:AttributeStatement>
-               </saml2:Assertion>
-            </ns2:RequestedSecurityToken>
-            <ns2:RequestedAttachedReference>
-               <ns4:SecurityTokenReference wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd">
-                  <ns4:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_90DBA0754E55B4FE7013928310431176</ns4:KeyIdentifier>
-               </ns4:SecurityTokenReference>
-            </ns2:RequestedAttachedReference>
-            <ns2:RequestedUnattachedReference>
-               <ns4:SecurityTokenReference wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd">
-                  <ns4:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_90DBA0754E55B4FE7013928310431176</ns4:KeyIdentifier>
-               </ns4:SecurityTokenReference>
-            </ns2:RequestedUnattachedReference>
-            <ns2:Lifetime>
-               <ns3:Created>2014-02-19T17:30:43.119Z</ns3:Created>
-               <ns3:Expires>2014-02-19T18:00:43.119Z</ns3:Expires>
-            </ns2:Lifetime>
-         </ns2:RequestSecurityTokenResponse>
-      </ns2:RequestSecurityTokenResponseCollection>
-   </soap:Body>
-</soap:Envelope>
-----
 
 ==== XACML Policy Decision Point (PDP)
 
@@ -4585,67 +3301,7 @@ The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject di
 </Response>
 ----
 
-
-===== Expansion Service
-
-The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to {branding} user attributes and metadata card processing. In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
-
-Each instance of the expansion service consists of a collection of rule sets. Each rule set consists of a key value and its associated set of rules. Callers of the expansion service provide a key and an original value to be expanded. The expansion service then looks up the set of rules for the specified key. The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
-
-[cols="3" options="header"]
-|===
-
-|Key (Attribute)
-2.1+^|Rules (original → new)
-
-1.3+^|key1
-|value1
-|replacement1
-
-|value2
-|replacement2
-
-|value3
-|replacement3
-
-1.2+^|key2
-|value1
-|replacement1
-
-|value2
-|replacement2
-
-|===
-The examples below use the following collection of rule sets:
-
-[cols="3" options="header"]
-|===
-
-|Key (Attribute)
-2.1+^|Rules (original → new)
-
-1.3+^|Location
-|Goodyear
-|Goodyear AZ
-
-|AZ
-|AZ USA
-
-|CA
-|CA USA
-
-1.2+^|Title
-|VP-Sales
-|VP-Sales VP Sales
-
-|VP-Engineering
-|VP-Engineering VP Engineering
-
-|===
-
-Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
-
-===== Instances and Configuration
+===== Expansion Service Instances and Configuration
 It is expected that multiple instances of the expansion service will be running at the same time. Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service. The following table lists the two pre-defined instances used by {branding} for expanding user attributes and metacard attributes respectively.
 
 [cols="1,3,5" options="header"]
@@ -4772,9 +3428,9 @@ ddf@local>expand Title "VP-Engineering Manager"
 
 ==== Configure WSS Using Standalone Servers
 
-{branding} uses CAS as its single sign-on service. {branding} uses LDAP and STS to keep track of users and user attributes. CAS, LDAP, and STS are integral, interconnected components of the {branding} security scheme, and all can be installed on a local {branding} instance with only a few feature installs (with the exception of the CAS installation, which requires Apache Tomcat to run). Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
+{branding} uses SAML 2.0 Web SSO as its single sign-on service. {branding} uses LDAP and STS to keep track of users and user attributes. SAML, LDAP, and STS are integral, interconnected components of the {branding} security scheme, and all can be installed on a local {branding} instance with only a few feature installs. Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
 
-This page assumes that there is a keystore for each of the services/servers. If using different keystore names, substitute the name provided in this document with the desired name for your setup. For this document, the following data is used:
+If using different keystore names, substitute the name provided in this document with the desired name for your setup. For this document, the following data is used:
 
 [cols="1,2,5"]
 |===
@@ -4783,19 +3439,9 @@ This page assumes that there is a keystore for each of the services/servers. If 
 |Keystore File
 |Comments
 
-|CAS
-|keystore.jks
-|Used on the CAS Tomcat server.
-
-|STS
-|stsKeystore.jks
-|Used to sign SAML and as incoming connections.
-
 |{branding}
-|serverKeystore.jks +
-clientKeystore.jks
-|Server used for incoming connections. +
-Client used for outgoing connections.
+|serverKeystore.jks
+|Keystore used for SSL/TLS connections.
 
 |===
 
@@ -4808,87 +3454,61 @@ image::login_authentication_scheme.jpg[Login Authentication Scheme]
 It is implied that the three authentication components identified below are installed on three separate servers. Therefore, it is important to keep track of the DNS hostnames used on each server for certificate authentication purposes.
 
 ===== LDAP
-LDAP is used to maintain a list of trusted {branding} users and the attributes associated with them. It interacts with both CAS and the STS. The former uses LDAP to create session information, and the latter queries LDAP for user attributes and converts them to SAML claims.
+LDAP is used to maintain a list of trusted {branding} users and the attributes associated with them. The STS can use LDAP as a user store and queries LDAP for user attributes and converts them to SAML claims.
 
-. Obtain and unzip the {branding} kernel (ddf-distribution-kernel-<VERSION>.zip).
-. Start the distribution.
-. Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the <DISTRIBUTION_HOME>/deploy directory. Verify that the LDAP server is installed by checking the {branding} log or by performing an la command and verifying that the OpenDJ bundle is in the active state. Additionally, it should be responding to LDAP requests on the default ports, which are 1389 and 1636.
-. Copy the environment's Java keystore file into the {DISTRIBUTION}/etc/keystores folder, making sure it overwrites the folder's existing serverKeystore.jks file.
+. Start the DDF distribution.
+. Run the installer at https://localhost:8993/admin (default username/password is admin/admin)
+. After the installer completes, Click the *Manage* button in the upper right hand corner of the Admin Console
+. Click the *Play* button on the Opendj Embedded tile in order to install that application
 
 [WARNING]
 ====
 It is very important that the keystore file used in the process is set up to trust the hostnames used by CAS and STS. If it is not, there will be certificate authentication issues for the user.
 ====
 
-===== CAS
-CAS is used for SSO authentication purposes. Unlike LDAP and STS, CAS cannot be run as a {branding} bundle. CAS must be run through Apache Tomcat.
+===== Idp (Identity Provider) and SP (Service Provider)
+IdP and SP are used for SSO authentication purposes.
 
-. Follow the instructions on the CAS installation page to install and configure Tomcat/CAS. For example, with LDAP above, the keystore.jks file that is used must trust the hostnames used by the STS server, LDAP server, and the {branding} user connecting to CAS.
-. Open the {TOMCAT}/webapps/cas/WEB-INF/cas.properties file and modify the cas.ldap.host, cas.ldap.port, cas.ldap.user.dn, and cas.ldap.password fields with your environment's LDAP information.
+. Install the security-idp feature either by command line: "features:install security-idp", or by the Admin Console: {branding} Security -> Features -> security-idp
 
 ===== STS
-The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of {branding}. To run an STS-only {branding} installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page.
+The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of {branding}. To run an STS-only {branding} installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page. The STS is installed by default in DDF.
 
-. In the unzipped {branding} distribution folder, open /etc/org.ops4j.pax.web.cfg and find the following line:
 +
-`org.ops4j.pax.web.ssl.keystore=etc/keystores/serverKeystore.jks`
-+
-and change it to:
-+
-`org.ops4j.pax.web.ssl.keystore=etc/keystores/stsKeystore.jks`
-+
-. Update the password fields to the ones you keystore uses.
-. Verify that the stsKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, CAS, and any {branding} users that make use of this STS server).
+. Verify that the serverKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any {branding} users that make use of this STS server).
 +
 . Start the distribution.
-. Enter the following commands to install the features used by the STS server:
-+
+. Run the installer at https://localhost:8993/admin (default username/password is admin/admin)
+. After the installer completes, Click the {branding} Security application tile
+. Click the *Features* tab
+. Install security-sts-ldaplogin and security-sts-ldapclaimshandler features by clicking the *Play* button next to each
+
 ----
-features:install security-sts-server
-features:install security-cas-tokenvalidator
-----
 +
-. Open the {branding} web console as an administrator. The default user is "admin" with a password of "admin" (no quotes).
-. Navigate to the Configuration tab.
+. Open the {branding} Admin Console as an administrator (https://localhost:8993/admin). The default user is "admin" with a password of "admin" (no quotes).
+. Click the {branding} Security application tile
+. Click the *Configuration* tab
 . Open the Security STS LDAP Login configuration.
-. Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default {branding} LDAP username is "cn=user", and the default password is "secret" (no quotes) . In a production environment, the username and password should be changed in the LDAP data file.
-. Select the *Save* button.
+. Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default {branding} LDAP settings will match up with the default settings of the OpenDJ embedded LDAP server. If not using the embedded LDAP server, change these values to map to the location and settings of the LDAP server being used.
+. Select the *Save changes* button if changes were made.
 . Open the *Security STS LDAP and Roles Claims Handler* configuration.
 . Populate the same URL, user, and password fields with your LDAP server information.
-. Select the *Save* button.
-. Open the *Security STS CAS Token Validator* configuration.
-. Under *CAS Server URL*, type the URL for your CAS server.
-. Select the *Save* button.
-. Open the Platform Global Configuration.
-.. Change the protocol to https.
-.. Populate the host/port information with the STS server's host/port. For STS, the default port is 8993.
-.. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files.
-.. Select the Save button.
+. Select the *Save changes* button.
 
 All of the authentication components should be running and configured at this point. The final step is to configure a {branding} instance, so this authentication scheme is used.
 
 ==== Configuring {branding}
 Once everything is configured and running, hooking up an existing {branding} instance to the authentication scheme is performed by setting a few configuration properties.
 
-. Verify that the `{DISTRIBUTION}/etc/keystores` folder is updated with the correct keystores for your operating environment.
-. Start the distribution.
-. Enter the following commands to install the CAS features:+
 +
-----
-features:install security-cas-cxfservletfilter
-----
-+
-. Open the *Security CAS Client* configuration.
-.. Under *Server Name* and *Proxy Callback URL*, replace the hostname of 'server' with your server hostname.
-.. Under *CAS Server URL*, enter the hostname for the CAS server.
-. Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server.
-. Open the *Platform Global Configuration*.
-.. Change the protocol to https.
-.. Populate the host/port information with the {branding} instance's host/port. For {branding}, the default port is 8993.
-.. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files.
-. Select the *Save* button.
+. Open the *Web Context Policy Manager* configuration.
+.. Under *Context Realms* add the contexts that should be protected under the ldap realm
+... The default setting is /=karaf, the karaf realm refers to the user.properties user store file located in the <ddf.home>/etc directory. This can be changed to /=ldap, if it is desired that the entire container be protected under ldap. If the /admin context is changed to something other than the default (karaf), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than karaf, without specifically setting /admin to a realm. The policies for all contexts will roll up, for example: the /admin context policy will roll up to the karaf realm with the default configuration because / is higher in the context heirarchy than /admin and no realm is specifically set for /admin.
+.. Under *Authentication Types*, make any desired authentication changes to contexts.
+... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the IDP authentication type
+. Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server. If you are using the default bundled STS, this information will already be correct.
 
-The {branding} should now use the CAS/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
+The {branding} should now use the SSO/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
 
 ==== Hardening
 
@@ -4896,24 +3516,34 @@ These instructions demonstrate how to harden a {branding} system for a more secu
 
 [WARNING]
 ====
-The web administration console is not compatible with Internet Explorer 7.
+The Admin Console is not compatible with Internet Explorer 9.
 ====
 
-==== Disable the Web Console
+==== Disable the Felix Web Console
 
 To harden {branding} for security purposes, disable the Web Console, so users do not have access. All configuration is performed using the {branding} command line console and/or .cfg configuration files.
 
-. Open the Web Console: https://localhost:8993/system/console.
-. Enter the username (default is "admin") and the password (default is "admin").
-. Select the Features tab.
-. Select the *Install/Uninstall* button to uninstall the webconsole-base feature. If attempting to access a page on the Web Console, an HTTP 404 error occurs.
-. To re-enable the Web Console, open the Karaf command line console and install the `ddf-webconsole` feature.
+----
+features:uninstall webconsole
+----
+
+. To re-enable the Felix Web Console, open the Karaf command line console and install the `webconsole` feature.
 
 ----
 features:install webconsole
 ----
 
 ==== Disable the Admin Console
+
+----
+features:uninstall admin-ui
+----
+
+. To re-enable the Admin Console, open the Karaf command line console and install the `admin-ui` feature.
+
+----
+features:install admin-ui
+----
 
 ===== Enable SSL for Clients
 In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
@@ -4927,7 +3557,7 @@ These values are configured in the `<DDF_INSTALL_DIR>/etc/system.properties` fil
 |Description
 
 |javax.net.ssl.trustStore
-|etc/keystores/serverKeystore.jks
+|etc/keystores/serverTruststore.jks
 |The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS).
 When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
 
@@ -4936,9 +3566,8 @@ When making outbound secure connections a handshake will be done with the remote
 |This is the password for the truststore listed in the above property
 
 |javax.net.ssl.keyStore
-|etc/keystores/serverTruststore.jks
-|The keystore that contains the private key for the local server that can be used to signing and encryption.
-This must be set if establishing outgoing 2-way (mutual) SSL connections where the local server must also present it's certificate for the remote server to verify.
+|etc/keystores/serverKeystore.jks
+|The keystore that contains the private key for the local server that can be used for signing, encryption, and SSL/TLS.
 
 |javax.net.ssl.keyStorePassword
 |changeit
@@ -4961,23 +3590,23 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 
 |===
 
-===== Configure {branding} without the Web Administration Console
+===== Configure {branding} without the Admin Console
 
 [NOTE]
 ====
-Depending on the environment, it may be easier for integrators and administrators to configure {branding} using the Web Console prior to disabling it and switching to SSL.
-The Web Console can be re-enabled for additional configuration changes.
+Depending on the environment, it may be easier for integrators and administrators to configure {branding} using the Admin Console prior to disabling it for hardening purposes.
+The Admin Console can be re-enabled for additional configuration changes.
 ====
-In an environment hardened for security purposes, access to the {branding} Web Console is denied.
-It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using .cfg configuration files or the Karaf command line console.
-The OSGi container detects the addition, updating, or deletion of `.cfg` files in the `etc/ddf` directory.
+In an environment hardened for security purposes, access to the {branding} Admin Console or the Felix Web Console might be denied.
+It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using .config configuration files or the Admin Console. Configuration via the Karaf command line console is not supported and may result in configuration errors.
+The OSGi container detects the addition, updating, or deletion of `.config` files in the `etc/` directory.
 The following sections describe how to configure each {branding} item using both of these mechanisms.
 A template file is provided for each configurable {branding} item so that it can be copied/renamed then modified with the appropriate settings.
 
 [WARNING]
 ====
-If at a later time the Web Console is enabled again, all of the configuration done via .cfg files and/or the Karaf command line console are loaded and displayed.
-However, note that the name of the .cfg file is not used in the admin console.
+If at a later time the Admin Console is enabled again, all of the configuration done via .config files is loaded and displayed.
+However, note that the name of the .config file is not used in the Admin Console.
 Rather, OSGi assigns a universally unique identifier (UUID) when the {branding} item was created and displays this UUID in the console (e.g., OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b)
 ====
 
@@ -5009,34 +3638,11 @@ The following steps define the procedure for configuring a new source or feature
 .. Consult the inline comments in the file for guidance on what to modify.
 .. The Configurable Properties tables in the Integrator's Guide for the Included Catalog Components also describe each field and its value.
 
-The new service can now be used as if it was created using the Web Console.
+The new service can now be used as if it was created using the Admin Console.
 
 ===== Configure Using the Command Line Console
 
-Configuring a new source, provider, or feature using the command console follows a standard procedure.
-The properties and their values will change based on type of service being created, but the actual commands entered at the command line do not change.
-To help illustrate the commands, an example of creating a new OpenSearch federated source is shown after each step.
-
-. Create the federated source using the config:edit command.
-.. *Mandatory*: The dash between the PID (e.g., `OpenSearchSource_site.cfg`) and the instance name (e.g., `OpenSearchSource_site.cfg`) is required. The dash is a reserved character used by OSGi that identifies instances of a managed service factory that should be created.
-+
-----
-config:edit OpenSearchSource-my_federated_source
-----
-+
-. Enter the settings for the federated source's properties. These properties can be found in the template file for the specified service.
-+
-----
-config:propset endpointUrl https://ddf:8993/services/query?q={searchTerms}&amp;src={fs:routeTo?}&amp;mr={fs:maxResults?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;dn={idn:userDN?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;bbox={geo:box?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dateName={cat:dateName?}&amp;filter={fsa:filter?}&amp;sort={fsa:sort?}
-----
-+
-. Save the configuration updates.
-+
-----
-config:update
-----
-+
-. The new service can now be used as if it was created using the Web Console.
+Configuration via the Karaf command line console is not supported and may result in configuration errors.
 
 ==== Directory Permissions
 
@@ -5149,7 +3755,7 @@ zip endpoint-bundle.jar *
 ----
 +
 . Re-install the feature.
-.. Open the Web browser and navigate to the {branding} Web Console,
+.. Open the Web browser and navigate to the {branding} Admin Console,
 .. Select the Install button. Schema validation is now enabled for the endpoint.
 
 ==== Assuring Authenticity
@@ -5449,7 +4055,7 @@ To prevent this, modify this property to be a list of regular expressions that m
 ===== Manage Users and Passwords
 The default security configuration uses a property file located in `DDF_HOME/etc/user`.properties to store users and passwords.
 
-The default Web Console user is "admin" (no quotes) with a password of "admin" (no quotes). Change this password to a more secure password by editing this file.
+The default Admin Console user is "admin" (no quotes) with a password of "admin" (no quotes). Change this password to a more secure password by editing this file.
 
 .user.properties
 ----
@@ -5461,7 +4067,7 @@ admin=admin,admin
 ----
 
 ===== Enable Password Encryption
-In the {branding} Text Console, enter the following commands:
+In the {branding} Karaf command line console, enter the following commands:
 
 .Enable Password Encryption
 ----
@@ -5484,7 +4090,7 @@ The Configuration Export/Import capability allows administrators to export the c
 ====
 * Importing configuration files is only guaranteed to work when importing files from the same {branding} version.
   Importing from a different version is not recommended as it may cause the new {branding} instance to be incorrectly configured and become unusable.
-* All configurations editable in the Web Admin Console will be exported to `<DDF_HOME>/etc/exported/etc`.
+* All configurations editable in the Admin Console will be exported to `<DDF_HOME>/etc/exported/etc`.
 * All other configuration files (system configurations) will be put under `etc/exported` followed by their relative path from `DDF_HOME`.
   For instance, if a key store file was located under `<DDF_HOME>/keystores/keystore.jks`, it will be exported to `<DDF_HOME>/etc/exported/keystore/keystore.jks`.
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `DDF_HOME` directory.
@@ -5703,7 +4309,7 @@ This text console can be used to manage services, install new features and appli
 
 ==== Access the System Console
 The Command Line Shell Console is the console that is available to the user when the distribution is started manually.
-It may also be accessed from the Web Console through the Gogo tab or by using the `bin/client.bat` or `bin/client.sh` scripts.
+It may also be accessed by using the `bin/client.bat` or `bin/client.sh` scripts.
 For more information on how to use the `client` scripts or how to remote into the the shell console, see Using Remote Instances.
 
 ===== Example Commands
@@ -5716,7 +4322,7 @@ Execute `features:list` to view the features installed in the distribution.
 
 [NOTE]
 ====
-The majority of functionality and information available on the Web Console is also available on the Command Line Shell Console.
+The majority of functionality and information available on the Admin Console is also available on the Command Line Shell Console.
 ====
 
 ==== Catalog Commands
@@ -6428,19 +5034,6 @@ If using an unsupported terminal, java.lang.NoClassDefFoundError: Could not init
 Install missing Windows libraries.
 
 Some Windows platforms are missing libraries that are required by {branding}.  These libraries are provided by the Microsoft Visual C++ 2008 Redistributable Package x64 (http://www.microsoft.com/en-us/download/details.aspx?id=15336).
-
-==== Blank Web Console
-
-===== Problem:
-https://localhost:8993/system/console opens as a blank page.
-
-===== Solution:
-Restart {branding}.
-. Shut down {branding} from the console: +
-`ddf@local>shutdown`
-. Start {branding} back up:
-`./ddf`
-. Verify that all of the files were copied over correctly during the deploy bundles step.
 
 ==== CXF BusException
 
