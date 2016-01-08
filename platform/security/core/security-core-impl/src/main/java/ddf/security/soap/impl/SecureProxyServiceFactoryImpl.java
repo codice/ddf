@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,8 +41,6 @@ import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.cxf.ws.security.tokenstore.TokenStore;
-import org.apache.cxf.ws.security.tokenstore.TokenStoreUtils;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.policy.SP11Constants;
@@ -53,8 +51,6 @@ import org.codice.ddf.platform.util.http.UnavailableUrls;
 import org.codice.ddf.security.common.HttpUtils;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -326,8 +322,10 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                     if (token != null && itok != null) {
                         SecurityAssertion securityAssertion = new SecurityAssertionImpl(token);
 
-                        Element requestSecurityTokenTemplate = itok.getRequestSecurityTokenTemplate();
-                        List<AttributeStatement> attributeStatements = securityAssertion.getAttributeStatements();
+                        Element requestSecurityTokenTemplate =
+                                itok.getRequestSecurityTokenTemplate();
+                        List<AttributeStatement> attributeStatements =
+                                securityAssertion.getAttributeStatements();
 
                         XMLStreamReader xmlStreamReader = StaxUtils.createXMLStreamReader(
                                 requestSecurityTokenTemplate);
@@ -378,10 +376,10 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                                         boolean isOptional = true;
                                         String uri = "";
                                         for (int i = 0; i < attributeCount; i++) {
-                                            String attrLocalName = xmlStreamReader.getAttributeLocalName(
-                                                    i);
-                                            String attributeValue = xmlStreamReader.getAttributeValue(
-                                                    i);
+                                            String attrLocalName =
+                                                    xmlStreamReader.getAttributeLocalName(i);
+                                            String attributeValue =
+                                                    xmlStreamReader.getAttributeValue(i);
                                             if (attrLocalName.equalsIgnoreCase("Optional")) {
                                                 isOptional = Boolean.parseBoolean(attributeValue);
                                             }
