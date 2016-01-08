@@ -1854,6 +1854,8 @@ A banner is displayed on the admin console notifying "The system is insecure bec
 
 A detailed view is available of the properties to update.
 
+====
+
 ===== Auditing
 
 [NOTE]
@@ -3474,17 +3476,12 @@ IdP and SP are used for SSO authentication purposes.
 ===== STS
 The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of {branding}. To run an STS-only {branding} installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page. The STS is installed by default in DDF.
 
-+
 . Verify that the serverKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any {branding} users that make use of this STS server).
-+
 . Start the distribution.
 . Run the installer at https://localhost:8993/admin (default username/password is admin/admin)
 . After the installer completes, Click the {branding} Security application tile
 . Click the *Features* tab
 . Install security-sts-ldaplogin and security-sts-ldapclaimshandler features by clicking the *Play* button next to each
-
-----
-+
 . Open the {branding} Admin Console as an administrator (https://localhost:8993/admin). The default user is "admin" with a password of "admin" (no quotes).
 . Click the {branding} Security application tile
 . Click the *Configuration* tab
@@ -3500,7 +3497,6 @@ All of the authentication components should be running and configured at this po
 ==== Configuring {branding}
 Once everything is configured and running, hooking up an existing {branding} instance to the authentication scheme is performed by setting a few configuration properties.
 
-+
 . Open the *Web Context Policy Manager* configuration.
 .. Under *Context Realms* add the contexts that should be protected under the ldap realm
 ... The default setting is /=karaf, the karaf realm refers to the user.properties user store file located in the <ddf.home>/etc directory. This can be changed to /=ldap, if it is desired that the entire container be protected under ldap. If the /admin context is changed to something other than the default (karaf), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than karaf, without specifically setting /admin to a realm. The policies for all contexts will roll up, for example: the /admin context policy will roll up to the karaf realm with the default configuration because / is higher in the context heirarchy than /admin and no realm is specifically set for /admin.
@@ -4047,7 +4043,7 @@ Note the last line: _jar verified_. This indicates that the signatures used to s
 ==== Security
 
 ===== Configure STS Subject DN constraints
-The configuration for the STS Subject DN constraints is located in the `ws-security.subject.cert.constraints property`in the `<DDF_INSTALL_DIR>/etc/system.properties` file.
+The configuration for the STS Subject DN constraints is located in the `ws-security.subject.cert.constraints property` in the `<DDF_INSTALL_DIR>/etc/system.properties` file.
 
 The default constraints are ".*", which allows any connection with a trusted certificate the ability to access the STS. This opens up the vulnerability for a client to "pretend" to be another client.
 To prevent this, modify this property to be a list of regular expressions that map to the fully qualified hostnames of systems allowed to contact the STS.
@@ -5055,6 +5051,7 @@ Restart {branding}.
 
 ===== Solution:
 Complete the following procedure.
+
 . Verify that Java is correctly installed.
 +
 `java -version`
