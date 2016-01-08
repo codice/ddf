@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,6 +39,7 @@ import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.codice.ddf.platform.util.DateUtils;
 import org.joda.time.DateTime;
+import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.AttributeValue;
@@ -53,6 +54,7 @@ import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.EncryptedAttribute;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.NameID;
+import org.opensaml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml2.core.SubjectLocality;
 import org.opensaml.xml.Namespace;
 import org.opensaml.xml.NamespaceManager;
@@ -119,9 +121,13 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     private transient List<AuthnStatement> authenticationStatements;
 
+    private transient List<String> subjectConfirmations;
+
     private Date notBefore;
 
     private Date notOnOrAfter;
+
+    private String tokenType;
 
     /**
      * Uninitialized Constructor
@@ -167,6 +173,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         attributeStatements = new ArrayList<>();
         authenticationStatements = new ArrayList<>();
         usernameAttributeList = new ArrayList<>();
+        subjectConfirmations = new ArrayList<>();
     }
 
     /**
@@ -268,6 +275,28 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                             }
                         }
                         break;
+                    case SubjectConfirmation.DEFAULT_ELEMENT_LOCAL_NAME:
+                        attrs = xmlStreamReader.getAttributeCount();
+                        for (int i = 0; i < attrs; i++) {
+                            String name = xmlStreamReader.getAttributeLocalName(i);
+                            String value = xmlStreamReader.getAttributeValue(i);
+                            if (SubjectConfirmation.METHOD_ATTRIB_NAME.equals(name)) {
+                                subjectConfirmations.add(value);
+                            }
+                        }
+                    case Assertion.DEFAULT_ELEMENT_LOCAL_NAME:
+                        attrs = xmlStreamReader.getAttributeCount();
+                        for (int i = 0; i < attrs; i++) {
+                            String name = xmlStreamReader.getAttributeLocalName(i);
+                            String value = xmlStreamReader.getAttributeValue(i);
+                            if (Assertion.VERSION_ATTRIB_NAME.equals(name)) {
+                                if ("2.0".equals(value)) {
+                                    tokenType = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+                                } else if ("1.1".equals(value)) {
+                                    tokenType = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1";
+                                }
+                            }
+                        }
                     }
                     break;
                 }
@@ -388,6 +417,16 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     @Override
     public List<AuthzDecisionStatement> getAuthzDecisionStatements() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<String> getSubjectConfirmations() {
+        return Collections.unmodifiableList(subjectConfirmations);
+    }
+
+    @Override
+    public String getTokenType() {
+        return tokenType;
     }
 
     /*

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,12 +14,20 @@
 package ddf.security.soap.impl;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.interceptor.Fault;
@@ -28,20 +36,29 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.ws.policy.AssertionInfo;
+import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.trust.STSClient;
-import org.apache.cxf.ws.security.wss4j.WSS4JUtils;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.wss4j.policy.SP11Constants;
+import org.apache.wss4j.policy.SP12Constants;
+import org.apache.wss4j.policy.SPConstants;
+import org.apache.wss4j.policy.model.IssuedToken;
 import org.codice.ddf.platform.util.http.UnavailableUrls;
 import org.codice.ddf.security.common.HttpUtils;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 import ddf.security.PropertiesLoader;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import ddf.security.ws.proxy.ProxyServiceFactory;
 
@@ -54,8 +71,8 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
 
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(SecureProxyServiceFactoryImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            SecureProxyServiceFactoryImpl.class);
 
     private final UnavailableUrls unavailableWsdls = new UnavailableUrls();
 
@@ -118,16 +135,6 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                 }
             }
         }
-        if (securityToken != null) {
-            if (securityToken.getProperties() == null) {
-                securityToken.setProperties(new Properties());
-            }
-
-            //setting security token to point back to itself as the token to use to access this
-            //endpoint address
-            //this is basically a hack to get around CXF trying to go to the STS for a new token
-            securityToken.getProperties().put(wsp.endpointAddress, securityToken.getId());
-        }
         return securityToken;
     }
 
@@ -140,12 +147,14 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         if (populateFromClass) {
             LOGGER.debug("Using service class to create client rather than WSDL.");
         }
-        clientFactory.getClientFactoryBean().getServiceFactory()
+        clientFactory.getClientFactoryBean()
+                .getServiceFactory()
                 .setPopulateFromClass(populateFromClass);
 
         LOGGER.debug("Configuring client proxy properties");
         configureProxyFactoryProperties(clientFactory, token, wsp);
-        clientFactory.getOutInterceptors().add(new TokenPassThroughInterceptor(token));
+        clientFactory.getOutInterceptors()
+                .add(new TokenPassThroughInterceptor());
 
         ProxyServiceType proxyServiceType;
         try {
@@ -153,7 +162,9 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         } catch (ServiceConstructionException e) {
             LOGGER.debug("Unable to use WSDL to build client. Attempting to use service class.", e);
             unavailableWsdls.add(wsp.endpointWsdlURL);
-            clientFactory.getClientFactoryBean().getServiceFactory().setPopulateFromClass(true);
+            clientFactory.getClientFactoryBean()
+                    .getServiceFactory()
+                    .setPopulateFromClass(true);
             proxyServiceType = clientFactory.create(wsp.serviceClass);
         }
 
@@ -195,15 +206,15 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
             if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting signature properties on STSClient: {}",
                         signaturePropertiesPath);
-                Properties signatureProperties = PropertiesLoader
-                        .loadProperties(signaturePropertiesPath);
+                Properties signatureProperties = PropertiesLoader.loadProperties(
+                        signaturePropertiesPath);
                 map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
             }
             if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting encryption properties on STSClient: {}",
                         encryptionPropertiesPath);
-                Properties encryptionProperties = PropertiesLoader
-                        .loadProperties(encryptionPropertiesPath);
+                Properties encryptionProperties = PropertiesLoader.loadProperties(
+                        encryptionPropertiesPath);
                 map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
             }
             if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
@@ -228,9 +239,10 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
      * Configures the JaxWsProxyFactoryBean with the properties that have been set for the particular source.
      */
     protected void configureProxyFactoryProperties(JaxWsProxyFactoryBean clientFactory,
-            SecurityToken actAsToken, WebServiceProperties wsp) {
+            SecurityToken token, WebServiceProperties wsp) {
         String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
         String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
+        String stsPropertiesPath = stsClientConfig.getTokenProperties();
 
         LOGGER.debug("Configuring proxy factory properties");
         if (wsp.endpointAddress != null) {
@@ -250,24 +262,29 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
             LOGGER.debug("Configuring STS Client");
             HashMap<String, Object> properties = new HashMap<>();
 
-            if (actAsToken != null && actAsToken.getToken() != null) {
+            STSClient stsClient = configureSTSClient(bus);
+            LOGGER.debug("Setting STSClient");
+            properties.put(SecurityConstants.STS_CLIENT, stsClient);
+
+            if (token != null && token.getToken() != null) {
                 LOGGER.debug("Setting incoming SAML assertion to outgoing federated client");
-                properties.put(SecurityConstants.STS_TOKEN_ACT_AS, actAsToken.getToken());
-            } else {
-                STSClient stsClient = configureSTSClient(bus);
-                LOGGER.debug("Setting STSClient");
-                properties.put(SecurityConstants.STS_CLIENT, stsClient);
+                properties.put(SecurityConstants.TOKEN, token);
             }
             if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting signature properties: {}", signaturePropertiesPath);
-                Properties signatureProperties = PropertiesLoader
-                        .loadProperties(signaturePropertiesPath);
+                Properties signatureProperties = PropertiesLoader.loadProperties(
+                        signaturePropertiesPath);
                 properties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
+            }
+            if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
+                LOGGER.debug("Setting sts properties: {}", stsPropertiesPath);
+                Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
+                properties.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
             }
             if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
                 LOGGER.debug("Setting encryption properties: {}", encryptionPropertiesPath);
-                Properties encryptionProperties = PropertiesLoader
-                        .loadProperties(encryptionPropertiesPath);
+                Properties encryptionProperties = PropertiesLoader.loadProperties(
+                        encryptionPropertiesPath);
                 properties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
             }
             properties.put(SecurityConstants.DISABLE_STS_CLIENT_WSMEX_CALL_USING_EPR_ADDRESS,
@@ -279,19 +296,145 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
 
     static final class TokenPassThroughInterceptor extends AbstractPhaseInterceptor<Message> {
 
-        private final SecurityToken securityToken;
-
-        public TokenPassThroughInterceptor(SecurityToken securityToken) {
+        public TokenPassThroughInterceptor() {
             super(Phase.POST_LOGICAL);
-            this.securityToken = securityToken;
         }
 
         @Override
         public void handleMessage(Message message) throws Fault {
-            if (securityToken != null) {
-                TokenStore tokenStore = WSS4JUtils.getTokenStore(message);
-                tokenStore.add(securityToken);
+            AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+            // extract Assertion information
+
+            if (aim != null) {
+                Collection<AssertionInfo> ais = getAllAssertionsByLocalname(aim,
+                        SPConstants.ISSUED_TOKEN);
+
+                if (ais != null) {
+                    IssuedToken itok = (IssuedToken) ais.iterator()
+                            .next()
+                            .getAssertion();
+                    SecurityToken token = (SecurityToken) message.getContextualProperty(
+                            SecurityConstants.TOKEN);
+
+                    boolean shouldRequestNewToken = false;
+                    if (token != null && itok != null) {
+                        SecurityAssertion securityAssertion = new SecurityAssertionImpl(token);
+
+                        Element requestSecurityTokenTemplate = itok.getRequestSecurityTokenTemplate();
+                        List<AttributeStatement> attributeStatements = securityAssertion.getAttributeStatements();
+
+                        XMLStreamReader xmlStreamReader = StaxUtils.createXMLStreamReader(
+                                requestSecurityTokenTemplate);
+                        try {
+                            while (xmlStreamReader.hasNext()) {
+                                int event = xmlStreamReader.next();
+                                switch (event) {
+                                case XMLStreamConstants.START_ELEMENT: {
+                                    String localName = xmlStreamReader.getLocalName();
+                                    String elementText;
+                                    switch (localName) {
+                                    case "TokenType":
+                                        elementText = xmlStreamReader.getElementText();
+                                        //check that the token type is the same
+                                        if (elementText == null || !securityAssertion.getTokenType()
+                                                .equals(elementText.trim())) {
+                                            shouldRequestNewToken = true;
+                                        }
+                                        break;
+                                    case "KeyType":
+                                        elementText = xmlStreamReader.getElementText();
+                                        //bearer only lines up with bearer, so make sure they match
+                                        if (StringUtils.containsIgnoreCase(elementText, "bearer")) {
+                                            if (!securityAssertion.getSubjectConfirmations()
+                                                    .stream()
+                                                    .anyMatch(s -> StringUtils.containsIgnoreCase(s,
+                                                            "bearer"))) {
+                                                shouldRequestNewToken = true;
+                                            }
+                                        }
+                                        //either of these key types can line up with either of the key confirmation methods
+                                        if (StringUtils.containsIgnoreCase(elementText, "publickey")
+                                                || StringUtils.containsIgnoreCase(elementText,
+                                                "symmetrickey")) {
+                                            if (!securityAssertion.getSubjectConfirmations()
+                                                    .stream()
+                                                    .anyMatch(s -> StringUtils.containsIgnoreCase(s,
+                                                            "holder-of-key")
+                                                            || StringUtils.containsIgnoreCase(s,
+                                                            "sender-vouches"))) {
+                                                shouldRequestNewToken = true;
+                                            }
+                                        }
+                                        break;
+                                    case "ClaimType":
+                                        int attributeCount = xmlStreamReader.getAttributeCount();
+                                        boolean foundRequired = true;
+                                        boolean isOptional = true;
+                                        String uri = "";
+                                        for (int i = 0; i < attributeCount; i++) {
+                                            String attrLocalName = xmlStreamReader.getAttributeLocalName(
+                                                    i);
+                                            String attributeValue = xmlStreamReader.getAttributeValue(
+                                                    i);
+                                            if (attrLocalName.equalsIgnoreCase("Optional")) {
+                                                isOptional = Boolean.parseBoolean(attributeValue);
+                                            }
+                                            if (attrLocalName.equalsIgnoreCase("Uri")) {
+                                                uri = attributeValue;
+                                            }
+                                        }
+                                        if (!isOptional) {
+                                            //claim is not optional so make sure that the assertion we have includes it
+                                            foundRequired = false;
+                                            for (AttributeStatement attributeStatement : attributeStatements) {
+                                                for (Attribute attribute : attributeStatement.getAttributes()) {
+                                                    if (attribute.getName()
+                                                            .equals(uri)) {
+                                                        //found the required attribute, so we don't need to do anything else
+                                                        foundRequired = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        //there is a required attribute that the token doesn't contain so we need to get a new one
+                                        if (!foundRequired) {
+                                            shouldRequestNewToken = true;
+                                        }
+                                        break;
+                                    }
+                                }
+                                }
+                            }
+                        } catch (XMLStreamException e) {
+                            throw new Fault(e);
+                        }
+                        if (shouldRequestNewToken) {
+                            message.put(SecurityConstants.TOKEN, null);
+                            message.put(SecurityConstants.STS_TOKEN_ON_BEHALF_OF, token.getToken());
+                        }
+                    }
+                }
             }
+        }
+
+        static Collection<AssertionInfo> getAllAssertionsByLocalname(AssertionInfoMap aim,
+                String localname) {
+            Collection<AssertionInfo> sp11Ais = aim.get(new QName(SP11Constants.SP_NS, localname));
+            Collection<AssertionInfo> sp12Ais = aim.get(new QName(SP12Constants.SP_NS, localname));
+
+            if ((sp11Ais != null && !sp11Ais.isEmpty()) || (sp12Ais != null
+                    && !sp12Ais.isEmpty())) {
+                Collection<AssertionInfo> ais = new HashSet<>();
+                if (sp11Ais != null) {
+                    ais.addAll(sp11Ais);
+                }
+                if (sp12Ais != null) {
+                    ais.addAll(sp12Ais);
+                }
+                return ais;
+            }
+
+            return Collections.emptySet();
         }
     }
 
