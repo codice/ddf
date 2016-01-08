@@ -99,14 +99,18 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
     public static final String CONTENT_TYPE_VERSION = "contentTypeVersion";
 
-    private LazyDynaBean bean;
+    private LazyDynaBean attributesBean;
+
+    public DynamicMetacard() {
+
+    }
 
     /**
      * Creates a {@link Metacard} from the provided {@link DynaClass} with empty
      * {@link Attribute}s.
      */
     public DynamicMetacard(DynaClass dynaClass) {
-        bean = new LazyDynaBean(dynaClass);
+        attributesBean = new LazyDynaBean(dynaClass);
     }
 
     /**
@@ -114,7 +118,11 @@ public class DynamicMetacard implements Metacard, MetacardType {
      * with empty {@link Attribute}s.
      */
     public DynamicMetacard(LazyDynaBean dynaBean) {
-        bean = dynaBean;
+        attributesBean = dynaBean;
+    }
+
+    public void setAttributesBean(LazyDynaBean dynaBean) {
+        attributesBean = dynaBean;
     }
 
     /**
@@ -126,7 +134,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
     @Override
     public Attribute getAttribute(String s) {
         List<Serializable> list = null;
-        Serializable obj = (Serializable) bean.get(s);
+        Serializable obj = (Serializable) attributesBean.get(s);
         if (obj != null) {
             list = new ArrayList<Serializable>();
             if (obj instanceof Collection) {
@@ -164,12 +172,12 @@ public class DynamicMetacard implements Metacard, MetacardType {
             List<Serializable> values = attribute.getValues();
             Serializable value = attribute.getValue();
             if ((values != null) && (values.size() > 1)) {
-                bean.set(name, values);
+                attributesBean.set(name, values);
             } else {
                 if (value instanceof URI) {
                     value = ((URI) value).toString();
                 }
-                bean.set(name, value);
+                attributesBean.set(name, value);
             }
         }
     }
@@ -400,7 +408,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      */
     private String getPropertyAsString(String attributeName) {
         String s = null;
-        Object o = bean.get(attributeName);
+        Object o = attributesBean.get(attributeName);
         if (o instanceof String) {
             s = (String) o;
         } else {
@@ -422,7 +430,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      */
     private Date getPropertyAsDate(String attributeName) {
         Date date = null;
-        Object o = bean.get(attributeName);
+        Object o = attributesBean.get(attributeName);
         if (o instanceof Date) {
             date = (Date) o;
         } else {
@@ -444,7 +452,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      */
     private byte[] getPropertyAsBinary(String attributeName) {
         byte[] binary = null;
-        Object o = bean.get(attributeName);
+        Object o = attributesBean.get(attributeName);
         if (o instanceof byte[]) {
             binary = (byte[]) o;
             if (binary.length == 0) {
@@ -470,7 +478,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      */
     private URI getPropertyAsURI(String attributeName) {
         URI uri = null;
-        Object o = bean.get(attributeName);
+        Object o = attributesBean.get(attributeName);
         if (o instanceof URI) {
             uri = (URI) o;
         } else if (o instanceof String) {
@@ -499,7 +507,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      */
     @Override
     public String getName() {
-        return bean.getDynaClass()
+        return attributesBean.getDynaClass()
                 .getName();
     }
 
@@ -511,7 +519,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      */
     @Override
     public Set<AttributeDescriptor> getAttributeDescriptors() {
-        DynaProperty[] properties = bean.getDynaClass()
+        DynaProperty[] properties = attributesBean.getDynaClass()
                 .getDynaProperties();
         Set<AttributeDescriptor> descriptors = new HashSet<>();
         for (DynaProperty property : properties) {
@@ -539,7 +547,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
      * @param value the value to be set
      */
     public void addAttribute(String name, Object value) {
-        DynaProperty dynaProperty = bean.getDynaClass()
+        DynaProperty dynaProperty = attributesBean.getDynaClass()
                 .getDynaProperty(name);
         if (value instanceof URI) {
             value = ((URI) value).toString();
@@ -547,15 +555,15 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
         try {
             if (dynaProperty == null) {
-                bean.set(name, 0, value);
+                attributesBean.set(name, 0, value);
             } else {
                 if (dynaProperty.isIndexed()) {
-                    bean.set(name, bean.size(name), value);
+                    attributesBean.set(name, attributesBean.size(name), value);
                 } else {
                     LOGGER.warn(
                             "Can't add another value to a simple attribute {} - replacing value.",
                             name);
-                    bean.set(name, value);
+                    attributesBean.set(name, value);
                 }
             }
         } catch (ConversionException e) {
@@ -572,7 +580,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
         } catch (IndexOutOfBoundsException e) {
             LOGGER.warn("Trying to set attribute {} at index {} which is out of range.",
                     name,
-                    bean.size(name));
+                    attributesBean.size(name));
         } catch (NullPointerException e) {
             LOGGER.warn(
                     "Trying to set primitive type for attribute {} to a null value - no action taken",
@@ -588,10 +596,10 @@ public class DynamicMetacard implements Metacard, MetacardType {
      * @param value the value to be set
      */
     public void setAttribute(String name, Object value) {
-        DynaProperty dynaProperty = bean.getDynaClass()
+        DynaProperty dynaProperty = attributesBean.getDynaClass()
                 .getDynaProperty(name);
         if (value == null) {
-            bean.set(name, value);
+            attributesBean.set(name, value);
             return;
         }
 
@@ -601,15 +609,15 @@ public class DynamicMetacard implements Metacard, MetacardType {
 
         try {
             if (dynaProperty == null) {
-                bean.set(name, value);
+                attributesBean.set(name, value);
             } else {
                 if (dynaProperty.isIndexed()) {
                     LOGGER.warn(
                             "Trying to set multivalue attribute {} with a single value - adding it to the list.",
                             name);
-                    bean.set(name, bean.size(name), value);
+                    attributesBean.set(name, attributesBean.size(name), value);
                 } else {
-                    bean.set(name, value);
+                    attributesBean.set(name, value);
                 }
             }
         } catch (ConversionException e) {
@@ -626,7 +634,7 @@ public class DynamicMetacard implements Metacard, MetacardType {
         } catch (IndexOutOfBoundsException e) {
             LOGGER.warn("Trying to set attribute {} at index {} which is out of range.",
                     name,
-                    bean.size(name));
+                    attributesBean.size(name));
         } catch (NullPointerException e) {
             LOGGER.warn(
                     "Trying to set primitive type for attribute {} to a null value - no action taken",

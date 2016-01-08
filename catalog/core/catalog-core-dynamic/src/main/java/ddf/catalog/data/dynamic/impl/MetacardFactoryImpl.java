@@ -114,7 +114,7 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
     @Override
     public void addDynaClass(LazyDynaClass dynaClass) {
         if (dynaClass != null) {
-            LOGGER.debug("Registering new dynamic metacard type with name {}", dynaClass.getName());
+            LOGGER.info("Registering new dynamic metacard - name {}", dynaClass.getName());
             dynaClassMap.put(dynaClass.getName(), dynaClass);
         }
     }

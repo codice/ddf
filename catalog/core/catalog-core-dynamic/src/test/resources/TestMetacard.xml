@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+
+<metacard>
+    <name>nitf</name>
+    <attributes>
+        <!--// add the base metacard attributes-->
+        <!--new MetacardPropertyDescriptor(Metacard.CREATED, Date.class),-->
+        <attribute>
+            <name>created</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.MODIFIED, Date.class),-->
+        <attribute>
+            <name>modified</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.EXPIRATION, Date.class),-->
+        <attribute>
+            <name>expiration</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.EFFECTIVE, Date.class),-->
+        <attribute>
+            <name>effective</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.ID, String.class),-->
+        <attribute>
+            <name>id</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.GEOGRAPHY, String.class), // ("location", String.class),-->
+        <attribute>
+            <name>location</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(DynamicMetacard.SOURCE_ID, String.class), // ("sourceId", String.class),-->
+        <attribute>
+            <name>source-id</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.THUMBNAIL, byte[].class),-->
+        <attribute>
+            <name>thumbnail</name>
+            <type>Binary</type>
+            <indexed>false</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.TITLE, String.class),-->
+        <attribute>
+            <name>title</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.METADATA, String.class),-->
+        <attribute>
+            <name>metadata</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--//new MetacardPropertyDescriptor(DynamicMetacard.METACARD_TYPE, MetacardType.class), // ("metacardType", MetacardType.class),-->
+        <!--<attribute>-->
+        <!--<name>metacard-type</name>-->
+        <!--<type>String</type>-->
+        <!--<indexed>true</indexed>-->
+        <!--<stored>true</stored>-->
+        <!--<tokenized>false</tokenized>-->
+        <!--<multi-valued>false</multi-valued>-->
+        <!--</attribute>-->
+        <!--new MetacardPropertyDescriptor(Metacard.TARGET_NAMESPACE, String.class), // ("contentTypeNamespace", URI.class),-->
+        <attribute>
+            <name>metadata-target-namespace</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptorDescriptor(Metacard.CONTENT_TYPE, String.class), // ("contentTypeName", String.class),-->
+        <attribute>
+            <name>metadata-content-type</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.POINT_OF_CONTACT, String.class),-->
+        <attribute>
+            <name>point-of-contact</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.DESCRIPTION, String.class),-->
+        <attribute>
+            <name>description</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.CONTENT_TYPE_VERSION, String.class),-->
+        <attribute>
+            <name>metadata-content-type-version</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.RESOURCE_URI, String.class),-->
+        <attribute>
+            <name>resource-uri</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.RESOURCE_SIZE, String.class),-->
+        <attribute>
+            <name>resource-size</name>
+            <type>Long</type>
+            <indexed>false</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--new MetacardPropertyDescriptor(Metacard.SECURITY, Map.class)-->
+        <attribute>
+            <name>security</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+
+        <!--// nitf-specific fields-->
+        <!--addMultivaluedDescriptor(NITF_VERSION, String.class, true, true, false);-->
+        <attribute>
+            <name>version</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(FILE_DATE_TIME, Date.class, true, true, false);-->
+        <attribute>
+            <name>fileDateTime</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(FILE_TITLE, String.class, true, true, false);-->
+        <attribute>
+            <name>fileTitle</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(FILE_SIZE, Long.class, true, true, false);-->
+        <attribute>
+            <name>fileSize</name>
+            <type>Long</type>
+            <indexed>false</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>false</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(COMPLEXITY_LEVEL, String.class, true, true, false);-->
+        <attribute>
+            <name>complexityLevel</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(ORIGINATOR_NAME, String.class, true, true, false);-->
+        <attribute>
+            <name>originatorName</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(ORIGINATING_STATION_ID, String.class, true, true, false);-->
+        <attribute>
+            <name>originatingStationId</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(IMAGE_ID, String.class, true, true, false);-->
+        <attribute>
+            <name>imageId</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(ISOURCE, String.class, true, true, false);-->
+        <attribute>
+            <name>isource</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(NUMBER_OF_ROWS, Long.class, true, true, false);-->
+        <attribute>
+            <name>numberOfRows</name>
+            <type>Long</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(NUMBER_OF_COLUMNS, Long.class, true, true, false);-->
+        <attribute>
+            <name>numberOfColumns</name>
+            <type>Long</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(NUMBER_OF_BANDS, Long.class, true, true, false);-->
+        <attribute>
+            <name>numberOfBands</name>
+            <type>Long</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(NUMBER_OF_MULTISPECTRAL_BANDS, String.class, true, true, false);-->
+        <attribute>
+            <name>numberOfMultispectralBands</name>
+            <type>Long</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(BITS_PER_PIXEL_PER_BAND, Integer.class, true, true, false);-->
+        <attribute>
+            <name>bitsPerPixelPerBand</name>
+            <type>Integer</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(REPRESENTATION, String.class, true, true, false);-->
+        <attribute>
+            <name>representation</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(SUBCATEGORY, String.class, true, true, false);-->
+        <attribute>
+            <name>subcategory</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(IMAGE_MODE, String.class, true, true, false);-->
+        <attribute>
+            <name>imageMode</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(COMPRESSION, String.class, true, true, false);-->
+        <attribute>
+            <name>compression</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(RATE_CODE, String.class, true, true, false);-->
+        <attribute>
+            <name>rateCode</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(TARGET_ID, String.class, true, true, false);-->
+        <attribute>
+            <name>targetId</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(COMMENT, String.class, true, true, false);-->
+        <attribute>
+            <name>comment</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CODE_WORDS, String.class, true, true, false);-->
+        <attribute>
+            <name>codeWords</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CONTROL_CODE, String.class, true, true, false);-->
+        <attribute>
+            <name>controlCode</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(RELEASE_INSTRUCTION, String.class, true, true, false);-->
+        <attribute>
+            <name>releaseInstructions</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CONTROL_NUMBER, String.class, true, true, false);-->
+        <attribute>
+            <name>controlNumber</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CLASSIFICATION_SYSTEM, String.class, true, true, false);-->
+        <attribute>
+            <name>system</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CLASSIFICATION_AUTHORITY, String.class, true, true, false);-->
+        <attribute>
+            <name>authority</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CLASSIFICATION_AUTHORITY_TYPE, String.class, true, true, false);-->
+        <attribute>
+            <name>authorityType</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CLASSIFICATION_TEXT, String.class, true, true, false);-->
+        <attribute>
+            <name>text</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CLASSIFICATION_REASON, String.class, true, true, false);-->
+        <attribute>
+            <name>reason</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(CLASSIFICATION_DATE, Date.class, true, true, false);-->
+        <attribute>
+            <name>classificationDate</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(DECLASSIFICATION_TYPE, String.class, true, true, false);-->
+        <attribute>
+            <name>declassificationType</name>
+            <type>String</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(DECLASSIFICATION_DATE, Date.class, true, true, false);-->
+        <attribute>
+            <name>declassificationDate</name>
+            <type>Date</type>
+            <indexed>true</indexed>
+            <stored>true</stored>
+            <tokenized>false</tokenized>
+            <multi-valued>true</multi-valued>
+        </attribute>
+        <!--addMultivaluedDescriptor(SECURITY, String.class, true, true, false);-->
+        <!--// already part of the base metacard attributes-->
+    </attributes>
+</metacard>

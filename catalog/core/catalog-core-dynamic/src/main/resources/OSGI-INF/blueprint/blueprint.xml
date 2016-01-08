@@ -13,11 +13,23 @@
  **/
 
  -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:camel="http://camel.apache.org/schema/blueprint" >
 
     <bean id="dynamicBeanFactory" class="ddf.catalog.data.dynamic.impl.MetacardFactoryImpl" />
 
     <service id="dynBeanFactory" ref="dynamicBeanFactory" interface="ddf.catalog.data.dynamic.api.MetacardFactory">
     </service>
+
+    <bean id="metacardReader" class="ddf.catalog.data.dynamic.registry.MetacardReader">
+        <property name="metacardFactory" ref="dynamicBeanFactory"/>
+    </bean>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+      <route id="MCT_MONITOR">
+          <from uri="file://etc/metadata?noop=true&amp;delay=10000"/>
+          <to uri="bean:metacardReader?method=registerMetacardDefinition" />
+      </route>
+  </camelContext>
 
 </blueprint>
