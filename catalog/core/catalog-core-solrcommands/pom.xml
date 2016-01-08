@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>core</artifactId>
@@ -67,6 +69,35 @@
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -91,15 +122,54 @@
                             solr-factory,
                             httpclient,
                             httpcore,
-                            httpmime
+                            httpmime,
+                            commons-io,
+                            commons-lang,
+                            lucene-core,
+                            joda-time
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.commands.solr
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.management,
+                            javax.management.openmbean,
+                            javax.management.remote,
+                            javax.naming,
+                            javax.naming.directory,
+                            javax.naming.ldap,
+                            javax.net,
+                            javax.net.ssl,
+                            javax.script,
+                            javax.security.auth.x500,
+                            javax.servlet,
+                            javax.servlet.http,
+                            javax.xml.bind,
+                            javax.xml.namespace,
+                            javax.xml.parsers,
+                            javax.xml.stream,
+                            javax.xml.transform,
+                            javax.xml.transform.dom,
+                            javax.xml.transform.sax,
+                            javax.xml.transform.stream,
+                            javax.xml.xpath,
+                            org.apache.commons.codec.binary,
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
-                            *;resolution:=optional
+                            org.apache.felix.gogo.commands,
+                            org.apache.karaf.shell.console,
+                            org.codice.ddf.configuration,
+                            org.eclipse.jetty.*,
+                            org.fusesource.jansi,
+                            org.osgi.framework;version="[1.5,2)",
+                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
+                            org.osgi.service.cm,
+                            org.slf4j;version="[1.6,2)",
+                            org.w3c.dom,
+                            org.xml.sax,
+                            org.xml.sax.ext
                         </Import-Package>
                     </instructions>
                 </configuration>

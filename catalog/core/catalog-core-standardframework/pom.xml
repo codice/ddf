@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>core</artifactId>
@@ -292,6 +294,54 @@
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.measure</groupId>
+            <artifactId>measure-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.mime.core</groupId>
+            <artifactId>mime-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -301,7 +351,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency><!-- Start of Solr cache dependencies -->
+                        <Embed-Dependency>
+                            <!-- Start of Solr cache dependencies -->
                             lux,
                             solr-xpath,
                             Saxon-HE,
@@ -341,7 +392,8 @@
                             guava,
                             notifications,
                             activities,
-                            hazelcast;scope=runtime|compile
+                            hazelcast;scope=runtime|compile,
+                            commons-collections
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
@@ -365,21 +417,33 @@
                             ddf.catalog.resourceretriever,
                             ddf.catalog.resource.data
                         </Export-Package>
-                        <Import-Package><!-- Start of Solr imports -->
+                        <Import-Package>
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
+                            com.vividsolutions.jts.geom.impl,
+                            com.vividsolutions.jts.geom.prep,
                             com.vividsolutions.jts.io,
                             com.vividsolutions.jts.operation.union,
                             com.vividsolutions.jts.operation.valid,
                             com.vividsolutions.jts.simplify,
                             com.vividsolutions.jts.util,
-                            <!-- Remember, this is the same as saying, 2.0 or higher, not solely 2.0 -->
+                            ddf.action;version="1.0",
+                            ddf.catalog;version="2.0",
+                            ddf.catalog.event;version="2.0",
+                            ddf.catalog.pubsub;version="2.0",
+                            ddf.catalog.transform;version="2.0",
                             ddf.catalog.data;version="2.0",
+                            ddf.catalog.federation;version="2.0",
                             ddf.catalog.filter;version="2.0",
                             ddf.catalog.operation;version="2.0",
+                            ddf.catalog.plugin;version="2.0",
+                            ddf.catalog.resource;version="2.0",
                             ddf.catalog.source;version="2.0",
                             ddf.catalog.util;version="2.0",
                             ddf.measure;version="2.0",
+                            ddf.mime,
+                            ddf.security,
+                            javax.activation,
                             javax.annotation,
                             javax.crypto,
                             javax.crypto.spec,
@@ -388,7 +452,11 @@
                             javax.management.openmbean,
                             javax.management.remote,
                             javax.naming,
+                            javax.naming.directory,
+                            javax.naming.ldap,
+                            javax.net,
                             javax.net.ssl,
+                            javax.script,
                             javax.security.auth,
                             javax.security.auth.callback,
                             javax.security.auth.kerberos,
@@ -397,6 +465,11 @@
                             javax.security.auth.x500,
                             javax.security.sasl,
                             javax.servlet;version="2.5",
+                            javax.servlet.http,
+                            javax.ws.rs,
+                            javax.ws.rs.core,
+                            javax.xml.bind,
+                            javax.xml.datatype,
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.stream,
@@ -405,21 +478,42 @@
                             javax.xml.transform,
                             javax.xml.transform.dom,
                             javax.xml.transform.sax,
+                            javax.xml.transform.stax,
                             javax.xml.transform.stream,
                             javax.xml.xpath,
+                            jline,
                             org.apache.commons.logging;version="[1.1,2)",
+                            org.apache.cxf.jaxrs.client,
+                            org.apache.cxf.jaxrs.ext.multipart,
+                            org.apache.shiro,
+                            org.apache.shiro.subject,
+                            org.apache.tika,
+                            org.apache.xerces.parsers,
+                            org.apache.xerces.xni.parser,
+                            org.apache.xml.resolver,
+                            org.apache.xml.resolver.helpers,
+                            org.codice.ddf.platform.util,
+                            org.eclipse.jetty.server.*,
+                            org.eclipse.jetty.servlet,
+                            org.eclipse.jetty.util.*,
+                            org.geotools.filter.visitor,
+                            org.joda.convert,
+                            org.opengis.annotation,
                             org.opengis.filter,
                             org.opengis.filter.expression,
                             org.opengis.filter.sort,
+                            org.opengis.filter.temporal,
+                            org.opengis.temporal,
                             org.osgi.framework;version="[1.5,2)",
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
+                            org.osgi.service.blueprint.container,
+                            org.osgi.service.event,
                             org.slf4j;version="[1.6,2)",
+                            org.slf4j.ext,
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.ext,
-                            org.xml.sax.helpers,
-                            *;resolution:=optional
-                            <!-- End of Solr imports -->
+                            org.xml.sax.helpers
                         </Import-Package>
                     </instructions>
                 </configuration>
