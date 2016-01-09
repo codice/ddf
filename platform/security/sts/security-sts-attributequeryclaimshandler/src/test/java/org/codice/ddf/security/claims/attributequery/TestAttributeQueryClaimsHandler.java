@@ -118,8 +118,8 @@ public class TestAttributeQueryClaimsHandler {
 
     @BeforeClass
     public static void init() throws InitializationException {
-        InitializationService.initialize();
         OpenSAMLUtil.initSamlEngine();
+        InitializationService.initialize();
     }
 
     @Before
