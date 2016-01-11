@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -58,6 +58,8 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     protected AtomicInteger failedCount = new AtomicInteger(0);
 
+    protected AtomicInteger successCount = new AtomicInteger(0);
+
     @Option(name = "--batchsize", required = false, aliases = {
             "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = MAX_BATCH_SIZE;
@@ -106,32 +108,38 @@ public abstract class DuplicateCommands extends CatalogCommands {
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    private List<Metacard> failedMetacards = Collections
-            .synchronizedList(new ArrayList<Metacard>());
+    @Option(name = "--maxMetacards", required = false, aliases = {
+            "-mm", "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to ingest.")
+    int maxMetacards;
+
+    private List<Metacard> failedMetacards =
+            Collections.synchronizedList(new ArrayList<>());
 
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
 
     /**
-     *
-     * @param queryFacade
-     *            - the CatalogFacade used for query
-     * @param ingestFacade
-     *            - the CatalogFacade used for ingest
-     * @param startIndex
-     *            - the start index of the query
-     * @param filter
-     *            - the filter to query with
+     * @param queryFacade  - the CatalogFacade used for query
+     * @param ingestFacade - the CatalogFacade used for ingest
+     * @param startIndex   - the start index of the query
+     * @param filter       - the filter to query with
      * @return - the number of successfully created metacards.
      */
     protected int queryAndIngest(CatalogFacade queryFacade, CatalogFacade ingestFacade,
             int startIndex, Filter filter) {
-        List<Metacard> queryMetacards = null;
+
+        // If maxMetacards is set, restrict the batchSize of the query to the remaining maxMetacards
+        if (maxMetacards > 0 && ((maxMetacards - successCount.get()) < batchSize)) {
+            batchSize = maxMetacards - successCount.get();
+        }
+
+        List<Metacard> queryMetacards;
         queryMetacards = query(queryFacade, startIndex, filter);
+
 
         if (queryMetacards == null || queryMetacards.isEmpty()) {
             return 0;
         }
-
+        
         List<Metacard> createdMetacards = ingestMetacards(ingestFacade, queryMetacards);
         int failed = queryMetacards.size() - createdMetacards.size();
         if (failed != 0) {
@@ -139,6 +147,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
             failedCount.addAndGet(failed);
             failedMetacards.addAll(subtract(queryMetacards, createdMetacards));
         }
+        successCount.addAndGet(createdMetacards.size());
         return createdMetacards.size();
     }
 
@@ -146,22 +155,22 @@ public abstract class DuplicateCommands extends CatalogCommands {
         if (metacards.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Metacard> createdMetacards = new ArrayList<Metacard>();
+        List<Metacard> createdMetacards = new ArrayList<>();
         LOGGER.debug("Preparing to ingest {} records", metacards.size());
         CreateRequest createRequest = new CreateRequestImpl(metacards);
 
-        CreateResponse createResponse = null;
+        CreateResponse createResponse;
         try {
             createResponse = provider.create(createRequest);
             createdMetacards = createResponse.getCreatedMetacards();
         } catch (IngestException e) {
-            printErrorMessage(
-                    String.format("Received error while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Received error while ingesting: %s%n",
+                    e.getMessage()));
             LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
-            printErrorMessage(
-                    String.format("Received error while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Received error while ingesting: %s%n",
+                    e.getMessage()));
             LOGGER.warn("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
@@ -178,12 +187,12 @@ public abstract class DuplicateCommands extends CatalogCommands {
         if (metacards.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Metacard> createdMetacards = new ArrayList<Metacard>();
+        List<Metacard> createdMetacards = new ArrayList<>();
         LOGGER.debug("Preparing to ingest {} records one at time.", metacards.size());
         for (Metacard metacard : metacards) {
             CreateRequest createRequest = new CreateRequestImpl(Arrays.asList(metacard));
 
-            CreateResponse createResponse = null;
+            CreateResponse createResponse;
             try {
                 createResponse = provider.create(createRequest);
                 createdMetacards.addAll(createResponse.getCreatedMetacards());
@@ -205,15 +214,25 @@ public abstract class DuplicateCommands extends CatalogCommands {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
         if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
-            return builder.attribute(temporalProperty).is().during()
+            return builder.attribute(temporalProperty)
+                    .is()
+                    .during()
                     .dates(formatter.parse(startDate), formatter.parse(endDate));
         } else if (start > 0 && end > 0) {
-            return builder.attribute(temporalProperty).is().during()
+            return builder.attribute(temporalProperty)
+                    .is()
+                    .during()
                     .dates(new Date(start), new Date(end));
         } else if (isUseTemporal) {
-            return builder.attribute(temporalProperty).is().during().last(start);
+            return builder.attribute(temporalProperty)
+                    .is()
+                    .during()
+                    .last(start);
         } else {
-            return builder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
+            return builder.attribute(Metacard.ANY_TEXT)
+                    .is()
+                    .like()
+                    .text(WILDCARD);
         }
     }
 
@@ -242,7 +261,8 @@ public abstract class DuplicateCommands extends CatalogCommands {
         console.print(String.format(message));
         console.flush();
         while (true) {
-            int byteOfData = session.getKeyboard().read();
+            int byteOfData = session.getKeyboard()
+                    .read();
 
             if (byteOfData < 0) {
                 // end of stream
@@ -258,7 +278,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
     }
 
     protected List<Metacard> subtract(List<Metacard> queried, List<Metacard> ingested) {
-        List<Metacard> result = new ArrayList<Metacard>(queried);
+        List<Metacard> result = new ArrayList<>(queried);
         result.removeAll(ingested);
         return result;
     }
@@ -280,8 +300,9 @@ public abstract class DuplicateCommands extends CatalogCommands {
         }
         for (Metacard metacard : failedMetacards) {
 
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
-                    new File(directory.getAbsolutePath(), metacard.getId())))) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(
+                    directory.getAbsolutePath(),
+                    metacard.getId())))) {
                 oos.writeObject(new MetacardImpl(metacard));
                 oos.flush();
             }
