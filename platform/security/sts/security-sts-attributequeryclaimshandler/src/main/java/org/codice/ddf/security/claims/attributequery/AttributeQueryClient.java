@@ -34,13 +34,8 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
-import org.opensaml.soap.soap11.Body;
 import org.opensaml.soap.soap11.Envelope;
-import org.opensaml.soap.soap11.Header;
-import org.opensaml.soap.soap11.impl.BodyBuilder;
-import org.opensaml.soap.soap11.impl.EnvelopeBuilder;
 import org.opensaml.soap.soap11.impl.EnvelopeMarshaller;
-import org.opensaml.soap.soap11.impl.HeaderBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.slf4j.Logger;
@@ -129,7 +124,7 @@ public class AttributeQueryClient {
             simpleSign.signSamlObject(attributeQuery);
 
             // Create soap message for request.
-            soapElement = createSOAPMessage(attributeQuery);
+            soapElement = createSoapMessage(attributeQuery);
 
             // Sign soap message.
             Signer.signObject(attributeQuery.getSignature());
@@ -150,30 +145,13 @@ public class AttributeQueryClient {
      * @param attributeQuery is added to the SOAP message
      * @return soapElement is the Element of the SOAP message
      */
-    private Element createSOAPMessage(AttributeQuery attributeQuery)
+    private Element createSoapMessage(AttributeQuery attributeQuery)
             throws AttributeQueryException {
-        LOGGER.debug("Creating SAML SOAP object of the AttributeQuery.");
+        LOGGER.debug("Creating SOAP message from the SAML AttributeQuery.");
 
-        BodyBuilder soapBodyBuilder =
-                (BodyBuilder) builderFactory.getBuilder(Body.DEFAULT_ELEMENT_NAME);
+        Envelope envelope = SamlProtocol.createSoapMessage(attributeQuery);
 
-        EnvelopeBuilder soapEnvelopeBuilder =
-                (EnvelopeBuilder) builderFactory.getBuilder(Envelope.DEFAULT_ELEMENT_NAME);
-
-        HeaderBuilder soapHeaderBuilder =
-                (HeaderBuilder) builderFactory.getBuilder(Header.DEFAULT_ELEMENT_NAME);
-
-        Body body = soapBodyBuilder.buildObject();
-        body.getUnknownXMLObjects()
-                .add(attributeQuery);
-
-        Envelope envelope = soapEnvelopeBuilder.buildObject();
-        envelope.setBody(body);
-
-        Header header = soapHeaderBuilder.buildObject();
-        envelope.setHeader(header);
-
-        LOGGER.debug("SAML SOAP object of the AttributeQuery created.");
+        LOGGER.debug("SOAP message from the SAML AttributeQuery created.");
 
         try {
             return new EnvelopeMarshaller().marshall(envelope);
