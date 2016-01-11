@@ -35,7 +35,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -46,6 +45,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test
+                        </Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.transformer.metacard.geojson;version=${project.version}
                         </Export-Package>

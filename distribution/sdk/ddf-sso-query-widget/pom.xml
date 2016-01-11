@@ -39,6 +39,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jasig.cas</groupId>
             <artifactId>cas-client-core</artifactId>
             <version>3.1.10</version>
@@ -92,6 +97,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test
+                        </Embed-Dependency>
                         <Export-Package>
                             ddf.sso.widget;version=${project.version}
                         </Export-Package>

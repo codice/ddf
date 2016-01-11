@@ -40,15 +40,15 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeImpl;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteRequestImpl;
 import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.UpdateRequestImpl;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin;
@@ -155,10 +155,10 @@ public class TestMetacardGroomerPlugin {
 
         Date snapshotOfNow = new Date();
         Metacard inputMetacard = getStandardMetacard();
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.EXPIRATION, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, null));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.EXPIRATION, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, ""));
 
         Metacard outputMetacard = processCreate(inputMetacard);
 
@@ -226,7 +226,9 @@ public class TestMetacardGroomerPlugin {
             throws PluginExecutionException, StopProcessingException, ParseException {
 
         Metacard inputMetacard = getStandardMetacard();
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, null));
+        AttributeImpl title = new AttributeImpl(Metacard.TITLE, "");
+        title.clearValues();
+        inputMetacard.setAttribute(title);
 
         Metacard outputMetacard = processCreate(inputMetacard);
 
@@ -255,8 +257,12 @@ public class TestMetacardGroomerPlugin {
             throws PluginExecutionException, StopProcessingException, ParseException {
 
         Metacard inputMetacard = getStandardMetacard();
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE_VERSION, null));
+        AttributeImpl contentType = new AttributeImpl(Metacard.CONTENT_TYPE, "");
+        contentType.clearValues();
+        inputMetacard.setAttribute(contentType);
+        AttributeImpl contentTypeVersion = new AttributeImpl(Metacard.CONTENT_TYPE_VERSION, "");
+        contentTypeVersion.clearValues();
+        inputMetacard.setAttribute(contentTypeVersion);
 
         Metacard outputMetacard = processCreate(inputMetacard);
 
@@ -392,22 +398,22 @@ public class TestMetacardGroomerPlugin {
 
         Date snapshotOfNow = new Date();
         Metacard inputMetacard = getStandardMetacard();
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, null));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE_VERSION, null));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE_VERSION, ""));
 
         Metacard outputMetacard = processUpdate(inputMetacard);
 
         assertThat(outputMetacard.getId(), is(SAMPLE_ID));
 
-        assertThat(outputMetacard.getTitle(), is(nullValue()));
+        assertThat(outputMetacard.getTitle(), is(""));
 
-        assertThat(outputMetacard.getLocation(), is(nullValue()));
+        assertThat(outputMetacard.getLocation(), is(""));
         assertThat(outputMetacard.getMetadata(), is(DEFAULT_METADATA));
 
         assertThat(outputMetacard.getCreatedDate(), is(notNullValue()));
@@ -426,8 +432,8 @@ public class TestMetacardGroomerPlugin {
 
         assertThat(outputMetacard.getThumbnail(), is(nullValue()));
 
-        assertThat(outputMetacard.getContentTypeName(), is(nullValue()));
-        assertThat(outputMetacard.getContentTypeVersion(), is(nullValue()));
+        assertThat(outputMetacard.getContentTypeName(), is(""));
+        assertThat(outputMetacard.getContentTypeVersion(), is(""));
 
     }
 

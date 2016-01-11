@@ -1840,7 +1840,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         QueryImpl query = new QueryImpl(txtFilter);
 
-        query.setSortBy(new ddf.catalog.filter.SortByImpl("unknownField", SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl("unknownField", SortOrder.ASCENDING));
 
         SourceResponse response = provider.query(new QueryRequestImpl(query));
 
@@ -1871,7 +1871,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         QueryImpl query = new QueryImpl(txtFilter);
 
-        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING));
 
         SourceResponse response = provider.query(new QueryRequestImpl(query));
 
@@ -2129,7 +2129,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Testing attributes are properly indexed.
      *
-     * @param bundleContext
      * @throws Exception
      */
     @Test
@@ -2167,7 +2166,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Testing {@link Metacard#ANY_TEXT}
      *
-     * @param bundleContext
      * @throws Exception
      */
     @Test
@@ -2201,7 +2199,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Testing case sensitive index.
      *
-     * @param bundleContext
      * @throws Exception
      */
     @Test
@@ -3270,7 +3267,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         QueryImpl query = new QueryImpl(filter);
 
-        query.setSortBy(new ddf.catalog.filter.SortByImpl(Metacard.ID, SortOrder.ASCENDING.name()));
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Metacard.ID, SortOrder.ASCENDING.name()));
 
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -3321,7 +3318,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         query = new QueryImpl(filter);
 
         query.setSortBy(
-                new ddf.catalog.filter.SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING.name()));
+                new ddf.catalog.filter.impl.SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING.name()));
 
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -3335,7 +3332,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         // Sort all TEMPORAL ASC
 
         query.setSortBy(
-                new ddf.catalog.filter.SortByImpl(Metacard.EFFECTIVE, SortOrder.ASCENDING.name()));
+                new ddf.catalog.filter.impl.SortByImpl(Metacard.EFFECTIVE, SortOrder.ASCENDING.name()));
 
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -3355,7 +3352,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         query = new QueryImpl(filter);
 
         query.setSortBy(
-                new ddf.catalog.filter.SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING.name()));
+                new ddf.catalog.filter.impl.SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING.name()));
 
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -3375,7 +3372,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         query = new QueryImpl(filter);
 
         query.setSortBy(
-                new ddf.catalog.filter.SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING.name()));
+                new ddf.catalog.filter.impl.SortByImpl(Result.RELEVANCE, SortOrder.ASCENDING.name()));
 
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
@@ -3555,7 +3552,6 @@ public class TestSolrProvider extends SolrProviderTestCase {
     /**
      * Tests the offset aka start index (startIndex) functionality.
      *
-     * @param bundleContext
      * @throws Exception
      */
     @Test
@@ -3755,7 +3751,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         // Right on Flagstaff, finding 2 records with 195 km radius
         query = builder.pointRadius(-111.67121887207031, 35.138454437255859, 195000);
-        query.setSortBy(new ddf.catalog.filter.SortByImpl("foo", SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl("foo", SortOrder.ASCENDING));
         sourceResponse = provider.query(new QueryRequestImpl(query));
 
         assertEquals("Failed to find the two records.", 2, sourceResponse.getResults().size());
@@ -3836,7 +3832,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         // sort by distance
         QueryImpl query = new QueryImpl(finalFilter);
-        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE,
+        SortBy sortby = new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE,
                 org.opengis.filter.sort.SortOrder.DESCENDING);
         query.setSortBy(sortby);
 
@@ -3874,7 +3870,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
                         .indexOf(FLAGSTAFF_QUERY_PHRASE) > 0);
 
         // Descending
-        SortBy sortby = new ddf.catalog.filter.SortByImpl(Result.DISTANCE,
+        SortBy sortby = new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE,
                 org.opengis.filter.sort.SortOrder.DESCENDING);
         query.setSortBy(sortby);
         sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -3931,7 +3927,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         QueryImpl query = new QueryImpl(positiveFilter);
-        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
 
         // when
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
@@ -3968,7 +3964,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         create(list);
 
         QueryImpl query = new QueryImpl(positiveFilter);
-        query.setSortBy(new ddf.catalog.filter.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE, SortOrder.ASCENDING));
 
         // when
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));

@@ -45,7 +45,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -56,7 +55,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart</Embed-Dependency>
+                        <Embed-Dependency>
+                            json-smart,
+                            catalog-core-api-impl;scope=!test
+                        </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>

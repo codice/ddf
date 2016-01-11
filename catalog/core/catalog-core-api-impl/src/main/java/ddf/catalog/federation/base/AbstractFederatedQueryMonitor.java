@@ -19,8 +19,8 @@ import java.util.concurrent.Future;
 
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.Source;
 
 @SuppressWarnings("unused")
