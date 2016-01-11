@@ -186,12 +186,7 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-geocoding-index</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-geocoding-query</artifactId>
+            <artifactId>spatial-geocoding-lucene</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
