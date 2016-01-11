@@ -1,11 +1,11 @@
 
 The {branding} Content Framework is a framework for storing, reading, processing, and transforming content information.
-Content information is consists of files that the client wants parsed and created with a metacard that is subsequently used to create a catalog entry in the Metadata Catalog and stored in the {branding} Content Repository.
+Content information consists of files that the client wants parsed and created with a metacard that is subsequently used to create a catalog entry in the Metadata Catalog and stored in the {branding} Content Repository.
 
 The files passed into the {branding} Content Framework can be of any type, (e.g., NITF, PDF, Microsoft Word, etc.), as long as:
 
 * the mime type can be resolved,
-* an Input Transformer exists to parse their content into a metacard,
+* an Input Transformer capable of parsing their content into a metacard exists,
 * and the generated metacard satisfies the constraints of the catalog provider into which the generated metacard will be inserted.
 
 For example, if the Tika Input Transformer is installed, Microsoft Office documents and PDF files can be transformed into metacards.
@@ -16,8 +16,8 @@ At the core of the Content functionality is the Content Framework, which routes 
 
 The {branding} Content Framework has several components and an API that connects them together.
 The Content API consists of the Java interfaces that define {branding} functionality.
-These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, allowing the possibility of alternate implementations that can maintain interoperability and share developed components. 
-As such, new capabilities can be developed independently in a modular fashion, using the Content API interfaces, and reused by other {branding} installations.
+These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation. This allows for alternate implementations that can maintain interoperability and share developed components. 
+As such, new capabilities can be developed both independently and modularly with the Content API interfaces and reused by other {branding} installations.
 
 The {branding} Content API will evolve with {branding} itself, but great care is taken to retain backwards compatibility with developed components.
 Compatibility is reflected in version numbers.
@@ -27,51 +27,51 @@ Compatibility is reflected in version numbers.
 .Architecture
 [ditaa, content_framework_architecture, png, ${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |cDEF Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | cDEF       | cDEF |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | cDEF              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | cDEF          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |cDEF               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
 ==== Design
 
-The {branding} Content Framework design consists of several major components, namely: endpoints, input transformers, the core Content Framework, storage providers, and Content plugins.
+The {branding} Content Framework design consists of several major components, namely: endpoints, input transformers, the core Content Framework, storage providers, storage plugins, and Content plugins.
 
 The endpoints provide external clients access to the Content Framework.
 Input transformers convert incoming content into a metacard.
 The core Content Framework routes requests and responses through the system.
 The storage providers provide storage of the content to specific types of  storage, e.g., file system, relational database, XML database.
-The Content plugins provide pluggable functionality that can be executed after the content has been stored/update/deleted but before the response has been returned to the client.
+Storage plugins provide pluggable functionality that can be executed either immediately before or immediately after content has been stored or updated.
+The Content plugins provide pluggable functionality that can be executed after the content has been stored/update/deleted and after the storage plugins but before the response has been returned to the client.
 
 ==== {branding} Content API Packaging
 
@@ -81,24 +81,26 @@ The following illustration shows these interfaces and how they are packaged.
 .Content API Packaging
 [ditaa, content_api_packaging, png]
 ....
-+---------------------------------------------------------------------------------------------------------------------------------\
-|DDF Content API cCCC                                                                                                             |
-|+------------------\ +-------------------\ +--------------------------------------------------------------\ +------------------\ |
-||ddf.content.plugin| |ddf.contentprovider| |ddf.content.operation                                         | |ddf.content       | |
-||   +-------------\| |  +---------------\| | +---------\ +-------\ +--------\ +-------------\             | |+----------------\| |
-||   |ContentPlugin|| |  |StorageProvider|| | |Operation| |Request| |Response| |CreateRequest|             | ||ContentFramework|| |
-||   |cFFC         || |  |cFFC           || | |cFFC     | |cFFC   | |cFFC    | |cFFC         |             | ||cFFC            || |
-||   \-------------/| |  \---------------/| | \---------/ \-------/ \--------/ \-------------/             | |\----------------/| |
-||cDEF              | |cDEF               | | +-------------\ +-----------\ +------------\ +-------------\ | |cDEF              | |
-|\------------------/ \-------------------/ | |CreateRequest| |ReadRequest| |ReadResponse| |UpdateRequest| | \------------------/ |
-|                                           | |cFFC         | | cFFC      | | cFFC       | | cFFC        | |                      |
-|                                           | \-------------/ \-----------/ \------------/ \-------------/ |                      | +-----------------------------------\
-|                                           | +--------------\ +-------------\ +--------------\            |                      | |DDF Mime Types Support             |
-|                                           | |UpdateResponse| |DeleteRequest| |DeleteResponse|  cDEF      |                      | |+----------------\ +--------------\|
-|                                           | |cFFC          | | cFFC        | |cFFC          |            |                      | ||MimeTypeResolver| |MimeTypeMapper||
-|                                           | \--------------/ \-------------/ \--------------/            |                      | ||cFFC            | |cFFC          ||
-|                                           \--------------------------------------------------------------/                      | |\----------------/ \--------------/|
-\---------------------------------------------------------------------------------------------------------------------------------/ \-----------------------------------/
++-------------------------------------------------------------------------------------------------------------------------------------------------\
+|{branding} Content API cCCC                                                                                                                      |
+|+----------------------------------\ +-------------------\ +---------------------------------------------------------------\ +------------------\|
+||ddf.content.plugin                | |ddf.contentprovider| |ddf.content.operation                                          | |ddf.content       ||
+||   +-------------\ +-------------\| |  +---------------\| | +---------\ +-------\ +--------\ +-------------\              | |+----------------\||
+||   |ContentPlugin| |PreUpdate    || |  |StorageProvider|| | |Operation| |Request| |Response| |CreateRequest|              | ||ContentFramework|||
+||   |cFFC         | |StoragePlugin|| |  |cFFC           || | |cFFC     | |cFFC   | |cFFC    | |cFFC         |              | ||cFFC            |||
+||   \-------------/ |cFFC         || |  \---------------/| | \---------/ \-------/ \--------/ \-------------/              | |\----------------/||
+||   +-------------\ \-------------/| |cDEF               | | +--------------\ +-----------\ +------------\ +-------------\ | |cDEF              ||
+||   |PreCreate    | +-------------\| \-------------------/ | |CreateResponse| |ReadRequest| |ReadResponse| |UpdateRequest| | \------------------/|
+||   |StoragePlugin| |PostUpdate   ||                       | |cFFC          | | cFFC      | | cFFC       | | cFFC        | |                     |
+||   |cFFC         | |StoragePlugin||                       | \--------------/ \-----------/ \------------/ \-------------/ |                     | +-----------------------------------\
+||   \-------------/ |cFFC         ||                       | +--------------\ +-------------\ +--------------\             |                     | |{branding} Mime Types Support      |
+||   +-------------\ \-------------/|                       | |UpdateResponse| |DeleteRequest| |DeleteResponse|  cDEF       |                     | |+----------------\ +--------------\|
+||   |PostCreate   |                |                       | |cFFC          | | cFFC        | |cFFC          |             |                     | ||MimeTypeResolver| |MimeTypeMapper||
+||   |StoragePlugin|                |                       | \--------------/ \-------------/ \--------------/             |                     | ||cFFC            | |cFFC          ||
+||   |cFFC         |                |                       \---------------------------------------------------------------/                     | |\----------------/ \--------------/|
+||   \-------------/                |                                                                                                             | \-----------------------------------/
+|\----------------------------------/                                                                                                             |
+\-------------------------------------------------------------------------------------------------------------------------------------------------/
 ....
 
 ==== {branding} Content API Reference Implementation
@@ -109,25 +111,25 @@ The following illustration shows these classes and how they are packaged.
 .Content API Packaging Implementation
 [ditaa, content_api_reference_impl, png]
 ....
-+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------\
-|{branding} Content API Impl                                                                                                                                                        |
-|+----------------------------------\ +-------------------------\ +-------------------------------------------------------------------------------\ +----------------------\ |
-||ddf.content.plugin.catalog cDEF   | |ddf.content.provider.file| |ddf.content.operation.impl                                                     | |ddf.content.impl      | |
-||+---------\ +--------------------\| |     +------------------\| | +-------------\ +-----------\ +------------\ +-----------------\              | |+--------------------\| |
-|||Cataloger| |CatalogContentPlugin|| |     |FileSystemProvider|| | |OperationImpl| |RequestImpl| |ResponseImpl| |CreateRequestImpl|              | ||ContentFrameworkImpl|| |
-||| cFFC    | | cFFC               || |     | cFFC             || | |cFFC         | |cFFC       | |cFFC        | |cFFC             |    cDEF      | ||cFFC                || |
-||\---------/ \--------------------/| |     \------------------/| | \-------------/ \-----------/ \------------/ \-----------------/              | |\--------------------/| |
-||                                  | |   cDEF                  | | +------------------\ +---------------\ +----------------\ +-----------------\ | | cDEF                 | |
-|\----------------------------------/ \-------------------------/ | |CreateResponseImpl| |ReadRequestImpl| |ReadresponseImpl| |UpdateRequestImpl| | \----------------------/ |
-|                                                                 | |cFFC              | |cFFC           | |cFFC            | |cFFC             | |                          |
-|                                                                 | \------------------/ \---------------/ \----------------/ \-----------------/ |                          |
-|                                                                 | +------------------\ +-----------------\ +------------------\                 |                          |
-|                                                                 | |UpdateResponseImpl| |DeleteRequestImpl| |DeleteResponseImpl|                 |                          |
-|                                                                 | |cFFC              | |cFFC             | | cFFC             |                 |                          |
-|                                                                 | \------------------/ \-----------------/ \------------------/                 |                          |
-|                                                                 |                                                                               |                          |
-|                                                                 \-------------------------------------------------------------------------------/                          |
-\----------------------------------------------------------------------------------------------------------------------------------------------------------------------------/
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\
+|{branding} Content API Impl                                                                                                                                                   |
+|+------------------------------------\ +-------------------------\ +-------------------------------------------------------------------------------\ +----------------------\ |
+||ddf.content.plugin.cataloger cDEF   | |ddf.content.provider.file| |ddf.content.operation.impl                                                     | |ddf.content.impl      | |
+||+---------\ +----------------------\| |     +------------------\| | +-------------\ +-----------\ +------------\ +-----------------\              | |+--------------------\| |
+|||Cataloger| |CatalogContentPlugin  || |     |FileSystemProvider|| | |OperationImpl| |RequestImpl| |ResponseImpl| |CreateRequestImpl|              | ||ContentFrameworkImpl|| | 
+||| cFFC    | | cFFC                 || |     | cFFC             || | |cFFC         | |cFFC       | |cFFC        | |cFFC             |    cDEF      | ||cFFC                || |
+||\---------/ \----------------------/| |     \------------------/| | \-------------/ \-----------/ \------------/ \-----------------/              | |\--------------------/| |
+||                                    | |   cDEF                  | | +------------------\ +---------------\ +----------------\ +-----------------\ | | cDEF                 | |
+|\------------------------------------/ \-------------------------/ | |CreateResponseImpl| |ReadRequestImpl| |ReadResponseImpl| |UpdateRequestImpl| | \----------------------/ |
+|+------------------------------------\                             | |cFFC              | |cFFC           | |cFFC            | |cFFC             | |                          |
+||ddf.content.plugin.video cDEF       |                             | \------------------/ \---------------/ \----------------/ \-----------------/ |                          |
+||+----------------------\            |                             | +------------------\ +-----------------\ +------------------\                 |                          |
+|||VideoThumbnailPlugin  |            |                             | |UpdateResponseImpl| |DeleteRequestImpl| |DeleteResponseImpl|                 |                          |
+||| cFFC                 |            |                             | |cFFC              | |cFFC             | | cFFC             |                 |                          |
+||\----------------------/            |                             | \------------------/ \-----------------/ \------------------/                 |                          |
+|\------------------------------------/                             |                                                                               |                          |
+|                                                                   \-------------------------------------------------------------------------------/                          |
+\------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/
 ....
 
 
@@ -138,40 +140,39 @@ The following illustration shows these classes and how they are packaged.
 .Content Data Component Architecture
 [ditaa, content_data_components, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |cDEF Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | cDEF       | c369 |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | cDEF              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | cDEF          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |cDEF               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | c369 |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
 
@@ -185,40 +186,39 @@ A Content Item encapsulates the content's globally unique ID, mime type, and inp
 .Content Endpoint Architecture
 [ditaa, content_endpoints, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |c369 Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | cDEF       | cDEF |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | cDEF              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | cDEF          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |cDEF               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |c369 Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
 Content endpoints act as a proxy between the client and the Content Framework.
@@ -248,40 +248,39 @@ The following endpoints are provided with the Content Framework out of the box:
 .Content Framework Architecture
 [ditaa, content_framework, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |cDEF Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | cDEF       | cDEF |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | c369              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | cDEF          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |cDEF               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | c369              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
 The Content Framework wires all Content components together via OSGi and the Content API.
@@ -298,40 +297,39 @@ The {branding} Content comes with the following Content Frameworks out of the bo
 .Content Operations Architecture
 [ditaa, content_operations, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |cDEF Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | c369       | cDEF |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | cDEF              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | cDEF          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |cDEF               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | c369       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
 The {branding} Content provides the capability to read, create, update, and delete content from the {branding} Content Repository.
@@ -344,48 +342,92 @@ For each operation, there is an associated request/response pair, e.g., the `Cre
 All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response.
 This allows additional capability to be added without changing the Content API, helping to maintain backwards compatibility.
 
+==== Storage Plugins
+[ditaa, storage_plugin, png,${image.width}]
+....
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |c369Storage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
+....
+
+The Content Framework calls Storage Plugins to process each request both immediately before and immediately after an item is created or updated in the content repository. Storage Plugins are only run if the request specifies content storage.
+
+===== Examples
+Types of Storage Plugins available out of the box:
+
+* Video Thumbnail Plugin, which is both a PostCreateStoragePlugin and a PostUpdateStoragePlugin and is used to generate thumbnails for video files stored in the content repository.
+
 ==== Content Plugins
 
 .Content Plugin Architecture
 [ditaa, content_plugin, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |cDEF Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | cDEF       | cDEF |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | cDEF              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | c369          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |cDEF               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |c369Content Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
-The Content Framework calls Content plugins to process requests after they have been processed by the Storage Provider.
+The Content Framework calls Content plugins to process requests after they have been processed by the Storage Provider (and after any PostCreateStorage/PostUpdateStoragePlugins).
 If the request does not specify content storage (only processing), the Content Plugins are called immediately by the Content Framework.
 
 ===== Examples
@@ -399,40 +441,39 @@ Types of Content Plugins available out of the box:
 .Storage Provider Architecture
 [ditaa, storage_provider, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+
-|                 /-=-----------------\                                     |
-|                 |      Clients      |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                 /-------------------\                                     |
-|                 |cDEF Endpoints     |                                     |
-|                 +------------+------+                                     |
-|                 | cDEF       | cDEF |                                     |
-|                 | Operations | Data |                                     |
-|                 +------------+------+---------------\                     |
-|                 | cDEF              | cDEF          |                     |
-|                 |                   |  Transformers |                     |
-|                 +                   +---------------+                     |
-|                 | Content Framework | cDEF          |                     |
-|                 |                   |    Content    |                     |
-|                 |                   |    Plugins    |                     |
-|                 +-------------------+---------------/                     |
-|                 |c369               |                                     |
-|                 | Storage Provider  |                                     |
-|                 \-------------------/                                     |
-|                           ^                                               |
-|                           |                                               |
-|                           v                                               |
-|                   +-=-------------+                LEGEND                 |
-|                   |{s}            |                /--------------------\ |
-|                   |   Content     |                |cDEFDDF Component   | |
-|                   |  Repository   |                \--------------------/ |
-|                   +---------------+                /-=------------------\ |
-|                                                    | External Component | |
-|                                                    \--------------------/ |
-+---------------------------------------------------------------------------+
++------------------------------------------------------------------------------+             
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | cDEF |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Content Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |cDEFContent Plugins    |                |
+|                 +-------------------+-----------------------/                |
+|                 |c369               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEFDDF Component   |    |
+|                   |  Repository   |                \--------------------/    | 
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
 ....
 
 Storage providers act as a proxy between the Content Framework and the mechanism storing the content, e.g., file system, relational database.
@@ -479,14 +520,38 @@ This component can only be installed and uninstalled.
 
 None
 
+=== Video Thumbnail Plugin
+
+The Video Thumbnail Plugin provides the ability to generate thumbnails for video files stored in the Content Repository.
+
+It is an implementation of both the PostCreateStoragePlugin and PostUpdateStoragePlugin interfaces. When installed, it is invoked by the Content Framework immediately after a content item has been created or updated by the Storage Provider.
+
+==== Using
+
+This plugin uses a custom 32-bit LGPL build of https://ffmpeg.org/[FFmpeg] (a video processing program) to generate thumbnails. When this plugin is installed, it places the FFmpeg executable appropriate for the current operating system in `<DDF_INSTALL_DIR>/bin_third_party/ffmpeg`. When invoked, this plugin runs the FFmpeg binary in a separate process to generate the thumbnail. The `<DDF_INSTALL_DIR>/bin_third_party/ffmpeg` directory is deleted when the plugin is uninstalled.
+
+NOTE: Prebuilt FFmpeg binaries are provided for Linux, Mac, and Windows only.
+
+==== Installing and Uninstalling
+
+The Video Thumbnail Plugin is bundled as the `content-core-videothumbnailplugin`. It is not installed by default.
+
+==== Configuring
+
+There are no configurable properties for this component. This component can only be installed and uninstalled.
+
+==== Known Issues
+
+None
+
 === Content Cataloger Plugin
 
 The Content Cataloger Plugin provides the implementation to parse content, create a Metacard, and create, update, and delete catalog entries in the Metadata Catalog.
 
 The Content Cataloger Plugin is an implementation of the `ContentPlugin` interface.
-When installed, it is invoked by the Content Framework after a content item has been processed by the Storage Provider, but before the response is returned to the Content Endpoint.
+When installed, it is invoked by the Content Framework after a content item has been processed by the Storage Provider (and after any PostCreateStorage/PostUpdateStoragePlugins), but before the response is returned to the Content Endpoint.
 
-The Content Cataloger Plugin searches the OSGi service registry for all services registered as `inputTransformers` that can process the content item's mime type.
+The Content Cataloger Plugin searches the OSGi service registry for all services registered as `InputTransformers` that can process the content item's mime type.
 If such a service is found, the service is invoked (for `create` and `update` operations; `delete` operations are handled internally by the Content Cataloger Plugin).
 The `inputTransformer` service accepts the content item's `InputStream` and parses it, creating a Metacard that is returned to the Content Cataloger Plugin.
 This Metacard is then used in the `create` and `update` operations invoked on the Catalog Framework to interface with the Metadata Catalog.
