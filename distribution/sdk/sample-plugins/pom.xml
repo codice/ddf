@@ -30,6 +30,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -44,6 +49,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test
+                        </Embed-Dependency>
                         <Import-Package>
                             ddf.catalog,
                             ddf.catalog.data,

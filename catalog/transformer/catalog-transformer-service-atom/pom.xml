@@ -90,7 +90,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>common-system</Embed-Dependency>
+                        <Embed-Dependency>
+                            common-system,
+                            catalog-core-api-impl;scope=!test
+                        </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.response.query.atom,
                             ddf.catalog.data.impl

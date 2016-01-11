@@ -62,7 +62,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -85,6 +84,7 @@
                             handlebars,
                             commons-lang3,
                             antlr4-runtime,
+                            catalog-core-api-impl;scope=!test,
                             simple;inline=templates/**
                         </Embed-Dependency>
                         <Import-Package>!org.abego.treelayout.*, *</Import-Package>

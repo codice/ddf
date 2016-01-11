@@ -43,9 +43,12 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Private-Package>ddf.catalog.plugin.groomer.metacard,ddf.catalog.data.impl
+                        <Private-Package>ddf.catalog.plugin.groomer.metacard
                         </Private-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test
+                        </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>

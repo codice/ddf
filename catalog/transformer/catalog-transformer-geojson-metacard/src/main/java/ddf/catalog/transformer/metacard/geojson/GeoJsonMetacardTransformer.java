@@ -38,6 +38,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.geo.formatter.CompositeGeometry;
@@ -185,7 +186,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
         String jsonText = JSONValue.toJSONString(rootObject);
 
-        return new ddf.catalog.data.BinaryContentImpl(
+        return new BinaryContentImpl(
                 new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
                 DEFAULT_MIME_TYPE);
     }

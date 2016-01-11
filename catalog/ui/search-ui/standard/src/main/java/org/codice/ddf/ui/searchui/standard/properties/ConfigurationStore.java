@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import us.bpsm.edn.EdnIOException;
 import us.bpsm.edn.EdnSyntaxException;
 import us.bpsm.edn.parser.Parser;

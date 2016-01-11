@@ -24,10 +24,10 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateRequestImpl;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.operation.UpdateRequestImpl;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 
@@ -97,7 +97,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
             updatedMetacards = this.filterOutMetacards(updatedMetacards);
             LOGGER.debug("Returning new update request with id list size: {} and metacard list size: {}", ids.size(), updatedMetacards.size());
-            newRequest = new UpdateRequestImpl((String[]) (ids.toArray(new String[ids.size()])),
+            newRequest = new UpdateRequestImpl(ids.toArray(new String[ids.size()]),
                     updatedMetacards);
         }
 

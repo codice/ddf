@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -112,7 +113,7 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
 
         String jsonText = JSONValue.toJSONString(rootObject);
 
-        return new ddf.catalog.data.BinaryContentImpl(
+        return new BinaryContentImpl(
                 new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
                 DEFAULT_MIME_TYPE);
     }
