@@ -68,32 +68,32 @@ public abstract class DuplicateCommands extends CatalogCommands {
             "-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 1;
 
-    @Option(name = "-t", required = false, aliases = {
-            "-temporal"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
+    @Option(name = "--temporal", required = false, aliases = {
+            "-t"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
     boolean isUseTemporal = false;
 
-    @Option(name = "-s", required = false, aliases = {
-            "-startDate"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
+    @Option(name = "--startDate", required = false, aliases = {
+            "-s"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String startDate;
 
-    @Option(name = "-e", required = false, aliases = {
-            "-endDate"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
+    @Option(name = "--endDate", required = false, aliases = {
+            "-e"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String endDate;
 
-    @Option(name = "-lasthours", required = false, aliases = {
-            "-hour"}, multiValued = false, description = "Option to replicate the last N hours.")
+    @Option(name = "--lastHours", required = false, aliases = {
+            "-h", "-hours"}, multiValued = false, description = "Option to replicate the last N hours.")
     int lastHours;
 
-    @Option(name = "-lastdays", required = false, aliases = {
-            "-day"}, multiValued = false, description = "Option to replicate the last N days.")
+    @Option(name = "--lastDays", required = false, aliases = {
+            "-d", "-days"}, multiValued = false, description = "Option to replicate the last N days.")
     int lastDays;
 
-    @Option(name = "-lastweeks", required = false, aliases = {
-            "-week"}, multiValued = false, description = "Option to replicate the last N weeks.")
+    @Option(name = "--lastWeeks", required = false, aliases = {
+            "-w", "-weeks"}, multiValued = false, description = "Option to replicate the last N weeks.")
     int lastWeeks;
 
-    @Option(name = "-lastmonths", required = false, aliases = {
-            "-month"}, multiValued = false, description = "Option to replicate the last N month.")
+    @Option(name = "--lastMonths", required = false, aliases = {
+            "-m", "-months"}, multiValued = false, description = "Option to replicate the last N month.")
     int lastMonths;
 
     @Option(name = "--failedDir", required = false, aliases = {
@@ -101,11 +101,11 @@ public abstract class DuplicateCommands extends CatalogCommands {
     String failedDir;
 
     @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Remove Metacards that match a CQL Filter expressions. It is recommended to use the search command first to see which metacards will be removed.\n"
+            "Ingest Metacards that match a CQL Filter expression. It is recommended to use the search command (catalog:search) first to see which metacards will be ingested.\n"
                     + "CQL Examples:\n" + "\tTextual:   search --cql \"title like 'some text'\"\n"
-                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+                    + "\tTemporal:  --cql \"modified before 2012-09-01T12:30:00Z\"\n"
+                    + "\tSpatial:   --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
+                    + "\tComplex:   --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
     @Option(name = "--maxMetacards", required = false, aliases = {

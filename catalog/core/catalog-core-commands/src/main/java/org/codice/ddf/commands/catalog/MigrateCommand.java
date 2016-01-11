@@ -50,7 +50,11 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ServiceComparator;
 
-@Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards from a Federated Source into the Catalog.")
+@Command(scope = CatalogCommands.NAMESPACE, name = "migrate", description = "Migrates Metacards "
+        + "from a Configured External Provider into the Catalog.  The migrate command currently "
+        + "picks the first Catalog provider as the FROM and the second Catalog provider as the TO. "
+        + "Additional support will be added to specify which provider will be migrated TO and FROM "
+        + "in the future.")
 public class MigrateCommand extends DuplicateCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrateCommand.class);
