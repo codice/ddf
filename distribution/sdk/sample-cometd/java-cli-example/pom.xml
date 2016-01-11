@@ -30,11 +30,24 @@
             <groupId>com.github.rvesse</groupId>
             <artifactId>airline</artifactId>
             <version>2.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <!--Excluded due to OWASP issue with commons-collections4-4.0.jar: CVE-2015-6420 if they upgrade to 4.4.1 we can remove this-->
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-collections4</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.distribution.sdk.sample-cometd</groupId>
             <artifactId>cometd-java-example</artifactId>
             <version>2.9.0-SNAPSHOT</version>
+        </dependency>
+        <!--this is just to replace the 4.0 version excluded above it is supposedly binary compatible-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.1</version>
         </dependency>
     </dependencies>
 
