@@ -41,22 +41,20 @@ import org.mockito.ArgumentCaptor;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
-
 /**
  * If you want to run any of these tests in the debugger, you will need to do the following:
  * 1) uncomment @RunWith(PowerMockRunner.class)
  * 2) uncomment import org.powermock.modules.junit4.PowerMockRunner;
  * 3) uncomment import org.junit.runner.RunWith;
  * 4) comment out:
- *        @Rule
- *        public PowerMockRule rule = new PowerMockRule();
- * 4) comment out import org.powermock.modules.junit4.rule.PowerMockRule;
  *
+ * @Rule public PowerMockRule rule = new PowerMockRule();
+ * 4) comment out import org.powermock.modules.junit4.rule.PowerMockRule;
+ * <p>
  * If you want to see Jacoco code coverage, the following must be commented out:
  * 1) import org.junit.runner.RunWith;
  * 2) import org.powermock.modules.junit4.PowerMockRunner;
  * 3) @RunWith(PowerMockRunner.class)
- *
  */
 @PrepareForTest({SystemConfigurationMigration.class, FileUtils.class})
 public class SystemConfigurationMigrationTest {

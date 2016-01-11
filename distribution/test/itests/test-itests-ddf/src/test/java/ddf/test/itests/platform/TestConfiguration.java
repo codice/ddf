@@ -403,7 +403,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 containsString(String.format("Failed to export all configurations to %s",
                         getExportDirectory())));
 
-
     }
 
     /**
@@ -690,7 +689,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
      * file.
-     * <p/>
+     * <p>
      * Note: Since we have custom code in the @{link FelixPersistenceStrategy} class to convert
      * floats and doubles, we cannot simply rely on what we read from the file to assert that the
      * Configuration object has the right properties. For this reason, we need to create our own
@@ -895,7 +894,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         /**
          * {@inheritDoc}
-         * <p/>
+         * <p>
          * Overridden to use {@link ManagedServiceFactoryConfigurationPropertiesEqualTo}.
          */
         @Override
@@ -909,7 +908,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         /**
          * {@inheritDoc}
-         * <p/>
+         * <p>
          * Overridden to use {@link ManagedServiceFactoryConfigurationPropertiesEqualTo}.
          */
         @Override
