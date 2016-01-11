@@ -156,8 +156,7 @@ public class ReplicationCommandTest {
                     public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
                         Object[] args = invocation.getArguments();
                         CreateRequest request = (CreateRequest) args[0];
-                        when(mockCreateResponse.getCreatedMetacards())
-                                .thenReturn(request.getMetacards());
+                        when(mockCreateResponse.getCreatedMetacards()).thenReturn(request.getMetacards());
                         return mockCreateResponse;
                     }
                 });
@@ -174,8 +173,8 @@ public class ReplicationCommandTest {
 
         replicationCmd.doExecute();
 
-        assertThat(consoleOutput.getOutput(),
-                containsString("Batch Size must be between 1 and 1000."));
+        assertThat(consoleOutput.getOutput(), containsString(
+                "Batch Size must be between 1 and 1000."));
         consoleOutput.reset();
     }
 
@@ -234,6 +233,28 @@ public class ReplicationCommandTest {
     }
 
     @Test
+    public void testMaxMetacard() throws Exception {
+        replicationCmd.isProvider = true;
+        replicationCmd.isUseTemporal = false;
+        replicationCmd.sourceId = "sourceId1";
+        replicationCmd.batchSize = 10;
+        replicationCmd.maxMetacards = 20;
+
+        replicationCmd.doExecute();
+
+        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
+        verify(catalogFramework, times(replicationCmd.maxMetacards / replicationCmd.batchSize + 1))
+                .query(argument.capture());
+        QueryRequest request = argument.getValue();
+        assertThat(request, notNullValue());
+        Query query = request.getQuery();
+        assertThat(query, notNullValue());
+        assertThat(query.getPageSize(), is(replicationCmd.batchSize));
+        assertThat(query.getStartIndex(), is(11));
+    }
+
+
+    @Test
     public void testMultithreaded() throws Exception {
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;
@@ -274,7 +295,7 @@ public class ReplicationCommandTest {
         assertThat(query.getPageSize(), is(replicationCmd.batchSize));
         assertThat(query.getStartIndex(), is(1));
         assertThat(query.getSortBy().getPropertyName().getPropertyName(), is(Metacard.EFFECTIVE));
-        // TODO - How do I validate the acutal filter
+        // TODO - How do I validate the actual filter
     }
 
     @Test
