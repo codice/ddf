@@ -35,16 +35,16 @@ import ddf.catalog.data.dynamic.api.MetacardFactory;
  *
  * The XML input structure is as follows:
  *
- * <metacard>
- *   <name>...</name>
+ * <metacard>                               <!-- example values -->
+ *   <name>...</name>                       <!-- nitf -->
  *   <attributes>
  *     <attribute multi-valued="true">
- *       <name>createdDate</name>
- *       <type>Date</type>
- *       <indexed>true</indexed>
- *       <stored>true</stored>
- *       <tokenized>false</tokenized>
- *       <multi-valued>true</multi-valued>
+ *       <name>...</name>                   <!-- created -->
+ *       <type>...</type>                   <!-- Date, String, Long, etc. -->
+ *       <indexed>true|false</indexed>
+ *       <stored>true|false</stored>
+ *       <tokenized>true|false</tokenized>
+ *       <multi-valued>true|false</multi-valued>
  *     </attribute>
  *   <attributes>
  * </metacard>
@@ -55,6 +55,12 @@ public class MetacardReader {
 
     private MetacardFactory metacardFactory;
 
+    /**
+     * Reads and parses the input stream building the definition for a DynamicMetacard type (a LazyDynaClass)
+     * as it reads. It is expected that the stream is closed by the caller.
+     * @param is the input stream containing the xml definition of a metacard class
+     * @return an instance of a LazyDynaClass representing the provided metacard attributes
+     */
     public LazyDynaClass parseMetacardDefinition(InputStream is) {
         MetacardClassBuilder dmcb = null;
         LazyDynaClass dynaClass = null;
@@ -83,6 +89,13 @@ public class MetacardReader {
         return dmcb.getDynamicMetacardClass();
     }
 
+    /**
+     * Reads and parses the given {@link File} building the definition for a DynamicMetacard
+     * type (a LazyDynaClass) as it reads.
+     * @param metacardDefinitionFile the {@link File} object containing the xml definition
+     *                               of a metacard class
+     * @return an instance of a LazyDynaClass representing the provided metacard attributes
+     */
     public boolean registerMetacard(File metacardDefinitionFile) {
         boolean success = false;
         if (metacardDefinitionFile != null) {
@@ -121,22 +134,26 @@ public class MetacardReader {
 //        InputStream is = new ByteArrayInputStream(s.getBytes());
 //        registerMetacardDefinition(is);
 //    }
+//
+//    public void registerMetacardDefinition(InputStream is) {
+//        try {
+//            LazyDynaClass dclass = parseMetacardDefinition(is);
+//
+//            if ((dclass != null) && (metacardFactory != null)) {
+//                LOGGER.debug("Registering metacard - name: {}", dclass.getName());
+//                metacardFactory.addDynaClass(dclass);
+//            } else {
+//                LOGGER.warn("Unable to register new metacard type.");
+//            }
+//        } catch (Exception e) {
+//            LOGGER.warn("Unexpected error parsing metadata definition.", e);
+//        }
+//    }
 
-    public void registerMetacardDefinition(InputStream is) {
-        try {
-            LazyDynaClass dclass = parseMetacardDefinition(is);
-
-            if ((dclass != null) && (metacardFactory != null)) {
-                LOGGER.debug("Registering metacard - name: {}", dclass.getName());
-                metacardFactory.addDynaClass(dclass);
-            } else {
-                LOGGER.warn("Unable to register new metacard type.");
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Unexpected error parsing metadata definition.", e);
-        }
-    }
-
+    /**
+     * Allows the metacard factory object to be injected into this reader.
+     * @param mcf the {@link MetacardFactory} implementation for registering metacards
+     */
     public void setMetacardFactory(MetacardFactory mcf) {
         this.metacardFactory = mcf;
     }

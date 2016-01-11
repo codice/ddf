@@ -25,6 +25,8 @@
         <property name="metacardFactory" ref="dynamicBeanFactory"/>
     </bean>
 
+    <!-- Monitor the 'etc/metadata' folder for changes, passing each file
+         received to the MetacardReader for parsing and registering. -->
     <camelContext xmlns="http://camel.apache.org/schema/blueprint">
       <route id="MCT_MONITOR">
           <from uri="file://etc/metadata?noop=true&amp;delay=10000"/>
