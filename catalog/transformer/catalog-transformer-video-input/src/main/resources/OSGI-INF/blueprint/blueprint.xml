@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <bean id="transformer" class="ddf.catalog.transformer.input.video.VideoInputTransformer"/>
+
+    <service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
+        <service-properties>
+            <entry key="id" value="video"/>
+            <!-- shortname only exists for backwards compatibility -->
+            <entry key="shortname" value="video"/>
+            <entry key="description"
+                   value="Detects and extracts metadata from various video file formats."/>
+            <entry key="mime-type">
+                <list>
+                    <!-- AVI -->
+                    <value>video/avi</value>
+                    <value>video/msvideo</value>
+                    <value>video/vnd.avi</value>
+                    <value>video/x-msvideo</value>
+
+                    <!-- MPEG-4 -->
+                    <value>video/mp4</value>
+
+                    <!-- MPEG-2 Transport Stream -->
+                    <value>video/MP2T</value>
+
+                    <value>video/mpeg</value>
+
+                    <!-- MOV -->
+                    <value>video/quicktime</value>
+
+                    <!-- WMV -->
+                    <value>video/wmv</value>
+                    <value>video/x-ms-wmv</value>
+                </list>
+            </entry>
+        </service-properties>
+    </service>
+</blueprint>

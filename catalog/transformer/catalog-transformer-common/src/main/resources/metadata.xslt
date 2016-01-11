@@ -1,5 +1,5 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-    <!-- Copy all nodes that we don't want to handle specificly -->
+    <!-- Copy all nodes that we don't want to handle specifically -->
     <xsl:template match="/*">
         <metadata>
             <xsl:apply-templates select="@*|node()"/>
