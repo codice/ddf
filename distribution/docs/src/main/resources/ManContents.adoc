@@ -420,13 +420,16 @@ During {branding} installation, the major directories shown in the table below a
 |The {branding} Catalog API Javadoc
 
 |etc
-|Directory monitored for addition/modification/deletion of third party .cfg configuration files
+|Directory monitored for addition/modification/deletion of third party .cfg configuration files and also monitored for addition of .config configuration files.
 
-|etc/ddf
-|Directory monitored for addition/modification/deletion of {branding}-related .cfg configuration files (e.g., Schematron configuration file)
+|etc/failed
+|If there is a problem with any of the .config files, such as bad syntax or missing tokens, they will be relocated here.
+
+|etc/processed
+|All successfully processed .config files will be relocated here.
 
 |etc/templates
-|Template .cfg files for use in configuring {branding} sources, settings, etc., by copying to the etc/ddf directory.
+|Template .config files for use in configuring {branding} sources, settings, etc., by copying to the etc directory.
 
 |lib
 |The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the {branding} logo.
@@ -661,6 +664,9 @@ This value should not be changed from the factory default.
 |
 |no
 
+//  We need to go over the above list and update it
+//  DDF-1793: Update configurable properties list
+
 |===
 
 ===== Manage Features
@@ -804,61 +810,11 @@ State         Version          Name                          Repository  Descrip
 ----
 
 ==== Configuring {branding} using Configuration (.cfg) files
-The {branding} can also be configured with configuration (.cfg) files.
 
 [IMPORTANT]
 ====
 Since certain bundles can only be configured using the new `.config` file format, this new file format is now recommended. Please refer to the Configuring {branding} using Configuration (.config) Files section for more details.
 ====
-
-==== HTTP Port Configuration
-[IMPORTANT]
-====
-Do not use the Admin Console to change the HTTP port. While the Admin Console's Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
-====
-
-====== Multiple Local {branding} Nodes
-Edit the port numbers in the files in the {branding} install folder. The line numbers relate to 2.1.X releases.
-
-[cols="4" options="header"]
-|===
-
-|File to Edit
-|Line Number
-|Original Value
-|Example of New Value
-
-|bin/karaf.bat
-|99
-|5005
-|i.e. 5006
-
-|etc/org.apache.karaf.management.cfg
-|27
-|1099
-|i.e. 1199
-
-|" "
-|32
-|44444
-|i.e. 44445
-
-|etc/system.properties
-|37
-|8993
-|i.e. 8994
-
-|" "
-|38
-|8181
-|i.e. 8281
-
-|" "
-|39
-|8993
-|i.e. 8994
-
-|===
 
 [WARNING]
 ====
@@ -867,7 +823,7 @@ Only root can access ports<1024 on Unix systems. For suggested ways to run {bran
 
 ==== Configuring {branding} using Configuration (.config) Files
 
-The {branding} can also be configured using `.config` files. Like the Karaf `.cfg` files,
+The {branding} is configured using `.config` files. Like the Karaf `.cfg` files,
 these configuration files must be located in the `<DDF_HOME>/etc/` directory, have a name that matches
 the configuration persistence ID (PID) they represent and a `service.pid` property set to the
 configuration PID.
@@ -995,6 +951,82 @@ requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identi
 whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
 
+==== Configuring Global System Properties
+The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through the system properties on startup. After changing any of these properties you will need to restart the system. If you change the 'hostname' property you will also need to configure the certs as described in Configuring {branding} with New Certificates.
+The system by default uses both http and https so both httpsPort and httpPort need to be specified. The protocol and port properties are the defaults the system should use in places where either http or https could be valid.
+----
+org.codice.ddf.system.protocol=https://        #one of http:// or https://
+org.codice.ddf.system.hostname=localhost       #should be the fully qualified domain name
+org.codice.ddf.system.httpsPort=8993           #secure port
+org.codice.ddf.system.httpPort=8181            #public port
+org.codice.ddf.system.port=8993                #default port corresponding to the protocol selected. Should match the httpPort or httpsPort
+org.codice.ddf.system.rootContext=/services    #the root context that services will be made available under
+
+org.codice.ddf.system.siteName=${sitename.default}        #the name of this instance
+org.codice.ddf.system.siteContact=                        #contact for this instance
+org.codice.ddf.system.version=${project.version}          #this instances version
+org.codice.ddf.system.organization=${organization.name}   #who owns/runs this instance
+----
+
+The above properties (along with any other system properties) are available to be used as variable parameters in input url fields within the Admin Console. For example if you wanted to enter the url for the local csw service you could write
+----
+${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
+----
+
+instead of
+
+-----
+https://localhost:8993/services/csw
+-----
+
+The variable version is longer but will not need to be changed if the system host, port or root context changes.
+
+
+==== HTTP Port Configuration
+[IMPORTANT]
+====
+Do not use the Admin Console to change the HTTP port. While the Admin Console's Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
+====
+
+====== Multiple Local {branding} Nodes
+Edit the port numbers in the files in the {branding} install folder. The line numbers relate to 2.1.X releases.
+
+[cols="4" options="header"]
+|===
+
+|File to Edit
+|Original Value
+|Example of New Value
+
+|bin/karaf.bat
+|5005
+|i.e. 5006
+
+|etc/org.apache.karaf.management.cfg
+|1099
+|i.e. 1199
+
+|" "
+|44444
+|i.e. 44445
+
+|etc/system.properties
+|8993
+|i.e. 8994
+
+|" "
+|8181
+|i.e. 8281
+
+|" "
+|8993
+|i.e. 8994
+
+//  The line number column was removed - but now we need a property column
+//  DDF-1794: HTTP Port Config Table needs a Property Column
+
+|===
+
 ==== Enable and Configure HTTP to HTTPS Proxy
 
 What it does: This feature proxies http to https.
@@ -1067,6 +1099,8 @@ image::platform_circled.png[Platform Circled]
 7.) Click “Save changes” to save the Hostname.
 
 ===== Enable SSL for Clients
+
+//     DDF-1798: Enable SSL for Clients was Duplicated
 
 In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties. These values are configured in the <{branding}_INSTALL_DIR>/etc/system.properties file. The following values can be set:
 
@@ -1247,7 +1281,7 @@ This can be done by editing the system.properties in <INSTALL_DIRECTORY>/etc/ or
 The passwords configured in this section reflect the passwords used to decrypt JKS (Java KeyStore) files.
 Changing these values without also changing the passwords of the JKS causes undesirable behavior.
 ====
-* In `<DDF_HOME>/etc/user.properties`, modify the line:
+* In `<DDF_HOME>/etc/users.properties`, modify the line:
 ----
 localhost=localhost,group,admin,manager,viewer,webconsole,system-admin
 ----
@@ -1814,35 +1848,6 @@ The `system.properties` file found under `$DDF_HOME/etc` contains properties tha
 
 By default, this value is set to 128. It is not recommended to set this value extremely high. If unsure, leave this setting at it's default value of 128.
 
-==== Configuring Global System Properties
-The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through the system properties on startup. After changing any of these properties you will need to restart the system. If you change the 'hostname' property you will also need to configure the certs as described in Configuring {branding} with New Certificates.
-The system by default uses both http and https so both httpsPort and httpPort need to be specified. The protocol and port properties are the defaults the system should use in places where either http or https could be valid.
-----
-org.codice.ddf.system.protocol=https://        #one of http:// or https://
-org.codice.ddf.system.hostname=localhost       #should be the fully qualified domain name
-org.codice.ddf.system.httpsPort=8993           #secure port
-org.codice.ddf.system.httpPort=8181            #public port
-org.codice.ddf.system.port=8993                #default port corresponding to the protocol selected. Should match the httpPort or httpsPort
-org.codice.ddf.system.rootContext=/services    #the root context that services will be made available under
-
-org.codice.ddf.system.siteName=${sitename.default}        #the name of this instance
-org.codice.ddf.system.siteContact=                        #contact for this instance
-org.codice.ddf.system.version=${project.version}          #this instances version
-org.codice.ddf.system.organization=${organization.name}   #who owns/runs this instance
-----
-
-The above properties (along with any other system properties) are available to be used as variable parameters in input url fields within the Admin Console. For example if you wanted to enter the url for the local csw service you could write
-----
-${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw
-----
-
-instead of
-
------
-https://localhost:8993/services/csw
------
-
-The variable version is longer but will not need to be changed if the system host, port or root context changes.
 
 === Managing Web Service Security
 
@@ -2545,6 +2550,10 @@ To verify certificate authentication with the default CAS files you must make su
 
 ===== External Links
 For more information on CAS configuration options and what each setting means, refer to their documentation page: https://wiki.jasig.org/display/CASUM/X.509+Certificates.
+
+//      How does the below section relate to the previous section (Configuring {branding} with New Certificates)
+//      and should they be combined?
+//      Current answer: No, the first section is a light intro while these sections are security-intense.
 
 ==== Certificate Management
 {branding} uses certificates in two ways:
@@ -3303,6 +3312,9 @@ The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject di
 </Response>
 ----
 
+//    Where are the expansion configuration files located?
+//    DDF-1795: Expansion Configuration Files not Documented
+
 ===== Expansion Service Instances and Configuration
 It is expected that multiple instances of the expansion service will be running at the same time. Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service. The following table lists the two pre-defined instances used by {branding} for expanding user attributes and metacard attributes respectively.
 
@@ -3494,8 +3506,9 @@ The Security Token Service, unlike the LDAP, cannot currently be installed on a 
 
 All of the authentication components should be running and configured at this point. The final step is to configure a {branding} instance, so this authentication scheme is used.
 
-==== Configuring {branding}
-Once everything is configured and running, hooking up an existing {branding} instance to the authentication scheme is performed by setting a few configuration properties.
+==== Configuring {branding} Authentication Scheme
+Once everything is configured and running, hooking up an existing {branding} instance to the
+authentication scheme is performed by setting a few configuration properties:
 
 . Open the *Web Context Policy Manager* configuration.
 .. Under *Context Realms* add the contexts that should be protected under the ldap realm
@@ -3505,6 +3518,8 @@ Once everything is configured and running, hooking up an existing {branding} ins
 . Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server. If you are using the default bundled STS, this information will already be correct.
 
 The {branding} should now use the SSO/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
+
+//  DDF-1796: Hardening Section Needs a lot of Clean up
 
 ==== Hardening
 
@@ -3540,6 +3555,9 @@ features:uninstall admin-ui
 ----
 features:install admin-ui
 ----
+
+//     Can the below section get combined with the other two areas this was mentioned?
+//     DDF-1798: Enable SSL for Clients was Duplicated
 
 ===== Enable SSL for Clients
 In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
@@ -3593,11 +3611,16 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 Depending on the environment, it may be easier for integrators and administrators to configure {branding} using the Admin Console prior to disabling it for hardening purposes.
 The Admin Console can be re-enabled for additional configuration changes.
 ====
+
 In an environment hardened for security purposes, access to the {branding} Admin Console or the Felix Web Console might be denied.
-It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using .config configuration files or the Admin Console. Configuration via the Karaf command line console is not supported and may result in configuration errors.
-The OSGi container detects the addition, updating, or deletion of `.config` files in the `etc/` directory.
+It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using .config files or the Admin Console.
+Configuration via the Karaf command line console is not supported and may result in configuration errors.
+The OSGi container detects the creation of `.config` files in the `etc/` directory.
 The following sections describe how to configure each {branding} item using both of these mechanisms.
-A template file is provided for each configurable {branding} item so that it can be copied/renamed then modified with the appropriate settings.
+A template file is provided for some configurable {branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+//      DDF-1796: Hardening Section Needs a lot of Clean up
+//      Do we place the warning note here?
 
 [WARNING]
 ====
@@ -3789,7 +3812,9 @@ Re-enter new password:
 ----
 
 ===== Signing a JAR/KAR
-Once a keystore is available, the // TODO: find the rest of this sentence.
+//  Once a keystore is available, the
+//      TODO: find the rest of this sentence.
+//      DDF-1797: Signing a JAR/KAR is missing an Introduction
 
 Additional documentation on jarsigner can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html
 
@@ -4042,6 +4067,10 @@ Note the last line: _jar verified_. This indicates that the signatures used to s
 
 ==== Security
 
+//    Make sure the below section is part of HARDENING section
+//    If not, it needs an update
+//    DDF-1796: Hardening Section Needs a lot of Clean up
+
 ===== Configure STS Subject DN constraints
 The configuration for the STS Subject DN constraints is located in the `ws-security.subject.cert.constraints property` in the `<DDF_INSTALL_DIR>/etc/system.properties` file.
 
@@ -4102,6 +4131,9 @@ To export the current {branding} configuration:
 cd  <DDF_HOME>/etc/exported
 zip exportedFiles.zip *
 ----
+
+//    For below note, if there is a SIMLINK, it will not be included
+//    DDF-1796: Hardening Section Needs a lot of Clean up
 
 [IMPORTANT]
 ====
