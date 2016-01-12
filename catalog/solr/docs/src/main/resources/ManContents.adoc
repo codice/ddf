@@ -22,46 +22,6 @@ Before the {branding} Solr Catalog Application can be installed,
 
 By default, the {branding} Solr Catalog application installs the External Solr Provider.
 
-===== Uninstalling
-
-[WARNING]
-====
-It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
-====
-
-If the {branding} application is deployed on the {branding} Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the  `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
-
-Otherwise, if the {branding} application is running as part of the {branding} distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
-
-----
-features:removeurl -u <Application's feature repository URL>
-----
-
-.Example
-----
-features:removeurl -u mvn:ddf.catalog/catalog-solr-app/2.3.0/xml/features
-----
-
-The uninstall of the application can be verified by the absence of any of the {branding} application's features in the `features:list` command output.
-
-====== Reverting the Uninstall
-
-If the uninstall of the {branding} application needs to be reverted, this is accomplished by either:
-
-* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/`deploy directory, OR
-* adding the application's feature repository back into {branding} and installing its main feature, which typically is of the form <applicationName>-app, e.g., `catalog-app`.
-
-.Uninstalling {branding} application from DDF distribution
-----
-features:addurl <Application's feature repository URL>  
-features:install <Application's main feature>
-----
-
-.Example
-----
-ddf@local>features:addurl
-mvn:ddf.catalog.solr/catalog-solr-app/2.3.0/xml/features ddf@local>features:install catalog-solr-external-provider
-----
 
 ===== Configuring
 
@@ -83,7 +43,7 @@ The configurable properties for this SCP are accessed from the Catalog External
 |`url`
 |String
 |HTTP URL of the standalone, preconfigured Solr 4.x Server.
-|http://localhost:8181/solr
+|\https://localhost:8993/solr
 |Yes
 
 |Force AutoCommit
@@ -96,7 +56,13 @@ The configurable properties for this SCP are accessed from the Catalog External
 Only in special cases should auto-commit be forced.
 Forcing auto-commit makes the search results visible immediately.
 ====
-|Unchecked/False
+|Unchecked
+|No
+
+|Disable Text Path Indexing
+|
+|Boolean / Checkbox
+|Unchecked
 |No
 
 |===
@@ -245,13 +211,10 @@ If clustering is necessary, the Solr Server application can run alongside the Pl
 
 ==== Installing
 
-By default, the features for the Embedded Solr Server configuration are installed, so the `catalog-solr-embedded-provider` feature must be uninstalled and the `catalog-solr-server` feature installed at `http://localhost:8181/solr`.
+By default, the features for the Embedded Solr Server configuration are installed, so the `catalog-solr-embedded-provider` feature must be uninstalled and the `catalog-solr-server` feature installed at \https://localhost:8993/solr.
 This feature is included out of the box in the current distribution.
 Installing the feature will copy the Solr configuration files in the distribution home directory then deploy the configured Solr war.
 Verification that the server started correctly can be performed by visiting the Solr Admin interface.
-
-* Before installing a {branding} application, verify that its prerequisites have been met. 
-* Copy the {branding} application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
 
 [NOTE]
 ====
@@ -281,48 +244,6 @@ ddf@local>list | grep -i solr
 [ 118] [Active     ] [            ] [       ] [   80] DDF :: Catalog :: Solr :: Server :: Standalone War (2.3.0)
 ----
 
-==== Uninstalling
-
-[WARNING]
-====
-It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
-====
-
-If the {branding} application is deployed on the {branding} Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
-
-Otherwise, if the {branding} application is running as part of the {branding} distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
-
-.Uninstalling {branding} application from {branding} distribution
-----
-features:removeurl -u <Application's feature repository URL>
-----
-
-.Example
-----
-features:removeurl -u mvn:ddf.catalog/catalog-app/2.3.0/xml/features
-----
-
-The uninstall of the application can be verified by the absence of any of the {branding} application's features in the `features:list` command output.
-
-===== Reverting the Uninstall
-
-If the uninstall of the {branding} application needs to be reverted, this is accomplished by either:
-
-* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
-* adding the application's feature repository back into {branding} and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
-
-.Reverting {branding} application's uninstall
-----
-features:addurl <Application's feature repository URL>
-features:install <Application's main feature>
-----
-
-.Example
-----
-ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
-ddf@local>features:install catalog-app
-----
-
 ===== Remove Data from Solr Core
 
 It is possible to remove data in the Solr index of a Solr core.  
@@ -330,14 +251,14 @@ Replace `<CORE_NAME>` in the following command with a valid Solr core to delete 
 
 .How to delete Solr Core data with curl
 ----
-curl 'http://localhost:8181/solr/<CORE_NAME>/update?commit=true' -H 'Content-type: text/xml' -d '<delete><query>*:*</query></delete>'
+curl 'https://localhost:8993/solr/<CORE_NAME>/update?commit=true' -H 'Content-type: text/xml' -d '<delete><query>*:*</query></delete>'
 ----
 
 Use the core selector in the Solr administration page to get a list of available Solr cores.
 
 .Solr administration page
 ----
-http://localhost:8181/solr
+https://localhost:8993/solr
 ----
 
 ==== Configuring

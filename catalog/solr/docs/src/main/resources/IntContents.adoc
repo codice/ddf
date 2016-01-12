@@ -33,7 +33,7 @@ Some notable features of the Solr Catalog Provider include:
 * Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider
 * Runs within the same JVM
 * Setup and Installation is simple: unzip and run.
-|Can only be interfaced using Java
+|* Can only be interfaced using Java
 
 |(Administrative)Tools
 |* External open source tools like Luke will work to allow admins to check index contents
@@ -74,8 +74,7 @@ It is great for demonstrations, training exercises, or for sparse querying and i
 |Con
 
 |Scalability
-|* Allows the middle-tier to be scaled by pointing
-* various middle-tier instances to one server facade.
+|* Allows the middle-tier to be scaled by pointing various middle-tier instances to one server facade.
 * Possible data tier scalability with
 Solr Cloud. Solr Cloud allows for "high scale, fault tolerant, distributed indexing and search capabilities."
 |* Solr Cloud Catalog Provider not implemented yet.
