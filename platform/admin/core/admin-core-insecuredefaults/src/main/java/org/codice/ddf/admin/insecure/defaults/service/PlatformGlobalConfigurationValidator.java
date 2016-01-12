@@ -26,13 +26,10 @@ public class PlatformGlobalConfigurationValidator implements Validator {
 
     private static final String HTTP_PROTOCOL = "http://";
 
-    private SystemBaseUrl systemBaseUrl;
-
     private List<Alert> alerts;
 
-    public PlatformGlobalConfigurationValidator(SystemBaseUrl sbu) {
+    public PlatformGlobalConfigurationValidator() {
         alerts = new ArrayList<>();
-        this.systemBaseUrl = sbu;
     }
 
     public List<Alert> validate() {
@@ -42,15 +39,10 @@ public class PlatformGlobalConfigurationValidator implements Validator {
     }
 
     private void validateHttpIsDisabled() {
-        if (systemBaseUrl != null) {
-            String protocol = systemBaseUrl.getProtocol();
+        String protocol = SystemBaseUrl.getProtocol();
 
-            if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
-                alerts.add(new Alert(Level.WARN, PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));
-            }
-        } else {
-            String msg = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
-            alerts.add(new Alert(Level.WARN, msg));
+        if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
+            alerts.add(new Alert(Level.WARN, PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));
         }
     }
 }

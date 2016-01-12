@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,8 +43,6 @@ public class IdpHandlerTest {
     IdpHandler idpHandler;
 
     private RelayStates<String> relayStates;
-
-    private SystemBaseUrl baseUrl;
 
     private IdpMetadata idpMetadata;
 
@@ -73,7 +70,6 @@ public class IdpHandlerTest {
                 encryptionService);
         simpleSign = new SimpleSign(systemCrypto);
         idpMetadata = new IdpMetadata();
-        baseUrl = new SystemBaseUrl();
         relayStates = (RelayStates<String>) mock(RelayStates.class);
         when(relayStates.encode(anyString())).thenReturn(RELAY_STATE_VAL);
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
@@ -81,7 +77,7 @@ public class IdpHandlerTest {
         when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("https://localhost:8993"));
         httpResponse = mock(HttpServletResponse.class);
 
-        idpHandler = new IdpHandler(simpleSign, idpMetadata, baseUrl, relayStates);
+        idpHandler = new IdpHandler(simpleSign, idpMetadata, relayStates);
 
         StringWriter writer = new StringWriter();
         InputStream inputStream = this.getClass()

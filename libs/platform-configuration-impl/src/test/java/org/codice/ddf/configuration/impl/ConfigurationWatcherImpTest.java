@@ -24,7 +24,6 @@ public class ConfigurationWatcherImpTest {
     @Test
     public void testGetters() {
         ConfigurationWatcherImpl configWatcher = new ConfigurationWatcherImpl();
-        configWatcher.setSystemBaseUrl(new SystemBaseUrl());
         configWatcher.setSystemInfo(new SystemInfo());
         configureProperties("http://", "hostValue", "8888", "/services", "siteNameValue",
                 "orgValue", "contactValue", "versionValue");

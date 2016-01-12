@@ -35,8 +35,7 @@ public class PlatformGlobalConfigurationValidatorTest {
     public void testValidateWhenHttpIsEnabled() throws Exception {
         // Setup
         System.setProperty(SystemBaseUrl.PROTOCOL, HTTP_PROTOCOL);
-        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                new SystemBaseUrl());
+        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator();
 
         // Perform Test
         List<Alert> alerts = pgc.validate();
@@ -52,23 +51,12 @@ public class PlatformGlobalConfigurationValidatorTest {
         // Setup
 
         System.setProperty(SystemBaseUrl.PROTOCOL, HTTPS_PROTOCOL);
-        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(
-                new SystemBaseUrl());
+        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator();
 
         // Perform Test
         List<Alert> alerts = pgc.validate();
 
         // Verify
         assertThat(alerts.size(), is(0));
-    }
-
-    @Test
-    public void testValidateWhenConfigAdminIsNull() throws Exception {
-        PlatformGlobalConfigurationValidator pgc = new PlatformGlobalConfigurationValidator(null);
-
-        List<Alert> result = pgc.validate();
-
-        assertThat("Should return a warning about null admin config.", result.get(0).getMessage(),
-                is(NULL_ADMIN_VALIDATE));
     }
 }

@@ -13,13 +13,10 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         >
 
-    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-
     <bean id="insecureDefaultsServiceMBean"
           class="org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean"
           init-method="init"
           destroy-method="destroy">
-        <argument ref="urlHelper"/>
     </bean>
 
 </blueprint>

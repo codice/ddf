@@ -20,23 +20,20 @@ import org.codice.ddf.configuration.SystemInfo;
 @Command(scope = PlatformCommands.NAMESPACE, name = "describe", description = "Provides a description of the platform")
 public class DescribeCommand extends PlatformCommands {
 
-    private SystemBaseUrl systemBaseUrl;
-
     private SystemInfo systemInfo;
 
-    public DescribeCommand(SystemBaseUrl sbu, SystemInfo info) {
-        this.systemBaseUrl = sbu;
+    public DescribeCommand(SystemInfo info) {
         this.systemInfo = info;
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        System.out.printf("%s=%s%n", "Protocol", systemBaseUrl.getProtocol());
-        System.out.printf("%s=%s%n", "Host", systemBaseUrl.getHost());
-        System.out.printf("%s=%s%n", "Port", systemBaseUrl.getPort());
-        System.out.printf("%s=%s%n", "Root Context", systemBaseUrl.getRootContext());
-        System.out.printf("%s=%s%n", "Http Port", systemBaseUrl.getHttpPort());
-        System.out.printf("%s=%s%n", "Https Port", systemBaseUrl.getHttpsPort());
+        System.out.printf("%s=%s%n", "Protocol", SystemBaseUrl.getProtocol());
+        System.out.printf("%s=%s%n", "Host", SystemBaseUrl.getHost());
+        System.out.printf("%s=%s%n", "Port", SystemBaseUrl.getPort());
+        System.out.printf("%s=%s%n", "Root Context", SystemBaseUrl.getRootContext());
+        System.out.printf("%s=%s%n", "Http Port", SystemBaseUrl.getHttpPort());
+        System.out.printf("%s=%s%n", "Https Port", SystemBaseUrl.getHttpsPort());
 
         System.out.printf("%s=%s%n", "Site Name", systemInfo.getSiteName());
         System.out.printf("%s=%s%n", "Organization", systemInfo.getOrganization());

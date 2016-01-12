@@ -24,7 +24,6 @@ import java.util.Locale;
 
 import javax.xml.transform.OutputKeys;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.custommonkey.xmlunit.HTMLDocumentBuilder;
@@ -64,19 +63,19 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
 
     @Test
     public void testTitle() throws Exception {
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
         assertEquals("Metrics", metricsPlugin.getTitle());
     }
 
     @Test
     public void testLabel() throws Exception {
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
         assertEquals("metrics", metricsPlugin.getLabel());
     }
 
     @Test
     public void testConvertCamelCase() throws Exception {
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
         assertEquals("Foo", metricsPlugin.convertCamelCase("foo"));
         assertEquals("Foo", metricsPlugin.convertCamelCase("Foo"));
         assertEquals("Foobar", metricsPlugin.convertCamelCase("foobar"));
@@ -146,7 +145,7 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Locale.setDefault(new Locale(language, country));
         StringWriter sw = new StringWriter();
 
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
         PrintWriter pw = new PrintWriter(sw);
 
         int numWeeklyReports = 3;
@@ -167,7 +166,7 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         DateTimeZone.setDefault(DateTimeZone.forID(dateTimeZoneId));
         Locale.setDefault(new Locale(language, country));
 
-        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin(new SystemBaseUrl());
+        MetricsWebConsolePlugin metricsPlugin = new MetricsWebConsolePlugin();
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

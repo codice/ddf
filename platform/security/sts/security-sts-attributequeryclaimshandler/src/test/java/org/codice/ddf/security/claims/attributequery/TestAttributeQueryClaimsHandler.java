@@ -59,8 +59,6 @@ public class TestAttributeQueryClaimsHandler {
 
     private static final String ISSUER = "testIssuer";
 
-    private SystemBaseUrl systemBaseUrl;
-
     private String username = "CN=testCN, OU=testOU, O=testO, L=testL, ST=testST, C=testC";
 
     private String responseState = "ValidResponse";
@@ -124,7 +122,6 @@ public class TestAttributeQueryClaimsHandler {
 
     @Before
     public void setUp() throws IOException {
-        systemBaseUrl = new SystemBaseUrl();
         encryptionService = mock(EncryptionService.class);
         systemCrypto = new SystemCrypto("encryption.properties",
                 "signature.properties",
@@ -139,7 +136,7 @@ public class TestAttributeQueryClaimsHandler {
         attributeQueryClaimsHandler = new AttributeQueryClaimsHandlerTest();
         attributeQueryClaimsHandler.setSimpleSign(simpleSign);
         attributeQueryClaimsHandler.setSupportedClaims(supportedClaims);
-        attributeQueryClaimsHandler.setExternalAttributeStoreUrl(systemBaseUrl.getBaseUrl());
+        attributeQueryClaimsHandler.setExternalAttributeStoreUrl(SystemBaseUrl.getBaseUrl());
         attributeQueryClaimsHandler.setIssuer(ISSUER);
         attributeQueryClaimsHandler.setDestination(DESTINATION);
         attributeQueryClaimsHandler.setAttributeMapLocation(TestAttributeQueryClaimsHandler.class.getClassLoader()

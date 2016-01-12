@@ -130,8 +130,6 @@ public class ConfigurationManager {
 
     private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
 
-    protected SystemBaseUrl systemBaseUrl;
-
     protected SystemInfo systemInfo;
 
     /**
@@ -179,11 +177,10 @@ public class ConfigurationManager {
      * @param configurationAdmin the OSGi Configuration Admin service handle
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
-            ConfigurationAdmin configurationAdmin, SystemBaseUrl sbu, SystemInfo info) {
+            ConfigurationAdmin configurationAdmin, SystemInfo info) {
         LOGGER.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
-        this.systemBaseUrl = sbu;
         this.systemInfo = info;
 
         this.readOnlySettings = new HashMap<>();
@@ -365,14 +362,14 @@ public class ConfigurationManager {
 
     private Map<String, String> getSystemProperties() {
         Map<String, String> map = new HashMap<>();
-        map.put(HTTP_PORT, systemBaseUrl.getHttpPort());
-        map.put(HOST, systemBaseUrl.getHost());
-        map.put(PROTOCOL, systemBaseUrl.getProtocol());
-        map.put(PORT, systemBaseUrl.getPort());
+        map.put(HTTP_PORT, SystemBaseUrl.getHttpPort());
+        map.put(HOST, SystemBaseUrl.getHost());
+        map.put(PROTOCOL, SystemBaseUrl.getProtocol());
+        map.put(PORT, SystemBaseUrl.getPort());
         map.put(SITE_NAME, systemInfo.getSiteName());
         map.put(VERSION, systemInfo.getVersion());
         map.put(ORGANIZATION, systemInfo.getOrganization());
-        map.put(SERVICES_CONTEXT_ROOT, systemBaseUrl.getRootContext());
+        map.put(SERVICES_CONTEXT_ROOT, SystemBaseUrl.getRootContext());
         return map;
     }
 }

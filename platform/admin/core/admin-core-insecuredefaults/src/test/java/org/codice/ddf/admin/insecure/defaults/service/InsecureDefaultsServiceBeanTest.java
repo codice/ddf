@@ -26,7 +26,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,8 +137,7 @@ public class InsecureDefaultsServiceBeanTest {
         System.setProperty(KEYSTORE_SYSTEM_PROPERTY, "TestKeystorePath");
         System.setProperty(TRUSTSTORE_SYSTEM_PROPERTY, "TestTruststorePath");
 
-        InsecureDefaultsServiceBean serviceBean = new InsecureDefaultsServiceBean(
-                new SystemBaseUrl());
+        InsecureDefaultsServiceBean serviceBean = new InsecureDefaultsServiceBean();
         List<Validator> result = serviceBean.getValidators();
         assertThat("Should create nine validators.", result.size(), is(9));
     }
@@ -162,9 +160,9 @@ public class InsecureDefaultsServiceBeanTest {
     }
 
     private InsecureDefaultsServiceBean createInsecureDefaultsServiceBean(int validatorCount) {
-        InsecureDefaultsServiceBean bean = new InsecureDefaultsServiceBean(null) {
+        InsecureDefaultsServiceBean bean = new InsecureDefaultsServiceBean() {
             @Override
-            void addValidators(SystemBaseUrl sbu) {
+            void addValidators() {
                 return;
             }
         };

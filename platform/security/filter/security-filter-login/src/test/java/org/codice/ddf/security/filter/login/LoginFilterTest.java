@@ -97,7 +97,7 @@ public class LoginFilterTest {
     @Test
     public void testNoSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter(null);
+        LoginFilter loginFilter = new LoginFilter();
         loginFilter.setSessionFactory(new HttpSessionFactory());
         try {
             loginFilter.init(filterConfig);
@@ -132,7 +132,7 @@ public class LoginFilterTest {
     @Test
     public void testBadSubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter(null);
+        LoginFilter loginFilter = new LoginFilter();
         loginFilter.setSessionFactory(new HttpSessionFactory());
         try {
             loginFilter.init(filterConfig);
@@ -157,7 +157,7 @@ public class LoginFilterTest {
     @Test
     public void testValidEmptySubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter(null);
+        LoginFilter loginFilter = new LoginFilter();
         loginFilter.setSessionFactory(new HttpSessionFactory());
         loginFilter.init(filterConfig);
 
@@ -176,7 +176,7 @@ public class LoginFilterTest {
             throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter(null);
+        LoginFilter loginFilter = new LoginFilter();
         loginFilter.setSessionFactory(new HttpSessionFactory());
         ddf.security.service.SecurityManager securityManager =
                 mock(ddf.security.service.SecurityManager.class);
@@ -212,7 +212,7 @@ public class LoginFilterTest {
             throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter(null);
+        LoginFilter loginFilter = new LoginFilter();
         loginFilter.setSessionFactory(new HttpSessionFactory());
         ddf.security.service.SecurityManager securityManager =
                 mock(ddf.security.service.SecurityManager.class);
@@ -244,7 +244,7 @@ public class LoginFilterTest {
             throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
-        LoginFilter loginFilter = new LoginFilter(null);
+        LoginFilter loginFilter = new LoginFilter();
         loginFilter.setSessionFactory(new HttpSessionFactory());
         ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);

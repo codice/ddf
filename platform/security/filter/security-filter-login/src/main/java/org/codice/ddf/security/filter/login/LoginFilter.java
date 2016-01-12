@@ -135,8 +135,6 @@ public class LoginFilter implements Filter {
 
     private final Object lock = new Object();
 
-    private final SystemBaseUrl baseUrl;
-
     private SecurityManager securityManager;
 
     private String signaturePropertiesFile;
@@ -152,9 +150,8 @@ public class LoginFilter implements Filter {
      */
     private int expirationTime = 31;
 
-    public LoginFilter(SystemBaseUrl baseUrl) {
+    public LoginFilter() {
         super();
-        this.baseUrl = baseUrl;
     }
 
     /**
@@ -570,7 +567,7 @@ public class LoginFilter implements Filter {
                     new SecurityAssertionImpl(((SecurityToken) savedToken.getCredentials()));
 
             if (savedAssertion.getIssuer() != null && !savedAssertion.getIssuer()
-                    .equals(baseUrl.getHost())) {
+                    .equals(SystemBaseUrl.getHost())) {
                 return null;
             }
 

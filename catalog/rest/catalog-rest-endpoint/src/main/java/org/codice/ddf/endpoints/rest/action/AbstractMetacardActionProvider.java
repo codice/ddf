@@ -33,17 +33,14 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     static final String PATH = "/catalog/sources";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractMetacardActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            AbstractMetacardActionProvider.class);
 
     protected String actionProviderId;
 
-    protected SystemBaseUrl systemBaseUrl;
-
     protected SystemInfo systemInfo;
 
-    protected AbstractMetacardActionProvider(SystemBaseUrl sbu, SystemInfo info) {
-        this.systemBaseUrl = sbu;
+    protected AbstractMetacardActionProvider(SystemInfo info) {
         this.systemInfo = info;
     }
 
@@ -67,7 +64,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
                 return null;
             }
 
-            if (systemBaseUrl == null || isHostUnset(systemBaseUrl.getHost())) {
+            if (isHostUnset(SystemBaseUrl.getHost())) {
                 LOGGER.info("Host name/ip not set. Cannot create link for metacard.");
                 return null;
             }
@@ -92,7 +89,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     protected boolean isHostUnset(String host) {
 
-        return (host == null || host.trim().equals(UNKNOWN_TARGET));
+        return (host == null || host.trim()
+                .equals(UNKNOWN_TARGET));
     }
 
     protected String getSource(Metacard metacard) {

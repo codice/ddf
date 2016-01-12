@@ -28,8 +28,6 @@ import org.codice.ddf.configuration.SystemInfo;
  */
 public class ConfigurationWatcherImpl {
 
-    private SystemBaseUrl systemBaseUrl;
-
     private SystemInfo systemInfo;
 
     public ConfigurationWatcherImpl() {
@@ -42,7 +40,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemBaseUrl#HOST} property name
      */
     public String getHostname() {
-        return systemBaseUrl.getHost();
+        return SystemBaseUrl.getHost();
     }
 
     /**
@@ -51,7 +49,7 @@ public class ConfigurationWatcherImpl {
      * @return the Integer value associated with the {@link SystemBaseUrl#HTTP_PORT} or {@link SystemBaseUrl#HTTPS_PORT} property depending on the protocol
      */
     public Integer getPort() {
-        return Integer.parseInt(systemBaseUrl.getPort());
+        return Integer.parseInt(SystemBaseUrl.getPort());
     }
 
     /**
@@ -60,7 +58,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with the {@link SystemBaseUrl#PROTOCOL} property name
      */
     public String getProtocol() {
-        return systemBaseUrl.getProtocol();
+        return SystemBaseUrl.getProtocol();
     }
 
     /**
@@ -71,7 +69,7 @@ public class ConfigurationWatcherImpl {
      * {@link SystemBaseUrl#PROTOCOL} property name
      */
     public String getSchemeFromProtocol() {
-        return systemBaseUrl.getProtocol().split(":")[0];
+        return SystemBaseUrl.getProtocol().split(":")[0];
     }
 
     /**
@@ -119,14 +117,6 @@ public class ConfigurationWatcherImpl {
      */
     public String getConfigurationValue(String name) {
         return null;
-    }
-
-    public SystemBaseUrl getSystemBaseUrl() {
-        return systemBaseUrl;
-    }
-
-    public void setSystemBaseUrl(SystemBaseUrl systemBaseUrl) {
-        this.systemBaseUrl = systemBaseUrl;
     }
 
     public SystemInfo getSystemInfo() {

@@ -124,8 +124,6 @@ public class IdpEndpoint implements Idp {
 
     protected CookieCache cookieCache = new CookieCache();
 
-    private SystemBaseUrl systemBaseUrl = new SystemBaseUrl();
-
     private PKIAuthenticationTokenFactory tokenFactory;
 
     private SecurityManager securityManager;
@@ -382,7 +380,7 @@ public class IdpEndpoint implements Idp {
             throws WSSecurityException, IOException, SimpleSign.SignatureException {
         LOGGER.debug("Creating SAML Response for error condition.");
         org.opensaml.saml.saml2.core.Response samlResponse = SamlProtocol.createResponse(
-                SamlProtocol.createIssuer(systemBaseUrl.constructUrl("/idp/login", true)),
+                SamlProtocol.createIssuer(SystemBaseUrl.constructUrl("/idp/login", true)),
                 SamlProtocol.createStatus(statusCode),
                 authnRequest.getID(),
                 null);
@@ -568,7 +566,7 @@ public class IdpEndpoint implements Idp {
         }
 
         LOGGER.debug("User log in successful.");
-        return SamlProtocol.createResponse(SamlProtocol.createIssuer(systemBaseUrl.constructUrl(
+        return SamlProtocol.createResponse(SamlProtocol.createIssuer(SystemBaseUrl.constructUrl(
                 "/idp/login",
                 true)), SamlProtocol.createStatus(statusCode), authnRequest.getID(), samlToken);
     }
@@ -688,15 +686,15 @@ public class IdpEndpoint implements Idp {
             encryptionCert = certs[0];
         }
         EntityDescriptor entityDescriptor =
-                SamlProtocol.createIdpMetadata(systemBaseUrl.constructUrl("/idp/login", true),
+                SamlProtocol.createIdpMetadata(SystemBaseUrl.constructUrl("/idp/login", true),
                         Base64.encodeBase64String(
                                 issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
                         Base64.encodeBase64String(
                                 encryptionCert != null ? encryptionCert.getEncoded() : new byte[0]),
                         nameIdFormats,
-                        systemBaseUrl.constructUrl("/idp/login", true),
-                        systemBaseUrl.constructUrl("/idp/login", true),
-                        systemBaseUrl.constructUrl("/idp/logout", true));
+                        SystemBaseUrl.constructUrl("/idp/login", true),
+                        SystemBaseUrl.constructUrl("/idp/login", true),
+                        SystemBaseUrl.constructUrl("/idp/logout", true));
         Document doc = DOMUtils.createDocument();
         doc.appendChild(doc.createElement("root"));
         return Response.ok(DOM2Writer.nodeToString(OpenSAMLUtil.toDom(entityDescriptor,
@@ -930,7 +928,7 @@ public class IdpEndpoint implements Idp {
                 }
                 LogoutRequest logoutRequest =
                         logoutMessage.buildLogoutRequest(logoutState.getNameId(),
-                                systemBaseUrl.constructUrl("/idp/logout", true));
+                                SystemBaseUrl.constructUrl("/idp/logout", true));
                 logoutState.setCurrentRequestId(logoutRequest.getID());
                 logoutObject = logoutRequest;
                 samlType = SamlProtocol.Type.REQUEST;
@@ -941,7 +939,7 @@ public class IdpEndpoint implements Idp {
                 String status = logoutState.isPartialLogout() ?
                         StatusCode.PARTIAL_LOGOUT :
                         StatusCode.SUCCESS;
-                logoutObject = logoutMessage.buildLogoutResponse(systemBaseUrl.constructUrl(
+                logoutObject = logoutMessage.buildLogoutResponse(SystemBaseUrl.constructUrl(
                         "/idp/logout",
                         true), status, logoutState.getOriginalRequestId());
                 relay = logoutState.getInitialRelayState();

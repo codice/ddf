@@ -126,8 +126,6 @@ public class MetricsEndpoint {
         TIME_RANGES.put("1y", ONE_YEAR_IN_SECONDS);
     }
 
-    private SystemBaseUrl systemBaseUrl;
-
     private SystemInfo systemInfo;
 
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -138,8 +136,7 @@ public class MetricsEndpoint {
 
     private double metricsMaxThreshold;
 
-    public MetricsEndpoint(SystemBaseUrl sbu, SystemInfo info) {
-        this.systemBaseUrl = sbu;
+    public MetricsEndpoint(SystemInfo info) {
         this.systemInfo = info;
     }
 
@@ -637,7 +634,7 @@ public class MetricsEndpoint {
                  * END: CXF bug
                  */
 
-                String metricsUrl = systemBaseUrl.getRootContext() + METRICS_SERVICE_BASE_URL + "/"
+                String metricsUrl = SystemBaseUrl.getRootContext() + METRICS_SERVICE_BASE_URL + "/"
                         + metricsName + "." + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
 
                 // key=format
