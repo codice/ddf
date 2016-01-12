@@ -230,7 +230,7 @@ Using the REST Endpoint, for example, request a metacard with the transform opti
 
 [source,http]
 ----
-http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transform=html
+https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=html
 ----
 
 *Installing and Uninstalling*
@@ -243,7 +243,6 @@ None
 
 *Implementation Details*
 
-.HEY CHECK THIS TABLE
 [cols="2,1,1" options="header"]
 |===
 |Registered Interface
@@ -280,7 +279,7 @@ Using the REST Endpoint for example, request a Metacard with the transform optio
 
 [source,http]
 ----
-http://localhost:8181/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
+https://localhost:8993/services/catalog/ac0c6917d5ee45bfb3c2bf8cd2ebaa67?transform=xml
 ----
 
 *Installation and Uninstallation*
@@ -357,7 +356,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 .REST GET method with the GeoJSON MetacardTransformer
 [source,http]
 ----
-http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
+https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=geojson
 ----
 
 *Installation and Uninstallation*
@@ -370,7 +369,6 @@ None
 
 *Implementation Details*
 
-.HEY CHECK THIS TABLE
 [cols="3,2,1" options="header"]
 |===
 
@@ -459,7 +457,7 @@ It can also be used within the REST Endpoint by providing the transform option a
 .REST GET method with the Metadata MetacardTransformer
 [source,http]
 ----
-http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
+https://localhost:8993/services/catalog/0123456789abcdef0123456789abcdef?transform=metadata
 ----
 
 *Installation and Uninstallation*
@@ -474,7 +472,6 @@ None
 
 *Implementation Details*
 
-.HEY CHECK THIS TABLE TOO
 [cols="3,2,1" options="header"]
 |===
 |Registered Interface
@@ -923,7 +920,7 @@ The OpenSearch Description Document is an XML file is found inside of the OpenSe
 ====== Known Issues
 
 None
-// move to Extending...
+
 === Developing a New Endpoint
 
 Complete the following procedure to create an endpoint. 
