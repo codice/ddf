@@ -18,13 +18,13 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
@@ -152,7 +152,7 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
                 XmlNode.writeGeometry(name, context, writer, XmlNode.readGeometry((String) value));
                 break;
             case BINARY:
-                xmlValue = Base64.encodeBase64String((byte[]) value);
+                xmlValue = Base64.getEncoder().encodeToString((byte[]) value);
                 break;
             case DATE:
                 Date date = (Date) value;

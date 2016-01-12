@@ -24,6 +24,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -43,7 +44,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -484,7 +484,7 @@ public class LoginFilter implements Filter {
                         if (dataNode.getLocalName()
                                 .equals("X509Certificate")) {
                             String textContent = dataText.getTextContent();
-                            byte[] byteValue = Base64.decodeBase64(textContent);
+                            byte[] byteValue = Base64.getMimeDecoder().decode(textContent);
                             try {
                                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                                 X509Certificate cert =
@@ -528,7 +528,7 @@ public class LoginFilter implements Filter {
                                 .equals("X509SKI")) {
                             String textContent = dataText.getTextContent();
                             byte[] tlsSKI = tlsCertificate.getExtensionValue("2.5.29.14");
-                            byte[] assertionSKI = Base64.decodeBase64(textContent);
+                            byte[] assertionSKI = Base64.getMimeDecoder().decode(textContent);
                             if (tlsSKI != null && tlsSKI.length > 0) {
                                 ASN1OctetString tlsOs = ASN1OctetString.getInstance(tlsSKI);
                                 ASN1OctetString assertionOs = ASN1OctetString.getInstance(

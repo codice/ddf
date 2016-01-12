@@ -25,10 +25,10 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.codice.ddf.parser.xml.XmlParser;
-import org.geotools.data.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -132,7 +132,7 @@ public class TestXmlInputTransformer {
 
         assertEquals("Title!", metacard.getAttribute(Metacard.TITLE).getValue());
 
-        assertArrayEquals(Base64.decode(
+        assertArrayEquals(Base64.getDecoder().decode(
                         "AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
                 (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
 
@@ -180,7 +180,7 @@ public class TestXmlInputTransformer {
 
         assertThat("Title!", is(metacard.getAttribute(Metacard.TITLE).getValue()));
 
-        assertArrayEquals(Base64.decode(
+        assertArrayEquals(Base64.getDecoder().decode(
                         "AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE="),
                 (byte[]) metacard.getAttribute(Metacard.THUMBNAIL).getValue());
 

@@ -32,6 +32,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -45,7 +46,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
@@ -667,7 +667,7 @@ public class IdpEndpointTest {
                 signature,
                 request);
         String responseStr = StringUtils.substringBetween(response.getEntity()
-                .toString(), "SAMLResponse=", "RelayState");
+                .toString(), "SAMLResponse=", "&RelayState");
         responseStr = URLDecoder.decode(responseStr, "UTF-8");
         responseStr = RestSecurity.inflateBase64(responseStr);
 
@@ -734,8 +734,7 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.showPostLogin(samlRequest, relayState, request);
         String responseStr = StringUtils.substringBetween(response.getEntity()
                 .toString(), "SAMLResponse\" value=\"", "\" />");
-        responseStr = URLDecoder.decode(responseStr, "UTF-8");
-        responseStr = new String(Base64.decodeBase64(responseStr));
+        responseStr = new String(Base64.getDecoder().decode(responseStr));
 
         //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
         assertThat(responseStr, containsString("status:RequestUnsupported"));
@@ -777,7 +776,7 @@ public class IdpEndpointTest {
                 signature,
                 request);
         String responseStr = StringUtils.substringBetween(response.getEntity()
-                .toString(), "SAMLResponse=", "RelayState");
+                .toString(), "SAMLResponse=", "&RelayState");
         responseStr = URLDecoder.decode(responseStr, "UTF-8");
         responseStr = RestSecurity.inflateBase64(responseStr);
 

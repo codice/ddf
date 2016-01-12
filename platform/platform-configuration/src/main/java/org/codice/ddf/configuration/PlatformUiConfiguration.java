@@ -14,12 +14,12 @@
 package org.codice.ddf.configuration;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.ddf.branding.BrandingResourceProvider;
@@ -134,7 +134,7 @@ public class PlatformUiConfiguration {
     private String getBase64(String productImage) throws IOException {
         byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
         if (resourceAsBytes.length > 0) {
-            return Base64.encodeBase64String(resourceAsBytes);
+            return Base64.getEncoder().encodeToString(resourceAsBytes);
         }
         return "";
     }

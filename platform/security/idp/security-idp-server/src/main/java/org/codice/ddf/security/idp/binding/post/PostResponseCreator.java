@@ -14,12 +14,12 @@
 package org.codice.ddf.security.idp.binding.post;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -56,8 +56,8 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
         getSimpleSign().signSamlObject(samlResponse);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
-                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        String encodedSamlResponse = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
+                StandardCharsets.UTF_8));
         String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
         String submitFormUpdated = responseTemplate.replace("{{" + Idp.ACS_URL + "}}",
                 assertionConsumerServiceURL);

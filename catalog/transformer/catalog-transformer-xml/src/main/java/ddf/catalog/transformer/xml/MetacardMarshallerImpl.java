@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -28,7 +29,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.xerces.impl.dv.util.Base64;
 import org.codice.ddf.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,11 +204,11 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 try (ObjectOutput output = new ObjectOutputStream(bos)) {
                     output.writeObject(attribute.getValue());
-                    xmlValue = Base64.encode(bos.toByteArray());
+                    xmlValue = Base64.getEncoder().encodeToString(bos.toByteArray());
                 }
                 break;
             case BINARY:
-                xmlValue = Base64.encode((byte[]) value);
+                xmlValue = Base64.getEncoder().encodeToString((byte[]) value);
                 break;
             case XML:
                 xmlValue = value.toString().replaceAll("[<][?]xml.*[?][>]", "");
