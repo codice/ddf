@@ -95,5 +95,8 @@
         <module>catalog-transformer-xml-binding</module>
         <module>catalog-transformer-xml</module>
         <module>catalog-transformer-common</module>
+        <module>catalog-transformer-streaming-api</module>
+        <module>catalog-transformer-streaming-impl</module>
+        <module>catalog-transformer-streaming-lib</module>
     </modules>
 </project>

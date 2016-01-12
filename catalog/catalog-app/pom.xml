@@ -381,6 +381,16 @@
             <groupId>ddf.catalog.security</groupId>
             <artifactId>catalog-security-policyplugin</artifactId>
             <version>${project.version}</version>
+            </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-streaming-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-streaming-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
