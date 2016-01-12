@@ -104,10 +104,16 @@
         <argument ref="ddfHome"/>
     </bean>
 
+    <bean id="mBeanServer"
+          class="java.lang.management.ManagementFactory"
+          factory-method="getPlatformMBeanServer"/>
+
     <bean id="configMigrationManager"
-          class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
+          class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager"
+          init-method="init">
         <argument ref="configurationAdminMigration"/>
         <argument ref="systemConfigurationMigration"/>
+        <argument ref="mBeanServer"/>
     </bean>
 
     <service id="configurationFileDirectoryService" ref="configurationAdminMigration"
