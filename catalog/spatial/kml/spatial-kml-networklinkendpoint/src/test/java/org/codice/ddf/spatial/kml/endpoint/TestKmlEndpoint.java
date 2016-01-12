@@ -125,7 +125,7 @@ public class TestKmlEndpoint {
     @Test
     public void testGetKmlNetworkLink() {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.setDescription("This is some description.");
         kmlEndpoint.setLogo(
                 "https://tools.codice.org/wiki/download/attachments/3047457/DDF?version=1&modificationDate=1369422662164&api=v2");
@@ -150,7 +150,7 @@ public class TestKmlEndpoint {
             throws UnknownHostException, MalformedURLException, IllegalArgumentException,
             UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(Folder.class));
@@ -175,7 +175,7 @@ public class TestKmlEndpoint {
             throws UnknownHostException, MalformedURLException, IllegalArgumentException,
             UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
         assertThat(response.getFeature(), is(Folder.class));
@@ -202,7 +202,7 @@ public class TestKmlEndpoint {
             throws UnknownHostException, MalformedURLException, IllegalArgumentException,
             UriBuilderException, SourceUnavailableException {
         when(mockUriInfo.getQueryParameters(false)).thenReturn(mockMap);
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.setMaxResults(250);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
@@ -232,7 +232,7 @@ public class TestKmlEndpoint {
      */
     @Test
     public void testGetIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         byte[] response = kmlEndpoint.getIcon(null, BOMBER_ICON);
         assertThat(response, is(bomberBytes));
     }
@@ -242,13 +242,13 @@ public class TestKmlEndpoint {
      */
     @Test(expected = WebApplicationException.class)
     public void testExceptionGetIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.getIcon(null, JET_ICON);
     }
 
     @Test
     public void testGetIconCustomLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.setIconLoc(jetPath);
         byte[] response = kmlEndpoint.getIcon(null, JET_ICON);
         assertThat(response, is(jetBtyes));
@@ -259,7 +259,7 @@ public class TestKmlEndpoint {
      */
     @Test(expected = WebApplicationException.class)
     public void testExceptionGetCustomIconLocation() {
-        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework, new SystemInfo());
+        KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         kmlEndpoint.setIconLoc(bomberPath);
         kmlEndpoint.getIcon(null, JET_ICON);
     }

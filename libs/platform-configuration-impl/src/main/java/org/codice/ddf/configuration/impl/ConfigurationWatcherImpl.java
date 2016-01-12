@@ -28,8 +28,6 @@ import org.codice.ddf.configuration.SystemInfo;
  */
 public class ConfigurationWatcherImpl {
 
-    private SystemInfo systemInfo;
-
     public ConfigurationWatcherImpl() {
 
     }
@@ -78,7 +76,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#SITE_NAME} property name
      */
     public String getSiteName() {
-        return systemInfo.getSiteName();
+        return SystemInfo.getSiteName();
     }
 
     /**
@@ -87,7 +85,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#VERSION} property name
      */
     public String getVersion() {
-        return systemInfo.getVersion();
+        return SystemInfo.getVersion();
     }
 
     /**
@@ -96,7 +94,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#ORGANIZATION property name
      */
     public String getOrganization() {
-        return systemInfo.getOrganization();
+        return SystemInfo.getOrganization();
     }
 
     /**
@@ -105,7 +103,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#SITE_CONTACT} property name
      */
     public String getContactEmailAddress() {
-        return systemInfo.getSiteContatct();
+        return SystemInfo.getSiteContatct();
     }
 
     /**
@@ -117,13 +115,5 @@ public class ConfigurationWatcherImpl {
      */
     public String getConfigurationValue(String name) {
         return null;
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
-    }
-
-    public void setSystemInfo(SystemInfo systemInfo) {
-        this.systemInfo = systemInfo;
     }
 }

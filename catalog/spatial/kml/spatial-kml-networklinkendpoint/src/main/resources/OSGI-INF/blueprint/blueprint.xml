@@ -36,12 +36,9 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-
 	<bean id="kmlEndpoint" class="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint">
 		<argument ref="branding"/>
 		<argument ref="framework"/>
-        <argument ref="systemInfo"/>
 		<cm:managed-properties persistent-id="org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"
                                update-strategy="container-managed"/>
 	</bean>

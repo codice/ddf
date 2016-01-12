@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +42,11 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
     /**
      * Constructor to instantiate this Metacard {@link ActionProvider}
-     *
-     * @param actionProviderId
+     *  @param actionProviderId
      * @param metacardTransformerId
      */
-    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId,
-            SystemInfo info) {
-        super(info);
+    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId) {
+        super();
         this.actionProviderId = actionProviderId;
         this.metacardTransformerId = metacardTransformerId;
     }

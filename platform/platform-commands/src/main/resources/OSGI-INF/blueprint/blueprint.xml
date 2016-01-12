@@ -73,11 +73,8 @@
         <argument ref="defaultExportDirectoryPath"/>
     </bean>
 
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">
         <property name="bundleContext" ref="blueprintBundleContext"/>
-        <argument ref="systemInfo"/>
     </bean>
 
 </blueprint>

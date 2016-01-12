@@ -55,12 +55,11 @@ public class ConfigurationManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        SystemInfo info = new SystemInfo();
         key = ConfigurationManagerTest.class.getSimpleName() + "Key";
         mockWatcher = new MockConfigurationWatcher();
         List<ConfigurationWatcher> watchers = new ArrayList<ConfigurationWatcher>();
         watchers.add(mockWatcher);
-        ddfConfigMgr = new ConfigurationManager(watchers, null, info);
+        ddfConfigMgr = new ConfigurationManager(watchers, null);
         config1 = new HashMap<String, String>();
         config1.put(key, "config1");
         config2 = new HashMap<String, String>();

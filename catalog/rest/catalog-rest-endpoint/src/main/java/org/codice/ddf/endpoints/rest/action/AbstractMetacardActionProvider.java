@@ -38,10 +38,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     protected String actionProviderId;
 
-    protected SystemInfo systemInfo;
-
-    protected AbstractMetacardActionProvider(SystemInfo info) {
-        this.systemInfo = info;
+    protected AbstractMetacardActionProvider() {
     }
 
     protected abstract Action getAction(String metacardId, String metacardSource);
@@ -99,7 +96,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
             return metacard.getSourceId();
         }
 
-        return systemInfo.getSiteName();
+        return SystemInfo.getSiteName();
     }
 
     @Override

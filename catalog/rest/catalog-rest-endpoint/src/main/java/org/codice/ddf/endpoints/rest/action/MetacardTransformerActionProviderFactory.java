@@ -13,21 +13,9 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import org.codice.ddf.configuration.SystemInfo;
-
 public class MetacardTransformerActionProviderFactory {
 
-    private SystemInfo systemInfo;
-
-    public MetacardTransformerActionProviderFactory(SystemInfo info) {
-        this.systemInfo = info;
-    }
-
     public MetacardTransformerActionProvider createActionProvider(String id, String transformer) {
-        return new MetacardTransformerActionProvider(id, transformer, systemInfo);
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
+        return new MetacardTransformerActionProvider(id, transformer);
     }
 }

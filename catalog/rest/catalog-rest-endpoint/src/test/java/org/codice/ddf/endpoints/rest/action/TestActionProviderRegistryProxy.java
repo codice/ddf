@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 
-import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -65,7 +64,7 @@ public class TestActionProviderRegistryProxy {
         BundleContext bundleContext = givenBundleContext(answer);
 
         MetacardTransformerActionProviderFactory mtapf =
-                new MetacardTransformerActionProviderFactory(new SystemInfo());
+                new MetacardTransformerActionProviderFactory();
 
         ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext, mtapf);
 

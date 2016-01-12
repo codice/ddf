@@ -20,12 +20,6 @@ import org.codice.ddf.configuration.SystemInfo;
 @Command(scope = PlatformCommands.NAMESPACE, name = "describe", description = "Provides a description of the platform")
 public class DescribeCommand extends PlatformCommands {
 
-    private SystemInfo systemInfo;
-
-    public DescribeCommand(SystemInfo info) {
-        this.systemInfo = info;
-    }
-
     @Override
     protected Object doExecute() throws Exception {
         System.out.printf("%s=%s%n", "Protocol", SystemBaseUrl.getProtocol());
@@ -35,10 +29,10 @@ public class DescribeCommand extends PlatformCommands {
         System.out.printf("%s=%s%n", "Http Port", SystemBaseUrl.getHttpPort());
         System.out.printf("%s=%s%n", "Https Port", SystemBaseUrl.getHttpsPort());
 
-        System.out.printf("%s=%s%n", "Site Name", systemInfo.getSiteName());
-        System.out.printf("%s=%s%n", "Organization", systemInfo.getOrganization());
-        System.out.printf("%s=%s%n", "Contact", systemInfo.getSiteContatct());
-        System.out.printf("%s=%s%n", "Version", systemInfo.getVersion());
+        System.out.printf("%s=%s%n", "Site Name", SystemInfo.getSiteName());
+        System.out.printf("%s=%s%n", "Organization", SystemInfo.getOrganization());
+        System.out.printf("%s=%s%n", "Contact", SystemInfo.getSiteContatct());
+        System.out.printf("%s=%s%n", "Version", SystemInfo.getVersion());
         return null;
     }
 }

@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +33,8 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewMetacardActionProvider.class);
 
-    public ViewMetacardActionProvider(String id, SystemInfo info) {
-        super(info);
+    public ViewMetacardActionProvider(String id) {
+        super();
         this.actionProviderId = id;
     }
 

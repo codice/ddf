@@ -129,10 +129,7 @@ public class KmlEndpoint {
 
     private ClassPathTemplateLoader templateLoader;
 
-    private SystemInfo systemInfo;
-
-    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework,
-            SystemInfo info) {
+    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
         LOGGER.trace("ENTERING: KML Endpoint Constructor");
         this.branding = brandingPlugin;
         this.framework = catalogFramework;
@@ -140,7 +137,6 @@ public class KmlEndpoint {
         templateLoader.setPrefix("/templates");
         templateLoader.setSuffix(".hbt");
         this.productName = branding.getProductName().split(" ")[0];
-        this.systemInfo = info;
         LOGGER.trace("EXITING: KML Endpoint Constructor");
     }
 
@@ -246,7 +242,7 @@ public class KmlEndpoint {
     }
 
     public String getContact() {
-        return systemInfo.getSiteContatct();
+        return SystemInfo.getSiteContatct();
     }
 
     public String getBaseUrl() {

@@ -42,8 +42,6 @@ public class SystemPropertiesAdminTest {
 
     File userPropsFile = null;
 
-    SystemInfo info = null;
-
     int expectedSystemPropertiesCount = 0;
 
     @Before
@@ -74,8 +72,6 @@ public class SystemPropertiesAdminTest {
 
         systemPropsFile = new File(etcFolder, "system.properties");
         userPropsFile = new File(etcFolder, "users.properties");
-
-        info = new SystemInfo();
     }
 
     @Test
@@ -104,10 +100,10 @@ public class SystemPropertiesAdminTest {
         assertThat(SystemBaseUrl.getHttpPort(), equalTo("4567"));
         assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8901"));
         assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
-        assertThat(info.getOrganization(), equalTo("org"));
-        assertThat(info.getSiteContatct(), equalTo("contact"));
-        assertThat(info.getSiteName(), equalTo("site"));
-        assertThat(info.getVersion(), equalTo("version"));
+        assertThat(SystemInfo.getOrganization(), equalTo("org"));
+        assertThat(SystemInfo.getSiteContatct(), equalTo("contact"));
+        assertThat(SystemInfo.getSiteName(), equalTo("site"));
+        assertThat(SystemInfo.getVersion(), equalTo("version"));
         assertThat(details.size(), is(expectedSystemPropertiesCount));
     }
 
@@ -131,10 +127,10 @@ public class SystemPropertiesAdminTest {
         assertThat(SystemBaseUrl.getHttpPort(), equalTo("4567"));
         assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8901"));
         assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
-        assertThat(info.getOrganization(), equalTo("org"));
-        assertThat(info.getSiteContatct(), equalTo("contact"));
-        assertThat(info.getSiteName(), equalTo("site"));
-        assertThat(info.getVersion(), equalTo("version"));
+        assertThat(SystemInfo.getOrganization(), equalTo("org"));
+        assertThat(SystemInfo.getSiteContatct(), equalTo("contact"));
+        assertThat(SystemInfo.getSiteName(), equalTo("site"));
+        assertThat(SystemInfo.getVersion(), equalTo("version"));
         assertThat(details.size(), is(expectedSystemPropertiesCount));
 
         //only writes out the changed props

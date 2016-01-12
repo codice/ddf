@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
-import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 
 import ddf.action.Action;
@@ -33,7 +32,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     @Test
     public void testMetacardNull() {
         assertEquals(null,
-                new ViewMetacardActionProvider(ACTION_PROVIDER_ID, null).getAction(null));
+                new ViewMetacardActionProvider(ACTION_PROVIDER_ID).getAction(null));
     }
 
     @Test
@@ -44,7 +43,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
@@ -62,7 +61,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId("abd ef");
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
         // when
@@ -84,7 +83,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId("abd&ef");
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
         // when
@@ -105,7 +104,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(null);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
         assertNull("An action should not have been created when no id is provided.",
@@ -121,7 +120,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL, null, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
@@ -140,7 +139,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL, "0.0.0.0", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
@@ -157,7 +156,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, null, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
@@ -175,7 +174,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL, SAMPLE_IP, SAMPLE_PORT, null,
                 SAMPLE_SOURCE_NAME);
@@ -189,7 +188,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     public void testNonMetacard() {
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
         assertNull("An action when metacard was not provided.",
@@ -206,7 +205,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
         // when
@@ -233,7 +232,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setSourceId(newSourceName);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
         // when
@@ -255,7 +254,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
         metacard.setId(SAMPLE_ID);
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
         this.configureSecureActionProvider();
 
         Action action = actionProvider.getAction(metacard);
@@ -278,7 +277,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         metacard.setId(SAMPLE_ID);
 
         AbstractMetacardActionProvider actionProvider = new ViewMetacardActionProvider(
-                ACTION_PROVIDER_ID, new SystemInfo());
+                ACTION_PROVIDER_ID);
 
         this.configureActionProvider(null, SAMPLE_IP, SAMPLE_SECURE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
