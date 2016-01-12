@@ -85,11 +85,16 @@ public class GeoCoderEndpoint {
 
         GeoCoder geoCoder = geoCoderFactory.getService();
         NearbyLocation nearbyLocation = geoCoder.getNearbyCity(wkt);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("direction", nearbyLocation.getCardinalDirection());
-        jsonObject.put("distance", nearbyLocation.getDistance());
-        jsonObject.put("name", nearbyLocation.getName());
-        return Response.ok(jsonObject.toJSONString()).build();
+        if (nearbyLocation != null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("direction", nearbyLocation.getCardinalDirection());
+            jsonObject.put("distance", nearbyLocation.getDistance());
+            jsonObject.put("name", nearbyLocation.getName());
+            return Response.ok(jsonObject.toJSONString())
+                    .build();
+        } else {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
     }
 
     void transformGeoResult(GeoResult geoResult, JSONArray resources) {
