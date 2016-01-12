@@ -53,14 +53,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-soap-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.wss4j</groupId>
             <artifactId>wss4j-ws-security-common</artifactId>
         </dependency>
@@ -99,7 +91,6 @@
                         <Embed-Dependency>
                             guava,
                             commons-collections,
-                            security,
                             platform-util
                         </Embed-Dependency>
                         <Import-Package>
