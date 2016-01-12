@@ -50,7 +50,7 @@
         <reports.repository.url/>
         <project.scm.id>github</project.scm.id>
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.5-SNAPSHOT</ddf.support.version>
+        <ddf.support.version>2.3.5</ddf.support.version>
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- ouput directory for reports -->
