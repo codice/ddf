@@ -1066,6 +1066,38 @@ These examples are for illustrative purposes only and do not necessarily represe
 
 ===== Ingest
 
+.Ingest Request
+[ditaa,ingest_request,png]
+....
++------+      +--------------------------------------------------------------------------------------------------------------------+
+| cDEF |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
+|Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
++------+      ||Ingest Service Endpoint||Standard Catalog Framework||PreIngestPlugin||PostIngestPlugin||  Solr Catalog Provider   ||| Solr Search Server |
+  :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
+  |Web Service|Ingest Request :                       :                       :               :                     :              |           :
+  |-----------|-------------->|                       |                       |               |                     |              |           |
+  |           |               |create(CreateRequest)  |                       |               |                     |              |           |
+  |           |               |---------------------->|process(CreateRequest) |               |                     |              |           |
+  |           |               |                       |---------------------->|               |                     |              |           |
+  |           |               |                       |   CreateRequest       |               |                     |              |           |
+  |           |               |                       |<----------------------|               |                     |              |           |
+  |           |    cDEF       |                       |create(CreateRequest)  |               |                     |              |           |
+  |           |               |                       |------------------------------------------------------------>|create        |           |
+  |           |               |                       |                       :               :                     |--------------|---------->|
+  |           |               |                       |                       |               |                     |              |          response
+  |           |               |                       |                       |               |       CreateResponse|<-------------|-----------|
+  |           |               |                       |<------------------------------------------------------------|              |           |
+  |           |               |                       |process(CreateResponse):               :                     |              |           |
+  |           |               |                       |-----------------------|-------------->|                     |              |           |
+  |           |               |                       |                       | CreateResponse|                     |              |           |
+  |           |               |         CreateResponse|<--------------------------------------|                     |              |           |
+  |Web Service|Ingest Response|<----------------------|                       :               |                     |              |           |
+  |<----------|---------------|                       |                       |               |                     |              |           |
+  |           |               |                       |                       |               |                     |              |           |
+  |           +--------------------------------------------------------------------------------------------------------------------+           |
+  |                                                                                                                                            |
+....
+
 The Ingest Service Endpoint, the Catalog Framework, and the Catalog Provider are key components of the Reference Implementation.
 The Endpoint bundle implements a Web service that allows clients to create, update, and delete metacards.
 The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
@@ -1093,6 +1125,37 @@ log:set
 ====
 
 ===== Query
+
+.Ingest Request
+[ditaa,query_request,png]
+....
++------+      +--------------------------------------------------------------------------------------------------------------------+
+|      |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
+|Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
++------+      || Query Service Endpoint||Standard Catalog Framework||PreQueryPlugin ||PostQueryPlugin ||  Solr Catalog Provider   ||| Solr Search Server |
+  :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
+  |Web Service|Query Request  :                       :                       :               :                     :              |         :
+  |-----------|-------------->|                       |                       |               |                     |              |         |
+  |           |cDEF           |query(QueryRequest)    |                       |               |                     |              |         |
+  |           |               |---------------------->|process(QueryRequest)  |               |                     |              |         |
+  |           |               |                       |---------------------->|               |                     |              |         |
+  |           |               |                       |    QueryRequest       |               |                     |              |         |
+  |           |               |                       |<----------------------|               |                     |              |         |
+  |           |               |                       |create(QueryRequest)   |               |                     |              |         |
+  |           |               |                       |------------------------------------------------------------>|query         |         |
+  |           |               |                       |                       :               |                     |--------------|-------->|
+  |           |               |                       |                       |               |                     |              |       response     |
+  |           |               |                       |                       |               |        QueryResponse|<-------------|---------|
+  |           |               |                       |<------------------------------------------------------------|              |         |
+  |           |               |                       | process(QueryResponse)|               |                     |              |         |
+  |           |               |                       |-----------------------:-------------->|                     |              |         |
+  |           |               |                       |                       |  QueryResponse|                     |              |         |
+  |           |               |          QueryResponse|<--------------------------------------|                     |              |         |
+  | Web Service Query Response|<----------------------|                       :               |                     |              |         |
+  |<----------|---------------|                       |                       |               |                     |              |         |
+  |           |               |                       |                       |               |                     |              |         |
+  |           +--------------------------------------------------------------------------------------------------------------------+         |
+....
 
 The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well.
 The Endpoint bundle contains a Web service that exposes the interface to query for `Metacards`.
