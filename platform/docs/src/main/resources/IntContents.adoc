@@ -1,7 +1,7 @@
 
 This section supports integration of this application with external frameworks.
 
-=== Platform Global Settings
+=== System Properties
 
 The Platform Global Settings are the system-wide configuration settings used throughout {branding} to specify the information about the machine hosting {branding}.
 
@@ -438,12 +438,13 @@ Refer to the Metrics Reporting Application for how the stored metrics data can b
 
 [WARNING]
 ====
-Do not remove the `<DDF_INSTALL_DIR>/data/metrics` directory or any files in it. If this is done, all existing metrics data will bepermanently lost.
+Do not remove the `<DDF_INSTALL_DIR>/data/metrics` directory or any files in it.
+If this is done, all existing metrics data will be permanently lost.
 
 Also note that if {branding} is uninstalled/re-installed that all existing metrics data will be permanently lost.
 ====
 
-The metrics currently being collected by DDF are:
+The metrics currently being collected by {branding} are:
 
 [cols="1,3,1,3" options="header"]
 |===
@@ -933,7 +934,7 @@ The Security Core API contains all of the {branding} Security Framework APIs tha
 
 ==== Install and Uninstall
 
-The Security Core App installs this bundle by default.
+The Security Services App installs this bundle by default.
 Do not uninstall the Security Core API as it is integral to system function and all of the other security services depend upon it.
 
 ==== Configuration

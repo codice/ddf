@@ -4,8 +4,7 @@ The Platform application provides the fundamental building blocks that the distr
 These building blocks include subsets of:
 
 * http://karaf.apache.org/[Karaf], 
-* http://cxf.apache.org/CXF[CXF], 
-* http://karaf.apache.org/index/subprojects/cellar.html[Cellar], and 
+* http://cxf.apache.org/CXF[CXF],  and 
 * http://camel.apache.org/[Camel]. 
 
 A Command Scheduler is also included as part of the Platform application.

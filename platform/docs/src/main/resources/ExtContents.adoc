@@ -5,19 +5,31 @@ This section supports developers creating extensions of the existing framework.
 
 The following packages have been exported by the {branding} Platform application and are approved for use by third parties:
 
-* `ddf.action`
-* `ddf.action.impl`
-* `ddf.mime`
 * `ddf.security`
 * `ddf.security.assertion`
 * `ddf.security.common.audit`
+* `ddf.security.http`
 * `ddf.security.permission`
+* `ddf.security.policy.extension`
+* `ddf.security.principal`
+* `ddf.security.samlp`
 * `ddf.security.service`
+* `ddf.security.settings`
+* `ddf.security.sts.client.configuration`
 * `ddf.security.ws.policy`
 * `ddf.security.ws.proxy`
-* `ddf.security.encryption`
+* `org.codice.ddf.branding`
 * `org.codice.ddf.configuration`
-* `org.codice.ddf.platform.status`
+* `org.codice.ddf.configuration.admin`
+* `org.codice.ddf.configuration.migration`
+* `org.codice.ddf.configuration.persistence`
+* `org.codice.ddf.configuration.persistence.felix`
+* `org.codice.ddf.configuration.status`
+* `org.codice.ddf.notifications.store`
+* `org.codice.ddf.parser`
+* `org.codice.ddf.parser.xml`
+* `org.codice.ddf.platform.error.handler`
+* `org.codice.ddf.platform.util`
 
 [WARNING]
 ====
