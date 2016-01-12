@@ -1661,3 +1661,67 @@ a.pause:hover, a.pause:focus {
   background: rgb(85,85,85);
 }
 
+/* begin style for preference modal map layer */
+.ui-sortable-helper {
+    display: table;
+}
+
+.sortHandle {
+    cursor: pointer;
+}
+
+.layerPickers table.scrollable {
+    width: 100%;
+}
+
+.layerPickers .fa {
+    transform: scale(2, 1.3);
+}
+
+.layerPickers .table > thead > tr > td,
+.layerPickers .table > tbody > tr > td,
+.layerPickers .table > tfoot > tr > td {
+    padding: 2px;
+    vertical-align: middle;
+}
+
+.layerPickers tbody {
+    /*
+     overflow:auto and white-space:nowrap make the tbody "scrollable",
+     which fixes a bug in the jquery-ui sortable, which calculates
+     the position of the sortable "helper" (cloned row that gets
+     dragged) based upon the return of $.scrollParent().
+
+     when the table is not made "scrollable", scrollParent() goes up the
+     DOM ancestors until if finds some scrollable container. The bug effect
+     is that the initial drag/drop makes the helper "jump" way outside
+     the tbody.
+
+     reference:
+     https://developer.mozilla.org/en-US/docs/Web/CSS/overflow?redirectlocale=en-US&redirectslug=CSS%2Foverflow
+
+     */
+    overflow: scroll;
+    white-space: nowrap;
+}
+
+.layerPickers thead {
+    display: table-header-group;
+}
+
+.layerPickers thead th, tr td {
+    text-align: center;
+}
+
+.layerPickers .layerPickerHelper {
+    background-color: #393939;
+}
+
+div.modal-body div.preferenceTabButtons {
+    text-align: right;
+}
+
+.layerPickerMap {
+    height: 350px;
+}
+/* end style for preference modal map layer */
