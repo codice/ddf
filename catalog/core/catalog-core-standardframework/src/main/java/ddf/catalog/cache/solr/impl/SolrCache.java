@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,10 +21,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -65,7 +67,6 @@ import ddf.catalog.source.solr.SchemaFields;
 import ddf.catalog.source.solr.SolrFilterDelegate;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClient;
-
 
 /**
  * Catalog cache implementation using Apache Solr 4
@@ -114,7 +115,8 @@ public class SolrCache implements SolrCacheMBean {
      *
      * @param adapter injected implementation of FilterAdapter
      */
-    public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory, SystemBaseUrl sbu) {
+    public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory,
+            SystemBaseUrl sbu) {
         this.filterAdapter = adapter;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.systemBaseUrl = sbu;
@@ -143,8 +145,8 @@ public class SolrCache implements SolrCacheMBean {
         List<Metacard> updatedMetacards = new ArrayList<>();
         for (Metacard metacard : metacards) {
             if (metacard != null) {
-                if (StringUtils.isNotBlank(metacard.getSourceId()) && StringUtils
-                        .isNotBlank(metacard.getId())) {
+                if (StringUtils.isNotBlank(metacard.getSourceId()) && StringUtils.isNotBlank(
+                        metacard.getId())) {
                     updatedMetacards.add(metacard);
                 }
             } else {
@@ -199,7 +201,9 @@ public class SolrCache implements SolrCacheMBean {
                 "Configuring cache expiration scheduler with an expiration interval of {} minute(s).",
                 expirationIntervalInMinutes);
         scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(new ExpirationRunner(), 0, expirationIntervalInMinutes,
+        scheduler.scheduleAtFixedRate(new ExpirationRunner(),
+                0,
+                expirationIntervalInMinutes,
                 TimeUnit.MINUTES);
     }
 
@@ -210,11 +214,13 @@ public class SolrCache implements SolrCacheMBean {
         try {
             try {
 
-                mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
+                mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class),
+                        objectName);
             } catch (InstanceAlreadyExistsException e) {
                 LOGGER.info("Re-registering Cache Manager MBean");
                 mbeanServer.unregisterMBean(objectName);
-                mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class), objectName);
+                mbeanServer.registerMBean(new StandardMBean(this, SolrCacheMBean.class),
+                        objectName);
             }
         } catch (Exception e) {
             LOGGER.warn("Could not register MBean.", e);
@@ -238,7 +244,8 @@ public class SolrCache implements SolrCacheMBean {
                 // (Recancel/cancel if current thread also interrupted
                 scheduler.shutdownNow();
                 // Preserve interrupt status
-                Thread.currentThread().interrupt();
+                Thread.currentThread()
+                        .interrupt();
             }
         } else {
             LOGGER.debug("Cache expiration scheduler already shutdown.");
@@ -260,8 +267,14 @@ public class SolrCache implements SolrCacheMBean {
                     LOGGER.info("Shutdown complete.");
                 }
 
-                server = SolrServerFactory.getHttpSolrServer(url, METACARD_CACHE_CORE_NAME);
-                client = new CacheSolrMetacardClient(this.server, filterAdapter,
+                try {
+                    server = SolrServerFactory.getHttpSolrServer(url, METACARD_CACHE_CORE_NAME)
+                            .get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOGGER.error("Failed to get solr server from future", e);
+                }
+                client = new CacheSolrMetacardClient(this.server,
+                        filterAdapter,
                         solrFilterDelegateFactory);
             }
         } else {
@@ -280,11 +293,13 @@ public class SolrCache implements SolrCacheMBean {
     }
 
     public String getMetacardId(SolrDocument doc) {
-        return doc.getFieldValue(METACARD_ID_NAME).toString();
+        return doc.getFieldValue(METACARD_ID_NAME)
+                .toString();
     }
 
     public String getMetacardSource(SolrDocument doc) {
-        return doc.getFieldValue(METACARD_SOURCE_NAME).toString();
+        return doc.getFieldValue(METACARD_SOURCE_NAME)
+                .toString();
     }
 
     public void shutdown() {
@@ -315,7 +330,8 @@ public class SolrCache implements SolrCacheMBean {
 
     private List<Metacard> getMetacardsFromResponse(SourceResponse sourceResponse) {
         if (CollectionUtils.isNotEmpty(sourceResponse.getResults())) {
-            List<Metacard> metacards = new ArrayList<>(sourceResponse.getResults().size());
+            List<Metacard> metacards = new ArrayList<>(sourceResponse.getResults()
+                    .size());
             for (Result result : sourceResponse.getResults()) {
                 metacards.add(result.getMetacard());
             }
@@ -330,8 +346,8 @@ public class SolrCache implements SolrCacheMBean {
         public void run() {
             try {
                 LOGGER.debug("Expiring cache.");
-                server.deleteByQuery(CACHED_DATE + ":[* TO NOW-" + expirationAgeInMinutes
-                        + "MINUTES]");
+                server.deleteByQuery(
+                        CACHED_DATE + ":[* TO NOW-" + expirationAgeInMinutes + "MINUTES]");
             } catch (SolrServerException | IOException e) {
                 LOGGER.warn("Unable to expire cache.", e);
             }
@@ -341,8 +357,10 @@ public class SolrCache implements SolrCacheMBean {
     private class CacheSolrMetacardClient extends SolrMetacardClient {
 
         public CacheSolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
-                                       SolrFilterDelegateFactory solrFilterDelegateFactory) {
-            super(solrServer, catalogFilterAdapter, solrFilterDelegateFactory,
+                SolrFilterDelegateFactory solrFilterDelegateFactory) {
+            super(solrServer,
+                    catalogFilterAdapter,
+                    solrFilterDelegateFactory,
                     new DynamicSchemaResolver());
         }
 
@@ -362,7 +380,7 @@ public class SolrCache implements SolrCacheMBean {
 
         @Override
         protected SolrQuery getSolrQuery(QueryRequest request,
-                                         SolrFilterDelegate solrFilterDelegate) throws UnsupportedQueryException {
+                SolrFilterDelegate solrFilterDelegate) throws UnsupportedQueryException {
             SolrQuery query = super.getSolrQuery(request, solrFilterDelegate);
 
             if (request.isEnterprise()) {
@@ -371,9 +389,9 @@ public class SolrCache implements SolrCacheMBean {
 
             List<SolrQuery> sourceQueries = new ArrayList<>();
             for (String source : request.getSourceIds()) {
-                sourceQueries.add(solrFilterDelegate.propertyIsEqualTo(StringUtils
-                                .removeEnd(METACARD_SOURCE_NAME, SchemaFields.TEXT_SUFFIX),
-                        source, true));
+                sourceQueries.add(solrFilterDelegate.propertyIsEqualTo(StringUtils.removeEnd(
+                        METACARD_SOURCE_NAME,
+                        SchemaFields.TEXT_SUFFIX), source, true));
             }
             if (sourceQueries.size() > 0) {
                 SolrQuery allSourcesQuery;
@@ -399,8 +417,8 @@ public class SolrCache implements SolrCacheMBean {
 
             if (StringUtils.isNotBlank(metacard.getSourceId())) {
                 solrInputDocument.addField(METACARD_SOURCE_NAME, metacard.getSourceId());
-                solrInputDocument.setField(METACARD_UNIQUE_ID_NAME, metacard.getSourceId()
-                        + metacard.getId());
+                solrInputDocument.setField(METACARD_UNIQUE_ID_NAME,
+                        metacard.getSourceId() + metacard.getId());
                 solrInputDocument.addField(METACARD_ID_NAME, metacard.getId());
             }
 

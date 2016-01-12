@@ -43,7 +43,7 @@ public class TestExternal extends TestSolrProvider {
         LOGGER.info("RUNNING setup.");
 
         SolrCatalogProvider solrCatalogProvider = new SolrCatalogProvider(
-                SolrServerFactory.getHttpSolrServer("http://localhost:8181/solr"),
+                SolrServerFactory.getHttpSolrServer("http://localhost:8181/solr").get(),
                 new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
         /*
