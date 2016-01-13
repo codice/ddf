@@ -494,7 +494,7 @@ This Metacard is then used in the `create` and `update` operations invoked o
 ===== Using
 
 Use the Content Cataloger Plugin if create/update/delete of catalog entries in the Metadata Catalog based on the content item are desired.
-These CUD operations on the Metadata Catalog are made possible by parsing the content item to create a metacard and then using this metacard in the CUD operations on the Catalog Framework.
+These CRUD operations on the Metadata Catalog are made possible by parsing the content item to create a metacard and then using this metacard in the CRUD operations on the Catalog Framework.
 The Content Cataloger Plugin is the only component in the {branding} Content Framework that has the ability to interface with the Catalog Framework (and thus the Metadata Catalog).
 
 ===== Installing and Uninstalling

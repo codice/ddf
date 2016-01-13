@@ -1862,8 +1862,6 @@ A banner is displayed on the admin console notifying "The system is insecure bec
 A detailed view is available of the properties to update.
 ====
 
-====
-
 ===== Auditing
 
 [NOTE]
