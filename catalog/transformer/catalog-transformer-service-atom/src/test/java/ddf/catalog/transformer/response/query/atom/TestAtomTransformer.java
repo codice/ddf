@@ -67,13 +67,13 @@ import ddf.action.ActionProvider;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.ResultImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.QueryImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 

@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 
 public class MetacardStub extends MetacardImpl {
 

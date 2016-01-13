@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.event.Subscription;
-import ddf.catalog.event.SubscriptionImpl;
+import ddf.catalog.event.impl.SubscriptionImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
