@@ -52,7 +52,7 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     }
 
-    XMLSaxEventHandlerImpl() {
+    protected XMLSaxEventHandlerImpl() {
         xmlToMetacard = new HashMap<>();
         xmlToMetacard.put("title", Metacard.TITLE);
         xmlToMetacard.put("point-of-contact", Metacard.POINT_OF_CONTACT);
@@ -60,8 +60,7 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
         xmlToMetacard.put("source", Metacard.RESOURCE_URI);
     }
 
-
-    XMLSaxEventHandlerImpl(Map<String, String> xmlToMetacardMap) {
+    protected XMLSaxEventHandlerImpl(Map<String, String> xmlToMetacardMap) {
         this.xmlToMetacard = xmlToMetacardMap;
     }
 
@@ -94,18 +93,13 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
         if (!stillInterested) {
             return;
         }
-        switch (localName.toLowerCase()) {
-        case "string":
-            String attribute = attributes.getValue("name");
-            if (attribute != null) {
-                reading = attribute;
-            }
-            break;
-        case "source":
+        if (xmlToMetacard.get(localName.toLowerCase()) != null) {
             reading = localName.toLowerCase();
-            break;
-        default:
-            break;
+            return;
+        }
+        String attribute = attributes.getValue("name");
+        if (attribute != null && xmlToMetacard.get(attribute) != null) {
+            reading = attribute;
         }
     }
 
