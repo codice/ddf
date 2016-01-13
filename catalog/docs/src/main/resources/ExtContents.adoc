@@ -7,41 +7,41 @@ This guide supports developers creating extensions of the existing framework.
 
 The following packages have been exported by the {branding} Catalog application and are approved for use by third parties:
 
+* `ddf.camel.component.catalog`
 * `ddf.catalog`
-
-* `ddf.catalog.util` 
-
-* `ddf.catalog.event`
-
-* `ddf.catalog`
-
-* `ddf.catalog.validation`
-
-* `ddf.catalog.source`
-
-* `ddf.catalog.filter`
-
-* `ddf.catalog.federation`
-
-* `ddf.catalog.plugin`
-
-* `ddf.catalog.operation`
-
-* `ddf.catalog.transform`
-
+* `ddf.catalog.cache`
 * `ddf.catalog.data`
-
-* `ddf.catalog.resource`
-
-* `ddf.measure`
-
+* `ddf.catalog.data.metacardtype`
+* `ddf.catalog.event`
+* `ddf.catalog.federation`
+* `ddf.catalog.federation.impl`
+* `ddf.catalog.filter`
 * `ddf.catalog.filter.delegate`
-
 * `ddf.catalog.impl.filter`
-
-* `ddf.services.schematron`
-
+* `ddf.catalog.operation`
+* `ddf.catalog.plugin`
+* `ddf.catalog.plugin.groomer`
+* `ddf.catalog.pubsub`
+* `ddf.catalog.pubsub.tracker`
+* `ddf.catalog.resource`
+* `ddf.catalog.resource.data`
+* `ddf.catalog.resource.impl`
+* `ddf.catalog.resourceretriever`
+* `ddf.catalog.service`
+* `ddf.catalog.source`
+* `ddf.catalog.transform`
+* `ddf.catalog.transformer.api`
+* `ddf.catalog.transformer.metacard.geojson`
+* `ddf.catalog.util`
+* `ddf.catalog.validation`
+* `ddf.common`
 * `ddf.geo.formatter`
+* `ddf.util`
+* `org.codice.ddf.endpoints`
+* `org.codice.ddf.endpoints.rest`
+* `org.codice.ddf.endpoints.rest.action`
+* `org.codice.ddf.opensearch.query`
+* `org.codice.ddf.opensearch.query.filter`
 
 === Catalog Application Services
 
@@ -3602,7 +3602,7 @@ Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice doc
 |Key
 |Value
 
-|mime-type	
+|mime-type
 |* application/pdf
 * application/vnd.openxmlformats-officedocument.wordprocessingml.document
 * application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
@@ -3617,7 +3617,7 @@ Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice doc
 |shortname
 |
 
-|id	 
+|id
 |tika
 
 |title

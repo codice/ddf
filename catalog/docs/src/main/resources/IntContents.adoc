@@ -187,12 +187,13 @@ The `read` operation can be used to retrieve metadata in different formats.
 
 . Make a read request to the REST URL specifying the catalog id.
 
-. Add a transform query parameter to the end of the URL specifying the shortname of the transformer to be used (e.g., `transform=kml`).+
+. Add a transform query parameter to the end of the URL specifying the shortname of the transformer to be used (e.g., `transform=kml`).
+
 Example:
 
 [source,http]
 ----
-\http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
+http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
 ----
 
 [TIP]
@@ -220,12 +221,10 @@ This endpoint can make use of any registered `MetacardTransformers`.
 
 ====== HTML Metacard Transformer
 
-*Description*
-
+Description::
 The HTML Metacard Transformer is responsible for translating a Metacard into an HTML formatted document.
 
-*Usage*
-
+Usage::
 Using the REST Endpoint, for example, request a metacard with the transform option set to the HTML shortname.
 
 [source,http]
