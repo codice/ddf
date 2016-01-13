@@ -1,4 +1,17 @@
-package ddf.catalog.transformer.generic.xml;
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package ddf.catalog.transformer.generic.xml.impl;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -9,6 +22,8 @@ import java.util.List;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -16,6 +31,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
 public class SaxEventHandlerDelegate extends DefaultHandler {
 
@@ -27,6 +43,8 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     private String namespace;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
+
     public SaxEventHandlerDelegate() {
         try {
             // Read set up
@@ -35,7 +53,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             factory.setSchema(null);
             factory.setNamespaceAware(true);
             factory.setValidating(false);
-//            factory.setFeature("http://xml.org/sax/features/namespaces", false);
+            //            factory.setFeature("http://xml.org/sax/features/namespaces", false);
             factory.setFeature("http://xml.org/sax/features/validation", false);
             factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
                     false);
@@ -44,7 +62,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
             parser = factory.newSAXParser();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.debug("Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls", e);
         }
     }
 
@@ -73,7 +91,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
             parser.parse(new BufferedInputStream(inputStream), this);
         } catch (IOException | SAXException e) {
-            e.printStackTrace();
+            LOGGER.debug("Exception thrown during parsing of inputStream", e);
         }
 
         // Populate metacard with all attributes constructed in SaxEventHandlers during parsing
@@ -90,6 +108,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             try {
                 transformer.startDocument();
             } catch (SAXException e) {
+                LOGGER.debug("Sax Exception thrown during startDocument event", e);
             }
         }
     }

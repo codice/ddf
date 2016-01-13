@@ -108,5 +108,6 @@
         <module>catalog-transformer-xml</module>
         <module>catalog-transformer-common</module>
         <module>catalog-transformer-generic</module>
+        <module>catalog-transformer-generic-impl</module>
     </modules>
 </project>

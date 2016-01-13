@@ -36,28 +36,29 @@
 
 
     <cm:managed-service-factory id="XMLInputTransformerFactory"
-                                factory-pid="XMLInputTransformer" interface="ddf.catalog.transform.InputTransformer">
+                                factory-pid="XMLInputTransformer"
+                                interface="ddf.catalog.transform.InputTransformer">
 
         <cm:managed-component
-                class="ddf.catalog.transformer.generic.xml.XMLInputTransformer"
+                class="ddf.catalog.transformer.generic.xml.impl.XMLInputTransformer"
                 init-method="init" destroy-method="destroy">
             <!--Defines the methods to be invoked when the OpenSearch Source
                 instance is created and when it is deleted. The init method is called after
                 all of the setter methods have been called. -->
-            <property name="id" value="xml" />
+            <property name="id" value="xml"/>
             <property name="title"
-                      value="Base XML transformer" />
-            <property name="organization" value="Codice" />
+                      value="Base XML transformer"/>
+            <property name="organization" value="Codice"/>
             <property name="saxEventHandlerFactories" ref="saxEventHandlerFactoriesList"/>
             <property name="saxEventHandlerConfiguration">
                 <list>
                     <value>XML_Handler</value>
                 </list>
             </property>
-            <property name="resourceReader" ref="resourceReader" />
+            <property name="resourceReader" ref="resourceReader"/>
 
             <cm:managed-properties persistent-id=""
-                                   update-strategy="container-managed" />
+                                   update-strategy="container-managed"/>
         </cm:managed-component>
 
 

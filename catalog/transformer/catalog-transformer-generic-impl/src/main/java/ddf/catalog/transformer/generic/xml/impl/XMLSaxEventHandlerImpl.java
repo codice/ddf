@@ -1,8 +1,23 @@
-package ddf.catalog.transformer.generic.xml;
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package ddf.catalog.transformer.generic.xml.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -13,6 +28,7 @@ import org.xml.sax.SAXParseException;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
 public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
@@ -20,11 +36,11 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     private Boolean stillInterested = true;
 
-    private Boolean reading = false;
+    private String reading;
 
     private StringBuffer stringBuffer;
 
-    private boolean bTitle = false;
+    private Map<String, String> xmlToMetacard;
 
     @Override
     public List<Attribute> getAttributes() {
@@ -34,6 +50,19 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
     @Override
     public void setDocumentLocator(Locator locator) {
 
+    }
+
+    XMLSaxEventHandlerImpl() {
+        xmlToMetacard = new HashMap<>();
+        xmlToMetacard.put("title", Metacard.TITLE);
+        xmlToMetacard.put("point-of-contact", Metacard.POINT_OF_CONTACT);
+        xmlToMetacard.put("description", Metacard.DESCRIPTION);
+        xmlToMetacard.put("source", Metacard.RESOURCE_URI);
+    }
+
+
+    XMLSaxEventHandlerImpl(Map<String, String> xmlToMetacardMap) {
+        this.xmlToMetacard = xmlToMetacardMap;
     }
 
     @Override
@@ -68,10 +97,13 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
         switch (localName.toLowerCase()) {
         case "string":
             String attribute = attributes.getValue("name");
-            if (attribute != null && attribute.equals("title")) {
-                bTitle = true;
-                break;
+            if (attribute != null) {
+                reading = attribute;
             }
+            break;
+        case "source":
+            reading = localName.toLowerCase();
+            break;
         default:
             break;
         }
@@ -82,17 +114,14 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
         if (!stillInterested) {
             return;
         }
-        switch (localName.toLowerCase()) {
-        case "string":
-            if (bTitle) {
-                String result = stringBuffer.toString().trim();
-                stringBuffer.setLength(0);
-                bTitle = false;
-                attributes.add(new AttributeImpl(Metacard.TITLE, result));
+        if (reading != null) {
+            String result = stringBuffer.toString().trim();
+            stringBuffer.setLength(0);
+            if (xmlToMetacard.get(reading) != null) {
+                attributes.add(new AttributeImpl(xmlToMetacard.get(reading), result));
             }
-            break;
-        default:
-            break;
+            reading = null;
+
         }
     }
 
@@ -101,7 +130,7 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
         if (!stillInterested) {
             return;
         }
-        if (bTitle) {
+        if (reading != null) {
             stringBuffer.append(new String(ch, start, length));
         }
 
