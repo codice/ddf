@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
 import static ddf.common.test.WaitCondition.expect;
+import static ddf.test.itests.common.CswQueryBuilder.AND;
 import static ddf.test.itests.common.CswQueryBuilder.NOT;
 import static ddf.test.itests.common.CswQueryBuilder.OR;
 import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_EQUAL_TO;
@@ -861,9 +862,11 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         //Search for all entries that have validation-warnings or no validation warnings
         //Only search that will actually return all entries
-        query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "*")
-                .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS).addLogicalOperator(OR)
-                .getQuery();
+        query = new CswQueryBuilder()
+                .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sample-validator")
+                .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sample-validator2")
+                .addLogicalOperator(AND).addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                .addLogicalOperator(OR).getQuery();
 
         response = given().header("Content-Type", MediaType.APPLICATION_XML).body(query)
                 .post(CSW_PATH.getUrl()).then();

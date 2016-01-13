@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -80,6 +80,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -496,6 +497,43 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertTrue(Arrays.equals(mockMetacard.getThumbnail(), createdMetacard.getThumbnail()));
         assertEquals(mockMetacard.getLocation(), createdMetacard.getLocation());
         assertEquals(MASKED_ID, createdMetacard.getSourceId());
+    }
+
+    /** Tests that multivalued attributes are stored and returned
+     *
+     * @throws UnsupportedQueryException
+     * @throws IngestException
+     */
+    @Test
+    public void testCreateMultivaluedAttribute() throws UnsupportedQueryException, IngestException {
+
+        deleteAllIn(provider);
+
+        FilterFactory filterFactory = new FilterFactoryImpl();
+
+        MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
+        List<Serializable> a = new ArrayList<>();
+        a.add("sample-validator");
+        a.add("sample-validator2");
+        AttributeImpl attribute = new AttributeImpl(BasicTypes.VALIDATION_WARNINGS, a);
+        metacard.setAttribute(attribute);
+        create(metacard);
+
+        Filter filter = filterFactory
+                .like(filterFactory.property(Metacard.TITLE), MockMetacard.DEFAULT_TITLE,
+                        DEFAULT_TEST_WILDCARD, DEFAULT_TEST_SINGLE_WILDCARD, DEFAULT_TEST_ESCAPE,
+                        false);
+
+        QueryImpl query = new QueryImpl(filter);
+
+        query.setStartIndex(1);
+
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
+
+        List<Result> results = sourceResponse.getResults();
+        Metacard mResult = results.get(0).getMetacard();
+        assertThat(mResult.getAttribute(BasicTypes.VALIDATION_WARNINGS).getValues().size(), is(2));
+
     }
 
     /**

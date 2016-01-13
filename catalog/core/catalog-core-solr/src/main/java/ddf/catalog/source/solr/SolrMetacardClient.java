@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -43,6 +44,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
@@ -191,11 +193,13 @@ public class SolrMetacardClient {
     }
 
     protected String getSortProperty(QueryRequest request, SolrQuery query) {
-        SortBy sortBy = request.getQuery().getSortBy();
+        SortBy sortBy = request.getQuery()
+                .getSortBy();
         String sortProperty = "";
 
         if (sortBy != null && sortBy.getPropertyName() != null) {
-            sortProperty = sortBy.getPropertyName().getPropertyName();
+            sortProperty = sortBy.getPropertyName()
+                    .getPropertyName();
             SolrQuery.ORDER order = SolrQuery.ORDER.desc;
 
             if (sortBy.getSortOrder() == SortOrder.ASCENDING) {
@@ -206,15 +210,15 @@ public class SolrMetacardClient {
                 query.setFields("*", RELEVANCE_SORT_FIELD);
                 query.addSort(RELEVANCE_SORT_FIELD, order);
             } else if (sortProperty.equals(Result.TEMPORAL)) {
-                query.addSort(
-                        resolver.getField(Metacard.EFFECTIVE, AttributeType.AttributeFormat.DATE,
-                                false), order);
+                query.addSort(resolver.getSortKey(resolver.getField(Metacard.EFFECTIVE,
+                        AttributeType.AttributeFormat.DATE,
+                        false)), order);
             } else {
                 List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);
 
                 if (!resolvedProperties.isEmpty()) {
                     for (String sortField : resolvedProperties) {
-                        query.addSort(sortField, order);
+                        query.addSort(resolver.getSortKey(sortField), order);
                     }
 
                     query.add("fl", "*," + RELEVANCE_SORT_FIELD);
@@ -227,7 +231,7 @@ public class SolrMetacardClient {
             }
 
         }
-        return sortProperty;
+        return resolver.getSortKey(sortProperty);
     }
 
     private ResultImpl createResult(SolrDocument doc, String sortProperty)
@@ -265,9 +269,10 @@ public class SolrMetacardClient {
 
         for (String solrFieldName : doc.getFieldNames()) {
             if (!resolver.isPrivateField(solrFieldName)) {
-                Serializable value = resolver
-                        .getDocValue(solrFieldName, doc.getFieldValue(solrFieldName));
-                metacard.setAttribute(resolver.resolveFieldName(solrFieldName), value);
+                Collection<Object> fieldValues = doc.getFieldValues(solrFieldName);
+                AttributeImpl attr = new AttributeImpl(resolver.resolveFieldName(solrFieldName),
+                        resolver.getDocValues(solrFieldName, fieldValues));
+                metacard.setAttribute(attr);
             }
         }
 
