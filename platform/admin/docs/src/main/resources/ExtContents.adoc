@@ -3,5 +3,11 @@ This section supports developers creating extensions of the existing {branding} 
 
 === Whitelist
 
-No packages have been exported by the {branding} Admin application.
-Therefore, there are no packages approved for use by third parties.
+The following packages have been exported by the {branding} Admin application and are approved for use by third parties:
+
+`org.codice.ddf.ui.admin.api`
+`org.codice.ddf.ui.admin.api.module`
+`org.codice.ddf.ui.admin.api.plugin`
+`org.codice.ddf.admin.configuration.plugin`
+`org.codice.ddf.admin.application.service`
+`org.codice.ddf.admin.application.plugin`
