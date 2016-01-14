@@ -39,7 +39,8 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 
@@ -97,13 +98,13 @@ public class Search {
 
     private SearchRequest searchRequest;
 
-    private QueryResponse compositeQueryResponse;
-
     private Map<String, QueryStatus> queryStatus = new HashMap<String, QueryStatus>();
 
     private long hits = 0;
 
     private long responseNum = 0;
+
+    private List<Result> results = new ArrayList<>();
 
     private Search() {
 
@@ -135,10 +136,21 @@ public class Search {
      */
     public synchronized void update(String sourceId, QueryResponse queryResponse) {
         if (queryResponse != null) {
-            compositeQueryResponse = queryResponse;
+            results = queryResponse.getResults();
             updateResultStatus(queryResponse.getResults());
             updateStatus(sourceId, queryResponse);
         }
+    }
+
+    public synchronized void failSource(String sourceId) {
+        QueryResponseImpl failedResponse = new QueryResponseImpl(null);
+        failedResponse.closeResultQueue();
+        failedResponse.setHits(0);
+        failedResponse.getProcessingDetails()
+                .add(new ProcessingDetailsImpl(sourceId, new Exception()));
+        failedResponse.getProperties().put("elapsed", -1L);
+
+        updateStatus(sourceId, failedResponse);
     }
 
     private void updateStatus(String sourceId, QueryResponse queryResponse) {
@@ -196,10 +208,6 @@ public class Search {
         return searchRequest;
     }
 
-    public QueryResponse getCompositeQueryResponse() {
-        return compositeQueryResponse;
-    }
-
     public Map<String, QueryStatus> getQueryStatus() {
         return queryStatus;
     }
@@ -210,6 +218,10 @@ public class Search {
 
     public void setHits(long hits) {
         this.hits = hits;
+    }
+
+    public List<Result> getResults() {
+        return results;
     }
 
     private void addObject(Map<String, Object> obj, String name, Object value) {
@@ -237,19 +249,13 @@ public class Search {
     public Map<String, Object> transform(String searchRequestId) throws
             CatalogTransformerException {
 
-        SourceResponse upstreamResponse = this.getCompositeQueryResponse();
-        if (upstreamResponse == null) {
-            throw new CatalogTransformerException(
-                    "Cannot transform null " + SourceResponse.class.getName());
-        }
-
         Map<String, Object> result = new HashMap<>();
 
         addObject(result, HITS, this.getHits());
         addObject(result, ID, searchRequestId);
-        addObject(result, RESULTS, getResultList(upstreamResponse.getResults()));
+        addObject(result, RESULTS, getResultList(this.getResults()));
         addObject(result, STATUS, getQueryStatus(this.getQueryStatus()));
-        addObject(result, METACARD_TYPES, getMetacardTypes(upstreamResponse.getResults()));
+        addObject(result, METACARD_TYPES, getMetacardTypes(this.getResults()));
 
         return result;
     }

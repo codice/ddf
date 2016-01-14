@@ -17,8 +17,11 @@ package org.codice.ddf.ui.searchui.query.controller;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.codice.ddf.ui.searchui.query.controller.search.CacheQueryRunnable;
 import org.codice.ddf.ui.searchui.query.controller.search.FilteringSolrIndexCallable;
@@ -42,6 +45,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.Query;
+import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.Subject;
 
 /**
@@ -155,11 +159,43 @@ public class SearchController {
             cacheFuture = Futures.immediateFuture(null);
         }
 
+        long deadline = System.currentTimeMillis() + request.getQuery().getTimeoutMillis();
+        Map<String, Future> futures = new HashMap<>(request.getSourceIds().size());
+
         for (final String sourceId : request.getSourceIds()) {
             // Send the latest results from each source
-            executorService
+            futures.put(sourceId, executorService
                     .submit(new SourceQueryRunnable(this, sourceId, request, subject, results,
-                            search, session, cacheFuture, solrIndexFuture));
+                            search, session, cacheFuture, solrIndexFuture)));
+        }
+
+        for (Map.Entry<String, Future> entry : futures.entrySet()) {
+            String sourceId = entry.getKey();
+            Future future = entry.getValue();
+            try {
+                long timeRemaining = Math.max(0, deadline - System.currentTimeMillis());
+
+                future.get(timeRemaining, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                LOGGER.info("Query interrupted for source " + sourceId, e);
+                failSource(request, session, search, sourceId);
+            } catch (TimeoutException e) {
+                LOGGER.info("Query timed out for source " + sourceId, e);
+                failSource(request, session, search, sourceId);
+            } catch (ExecutionException e) {
+                LOGGER.warn("Query failed for source " + sourceId, e.getCause());
+                failSource(request, session, search, sourceId);
+            }
+        }
+    }
+
+    private void failSource(SearchRequest request, ServerSession session, Search search,
+            String sourceId) {
+        search.failSource(sourceId);
+        try {
+            pushResults(request.getId(), search.transform(request.getId()), session);
+        } catch (CatalogTransformerException e) {
+            LOGGER.error("Failed to transform failed search results.", e);
         }
     }
 

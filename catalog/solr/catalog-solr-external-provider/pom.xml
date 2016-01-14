@@ -210,13 +210,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
-        </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -273,8 +266,7 @@
                             httpmime,
                             noggit,
                             zookeeper,
-                            common-system,
-                            google-collections
+                            common-system
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <!-- We want the maven-populated describable.properties, so we overwrite
