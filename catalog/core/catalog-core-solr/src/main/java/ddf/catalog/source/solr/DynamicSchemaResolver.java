@@ -72,8 +72,6 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
  */
 public class DynamicSchemaResolver {
 
-    public static final String LUX_XML_FIELD_NAME = "lux_xml";
-
     protected static final char FIRST_CHAR_OF_SUFFIX = '_';
 
     protected static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE = "Could not read MetacardType.";
@@ -86,9 +84,13 @@ public class DynamicSchemaResolver {
 
     private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
+    public static final String LUX_XML_FIELD_NAME = "lux_xml";
+
+    public static final String SCORE_FIELD_NAME = "score";
+
     private static final List<String> PRIVATE_SOLR_FIELDS = Arrays
             .asList(SOLR_CLOUD_VERSION_FIELD, SchemaFields.METACARD_TYPE_FIELD_NAME,
-                    SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+                    SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, LUX_XML_FIELD_NAME, SCORE_FIELD_NAME);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
