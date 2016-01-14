@@ -279,7 +279,7 @@ define(['application',
                         destination: Cesium.Cartesian3.fromRadians(rectangle.west, rectangle.north, properties.defaultFlytoHeight)
                     });
                 } else {
-                    this.mapViewer.scene.camera.flyToRectangle({
+                    this.mapViewer.scene.camera.flyTo({
                         destination: this.expandRectangle(rectangle)
                     });
                 }
