@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,6 +48,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
@@ -80,7 +82,10 @@ import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
+import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PolicyPlugin;
+import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.PostResourcePlugin;
@@ -204,6 +209,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     protected List<ResourceReader> resourceReaders;
 
     /**
+     * The {@link List} of {@link AccessPlugin}s configured for this catalog that will determine
+     * whether or not a Subject can perform that operation
+     */
+    protected List<AccessPlugin> access;
+
+    /**
+     * The {@link List} of {@link PolicyPlugin}s configured for this catalog that will provide
+     * a policy for the {@link AccessPlugin}s to make decisions
+     */
+    protected List<PolicyPlugin> policy;
+
+    /**
      * The OSGi bundle context for this catalog framework.
      */
     protected BundleContext context;
@@ -271,8 +288,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      *                                   response before calling any post-query plug-ins registered.
      * @param pool                       An ExecutorService used to manage threaded operations.
      * @param poller                     An {@link SourcePoller} used to poll source availability.
-     * @deprecated Use
-     * {@link #CatalogFrameworkImpl(List, BundleContext, List, List, List, List, List, List, List, List, List, FederationStrategy, QueryResponsePostProcessor, ExecutorService, SourcePoller, ResourceCache, DownloadsStatusEventPublisher, ReliableResourceDownloadManager)}
+     * @deprecated Use {@link #CatalogFrameworkImpl(FrameworkProperties)}
      */
     public CatalogFrameworkImpl(BundleContext context, CatalogProvider catalogProvider,
             List<PreIngestPlugin> preIngest, List<PostIngestPlugin> postIngest,
@@ -318,36 +334,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
      *                                   response before calling any post-query plug-ins registered.
      * @param pool                       An ExecutorService used to manage threaded operations.
      * @param poller                     An {@link SourcePoller} used to poll source availability.
+     *
+     * @deprecated use {@link #CatalogFrameworkImpl(FrameworkProperties)}
      */
-
-    // NOTE: The List<CatalogProvider> argument is first because when it was the second
-    // argument (like in the deprecated constructor above) the following error occurs during
-    // DDF startup:
-    // org.osgi.service.blueprint.container.ComponentDefinitionException:
-    // Unable to convert value BeanRecipe[name='#recipe-125'] to type class java.util.ArrayList
-    // Caused by:
-    // org.osgi.service.blueprint.container.ComponentDefinitionException: Multiple matching
-    // constructors found on class ddf.catalog.CatalogFrameworkImpl for arguments
-    // [org.eclipse.osgi.framework.internal.core.BundleContextImpl@191e31ea,
-    // ddf.catalog.util.SortedServiceList@6013a567, ddf.catalog.util.SortedServiceList@29d03e78,
-    // ddf.catalog.util.SortedServiceList@26b54dba, ddf.catalog.util.SortedServiceList@49020230,
-    // ddf.catalog.util.SortedServiceList@22ddc2c2, ddf.catalog.util.SortedServiceList@d1d6070,
-    // org.apache.aries.blueprint.container.ReferenceListRecipe$ProvidedObject@1073f623,
-    // org.apache.aries.blueprint.container.ReferenceListRecipe$ProvidedObject@2d247c45,
-    // org.apache.aries.blueprint.container.ReferenceListRecipe$ProvidedObject@365aad2a,
-    // ddf.catalog.util.SortedServiceList@3a65fca,
-    // ddf.catalog.federation.impl.SortedFederationStrategy@7b1ebc46,
-    // java.util.concurrent.ThreadPoolExecutor@1edad6d0, ddf.catalog.util.SourcePoller@314d0183]
-    // when instanciating bean ddf: [public
-    // ddf.catalog.CatalogFrameworkImpl(org.osgi.framework.BundleContext,ddf.catalog.source.CatalogProvider,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,ddf.catalog.federation.FederationStrategy,java.util.concurrent.ExecutorService,ddf.catalog.util.SourcePoller),
-    // public
-    // ddf.catalog.CatalogFrameworkImpl(org.osgi.framework.BundleContext,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,java.util.List,ddf.catalog.federation.FederationStrategy,java.util.concurrent.ExecutorService,ddf.catalog.util.SourcePoller)]
-
-    // Don't exactly know what the problem is, but it has something to do with DDF's ListConverter
-    // and blueprint trying to convert List<CatalogProvider>. Additionally,
-    // the List<CatalogProvider> argument cannot be adjacent to the other List<T> arguments in the
-    // signature - it must be separated by another type, hence the BundleContext
-    // argument being second.
     public CatalogFrameworkImpl(List<CatalogProvider> catalogProviders, BundleContext context,
             List<PreIngestPlugin> preIngest, List<PostIngestPlugin> postIngest,
             List<PreQueryPlugin> preQuery, List<PostQueryPlugin> postQuery,
@@ -361,9 +350,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.catalogProviders = catalogProviders;
         if (LOGGER.isDebugEnabled()) {
             if (this.catalogProviders != null) {
-                LOGGER.info("catalog providers list size = " + this.catalogProviders.size());
+                LOGGER.debug("catalog providers list size = " + this.catalogProviders.size());
             } else {
-                LOGGER.info("catalog providers list is NULL");
+                LOGGER.debug("catalog providers list is NULL");
             }
         }
 
@@ -373,6 +362,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.postQuery = postQuery;
         this.preResource = preResource;
         this.postResource = postResource;
+        this.access = new ArrayList<>();
+        this.policy = new ArrayList<>();
         this.connectedSources = connectedSources;
         this.federatedSources = federatedSources;
         this.resourceReaders = resourceReaders;
@@ -382,9 +373,42 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.productCache = resourceCache;
         this.retrieveStatusEventPublisher = eventPublisher;
         this.reliableResourceDownloadManager = rrdm;
-        synchronized (this) {
-            this.pool = pool;
+        this.pool = pool;
+    }
+
+    /**
+     * Instantiates a new CatalogFrameworkImpl
+     * @param frameworkProperties - collection of properties to be set on the CatalogFramework instance
+     */
+    public CatalogFrameworkImpl(FrameworkProperties frameworkProperties) {
+        this.context = frameworkProperties.getBundleContext();
+        this.catalogProviders = frameworkProperties.getCatalogProviders();
+        if (LOGGER.isDebugEnabled()) {
+            if (this.catalogProviders != null) {
+                LOGGER.debug("catalog providers list size = " + this.catalogProviders.size());
+            } else {
+                LOGGER.debug("catalog providers list is NULL");
+            }
         }
+
+        this.preIngest = frameworkProperties.getPreIngest();
+        this.postIngest = frameworkProperties.getPostIngest();
+        this.preQuery = frameworkProperties.getPreQuery();
+        this.postQuery = frameworkProperties.getPostQuery();
+        this.preResource = frameworkProperties.getPreResource();
+        this.postResource = frameworkProperties.getPostResource();
+        this.access = frameworkProperties.getAccessPlugins();
+        this.policy = frameworkProperties.getPolicyPlugins();
+        this.connectedSources = frameworkProperties.getConnectedSources();
+        this.federatedSources = frameworkProperties.getFederatedSources();
+        this.resourceReaders = frameworkProperties.getResourceReaders();
+        this.defaultFederationStrategy = frameworkProperties.getFederationStrategy();
+        this.queryResponsePostProcessor = frameworkProperties.getQueryResponsePostProcessor();
+        this.poller = frameworkProperties.getSourcePoller();
+        this.productCache = frameworkProperties.getResourceCache();
+        this.retrieveStatusEventPublisher = frameworkProperties.getDownloadsStatusEventPublisher();
+        this.reliableResourceDownloadManager = frameworkProperties.getReliableResourceDownloadManager();
+        this.pool = frameworkProperties.getPool();
     }
 
     public void setFanoutEnabled(boolean fanoutEnabled) {
@@ -778,6 +802,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         }
     }
 
+    private void buildPolicyMap(HashMap<String, Set<String>> policyMap,
+            Set<Entry<String, Set<String>>> policy) {
+        if (policy != null) {
+            for (Entry<String, Set<String>> entry : policy) {
+                if (policyMap.containsKey(entry.getKey())) {
+                    policyMap.get(entry.getKey())
+                            .addAll(entry.getValue());
+                } else {
+                    policyMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+    }
+
     @Override
     public CreateResponse create(CreateRequest createRequest)
             throws IngestException, SourceUnavailableException {
@@ -810,6 +848,25 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         Exception ingestError = null;
         try {
+            Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
+                    createReq.getProperties());
+            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+            for (Metacard metacard : createReq.getMetacards()) {
+                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+                for (PolicyPlugin plugin : policy) {
+                    PolicyResponse policyResponse = plugin.processPreCreate(metacard,
+                            unmodifiablePropertiesMap);
+                    buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
+                    buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy().entrySet());
+                }
+                metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+            }
+            createReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                plugin.processPreCreate(createReq);
+            }
+
             for (PreIngestPlugin plugin : preIngest) {
                 try {
                     createReq = plugin.process(createReq);
@@ -868,7 +925,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         // building
         if (INGEST_LOGGER.isDebugEnabled()) {
             INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
-                    createReq.getMetacards().size(), buildIngestLog(createReq));
+                    createReq.getMetacards()
+                            .size(), buildIngestLog(createReq));
         }
         return createResponse;
     }
@@ -895,6 +953,24 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         validateUpdateRequest(updateReq);
         UpdateResponse updateResponse = null;
         try {
+            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+            for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
+                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+                for (PolicyPlugin plugin : policy) {
+                    PolicyResponse policyResponse = plugin.processPreUpdate(
+                            update.getValue(),
+                            Collections.unmodifiableMap(updateReq.getProperties()));
+                    buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
+                    buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy().entrySet());
+                }
+                update.getValue()
+                        .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+            }
+            updateReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                plugin.processPreUpdate(updateReq);
+            }
 
             for (PreIngestPlugin plugin : preIngest) {
                 try {
@@ -957,6 +1033,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         validateDeleteRequest(deleteRequest);
         DeleteResponse deleteResponse = null;
         try {
+            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+            Map<String, Serializable> unmodifiableProperties = Collections.unmodifiableMap(
+                    deleteRequest.getProperties());
+            List<Serializable> unmodifiableAttributeValues = Collections.unmodifiableList(
+                    deleteRequest.getAttributeValues());
+            for (PolicyPlugin plugin : policy) {
+                PolicyResponse policyResponse = plugin.processPreDelete(
+                        deleteRequest.getAttributeName(), unmodifiableAttributeValues,
+                        unmodifiableProperties);
+                buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy().entrySet());
+            }
+            deleteRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                plugin.processPreDelete(deleteRequest);
+            }
+
             for (PreIngestPlugin plugin : preIngest) {
                 try {
                     deleteRequest = plugin.process(deleteRequest);
@@ -1053,6 +1146,27 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         queryRequest.getProperties());
             }
 
+            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+            Map<String, Serializable> unmodifiableProperties = Collections.unmodifiableMap(
+                    queryReq.getProperties());
+            for (PolicyPlugin plugin : policy) {
+                try {
+                    PolicyResponse policyResponse = plugin.processPreQuery(queryReq.getQuery(), unmodifiableProperties);
+                    buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy().entrySet());
+                } catch (StopProcessingException e) {
+                    throw new FederationException("Query could not be executed.", e);
+                }
+            }
+            queryReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                try {
+                    plugin.processPreQuery(queryReq);
+                } catch (StopProcessingException e) {
+                    throw new FederationException("Query could not be executed.", e);
+                }
+            }
+
             for (PreQueryPlugin service : preQuery) {
                 try {
                     queryReq = service.process(queryReq);
@@ -1081,6 +1195,34 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             queryResponse = doQuery(queryReq, fedStrategy);
 
             validateFixQueryResponse(queryResponse, queryReq, overrideFanoutRename);
+
+            HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
+            unmodifiableProperties = Collections.unmodifiableMap(
+                    queryResponse.getProperties());
+            for (Result result : queryResponse.getResults()) {
+                HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+                for (PolicyPlugin plugin : policy) {
+                    try {
+                        PolicyResponse policyResponse = plugin.processPostQuery(result,
+                                unmodifiableProperties);
+                        buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy().entrySet());
+                        buildPolicyMap(responsePolicyMap, policyResponse.operationPolicy().entrySet());
+                    } catch (StopProcessingException e) {
+                        throw new FederationException("Query could not be executed.", e);
+                    }
+                }
+                result.getMetacard()
+                        .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+            }
+            queryResponse.getProperties().put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                try {
+                    plugin.processPostQuery(queryResponse);
+                } catch (StopProcessingException e) {
+                    throw new FederationException("Query could not be executed.", e);
+                }
+            }
 
             for (PostQueryPlugin service : postQuery) {
                 try {
