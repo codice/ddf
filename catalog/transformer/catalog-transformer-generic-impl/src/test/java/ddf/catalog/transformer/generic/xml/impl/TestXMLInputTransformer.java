@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
@@ -31,14 +30,12 @@ import ddf.catalog.data.Metacard;
 public class TestXMLInputTransformer {
     static XMLSaxEventHandlerImpl xmlSaxEventHandlerImpl;
 
+    static GMLHandlerWrapper gmlHandlerWrapper;
+
     //    XMLInputTransformer xmlInputTransformer;
     static SaxEventHandlerDelegate saxEventHandlerDelegate;
 
     static InputStream inputStream;
-
-    @BeforeClass
-    public static void setUp() throws FileNotFoundException {
-    }
 
     /*
         Tests a base XMLInputTransformer, CONTENT_TYPE is null because it is not in the base xmlToMetacard mapping
@@ -47,25 +44,31 @@ public class TestXMLInputTransformer {
     public void testNormalTransform() throws FileNotFoundException {
 
         xmlSaxEventHandlerImpl = new XMLSaxEventHandlerImpl();
+        gmlHandlerWrapper = new GMLHandlerWrapper();
         //        xmlInputTransformer = new XMLInputTransformer();
-        saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl);
+        saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl,
+                gmlHandlerWrapper);
         inputStream = new FileInputStream(
-                "../catalog-transformer-xml/src/test/resources/metacard1.xml");
+                "../catalog-transformer-xml/src/test/resources/metacard2.xml");
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().get(0), is("Title!"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().size(), is(1));
-        assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().get(0), is("Description!"));
+        assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().get(0),
+                is("Description!"));
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().get(0), is("POC!"));
         assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().get(0), is("foobar"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE), is(nullValue()));
+        assertThat(metacard.getAttribute(Metacard.GEOGRAPHY).getValues().size(), is(1));
+        assertThat(metacard.getAttribute(Metacard.GEOGRAPHY).getValues().get(0),
+                is("POINT (100 200)"));
 
     }
 
     /*
-        Configures a custom xmlToMetacard mapping, CONTENT_TYPE is not null because it is custom xmlToMetacard mapping
+        Configures a custom xmlToMetacard mapping, CONTENT_TYPE is not null because it is in the custom xmlToMetacard mapping
      */
     @Test
     public void testConfiguredTransform() throws FileNotFoundException {
@@ -85,13 +88,15 @@ public class TestXMLInputTransformer {
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().get(0), is("Title!"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().size(), is(1));
-        assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().get(0), is("Description!"));
+        assertThat(metacard.getAttribute(Metacard.DESCRIPTION).getValues().get(0),
+                is("Description!"));
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValues().get(0), is("POC!"));
         assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.RESOURCE_URI).getValues().get(0), is("foobar"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE).getValues().size(), is(1));
-        assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE).getValues().get(0), is("ddf.metacard"));
+        assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE).getValues().get(0),
+                is("ddf.metacard"));
 
     }
 }

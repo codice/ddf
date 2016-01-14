@@ -15,32 +15,43 @@ package ddf.catalog.transformer.generic.xml.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Stack;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.WKTWriter;
+import com.vividsolutions.jts.io.gml2.GMLHandler;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
-public class XMLSaxEventHandlerImpl implements SaxEventHandler {
+public class GMLHandlerWrapper implements SaxEventHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GMLHandlerWrapper.class);
 
     private List<Attribute> attributes;
 
-    private Boolean stillInterested = true;
-
-    private String reading;
+    private boolean reading = false;
 
     private StringBuffer stringBuffer;
 
-    private Map<String, String> xmlToMetacard;
+    private Stack<String> state;
+
+    GMLHandler gh;
+    WKTWriter wktWriter;
+
 
     @Override
     public List<Attribute> getAttributes() {
@@ -52,22 +63,13 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     }
 
-    protected XMLSaxEventHandlerImpl() {
-        xmlToMetacard = new HashMap<>();
-        xmlToMetacard.put("title", Metacard.TITLE);
-        xmlToMetacard.put("point-of-contact", Metacard.POINT_OF_CONTACT);
-        xmlToMetacard.put("description", Metacard.DESCRIPTION);
-        xmlToMetacard.put("source", Metacard.RESOURCE_URI);
-    }
-
-    protected XMLSaxEventHandlerImpl(Map<String, String> xmlToMetacardMap) {
-        this.xmlToMetacard = xmlToMetacardMap;
-    }
-
     @Override
-    public void startDocument() {
+    public void startDocument() throws SAXException {
+        gh = new GMLHandler(new GeometryFactory(), (ErrorHandler) null);
+        wktWriter = new WKTWriter();
         stringBuffer = new StringBuffer();
         attributes = new ArrayList<>();
+        state = new Stack<>();
 
     }
 
@@ -86,42 +88,47 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     }
 
-    /* +++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        if (xmlToMetacard.get(localName.toLowerCase()) != null) {
-            reading = localName.toLowerCase();
-            return;
-        }
-        String attribute = attributes.getValue("name");
-        if (attribute != null && xmlToMetacard.get(attribute) != null) {
-            reading = attribute;
+        if (reading || localName.toLowerCase().equals("point")) {
+            reading = true;
+            try {
+                gh.startElement(uri, localName, qName, attributes);
+            } catch (SAXException e) {
+                LOGGER.debug("GML threw a SAX exception", e);
+            }
         }
     }
 
     @Override
     public void endElement(String namespaceURI, String localName, String qName) {
-        if (reading != null) {
-            String result = stringBuffer.toString().trim();
-            stringBuffer.setLength(0);
-            if (xmlToMetacard.get(reading) != null) {
-                attributes.add(new AttributeImpl(xmlToMetacard.get(reading), result));
+        if (reading || localName.toLowerCase().equals("point")) {
+            reading = true;
+            try {
+                gh.endElement(namespaceURI, localName, qName);
+            } catch (SAXException e) {
+                LOGGER.debug("GML threw a SAX exception", e);
             }
-            reading = null;
-
         }
+        if (localName.toLowerCase().equals("point")) {
+            reading = false;
+            Geometry geo = gh.getGeometry();
+            attributes.add(new AttributeImpl(Metacard.GEOGRAPHY, wktWriter.write(geo)));
+        }
+
     }
 
     @Override
     public void characters(char[] ch, int start, int length) {
-        if (reading != null) {
-            stringBuffer.append(new String(ch, start, length));
+        if (reading) {
+            try {
+                gh.characters(ch, start, length);
+            } catch (SAXException e) {
+                LOGGER.debug("GML threw a SAX exception", e);
+            }
         }
 
     }
-
-    /* +++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
     @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {

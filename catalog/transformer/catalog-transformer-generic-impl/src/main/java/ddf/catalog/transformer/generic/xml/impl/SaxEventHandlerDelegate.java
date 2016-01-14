@@ -35,20 +35,20 @@ import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
 public class SaxEventHandlerDelegate extends DefaultHandler {
 
-    private static SAXParserFactory factory;
-
     private static SAXParser parser;
 
     private List<SaxEventHandler> eventHandlers;
 
     private String namespace;
 
+    private InputStream stream;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
 
     public SaxEventHandlerDelegate() {
         try {
             // Read set up
-            factory = SAXParserFactory.newInstance();
+            SAXParserFactory factory = SAXParserFactory.newInstance();
 
             factory.setSchema(null);
             factory.setNamespaceAware(true);
@@ -70,25 +70,22 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
         this();
         this.namespace = namespace;
         this.eventHandlers = Arrays.asList(eventHandlers);
-        //this.eventHandlers = new ArrayList<>(this.eventHandlers);
     }
 
     public SaxEventHandlerDelegate(SaxEventHandler... eventHandlers) {
         this();
         this.eventHandlers = Arrays.asList(eventHandlers);
-        //this.eventHandlers = new ArrayList<>(this.eventHandlers);
     }
 
     public SaxEventHandlerDelegate(List<SaxEventHandler> eventHandlers) {
         this();
         this.eventHandlers = eventHandlers;
-        //this.eventHandlers = new ArrayList<>(this.eventHandlers);
     }
 
     public Metacard read(InputStream inputStream) {
         Metacard metacard = new MetacardImpl();
         try {
-
+            stream = inputStream;
             parser.parse(new BufferedInputStream(inputStream), this);
         } catch (IOException | SAXException e) {
             LOGGER.debug("Exception thrown during parsing of inputStream", e);
