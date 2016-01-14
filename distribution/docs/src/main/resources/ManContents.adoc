@@ -290,7 +290,7 @@ Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.we
 .Additional Configuration Step
 ----
 # Jetty Configuration
-org.ops4j.pax.web.config.file={karaf.home}/etc/jetty.xml
+`org.ops4j.pax.web.config.file={karaf.home}/etc/jetty.xml`
 ----
 
 * Run the {branding} kernel using the appropriate script.
@@ -420,16 +420,16 @@ During {branding} installation, the major directories shown in the table below a
 |The {branding} Catalog API Javadoc
 
 |etc
-|Directory monitored for addition/modification/deletion of third party .cfg configuration files and also monitored for addition of .config configuration files.
+|Directory monitored for addition/modification/deletion of third party .cfg configuration files and also monitored for addition of `.config` configuration files.
 
 |etc/failed
-|If there is a problem with any of the .config files, such as bad syntax or missing tokens, they will be relocated here.
+|If there is a problem with any of the `.config` files, such as bad syntax or missing tokens, they will be moved here.
 
 |etc/processed
-|All successfully processed .config files will be relocated here.
+|All successfully processed `.config` files will be moved here.
 
 |etc/templates
-|Template .config files for use in configuring {branding} sources, settings, etc., by copying to the etc directory.
+|Template `.config` files for use in configuring {branding} sources, settings, etc., by copying to the etc directory.
 
 |lib
 |The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the {branding} logo.
@@ -813,7 +813,7 @@ State         Version          Name                          Repository  Descrip
 
 [IMPORTANT]
 ====
-Since certain bundles can only be configured using the new `.config` file format, this new file format is now recommended. Please refer to the Configuring {branding} using Configuration (.config) Files section for more details.
+Since certain bundles can only be configured using the new `.config` file format, this new file format should be used. Please refer to the Configuring {branding} using Configuration (`.config`) Files section for more details.
 ====
 
 [WARNING]
@@ -821,7 +821,7 @@ Since certain bundles can only be configured using the new `.config` file format
 Only root can access ports<1024 on Unix systems. For suggested ways to run {branding} with ports < 1024 see How do I use port 80 as a non-root user?.
 ====
 
-==== Configuring {branding} using Configuration (.config) Files
+==== Configuring {branding} using Configuration (`.config`) Files
 
 The {branding} is configured using `.config` files. Like the Karaf `.cfg` files,
 these configuration files must be located in the `<DDF_HOME>/etc/` directory, have a name that matches
@@ -951,9 +951,11 @@ requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identi
 whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
 
+//      DDF-1805: Configuring Global System Properties should be formatted as a table and appropriately combined
+
 ==== Configuring Global System Properties
-The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through the system properties on startup. After changing any of these properties you will need to restart the system. If you change the 'hostname' property you will also need to configure the certs as described in Configuring {branding} with New Certificates.
-The system by default uses both http and https so both httpsPort and httpPort need to be specified. The protocol and port properties are the defaults the system should use in places where either http or https could be valid.
+The `system.properties` file found under `$DDF_HOME/etc` contains properties that will be made available through the system properties on startup. After changing any of these properties a system restart is needed. If the 'hostname' property is changed it is also necessary to configure the certs as described in Configuring {branding} with New Certificates.
+The system by default uses both HTTP and HTTPS so both `httpsPort` and `httpPort` need to be specified. The protocol and port properties are the defaults the system should use in places where either http or https could be valid.
 ----
 org.codice.ddf.system.protocol=https://        #one of http:// or https://
 org.codice.ddf.system.hostname=localhost       #should be the fully qualified domain name
@@ -989,7 +991,7 @@ Do not use the Admin Console to change the HTTP port. While the Admin Console's 
 ====
 
 ====== Multiple Local {branding} Nodes
-Edit the port numbers in the files in the {branding} install folder. The line numbers relate to 2.1.X releases.
+Edit the port numbers in the files in the {branding} install folder.
 
 [cols="4" options="header"]
 |===
@@ -2551,10 +2553,6 @@ To verify certificate authentication with the default CAS files you must make su
 ===== External Links
 For more information on CAS configuration options and what each setting means, refer to their documentation page: https://wiki.jasig.org/display/CASUM/X.509+Certificates.
 
-//      How does the below section relate to the previous section (Configuring {branding} with New Certificates)
-//      and should they be combined?
-//      Current answer: No, the first section is a light intro while these sections are security-intense.
-
 ==== Certificate Management
 {branding} uses certificates in two ways:
 
@@ -3519,7 +3517,7 @@ authentication scheme is performed by setting a few configuration properties:
 
 The {branding} should now use the SSO/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
 
-//  DDF-1796: Hardening Section Needs a lot of Clean up
+//  DDF-1796: Hardening Section needs to be removed
 
 ==== Hardening
 
@@ -3613,19 +3611,16 @@ The Admin Console can be re-enabled for additional configuration changes.
 ====
 
 In an environment hardened for security purposes, access to the {branding} Admin Console or the Felix Web Console might be denied.
-It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using .config files or the Admin Console.
+It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files or the Admin Console.
 Configuration via the Karaf command line console is not supported and may result in configuration errors.
 The OSGi container detects the creation of `.config` files in the `etc/` directory.
 The following sections describe how to configure each {branding} item using both of these mechanisms.
 A template file is provided for some configurable {branding} items so that they can be copied/renamed then modified with the appropriate settings.
 
-//      DDF-1796: Hardening Section Needs a lot of Clean up
-//      Do we place the warning note here?
-
 [WARNING]
 ====
-If at a later time the Admin Console is enabled again, all of the configuration done via .config files is loaded and displayed.
-However, note that the name of the .config file is not used in the Admin Console.
+If at a later time the Admin Console is enabled again, all of the configuration done via `.config` files is loaded and displayed.
+However, note that the name of the `.config` file is not used in the Admin Console.
 Rather, OSGi assigns a universally unique identifier (UUID) when the {branding} item was created and displays this UUID in the console (e.g., OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b)
 ====
 
@@ -4131,9 +4126,6 @@ To export the current {branding} configuration:
 cd  <DDF_HOME>/etc/exported
 zip exportedFiles.zip *
 ----
-
-//    For below note, if there is a SIMLINK, it will not be included
-//    DDF-1796: Hardening Section Needs a lot of Clean up
 
 [IMPORTANT]
 ====
