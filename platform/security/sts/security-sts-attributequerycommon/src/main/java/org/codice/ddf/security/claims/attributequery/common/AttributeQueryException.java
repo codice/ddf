@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.claims.attributequery;
+package org.codice.ddf.security.claims.attributequery.common;
 
 public class AttributeQueryException extends RuntimeException {
     /**

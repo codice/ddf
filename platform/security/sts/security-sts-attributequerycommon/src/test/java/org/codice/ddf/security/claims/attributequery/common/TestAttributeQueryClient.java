@@ -11,27 +11,25 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.claims.attributequery;
+package org.codice.ddf.security.claims.attributequery.common;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.Dispatch;
 
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -39,7 +37,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.core.config.InitializationException;
-import org.opensaml.core.config.InitializationService;
+import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 
 import com.google.common.base.Charsets;
@@ -50,40 +48,6 @@ import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 
 public class TestAttributeQueryClient {
-
-    class AttributeQueryClientTest extends AttributeQueryClient {
-
-        AttributeQueryClientTest(SimpleSign simpleSign, String externalAttributeStoreUrl,
-                String issuer, String destination) {
-            super(simpleSign, externalAttributeStoreUrl, issuer, destination);
-        }
-
-        @Override
-        protected HttpsURLConnection createHttpsUrlConnection(URL url) {
-            HttpsURLConnection httpsURLConnection = mock(HttpsURLConnection.class);
-            DataOutputStream dataOutputStream = mock(DataOutputStream.class);
-            InputStream inputStream = new ByteArrayInputStream(cannedResponse.getBytes());
-            try {
-                if (!outputStreamIoException) {
-                    when(httpsURLConnection.getOutputStream()).thenReturn(dataOutputStream);
-                } else {
-                    when(httpsURLConnection.getOutputStream()).thenThrow(new IOException(
-                            "Could not get the connection's OutputStream."));
-                }
-                when(httpsURLConnection.getResponseCode()).thenReturn(responseCode);
-
-                if (!inputStreamIoException) {
-                    when(httpsURLConnection.getInputStream()).thenReturn(inputStream);
-                } else {
-                    when(httpsURLConnection.getInputStream()).thenThrow(new IOException(
-                            "Could not get the connection's InputStream."));
-                }
-            } catch (IOException e) {
-                fail("Unable to create HttpsUrlConnection.");
-            }
-            return httpsURLConnection;
-        }
-    }
 
     private static final String SAML2_SUCCESS = "urn:oasis:names:tc:SAML:2.0:status:Success";
 
@@ -100,13 +64,11 @@ public class TestAttributeQueryClient {
 
     private static final String ISSUER = "testIssuer";
 
-    private String username = "admin";
+    private static final String USERNAME = "admin";
 
-    private boolean inputStreamIoException = false;
+    private static final String EXTERNAL_ATTRIBUTE_STORE = SystemBaseUrl.getBaseUrl();
 
-    private boolean outputStreamIoException = false;
-
-    private int responseCode = 200;
+    private Dispatch<StreamSource> dispatch;
 
     private AttributeQueryClient attributeQueryClient;
 
@@ -121,24 +83,25 @@ public class TestAttributeQueryClient {
     @BeforeClass
     public static void init() throws InitializationException {
         OpenSAMLUtil.initSamlEngine();
-        InitializationService.initialize();
     }
 
     @Before
     public void setUp() throws IOException {
+        dispatch = mock(Dispatch.class);
         encryptionService = mock(EncryptionService.class);
         systemCrypto = new SystemCrypto("encryption.properties",
                 "signature.properties",
                 encryptionService);
         SimpleSign simpleSign = new SimpleSign(systemCrypto);
         spySimpleSign = spy(simpleSign);
-
-        attributeQueryClient = new AttributeQueryClientTest(spySimpleSign,
-                SystemBaseUrl.getBaseUrl(),
+        attributeQueryClient = new AttributeQueryClient(dispatch,
+                spySimpleSign,
+                EXTERNAL_ATTRIBUTE_STORE,
                 ISSUER,
                 DESTINATION);
+        attributeQueryClient.setDispatch(dispatch);
         attributeQueryClient.setSimpleSign(spySimpleSign);
-        attributeQueryClient.setExternalAttributeStoreUrl(SystemBaseUrl.getBaseUrl());
+        attributeQueryClient.setExternalAttributeStoreUrl(EXTERNAL_ATTRIBUTE_STORE);
         attributeQueryClient.setIssuer(ISSUER);
         attributeQueryClient.setDestination(DESTINATION);
 
@@ -148,8 +111,9 @@ public class TestAttributeQueryClient {
 
     @Test
     public void testRetrieveResponse() {
-        Assertion assertion = attributeQueryClient.retrieveResponse(username);
+        setResponse(cannedResponse, false);
 
+        Assertion assertion = attributeQueryClient.query(USERNAME);
         assertThat(assertion, is(notNullValue()));
         assertThat(assertion.getIssuer()
                 .getValue(), is(equalTo("localhost")));
@@ -160,82 +124,79 @@ public class TestAttributeQueryClient {
     }
 
     @Test
-    public void testRetrieveResponseUnauthorizedStatusCode() {
-        responseCode = 401;
-
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
-    }
-
-    @Test
-    public void testRetrieveResponseNotFoundStatusCode() {
-        responseCode = 404;
-
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
-    }
-
-    @Test
-    public void testRetrieveResponseUnknownStatusCode() {
-        responseCode = -1;
-
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
-    }
-
-    @Test
     public void testRetrieveResponseUnknownAttrProfile() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
+        setResponse(Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8)
-                .replaceAll(SAML2_SUCCESS, SAML2_UNKNOWN_ATTR_PROFILE);
+                .replaceAll(SAML2_SUCCESS, SAML2_UNKNOWN_ATTR_PROFILE), false);
 
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
+        assertThat(attributeQueryClient.query(USERNAME), is(nullValue()));
     }
 
     @Test
     public void testRetrieveResponseInvalidAttrNameOrValue() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
+        setResponse(Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8)
-                .replaceAll(SAML2_SUCCESS, SAML2_INVALID_ATTR_NAME_VALUE);
+                .replaceAll(SAML2_SUCCESS, SAML2_INVALID_ATTR_NAME_VALUE), false);
 
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
+        assertThat(attributeQueryClient.query(USERNAME), is(nullValue()));
     }
 
     @Test
     public void testRetrieveResponseUnknownPrincipal() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
+        setResponse(Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8)
-                .replaceAll(SAML2_SUCCESS, SAML2_UNKNOWN_PRINCIPAL);
+                .replaceAll(SAML2_SUCCESS, SAML2_UNKNOWN_PRINCIPAL), false);
 
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
+        assertThat(attributeQueryClient.query(USERNAME), is(nullValue()));
     }
 
     @Test
     public void testRetrieveResponseInvalidResponse() throws IOException {
-        cannedResponse = Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
+        setResponse(Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"),
                 Charsets.UTF_8)
-                .replaceAll(SAML2_SUCCESS, "Invalid Response");
+                .replaceAll(SAML2_SUCCESS, "Invalid Response"), false);
 
-        assertThat(attributeQueryClient.retrieveResponse(username), is(nullValue()));
+        assertThat(attributeQueryClient.query(USERNAME), is(nullValue()));
+    }
+
+    @Test
+    public void testRetrieveResponseEmptyResponse() throws IOException {
+        setResponse("", false);
+
+        assertThat(attributeQueryClient.query(USERNAME), is(nullValue()));
     }
 
     @Test(expected = AttributeQueryException.class)
-    public void testRetrieveResponseConnectionGetInputStreamIOException() {
-        outputStreamIoException = true;
+    public void testRetrieveResponseMalformedResponse() {
+        setResponse("<test>test<test/", false);
 
-        attributeQueryClient.retrieveResponse(username);
+        attributeQueryClient.query(USERNAME);
     }
 
     @Test(expected = AttributeQueryException.class)
-    public void testRetrieveResponseConnectionGetOutputStreamIOException() {
-        inputStreamIoException = true;
+    public void testRetrieveResponseDispatchException() {
+        setResponse(cannedResponse, true);
 
-        attributeQueryClient.retrieveResponse(username);
+        attributeQueryClient.query(USERNAME);
     }
 
     @Test(expected = AttributeQueryException.class)
     public void testRetrieveResponseSimpleSignSignatureException()
             throws SimpleSign.SignatureException {
         doThrow(new SimpleSign.SignatureException()).when(spySimpleSign)
-                .signSamlObject(anyObject());
+                .signSamlObject(any(SignableSAMLObject.class));
 
-        attributeQueryClient.retrieveResponse(username);
+        attributeQueryClient.query(USERNAME);
+    }
+
+    private void setResponse(String response, boolean throwException) {
+        InputStream inputStream = new ByteArrayInputStream(response.getBytes());
+        StreamSource streamSource = new StreamSource(inputStream);
+
+        if (!throwException) {
+            when(dispatch.invoke(any(StreamSource.class))).thenReturn(streamSource);
+        } else {
+            when(dispatch.invoke(any(StreamSource.class))).thenThrow(Exception.class);
+        }
     }
 }
