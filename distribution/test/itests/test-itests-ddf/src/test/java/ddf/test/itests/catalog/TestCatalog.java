@@ -1109,6 +1109,12 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void embeddedSolrProviderStarts() throws Exception {
+        getServiceManager().startFeature(true, "catalog-solr-embedded-provider");
+        getServiceManager().stopFeature(true, "catalog-solr-embedded-provider");
+    }
+
+    @Test
     @Ignore
     // Ignored until DDF-1571 is addressed
     public void persistLargeObjectToWorkspace() throws Exception {
