@@ -244,7 +244,7 @@ define([
                     viewLayer.set('alpha', defaultConfig.alpha);
                     viewLayer.set('index', defaultConfig.index);
                 });
-                this.widgetController.reIndexAll();
+                this.viewMapLayers.sort();
             }
         });
 
@@ -326,6 +326,18 @@ define([
                         var viewIndex = ui.item.index();
                         var newIndex = pickerList.getReverseIndex(viewIndex);
                         layerPicker.changeIndex(newIndex);
+
+                        /*
+                            update the marionette composite view indexes so that it's
+                            reorder on sort works correctly.
+                         */
+                        pickerList.collection.forEach(function (model) {
+                            var view = this.children.findByModel(model);
+                            var viewIndex = pickerList.getReverseIndex(model.get('index'));
+                            view._index = viewIndex;
+                        }, pickerList);
+
+                        pickerList.collection.sort(); // triggers view reorder and layers reorder.
                     },
                     start: function (event, ui) {
                         /*

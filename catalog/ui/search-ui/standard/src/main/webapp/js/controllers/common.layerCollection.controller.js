@@ -22,12 +22,11 @@ define([
             this.collection = options.collection;
             this.layerForCid = {};
 
-            /*
-             don't listen to individual model index changes here, b/c
-             index changes are batched in move().
-             */
             this.listenTo(this.collection, 'change:alpha', this.setAlpha);
             this.listenTo(this.collection, 'change:show', this.setShow);
+
+            // subclasses must implement reIndexLayers()
+            this.listenTo(this.collection, 'sort', this.reIndexLayers);
         },
         move: function (model) {
             /*
@@ -58,7 +57,6 @@ define([
                     }
                 });
             }
-            this.reIndexAll(); // reIndexAll() must be defined in subclass.
         },
         onBeforeDestroy: function () {
             this.collection = null;
