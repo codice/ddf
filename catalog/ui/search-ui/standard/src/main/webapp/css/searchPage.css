@@ -1709,7 +1709,7 @@ a.pause:hover, a.pause:focus {
     display: table-header-group;
 }
 
-.layerPickers thead th, tr td {
+.layerPickers th, .layerPickers td {
     text-align: center;
 }
 
