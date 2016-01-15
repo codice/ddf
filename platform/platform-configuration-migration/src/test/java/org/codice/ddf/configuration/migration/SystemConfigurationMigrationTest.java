@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,7 +53,7 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
  *        @Rule
  *        public PowerMockRule rule = new PowerMockRule();
  * 4) comment out import org.powermock.modules.junit4.rule.PowerMockRule;
- * 
+ *
  * If you want to see Jacoco code coverage, the following must be commented out:
  * 1) import org.junit.runner.RunWith;
  * 2) import org.powermock.modules.junit4.PowerMockRunner;
@@ -90,19 +90,19 @@ public class SystemConfigurationMigrationTest {
 
     private static final String WS_SECURITY_SERVER_DIR = "etc/ws-security/server";
 
-    private static final String WS_SECURITY_SERVER_ENC_PROP_FILE_REL_PATH = WS_SECURITY_SERVER_DIR
-            + "/encryption.properties";
+    private static final String WS_SECURITY_SERVER_ENC_PROP_FILE_REL_PATH =
+            WS_SECURITY_SERVER_DIR + "/encryption.properties";
 
-    private static final String WS_SECURITY_SERVER_SIG_PROP_FILE_REL_PATH = WS_SECURITY_SERVER_DIR
-            + "/signature.properties";
+    private static final String WS_SECURITY_SERVER_SIG_PROP_FILE_REL_PATH =
+            WS_SECURITY_SERVER_DIR + "/signature.properties";
 
     private static final String WS_SECURITY_ISSUER_DIR = "etc/ws-security/issuer";
 
-    private static final String WS_SECURITY_ISSUER_ENC_PROP_FILE_REL_PATH = WS_SECURITY_ISSUER_DIR
-            + "/encryption.properties";
+    private static final String WS_SECURITY_ISSUER_ENC_PROP_FILE_REL_PATH =
+            WS_SECURITY_ISSUER_DIR + "/encryption.properties";
 
-    private static final String WS_SECURITY_ISSUER_SIG_PROP_FILE_REL_PATH = WS_SECURITY_ISSUER_DIR
-            + "/signature.properties";
+    private static final String WS_SECURITY_ISSUER_SIG_PROP_FILE_REL_PATH =
+            WS_SECURITY_ISSUER_DIR + "/signature.properties";
 
     private static final String SECURITY_DIRECTORY_REL_PATH = "security";
 
@@ -132,10 +132,15 @@ public class SystemConfigurationMigrationTest {
 
     private Path crlAbsolutePath;
 
+    private Path existingFilePath;
+
+    private Path symLinkPath;
+
     @Before
     public void setup() throws Exception {
         mockStatic(FileUtils.class);
-        ddfHome = Paths.get(tempDir.getRoot().getAbsolutePath() + File.separator + DDF_BASE_DIR);
+        ddfHome = Paths.get(tempDir.getRoot()
+                .getAbsolutePath() + File.separator + DDF_BASE_DIR);
         exportDirectory = ddfHome.resolve(EXPORTED_REL_PATH);
         keystoreAbsolutePath = ddfHome.resolve(KEYSTORE_REL_PATH);
         truststoreAbsolutePath = ddfHome.resolve(TRUSTSTORE_REL_PATH);
@@ -143,19 +148,42 @@ public class SystemConfigurationMigrationTest {
     }
 
     @Test
+    public void testSymbolicLinkPath() throws Exception {
+
+        System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
+        System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
+
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, symLinkPath.toString());
+                        return properties;
+                    }
+                };
+
+        // Perform Test
+        assertFalse("A migration warning wasn't returned.",
+                securityConfigurationMigrator.export(symLinkPath)
+                        .isEmpty());
+
+    }
+
+    @Test
     public void testExportValidRelativePaths() throws Exception {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -184,20 +212,21 @@ public class SystemConfigurationMigrationTest {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, keystoreAbsolutePath.toString());
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, truststoreAbsolutePath.toString());
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, crlAbsolutePath.toString());
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, crlAbsolutePath.toString());
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test
@@ -206,44 +235,48 @@ public class SystemConfigurationMigrationTest {
         Path truststoreAbsolutePath = ddfHome.resolve(Paths.get(TRUSTSTORE_REL_PATH));
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, truststoreAbsolutePath.toString());
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test
     public void testExportInvalidTrustoreRelativePath() throws Exception {
         // Setup
-        Path invalidTruststoreRelativepath = tempDir.getRoot().toPath()
+        Path invalidTruststoreRelativepath = tempDir.getRoot()
+                .toPath()
                 .resolve(INVALID_TRUSTSTORE_REL_PATH);
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
-        System.setProperty(TRUSTSTORE_SYSTEM_PROP, ddfHome
-                .relativize(invalidTruststoreRelativepath).toString());
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        System.setProperty(TRUSTSTORE_SYSTEM_PROP,
+                ddfHome.relativize(invalidTruststoreRelativepath)
+                        .toString());
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test
@@ -252,44 +285,48 @@ public class SystemConfigurationMigrationTest {
         Path keystoreAbsolutePath = ddfHome.resolve(Paths.get(KEYSTORE_REL_PATH));
         System.setProperty(KEYSTORE_SYSTEM_PROP, keystoreAbsolutePath.toString());
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test
     public void testExportInvalidKeystoreRelativePath() throws Exception {
         // Setup
-        Path invalidKeystoreRelativepath = tempDir.getRoot().toPath()
+        Path invalidKeystoreRelativepath = tempDir.getRoot()
+                .toPath()
                 .resolve(INVALID_KEYSTORE_REL_PATH);
-        System.setProperty(KEYSTORE_SYSTEM_PROP, ddfHome.relativize(invalidKeystoreRelativepath)
-                .toString());
+        System.setProperty(KEYSTORE_SYSTEM_PROP,
+                ddfHome.relativize(invalidKeystoreRelativepath)
+                        .toString());
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test
@@ -298,43 +335,48 @@ public class SystemConfigurationMigrationTest {
         Path crlAbsolutePath = ddfHome.resolve(Paths.get(KEYSTORE_REL_PATH));
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, crlAbsolutePath.toString());
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, crlAbsolutePath.toString());
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test
     public void testExportInvalidCrlRelativePath() throws Exception {
         // Setup
-        Path invalidCrlRelativePath = tempDir.getRoot().toPath().resolve(INVALID_CRL_REL_PATH);
+        Path invalidCrlRelativePath = tempDir.getRoot()
+                .toPath()
+                .resolve(INVALID_CRL_REL_PATH);
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, ddfHome.relativize(invalidCrlRelativePath)
-                        .toString());
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY,
+                                ddfHome.relativize(invalidCrlRelativePath)
+                                        .toString());
+                        return properties;
+                    }
+                };
 
         // Perform Test
         assertFalse("A migration warning wasn't returned.",
-                securityConfigurationMigrator.export(exportDirectory).isEmpty());
+                securityConfigurationMigrator.export(exportDirectory)
+                        .isEmpty());
     }
 
     @Test(expected = MigrationException.class)
@@ -342,14 +384,14 @@ public class SystemConfigurationMigrationTest {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                throw new MigrationException("Error reading CRL");
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        throw new MigrationException("Error reading CRL");
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -364,15 +406,15 @@ public class SystemConfigurationMigrationTest {
         // Setup
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        return properties;
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -385,16 +427,16 @@ public class SystemConfigurationMigrationTest {
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
         doThrow(new IOException("Error copying file")).when(FileUtils.class);
         FileUtils.copyFile(any(File.class), any(File.class));
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -407,16 +449,16 @@ public class SystemConfigurationMigrationTest {
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
         doThrow(new IOException("Error copying directory")).when(FileUtils.class);
         FileUtils.copyDirectory(any(File.class), any(File.class));
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
 
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -427,15 +469,15 @@ public class SystemConfigurationMigrationTest {
         // Setup
         System.clearProperty(KEYSTORE_SYSTEM_PROP);
         System.setProperty(TRUSTSTORE_SYSTEM_PROP, TRUSTSTORE_REL_PATH);
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -447,15 +489,15 @@ public class SystemConfigurationMigrationTest {
         System.setProperty(KEYSTORE_SYSTEM_PROP, KEYSTORE_REL_PATH);
         System.clearProperty(TRUSTSTORE_SYSTEM_PROP);
 
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf()) {
-            @Override
-            Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
-                Properties properties = new Properties();
-                properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
-                return properties;
-            }
-        };
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf()) {
+                    @Override
+                    Properties readPropertiesFile(Path propertiesFile) throws MigrationException {
+                        Properties properties = new Properties();
+                        properties.setProperty(CRL_PROP_KEY, CRL_REL_PATH);
+                        return properties;
+                    }
+                };
 
         // Perform Test
         securityConfigurationMigrator.export(exportDirectory);
@@ -463,40 +505,42 @@ public class SystemConfigurationMigrationTest {
 
     @Test(expected = MigrationException.class)
     public void testGetRealPathThrowsException() throws Exception {
-        SystemConfigurationMigration securityConfigurationMigrator = new SystemConfigurationMigration(
-                createTempDdf());
+        SystemConfigurationMigration securityConfigurationMigrator =
+                new SystemConfigurationMigration(createTempDdf());
         securityConfigurationMigrator.getRealPath(ddfHome.resolve("fakeFile.txt"));
     }
 
     private void assertDestinationFiles(List<File> destinationFiles) {
         List<File> expectedDestinationFiles = new ArrayList<>(5);
-        expectedDestinationFiles
-                .add(new File(exportDirectory + File.separator + KEYSTORE_REL_PATH));
-        expectedDestinationFiles.add(new File(exportDirectory + File.separator
-                + TRUSTSTORE_REL_PATH));
+        expectedDestinationFiles.add(new File(
+                exportDirectory + File.separator + KEYSTORE_REL_PATH));
+        expectedDestinationFiles.add(new File(
+                exportDirectory + File.separator + TRUSTSTORE_REL_PATH));
         expectedDestinationFiles.add(new File(exportDirectory + File.separator + CRL_REL_PATH));
-        expectedDestinationFiles.add(new File(exportDirectory + File.separator
-                + SYSTEM_PROPERTIES_REL_PATH));
-        expectedDestinationFiles.add(new File(exportDirectory + File.separator
-                + USERS_PROPERTIES_REL_PATH));
+        expectedDestinationFiles.add(new File(
+                exportDirectory + File.separator + SYSTEM_PROPERTIES_REL_PATH));
+        expectedDestinationFiles.add(new File(
+                exportDirectory + File.separator + USERS_PROPERTIES_REL_PATH));
 
         assertThat(destinationFiles, containsInAnyOrder(expectedDestinationFiles.toArray()));
     }
 
     private void assertDestinationDirectories(List<File> destinationDirs) {
         List<File> expectedDestinationDirs = new ArrayList<>(3);
-        expectedDestinationDirs.add(new File(exportDirectory + File.separator
-                + SECURITY_DIRECTORY_REL_PATH));
-        expectedDestinationDirs.add(new File(exportDirectory + File.separator
-                + WS_SECURITY_DIR_REL_PATH));
-        expectedDestinationDirs.add(new File(exportDirectory + File.separator
-                + PDP_POLICIES_DIR_REL_PATH));
+        expectedDestinationDirs.add(new File(
+                exportDirectory + File.separator + SECURITY_DIRECTORY_REL_PATH));
+        expectedDestinationDirs.add(new File(
+                exportDirectory + File.separator + WS_SECURITY_DIR_REL_PATH));
+        expectedDestinationDirs.add(new File(
+                exportDirectory + File.separator + PDP_POLICIES_DIR_REL_PATH));
 
         assertThat(destinationDirs, containsInAnyOrder(expectedDestinationDirs.toArray()));
     }
 
     private Path createTempDdf() throws IOException {
-        Path rootTempDir = tempDir.getRoot().toPath();
+
+        Path rootTempDir = tempDir.getRoot()
+                .toPath();
         Path ddfHome = rootTempDir.resolve(DDF_BASE_DIR);
         Files.createDirectories(ddfHome);
         Files.createDirectories(ddfHome.resolve(SECURITY_DIRECTORY_REL_PATH));
@@ -516,6 +560,14 @@ public class SystemConfigurationMigrationTest {
         Files.createFile(rootTempDir.resolve(INVALID_KEYSTORE_REL_PATH));
         Files.createFile(rootTempDir.resolve(INVALID_TRUSTSTORE_REL_PATH));
         Files.createFile(rootTempDir.resolve(INVALID_CRL_REL_PATH));
+
+        existingFilePath = Paths.get(ddfHome.resolve("orig.config")
+                .toString());
+        symLinkPath = Paths.get(ddfHome.resolve("symlink.config")
+                .toString());
+        Files.createFile(existingFilePath);
+        Files.createSymbolicLink(symLinkPath, existingFilePath);
+
         return ddfHome;
     }
 }

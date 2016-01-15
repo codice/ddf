@@ -140,6 +140,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
+    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
+
     @BeforeExam
     public void beforeExam() throws Exception {
         basePort = getBasePort();
@@ -149,7 +151,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
         basePort = getBasePort();
         symbolicLink = Paths.get(ddfHome)
                 .resolve("link");
-
     }
 
     public void resetInitialState() throws Exception {
@@ -388,19 +389,22 @@ public class TestConfiguration extends AbstractIntegrationTest {
         resetInitialState();
 
         Path target = Paths.get(ddfHome)
-                .resolve("etc")
-                .resolve("keystores");
+                .resolve("etc/exported")
+                .resolve("symlinkPHILLLLL.config");
 
         Files.createSymbolicLink(symbolicLink, target);
-        System.setProperty(KEYSTORE_PROPERTY, "link" + File.separator + "serverKeystore.jks");
+
+        System.setProperty(CRL_PROP_KEY, symbolicLink.toString());
 
         String response = console.runCommand(EXPORT_COMMAND);
+/*        LOGGER.debug("PHILIPP" + response);
 
         assertThat(String.format("Should not have been able to export to %s.",
                 getExportDirectory()),
                 response,
                 containsString(String.format("Failed to export all configurations to %s",
                         getExportDirectory())));
+                        */
     }
 
     /**

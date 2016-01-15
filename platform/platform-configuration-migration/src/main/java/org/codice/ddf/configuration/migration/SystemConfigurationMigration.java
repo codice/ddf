@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -73,6 +74,12 @@ public class SystemConfigurationMigration {
                     + "Check that the file exists on the system you're migrating to "
                     + "or update the property value and export again.";
 
+    private static final String SYMBOLIC_LINK_PATH_WARNING =
+            "The value for property [%s] is set to a symbolic path [%s] that could not coerced into a real path; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
     private Path ddfHome;
 
     public SystemConfigurationMigration(Path ddfHome) throws MigrationException {
@@ -84,6 +91,7 @@ public class SystemConfigurationMigration {
 
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         migrationWarnings.addAll(exportSecurity(exportDirectory));
+
         return migrationWarnings;
     }
 
@@ -201,12 +209,18 @@ public class SystemConfigurationMigration {
      */
     private Collection<MigrationWarning> checkIfPathIsMigratable(String propertyName, Path path) {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+
         try {
             if (path.isAbsolute()) {
                 String message = String
                         .format(ABSOLUTE_PATH_WARNING, propertyName, path.toString());
                 LOGGER.debug(message);
                 migrationWarnings.add(new MigrationWarning(message));
+            }  else if (Files.isSymbolicLink(path)) {
+                String message = String.format(SYMBOLIC_LINK_PATH_WARNING, propertyName, path.toString());
+                LOGGER.debug(message);
+                migrationWarnings.add(new MigrationWarning(message));
+
             } else if (!getRealPath(ddfHome.resolve(path)).startsWith(ddfHome)) {
                 String message = String.format(OUTSIDE_PATH_WARNING, propertyName, path.toString(),
                         ddfHome.toString());
@@ -217,7 +231,12 @@ public class SystemConfigurationMigration {
             String message = String.format(UNREAL_PATH_WARNING, propertyName, path.toString());
             LOGGER.debug(message);
             migrationWarnings.add(new MigrationWarning(message));
+        } catch (UnsupportedOperationException e) {
+            String message = String.format(SYMBOLIC_LINK_PATH_WARNING, propertyName, path.toString());
+            LOGGER.debug(message);
+            migrationWarnings.add(new MigrationWarning(message));
         }
+
         return migrationWarnings;
     }
 
