@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,8 +64,8 @@ public class ReplicationCommand extends DuplicateCommands {
 
     private long start;
 
-    private List<Metacard> failedMetacards = Collections
-            .synchronizedList(new ArrayList<Metacard>());
+    private List<Metacard> failedMetacards =
+            Collections.synchronizedList(new ArrayList<>());
 
     private AtomicInteger queryIndex = new AtomicInteger(1);
 
@@ -97,16 +97,17 @@ public class ReplicationCommand extends DuplicateCommands {
 
         start = System.currentTimeMillis();
 
-        final Filter filter = (cqlFilter != null) ?
-                CQL.toFilter(cqlFilter) :
-                getFilter(getFilterStartTime(start), start, Metacard.EFFECTIVE);
+        final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
+                getFilterStartTime(start),
+                start,
+                Metacard.EFFECTIVE);
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);
         query.setPageSize(batchSize);
         query.setSortBy(new SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING));
         QueryRequest queryRequest = new QueryRequestImpl(query, Arrays.asList(sourceId));
-        SourceResponse response = null;
+        SourceResponse response;
         try {
             response = framework.query(queryRequest);
         } catch (Exception e) {
@@ -115,19 +116,31 @@ public class ReplicationCommand extends DuplicateCommands {
             return null;
         }
 
-        final long totalPossible = response.getHits();
-        if (totalPossible == 0) {
+        final long totalHits = response.getHits();
+        final long totalPossible;
+        if (totalHits == 0) {
             console.println("No records were found to replicate.");
             return null;
+        }
+
+        // If the maxMetacards is set, restrict the totalPossible to the number of maxMetacards
+        if (maxMetacards > 0 && maxMetacards <= totalHits) {
+            totalPossible = maxMetacards;
+        } else {
+            totalPossible = totalHits;
         }
 
         console.println("Starting replication for " + totalPossible + " Records");
 
         if (multithreaded > 1 && totalPossible > batchSize) {
-            BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
-            RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
+            BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
+            RejectedExecutionHandler rejectedExecutionHandler =
+                    new ThreadPoolExecutor.CallerRunsPolicy();
             final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
-                    multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
+                    multithreaded,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    blockingQueue,
                     rejectedExecutionHandler);
             console.printf("Running %d threads during replication.%n", multithreaded);
 
@@ -160,10 +173,11 @@ public class ReplicationCommand extends DuplicateCommands {
 
         console.println();
         long end = System.currentTimeMillis();
-        String completed = String
-                .format(" %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
-                        ingestCount.get(), failedCount.get(),
-                        (end - start) / MS_PER_SECOND);
+        String completed = String.format(
+                " %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
+                ingestCount.get(),
+                failedCount.get(),
+                (end - start) / MS_PER_SECOND);
         LOGGER.info("Replication Complete: {}", completed);
         console.println(completed);
 
@@ -182,30 +196,34 @@ public class ReplicationCommand extends DuplicateCommands {
         query.setSortBy(new SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING));
         QueryRequest queryRequest = new QueryRequestImpl(query, Arrays.asList(sourceId));
         query.setStartIndex(startIndex);
-        SourceResponse response = null;
+        SourceResponse response;
         try {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            printErrorMessage(
-                    String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
+            printErrorMessage(String.format("Received error from %s: %s%n",
+                    sourceId,
+                    e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            printErrorMessage(
-                    String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
+            printErrorMessage(String.format("Received error from %s: %s%n",
+                    sourceId,
+                    e.getMessage()));
             return null;
         } catch (FederationException e) {
-            printErrorMessage(
-                    String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
+            printErrorMessage(String.format("Received error from %s: %s%n",
+                    sourceId,
+                    e.getMessage()));
             return null;
         }
-        if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
+        if (response.getProcessingDetails() != null && !response.getProcessingDetails()
+                .isEmpty()) {
             for (SourceProcessingDetails details : response.getProcessingDetails()) {
                 LOGGER.debug("Got Issues: {}", details.getWarnings());
             }
             return null;
         }
-        List<Metacard> metacards = new ArrayList<Metacard>();
+        List<Metacard> metacards = new ArrayList<>();
         for (Result result : response.getResults()) {
             metacards.add(result.getMetacard());
         }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -75,9 +75,12 @@ public class MigrateCommand extends DuplicateCommands {
             return null;
         }
 
-        console.println("The \"FROM\" provider is: " + providers.get(0).getClass().getSimpleName());
+        console.println("The \"FROM\" provider is: " + providers.get(0)
+                .getClass()
+                .getSimpleName());
         CatalogProvider provider = providers.get(1);
-        console.println("The \"TO\" provider is: " + provider.getClass().getSimpleName());
+        console.println("The \"TO\" provider is: " + provider.getClass()
+                .getSimpleName());
         String answer = getInput("Do you wish to continue? (yes/no)");
         if (!"yes".equalsIgnoreCase(answer)) {
             console.println();
@@ -92,16 +95,17 @@ public class MigrateCommand extends DuplicateCommands {
 
         start = System.currentTimeMillis();
 
-        final Filter filter = (cqlFilter != null) ?
-                CQL.toFilter(cqlFilter) :
-                getFilter(getFilterStartTime(start), start, Metacard.MODIFIED);
+        final Filter filter = (cqlFilter != null) ? CQL.toFilter(cqlFilter) : getFilter(
+                getFilterStartTime(start),
+                start,
+                Metacard.MODIFIED);
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);
         query.setPageSize(batchSize);
         query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING));
         QueryRequest queryRequest = new QueryRequestImpl(query);
-        SourceResponse response = null;
+        SourceResponse response;
         try {
             response = framework.query(queryRequest);
         } catch (FederationException e) {
@@ -114,20 +118,31 @@ public class MigrateCommand extends DuplicateCommands {
             printErrorMessage("Error occurred while querying the Framework." + e.getMessage());
             return null;
         }
-
-        final long totalPossible = response.getHits();
-        if (totalPossible == 0) {
-            console.println("No records were found to migrate.");
+        final long totalHits = response.getHits();
+        final long totalPossible;
+        if (totalHits == 0) {
+            console.println("No records were found to replicate.");
             return null;
+        }
+
+        // If the maxMetacards is set, restrict the totalPossible to the number of maxMetacards
+        if (maxMetacards > 0 && maxMetacards <= totalHits) {
+            totalPossible = maxMetacards;
+        } else {
+            totalPossible = totalHits;
         }
 
         console.println("Starting migration for " + totalPossible + " Records");
 
         if (multithreaded > 1 && totalPossible > batchSize) {
             BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
-            RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
+            RejectedExecutionHandler rejectedExecutionHandler =
+                    new ThreadPoolExecutor.CallerRunsPolicy();
             final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
-                    multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
+                    multithreaded,
+                    0L,
+                    TimeUnit.MILLISECONDS,
+                    blockingQueue,
                     rejectedExecutionHandler);
             console.printf("Running %d threads during replication.%n", multithreaded);
 
@@ -136,7 +151,9 @@ public class MigrateCommand extends DuplicateCommands {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        int count = queryAndIngest(framework, ingestProvider, queryIndex.get(),
+                        int count = queryAndIngest(framework,
+                                ingestProvider,
+                                queryIndex.get(),
                                 filter);
                         printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
                     }
@@ -160,10 +177,11 @@ public class MigrateCommand extends DuplicateCommands {
 
         console.println();
         long end = System.currentTimeMillis();
-        String completed = String
-                .format(" %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
-                        ingestCount.get(), failedCount.get(),
-                        (end - start) / MS_PER_SECOND);
+        String completed = String.format(
+                " %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
+                ingestCount.get(),
+                failedCount.get(),
+                (end - start) / MS_PER_SECOND);
         LOGGER.info("Replication Complete: {}", completed);
         console.println(completed);
 
@@ -178,7 +196,7 @@ public class MigrateCommand extends DuplicateCommands {
         query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING));
         QueryRequest queryRequest = new QueryRequestImpl(query);
         query.setStartIndex(startIndex);
-        SourceResponse response = null;
+        SourceResponse response;
         try {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
@@ -186,21 +204,22 @@ public class MigrateCommand extends DuplicateCommands {
             printErrorMessage(String.format("Received error from Framework: %s%n", e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            printErrorMessage(
-                    String.format("Received error from Frameworks: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Received error from Frameworks: %s%n",
+                    e.getMessage()));
             return null;
         } catch (FederationException e) {
-            printErrorMessage(
-                    String.format("Received error from Frameworks: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Received error from Frameworks: %s%n",
+                    e.getMessage()));
             return null;
         }
-        if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
+        if (response.getProcessingDetails() != null && !response.getProcessingDetails()
+                .isEmpty()) {
             for (SourceProcessingDetails details : response.getProcessingDetails()) {
                 LOGGER.debug("Got Issues: {}", details.getWarnings());
             }
             return null;
         }
-        List<Metacard> metacards = new ArrayList<Metacard>();
+        List<Metacard> metacards = new ArrayList<>();
         for (Result result : response.getResults()) {
             metacards.add(result.getMetacard());
         }
@@ -208,13 +227,14 @@ public class MigrateCommand extends DuplicateCommands {
     }
 
     private List<CatalogProvider> getCatalogProviders() {
-        ServiceTracker st = new ServiceTracker(getBundleContext(), CatalogProvider.class.getName(),
+        ServiceTracker st = new ServiceTracker(getBundleContext(),
+                CatalogProvider.class.getName(),
                 null);
         st.open();
         ServiceReference<CatalogProvider>[] serviceRefs = st.getServiceReferences();
 
-        Map<ServiceReference<CatalogProvider>, CatalogProvider> map = new TreeMap<ServiceReference<CatalogProvider>, CatalogProvider>(
-                new ServiceComparator());
+        Map<ServiceReference<CatalogProvider>, CatalogProvider> map =
+                new TreeMap<>(new ServiceComparator());
 
         if (null != serviceRefs) {
             for (ServiceReference<CatalogProvider> serviceReference : serviceRefs) {
@@ -222,6 +242,6 @@ public class MigrateCommand extends DuplicateCommands {
             }
         }
 
-        return new ArrayList<CatalogProvider>(map.values());
+        return new ArrayList<>(map.values());
     }
 }
