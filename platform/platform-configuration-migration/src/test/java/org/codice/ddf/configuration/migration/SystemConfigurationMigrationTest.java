@@ -41,8 +41,6 @@ import org.mockito.ArgumentCaptor;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
-//import org.junit.runner.RunWith;
-//import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * If you want to run any of these tests in the debugger, you will need to do the following:
@@ -60,7 +58,6 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
  * 3) @RunWith(PowerMockRunner.class)
  *
  */
-//@RunWith(PowerMockRunner.class)
 @PrepareForTest({SystemConfigurationMigration.class, FileUtils.class})
 public class SystemConfigurationMigrationTest {
 
