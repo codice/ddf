@@ -140,7 +140,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
-    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
+    private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
+    //private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
     @BeforeExam
     public void beforeExam() throws Exception {
@@ -386,25 +387,24 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportWarningForSymbolicLinkPath() throws Exception {
+
         resetInitialState();
 
-        Path target = Paths.get(ddfHome)
-                .resolve("etc/exported")
-                .resolve("symlinkPHILLLLL.config");
+        FileUtils.copyFile(SYSTEM_PROPERTIES.toFile(), new File(TEST_FILE));
 
-        Files.createSymbolicLink(symbolicLink, target);
+        Files.createSymbolicLink(symbolicLink, Paths.get(TEST_FILE));
 
-        System.setProperty(CRL_PROP_KEY, symbolicLink.toString());
+        System.setProperty(KEYSTORE_PROPERTY, symbolicLink.toString());
 
         String response = console.runCommand(EXPORT_COMMAND);
-/*        LOGGER.debug("PHILIPP" + response);
 
         assertThat(String.format("Should not have been able to export to %s.",
                 getExportDirectory()),
                 response,
                 containsString(String.format("Failed to export all configurations to %s",
                         getExportDirectory())));
-                        */
+
+
     }
 
     /**
