@@ -141,7 +141,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
-    //private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
     @BeforeExam
     public void beforeExam() throws Exception {
