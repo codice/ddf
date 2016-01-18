@@ -19,8 +19,8 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>catalog-security-filter</artifactId>
-    <name>DDF :: Catalog :: Security :: Filter</name>
+    <artifactId>catalog-security-operationplugin</artifactId>
+    <name>DDF :: Catalog :: Security :: OperationPlugin</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -90,7 +90,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.61</minimum>
+                                            <minimum>0.66</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

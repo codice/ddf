@@ -29,5 +29,6 @@
         <module>catalog-security-logging</module>
         <module>catalog-security-auditplugin</module>
         <module>catalog-security-ingestplugin</module>
+        <module>catalog-security-operationplugin</module>
     </modules>
 </project>

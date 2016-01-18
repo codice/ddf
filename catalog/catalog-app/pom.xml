@@ -327,6 +327,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.security</groupId>
+            <artifactId>catalog-security-operationplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.security</groupId>
             <artifactId>catalog-security-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
