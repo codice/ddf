@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.configuration.status.MigrationException;
-import org.codice.ddf.configuration.status.MigrationWarning;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationWarning;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.junit.Test;

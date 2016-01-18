@@ -30,8 +30,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration-migration</artifactId>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migration</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.configuration.status.MigrationWarning;
+import org.codice.ddf.migration.MigrationWarning;
 
 /**
  * Executes the export method in {@link ConfigurationMigrationService}.  Configurations
