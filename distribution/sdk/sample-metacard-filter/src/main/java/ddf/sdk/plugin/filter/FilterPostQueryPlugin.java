@@ -13,38 +13,53 @@
  **/
 package ddf.sdk.plugin.filter;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
+import java.util.Set;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PostQueryPlugin;
+import ddf.catalog.operation.Query;
+import ddf.catalog.plugin.PolicyPlugin;
+import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
-public class FilterPostQueryPlugin implements PostQueryPlugin {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(FilterPostQueryPlugin.class.getName());
+public class FilterPostQueryPlugin implements PolicyPlugin {
 
     @Override
-    public QueryResponse process(QueryResponse queryResponse)
-            throws PluginExecutionException, StopProcessingException {
-        Metacard metacard;
-        for (Result result : queryResponse.getResults()) {
-            metacard = result.getMetacard();
-            // You should parse your metacard here then add security attributes
+    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
 
-            HashMap<String, List<String>> securityFinalMap = new HashMap<String, List<String>>();
-            securityFinalMap.put(Metacard.POINT_OF_CONTACT, Arrays.asList("admin"));
-            metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, securityFinalMap));
-        }
+    @Override
+    public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
 
-        return queryResponse;
+    @Override
+    public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
+            Map<String, Serializable> properties) throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        HashMap<String, Set<String>> securityFinalMap = new HashMap<>();
+        securityFinalMap.put(Metacard.POINT_OF_CONTACT, new HashSet(Arrays.asList("admin")));
+        return new PolicyResponseImpl(new HashMap<>(), securityFinalMap);
     }
 }

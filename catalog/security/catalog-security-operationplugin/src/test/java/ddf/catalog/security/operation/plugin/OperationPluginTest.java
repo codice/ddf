@@ -83,7 +83,7 @@ public class OperationPluginTest {
         subject = new MockSubject(manager, principalCollection);
     }
 
-    public Answer<Boolean> makeDecision() {
+    private Answer<Boolean> makeDecision() {
 
         Map<String, List<String>> testRoleMap = new HashMap<String, List<String>>();
         List<String> testRoles = new ArrayList<String>();

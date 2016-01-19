@@ -14,7 +14,6 @@
 package ddf.catalog.security.filter.plugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,11 +100,8 @@ public class FilterPlugin implements AccessPlugin {
             }
             securityPermission.clear();
             if (map != null) {
-                Map<String, List<String>> permMap = new HashMap<>();
-                for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
-                    permMap.put(entry.getKey(), new ArrayList<>(entry.getValue()));
-                }
-                securityPermission.addAll(permMap);
+                securityPermission =
+                        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, map);
             }
             if (!subject.isPermitted(securityPermission)) {
                 filteredMetacards++;

@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import junit.framework.Assert;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -80,7 +79,7 @@ public class FilterPluginTest {
     public void setup() {
         plugin = new FilterPlugin();
         QueryRequestImpl request = getSampleRequest();
-        Map<String, Serializable> properties = new HashMap<String, Serializable>();
+        Map<String, Serializable> properties = new HashMap<>();
 
         AuthorizingRealm realm = mock(AuthorizingRealm.class);
 
@@ -88,8 +87,7 @@ public class FilterPluginTest {
         when(realm.isPermitted(any(PrincipalCollection.class), any(Permission.class))).then(
                 makeDecision());
 
-        Collection<org.apache.shiro.realm.Realm> realms =
-                new ArrayList<org.apache.shiro.realm.Realm>();
+        Collection<org.apache.shiro.realm.Realm> realms = new ArrayList<>();
         realms.add(realm);
 
         DefaultSecurityManager manager = new DefaultSecurityManager();
@@ -123,8 +121,8 @@ public class FilterPluginTest {
 
     public Answer<Boolean> makeDecision() {
 
-        Map<String, List<String>> testRoleMap = new HashMap<String, List<String>>();
-        List<String> testRoles = new ArrayList<String>();
+        Map<String, List<String>> testRoleMap = new HashMap<>();
+        List<String> testRoles = new ArrayList<>();
         testRoles.add("A");
         testRoles.add("B");
         testRoleMap.put("Roles", testRoles);
@@ -168,7 +166,7 @@ public class FilterPluginTest {
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
 
-    public void verifyFilterResponse(QueryResponse response) {
+    private void verifyFilterResponse(QueryResponse response) {
         LOGGER.info("Filtered with " + response.getResults()
                 .size() + " out of 5 original.");
         LOGGER.info("Checking Results");
@@ -178,7 +176,7 @@ public class FilterPluginTest {
         LOGGER.info("Filtering succeeded.");
     }
 
-    public Metacard getMoreRolesMetacard() {
+    private Metacard getMoreRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -190,14 +188,14 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+                new HashSet<>()));
+        HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A", "B", "CR", "WS"));
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getMissingRolesMetacard() {
+    private Metacard getMissingRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -209,15 +207,15 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A"));
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getExactRolesMetacard() {
+    private Metacard getExactRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -229,15 +227,15 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A", "B"));
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getNoRolesMetacard() {
+    private Metacard getNoRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -249,14 +247,14 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> security = new HashMap<>();
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getNoSecurityAttributeMetacard() {
+    private Metacard getNoSecurityAttributeMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -269,7 +267,7 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
         return metacard;
     }

@@ -16,70 +16,26 @@ package ddf.catalog.metacard.validation;
 import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_ERRORS;
 import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PostQueryPlugin;
+import ddf.catalog.operation.Query;
+import ddf.catalog.plugin.PolicyPlugin;
+import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
-public class MetacardValidityFilterPlugin implements PostQueryPlugin {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardValidityFilterPlugin.class);
+public class MetacardValidityFilterPlugin implements PolicyPlugin {
 
     private static Map<String, List<String>> attributeMap = new HashMap<>();
-
-    @Override
-    public QueryResponse process(QueryResponse input)
-            throws PluginExecutionException, StopProcessingException {
-        List<Result> results = input.getResults();
-        if (results == null) {
-            return input;
-        }
-
-        // process security
-        for (Result result : results) {
-            Metacard metacard = result.getMetacard();
-            if (metacard == null) {
-                continue;
-            }
-            Attribute securityAttribute = metacard.getAttribute(Metacard.SECURITY);
-            HashMap<String, List<String>> securityMap = new HashMap<>();
-            if (securityAttribute != null && securityAttribute.getValue() != null
-                    && securityAttribute.getValue() instanceof Map) {
-                try {
-                    securityMap = (HashMap<String, List<String>>) securityAttribute.getValue();
-                } catch (ClassCastException e) {
-                    LOGGER.debug("Metacard Security attribute not an instance of HashMap, changing it to an empty HashMap", e);
-                }
-            }
-            if ((metacard.getAttribute(VALIDATION_ERRORS) != null
-                    && metacard.getAttribute(VALIDATION_ERRORS).getValues() != null) || (
-                    metacard.getAttribute(VALIDATION_WARNINGS) != null
-                            && metacard.getAttribute(VALIDATION_WARNINGS).getValues() != null)) {
-                for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
-                    securityMap.put(attributeMapping.getKey(), attributeMapping.getValue());
-                }
-
-            }
-            if (!securityMap.isEmpty()) {
-                metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, securityMap));
-            }
-
-        }
-        return input;
-    }
 
     public Map<String, List<String>> getAttributeMap() {
         return attributeMap;
@@ -89,12 +45,63 @@ public class MetacardValidityFilterPlugin implements PostQueryPlugin {
         for (String attributeMapping : attributeMappings) {
             String[] keyValue = attributeMapping.split("=");
             attributeMap.put(keyValue[0].trim(),
-                    Arrays.asList(keyValue[1].split(",")).stream().map(String::trim)
+                    Arrays.asList(keyValue[1].split(","))
+                            .stream()
+                            .map(String::trim)
                             .collect(Collectors.toList()));
         }
     }
 
     public void setAttributeMap(Map<String, List<String>> attributeMap) {
         MetacardValidityFilterPlugin.attributeMap = attributeMap;
+    }
+
+    @Override
+    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
+            Map<String, Serializable> properties) throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+
+        if (input == null || input.getMetacard() == null) {
+            return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        }
+        Metacard metacard = input.getMetacard();
+        HashMap<String, Set<String>> securityMap = new HashMap<>();
+
+        if ((metacard.getAttribute(VALIDATION_ERRORS) != null && metacard.getAttribute(
+                VALIDATION_ERRORS)
+                .getValues() != null) || (metacard.getAttribute(VALIDATION_WARNINGS) != null &&
+                metacard.getAttribute(VALIDATION_WARNINGS)
+                        .getValues() != null)) {
+            for (Map.Entry<String, List<String>> attributeMapping : attributeMap.entrySet()) {
+                securityMap.put(attributeMapping.getKey(),
+                        new HashSet<>(attributeMapping.getValue()));
+            }
+
+        }
+
+        return new PolicyResponseImpl(new HashMap<>(), securityMap);
     }
 }

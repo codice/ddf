@@ -16,6 +16,6 @@
     <bean id="filterPostQueryPlugin" class="ddf.sdk.plugin.filter.FilterPostQueryPlugin">
     </bean>
 
-    <service ref="filterPostQueryPlugin" interface="ddf.catalog.plugin.PostQueryPlugin"/>
+    <service ref="filterPostQueryPlugin" auto-export="interfaces"/>
 
 </blueprint>

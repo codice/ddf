@@ -13,9 +13,6 @@
  */
 package ddf.catalog.security.operation.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,7 +70,7 @@ public class OperationPlugin implements AccessPlugin {
      * checkOperation will throw a StopProcessingException if the operation is not permitted
      * based on the the subjects attributes and the operations property "operation.security"
      *
-     * @param operation
+     * @param operation The operation to check
      * @throws StopProcessingException
      */
     private void checkOperation(Operation operation) throws StopProcessingException {
@@ -91,22 +88,15 @@ public class OperationPlugin implements AccessPlugin {
                     "Unable to filter contents of current message, no user Subject available.");
         }
 
-        KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION);
-
         Map<String, Set<String>> perms = (Map<String, Set<String>>) operation.getPropertyValue(
                 PolicyPlugin.OPERATION_SECURITY);
-        Map<String, List<String>> kvPerms = new HashMap<String, List<String>>();
-        for (Map.Entry<String, Set<String>> entry : perms.entrySet()) {
-            kvPerms.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
-        }
-
-        securityPermission.clear();
-        securityPermission.addAll(kvPerms);
+        KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission(
+                CollectionPermission.READ_ACTION,
+                perms);
 
         if (!subject.isPermitted(securityPermission)) {
             throw new StopProcessingException("User " + SubjectUtils.getName(subject, "UNKNOWN")
-                    + "does not have the required attributes " + kvPerms);
+                    + "does not have the required attributes " + perms);
         }
     }
 

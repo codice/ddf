@@ -21,6 +21,7 @@ import ddf.catalog.operation.UpdateRequest;
 
 /**
  * An AccessPlugin allows or denies access to the Catalog operation or response.
+ * AccessPlugin are independent and should not rely on ordering of other plugins
  */
 public interface AccessPlugin {
 
@@ -65,7 +66,8 @@ public interface AccessPlugin {
 
     /**
      * Processes a {@link QueryRequest}, prior to execution of the {@link ddf.catalog.operation.Query},
-     * to determine whether or not the user can access the Catalog operation
+     * to determine whether or not the user can access the Catalog operation. The AccessPlugins will be run
+     * in the same order for both processPreQuery and processPostQuery
      *
      * @param input the {@link QueryRequest} to process
      * @return the value of the processed {@link QueryRequest} to pass to the next {@link AccessPlugin}
@@ -78,7 +80,8 @@ public interface AccessPlugin {
 
     /**
      * Processes a {@link QueryResponse}, following the execution of the {@link ddf.catalog.operation.Query},
-     * to determine whether or not the user can access the Response
+     * to determine whether or not the user can access the Response. The AccessPlugins will be run
+     * in the same order for both processPreQuery and processPostQuery
      *
      * @param input the {@link QueryResponse} to process
      * @return the value of the processed {@link QueryResponse} to pass to the next {@link AccessPlugin}

@@ -13,6 +13,7 @@
  */
 package ddf.security.permission;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,7 @@ public class KeyValueCollectionPermission extends CollectionPermission {
 
     /**
      * Creates an empty collection with an associated action
+     *
      * @param action
      */
     public KeyValueCollectionPermission(String action) {
@@ -41,10 +43,8 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      * Creates a new collection of KeyValuePermission objects and adds the provided permissions to
      * the newly created collection.
      *
-     * @param action
-     *            Action associated with this collection of permissions
-     * @param permissions
-     *            KeyValuePermission objects to be added to the newly created collection
+     * @param action      Action associated with this collection of permissions
+     * @param permissions KeyValuePermission objects to be added to the newly created collection
      */
     public KeyValueCollectionPermission(String action, KeyValuePermission... permissions) {
         super(action, permissions);
@@ -55,13 +55,12 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      * values. Each key and associated list of values is turned into a KeyValuePermission and added
      * to the newly created collection.
      *
-     * @param action
-     *            Action associated with this collection of permissions
-     * @param map
-     *            collection of keys and their associated list of values to be added to the newly
-     *            created collection
+     * @param action Action associated with this collection of permissions
+     * @param map    collection of keys and their associated list of values to be added to the newly
+     *               created collection
      */
-    public KeyValueCollectionPermission(String action, Map<String, List<String>> map) {
+    public KeyValueCollectionPermission(String action,
+            Map<String, ? extends Collection<String>> map) {
         super(action);
         addAll(map);
     }
@@ -71,10 +70,8 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      * KeyValuePermission objects. All KeyValuePermission objects in the provided collection are
      * added to the newly created collection.
      *
-     *  @param action
-     *            Action associated with this collection of permissions
-     * @param permissions
-     *            existing collection of KeyValuePermission objects
+     * @param action      Action associated with this collection of permissions
+     * @param permissions existing collection of KeyValuePermission objects
      */
     public KeyValueCollectionPermission(String action, Collection<KeyValuePermission> permissions) {
         super(action, permissions);
@@ -83,8 +80,7 @@ public class KeyValueCollectionPermission extends CollectionPermission {
     /**
      * Returns the KeyValuePermission collection as a List of KeyValuePermission objects.
      *
-     * @param <T>
-     *            specified by the type of the calling object - should be KeyValuePermission to
+     * @param <T> specified by the type of the calling object - should be KeyValuePermission to
      *            avoid class cast exceptions
      * @return List of KeyValuePermission that represent the permission in this collection
      */
@@ -97,13 +93,13 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      * and associated list of values is turned into a KeyValuePermission and added to the newly
      * created collection.
      *
-     * @param map
-     *            collection of keys and their associated list of values to be added to the newly
+     * @param map collection of keys and their associated list of values to be added to the newly
      *            created collection
      */
-    public void addAll(Map<String, List<String>> map) {
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            permissionList.add(new KeyValuePermission(entry.getKey(), entry.getValue()));
+    public void addAll(Map<String, ? extends Collection<String>> map) {
+        for (Map.Entry<String, ? extends Collection<String>> entry : map.entrySet()) {
+            permissionList.add(new KeyValuePermission(entry.getKey(),
+                    new ArrayList<>(entry.getValue())));
         }
     }
 

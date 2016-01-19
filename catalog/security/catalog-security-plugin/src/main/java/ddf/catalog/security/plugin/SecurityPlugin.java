@@ -69,9 +69,8 @@ public class SecurityPlugin implements AccessPlugin {
         try {
             Object requestSubject = operation.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
-            Subject subject = null;
             if (!(requestSubject instanceof ddf.security.Subject)) {
-                subject = SecurityUtils.getSubject();
+                Subject subject = SecurityUtils.getSubject();
                 if (subject instanceof ddf.security.Subject) {
                     operation.getProperties()
                             .put(SecurityConstants.SECURITY_SUBJECT,

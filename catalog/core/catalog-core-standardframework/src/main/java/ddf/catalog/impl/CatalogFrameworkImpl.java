@@ -864,7 +864,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             createReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
             for (AccessPlugin plugin : access) {
-                plugin.processPreCreate(createReq);
+                createReq = plugin.processPreCreate(createReq);
             }
 
             for (PreIngestPlugin plugin : preIngest) {
@@ -969,7 +969,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             updateReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
             for (AccessPlugin plugin : access) {
-                plugin.processPreUpdate(updateReq);
+                updateReq = plugin.processPreUpdate(updateReq);
             }
 
             for (PreIngestPlugin plugin : preIngest) {
@@ -1047,7 +1047,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             deleteRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
             for (AccessPlugin plugin : access) {
-                plugin.processPreDelete(deleteRequest);
+                deleteRequest = plugin.processPreDelete(deleteRequest);
             }
 
             for (PreIngestPlugin plugin : preIngest) {
@@ -1161,7 +1161,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             for (AccessPlugin plugin : access) {
                 try {
-                    plugin.processPreQuery(queryReq);
+                    queryReq = plugin.processPreQuery(queryReq);
                 } catch (StopProcessingException e) {
                     throw new FederationException("Query could not be executed.", e);
                 }
@@ -1218,7 +1218,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             for (AccessPlugin plugin : access) {
                 try {
-                    plugin.processPostQuery(queryResponse);
+                    queryResponse = plugin.processPostQuery(queryResponse);
                 } catch (StopProcessingException e) {
                     throw new FederationException("Query could not be executed.", e);
                 }
