@@ -1393,6 +1393,32 @@ The configurations for Security STS LDAP and Roles Claims Handler and Security S
 Use the encryption service, described in <<Encryption Service>>, on the command line to set passwords for your LDAP server.
 Then change the LDAP Bind User Password in the configurations to use the encrypted password.
 
+==== Standalone Security Token Service (STS) Installation
+
+The STS cannot currently be installed on a kernel distribution of {branding}.
+To run a STS-only {branding} installation, uninstall the catalog components that are not being used.
+The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode.
+This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
+
+.Unnecessary Features
+* catalog-core-standardframework
+* catalog-solr-embedded-provider
+* catalog-opensearch-endpoint
+* catalog-opensearch-souce
+* catalog-rest-endpoint
+
+===== STS Claims Handlers
+
+Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
+An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
+These attributes are then mapped and added to the SAML assertion being created.
+Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
+
+====== Description
+
+A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
+A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
+
 ==== Configuring Solr Catalog Provider
 
 ===== Configure the Solr Catalog Provider Data Directory
@@ -2833,14 +2859,14 @@ bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 Redaction and filtering are performed in a Post Query plugin that occurs after a query has been performed.
 
 ===== How Redaction and Filtering Works
-Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PolicyPlugin that populates this attribute. The security attribute is a HashMap containing a set of keys that map to lists of values. The metacard is then processed by a filter/redaction plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. The decision to filter/redact* the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml). The PDP that is being used returns a decision, and the metacard will either be filtered/redacted or allowed to pass through.
+Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PolicyPlugin that populates this attribute. The security attribute is a HashMap containing a set of keys that map to lists of values. The metacard is then processed by a filter plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. The decision to filter the metacard eventually relies on the installed PDP (features:install security-pdp-authz). The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
 
 [NOTE]
 ====
 *The default setting is to redact records*.
 ====
 
-The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PolicyPlugin that reads the metadata being returned and then returns the appropriate attributes. If the subject or resource (metacard) permissions are missing during redaction, that resource is redacted.
+The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PolicyPlugin that reads the metadata being returned and then returns the appropriate attributes. If the subject or resource (metacard) permissions are missing during filtering, that resource is filtered.
 
 Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]
@@ -2848,10 +2874,10 @@ Example (represented as simple XML for ease of understanding):
 <metacard>
     <security>
         <map>
-            <entry key="entry1" value="A,B" />
-            <entry key="entry2" value="X,Y" />
-            <entry key="entry3" value="USA,GBR" />
-            <entry key="entry4" value="USA,AUS" />
+            <entry key="assertedAttribute1" value="A,B" />
+            <entry key="assertedAttribute2" value="X,Y" />
+            <entry key="assertedAttribute3" value="USA,GBR" />
+            <entry key="assertedAttribute4" value="USA,AUS" />
         </map>
     </security>
 </metacard>
@@ -2860,18 +2886,18 @@ Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]
 ----
 <user>
-    <claim name="claim1">
+    <claim name="subjectAttribute1">
         <value>A</value>
         <value>B</value>
     </claim>
-    <claim name="claim2">
+    <claim name="subjectAttribute2">
         <value>X</value>
         <value>Y</value>
     </claim>
-    <claim name="claim3">
+    <claim name="subjectAttribute3">
         <value>USA</value>
     </claim>
-    <claim name="claim4">
+    <claim name="subjectAttribute4">
         <value>USA</value>
     </claim>
 </user>
@@ -2884,99 +2910,43 @@ In this particular case, the metacard might be allowed if the policy is configur
 
 ===== Filter Policies
 
-The procedure for setting up a policy differs depending on which PDP implementation installed.
-The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
+The procedure for setting up a policy differs depending on whether that policy is to be used internally or by the external XACML processing engine.
+Setting up an internal policy is as follows:
 
 . Open the Admin Console at https://localhost:8993/admin
 . Click the {branding} Security application tile
 . Click the *Configuration* tab
 . Click on the Security Simple AuthZ Realm configuration.
-. Add any attribute mappings necessary to map between subject claims and metacard values.
-.. For example, the above example would require two Match All mappings of claim1=entry1 and claim2=entry2
-.. Match One mappings would contain claim3=entry3 and claim4=entry4.
+. Add any attribute mappings necessary to map between subject attributes and the attributes to be asserted.
+.. For example, the above example would require two Match All mappings of subjectAttribute1=assertedAttribute1 and subjectAttribute2=assertedAttribute2
+.. Match One mappings would contain subjectAttribute3=assertedAttribute3 and subjectAttribute4=assertedAttribute4.
 
 [NOTE]
 ====
-See the Security PDP Java Realm section of this documentation for a description of the configuration page.
+See the Security PDP AuthZ Realm section of this documentation for a description of the configuration page.
 ====
 
-With the security-pdp-java feature configured in this way, the above Metacard would be displayed to the user.
+With the security-pdp-authz feature configured in this way, the above Metacard would be displayed to the user.
+Note that this particular configuration would not require any XACML rules to be present.
+All of the attributes can be matched internally and there is no reason to call out to the external XACML processing engine.
+For more complex decisions, it might be necessary to write a XACML policy to handle certain attributes.
 
-The XACML PDP is explained in more detail in the XACML Policy Decision Point (PDP) section of this documentation.
-It the administrator's responsibility to write a XACML policy capable of returning the correct response message.
-The Java-based PDP should perform adequately in most situations.
-It is possible to install the security-pdp-java and security-pdp-xacml features at the same time.
-The system could be configured in this way in order to allow the Java PDP to handle most cases and only have XACML policies to handle more complex situations than what the Java PDP is designed for.
-Keep in mind that this would be a very complex configuration with both PDPs installed, and this should only be performed if you understand the complex details.
-
-===== Standalone Security Token Service (STS) Installation
-
-The STS cannot currently be installed on a kernel distribution of {branding}.
-To run a STS-only {branding} installation, uninstall the catalog components that are not being used.
-The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode.
-This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
-
-.Unnecessary Features
-* catalog-core-standardframework
-* catalog-solr-embedded-provider
-* catalog-opensearch-endpoint
-* catalog-opensearch-souce
-* catalog-rest-endpoint
-
-===== STS Claims Handlers
-
-Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
-An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
-These attributes are then mapped and added to the SAML assertion being created.
-Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
-
-====== Description
-
-A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
-A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
-
-==== XACML Policy Decision Point (PDP)
-
-After unzipping the {branding} distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.
+To set up a XACML policy, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.
 This is the directory in which the PDP will look for XACML policies every 60 seconds.
 A sample XACML policy is located at the end of this page.
 Information on specific bundle configurations and names can be found on the Security PDP application page.
 
-===== Creating a Policy
+===== Creating a XACML Policy
 This document assumes familiarity with the XACML schema and does not go into detail on the XACML language.
-There are some {branding}-specific items that need to be considered when creating a policy, so it is compatible with the XACMLRealm.
 When creating a policy, a target is used to indicate that a certain action should be run only for one type of request.
 Targets can be used on both the main policy element and any individual rules.
-Generally targets are geared toward the actions that are set in the request.
-
-====== Actions
-For {branding}, these actions are populated by various components in the security API.
-The actions and their population location are identified in the following table.
-
-[cols="1,1,1,5"]
-|===
-
-|Operation
-|Action-id Value
-|Component Setting the action
-|Description
-
-|Filtering / Redaction
-|read
-|security-pdp-xacmlrealm
-|When performing any redaction or filtering, the XACMLRealm will set the action-id to "read".
-
-|Service
-|<SOAPAction>
-|security-pep-interceptor
-|If the PEP Interceptor is added to any SOAP-based web services for service authorization, the action-id will be the SOAPAction of the incoming request. This allows the XACML policy to have specific rules for individual services within the system.
-
-|===
+Targets are geared toward the actions that are set in the request.
+These actions generally consist of the standard CRUD operations (create, read, update, delete) or a SOAPAction if the request is coming through a SOAP endpoint.
 
 [NOTE]
 ====
-These are only the action-id values that are currently created by the components that come with {branding}.
-Additional components can be created and added to {branding} to identify specific action-ids.
+These are only the action values that are currently created by the components that come with {branding}.
+Additional components can be created and added to {branding} to identify specific actions.
 ====
 
 In the examples below, the policy has specified targets for the above type of calls.
@@ -2988,20 +2958,23 @@ In a production environment, these actions for service authorization will genera
 Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
 
 ====== Subject
-The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category. The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.
+The attributes for the subject are obtained from the SAML claims and populated within the XACML policy as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category.
+The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.
 
 ====== Resource
 
 The attributes for resources are obtained through the permissions process.
-When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject.
-These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property.
+When checking permissions, the XACML processing engine retrieves a list of permissions that should be checked against the subject.
+These permissions are populated outside of the engine and should be populated with the attributes that should be asserted against the subject.
 When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category.
 
 ===== Example Requests and Responses
-The following items are a sample request, response, and the corresponding policy. For the XACML PDP, the request is made by the XACML realm (security-pdp-xacmlrealm), passed to the XACML processing engine (security-pdp-xacmlprocessor), which reads the policy and outputs a response.
+The following items are a sample request, response, and the corresponding policy. The XACML processing engine reads the policy and outputs a response.
 
 ====== Policy
-This is the sample policy that was used for the following sample request and responses. The policy was made to handle the following actions: filter, query, and LocalSiteName. The filter action is used to compare subject's SUBJECT_ACCESS attributes to metacard's RESOURCE_ACCESS attributes. The query and LocalSiteName actions differ, as they are used to perform service authorization. For a query, the user must be associated with the country code ATA (Antarctica), and a LocalSiteName action can be performed by anyone.
+This is the sample policy that was used for the following sample request and responses.
+The policy was made to handle the following actions: filter, query, and LocalSiteName. The filter action is used to compare subject's SUBJECT_ACCESS attributes to a metacard's RESOURCE_ACCESS attributes.
+The query and LocalSiteName actions differ, as they are used to perform service authorization. For a query, the user must be associated with the country code ATA (Antarctica), and a LocalSiteName action can be performed by anyone.
 
 .Policy
 [source,xml,linenums]

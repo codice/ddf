@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.pdp.xacml.processor;
+package ddf.security.pdp.realm.xacml.processor;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.balana.PDP;
@@ -52,7 +53,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import ddf.security.pdp.xacml.PdpException;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
@@ -61,22 +61,20 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
  * Balana implementation of a XACML Policy Decision Point (PDP). This class acts as a proxy to the
  * real Balana PDP.
  */
-public class BalanaPdp {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaPdp.class);
+public class BalanaClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaClient.class);
 
     private static final String XACML30_NAMESPACE = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
 
     private static final String XACML_PREFIX = "xacml";
 
-    private static final long DEFAULT_POLLING_INTERVAL_IN_SECONDS = 60;
-
     private static final String NULL_DIRECTORY_EXCEPTION_MSG = "Cannot read from null XACML Policy Directory";
 
     private static JAXBContext jaxbContext;
 
-    private PDP pdp;
+    static long defaultPollingIntervalInSeconds = 60;
 
-    private long pollingInterval = DEFAULT_POLLING_INTERVAL_IN_SECONDS;
+    private PDP pdp;
 
     private Set<String> xacmlPolicyDirectories;
 
@@ -87,11 +85,11 @@ public class BalanaPdp {
      *            Relative directory path to the root of the DDF installation.
      * @throws PdpException
      */
-    public BalanaPdp(String relativeXacmlPoliciesDirectoryPath) throws PdpException {
-        if (relativeXacmlPoliciesDirectoryPath == null) {
+    public BalanaClient(String relativeXacmlPoliciesDirectoryPath) throws PdpException {
+        if (StringUtils.isEmpty(relativeXacmlPoliciesDirectoryPath)) {
             throw new PdpException(NULL_DIRECTORY_EXCEPTION_MSG);
         }
-        File xacmlPoliciesDirectory = null;
+        File xacmlPoliciesDirectory;
 
         try {
             xacmlPoliciesDirectory = new File(relativeXacmlPoliciesDirectoryPath)
@@ -103,22 +101,7 @@ public class BalanaPdp {
         initialize(xacmlPoliciesDirectory);
     }
 
-    /**
-     * Creates the proxy to the real Balana PDP.
-     *
-     * @param relativeXacmlPoliciesDirectoryPath
-     *            Relative directory path to the root of the DDF installation.
-     * @throws PdpException
-     */
-    public BalanaPdp(File xacmlPoliciesDirectory) throws PdpException {
-        initialize(xacmlPoliciesDirectory);
-    }
-
     private void initialize(File xacmlPoliciesDirectory) throws PdpException {
-        if (xacmlPoliciesDirectory == null) {
-            throw new PdpException(NULL_DIRECTORY_EXCEPTION_MSG);
-        }
-
         try {
             // Only a single default directory is supported
             // If the directory path becomes customizable this
@@ -136,7 +119,7 @@ public class BalanaPdp {
          * We currently only support one XACML policies directory, but we may support multiple
          * directories in the future.
          */
-        xacmlPolicyDirectories = new HashSet<String>(1);
+        xacmlPolicyDirectories = new HashSet<>(1);
         xacmlPolicyDirectories.add(xacmlPoliciesDirectory.getPath());
         createPdp(createPdpConfig());
     }
@@ -158,9 +141,7 @@ public class BalanaPdp {
 
         DOMResult domResult = addNamespaceAndPrefixes(xacmlResponse);
 
-        ResponseType xacmlResponseType = unmarshal(domResult);
-
-        return xacmlResponseType;
+        return unmarshal(domResult);
     }
 
     /**
@@ -189,8 +170,6 @@ public class BalanaPdp {
     /**
      * Creates the Balana PDP configuration.
      *
-     * @param xacmlPolicyDirectories
-     *            he directory containing the XACML policies.
      * @return PDPConfig
      */
     private PDPConfig createPdpConfig() {
@@ -202,27 +181,23 @@ public class BalanaPdp {
         attributeFinderModules.add(selectorModule);
         attributeFinderModules.add(currentEnvModule);
         attributeFinder.setModules(attributeFinderModules);
-        PDPConfig pdpConfig = new PDPConfig(attributeFinder,
-                createPolicyFinder(xacmlPolicyDirectories), null, false);
 
-        return pdpConfig;
+        return new PDPConfig(attributeFinder,
+                createPolicyFinder(), null, false);
     }
 
     /**
      * Creates a policy finder to find XACML polices.
-     *
-     * @param xacmlPolicyDirectories
-     *            The directory containing the XACML policies.
      * @return PolicyFinder
      */
-    private PolicyFinder createPolicyFinder(Set<String> xacmlPolicyDirectories) {
+    private PolicyFinder createPolicyFinder() {
         LOGGER.debug("XACML policies will be looked for in the following location(s): {}",
                 xacmlPolicyDirectories);
         PolicyFinder policyFinder = new PolicyFinder();
         PollingPolicyFinderModule policyFinderModule = new PollingPolicyFinderModule(
-                xacmlPolicyDirectories, pollingInterval);
+                xacmlPolicyDirectories, defaultPollingIntervalInSeconds);
         policyFinderModule.start();
-        Set<PolicyFinderModule> policyFinderModules = new HashSet<PolicyFinderModule>(1);
+        Set<PolicyFinderModule> policyFinderModules = new HashSet<>(1);
         policyFinderModules.add(policyFinderModule);
         policyFinder.setModules(policyFinderModules);
 
@@ -241,14 +216,16 @@ public class BalanaPdp {
         boolean errors = false;
 
         if (!xacmlPoliciesDirectory.isDirectory()) {
-            message.append("The XACML policies directory " + xacmlPoliciesDirectory.getPath()
-                    + " does not exist or is not a directory.  ");
+            message.append("The XACML policies directory ")
+                    .append(xacmlPoliciesDirectory.getPath())
+                    .append(" does not exist or is not a directory.  ");
             errors = true;
         }
 
         if (!xacmlPoliciesDirectory.canRead()) {
-            message.append("The XACML policies directory " + xacmlPoliciesDirectory.getPath()
-                    + " is not readable.  ");
+            message.append("The XACML policies directory ")
+                    .append(xacmlPoliciesDirectory.getPath())
+                    .append(" is not readable.  ");
             errors = true;
         }
 
@@ -265,9 +242,8 @@ public class BalanaPdp {
      * @return The XACML response as a string.
      */
     private String callPdp(String xacmlRequest) {
-        String xacmlResponse = pdp.evaluate(xacmlRequest);
 
-        return xacmlResponse;
+        return pdp.evaluate(xacmlRequest);
     }
 
     /**
@@ -281,7 +257,7 @@ public class BalanaPdp {
      * @throws PdpException
      */
     private DOMResult addNamespaceAndPrefixes(String xacmlResponse) throws PdpException {
-        XMLReader xmlReader = null;
+        XMLReader xmlReader;
 
         try {
             xmlReader = new XMLFilterImpl(XMLReaderFactory.createXMLReader()) {
@@ -306,7 +282,7 @@ public class BalanaPdp {
 
         DOMResult domResult;
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(BalanaPdp.class.getClassLoader());
+        Thread.currentThread().setContextClassLoader(BalanaClient.class.getClassLoader());
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
@@ -340,8 +316,8 @@ public class BalanaPdp {
         JAXBElement<RequestType> xacmlRequestTypeElement = objectFactory
                 .createRequest(xacmlRequestType);
 
-        Marshaller marshaller = null;
-        String xacmlRequest = null;
+        Marshaller marshaller;
+        String xacmlRequest;
 
         try {
             marshaller = jaxbContext.createMarshaller();
@@ -383,23 +359,5 @@ public class BalanaPdp {
         }
 
         return xacmlResponseTypeElement.getValue();
-    }
-
-    public long getPollingInterval() {
-        return pollingInterval;
-    }
-
-    /**
-     * Sets the pollingInterval. The PDP configuration is reset as a result to adjust to the new
-     * interval
-     *
-     * @param pollingInterval
-     *            - in seconds
-     */
-    public void setPollingInterval(long pollingInterval) {
-        this.pollingInterval = pollingInterval;
-
-        createPdp(createPdpConfig());
-
     }
 }

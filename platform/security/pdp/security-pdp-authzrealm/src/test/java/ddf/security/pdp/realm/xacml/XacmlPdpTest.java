@@ -11,13 +11,10 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.pdp.xacml.realm;
+package ddf.security.pdp.realm.xacml;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,22 +22,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.authz.Authorizer;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ddf.security.pdp.xacml.PdpException;
+import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.service.impl.AbstractAuthorizingRealm;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 
-public class XACMLRealmTest {
+public class XacmlPdpTest {
     private static final String USER_NAME = "Test User";
 
     private static final String QUERY_ACTION = "query";
@@ -66,34 +60,21 @@ public class XACMLRealmTest {
 
     private static final String COUNTRY = "http://www.opm.gov/feddata/CountryOfCitizenship";
 
-    private static XACMLRealm testRealm;
+    private static XacmlPdp testRealm;
 
     @BeforeClass()
     public static void setupLogging() throws PdpException {
-        testRealm = new XACMLRealm("src/test/resources/policies");
+        testRealm = new XacmlPdp("src/test/resources/policies");
     }
 
-    @Test
-    public void testShiroClassType() {
-        if (!(testRealm instanceof Authorizer)) {
-            fail("In order for the underling shiro code to work, realm MUST be an instance of "
-                    + Authorizer.class.getName());
-        }
+    @Test (expected = PdpException.class)
+    public void testBadSetupNull() throws PdpException {
+        XacmlPdp xacmlPdp = new XacmlPdp(null);
     }
 
-    @Test
-    public void testDDFClassType() {
-        if (!(testRealm instanceof AbstractAuthorizingRealm)) {
-            fail("In order for the underling ddf code to work, realm MUST be an instance of "
-                    + AbstractAuthorizingRealm.class.getName());
-        }
-    }
-
-    @Test
-    public void testNotAuthNRealm() {
-        AuthenticationToken token = mock(AuthenticationToken.class);
-        assertFalse(testRealm.supports(token));
-        assertNull(testRealm.doGetAuthenticationInfo(token));
+    @Test (expected = PdpException.class)
+    public void testBadSetupEmpty() throws PdpException {
+        XacmlPdp xacmlPdp = new XacmlPdp("");
     }
 
     @Test
@@ -151,7 +132,7 @@ public class XACMLRealmTest {
     }
 
     @Test
-    public void testResourceHasMoreLessRedaction() throws PdpException {
+    public void testResourceIsPermitted() {
 
         HashMap<String, List<String>> security = new HashMap<String, List<String>>();
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A));
@@ -167,7 +148,7 @@ public class XACMLRealmTest {
     }
 
     @Test
-    public void testResourceHasMoreAccessRedaction() throws PdpException {
+    public void testResourceIsNotPermitted() {
 
         HashMap<String, List<String>> security = new HashMap<String, List<String>>();
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B, ACCESS_TYPE_C));

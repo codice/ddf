@@ -13,13 +13,17 @@
  */
 package ddf.security.pdp.realm.test;
 
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +31,8 @@ import org.mockito.Mockito;
 
 import junit.framework.Assert;
 
-import ddf.security.pdp.realm.SimpleAuthzRealm;
+import ddf.security.pdp.realm.AuthzRealm;
+import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -36,22 +41,22 @@ import ddf.security.policy.extension.PolicyExtension;
 /**
  * User: tustisos Date: 3/20/13 Time: 9:35 AM
  */
-public class SimpleAuthzRealmTest {
-    SimpleAuthzRealm testRealm;
+public class AuthzRealmTest {
+    AuthzRealm testRealm;
 
     List<Permission> permissionList;
 
     HashMap<String, List<String>> security;
 
-    @Before
-    public void setup() {
-        testRealm = new SimpleAuthzRealm();
+    PrincipalCollection mockSubjectPrincipal;
 
+    @Before
+    public void setup() throws PdpException {
         String ruleClaim = "FineAccessControls";
         String countryClaim = "CountryOfAffiliation";
 
         // setup the subject permissions
-        List<Permission> permissions = new ArrayList<Permission>();
+        List<Permission> permissions = new ArrayList<>();
         KeyValuePermission rulePermission = new KeyValuePermission(ruleClaim);
         rulePermission.addValue("A");
         rulePermission.addValue("B");
@@ -63,16 +68,29 @@ public class SimpleAuthzRealmTest {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         authorizationInfo.addObjectPermission(rulePermission);
         authorizationInfo.addObjectPermission(countryPermission);
+        authorizationInfo.addObjectPermission(new KeyValuePermission("role", Arrays.asList("admin")));
         authorizationInfo.addRole("admin");
+        authorizationInfo.addStringPermission("wild");
+
+        testRealm = new AuthzRealm("src/test/resources/policies") {
+            @Override
+            public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
+                return authorizationInfo;
+            }
+        };
+
+        mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
+        when(mockSubjectPrincipal.getPrimaryPrincipal()).thenReturn("user");
 
         // setup the resource permissions
-        permissionList = new ArrayList<Permission>();
-        security = new HashMap<String, List<String>>();
+        permissionList = new ArrayList<>();
+        security = new HashMap<>();
         security.put("country", Arrays.asList("AUS", "CAN", "GBR"));
         security.put("rule", Arrays.asList("A", "B"));
-        testRealm.setAuthorizationInfo(authorizationInfo);
         testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
         testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
+        testRealm.setRolePermissionResolver(
+                roleString -> Arrays.asList(new KeyValuePermission("role", Arrays.asList(roleString))));
     }
 
     @Test
@@ -80,7 +98,6 @@ public class SimpleAuthzRealmTest {
         permissionList.clear();
         KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("action", security);
         permissionList.add(kvcp);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
         boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 
@@ -90,11 +107,49 @@ public class SimpleAuthzRealmTest {
     }
 
     @Test
+    public void testIsKvpPermitted() {
+        permissionList.clear();
+        KeyValuePermission kvp = new KeyValuePermission("role", Arrays.asList("admin"));
+        permissionList.add(kvp);
+
+        boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
+
+        for (boolean permitted : permittedArray) {
+            Assert.assertEquals(true, permitted);
+        }
+    }
+
+    @Test
+    public void testIsWildcardPermitted() {
+        permissionList.clear();
+        WildcardPermission kvp = new WildcardPermission("role:admin");
+        permissionList.add(kvp);
+
+        boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
+
+        for (boolean permitted : permittedArray) {
+            Assert.assertEquals(true, permitted);
+        }
+    }
+
+    @Test
+    public void testIsWildcardNotPermitted() {
+        permissionList.clear();
+        WildcardPermission kvp = new WildcardPermission("role:secretary");
+        permissionList.add(kvp);
+
+        boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
+
+        for (boolean permitted : permittedArray) {
+            Assert.assertEquals(false, permitted);
+        }
+    }
+
+    @Test
     public void testIsPermittedAllSingle() {
         permissionList.clear();
         KeyValuePermission kvp = new KeyValuePermission("rule", Arrays.asList("A", "B"));
         permissionList.add(kvp);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
         boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 
@@ -109,7 +164,6 @@ public class SimpleAuthzRealmTest {
         KeyValuePermission kvp = new KeyValuePermission("country",
                 Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
         boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 
@@ -119,7 +173,7 @@ public class SimpleAuthzRealmTest {
     }
 
     @Test
-    public void testIsPermittedOneMultiple() {
+    public void testIsPermittedOneMultiple() throws PdpException {
         permissionList.clear();
         KeyValuePermission kvp = new KeyValuePermission("country",
                 Arrays.asList("AUS", "CAN", "GBR"));
@@ -144,9 +198,16 @@ public class SimpleAuthzRealmTest {
         authorizationInfo.addObjectPermission(countryPermission);
         authorizationInfo.addRole("admin");
 
-        testRealm.setAuthorizationInfo(authorizationInfo);
-
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
+        AuthzRealm testRealm = new AuthzRealm("src/test/resources/policies") {
+            @Override
+            public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
+                return authorizationInfo;
+            }
+        };
+        testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
+        testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
+        testRealm.setRolePermissionResolver(roleString -> Arrays.asList(
+                new KeyValuePermission("role", Arrays.asList(roleString))));
 
         boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 
@@ -166,7 +227,6 @@ public class SimpleAuthzRealmTest {
         KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission("action", security);
         permissionList.clear();
         permissionList.add(kvcp);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
         boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 
@@ -181,7 +241,6 @@ public class SimpleAuthzRealmTest {
         KeyValuePermission kvp = new KeyValuePermission("country",
                 Arrays.asList("AUS", "CAN", "GBR"));
         permissionList.add(kvp);
-        PrincipalCollection mockSubjectPrincipal = Mockito.mock(PrincipalCollection.class);
 
         testRealm.addPolicyExtension(new PolicyExtension() {
             @Override
@@ -204,5 +263,29 @@ public class SimpleAuthzRealmTest {
         for (boolean permitted : permittedArray) {
             Assert.assertEquals(true, permitted);
         }
+    }
+
+    @Test
+    public void testAddRemoveSetPolicyExtension() {
+        PolicyExtension policyExtension = new PolicyExtension() {
+            @Override
+            public KeyValueCollectionPermission isPermittedMatchAll(
+                    CollectionPermission subjectAllCollection,
+                    KeyValueCollectionPermission matchAllCollection) {
+                throw new NullPointerException();
+            }
+
+            @Override
+            public KeyValueCollectionPermission isPermittedMatchOne(
+                    CollectionPermission subjectAllCollection,
+                    KeyValueCollectionPermission matchOneCollection) {
+                throw new NullPointerException();
+            }
+        };
+        testRealm.addPolicyExtension(policyExtension);
+
+        testRealm.removePolicyExtension(policyExtension);
+
+        testRealm.setPolicyExtensions(Arrays.asList(policyExtension));
     }
 }

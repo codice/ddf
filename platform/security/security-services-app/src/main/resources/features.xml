@@ -51,13 +51,8 @@
         <bundle>mvn:ddf.security.cas/security-cas-cxfservletfilter/${project.version}</bundle>
     </feature>
 
-    <feature name="security-pdp-xacml" install="manual" version="${project.version}"
-             description="DDF Security XACML-based PDP.">
-        <bundle>mvn:ddf.security.pdp/security-pdp-xacmlrealm/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-pdp-java" install="manual" version="${project.version}"
-             description="DDF Security Java-based PDP.">
+    <feature name="security-pdp-authz" install="manual" version="${project.version}"
+             description="DDF Security PDP.">
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
     </feature>
 
@@ -148,7 +143,7 @@
         <feature>security-handler-pki</feature>
         <feature>security-sts-upbstvalidator</feature>
         <feature>security-filter-authz</feature>
-        <feature>security-pdp-java</feature>
+        <feature>security-pdp-authz</feature>
         <feature>security-servlet-logout</feature>
         <feature>security-sts-realm</feature>
     </feature>

@@ -16,19 +16,22 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD description="AuthZ Security Settings"
-         name="Security Simple AuthZ Realm"
-         id="ddf.security.pdp.realm.SimpleAuthzRealm">
-        <AD description="Comma-delimited list of 'Match-All' subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
+         name="Security AuthZ Realm"
+         id="ddf.security.pdp.realm.AuthzRealm">
+        <AD description="List of 'Match-All' subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-All Mappings" id="matchAllMappings" required="false"
+            cardinality="100"
             type="String" default=""/>
 
-        <AD description="Comma-delimited list of 'Match-One' subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
+        <AD description="List of 'Match-One' subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName."
             name="Match-One Mappings" id="matchOneMappings" required="false"
-            type="String" default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"/>
+            cardinality="100"
+            type="String"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"/>
     </OCD>
 
-    <Designate pid="ddf.security.pdp.realm.SimpleAuthzRealm">
-        <Object ocdref="ddf.security.pdp.realm.SimpleAuthzRealm"/>
+    <Designate pid="ddf.security.pdp.realm.AuthzRealm">
+        <Object ocdref="ddf.security.pdp.realm.AuthzRealm"/>
     </Designate>
 
 </metatype:MetaData>
