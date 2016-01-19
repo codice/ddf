@@ -107,7 +107,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>guava</Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,

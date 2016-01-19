@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 
 public class HttpSessionFactory implements SessionFactory {

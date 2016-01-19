@@ -219,8 +219,8 @@
                     -->
                     <packagingExcludes>
                         WEB-INF/lib/org.restlet*-2.1.1.jar,
-                        WEB-INF/lib/commons-fileupload-1.2.1.jar
-
+                        WEB-INF/lib/commons-fileupload-1.2.1.jar,
+                        WEB-INF/lib/wstx-asl-3.2.7.jar
                     </packagingExcludes>
                 </configuration>
             </plugin>

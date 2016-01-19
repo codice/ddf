@@ -44,8 +44,9 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.encryption</groupId>
@@ -75,7 +76,23 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -89,11 +106,10 @@
                         <Import-Package>
                             org.apache.commons.io;version="1.4.0",
                             ddf.security.sts.client.configuration,
-                            ddf.security.common.util,
                             *
                         </Import-Package>
                         <Embed-Dependency>
-                            guava
+                            httpclient,httpcore,platform-util-unavailableurls,ddf-security-common
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

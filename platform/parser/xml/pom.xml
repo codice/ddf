@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -58,9 +58,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
-                        <Embed-Dependency>
-                            guava
-                        </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.parser.xml
                         </Private-Package>

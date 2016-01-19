@@ -36,8 +36,8 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -90,6 +90,19 @@
             <artifactId>catalog-core-standardframework</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -103,7 +116,9 @@
                             joda-time;scope=runtime|compile,
                             joda-convert;scope=runtime|compile,
                             gt-cql;scope=runtime|compile,
-                            catalog-core-api-impl
+                            catalog-core-api-impl,
+                            ddf-security-common,
+                            platform-util-unavailableurls,
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
@@ -116,7 +131,6 @@
                             org.apache.felix.gogo.commands,
                             org.apache.karaf.shell.console,
                             org.osgi.framework;version="[1.5,2)",
-                            ddf.security.common.util,
                             *
                         </Import-Package>
                     </instructions>

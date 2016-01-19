@@ -35,7 +35,7 @@ import javax.servlet.http.HttpSession;
 import org.junit.Test;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 
 public class TestLogoutServlet {
     @Test

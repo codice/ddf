@@ -97,7 +97,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
         </dependency>
         <dependency>
             <groupId>ddf.security</groupId>
@@ -106,6 +105,15 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -133,9 +141,8 @@
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
-                            guava,
                             security-rest-cxfwrapper,
-                            ddf-security-common
+                            ddf-security-common,platform-util-unavailableurls
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -90,8 +90,8 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -659,8 +659,8 @@ public class LoginFilter implements Filter {
                                         ((SecurityAssertion) principal).getSecurityToken()
                                                 .getToken();
 
-                                LOGGER.trace("SAML Assertion returned: {}", XMLUtils.prettyFormat(
-                                        samlToken));
+                                LOGGER.trace("SAML Assertion returned: {}",
+                                        XMLUtils.prettyFormat(samlToken));
                             }
                             SecurityToken securityToken =
                                     ((SecurityAssertion) principal).getSecurityToken();

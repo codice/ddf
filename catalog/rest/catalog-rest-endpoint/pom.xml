@@ -105,7 +105,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,catalog-core-api-impl,common-system,guava</Embed-Dependency>
+                        <Embed-Dependency>json-smart,catalog-core-api-impl,common-system</Embed-Dependency>
                         <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
                     </instructions>
                 </configuration>

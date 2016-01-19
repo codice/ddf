@@ -61,10 +61,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-crlinterceptor</artifactId>
             <version>${project.version}</version>
@@ -83,6 +79,28 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -97,7 +115,10 @@
                             cxf-services-sts-core,
                             security-sts-x509delegationhandler,
                             security-sts-bstdelegationhandler,
-                            common-system
+                            common-system,
+                            httpclient,httpcore,
+                            platform-util-unavailableurls,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,
@@ -105,6 +126,7 @@
                             net.sf.ehcache.config;resolution:=optional;version="[2.5,3.0.0)",
                             ch.qos.logback.classic;resolution:=optional;version="[1.0,2)",
                             com.hazelcast.core;resolution:=optional,
+                            org.codice.ddf.platform.util,
                             *
                         </Import-Package>
                         <Private-Package>

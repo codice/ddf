@@ -1,19 +1,16 @@
 package org.codice.ddf.security.idp.server
-
 import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.LogoutMessage
 import ddf.security.samlp.ValidationException
-import ddf.security.samlp.impl.LogoutMessageImpl
 import ddf.security.samlp.impl.RelayStates
-import ddf.security.samlp.impl.SamlValidator
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.codice.ddf.security.common.jaxrs.RestSecurity
-import org.joda.time.DateTime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.opensaml.saml.common.SAMLVersion
 import org.opensaml.saml.common.SignableSAMLObject
 import org.opensaml.saml.saml2.core.*
+import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder
+import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder
 import org.opensaml.xmlsec.signature.SignableXMLObject
 import org.w3c.dom.Element
 import spock.lang.Specification
@@ -111,10 +108,8 @@ class IdpEndpointSpecTest extends Specification {
                 getID() >> requestId
             }
             buildLogoutResponse(_ as String, _ as String, _ as String) >>
-                    { String issuer, String statusCode, String inResponseTo ->
-                        return new LogoutMessageImpl().buildLogoutResponse(issuer,
-                                statusCode,
-                                inResponseTo)
+                    {
+                        return new LogoutResponseBuilder().buildObject();
                     }
         }
 
@@ -195,7 +190,7 @@ class IdpEndpointSpecTest extends Specification {
                 getID() >> responseId
             }
             buildLogoutRequest(_ as String, _ as String) >> { String name, String target ->
-                return new LogoutMessageImpl().buildLogoutRequest(name, targetSp)
+                return new LogoutRequestBuilder().buildObject();
             }
         }
 
@@ -258,7 +253,7 @@ class IdpEndpointSpecTest extends Specification {
                 getID() >> responseId
             }
             buildLogoutRequest(_ as String, _ as String) >> { String name, String target ->
-                return new LogoutMessageImpl().buildLogoutRequest(name, targetSp)
+                return new LogoutRequestBuilder().buildObject();
             }
         }
 
@@ -306,9 +301,7 @@ class IdpEndpointSpecTest extends Specification {
             }
             buildLogoutResponse(_ as String, _ as String, _ as String) >>
                     { String issuer, String statusCode, String inResponseTo ->
-                        return new LogoutMessageImpl().buildLogoutResponse(issuer,
-                                statusCode,
-                                inResponseTo)
+                        return new LogoutResponseBuilder().buildObject();
                     }
         }
 

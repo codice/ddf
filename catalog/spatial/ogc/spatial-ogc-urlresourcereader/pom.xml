@@ -89,7 +89,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -109,7 +108,6 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
-                        <Embed-Dependency>guava</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.spatial.ogc.catalog.resource.impl;version="${project.version}"
                         </Export-Package>

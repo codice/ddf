@@ -94,7 +94,6 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            guava,
                             ogc-tools-gml-jts,
                             catalog-transformer-xml-binding,
                             jaxb2-basics-runtime,

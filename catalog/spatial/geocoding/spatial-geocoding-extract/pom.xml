@@ -71,8 +71,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            zip4j,
-                            guava
+                            zip4j
                         </Embed-Dependency>
                         <Export-Package/>
                     </instructions>

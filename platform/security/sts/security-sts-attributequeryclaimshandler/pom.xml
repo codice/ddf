@@ -89,7 +89,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            guava,
                             commons-collections,
                             platform-util
                         </Embed-Dependency>

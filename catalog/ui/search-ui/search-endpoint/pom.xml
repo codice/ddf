@@ -114,7 +114,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -373,8 +372,7 @@
                             notifications,
                             activities,
                             jackson-mapper-asl,
-                            jackson-core-asl,
-                            guava
+                            jackson-core-asl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Web-ContextPath>/search/cometd</Web-ContextPath>
@@ -388,6 +386,7 @@
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
+                            com.google.*,
                             org.joda.convert;resolution:=optional,
                             org.eclipse.jetty.*; version="[7.6.0,9.0.0)",
                             *;resolution:=optional

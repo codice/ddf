@@ -94,6 +94,11 @@
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
             <version>0.4.1</version>
@@ -233,6 +238,7 @@
                             commons-cli,
                             commons-fileupload,
                             commons-codec,
+                            commons-collections,
                             spatial4j,
                             solr-core,
                             solr-solrj,
@@ -252,7 +258,6 @@
                             lucene-suggest,
                             lucene-grouping,
                             lucene-queries,
-                            guava,
                             lucene-spatial,
                             httpclient,
                             httpcore,
@@ -276,6 +281,7 @@
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
+                            com.google.*,
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
@@ -297,6 +303,9 @@
                             javax.management.openmbean,
                             javax.management.remote,
                             javax.naming,
+                            javax.naming.directory,
+                            javax.naming.ldap,
+                            javax.net,
                             javax.net.ssl,
                             javax.security.auth,
                             javax.security.auth.callback,
@@ -326,8 +335,7 @@
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.ext,
-                            org.xml.sax.helpers,
-                            *;resolution:=optional
+                            org.xml.sax.helpers
                         </Import-Package>
                     </instructions>
                 </configuration>

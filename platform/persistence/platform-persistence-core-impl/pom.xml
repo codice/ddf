@@ -157,6 +157,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -178,14 +179,14 @@
                             solr-factory,
                             noggit,
                             zookeeper,
-                            common-system,
-                            guava
+                            common-system
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
                             org.codice.ddf.persistence.internal
                         </Private-Package>
                         <Import-Package>
+                            com.google.*,
                             org.codice.ddf.persistence;version=1.0.0-SNAPSHOT,
                             org.opengis.filter,
                             *;resolution:=optional

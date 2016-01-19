@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;

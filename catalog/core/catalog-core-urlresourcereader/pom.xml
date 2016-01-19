@@ -111,7 +111,6 @@
                             ddf.catalog.util.impl,
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
-                        <Embed-Dependency>guava</Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.resource.impl;version="${project.version}"
                         </Export-Package>

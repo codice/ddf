@@ -52,7 +52,6 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>1.1.0.Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -69,7 +68,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>common-system,validation-api,commons-lang3</Embed-Dependency>
+                        <Embed-Dependency>common-system,commons-lang3</Embed-Dependency>
                         <Export-Package />
                         <Import-Package>
                             org.apache.felix.service.command,
