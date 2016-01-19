@@ -804,6 +804,7 @@
                             </dependency>
                         </dependencies>
                         <configuration>
+                            <skipProvidedScope>true</skipProvidedScope>
                             <failBuildOnCVSS>7</failBuildOnCVSS>
                             <format>ALL</format>
                             <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
