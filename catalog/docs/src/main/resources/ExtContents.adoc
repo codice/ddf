@@ -1378,9 +1378,30 @@ Pre-delivery plugins are invoked serially, prioritized by descending OSGi servic
 
 The output of a pre-delivery plugin is sent to the next pre-delivery plugin, until all have executed and the Delivery Method is invoked on the associated Subscription.
 
+==== Policy Plugin
+
+===== Using
+
+Policy plugins are invoked before all other plugin types to set up the policy for a request/response.  This provides an opportunity to attach custom requirements on operations or individual metacards.
+All the 'requirements' from each Policy plugin will be combined into a single policy that will be included in the request/response. Access plugins will be used to act on this combined policy.
+
+===== Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the StopProcessingException. If the exception encountered should stop/block the request then a StopProcessingException should be thrown.
+
+==== Access Plugin
+
+===== Using
+
+Access plugins are invoked directly after the Policy plugins have been successfully executed.  This is an opportunity to either stop processing or modify the request/response based on policy information.
+
+===== Failure Behavior
+
+All failure cases should be handled internally to the plugin with the exception of the StopProcessingException. If the exception encountered should stop/block the request then a StopProcessingException should be thrown.
+
 === Developing a Catalog Plugin
 
-Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction.  Plugins can be Pre-Ingest, Post-Ingest, Pre-Query, Post-Query, Pre-Subscription, Pre-Delivery, Pre-Resource, or Post-Resource.  By implementing these interfaces, actions can be performed at the desired time. Refer to Catalog Framework for more information on how these plugins fit in the ingest and query flows.
+Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction.  Plugins can be Pre-Ingest, Post-Ingest, Pre-Query, Post-Query, Pre-Subscription, Pre-Delivery, Pre-Resource, Post-Resource, Policy or Access.  By implementing these interfaces, actions can be performed at the desired time. Refer to Catalog Framework for more information on how these plugins fit in the ingest and query flows.
 
 ==== Create New Plugins
 
@@ -1436,6 +1457,16 @@ The following types of plugins can be created:
 |Runs after a Resource is retrieved, but before it is sent to the Endpoint 
 |Verification of a resource prior to returning to a client
 
+|Policy
+|ddf.catalog.plugin.PolicyPlugin
+|Runs prior to all other catalog plugins to esablish the policy for requests/responses
+|An example is MetacardValidityFilterPlugin
+
+|Access
+|ddf.catalog.plugin.AccessPlugin
+|Runs directly after the PolicyPlugin
+|An examples are the FilterPlugin and OperationPlugin
+
 |===
 
 ===== Implement Plugins
@@ -1469,9 +1500,9 @@ packages.
 `public class SamplePreIngestPlugin implements ddf.catalog.plugin.PreIngestPlugin`
 
 . Implement the required methods. +
-`public CreateRequest process(CreateRequest input) throws PluginExecutionException;`
-`public UpdateRequest process(UpdateRequest input) throws PluginExecutionException;`
-`public DeleteRequest process(DeleteRequest input) throws PluginExecutionException;`
+ * `public CreateRequest process(CreateRequest input) throws PluginExecutionException;`
+ * `public UpdateRequest process(UpdateRequest input) throws PluginExecutionException;`
+ * `public DeleteRequest process(DeleteRequest input) throws PluginExecutionException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
@@ -1486,9 +1517,9 @@ packages.
 `public class SamplePostIngestPlugin implements ddf.catalog.plugin.PostIngestPlugin`
 
 . Implement the required methods. +
-`public CreateResponse process(CreateResponse input) *throws* PluginExecutionException;`
-`public UpdateResponse process(UpdateResponse input) *throws* PluginExecutionException;`
-`public DeleteResponse process(DeleteResponse input) *throws* PluginExecutionException;`
+ * `public CreateResponse process(CreateResponse input) *throws* PluginExecutionException;`
+ * `public UpdateResponse process(UpdateResponse input) *throws* PluginExecutionException;`
+ * `public DeleteResponse process(DeleteResponse input) *throws* PluginExecutionException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
@@ -1503,7 +1534,8 @@ packages.
 `public class SamplePreQueryPlugin implements ddf.catalog.plugin.PreQueryPlugin`
 
 . Implement the required method. +
-`public QueryRequest process(QueryRequest input) *throws* PluginExecutionException, StopProcessingException;`
+ * `public QueryRequest process(QueryRequest input) *throws* PluginExecutionException, StopProcessingException;`
+
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
 
@@ -1516,7 +1548,7 @@ packages.
 `public class SamplePostQueryPlugin implements ddf.catalog.plugin.PostQueryPlugin`
 
 . Implement the required method. +
-`public QueryResponse process(QueryResponse input) *throws* PluginExecutionException, StopProcessingException;
+ * `public QueryResponse process(QueryResponse input) *throws* PluginExecutionException, StopProcessingException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin`
@@ -1530,11 +1562,11 @@ packages.
 `public class SamplePreDeliveryPlugin *implements* ddf.catalog.plugin.PreDeliveryPlugin`
 
 . Implement the required methods. +
-`public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
-`public Update processUpdateMiss(Update update) *throws* PluginExecutionException, 
+ * `public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
+ * `public Update processUpdateMiss(Update update) *throws* PluginExecutionException,
 StopProcessingException;`
-`public Update processUpdateHit(Update update) *throws* PluginExecutionException, StopProcessingException;`
-`public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
+ * `public Update processUpdateHit(Update update) *throws* PluginExecutionException, StopProcessingException;`
+ * `public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation,ddf.catalog.event`
@@ -1549,7 +1581,7 @@ StopProcessingException;`
 `public class SamplePreSubscriptionPlugin *implements* ddf.catalog.plugin.PreSubscriptionPlugin
 
 . Implement the required method.
-`public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`
+ * `public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`
 
 ===== Pre-Resource
 
@@ -1557,7 +1589,7 @@ StopProcessingException;`
 `public class SamplePreResourcePlugin *implements* ddf.catalog.plugin.PreResourcePlugin`
 
 . Implement the required method. +
-`public ResourceRequest process(ResourceRequest input) *throws* PluginExecutionException, StopProcessingException;`
+ * `public ResourceRequest process(ResourceRequest input) *throws* PluginExecutionException, StopProcessingException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
@@ -1575,7 +1607,7 @@ StopProcessingException;`
 `public class SamplePostResourcePlugin *implements* ddf.catalog.plugin.PostResourcePlugin`
 
 . Implement the required method. +
-`public ResourceResponse process(ResourceResponse input) *throws* PluginExecutionException, StopProcessingException;`
+ * `public ResourceResponse process(ResourceResponse input) *throws* PluginExecutionException, StopProcessingException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
 `Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
@@ -1586,6 +1618,46 @@ StopProcessingException;`
 ----
 <service ref="[[SamplePostResourcePlugin]]" interface="ddf.catalog.plugin.PostResourcePlugin" />
 ----
+
+===== Policy
+
+. Create a Java class that implements `PolicyPlugin`. +
+`public class SamplePolicyPlugin *implements* ddf.catalog.plugin.PolicyPlugin`
+
+. Implement the required methods. +
+ * `PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties) *throws* StopProcessingException;`
+ * `PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties) *throws* StopProcessingException;`
+
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
+
+. Export the service to the OSGi registry.  +
+*Blueprint descriptor example* +
+`<service ref="[[SamplePolicyPlugin]]" interface="ddf.catalog.plugin.PolicyPlugin" />`
+
+
+===== Access
+
+. Create a Java class that implements `AccessPlugin`. +
+`public class SamplePostResourcePlugin *implements* ddf.catalog.plugin.AccessPlugin`
+
+. Implement the required methods. +
+ * `CreateRequest processPreCreate(CreateRequest input) *throws* StopProcessingException;`
+ * `UpdateRequest processPreUpdate(UpdateRequest input) *throws* StopProcessingException;`
+ * `DeleteRequest processPreDelete(DeleteRequest input) *throws* StopProcessingException;`
+ * `QueryRequest processPreQuery(QueryRequest input) *throws* StopProcessingException;`
+ * `QueryResponse processPostQuery(QueryResponse input) *throws* StopProcessingException;`
+
+. Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
+
+. Export the service to the OSGi registry.  +
+*Blueprint descriptor example* +
+`<service ref="[[SampleAccessPlugin]]" interface="ddf.catalog.plugin.AccessPlugin" />`
+
 
 == Extending Operations
 
@@ -2158,6 +2230,14 @@ Site information about the catalog provider and/or any federated source(s) c
 |optional
 |true
 
+|`ddf.catalog.plugin.PolicyPlugin`
+|optional
+|true
+
+|`ddf.catalog.plugin.AccessPlugin`
+|optional
+|true
+
 |`ddf.catalog.resource.ResourceReader`
 |optional
 |true
@@ -2166,7 +2246,7 @@ Site information about the catalog provider and/or any federated source(s) c
 |optional
 |true
 
-|ddf.catalog.source.ConnectedSource`
+|`ddf.catalog.source.ConnectedSource`
 |optional
 |true
 
@@ -2430,6 +2510,14 @@ Site information about the fanout configuration can be retrieved using the Fanou
 |optional
 |true
 
+|`ddf.catalog.plugin.PolicyPlugin`
+|optional
+|true
+
+|`ddf.catalog.plugin.AccessPlugin`
+|optional
+|true
+
 |`ddf.catalog.resource.ResourceReader`
 |optional
 |true
@@ -2551,7 +2639,7 @@ public UpdateResponse update(UpdateRequest updateRequest) throws IngestException
 public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException, SourceUnavailableException; 
 ----
 
-CUD operations process `PreIngestPlugin`s before execution and `PostIngestPlugin`s after execution.
+CUD operations process `PolicyPlugin`, `AccessPlugin`, and `PreIngestPlugin` instances before execution and `PostIngestPlugin` instances after execution.
 
 ====== Query
 
@@ -2563,7 +2651,7 @@ Query methods search metadata from available Sources based on the `QueryReque
 public QueryResponse query(QueryRequest query) throws UnsupportedQueryException,SourceUnavailableException, FederationException;
 public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy) throws SourceUnavailableException, UnsupportedQueryException, FederationException;
 ----
-Query requests process `PreQueryPlugin`s before execution and `PostQueryPlugin`s after execution.
+Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` instances before execution and  `PolicyPlugin`, `AccessPlugin`, and `PostQueryPlugin` instances after execution.
 
 ====== Resources
 
