@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -33,17 +33,18 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.util.impl.Requests;
 
 /**
  * The CatalogBackupPlugin backups up metacards to the file system. It is a
  * PostIngestPlugin, so it processes CreateResponses, DeleteResponses, and
  * UpdateResponses.
- * <p/>
+ * <p>
  * The root backup directory and subdirectory levels can be configured in the
  * Backup Post-Ingest Plugin section in the admin console.
- * <p/>
+ * <p>
  * This feature can be installed/uninstalled with the following commands:
- * <p/>
+ * <p>
  * ddf@local>features:install catalog-core-backupplugin
  * ddf@local>features:uninstall catalog-core-backupplugin
  */
@@ -64,7 +65,6 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         subDirLevels = 0;
     }
 
-
     /**
      * Backs up created metacards to the file system backup.
      *
@@ -74,7 +74,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin) {
+        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
             LOGGER.debug("Performing backup of metacards in CreateResponse.");
 
             if (rootBackupDir == null) {
@@ -94,9 +94,10 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             }
 
             if (errors.size() > 0) {
-                throw new PluginExecutionException(
-                        getExceptionMessage(CreateResponse.class.getSimpleName(), null, errors,
-                                OPERATION.CREATE));
+                throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
+                        null,
+                        errors,
+                        OPERATION.CREATE));
             }
         }
         return input;
@@ -111,7 +112,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin) {
+        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
             LOGGER.debug("Updating metacards contained in UpdateResponse in backup.");
 
             if (rootBackupDir == null) {
@@ -127,13 +128,15 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 try {
                     deleteMetacard(update.getOldMetacard());
                 } catch (IOException e) {
-                    deleteErrors.add(update.getOldMetacard().getId());
+                    deleteErrors.add(update.getOldMetacard()
+                            .getId());
                 }
 
                 try {
                     backupMetacard(update.getNewMetacard());
                 } catch (IOException e) {
-                    backupErrors.add(update.getNewMetacard().getId());
+                    backupErrors.add(update.getNewMetacard()
+                            .getId());
                 }
             }
 
@@ -141,12 +144,16 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
             if (deleteErrors.size() > 0) {
                 exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        exceptionMessage, deleteErrors, OPERATION.DELETE);
+                        exceptionMessage,
+                        deleteErrors,
+                        OPERATION.DELETE);
             }
 
             if (backupErrors.size() > 0) {
                 exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        exceptionMessage, backupErrors, OPERATION.CREATE);
+                        exceptionMessage,
+                        backupErrors,
+                        OPERATION.CREATE);
             }
 
             if (deleteErrors.size() > 0 || backupErrors.size() > 0) {
@@ -165,7 +172,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin) {
+        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
             LOGGER.debug("Deleting metacards contained in DeleteResponse from backup.");
 
             if (rootBackupDir == null) {
@@ -185,9 +192,10 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             }
 
             if (errors.size() > 0) {
-                throw new PluginExecutionException(
-                        getExceptionMessage(DeleteResponse.class.getSimpleName(), null, errors,
-                                OPERATION.DELETE));
+                throw new PluginExecutionException(getExceptionMessage(DeleteResponse.class.getSimpleName(),
+                        null,
+                        errors,
+                        OPERATION.DELETE));
             }
         }
         return input;
@@ -230,7 +238,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         File tempFile = getTempFile(metacard);
 
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))) {
-            LOGGER.debug("Writing temp metacard [{}] to [{}].", tempFile.getName(),
+            LOGGER.debug("Writing temp metacard [{}] to [{}].",
+                    tempFile.getName(),
                     tempFile.getParent());
             oos.writeObject(new MetacardImpl(metacard));
         }
@@ -279,7 +288,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             FileUtils.forceMkdir(parent);
         }
 
-        LOGGER.debug("Backup directory for metacard  [{}] is [{}].", metacard.getId(),
+        LOGGER.debug("Backup directory for metacard  [{}] is [{}].",
+                metacard.getId(),
                 parent.getAbsolutePath());
         return new File(parent, metacardId);
     }
@@ -293,8 +303,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     private void removeTempExtension(File source) throws IOException {
         LOGGER.debug("Removing {} file extension.", TEMP_FILE_EXTENSION);
-        File destination = new File(
-                StringUtils.removeEnd(source.getAbsolutePath(), TEMP_FILE_EXTENSION));
+        File destination = new File(StringUtils.removeEnd(source.getAbsolutePath(),
+                TEMP_FILE_EXTENSION));
         FileUtils.moveFile(source, destination);
         LOGGER.debug("Moved {} to {}.", source.getAbsolutePath(), destination.getAbsolutePath());
     }

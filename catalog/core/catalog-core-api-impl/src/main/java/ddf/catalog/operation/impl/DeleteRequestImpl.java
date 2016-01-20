@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,8 +16,10 @@ package ddf.catalog.operation.impl;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ddf.catalog.operation.DeleteRequest;
 
@@ -32,6 +34,9 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
 
     /** Ids or URIs */
     protected List<Serializable> values;
+
+    /** Set of destination ids this request should be sent to */
+    protected Set<String> destinations = new HashSet<>();
 
     /**
      * Instantiates a new DeleteRequestImpl with a single {@link String} id to be deleted.
@@ -112,9 +117,24 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
      */
     public DeleteRequestImpl(List<Serializable> values, String attributeName,
             Map<String, Serializable> properties) {
+        this(values, attributeName, properties, new HashSet<>());
+        this.name = attributeName;
+        this.values = values;
+    }
+
+    public DeleteRequestImpl(List<Serializable> values, String attributeName,
+            Map<String, Serializable> properties, Set<String> destinations) {
         super(properties);
         this.name = attributeName;
         this.values = values;
+        if (destinations != null) {
+            this.destinations = destinations;
+        }
+    }
+
+    @Override
+    public Set<String> getStoreIds() {
+        return destinations;
     }
 
     /*

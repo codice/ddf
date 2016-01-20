@@ -37,9 +37,12 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 
@@ -384,9 +387,10 @@ public class CatalogBackupPluginTest {
             Metacard metacard = getMetacard(metacardId, BASE_OLD_TITLE);
             createdMetacards.add(metacard);
         }
-
+        CreateRequest request = mock(CreateRequest.class);
         CreateResponse mockCreateResponse = mock(CreateResponse.class);
         when(mockCreateResponse.getCreatedMetacards()).thenReturn(createdMetacards);
+        when(mockCreateResponse.getRequest()).thenReturn(request);
 
         return mockCreateResponse;
     }
@@ -404,9 +408,10 @@ public class CatalogBackupPluginTest {
 
             deletedMetacards.add(mockMetacard);
         }
-
+        DeleteRequest request = mock(DeleteRequest.class);
         DeleteResponse mockDeleteResponse = mock(DeleteResponse.class);
         when(mockDeleteResponse.getDeletedMetacards()).thenReturn(deletedMetacards);
+        when(mockDeleteResponse.getRequest()).thenReturn(request);
 
         return mockDeleteResponse;
     }
@@ -426,10 +431,10 @@ public class CatalogBackupPluginTest {
 
             i++;
         }
-
+        UpdateRequest request = mock(UpdateRequest.class);
         UpdateResponse mockUpdateResponse = mock(UpdateResponse.class);
         when(mockUpdateResponse.getUpdatedMetacards()).thenReturn(updatedMetacards);
-
+        when(mockUpdateResponse.getRequest()).thenReturn(request);
         return mockUpdateResponse;
     }
 

@@ -39,13 +39,16 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -228,9 +231,11 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogCreateMetric() throws Exception {
+        CreateRequest request = mock(CreateRequest.class);
         CreateResponse response = mock(CreateResponse.class);
         List<Metacard> createdList = mock(List.class);
         when(createdList.size()).thenReturn(100);
+        when(response.getRequest()).thenReturn(request);
         when(response.getCreatedMetacards()).thenReturn(createdList);
 
         underTest.process(response);
@@ -240,9 +245,11 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogUpdateMetric() throws Exception {
+        UpdateRequest request = mock(UpdateRequest.class);
         UpdateResponse response = mock(UpdateResponse.class);
         List<Update> updatedList = mock(List.class);
         when(updatedList.size()).thenReturn(100);
+        when(response.getRequest()).thenReturn(request);
         when(response.getUpdatedMetacards()).thenReturn(updatedList);
 
         underTest.process(response);
@@ -252,9 +259,11 @@ public class CatalogMetricsTest {
 
     @Test
     public void catalogDeleteMetric() throws Exception {
+        DeleteRequest request = mock(DeleteRequest.class);
         DeleteResponse response = mock(DeleteResponse.class);
         List<Metacard> deletedList = mock(List.class);
         when(deletedList.size()).thenReturn(100);
+        when(response.getRequest()).thenReturn(request);
         when(response.getDeletedMetacards()).thenReturn(deletedList);
 
         underTest.process(response);

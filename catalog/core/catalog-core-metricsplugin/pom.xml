@@ -51,7 +51,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -91,7 +90,8 @@
                             metrics-core,
                             metrics-collector,
                             rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
-                            common-system
+                            common-system,
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package><!-- START: imports specific for embedding rrd4j -->

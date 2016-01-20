@@ -45,6 +45,9 @@
 
         <AD description="Cache all results unless configured as native" name="Cache Everything"
             id="cachingEverything" required="true" type="Boolean" default="false"/>
+
+        <AD description="Cache remote ingest results" name="Cache Remote Ingests"
+            id="cacheRemoteIngests" required="true" type="Boolean" default="false"/>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">

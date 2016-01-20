@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,37 +14,61 @@
 package ddf.catalog.operation.impl;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.ProcessingDetails;
 
 /**
  * CreateResponseImpl contains the {@link ddf.catalog.operation.Response} information (created metacards) on a
  * {@link CreateRequest}.
- *
  */
 public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements CreateResponse {
 
-    /** The created metacards. */
+    /**
+     * The created metacards.
+     */
     protected List<Metacard> createdMetacards;
+
+    protected Set<ProcessingDetails> processingErrors = new HashSet<>();
 
     /**
      * Instantiates a new CreateResponsImpl
      *
-     * @param request
-     *            - {@link CreateRequest} used in the create operation
-     * @param properties
-     *            - the properties associated with the operation
-     * @param createdMetacards
-     *            - the created metacards
+     * @param request          - {@link CreateRequest} used in the create operation
+     * @param properties       - the properties associated with the operation
+     * @param createdMetacards - the created metacards
      */
     public CreateResponseImpl(CreateRequest request, Map<String, Serializable> properties,
             List<Metacard> createdMetacards) {
+        this(request, properties, createdMetacards, new HashSet<>());
+    }
+
+    /**
+     * Instantiates a new CreateResponsImpl
+     *
+     * @param request          - {@link CreateRequest} used in the create operation
+     * @param properties       - the properties associated with the operation
+     * @param createdMetacards - the created metacards
+     * @param errors          - the processing errors
+     */
+    public CreateResponseImpl(CreateRequest request, Map<String, Serializable> properties,
+            List<Metacard> createdMetacards, Set<ProcessingDetails> errors) {
         super(request, properties);
         this.createdMetacards = createdMetacards;
+        if (errors != null) {
+            this.processingErrors = errors;
+        }
+    }
+
+    @Override
+    public Set<ProcessingDetails> getProcessingErrors() {
+        return processingErrors;
     }
 
     /*

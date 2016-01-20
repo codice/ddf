@@ -137,4 +137,7 @@ public final class Constants {
 
     public static final String INGEST_LOGGER_NAME = "ingestLogger";
 
+    public static final String REMOTE_DESTINATION_KEY = "remote-destination";
+
+    public static final String LOCAL_DESTINATION_KEY = "local-destination";
 }

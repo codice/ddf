@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -36,6 +36,7 @@ import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
+import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
@@ -43,19 +44,24 @@ import ddf.security.common.audit.SecurityLogger;
 /**
  * Security-based plugin that Audits Resource Retrieval requests.
  */
-public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryPlugin,
-        PostQueryPlugin, PreFederatedQueryPlugin, PostFederatedQueryPlugin, PreResourcePlugin, PostResourcePlugin {
+public class AuditPlugin
+        implements PreIngestPlugin, PostIngestPlugin, PreQueryPlugin, PostQueryPlugin,
+        PreFederatedQueryPlugin, PostFederatedQueryPlugin, PreResourcePlugin, PostResourcePlugin {
 
     /* Audit logs ingest requests
      */
     @Override
     public CreateRequest process(CreateRequest input)
-        throws PluginExecutionException, StopProcessingException {
+            throws PluginExecutionException, StopProcessingException {
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] is attempting to ingest resource [" + input.toString() + "].";
+                String msg = "User [" + username + "] is attempting to ingest resource ["
+                        + input.toString() + "].";
+                if (Requests.isEnterprise(input)) {
+                    msg += " Destination ids: " + input.getStoreIds();
+                }
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -69,7 +75,11 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] is attempting to update resource [" + input.UPDATE_BY_ID + "].";
+                String msg = "User [" + username + "] is attempting to update resource ["
+                        + input.UPDATE_BY_ID + "].";
+                if (Requests.isEnterprise(input)) {
+                    msg += " Destination ids: " + input.getStoreIds();
+                }
                 SecurityLogger.logInfo(msg);
 
             }
@@ -84,7 +94,11 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] is attempting to delete resource [" + input.DELETE_BY_ID + "].";
+                String msg = "User [" + username + "] is attempting to delete resource ["
+                        + input.DELETE_BY_ID + "].";
+                if (Requests.isEnterprise(input)) {
+                    msg += " Destination ids: " + input.getStoreIds();
+                }
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -100,7 +114,12 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] successfully created [" + input.getCreatedMetacards() +"].";
+                String msg = "User [" + username + "] successfully created ["
+                        + input.getCreatedMetacards() + "].";
+                if (Requests.isEnterprise(input.getRequest())) {
+                    msg += " Destination ids: " + input.getRequest()
+                            .getStoreIds();
+                }
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -113,7 +132,12 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] successfully updated [" + input.getUpdatedMetacards() + "].";
+                String msg = "User [" + username + "] successfully updated ["
+                        + input.getUpdatedMetacards() + "].";
+                if (Requests.isEnterprise(input.getRequest())) {
+                    msg += " Destination ids: " + input.getRequest()
+                            .getStoreIds();
+                }
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -126,7 +150,12 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] successfully deleted [" + input.getDeletedMetacards() + "].";
+                String msg = "User [" + username + "] successfully deleted ["
+                        + input.getDeletedMetacards() + "].";
+                if (Requests.isEnterprise(input.getRequest())) {
+                    msg += " Destination ids: " + input.getRequest()
+                            .getStoreIds();
+                }
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -144,7 +173,8 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] is attempting to query [" + input.getQuery() + "].";
+                String msg = "User [" + username + "] is attempting to query [" + input.getQuery()
+                        + "].";
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -155,19 +185,20 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
     * Audit logs Query and federated query responses.
      */
     @Override
-    public QueryResponse process(QueryResponse input) throws PluginExecutionException, StopProcessingException {
+    public QueryResponse process(QueryResponse input)
+            throws PluginExecutionException, StopProcessingException {
         if (input != null) {
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] successfully executed query [" + input.getResults() + "].";
+                String msg =
+                        "User [" + username + "] successfully executed query [" + input.getResults()
+                                + "].";
                 SecurityLogger.logInfo(msg);
             }
         }
         return input;
     }
-
-
 
     /*
      * Audit logs Federated query requests.
@@ -179,7 +210,8 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] is attempting to query [" + input.getQuery() + "] from [" + source.getId() + "].";
+                String msg = "User [" + username + "] is attempting to query [" + input.getQuery()
+                        + "] from [" + source.getId() + "].";
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -196,8 +228,8 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] is attempting to retrieve resource [" + input
-                        .getAttributeValue() + "] by [" + input.getAttributeName() + "].";
+                String msg = "User [" + username + "] is attempting to retrieve resource ["
+                        + input.getAttributeValue() + "] by [" + input.getAttributeName() + "].";
                 SecurityLogger.logInfo(msg);
             }
         }
@@ -211,10 +243,11 @@ public class AuditPlugin implements PreIngestPlugin, PostIngestPlugin, PreQueryP
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg = "User [" + username + "] successfully retrieved resource [" + input
-                        .getRequest().getAttributeValue() + "] by [" + input.getRequest()
-                        .getAttributeName() + "] with file name [" + input.getResource().getName()
-                        + "].";
+                String msg = "User [" + username + "] successfully retrieved resource ["
+                        + input.getRequest()
+                        .getAttributeValue() + "] by [" + input.getRequest()
+                        .getAttributeName() + "] with file name [" + input.getResource()
+                        .getName() + "].";
                 SecurityLogger.logInfo(msg);
             }
         }

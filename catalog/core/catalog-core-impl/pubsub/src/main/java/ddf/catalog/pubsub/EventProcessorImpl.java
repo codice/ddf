@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,10 +52,10 @@ import ddf.catalog.pubsub.internal.PubSubConstants;
 import ddf.catalog.pubsub.internal.PubSubThread;
 import ddf.catalog.pubsub.internal.SubscriptionFilterVisitor;
 import ddf.catalog.pubsub.predicate.Predicate;
+import ddf.catalog.util.impl.Requests;
 
 public class EventProcessorImpl implements EventProcessor, EventHandler, PostIngestPlugin {
     public static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessorImpl.class);
 
@@ -106,11 +106,9 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
      * Processes an entry by adding properties from the metacard to the event. Then the eventAdmin
      * is used to post the metacard properties as a single event.
      *
-     * @param metacard
-     *            - the metacard to process
-     * @param operation
-     *            -
-     * @param eventAdmin
+     * @param metacard   - the metacard to process
+     * @param operation  - The type of event {@link ddf.catalog.pubsub.internal.PubSubConstants}
+     * @param eventAdmin - OSGi EventAdmin service used post events
      */
     public static void processEntry(Metacard metacard, String operation, EventAdmin eventAdmin) {
         String methodName = "processEntry";
@@ -192,8 +190,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
             }
 
             if (eventAdmin != null) {
-                eventAdmin.postEvent(
-                        new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME, properties));
+                eventAdmin.postEvent(new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME,
+                        properties));
             } else {
                 LOGGER.warn("Unable to post event since eventAdmin is null.");
             }
@@ -248,7 +246,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     @Override
     public String createSubscription(Subscription subscription)
             throws InvalidSubscriptionException {
-        String uuid = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID()
+                .toString();
         try {
             createSubscription(subscription, uuid);
         } catch (SubscriptionExistsException e) {
@@ -283,10 +282,13 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
             Dictionary<String, String[]> props = new Hashtable<String, String[]>();
             props.put(EventConstants.EVENT_TOPIC, topics);
-            ServiceRegistration serviceRegistration = bundleContext
-                    .registerService(EventHandler.class.getName(),
-                            new PublishedEventHandler(finalPredicate, subscription, preDelivery,
-                                    catalog), props);
+            ServiceRegistration serviceRegistration =
+                    bundleContext.registerService(EventHandler.class.getName(),
+                            new PublishedEventHandler(finalPredicate,
+                                    subscription,
+                                    preDelivery,
+                                    catalog),
+                            props);
 
             existingSubscriptions.put(subscriptionId, serviceRegistration);
 
@@ -326,8 +328,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
         try {
             LOGGER.info("Removing subscription: {}", subscriptionId);
-            ServiceRegistration sr = (ServiceRegistration) existingSubscriptions
-                    .get(subscriptionId);
+            ServiceRegistration sr =
+                    (ServiceRegistration) existingSubscriptions.get(subscriptionId);
             if (sr != null) {
                 sr.unregister();
                 LOGGER.debug("Removal complete");
@@ -380,10 +382,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     /**
      * Posts a Metacard to a given topic
      *
-     * @param topic
-     *            - The topic to post the event
-     * @param card
-     *            - The Metacard that will be posted to the topic
+     * @param topic - The topic to post the event
+     * @param card  - The Metacard that will be posted to the topic
      */
     protected void postEvent(String topic, Metacard card, Metacard oldCard) {
         String methodName = "postEvent";
@@ -407,9 +407,11 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     @Override
     public CreateResponse process(CreateResponse createResponse) throws PluginExecutionException {
         LOGGER.trace("ENTERING: process (CreateResponse");
-        List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
-        for (Metacard currMetacard : createdMetacards) {
-            postEvent(EventProcessor.EVENTS_TOPIC_CREATED, currMetacard, null);
+        if (Requests.isLocal(createResponse.getRequest())) {
+            List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
+            for (Metacard currMetacard : createdMetacards) {
+                postEvent(EventProcessor.EVENTS_TOPIC_CREATED, currMetacard, null);
+            }
         }
         LOGGER.trace("EXITING: process (CreateResponse)");
         return createResponse;
@@ -418,10 +420,13 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     @Override
     public UpdateResponse process(UpdateResponse updateResponse) throws PluginExecutionException {
         LOGGER.trace("ENTERING: process (UpdateResponse");
-        List<Update> updates = updateResponse.getUpdatedMetacards();
-        for (Update currUpdate : updates) {
-            postEvent(EventProcessor.EVENTS_TOPIC_UPDATED, currUpdate.getNewMetacard(),
-                    currUpdate.getOldMetacard());
+        if (Requests.isLocal(updateResponse.getRequest())) {
+            List<Update> updates = updateResponse.getUpdatedMetacards();
+            for (Update currUpdate : updates) {
+                postEvent(EventProcessor.EVENTS_TOPIC_UPDATED,
+                        currUpdate.getNewMetacard(),
+                        currUpdate.getOldMetacard());
+            }
         }
         LOGGER.trace("EXITING: process (UpdateResponse)");
         return updateResponse;
@@ -430,9 +435,11 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     @Override
     public DeleteResponse process(DeleteResponse deleteResponse) throws PluginExecutionException {
         LOGGER.trace("ENTERING: process (DeleteResponse");
-        List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
-        for (Metacard currMetacard : deletedMetacards) {
-            postEvent(EventProcessor.EVENTS_TOPIC_DELETED, currMetacard, null);
+        if (Requests.isLocal(deleteResponse.getRequest())) {
+            List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
+            for (Metacard currMetacard : deletedMetacards) {
+                postEvent(EventProcessor.EVENTS_TOPIC_DELETED, currMetacard, null);
+            }
         }
         LOGGER.trace("EXITING: process (DeleteResponse)");
         return deleteResponse;

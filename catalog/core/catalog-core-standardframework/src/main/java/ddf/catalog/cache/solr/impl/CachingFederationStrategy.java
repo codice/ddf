@@ -58,6 +58,7 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.RelevanceResultComparator;
+import ddf.catalog.util.impl.Requests;
 
 /**
  * This class represents a {@link ddf.catalog.federation.FederationStrategy} based on sorting
@@ -65,10 +66,10 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
  * {@link org.opengis.filter.sort.SortBy} propertyName. The possible sorting values
  * are
  * <ul>
- *     <li>{@link ddf.catalog.data.Metacard#EFFECTIVE}</li>
- *     <li>{@link ddf.catalog.data.Result#TEMPORAL}</li>
- *     <li>{@link ddf.catalog.data.Result#DISTANCE}</li>
- *     <li>{@link ddf.catalog.data.Result#RELEVANCE}</li>
+ * <li>{@link ddf.catalog.data.Metacard#EFFECTIVE}</li>
+ * <li>{@link ddf.catalog.data.Result#TEMPORAL}</li>
+ * <li>{@link ddf.catalog.data.Result#DISTANCE}</li>
+ * <li>{@link ddf.catalog.data.Result#RELEVANCE}</li>
  * </ul>
  * The supported ordering includes {@link org.opengis.filter.sort.SortOrder#DESCENDING} and
  * {@link org.opengis.filter.sort.SortOrder#ASCENDING}. For this class to function properly a sort
@@ -139,6 +140,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private boolean isCachingEverything = false;
 
+    private boolean cacheRemoteIngests = false;
+
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
      *
@@ -163,10 +166,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             sourceIds.add(source.getId());
         }
         QueryRequest modifiedQueryRequest = new QueryRequestImpl(queryRequest.getQuery(),
-                queryRequest.isEnterprise(), sourceIds, queryRequest.getProperties());
+                queryRequest.isEnterprise(),
+                sourceIds,
+                queryRequest.getProperties());
 
-        if (queryRequest.getProperties().containsKey(QUERY_MODE) && CACHE_QUERY_MODE
-                .equals(queryRequest.getProperties().get(QUERY_MODE))) {
+        if (queryRequest.getProperties()
+                .containsKey(QUERY_MODE) && CACHE_QUERY_MODE.equals(queryRequest.getProperties()
+                .get(QUERY_MODE))) {
             return queryCache(modifiedQueryRequest);
         } else {
             return sourceFederate(sources, modifiedQueryRequest);
@@ -181,7 +187,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             queryResponse.setProperties(result.getProperties());
             queryResponse.addResults(result.getResults(), true);
         } catch (UnsupportedQueryException e) {
-            queryResponse.getProcessingDetails().add(new ProcessingDetailsImpl("cache", e));
+            queryResponse.getProcessingDetails()
+                    .add(new ProcessingDetailsImpl("cache", e));
             queryResponse.closeResultQueue();
         }
         return queryResponse;
@@ -212,11 +219,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         Query modifiedQuery = getModifiedQuery(originalQuery, sources.size(), offset, pageSize);
         QueryRequest modifiedQueryRequest = new QueryRequestImpl(modifiedQuery,
-                queryRequest.isEnterprise(), queryRequest.getSourceIds(),
+                queryRequest.isEnterprise(),
+                queryRequest.getSourceIds(),
                 queryRequest.getProperties());
 
-        CompletionService<SourceResponse> queryCompletion = new ExecutorCompletionService<SourceResponse>(
-                queryExecutorService);
+        CompletionService<SourceResponse> queryCompletion =
+                new ExecutorCompletionService<SourceResponse>(queryExecutorService);
 
         // Do NOT call source.isAvailable() when checking sources
         for (final Source source : sources) {
@@ -227,8 +235,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     try {
                         for (PreFederatedQueryPlugin service : preQuery) {
                             try {
-                                modifiedQueryRequest = service
-                                        .process(source, modifiedQueryRequest);
+                                modifiedQueryRequest = service.process(source,
+                                        modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
                                 logger.warn("Error executing PreFederatedQueryPlugin", e);
                             }
@@ -238,7 +246,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     }
 
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
-                                    modifiedQueryRequest)), source);
+                            modifiedQueryRequest)), source);
                 } else {
                     logger.warn("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
@@ -253,12 +261,15 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         // OffsetResultHandler does.
         if (offset > 1 && sources.size() > 1) {
             offsetResults = new QueryResponseImpl(queryRequest, null);
-            queryExecutorService
-                    .submit(new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize,
-                            offset));
+            queryExecutorService.submit(new OffsetResultHandler(queryResponseQueue,
+                    offsetResults,
+                    pageSize,
+                    offset));
         }
 
-        queryExecutorService.submit(createMonitor(queryCompletion, futures, queryResponseQueue,
+        queryExecutorService.submit(createMonitor(queryCompletion,
+                futures,
+                queryResponseQueue,
                 modifiedQueryRequest));
 
         QueryResponse queryResponse = null;
@@ -309,8 +320,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
              * from all federated sources and merged together - then the offset is applied.
              *
              */
-            query = new QueryImpl(originalQuery, modifiedOffset, modifiedPageSize,
-                    originalQuery.getSortBy(), originalQuery.requestsTotalResultsCount(),
+            query = new QueryImpl(originalQuery,
+                    modifiedOffset,
+                    modifiedPageSize,
+                    originalQuery.getSortBy(),
+                    originalQuery.requestsTotalResultsCount(),
                     originalQuery.getTimeoutMillis());
         } else {
             query = originalQuery;
@@ -335,7 +349,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
 
         logger.debug("Post ingest processing of UpdateResponse.");
-        List<Metacard> metacards = new ArrayList<Metacard>(input.getUpdatedMetacards().size());
+        if (!isCacheRemoteIngests() && !Requests.isLocal(input.getRequest())) {
+            return input;
+        }
+
+        List<Metacard> metacards = new ArrayList<Metacard>(input.getUpdatedMetacards()
+                .size());
 
         for (Update update : input.getUpdatedMetacards()) {
             metacards.add(update.getNewMetacard());
@@ -352,7 +371,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
 
         logger.debug("Post ingest processing of DeleteResponse.");
-
+        if (!isCacheRemoteIngests() && !Requests.isLocal(input.getRequest())) {
+            return input;
+        }
         logger.debug("Deleting metacard(s) in cache.");
         cache.delete(input.getRequest());
         logger.debug("Deletion of metacard(s) in cache complete.");
@@ -400,6 +421,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     public void setCachingEverything(boolean cachingEverything) {
         this.isCachingEverything = cachingEverything;
+    }
+
+    public boolean isCacheRemoteIngests() {
+        return cacheRemoteIngests;
+    }
+
+    public void setCacheRemoteIngests(boolean cacheRemoteIngests) {
+        this.cacheRemoteIngests = cacheRemoteIngests;
     }
 
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
@@ -484,14 +513,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         @Override
         public SourceResponse call() throws Exception {
-            final SourceResponse sourceResponse = source
-                    .query(new QueryRequestImpl(request.getQuery(), request.getProperties()));
+            final SourceResponse sourceResponse =
+                    source.query(new QueryRequestImpl(request.getQuery(), request.getProperties()));
 
             if (INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 cacheCommitPhaser.add(sourceResponse.getResults());
             } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-                if (isCachingEverything || UPDATE_QUERY_MODE
-                        .equals(request.getPropertyValue(QUERY_MODE))) {
+                if (isCachingEverything || UPDATE_QUERY_MODE.equals(request.getPropertyValue(
+                        QUERY_MODE))) {
                     cacheExecutorService.submit(new Runnable() {
                         @Override
                         public void run() {
@@ -514,8 +543,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      */
     private class CacheCommitPhaser extends Phaser {
 
-        private final ScheduledExecutorService phaseScheduler = Executors
-                .newSingleThreadScheduledExecutor();
+        private final ScheduledExecutorService phaseScheduler =
+                Executors.newSingleThreadScheduledExecutor();
 
         public CacheCommitPhaser() {
             // There will always be at least one party which will be the PhaseAdvancer

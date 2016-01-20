@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,6 +19,7 @@ import org.apache.shiro.subject.Subject;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.Request;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PluginExecutionException;
@@ -26,6 +27,7 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.util.impl.Requests;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
 
@@ -39,39 +41,39 @@ public class SecurityLoggingPlugin implements PreQueryPlugin, PreIngestPlugin, P
     @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
-        logOperation(CatalogOperationType.INGEST);
+        logOperation(CatalogOperationType.INGEST, input);
         return input;
     }
 
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
-        logOperation(CatalogOperationType.UPDATE);
+        logOperation(CatalogOperationType.UPDATE, input);
         return input;
     }
 
     @Override
     public DeleteRequest process(DeleteRequest input)
             throws PluginExecutionException, StopProcessingException {
-        logOperation(CatalogOperationType.DELETE);
+        logOperation(CatalogOperationType.DELETE, input);
         return input;
     }
 
     @Override
     public QueryRequest process(QueryRequest input)
             throws PluginExecutionException, StopProcessingException {
-        logOperation(CatalogOperationType.QUERY);
+        logOperation(CatalogOperationType.QUERY, input);
         return input;
     }
 
     @Override
     public ResourceRequest process(ResourceRequest input)
             throws PluginExecutionException, StopProcessingException {
-        logOperation(CatalogOperationType.RESOURCE_REQUEST);
+        logOperation(CatalogOperationType.RESOURCE_REQUEST, input);
         return input;
     }
 
-    private void logOperation(CatalogOperationType operationType) {
+    private void logOperation(CatalogOperationType operationType, Request request) {
         String user;
         try {
             Subject subject = SecurityUtils.getSubject();
@@ -79,8 +81,14 @@ public class SecurityLoggingPlugin implements PreQueryPlugin, PreIngestPlugin, P
         } catch (Exception e) {
             user = NO_USER;
         }
-        SecurityLogger.logInfo(
-                "User [" + user + "] performing " + operationType + " operation on catalog.");
+        if (Requests.isLocal(request)) {
+            SecurityLogger.logInfo(
+                    "User [" + user + "] performing " + operationType + " operation on catalog.");
+        } else {
+            SecurityLogger.logInfo(
+                    "User [" + user + "] performing " + operationType + " operation on "
+                            + request.getStoreIds());
+        }
     }
 
     private enum CatalogOperationType {

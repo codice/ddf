@@ -13,7 +13,9 @@
  */
 package ddf.catalog.operation;
 
-public interface ProcessingDetails extends SourceProcessingDetails {
+import java.io.Serializable;
+
+public interface ProcessingDetails extends SourceProcessingDetails, Serializable {
 
     public boolean hasException();
 

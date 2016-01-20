@@ -35,6 +35,10 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -47,6 +51,7 @@
                         <Import-Package>
                             *
                         </Import-Package>
+                        <Embed-Dependency>catalog-core-api-impl;scope=!test</Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>
