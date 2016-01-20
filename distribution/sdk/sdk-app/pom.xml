@@ -114,5 +114,10 @@
             <artifactId>sample-rest-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.sdk.validation.metacard</groupId>
+            <artifactId>sdk-sample-metacard-validator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
