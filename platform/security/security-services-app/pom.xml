@@ -330,5 +330,10 @@
             <artifactId>security-idp-server</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-attributequeryclaimshandler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
