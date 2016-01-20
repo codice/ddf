@@ -55,6 +55,7 @@ import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -144,6 +145,13 @@ public class TestAtomTransformer {
             LOGGER.warn("SAX exception creating validator", e);
         }
 
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        System.clearProperty(SystemInfo.ORGANIZATION);
+        System.clearProperty(SystemInfo.SITE_NAME);
+        System.clearProperty(SystemInfo.VERSION);
     }
 
     @BeforeClass

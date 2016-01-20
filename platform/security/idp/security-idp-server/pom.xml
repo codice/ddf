@@ -223,6 +223,7 @@
                             antlr4-runtime,
                             commons-lang3,
                             guava,
+                            common-system
                         </Embed-Dependency>
                         <Import-Package>!org.abego.treelayout.*, *</Import-Package>
                         <Export-Package/>

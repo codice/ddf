@@ -412,6 +412,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.reliableResourceDownloadManager = frameworkProperties.getReliableResourceDownloadManager();
         this.pool = frameworkProperties.getPool();
 
+        setId(SystemInfo.getSiteName());
+        setVersion(SystemInfo.getVersion());
+        setOrganization(SystemInfo.getOrganization());
     }
 
     public void setFanoutEnabled(boolean fanoutEnabled) {
