@@ -635,9 +635,14 @@
     </feature>
     <!-- End CXF Features -->
 
-    <feature name ="platform-configuration-migration" install="manual" version="${project.version}"
+    <feature name ="platform-migratable-api" install="manual" version="${project.version}"
+             description="Platform Migratable API">
+        <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
+    </feature>
+
+    <feature name ="platform-migration" install="manual" version="${project.version}"
              description="Listens for new configuration files and updates configuration admin with the new configurations.">
-        <bundle>mvn:ddf.platform/platform-configuration-migration/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
     </feature>
 
     <feature name="platform-scheduler" install="manual" version="${project.version}"
@@ -926,7 +931,8 @@
         <!-- This feature handles Felix style configuration files for DDF and MUST be the first
              one in the platform-app feature
         -->
-        <feature>platform-configuration-migration</feature>
+        <feature>platform-migratable-api</feature>
+        <feature>platform-migration</feature>
         <feature>platform-security-session</feature>
         <feature>cxf</feature>
         <feature>camel</feature>
