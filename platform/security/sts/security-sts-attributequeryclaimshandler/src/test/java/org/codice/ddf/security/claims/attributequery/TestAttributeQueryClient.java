@@ -108,8 +108,6 @@ public class TestAttributeQueryClient {
 
     private int responseCode = 200;
 
-    private SystemBaseUrl systemBaseUrl;
-
     private AttributeQueryClient attributeQueryClient;
 
     private EncryptionService encryptionService;
@@ -134,14 +132,13 @@ public class TestAttributeQueryClient {
                 encryptionService);
         SimpleSign simpleSign = new SimpleSign(systemCrypto);
         spySimpleSign = spy(simpleSign);
-        systemBaseUrl = new SystemBaseUrl();
 
         attributeQueryClient = new AttributeQueryClientTest(spySimpleSign,
-                systemBaseUrl.getBaseUrl(),
+                SystemBaseUrl.getBaseUrl(),
                 ISSUER,
                 DESTINATION);
         attributeQueryClient.setSimpleSign(spySimpleSign);
-        attributeQueryClient.setExternalAttributeStoreUrl(systemBaseUrl.getBaseUrl());
+        attributeQueryClient.setExternalAttributeStoreUrl(SystemBaseUrl.getBaseUrl());
         attributeQueryClient.setIssuer(ISSUER);
         attributeQueryClient.setDestination(DESTINATION);
 

@@ -55,6 +55,7 @@ import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -146,6 +147,13 @@ public class TestAtomTransformer {
 
     }
 
+    @After
+    public void tearDown() throws Exception {
+        System.clearProperty(SystemInfo.ORGANIZATION);
+        System.clearProperty(SystemInfo.SITE_NAME);
+        System.clearProperty(SystemInfo.VERSION);
+    }
+
     @BeforeClass
     public static void setupTestClass() {
 
@@ -170,7 +178,7 @@ public class TestAtomTransformer {
     @Test(expected = CatalogTransformerException.class)
     public void testNullInput() throws CatalogTransformerException {
 
-        new AtomTransformer(new SystemInfo()).transform(null, null);
+        new AtomTransformer().transform(null, null);
     }
 
     /**
@@ -187,34 +195,41 @@ public class TestAtomTransformer {
         // given
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
 
-        SystemInfo systemInfo = mock(SystemInfo.class);
-        when(systemInfo.getSiteName()).thenReturn("");
+        String currentSiteName = System.getProperty(SystemInfo.SITE_NAME);
 
-        AtomTransformer transformer = new AtomTransformer(systemInfo);
-        transformer.setMetacardTransformer(metacardTransformer);
-        SourceResponse response = getSourceResponseStub(SAMPLE_ID, null);
+        try {
+            System.setProperty(SystemInfo.SITE_NAME, "");
 
-        // when
-        BinaryContent binaryContent = transformer.transform(response, null);
+            AtomTransformer transformer = new AtomTransformer();
+            transformer.setMetacardTransformer(metacardTransformer);
+            SourceResponse response = getSourceResponseStub(SAMPLE_ID, null);
 
-        // then
-        assertThat(binaryContent.getMimeType(), is(AtomTransformer.MIME_TYPE));
+            // when
+            BinaryContent binaryContent = transformer.transform(response, null);
 
-        byte[] bytes = binaryContent.getByteArray();
+            // then
+            assertThat(binaryContent.getMimeType(), is(AtomTransformer.MIME_TYPE));
+
+            byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes,
-                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
+            IOUtils.write(bytes,
+                    new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
-        String output = new String(bytes);
+            String output = new String(bytes);
 
-        assertFeedCompliant(output);
-        assertEntryCompliant(output);
-        validateAgainstAtomSchema(bytes);
-        assertXpathNotExists("/atom:feed/atom:generator", output);
-        assertXpathEvaluatesTo(AtomTransformer.DEFAULT_AUTHOR, "/atom:feed/atom:author/atom:name",
-                output);
+            assertFeedCompliant(output);
+            assertEntryCompliant(output);
+            validateAgainstAtomSchema(bytes);
+            assertXpathNotExists("/atom:feed/atom:generator", output);
+            assertXpathEvaluatesTo(AtomTransformer.DEFAULT_AUTHOR, "/atom:feed/atom:author/atom:name",
+                    output);
 
+        } finally {
+            if (currentSiteName != null) {
+                System.setProperty(SystemInfo.SITE_NAME, currentSiteName);
+            }
+        }
     }
 
     @Test
@@ -491,7 +506,7 @@ public class TestAtomTransformer {
     public void testTotalResultsNegative()
             throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
         setDefaultSystemConfiguration();
@@ -538,7 +553,7 @@ public class TestAtomTransformer {
     public void testItemsPerPageNegativeInteger()
             throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
         setDefaultSystemConfiguration();
@@ -585,7 +600,7 @@ public class TestAtomTransformer {
     public void testNoCreatedDate()
             throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
         setDefaultSystemConfiguration();
@@ -629,7 +644,7 @@ public class TestAtomTransformer {
     public void testNoModifiedDate()
             throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
         setDefaultSystemConfiguration();
@@ -733,7 +748,7 @@ public class TestAtomTransformer {
             throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
@@ -787,7 +802,7 @@ public class TestAtomTransformer {
             throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
@@ -887,7 +902,7 @@ public class TestAtomTransformer {
             throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
@@ -940,7 +955,7 @@ public class TestAtomTransformer {
         ActionProvider viewActionProvider = mock(ActionProvider.class);
         when(viewActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
 
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
 
         transformer.setViewMetacardActionProvider(viewActionProvider);
 
@@ -1039,7 +1054,7 @@ public class TestAtomTransformer {
         ActionProvider thumbnailActionProvider = mock(ActionProvider.class);
         when(thumbnailActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
 
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
 
         transformer.setViewMetacardActionProvider(viewActionProvider);
 
@@ -1135,7 +1150,7 @@ public class TestAtomTransformer {
     public void testGeo()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
-        AtomTransformer atomTransformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer atomTransformer = new AtomTransformer();
 
         atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
 
@@ -1167,7 +1182,7 @@ public class TestAtomTransformer {
     public void testNoGeo()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
-        AtomTransformer atomTransformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer atomTransformer = new AtomTransformer();
 
         atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
 
@@ -1191,7 +1206,7 @@ public class TestAtomTransformer {
     public void testBadGeo()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
-        AtomTransformer atomTransformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer atomTransformer = new AtomTransformer();
 
         atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
 
@@ -1230,7 +1245,7 @@ public class TestAtomTransformer {
 
     protected AtomTransformer getConfiguredAtomTransformer(MetacardTransformer metacardTransformer,
             boolean setProperties) {
-        AtomTransformer transformer = new AtomTransformer(new SystemInfo());
+        AtomTransformer transformer = new AtomTransformer();
         transformer.setMetacardTransformer(metacardTransformer);
         if (setProperties) {
             setDefaultSystemConfiguration();

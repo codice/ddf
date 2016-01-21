@@ -136,8 +136,7 @@ public class OpenSearchEndpointTest {
         when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap()))
                 .thenReturn(mockBinaryContent);
 
-        OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder,
-                new SystemInfo());
+        OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder);
 
         System.setProperty(SystemInfo.SITE_NAME, testSiteName);
 

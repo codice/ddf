@@ -24,14 +24,9 @@
 		</jaxrs:serviceBeans>
 	</jaxrs:server>
 
-	<bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-	<bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-
 	<bean id="MetricsService" class="ddf.metrics.reporting.internal.rest.MetricsEndpoint">
 		<cm:managed-properties persistent-id="MetricsReporting"
                                update-strategy="container-managed"/>
-		<argument ref="urlHelper"/>
-		<argument ref="systemInfo"/>
 		<property name="metricsMaxThreshold" value="4000000000"/>
 	</bean>
 

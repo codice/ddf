@@ -36,12 +36,9 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-
     <bean id="OsSvc" class="org.codice.ddf.endpoints.OpenSearchEndpoint">
         <argument ref="ddf"/>
         <argument ref="filterBuilder"/>
-        <argument ref="systemInfo"/>
     </bean>
 
 </blueprint>

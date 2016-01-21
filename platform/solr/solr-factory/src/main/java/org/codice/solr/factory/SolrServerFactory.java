@@ -96,8 +96,6 @@ public final class SolrServerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
-    private static SystemBaseUrl systemBaseUrl = new SystemBaseUrl();
-
     private static ExecutorService pool = getThreadPool();
 
     /**
@@ -119,11 +117,11 @@ public final class SolrServerFactory {
     }
 
     public static String getDefaultHttpsAddress() {
-        return systemBaseUrl.constructUrl("https", "/solr");
+        return SystemBaseUrl.constructUrl("https", "/solr");
     }
 
     public static String getDefaultHttpAddress() {
-        return systemBaseUrl.constructUrl("http", "/solr");
+        return SystemBaseUrl.constructUrl("http", "/solr");
     }
 
     /**
@@ -159,7 +157,7 @@ public final class SolrServerFactory {
     public static Future<SolrServer> getHttpSolrServer(String url, String coreName,
             String configFile) {
         if (StringUtils.isBlank(url)) {
-            url = systemBaseUrl.constructUrl("/solr");
+            url = SystemBaseUrl.constructUrl("/solr");
         }
 
         String coreUrl = url + "/" + coreName;

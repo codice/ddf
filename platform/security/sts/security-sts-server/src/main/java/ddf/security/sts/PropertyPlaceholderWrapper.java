@@ -42,14 +42,14 @@ public class PropertyPlaceholderWrapper {
     private StaticSTSProperties stsProperties;
 
     public PropertyPlaceholderWrapper(DefaultConditionsProvider conditionsProvider,
-            StaticSTSProperties properties, SystemBaseUrl baseUrl) {
+            StaticSTSProperties properties) {
         samlConditionsProvider = conditionsProvider;
         stsProperties = properties;
         // set the default values in case there is no configuration
         samlConditionsProvider.setLifetime(DEFAULT_LIFETIME);
-        stsProperties.setSignatureUsername(baseUrl.getHost());
-        stsProperties.setIssuer(baseUrl.getHost());
-        stsProperties.setEncryptionUsername(baseUrl.getHost());
+        stsProperties.setSignatureUsername(SystemBaseUrl.getHost());
+        stsProperties.setIssuer(SystemBaseUrl.getHost());
+        stsProperties.setEncryptionUsername(SystemBaseUrl.getHost());
     }
 
     public void setLifetime(Long lifetime) {

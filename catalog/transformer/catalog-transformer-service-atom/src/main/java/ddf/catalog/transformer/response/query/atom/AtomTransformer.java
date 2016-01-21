@@ -113,8 +113,6 @@ public class AtomTransformer implements QueryResponseTransformer {
         }
     }
 
-    private SystemInfo systemInfo;
-
     private MetacardTransformer metacardTransformer;
 
     private ActionProvider viewMetacardActionProvider;
@@ -124,10 +122,6 @@ public class AtomTransformer implements QueryResponseTransformer {
     private ActionProvider thumbnailActionProvider;
 
     private WKTReader reader = new WKTReader();
-
-    public AtomTransformer(SystemInfo info) {
-        this.systemInfo = info;
-    }
 
     public void setViewMetacardActionProvider(ActionProvider viewMetacardActionProvider) {
         this.viewMetacardActionProvider = viewMetacardActionProvider;
@@ -192,9 +186,9 @@ public class AtomTransformer implements QueryResponseTransformer {
          */
         feed.addLink("#", Link.REL_SELF);
 
-        if (!StringUtils.isEmpty(systemInfo.getOrganization())) {
+        if (!StringUtils.isEmpty(SystemInfo.getOrganization())) {
 
-            feed.addAuthor(systemInfo.getOrganization());
+            feed.addAuthor(SystemInfo.getOrganization());
         } else {
             feed.addAuthor(DEFAULT_AUTHOR);
         }
@@ -204,10 +198,10 @@ public class AtomTransformer implements QueryResponseTransformer {
          * the agent used to generate a feed, for debugging and other purposes." Generator is not
          * required in the atom:feed element.
          */
-        if (!StringUtils.isEmpty(systemInfo.getSiteName())) {
+        if (!StringUtils.isEmpty(SystemInfo.getSiteName())) {
 
             // text is required.
-            feed.setGenerator(null, systemInfo.getVersion(), systemInfo.getSiteName());
+            feed.setGenerator(null, SystemInfo.getVersion(), SystemInfo.getSiteName());
         }
 
         /*

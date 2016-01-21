@@ -40,9 +40,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
     private ObjectName objectName;
 
-    private SystemBaseUrl baseUrl = new SystemBaseUrl();
-
-    private String oldHostName = baseUrl.getHost();
+    private String oldHostName = SystemBaseUrl.getHost();
 
     private static final String KARAF_ETC = "karaf.etc";
 
@@ -133,7 +131,7 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         }
         // Get system.properties file
         //save off the current/old hostname before we make any changes
-        oldHostName = baseUrl.getHost();
+        oldHostName = SystemBaseUrl.getHost();
 
         String etcDir = System.getProperty(KARAF_ETC);
         String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;

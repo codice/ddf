@@ -23,23 +23,23 @@ public class SystemInfo {
 
     public static final String ORGANIZATION = "org.codice.ddf.system.organization";
 
-    public SystemInfo() {
+    private SystemInfo() {
 
     }
 
-    public String getSiteName() {
+    public static String getSiteName() {
         return System.getProperty(SITE_NAME, "");
     }
 
-    public String getSiteContatct() {
+    public static String getSiteContatct() {
         return System.getProperty(SITE_CONTACT, "");
     }
 
-    public String getVersion() {
+    public static String getVersion() {
         return System.getProperty(VERSION, "");
     }
 
-    public String getOrganization() {
+    public static String getOrganization() {
         return System.getProperty(ORGANIZATION, "");
     }
 }

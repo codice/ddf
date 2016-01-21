@@ -39,10 +39,10 @@ public class LdapLogoutAction implements ActionProvider {
 
     static {
         try {
-            logoutUrl = new URL(new SystemBaseUrl().constructUrl("/logout/local"));
+            logoutUrl = new URL(SystemBaseUrl.constructUrl("/logout/local"));
         } catch (MalformedURLException e) {
             LOGGER.info("Unable to resolve URL: {}",
-                    new SystemBaseUrl().constructUrl("/logout/local"));
+                    SystemBaseUrl.constructUrl("/logout/local"));
         }
     }
 

@@ -90,8 +90,6 @@ public class LogoutRequestService {
 
     private String redirectPage;
 
-    private SystemBaseUrl baseUrl;
-
     private final RelayStates<String> relayStates;
 
     private EncryptionService encryptionService;
@@ -101,10 +99,9 @@ public class LogoutRequestService {
     private long logOutPageTimeOut = 3600000;
 
     public LogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata,
-            SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
+            RelayStates<String> relayStates) {
         this.simpleSign = simpleSign;
         this.idpMetadata = idpMetadata;
-        this.baseUrl = systemBaseUrl;
         this.relayStates = relayStates;
 
     }
@@ -374,9 +371,9 @@ public class LogoutRequestService {
     }
 
     private String getEntityId() {
-        String hostname = baseUrl.getHost();
-        String port = baseUrl.getPort();
-        String rootContext = baseUrl.getRootContext();
+        String hostname = SystemBaseUrl.getHost();
+        String port = SystemBaseUrl.getPort();
+        String rootContext = SystemBaseUrl.getRootContext();
 
         return String.format("https://%s:%s%s/saml", hostname, port, rootContext);
     }
@@ -448,7 +445,7 @@ public class LogoutRequestService {
     }
 
     private Response buildLogoutResponse(String message) {
-        UriBuilder uriBuilder = UriBuilder.fromUri(baseUrl.getBaseUrl());
+        UriBuilder uriBuilder = UriBuilder.fromUri(SystemBaseUrl.getBaseUrl());
         uriBuilder.path("logout/logout-response.html");
         uriBuilder.queryParam("msg", message);
         return Response.seeOther(uriBuilder.build())

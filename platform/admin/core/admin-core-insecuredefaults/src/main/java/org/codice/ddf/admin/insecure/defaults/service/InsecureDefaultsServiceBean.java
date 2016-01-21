@@ -26,7 +26,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +45,17 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private static final String DEFAULT_TRUSTSTORE_PASSWORD = "changeit";
 
-    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE = "etc/ws-security/issuer/encryption.properties";
+    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE =
+            "etc/ws-security/issuer/encryption.properties";
 
-    private static final String ISSUER_SIGNATURE_PROPERTIES_FILE = "etc/ws-security/issuer/signature.properties";
+    private static final String ISSUER_SIGNATURE_PROPERTIES_FILE =
+            "etc/ws-security/issuer/signature.properties";
 
-    private static final String SERVER_ENCRYPTION_PROPERTIES_FILE = "etc/ws-security/server/encryption.properties";
+    private static final String SERVER_ENCRYPTION_PROPERTIES_FILE =
+            "etc/ws-security/server/encryption.properties";
 
-    private static final String SERVER_SIGNATURE_PROPERTIES_FILE = "etc/ws-security/server/signature.properties";
+    private static final String SERVER_SIGNATURE_PROPERTIES_FILE =
+            "etc/ws-security/server/signature.properties";
 
     private static final String USERS_PROPERTIES_FILE = "etc/users.properties";
 
@@ -68,11 +71,13 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private static final String KEYSTORE_SYSTEM_PROPERTY = "javax.net.ssl.keyStore";
 
-    private static final String KEYSTORE_PASSWORD_SYSTEM_PROPERTY = "javax.net.ssl.keyStorePassword";
+    private static final String KEYSTORE_PASSWORD_SYSTEM_PROPERTY =
+            "javax.net.ssl.keyStorePassword";
 
     private static final String TRUSTSTORE_SYSTEM_PROPERTY = "javax.net.ssl.trustStore";
 
-    private static final String TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY = "javax.net.ssl.trustStorePassword";
+    private static final String TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY =
+            "javax.net.ssl.trustStorePassword";
 
     public static final String MBEAN_NAME =
             InsecureDefaultsServiceBean.class.getName() + ":service=insecure-defaults-service";
@@ -83,9 +88,9 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private List<Validator> validators;
 
-    public InsecureDefaultsServiceBean(SystemBaseUrl sbu) {
+    public InsecureDefaultsServiceBean() {
         validators = new ArrayList<>();
-        addValidators(sbu);
+        addValidators();
 
         try {
             objectName = new ObjectName(MBEAN_NAME);
@@ -103,11 +108,11 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         LOGGER.debug("Found {} validator(s)", validators.size());
 
         for (Validator validator : validators) {
-            LOGGER.debug("{} is starting validation process.",
-                    validator.getClass().getSimpleName());
+            LOGGER.debug("{} is starting validation process.", validator.getClass()
+                    .getSimpleName());
             alerts.addAll(validator.validate());
-            LOGGER.debug("{} finished the validation process.",
-                    validator.getClass().getSimpleName());
+            LOGGER.debug("{} finished the validation process.", validator.getClass()
+                    .getSimpleName());
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -149,7 +154,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         }
     }
 
-    void addValidators(SystemBaseUrl sbu) {
+    void addValidators() {
         addKeystoreValidator();
         addTruststoreValidator();
         addIssuerEncryptionPropertiesFileValidator();
@@ -158,7 +163,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         addServerSignaturePropertiesFileValidator();
         addUsersPropertiesFileValidator();
         addPaxWebCfgFileValidator();
-        addPlatformGlobalConfigurationValidator(sbu);
+        addPlatformGlobalConfigurationValidator();
     }
 
     void setValidators(List<Validator> validatorsList) {
@@ -187,7 +192,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     }
 
     private void addIssuerEncryptionPropertiesFileValidator() {
-        EncryptionPropertiesFileValidator encryptionPropertiesFileValidator = new EncryptionPropertiesFileValidator();
+        EncryptionPropertiesFileValidator encryptionPropertiesFileValidator =
+                new EncryptionPropertiesFileValidator();
         encryptionPropertiesFileValidator.setPath(Paths.get(ISSUER_ENCRYPTION_PROPERTIES_FILE));
         encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         encryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
@@ -195,19 +201,21 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     }
 
     private void addIssuerSignaturePropertiesFileValidator() {
-        SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator = new SignaturePropertiesFileValidator();
-        issuerSignatureEncryptionPropertiesFileValidator
-                .setPath(Paths.get(ISSUER_SIGNATURE_PROPERTIES_FILE));
-        issuerSignatureEncryptionPropertiesFileValidator
-                .setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
+        SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator =
+                new SignaturePropertiesFileValidator();
+        issuerSignatureEncryptionPropertiesFileValidator.setPath(
+                Paths.get(ISSUER_SIGNATURE_PROPERTIES_FILE));
+        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(
+                DEFAULT_KEYSTORE_PASSWORD);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
-        issuerSignatureEncryptionPropertiesFileValidator
-                .setDefaultPrivateKeyPassword(DEFAULT_KEY_PASSWORD);
+        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(
+                DEFAULT_KEY_PASSWORD);
         validators.add(issuerSignatureEncryptionPropertiesFileValidator);
     }
 
     private void addServerEncryptionPropertiesFileValidator() {
-        EncryptionPropertiesFileValidator encryptionPropertiesFileValidator = new EncryptionPropertiesFileValidator();
+        EncryptionPropertiesFileValidator encryptionPropertiesFileValidator =
+                new EncryptionPropertiesFileValidator();
         encryptionPropertiesFileValidator.setPath(Paths.get(SERVER_ENCRYPTION_PROPERTIES_FILE));
         encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         encryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
@@ -216,25 +224,27 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     }
 
     private void addServerSignaturePropertiesFileValidator() {
-        SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator = new SignaturePropertiesFileValidator();
-        issuerSignatureEncryptionPropertiesFileValidator
-                .setPath(Paths.get(SERVER_SIGNATURE_PROPERTIES_FILE));
-        issuerSignatureEncryptionPropertiesFileValidator
-                .setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
+        SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator =
+                new SignaturePropertiesFileValidator();
+        issuerSignatureEncryptionPropertiesFileValidator.setPath(
+                Paths.get(SERVER_SIGNATURE_PROPERTIES_FILE));
+        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(
+                DEFAULT_KEYSTORE_PASSWORD);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
-        issuerSignatureEncryptionPropertiesFileValidator
-                .setDefaultPrivateKeyPassword(DEFAULT_KEY_PASSWORD);
+        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(
+                DEFAULT_KEY_PASSWORD);
         validators.add(issuerSignatureEncryptionPropertiesFileValidator);
     }
 
     private void addUsersPropertiesFileValidator() {
-        UsersPropertiesFileValidator userPropertiesFileValidator = new UsersPropertiesFileValidator();
+        UsersPropertiesFileValidator userPropertiesFileValidator =
+                new UsersPropertiesFileValidator();
         userPropertiesFileValidator.setPath(Paths.get(USERS_PROPERTIES_FILE));
         userPropertiesFileValidator.setDefaultAdminUser(DEFAULT_ADMIN_USER);
         userPropertiesFileValidator.setDefaultAdminUserPassword(DEFAULT_ADMIN_USER_PASSWORD);
         userPropertiesFileValidator.setDefaultCertificateUser(DEFAULT_CERTIFICATE_USER);
-        userPropertiesFileValidator
-                .setDefaultCertificateUserPassword(DEFAULT_CERTIFICATE_USER_PASSWORD);
+        userPropertiesFileValidator.setDefaultCertificateUserPassword(
+                DEFAULT_CERTIFICATE_USER_PASSWORD);
         validators.add(userPropertiesFileValidator);
     }
 
@@ -244,9 +254,9 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         validators.add(paxWebCfgFileValidator);
     }
 
-    private void addPlatformGlobalConfigurationValidator(SystemBaseUrl sbu) {
-        PlatformGlobalConfigurationValidator platformGlobalConfigurationValidator = new PlatformGlobalConfigurationValidator(
-                sbu);
+    private void addPlatformGlobalConfigurationValidator() {
+        PlatformGlobalConfigurationValidator platformGlobalConfigurationValidator =
+                new PlatformGlobalConfigurationValidator();
         validators.add(platformGlobalConfigurationValidator);
     }
 

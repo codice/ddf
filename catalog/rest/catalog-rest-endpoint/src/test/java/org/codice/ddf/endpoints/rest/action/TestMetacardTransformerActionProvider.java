@@ -21,8 +21,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +34,8 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
     private static final String SAMPLE_TRANSFORMER_ID = "XML";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestMetacardTransformerActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            TestMetacardTransformerActionProvider.class);
 
     @Test
     public void testMalformedUrlException() {
@@ -46,7 +44,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
 
         this.configureActionProvider("badProtocol", SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
@@ -63,7 +61,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
 
         this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
@@ -82,7 +80,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
         this.configureActionProvider();
 
         // when
@@ -93,12 +91,11 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
                 action.getTitle());
 
         assertEquals(MetacardTransformerActionProvider.DESCRIPTION_PREFIX + SAMPLE_TRANSFORMER_ID +
-                        MetacardTransformerActionProvider.DESCRIPTION_SUFFIX,
-                action.getDescription());
+                MetacardTransformerActionProvider.DESCRIPTION_SUFFIX, action.getDescription());
 
-        assertThat(action.getUrl().toString(),
-                is(expectedDefaultAddressWith(metacard.getId(), SAMPLE_SOURCE_NAME,
-                        SAMPLE_TRANSFORMER_ID)));
+        assertThat(action.getUrl()
+                .toString(), is(expectedDefaultAddressWith(metacard.getId(), SAMPLE_SOURCE_NAME,
+                SAMPLE_TRANSFORMER_ID)));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -106,7 +103,7 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
     @Test
     public void testToString() {
         String toString = new MetacardTransformerActionProvider(ACTION_PROVIDER_ID,
-                SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo()).toString();
+                SAMPLE_TRANSFORMER_ID).toString();
 
         LOGGER.info(toString);
 
@@ -138,16 +135,16 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         metacard.setSourceId(newSourceName);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID, new SystemBaseUrl(), new SystemInfo());
+                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
         this.configureActionProvider();
 
         // when
         Action action = actionProvider.getAction(metacard);
 
         // then
-        assertThat(action.getUrl().toString(),
-                is(expectedDefaultAddressWith(metacard.getId(), newSourceName,
-                        SAMPLE_TRANSFORMER_ID)));
+        assertThat(action.getUrl()
+                .toString(), is(expectedDefaultAddressWith(metacard.getId(), newSourceName,
+                SAMPLE_TRANSFORMER_ID)));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }

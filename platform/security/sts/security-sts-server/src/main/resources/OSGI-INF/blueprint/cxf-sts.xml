@@ -246,12 +246,9 @@
                     interface="org.apache.cxf.sts.token.validator.TokenValidator"
                     availability="optional"/>
 
-    <bean id="baseUrl" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-
     <bean id="propertyWrapper" class="ddf.security.sts.PropertyPlaceholderWrapper">
         <argument ref="SAMLConditionsProvider"/>
         <argument ref="STSProperties"/>
-        <argument ref="baseUrl"/>
         <cm:managed-properties persistent-id="ddf.security.sts"
                                update-strategy="container-managed"/>
         <property name="issuer" value="${org.codice.ddf.system.hostname}"/>

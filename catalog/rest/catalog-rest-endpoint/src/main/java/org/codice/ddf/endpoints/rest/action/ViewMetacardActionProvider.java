@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +33,8 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewMetacardActionProvider.class);
 
-    public ViewMetacardActionProvider(String id, SystemBaseUrl sbu, SystemInfo info) {
-        super(sbu, info);
+    public ViewMetacardActionProvider(String id) {
+        super();
         this.actionProviderId = id;
     }
 
@@ -45,8 +44,9 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
         URL url = null;
         try {
 
-            URI uri = new URI(systemBaseUrl
-                    .constructUrl(PATH + "/" + metacardSource + "/" + metacardId, true));
+            URI uri = new URI(
+                    SystemBaseUrl.constructUrl(PATH + "/" + metacardSource + "/" + metacardId,
+                            true));
             url = uri.toURL();
 
         } catch (MalformedURLException e) {

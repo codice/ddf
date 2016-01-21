@@ -21,8 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -34,8 +32,8 @@ public class TestActionProviderRegistryProxy {
 
     private static final String SAMPLE_TRANSFORMER_ID = "sampleTransformerId";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestActionProviderRegistryProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            TestActionProviderRegistryProxy.class);
 
     @Test
     public void testNoTransformerId() {
@@ -52,8 +50,8 @@ public class TestActionProviderRegistryProxy {
         proxy.bind(reference);
 
         // then
-        verify(bundleContext, times(0))
-                .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class));
+        verify(bundleContext, times(0)).registerService(isA(String.class), isA(Object.class),
+                isA(Dictionary.class));
 
     }
 
@@ -65,8 +63,8 @@ public class TestActionProviderRegistryProxy {
 
         BundleContext bundleContext = givenBundleContext(answer);
 
-        MetacardTransformerActionProviderFactory mtapf = new MetacardTransformerActionProviderFactory(
-                new SystemBaseUrl(), new SystemInfo());
+        MetacardTransformerActionProviderFactory mtapf =
+                new MetacardTransformerActionProviderFactory();
 
         ActionProviderRegistryProxy proxy = new ActionProviderRegistryProxy(bundleContext, mtapf);
 
@@ -79,10 +77,11 @@ public class TestActionProviderRegistryProxy {
         proxy.unbind(reference);
 
         // then
-        verify(bundleContext, times(1))
-                .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class));
+        verify(bundleContext, times(1)).registerService(isA(String.class), isA(Object.class),
+                isA(Dictionary.class));
 
-        ServiceRegistration mockRegistration1 = answer.getIssuedServiceRegistrations().get(0);
+        ServiceRegistration mockRegistration1 = answer.getIssuedServiceRegistrations()
+                .get(0);
 
         verify(mockRegistration1, times(1)).unregister();
 
@@ -91,9 +90,8 @@ public class TestActionProviderRegistryProxy {
     private BundleContext givenBundleContext(ServiceRegistrationAnswer answer) {
         BundleContext bundleContext = mock(BundleContext.class);
 
-        when(bundleContext
-                .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class)))
-                .then(answer);
+        when(bundleContext.registerService(isA(String.class), isA(Object.class),
+                isA(Dictionary.class))).then(answer);
 
         return bundleContext;
     }

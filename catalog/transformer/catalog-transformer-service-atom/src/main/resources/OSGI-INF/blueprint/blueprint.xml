@@ -29,14 +29,11 @@
 	<reference id="thumbnailActionProvider" interface="ddf.action.ActionProvider"
                filter="(id=catalog.data.metacard.thumbnail)" availability="optional"/>
 
-	<bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-
 	<bean id="transformer" class="ddf.catalog.transformer.response.query.atom.AtomTransformer">
 		<property name="metacardTransformer" ref="metacardTransformer"/>
 		<property name="viewMetacardActionProvider" ref="viewMetacardActionProvider"/>
 		<property name="resourceActionProvider" ref="resourceActionProvider"/>
 		<property name="thumbnailActionProvider" ref="thumbnailActionProvider"/>
-		<argument ref="systemInfo"/>
 	</bean>
 
 	<service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer">

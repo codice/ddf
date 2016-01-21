@@ -260,8 +260,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     private QueryResponsePostProcessor queryResponsePostProcessor;
 
-    private SystemInfo systemInfo;
-
     /**
      * Instantiates a new CatalogFrameworkImpl
      *
@@ -374,6 +372,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.retrieveStatusEventPublisher = eventPublisher;
         this.reliableResourceDownloadManager = rrdm;
         this.pool = pool;
+
+        setId(SystemInfo.getSiteName());
+        setVersion(SystemInfo.getVersion());
+        setOrganization(SystemInfo.getOrganization());
     }
 
     /**
@@ -409,6 +411,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         this.retrieveStatusEventPublisher = frameworkProperties.getDownloadsStatusEventPublisher();
         this.reliableResourceDownloadManager = frameworkProperties.getReliableResourceDownloadManager();
         this.pool = frameworkProperties.getPool();
+
+        setId(SystemInfo.getSiteName());
+        setVersion(SystemInfo.getVersion());
+        setOrganization(SystemInfo.getOrganization());
     }
 
     public void setFanoutEnabled(boolean fanoutEnabled) {
@@ -2725,16 +2731,5 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         public URI getResourceUri() {
             return resourceUri;
         }
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
-    }
-
-    public void setSystemInfo(SystemInfo systemInfo) {
-        this.systemInfo = systemInfo;
-        setId(systemInfo.getSiteName());
-        setVersion(systemInfo.getVersion());
-        setOrganization(systemInfo.getOrganization());
     }
 }

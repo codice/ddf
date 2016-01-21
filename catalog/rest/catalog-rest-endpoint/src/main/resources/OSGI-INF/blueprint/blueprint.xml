@@ -21,13 +21,7 @@
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
 
-	<bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"></bean>
-	<bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"></bean>
-
-	<bean id="actionFactory" class="org.codice.ddf.endpoints.rest.action.MetacardTransformerActionProviderFactory">
-		<argument ref="urlHelper"/>
-		<argument ref="systemInfo"/>
-	</bean>
+	<bean id="actionFactory" class="org.codice.ddf.endpoints.rest.action.MetacardTransformerActionProviderFactory"/>
 
 	<reference-list id="metacardTransformerRefList"
                     interface="ddf.catalog.transform.MetacardTransformer" availability="optional">
@@ -65,8 +59,6 @@
 	<bean id="viewActionProvider"
           class="org.codice.ddf.endpoints.rest.action.ViewMetacardActionProvider">
 		<argument value="catalog.data.metacard.view"/>
-		<argument ref="urlHelper"/>
-		<argument ref="systemInfo"/>
 	</bean>
 
 	<service ref="viewActionProvider" interface="ddf.action.ActionProvider">

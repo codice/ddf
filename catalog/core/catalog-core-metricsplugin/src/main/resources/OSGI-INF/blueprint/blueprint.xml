@@ -15,11 +15,9 @@
     
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
 	<bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
         <argument ref="filterAdapter"/>
-        <argument ref="systemInfo"/>
     </bean>
 
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>

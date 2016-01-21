@@ -138,7 +138,8 @@
                             httpclient,
                             httpcore,
                             httpmime,
-                            commons-lang3
+                            commons-lang3,
+                            common-system
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>

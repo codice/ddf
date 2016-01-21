@@ -130,10 +130,6 @@ public class ConfigurationManager {
 
     private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
 
-    protected SystemBaseUrl systemBaseUrl;
-
-    protected SystemInfo systemInfo;
-
     /**
      * List of DdfManagedServices to push the DDF system settings to.
      */
@@ -174,17 +170,14 @@ public class ConfigurationManager {
     /**
      * Constructs the list of DDF system Settings (read-only and configurable
      * settings) to be pushed to registered ConfigurationWatchers.
-     *
-     * @param services           the list of watchers of changes to the DDF System Settings
+     *  @param services           the list of watchers of changes to the DDF System Settings
      * @param configurationAdmin the OSGi Configuration Admin service handle
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
-            ConfigurationAdmin configurationAdmin, SystemBaseUrl sbu, SystemInfo info) {
+            ConfigurationAdmin configurationAdmin) {
         LOGGER.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
-        this.systemBaseUrl = sbu;
-        this.systemInfo = info;
 
         this.readOnlySettings = new HashMap<>();
         if (System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE) != null) {
@@ -365,14 +358,14 @@ public class ConfigurationManager {
 
     private Map<String, String> getSystemProperties() {
         Map<String, String> map = new HashMap<>();
-        map.put(HTTP_PORT, systemBaseUrl.getHttpPort());
-        map.put(HOST, systemBaseUrl.getHost());
-        map.put(PROTOCOL, systemBaseUrl.getProtocol());
-        map.put(PORT, systemBaseUrl.getPort());
-        map.put(SITE_NAME, systemInfo.getSiteName());
-        map.put(VERSION, systemInfo.getVersion());
-        map.put(ORGANIZATION, systemInfo.getOrganization());
-        map.put(SERVICES_CONTEXT_ROOT, systemBaseUrl.getRootContext());
+        map.put(HTTP_PORT, SystemBaseUrl.getHttpPort());
+        map.put(HOST, SystemBaseUrl.getHost());
+        map.put(PROTOCOL, SystemBaseUrl.getProtocol());
+        map.put(PORT, SystemBaseUrl.getPort());
+        map.put(SITE_NAME, SystemInfo.getSiteName());
+        map.put(VERSION, SystemInfo.getVersion());
+        map.put(ORGANIZATION, SystemInfo.getOrganization());
+        map.put(SERVICES_CONTEXT_ROOT, SystemBaseUrl.getRootContext());
         return map;
     }
 }

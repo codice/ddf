@@ -89,8 +89,6 @@ public class AssertionConsumerService {
 
     private final IdpMetadata idpMetadata;
 
-    private final SystemBaseUrl baseUrl;
-
     private final RelayStates<String> relayStates;
 
     @Context
@@ -107,11 +105,10 @@ public class AssertionConsumerService {
     }
 
     public AssertionConsumerService(SimpleSign simpleSign, IdpMetadata metadata,
-            SystemCrypto crypto, SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
+            SystemCrypto crypto, RelayStates<String> relayStates) {
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
         systemCrypto = crypto;
-        baseUrl = systemBaseUrl;
         this.relayStates = relayStates;
     }
 
@@ -316,9 +313,9 @@ public class AssertionConsumerService {
         X509Certificate encryptionCert = findCertificate(systemCrypto.getEncryptionAlias(),
                 systemCrypto.getEncryptionCrypto());
 
-        String hostname = baseUrl.getHost();
-        String port = baseUrl.getPort();
-        String rootContext = baseUrl.getRootContext();
+        String hostname = SystemBaseUrl.getHost();
+        String port = SystemBaseUrl.getPort();
+        String rootContext = SystemBaseUrl.getRootContext();
 
         String entityId = String.format("https://%s:%s%s/saml", hostname, port, rootContext);
 

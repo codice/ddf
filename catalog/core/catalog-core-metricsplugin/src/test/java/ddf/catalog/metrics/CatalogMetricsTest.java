@@ -73,7 +73,7 @@ public class CatalogMetricsTest {
 
     @Before
     public void setup() {
-        underTest = new CatalogMetrics(filterAdapter, new SystemInfo());
+        underTest = new CatalogMetrics(filterAdapter);
         System.setProperty(SystemInfo.SITE_NAME, "testSite");
     }
 

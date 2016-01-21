@@ -27,8 +27,6 @@
 
     <ext:property-placeholder/>
 
-    <bean id="baseUrl" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-
     <bean id="idpMetadata" class="org.codice.ddf.security.idp.client.IdpMetadata">
         <cm:managed-properties persistent-id="org.codice.ddf.security.idp.client.IdpMetadata"
                                update-strategy="container-managed"/>
@@ -56,7 +54,6 @@
                                update-strategy="container-managed"/>
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
-        <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
@@ -68,7 +65,6 @@
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
         <argument ref="crypto"/>
-        <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
         <property name="loginFilter">
             <reference interface="javax.servlet.Filter"
@@ -83,7 +79,6 @@
                                update-strategy="container-managed"/>
         <argument ref="simpleSign"/>
         <argument ref="idpMetadata"/>
-        <argument ref="baseUrl"/>
         <argument ref="relayStates"/>
         <property name="logoutMessage">
             <reference interface="ddf.security.samlp.LogoutMessage" />

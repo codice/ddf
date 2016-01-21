@@ -99,12 +99,9 @@ public final class CatalogMetrics
 
     private FilterAdapter filterAdapter;
 
-    private SystemInfo systemInfo;
-
-    public CatalogMetrics(FilterAdapter filterAdapter, SystemInfo info) {
+    public CatalogMetrics(FilterAdapter filterAdapter) {
 
         this.filterAdapter = filterAdapter;
-        this.systemInfo = info;
 
         resultCount = metrics.register(MetricRegistry.name(QUERIES_SCOPE, "TotalResults"),
                 new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
@@ -241,7 +238,7 @@ public final class CatalogMetrics
             return false;
         } else {
             return (sourceIds.size() > 1) || (sourceIds.size() == 1 && !sourceIds.contains("")
-                    && !sourceIds.contains(null) && !sourceIds.contains(systemInfo.getSiteName()));
+                    && !sourceIds.contains(null) && !sourceIds.contains(SystemInfo.getSiteName()));
         }
     }
 }

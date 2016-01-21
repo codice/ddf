@@ -13,29 +13,9 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
-
 public class MetacardTransformerActionProviderFactory {
 
-    private SystemBaseUrl systemBaseUrl;
-
-    private SystemInfo systemInfo;
-
-    public MetacardTransformerActionProviderFactory(SystemBaseUrl sbu, SystemInfo info) {
-        this.systemBaseUrl = sbu;
-        this.systemInfo = info;
-    }
-
     public MetacardTransformerActionProvider createActionProvider(String id, String transformer) {
-        return new MetacardTransformerActionProvider(id, transformer, systemBaseUrl, systemInfo);
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
-    }
-
-    public SystemBaseUrl getSystemBaseUrl() {
-        return systemBaseUrl;
+        return new MetacardTransformerActionProvider(id, transformer);
     }
 }

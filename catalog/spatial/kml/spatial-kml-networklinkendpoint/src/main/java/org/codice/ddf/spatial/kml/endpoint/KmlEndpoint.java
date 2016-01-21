@@ -129,12 +129,7 @@ public class KmlEndpoint {
 
     private ClassPathTemplateLoader templateLoader;
 
-    private SystemBaseUrl systemBaseUrl;
-
-    private SystemInfo systemInfo;
-
-    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework,
-            SystemBaseUrl sbu, SystemInfo info) {
+    public KmlEndpoint(BrandingPlugin brandingPlugin, CatalogFramework catalogFramework) {
         LOGGER.trace("ENTERING: KML Endpoint Constructor");
         this.branding = brandingPlugin;
         this.framework = catalogFramework;
@@ -142,8 +137,6 @@ public class KmlEndpoint {
         templateLoader.setPrefix("/templates");
         templateLoader.setSuffix(".hbt");
         this.productName = branding.getProductName().split(" ")[0];
-        this.systemBaseUrl = sbu;
-        this.systemInfo = info;
         LOGGER.trace("EXITING: KML Endpoint Constructor");
     }
 
@@ -249,7 +242,7 @@ public class KmlEndpoint {
     }
 
     public String getContact() {
-        return systemInfo.getSiteContatct();
+        return SystemInfo.getSiteContatct();
     }
 
     public String getBaseUrl() {
@@ -299,7 +292,7 @@ public class KmlEndpoint {
         Link link = rootNetworkLink.createAndSetLink();
         UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
         builder = generateEndpointUrl(
-                systemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
+                SystemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
                         + KML_TRANSFORM_PARAM + FORWARD_SLASH + "sources", builder);
         link.setHref(builder.build().toString());
         link.setViewRefreshMode(ViewRefreshMode.NEVER);
@@ -331,7 +324,7 @@ public class KmlEndpoint {
             for (SourceDescriptor descriptor : response.getSourceInfo()) {
                 UriBuilder builder = UriBuilder.fromUri(uriInfo.getBaseUri());
                 builder = generateEndpointUrl(
-                        systemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH
+                        SystemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH
                                 + FORWARD_SLASH + OPENSEARCH_URL_PATH, builder);
                 builder = builder.queryParam(SOURCE_PARAM, descriptor.getSourceId());
                 builder = builder.queryParam(OPENSEARCH_SORT_KEY, OPENSEARCH_DEFAULT_SORT);
@@ -388,13 +381,13 @@ public class KmlEndpoint {
     private UriBuilder generateEndpointUrl(String path, UriBuilder uriBuilder)
             throws UnknownHostException {
         UriBuilder builder = uriBuilder;
-        builder.host(systemBaseUrl.getHost());
+        builder.host(SystemBaseUrl.getHost());
 
         try {
-            builder.port(Integer.parseInt(systemBaseUrl.getPort()));
+            builder.port(Integer.parseInt(SystemBaseUrl.getPort()));
         } catch (NumberFormatException nfe) {
             LOGGER.debug("Cannot convert the current DDF port: {} to an integer."
-                    + " Defaulting to port in invocation.", systemBaseUrl.getPort());
+                    + " Defaulting to port in invocation.", SystemBaseUrl.getPort());
             throw new UnknownHostException("Unable to determine port DDF is using.");
         }
 

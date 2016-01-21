@@ -39,7 +39,7 @@ public final class SystemBaseUrl {
 
     public static final String DEFAULT_PROTOCOL = "https://";
 
-    public SystemBaseUrl() {
+    private SystemBaseUrl() {
 
     }
 
@@ -48,7 +48,7 @@ public final class SystemBaseUrl {
      *
      * @return
      */
-    public String getPort() {
+    public static String getPort() {
         String port = System.getProperty(PORT);
         if (port == null) {
             port = getPort(getProtocol());
@@ -61,7 +61,7 @@ public final class SystemBaseUrl {
      *
      * @return
      */
-    public String getBaseUrl() {
+    public static String getBaseUrl() {
         return getBaseUrl(getProtocol());
     }
 
@@ -72,7 +72,7 @@ public final class SystemBaseUrl {
      *              cause the system default protocol to be used
      * @return
      */
-    public String getBaseUrl(String proto) {
+    public static String getBaseUrl(String proto) {
         return constructUrl(proto, null);
     }
 
@@ -82,7 +82,7 @@ public final class SystemBaseUrl {
      * @param context The context path to be appened to the end of the base url
      * @return
      */
-    public String constructUrl(String context) {
+    public static String constructUrl(String context) {
         return constructUrl(getProtocol(), context);
     }
 
@@ -94,7 +94,7 @@ public final class SystemBaseUrl {
      *                           included in the url.
      * @return
      */
-    public String constructUrl(String context, boolean includeRootContext) {
+    public static String constructUrl(String context, boolean includeRootContext) {
         return constructUrl(getProtocol(), context, includeRootContext);
     }
 
@@ -106,7 +106,7 @@ public final class SystemBaseUrl {
      * @param context The context path to be appened to the end of the base url
      * @return
      */
-    public String constructUrl(String proto, String context) {
+    public static String constructUrl(String proto, String context) {
         return constructUrl(proto, context, false);
     }
 
@@ -120,7 +120,7 @@ public final class SystemBaseUrl {
      *                           included in the url.
      * @return
      */
-    public String constructUrl(String proto, String context, boolean includeRootContext) {
+    public static String constructUrl(String proto, String context, boolean includeRootContext) {
         StringBuilder sb = new StringBuilder();
         String protocol = proto;
         if (protocol == null) {
@@ -160,7 +160,7 @@ public final class SystemBaseUrl {
      * @param proto protocol (http or https)
      * @return
      */
-    public String getPort(String proto) {
+    public static String getPort(String proto) {
         if (proto != null && !proto.startsWith("https")) {
             return getHttpPort();
         } else {
@@ -168,23 +168,23 @@ public final class SystemBaseUrl {
         }
     }
 
-    public String getHttpPort() {
+    public static String getHttpPort() {
         return System.getProperty(HTTP_PORT, DEFAULT_HTTP_PORT);
     }
 
-    public String getHttpsPort() {
+    public static String getHttpsPort() {
         return System.getProperty(HTTPS_PORT, DEFAULT_HTTPS_PORT);
     }
 
-    public String getHost() {
+    public static String getHost() {
         return System.getProperty(HOST, DEFAULT_HOST);
     }
 
-    public String getProtocol() {
+    public static String getProtocol() {
         return System.getProperty(PROTOCOL, DEFAULT_PROTOCOL);
     }
 
-    public String getRootContext() {
+    public static String getRootContext() {
         return System.getProperty(ROOT_CONTEXT, "");
     }
 }

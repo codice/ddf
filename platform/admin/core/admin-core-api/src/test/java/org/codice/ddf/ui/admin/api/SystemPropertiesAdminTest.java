@@ -42,10 +42,6 @@ public class SystemPropertiesAdminTest {
 
     File userPropsFile = null;
 
-    SystemBaseUrl sbu = null;
-
-    SystemInfo info = null;
-
     int expectedSystemPropertiesCount = 0;
 
     @Before
@@ -76,9 +72,6 @@ public class SystemPropertiesAdminTest {
 
         systemPropsFile = new File(etcFolder, "system.properties");
         userPropsFile = new File(etcFolder, "users.properties");
-
-        sbu = new SystemBaseUrl();
-        info = new SystemInfo();
     }
 
     @Test
@@ -102,15 +95,15 @@ public class SystemPropertiesAdminTest {
         SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
         spa.writeSystemProperties(null);
         List<SystemPropertyDetails> details = spa.readSystemProperties();
-        assertThat(sbu.getHost(), equalTo("host"));
-        assertThat(sbu.getPort(), equalTo("1234"));
-        assertThat(sbu.getHttpPort(), equalTo("4567"));
-        assertThat(sbu.getHttpsPort(), equalTo("8901"));
-        assertThat(sbu.getProtocol(), equalTo("https://"));
-        assertThat(info.getOrganization(), equalTo("org"));
-        assertThat(info.getSiteContatct(), equalTo("contact"));
-        assertThat(info.getSiteName(), equalTo("site"));
-        assertThat(info.getVersion(), equalTo("version"));
+        assertThat(SystemBaseUrl.getHost(), equalTo("host"));
+        assertThat(SystemBaseUrl.getPort(), equalTo("1234"));
+        assertThat(SystemBaseUrl.getHttpPort(), equalTo("4567"));
+        assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8901"));
+        assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
+        assertThat(SystemInfo.getOrganization(), equalTo("org"));
+        assertThat(SystemInfo.getSiteContatct(), equalTo("contact"));
+        assertThat(SystemInfo.getSiteName(), equalTo("site"));
+        assertThat(SystemInfo.getVersion(), equalTo("version"));
         assertThat(details.size(), is(expectedSystemPropertiesCount));
     }
 
@@ -129,15 +122,15 @@ public class SystemPropertiesAdminTest {
         map.put(SystemBaseUrl.HOST, "newhost");
         spa.writeSystemProperties(map);
         List<SystemPropertyDetails> details = spa.readSystemProperties();
-        assertThat(sbu.getHost(), equalTo("newhost"));
-        assertThat(sbu.getPort(), equalTo("1234"));
-        assertThat(sbu.getHttpPort(), equalTo("4567"));
-        assertThat(sbu.getHttpsPort(), equalTo("8901"));
-        assertThat(sbu.getProtocol(), equalTo("https://"));
-        assertThat(info.getOrganization(), equalTo("org"));
-        assertThat(info.getSiteContatct(), equalTo("contact"));
-        assertThat(info.getSiteName(), equalTo("site"));
-        assertThat(info.getVersion(), equalTo("version"));
+        assertThat(SystemBaseUrl.getHost(), equalTo("newhost"));
+        assertThat(SystemBaseUrl.getPort(), equalTo("1234"));
+        assertThat(SystemBaseUrl.getHttpPort(), equalTo("4567"));
+        assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8901"));
+        assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
+        assertThat(SystemInfo.getOrganization(), equalTo("org"));
+        assertThat(SystemInfo.getSiteContatct(), equalTo("contact"));
+        assertThat(SystemInfo.getSiteName(), equalTo("site"));
+        assertThat(SystemInfo.getVersion(), equalTo("version"));
         assertThat(details.size(), is(expectedSystemPropertiesCount));
 
         //only writes out the changed props

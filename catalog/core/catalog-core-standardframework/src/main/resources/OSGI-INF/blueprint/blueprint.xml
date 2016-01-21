@@ -172,8 +172,6 @@
 
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-
     <!-- Create the SolrCache -->
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">
@@ -181,7 +179,6 @@
         <argument>
             <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
         </argument>
-        <argument ref="urlHelper"/>
     </bean>
 
     <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
@@ -254,8 +251,6 @@
         <argument ref="downloadThreadPool"/>
     </bean>
 
-    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
-
     <!-- create the ddf bean -->
     <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
         <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
@@ -285,7 +280,6 @@
                 <property name="accessPlugins" ref="accessSortedList"/>
             </bean>
         </argument>
-        <property name="systemInfo" ref="systemInfo"/>
         <property name="masker" ref="sourceListener"/>
         <property name="cacheEnabled" value="true"/>
         <property name="delayBetweenRetryAttempts" value="10"/>

@@ -30,7 +30,6 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -80,8 +79,6 @@ public class LogoutRequestServiceTest {
 
     private IdpMetadata idpMetadata;
 
-    private SystemBaseUrl systemBaseUrl;
-
     private SimpleSign simpleSign;
 
     private HttpSession session;
@@ -93,8 +90,8 @@ public class LogoutRequestServiceTest {
     private class MockLogoutRequestService extends LogoutRequestService {
 
         public MockLogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata,
-                SystemBaseUrl systemBaseUrl, RelayStates<String> relayStates) {
-            super(simpleSign, idpMetadata, systemBaseUrl, relayStates);
+                RelayStates<String> relayStates) {
+            super(simpleSign, idpMetadata, relayStates);
         }
 
         @Override
@@ -109,7 +106,6 @@ public class LogoutRequestServiceTest {
     public void setup() {
         simpleSign = mock(SimpleSign.class);
         idpMetadata = mock(IdpMetadata.class);
-        systemBaseUrl = new SystemBaseUrl();
         relayStates = mock(RelayStates.class);
         sessionFactory = mock(SessionFactory.class);
         request = mock(HttpServletRequest.class);
@@ -120,7 +116,6 @@ public class LogoutRequestServiceTest {
 
         logoutRequestService = new MockLogoutRequestService(simpleSign,
                 idpMetadata,
-                systemBaseUrl,
                 relayStates);
         logoutRequestService.setEncryptionService(encryptionService);
         logoutRequestService.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
@@ -379,7 +374,6 @@ public class LogoutRequestServiceTest {
 
         LogoutRequestService lrs = new LogoutRequestService(simpleSign,
                 idpMetadata,
-                systemBaseUrl,
                 relayStates);
 
         lrs.setEncryptionService(encryptionService);
@@ -459,7 +453,6 @@ public class LogoutRequestServiceTest {
                 logoutResponse);
         LogoutRequestService lrs = new LogoutRequestService(simpleSign,
                 idpMetadata,
-                systemBaseUrl,
                 relayStates);
 
         lrs.setEncryptionService(encryptionService);

@@ -38,7 +38,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -65,8 +64,6 @@ public class AssertionConsumerServiceTest {
     private SystemCrypto systemCrypto;
 
     private RelayStates<String> relayStates;
-
-    private SystemBaseUrl baseUrl;
 
     private Filter loginFilter;
 
@@ -101,7 +98,6 @@ public class AssertionConsumerServiceTest {
         when(relayStates.encode("fubar")).thenReturn(RELAY_STATE_VAL);
         when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
         loginFilter = mock(javax.servlet.Filter.class);
-        baseUrl = new SystemBaseUrl();
         sessionFactory = mock(SessionFactory.class);
         httpRequest = mock(HttpServletRequest.class);
         when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("fubar"));
@@ -111,7 +107,6 @@ public class AssertionConsumerServiceTest {
         assertionConsumerService = new AssertionConsumerService(simpleSign,
                 idpMetadata,
                 systemCrypto,
-                baseUrl,
                 relayStates);
         assertionConsumerService.setRequest(httpRequest);
         assertionConsumerService.setLoginFilter(loginFilter);

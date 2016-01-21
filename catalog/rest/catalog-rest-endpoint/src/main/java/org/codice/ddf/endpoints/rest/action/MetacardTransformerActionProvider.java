@@ -19,7 +19,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.ddf.configuration.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,26 +28,25 @@ import ddf.action.impl.ActionImpl;
 
 public class MetacardTransformerActionProvider extends AbstractMetacardActionProvider {
 
-    static final String DESCRIPTION_PREFIX = "Provides a URL to the metacard that transforms the return value via the ";
+    static final String DESCRIPTION_PREFIX =
+            "Provides a URL to the metacard that transforms the return value via the ";
 
     static final String DESCRIPTION_SUFFIX = " transformer";
 
     static final String TITLE_PREFIX = "Export as ";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(MetacardTransformerActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            MetacardTransformerActionProvider.class);
 
     private String metacardTransformerId;
 
     /**
      * Constructor to instantiate this Metacard {@link ActionProvider}
-     *
-     * @param actionProviderId
+     *  @param actionProviderId
      * @param metacardTransformerId
      */
-    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId,
-            SystemBaseUrl sbu, SystemInfo info) {
-        super(sbu, info);
+    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId) {
+        super();
         this.actionProviderId = actionProviderId;
         this.metacardTransformerId = metacardTransformerId;
     }
@@ -59,7 +57,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
         URL url = null;
         try {
 
-            URI uri = new URI(systemBaseUrl.constructUrl(
+            URI uri = new URI(SystemBaseUrl.constructUrl(
                     PATH + "/" + metacardSource + "/" + metacardId + "?transform="
                             + metacardTransformerId, true));
             url = uri.toURL();

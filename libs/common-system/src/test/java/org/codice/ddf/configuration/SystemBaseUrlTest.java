@@ -31,86 +31,76 @@ public class SystemBaseUrlTest {
 
     @Test
     public void testPropertyRead() {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getProtocol(), equalTo("https://"));
-        assertThat(sbu.getHost(), equalTo("localhost"));
-        assertThat(sbu.getHttpPort(), equalTo("8181"));
-        assertThat(sbu.getHttpsPort(), equalTo("8993"));
+        assertThat(SystemBaseUrl.getProtocol(), equalTo("https://"));
+        assertThat(SystemBaseUrl.getHost(), equalTo("localhost"));
+        assertThat(SystemBaseUrl.getHttpPort(), equalTo("8181"));
+        assertThat(SystemBaseUrl.getHttpsPort(), equalTo("8993"));
     }
 
     @Test
     public void testGetPortHttps() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getPort(), equalTo("8993"));
+        assertThat(SystemBaseUrl.getPort(), equalTo("8993"));
     }
 
     @Test
     public void testGetPortHttp() throws Exception {
         System.setProperty("org.codice.ddf.system.protocol", "http://");
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getPort(), equalTo("8181"));
+        assertThat(SystemBaseUrl.getPort(), equalTo("8181"));
     }
 
     @Test
     public void testGetPortHttpsProtoHttp() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getPort("http"), equalTo("8181"));
+        assertThat(SystemBaseUrl.getPort("http"), equalTo("8181"));
     }
 
     @Test
     public void testGetPortHttpsBadProto() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getPort("asdf"), equalTo("8181"));
+        assertThat(SystemBaseUrl.getPort("asdf"), equalTo("8181"));
     }
 
     @Test
     public void testGetPortHttpsNullProto() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getPort(null), equalTo("8993"));
+        assertThat(SystemBaseUrl.getPort(null), equalTo("8993"));
     }
 
     @Test
     public void testGetPortNoProtocol() throws Exception {
         System.clearProperty("org.codice.ddf.system.protocol");
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getPort(), equalTo("8993"));
+        assertThat(SystemBaseUrl.getPort(), equalTo("8993"));
     }
 
     @Test
     public void testGetBaseUrl() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getBaseUrl(), equalTo("https://localhost:8993"));
-        assertThat(sbu.getBaseUrl("http://"), equalTo("http://localhost:8181"));
-        assertThat(sbu.getBaseUrl("http"), equalTo("http://localhost:8181"));
+        assertThat(SystemBaseUrl.getBaseUrl(), equalTo("https://localhost:8993"));
+        assertThat(SystemBaseUrl.getBaseUrl("http://"), equalTo("http://localhost:8181"));
+        assertThat(SystemBaseUrl.getBaseUrl("http"), equalTo("http://localhost:8181"));
     }
 
     @Test
     public void testConstructUrl() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.constructUrl("/some/path"), equalTo("https://localhost:8993/some/path"));
-        assertThat(sbu.constructUrl(null, "/some/path"),
+        assertThat(SystemBaseUrl.constructUrl("/some/path"), equalTo("https://localhost:8993/some/path"));
+        assertThat(SystemBaseUrl.constructUrl(null, "/some/path"),
                 equalTo("https://localhost:8993/some/path"));
-        assertThat(sbu.constructUrl(null, "some/path"),
+        assertThat(SystemBaseUrl.constructUrl(null, "some/path"),
                 equalTo("https://localhost:8993/some/path"));
-        assertThat(sbu.constructUrl("https", "/some/path"),
+        assertThat(SystemBaseUrl.constructUrl("https", "/some/path"),
                 equalTo("https://localhost:8993/some/path"));
-        assertThat(sbu.constructUrl("http", "/some/path"),
+        assertThat(SystemBaseUrl.constructUrl("http", "/some/path"),
                 equalTo("http://localhost:8181/some/path"));
-        assertThat(sbu.constructUrl(null, null), equalTo("https://localhost:8993"));
-        assertThat(sbu.constructUrl("http", null), equalTo("http://localhost:8181"));
+        assertThat(SystemBaseUrl.constructUrl(null, null), equalTo("https://localhost:8993"));
+        assertThat(SystemBaseUrl.constructUrl("http", null), equalTo("http://localhost:8181"));
     }
 
     @Test
     public void testRootContext() throws Exception {
-        SystemBaseUrl sbu = new SystemBaseUrl();
-        assertThat(sbu.getRootContext(), equalTo(""));
+        assertThat(SystemBaseUrl.getRootContext(), equalTo(""));
         System.setProperty("org.codice.ddf.system.rootContext", "/services");
-        assertThat(sbu.getRootContext(), equalTo("/services"));
+        assertThat(SystemBaseUrl.getRootContext(), equalTo("/services"));
 
-        assertThat(sbu.constructUrl("/some/path", true),
+        assertThat(SystemBaseUrl.constructUrl("/some/path", true),
                 equalTo("https://localhost:8993/services/some/path"));
         System.setProperty("org.codice.ddf.system.rootContext", "services");
-        assertThat(sbu.constructUrl("/some/path", true),
+        assertThat(SystemBaseUrl.constructUrl("/some/path", true),
                 equalTo("https://localhost:8993/services/some/path"));
     }
 

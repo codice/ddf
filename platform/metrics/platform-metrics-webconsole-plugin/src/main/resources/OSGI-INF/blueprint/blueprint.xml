@@ -16,11 +16,8 @@
 
     <reference id="MetricsAdminPluginService" interface="javax.servlet.Servlet"/>
 
-    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
-    
     <bean id="metricsWebConsolePlugin" class="ddf.metrics.plugin.webconsole.MetricsWebConsolePlugin"
           init-method="start" destroy-method="stop">
-        <argument ref="urlHelper"/>
     </bean>
     
     <service ref="metricsWebConsolePlugin" interface="javax.servlet.Servlet">

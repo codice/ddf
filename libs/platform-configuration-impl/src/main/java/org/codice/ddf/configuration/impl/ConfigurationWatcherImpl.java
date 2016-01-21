@@ -28,10 +28,6 @@ import org.codice.ddf.configuration.SystemInfo;
  */
 public class ConfigurationWatcherImpl {
 
-    private SystemBaseUrl systemBaseUrl;
-
-    private SystemInfo systemInfo;
-
     public ConfigurationWatcherImpl() {
 
     }
@@ -42,7 +38,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemBaseUrl#HOST} property name
      */
     public String getHostname() {
-        return systemBaseUrl.getHost();
+        return SystemBaseUrl.getHost();
     }
 
     /**
@@ -51,7 +47,7 @@ public class ConfigurationWatcherImpl {
      * @return the Integer value associated with the {@link SystemBaseUrl#HTTP_PORT} or {@link SystemBaseUrl#HTTPS_PORT} property depending on the protocol
      */
     public Integer getPort() {
-        return Integer.parseInt(systemBaseUrl.getPort());
+        return Integer.parseInt(SystemBaseUrl.getPort());
     }
 
     /**
@@ -60,7 +56,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with the {@link SystemBaseUrl#PROTOCOL} property name
      */
     public String getProtocol() {
-        return systemBaseUrl.getProtocol();
+        return SystemBaseUrl.getProtocol();
     }
 
     /**
@@ -71,7 +67,7 @@ public class ConfigurationWatcherImpl {
      * {@link SystemBaseUrl#PROTOCOL} property name
      */
     public String getSchemeFromProtocol() {
-        return systemBaseUrl.getProtocol().split(":")[0];
+        return SystemBaseUrl.getProtocol().split(":")[0];
     }
 
     /**
@@ -80,7 +76,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#SITE_NAME} property name
      */
     public String getSiteName() {
-        return systemInfo.getSiteName();
+        return SystemInfo.getSiteName();
     }
 
     /**
@@ -89,7 +85,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#VERSION} property name
      */
     public String getVersion() {
-        return systemInfo.getVersion();
+        return SystemInfo.getVersion();
     }
 
     /**
@@ -98,7 +94,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#ORGANIZATION property name
      */
     public String getOrganization() {
-        return systemInfo.getOrganization();
+        return SystemInfo.getOrganization();
     }
 
     /**
@@ -107,7 +103,7 @@ public class ConfigurationWatcherImpl {
      * @return the value associated with {@link SystemInfo#SITE_CONTACT} property name
      */
     public String getContactEmailAddress() {
-        return systemInfo.getSiteContatct();
+        return SystemInfo.getSiteContatct();
     }
 
     /**
@@ -119,21 +115,5 @@ public class ConfigurationWatcherImpl {
      */
     public String getConfigurationValue(String name) {
         return null;
-    }
-
-    public SystemBaseUrl getSystemBaseUrl() {
-        return systemBaseUrl;
-    }
-
-    public void setSystemBaseUrl(SystemBaseUrl systemBaseUrl) {
-        this.systemBaseUrl = systemBaseUrl;
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
-    }
-
-    public void setSystemInfo(SystemInfo systemInfo) {
-        this.systemInfo = systemInfo;
     }
 }

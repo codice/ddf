@@ -104,20 +104,17 @@ public class IdpHandler implements AuthenticationHandler {
 
     private final IdpMetadata idpMetadata;
 
-    private final SystemBaseUrl baseUrl;
-
     private final RelayStates<String> relayStates;
 
     private SessionFactory sessionFactory;
 
-    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, SystemBaseUrl baseUrl,
+    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata,
             RelayStates<String> relayStates) throws IOException {
         LOGGER.debug("Creating IdP handler.");
 
         this.simpleSign = simpleSign;
         idpMetadata = metadata;
 
-        this.baseUrl = baseUrl;
         this.relayStates = relayStates;
 
         try (InputStream postFormStream = IdpHandler.class.getResourceAsStream("/post-binding.html")) {
@@ -241,9 +238,9 @@ public class IdpHandler implements AuthenticationHandler {
     private String createAuthnRequest(boolean isPost) throws ServletException {
 
         String spIssuerId = String.format("https://%s:%s%s/saml",
-                baseUrl.getHost(),
-                baseUrl.getHttpsPort(),
-                baseUrl.getRootContext());
+                SystemBaseUrl.getHost(),
+                SystemBaseUrl.getHttpsPort(),
+                SystemBaseUrl.getRootContext());
         String spAssertionConsumerServiceUrl = spIssuerId + "/sso";
 
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();

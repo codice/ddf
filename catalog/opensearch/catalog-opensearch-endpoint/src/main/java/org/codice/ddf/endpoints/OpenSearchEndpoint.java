@@ -79,14 +79,11 @@ public class OpenSearchEndpoint implements OpenSearch {
 
     private final FilterBuilder filterBuilder;
 
-    private SystemInfo systemInfo;
-
-    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder, SystemInfo info) {
+    public OpenSearchEndpoint(CatalogFramework framework, FilterBuilder filterBuilder) {
         LOGGER.trace("Entering OpenSearch Endpoint Constructor.");
         this.framework = framework;
         this.filterBuilder = filterBuilder;
-        this.systemInfo = info;
-        LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");        
+        LOGGER.trace("Exiting OpenSearch Endpoint Constructor.");
     }
 
     /**
@@ -164,9 +161,9 @@ public class OpenSearchEndpoint implements OpenSearch {
                 // Since local is a magic work, not in any specification, weneed to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
-                    LOGGER.debug("Found 'local' alias, replacing with " + systemInfo.getSiteName()
+                    LOGGER.debug("Found 'local' alias, replacing with " + SystemInfo.getSiteName()
                             + ".");
-                    siteSet.add(systemInfo.getSiteName());
+                    siteSet.add(SystemInfo.getSiteName());
                 }
 
                 if (siteSet.contains(framework.getId()) && siteSet.size() == 1) {

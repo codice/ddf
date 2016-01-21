@@ -62,7 +62,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
 import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 
 /**
- * This class provides an endpoint for a client, e.g., {@link MetricsWebConsolePlugin} to access the
+ * This class provides an endpoint for a client, e.g., {@code MetricsWebConsolePlugin} to access the
  * historical metrics data collected by DDF.
  * <p>
  * This endpoint provides a URL to retrieve the list of metrics collected by DDF, including their
@@ -126,10 +126,6 @@ public class MetricsEndpoint {
         TIME_RANGES.put("1y", ONE_YEAR_IN_SECONDS);
     }
 
-    private SystemBaseUrl systemBaseUrl;
-
-    private SystemInfo systemInfo;
-
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     private String metricsDir = DEFAULT_METRICS_DIR;
@@ -137,11 +133,6 @@ public class MetricsEndpoint {
     private MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
 
     private double metricsMaxThreshold;
-
-    public MetricsEndpoint(SystemBaseUrl sbu, SystemInfo info) {
-        this.systemBaseUrl = sbu;
-        this.systemInfo = info;
-    }
 
     /**
      * Retrieve data for the specified metric over the given time range. The URL to access this
@@ -512,7 +503,7 @@ public class MetricsEndpoint {
 
         // Generated name for metrics file (<DDF Sitename>_<Startdate>_<EndDate>.outputFormat)
         String dispositionString =
-                "attachment; filename=" + systemInfo.getSiteName() + "_" + startDate
+                "attachment; filename=" + SystemInfo.getSiteName() + "_" + startDate
                         .substring(0, 10) + "_" + endDate.substring(0, 10) + "." + outputFormat;
 
         try {
@@ -637,7 +628,7 @@ public class MetricsEndpoint {
                  * END: CXF bug
                  */
 
-                String metricsUrl = systemBaseUrl.getRootContext() + METRICS_SERVICE_BASE_URL + "/"
+                String metricsUrl = SystemBaseUrl.getRootContext() + METRICS_SERVICE_BASE_URL + "/"
                         + metricsName + "." + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
 
                 // key=format
