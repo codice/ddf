@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -28,8 +30,15 @@ import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +109,7 @@ public class ConfigurationMigrationManager
             Files.createDirectories(exportDirectory);
             configurationAdminMigration.export(exportDirectory);
             migrationWarnings.addAll(systemConfigurationMigration.export(exportDirectory));
+            migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
             String message = "Unable to create export directories.";
             LOGGER.error(message, e);
@@ -109,6 +119,7 @@ public class ConfigurationMigrationManager
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
+
         return migrationWarnings;
     }
 
@@ -118,5 +129,36 @@ public class ConfigurationMigrationManager
         notNull(exportDirectory, "Export directory cannot be null");
 
         return export(Paths.get(exportDirectory));
+    }
+
+    BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(ConfigurationMigrationManager.class)
+                .getBundleContext();
+    }
+
+    private Collection<MigrationWarning> exportMigratables(Path exportDirectory) {
+        List<MigrationWarning> warnings = new LinkedList<>();
+
+        for (ServiceReference<Migratable> serviceReference : getMigratableServiceReferences()) {
+
+            Migratable migratable = getBundleContext().getService(serviceReference);
+            MigrationMetadata migrationMetadata =
+                    migratable.export(exportDirectory.resolve((String) serviceReference.getProperty(
+                            Constants.SERVICE_PID)));
+            warnings.addAll(migrationMetadata.getMigrationWarnings());
+        }
+
+        return warnings;
+    }
+
+    private Collection<ServiceReference<Migratable>> getMigratableServiceReferences() {
+        try {
+            return getBundleContext().getServiceReferences(Migratable.class, null);
+        } catch (InvalidSyntaxException e) {
+            LOGGER.error(
+                    "Export failed: could not get list of Migratable service references from bundle context",
+                    e);
+            throw new MigrationException("Failure to export, internal error occurred.", e);
+        }
     }
 }
