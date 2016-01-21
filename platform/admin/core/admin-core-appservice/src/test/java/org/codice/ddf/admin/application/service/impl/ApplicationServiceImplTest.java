@@ -44,10 +44,11 @@ import java.util.Set;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
 import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.RepositoryImpl;
+import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
@@ -1239,16 +1240,18 @@ public class ApplicationServiceImplTest {
 
         Application testApp1 = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
-        List<Feature> featureList = new ArrayList<Feature>();
-        Set<Feature> featureSet1 = new HashSet<Feature>();
+        Dependency testDependency1 = mock(Dependency.class);
+        List<Dependency> dependencyList1 = new ArrayList<>();
+        Set<Feature> featureSet1 = new HashSet<>();
+        dependencyList1.add(testDependency1);
         featureSet1.add(testFeature1);
-        featureList.add(testFeature1);
 
         when(testFeature1.getName()).thenReturn(TEST_FEATURE_1_NAME);
         when(testApp1.getMainFeature()).thenReturn(testFeature1);
         when(testApp1.getFeatures()).thenReturn(featureSet1);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);
-        when(testFeature1.getDependencies()).thenReturn(featureList);
+        when(testFeature1.getDependencies()).thenReturn(dependencyList1);
+        when(testDependency1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
         when(testFeature1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
 
         appService.stopApplication(testApp1);
@@ -1278,16 +1281,18 @@ public class ApplicationServiceImplTest {
 
         Application testApp1 = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
-        List<Feature> featureList = new ArrayList<Feature>();
-        Set<Feature> featureSet1 = new HashSet<Feature>();
+        Dependency testDependency1 = mock(Dependency.class);
+        List<Dependency> dependencyList1 = new ArrayList<>();
+        Set<Feature> featureSet1 = new HashSet<>();
+        dependencyList1.add(testDependency1);
         featureSet1.add(testFeature1);
-        featureList.add(testFeature1);
 
         when(testFeature1.getName()).thenReturn(TEST_FEATURE_1_NAME);
         when(testApp1.getMainFeature()).thenReturn(testFeature1);
         when(testApp1.getFeatures()).thenReturn(featureSet1);
         when(featuresService.isInstalled(testFeature1)).thenReturn(false);
-        when(testFeature1.getDependencies()).thenReturn(featureList);
+        when(testFeature1.getDependencies()).thenReturn(dependencyList1);
+        when(testDependency1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
         when(testFeature1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
 
         appService.stopApplication(testApp1);
@@ -1844,7 +1849,7 @@ public class ApplicationServiceImplTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(NO_APP_FEATURES);
+                return ((LoggingEvent) argument).getFormattedMessage().contains(NO_REPO_FEATURES);
             }
         }));
     }
@@ -2185,14 +2190,12 @@ public class ApplicationServiceImplTest {
     /**
      * Builds a list containing the feature names of all features.
      *
-     * @param features features to loop through.
+     * @param dependencies dependencies to loop through.
      * @return list containing the feature names.
      */
-    private List<String> getFeatureNames(List<Feature> features) {
-        List<String> featureNames = new ArrayList<String>();
-        for (Feature feature : features) {
-            featureNames.add(feature.getName());
-        }
+    private List<String> getFeatureNames(List<Dependency> dependencies) {
+        List<String> featureNames = new ArrayList<>();
+        dependencies.forEach(dependency -> featureNames.add(dependency.getName()));
         return featureNames;
     }
 
@@ -2425,7 +2428,7 @@ public class ApplicationServiceImplTest {
 
                     logger.trace("Dependencies: ");
 
-                    for (Feature depFeature : feature.getDependencies()) {
+                    for (Dependency depFeature : feature.getDependencies()) {
                         logger.trace("Dependency Feature: " + depFeature);
                         logger.trace(
                                 "Dependency Feature name/version: " + depFeature.getName() + "/"

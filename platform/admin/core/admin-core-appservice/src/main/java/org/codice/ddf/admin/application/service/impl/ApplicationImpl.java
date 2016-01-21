@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
@@ -81,17 +82,22 @@ public class ApplicationImpl implements Application, Comparable<Application> {
             version = mainFeature.getVersion();
             description = mainFeature.getDescription();
         } else {
-            if (repo.getName() == null) {
-                logger.warn(
-                        "No information available inside the repository, cannot create application instance.");
-                throw new IllegalArgumentException(
-                        "No identifying information available inside the repository, cannot create application instance.");
+            try {
+                if (repo.getName() == null) {
+                    logger.warn(
+                            "No information available inside the repository, cannot create application instance.");
+                    throw new IllegalArgumentException(
+                            "No identifying information available inside the repository, cannot create application instance.");
+                }
+                logger.debug(
+                        "Could not determine main feature in {}, using defaults. Each application should have only 1 auto install feature but {} were found in this application.",
+                        repo.getName(),
+                        autoFeatures.size());
+                name = repo.getName();
+                version = "0.0.0";
+            } catch (IOException e) {
+                logger.warn("Unable to get Repository Name.", e);
             }
-            logger.debug(
-                    "Could not determine main feature in {}, using defaults. Each application should have only 1 auto install feature but {} were found in this application.",
-                    repo.getName(), autoFeatures.size());
-            name = repo.getName();
-            version = "0.0.0";
         }
 
     }

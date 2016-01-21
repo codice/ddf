@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.RepositoryImpl;
+import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.ddf.admin.application.service.Application;
 import org.junit.Test;
 
