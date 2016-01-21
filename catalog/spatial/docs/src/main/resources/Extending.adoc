@@ -1,5 +1,0 @@
-= Extending {branding} Spatial App
-include::config.adoc[]
-
-== Overview
-include::ExtContents.adoc[]

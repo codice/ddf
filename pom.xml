@@ -723,42 +723,42 @@
                                         <artifacts>
                                             <artifact>
                                                 <file>
-                                                    ${project.build.directory}/docs/html/Extending.html
+                                                    ${project.build.directory}/docs/html/extending.html
                                                 </file>
                                                 <type>html</type>
                                                 <classifier>Extending</classifier>
                                             </artifact>
                                             <artifact>
                                                 <file>
-                                                    ${project.build.directory}/docs/html/Integrating.html
+                                                    ${project.build.directory}/docs/html/integrating.html
                                                 </file>
                                                 <type>html</type>
                                                 <classifier>Integrating</classifier>
                                             </artifact>
                                             <artifact>
                                                 <file>
-                                                    ${project.build.directory}/docs/html/Managing.html
+                                                    ${project.build.directory}/docs/html/managing.html
                                                 </file>
                                                 <type>html</type>
                                                 <classifier>Managing</classifier>
                                             </artifact>
                                             <artifact>
                                                 <file>
-                                                    ${project.build.directory}/docs/pdf/Extending.pdf
+                                                    ${project.build.directory}/docs/pdf/extending.pdf
                                                 </file>
                                                 <type>pdf</type>
                                                 <classifier>Extending</classifier>
                                             </artifact>
                                             <artifact>
                                                 <file>
-                                                    ${project.build.directory}/docs/pdf/Integrating.pdf
+                                                    ${project.build.directory}/docs/pdf/integrating.pdf
                                                 </file>
                                                 <type>pdf</type>
                                                 <classifier>Integrating</classifier>
                                             </artifact>
                                             <artifact>
                                                 <file>
-                                                    ${project.build.directory}/docs/pdf/Managing.pdf
+                                                    ${project.build.directory}/docs/pdf/managing.pdf
                                                 </file>
                                                 <type>pdf</type>
                                                 <classifier>Managing</classifier>

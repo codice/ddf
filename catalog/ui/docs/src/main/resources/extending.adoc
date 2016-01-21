@@ -1,0 +1,5 @@
+= Extending {branding} Standard Search UI
+include::./_contents/config.adoc[]
+
+== Overview
+include::./_contents/extcontents.adoc[]

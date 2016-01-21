@@ -1,4 +1,0 @@
-= Managing {branding} Content Application
-include::config.adoc[]
-
-include::ManContents.adoc[]

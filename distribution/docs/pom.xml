@@ -84,12 +84,12 @@
                                 <configuration>
                                     <artifacts>
                                         <artifact>
-                                            <file>${project.build.directory}/docs/html/DDFOmnibus.html</file>
+                                            <file>${project.build.directory}/docs/html/ddfomnibus.html</file>
                                             <type>html</type>
                                             <classifier>DDFOmnibus</classifier>
                                         </artifact>
                                         <artifact>
-                                            <file>${project.build.directory}/docs/pdf/DDFOmnibus.pdf</file>
+                                            <file>${project.build.directory}/docs/pdf/ddfomnibus.pdf</file>
                                             <type>pdf</type>
                                             <classifier>DDFOmnibus</classifier>
                                         </artifact>

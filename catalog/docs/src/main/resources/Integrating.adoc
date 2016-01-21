@@ -1,5 +1,0 @@
-= Integrating DDF Catalog Application
-include::config.adoc[]
-
-== Overview
-include::IntContents.adoc[]

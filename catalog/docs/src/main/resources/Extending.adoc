@@ -1,5 +1,0 @@
-= Extending DDF Catalog Application
-include::config.adoc[]
-
-== Overview
-include::ExtContents.adoc[]
