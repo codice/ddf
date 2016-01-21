@@ -20,6 +20,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.junit.AfterClass;
@@ -27,8 +29,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestSolrServerFactory {
-
-    private static final String TEST_URL = "http://localhost/";
 
     private static final String TEST_CORENAME = "testCoreName";
 
@@ -61,23 +61,26 @@ public class TestSolrServerFactory {
 
     @Test
     public void testSolrServerFactoryUrlAndCoreNameParams()
-            throws ExecutionException, InterruptedException {
-        Future<SolrServer> solrServerFuture = SolrServerFactory.getHttpSolrServer(TEST_URL,
-                TEST_CORENAME);
+            throws ExecutionException, InterruptedException, TimeoutException {
+        Future<SolrServer> solrServerFuture =
+                SolrServerFactory.getHttpSolrServer(SolrServerFactory.getDefaultHttpAddress(),
+                        TEST_CORENAME);
 
         assertThat("solrServerFuture should not be null.", solrServerFuture, is(notNullValue()));
         assertThat("Should get back SolrServer from future.",
-                solrServerFuture.get(),
+                solrServerFuture.get(5, TimeUnit.SECONDS),
                 instanceOf(SolrServer.class));
     }
 
     @Test
-    public void testSolrServerFactoryUrlParam() throws ExecutionException, InterruptedException {
-        Future<SolrServer> solrServerFuture = SolrServerFactory.getHttpSolrServer(TEST_URL);
+    public void testSolrServerFactoryUrlParam()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        Future<SolrServer> solrServerFuture =
+                SolrServerFactory.getHttpSolrServer(SolrServerFactory.getDefaultHttpAddress());
 
         assertThat("solrServerFuture should not be null.", solrServerFuture, is(notNullValue()));
         assertThat("Should get back SolrServer from future.",
-                solrServerFuture.get(),
+                solrServerFuture.get(5, TimeUnit.SECONDS),
                 instanceOf(SolrServer.class));
     }
 }
