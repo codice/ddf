@@ -240,6 +240,11 @@
             <artifactId>landing-page</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migratable-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml

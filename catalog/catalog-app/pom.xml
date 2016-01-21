@@ -350,5 +350,15 @@
             <artifactId>catalog-admin-module-sources</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>video-input-transformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-metacard-validation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
