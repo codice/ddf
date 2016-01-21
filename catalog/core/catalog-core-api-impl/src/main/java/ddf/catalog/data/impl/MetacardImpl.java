@@ -727,7 +727,15 @@ public class MetacardImpl implements Metacard {
             Serializable value = attribute.getValue();
             if (name != null) {
                 if (value != null) {
-                    map.put(name, attribute);
+                    Attribute tmpAttr = map.get(name);
+                    if (tmpAttr == null) {
+                        map.put(name, attribute);
+                    } else {
+                        List<Serializable> tmpAttrValues = tmpAttr.getValues();
+                        tmpAttrValues.addAll(attribute.getValues());
+                        tmpAttr = new AttributeImpl(name, tmpAttrValues);
+                        map.put(name, tmpAttr);
+                    }
                 } else {
                     map.remove(name);
                 }
