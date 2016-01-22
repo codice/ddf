@@ -1,4 +1,5 @@
 = Integrating {branding} Standard Search UI
 include::config.adoc[]
 
+== Overview
 include::IntContents.adoc[]

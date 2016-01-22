@@ -1,4 +1,5 @@
 = Managing {branding} Standard Search UI
 include::config.adoc[]
 
+== Overview
 include::ManContents.adoc[]
