@@ -2833,14 +2833,14 @@ bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 Redaction and filtering are performed in a Post Query plugin that occurs after a query has been performed.
 
 ===== How Redaction and Filtering Works
-Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin that populates this attribute. The security attribute is a HashMap containing a set of keys that map to lists of values. The metacard is then processed by a filter/redaction plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. The decision to filter/redact* the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml). The PDP that is being used returns a decision, and the metacard will either be filtered/redacted or allowed to pass through.
+Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PolicyPlugin that populates this attribute. The security attribute is a HashMap containing a set of keys that map to lists of values. The metacard is then processed by a filter/redaction plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. The decision to filter/redact* the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml). The PDP that is being used returns a decision, and the metacard will either be filtered/redacted or allowed to pass through.
 
 [NOTE]
 ====
 *The default setting is to redact records*.
 ====
 
-The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PostQueryPlugin that reads the metadata being returned and populates the metacard's security attribute. If the subject or resource (metacard) permissions are missing during redaction, that resource is redacted.
+The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PolicyPlugin that reads the metadata being returned and then returns the appropriate attributes. If the subject or resource (metacard) permissions are missing during redaction, that resource is redacted.
 
 Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]

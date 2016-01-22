@@ -27,7 +27,9 @@
 
     <feature name="catalog-core-api" install="manual" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_2</bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_2
+        </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
@@ -60,12 +62,24 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
     </feature>
 
     <feature name="catalog-core-metricsplugin" install="manual" version="${project.version}"
@@ -115,16 +129,22 @@
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
         does not export any classes. Must use the servicemix version. -->
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2
+        </bundle>
         <bundle>mvn:org.apache.ws.commons.axiom/axiom-api/1.2.14</bundle>
         <bundle>mvn:org.apache.abdera/abdera-core/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-client/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-i18n/${abdera.version}</bundle>
         <!-- Cannot use <bundle>mvn:org.apache.abdera/abdera-parser/${abdera.version}</bundle>
         because of a classpath issue with OMFactory. Servicemix fixes this abdera-parser.-->
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1.2_1</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
+        </bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1.2_1
+        </bundle>
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
     </feature>
 
@@ -145,7 +165,8 @@
 
     <feature name="catalog-transformer-thumbnail" install="manual" version="${project.version}"
              description="Retrieves the attribute, Thumbnail, from the Metacard.">
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-transformer-xsltengine" install="manual" version="${project.version}"
@@ -172,7 +193,8 @@
              description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}
+        </bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
 
@@ -197,14 +219,24 @@
     <feature name="catalog-transformer-xml" install="manual" version="${project.version}"
              description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
+        </bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}
+        </bundle>
         <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
 
     <feature name="catalog-security-filter" install="manual" version="${project.version}"
              description="DDF Catalog Security Filtering">
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-security-operationplugin" install="manual" version="${project.version}"
+             description="DDF Catalog Security Operation Plugin">
+        <bundle>mvn:ddf.catalog.security/catalog-security-operationplugin/${project.version}
+        </bundle>
     </feature>
 
     <feature name="catalog-security-plugin" install="manual" version="${project.version}"
@@ -260,7 +292,8 @@
 
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
              description="DDF Metacard Validator Plugins">
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
+        </bundle>
     </feature>
 
 </features>

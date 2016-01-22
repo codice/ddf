@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,12 +22,9 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PreIngestPlugin;
-import ddf.catalog.plugin.PreQueryPlugin;
-import ddf.catalog.plugin.PreResourcePlugin;
+import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 
@@ -35,42 +32,36 @@ import ddf.security.SecurityConstants;
  * Security-based plugin that looks for a subject using SecurityUtils and adds it to the current
  * operation's properties map.
  */
-public class SecurityPlugin implements PreQueryPlugin, PreIngestPlugin, PreResourcePlugin {
+public class SecurityPlugin implements AccessPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityPlugin.class);
 
     @Override
-    public CreateRequest process(CreateRequest input)
-            throws PluginExecutionException, StopProcessingException {
+    public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
         setSubject(input);
         return input;
     }
 
     @Override
-    public UpdateRequest process(UpdateRequest input)
-            throws PluginExecutionException, StopProcessingException {
+    public UpdateRequest processPreUpdate(UpdateRequest input) throws StopProcessingException {
         setSubject(input);
         return input;
     }
 
     @Override
-    public DeleteRequest process(DeleteRequest input)
-            throws PluginExecutionException, StopProcessingException {
+    public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
         setSubject(input);
         return input;
     }
 
     @Override
-    public QueryRequest process(QueryRequest input)
-            throws PluginExecutionException, StopProcessingException {
+    public QueryRequest processPreQuery(QueryRequest input) throws StopProcessingException {
         setSubject(input);
         return input;
     }
 
     @Override
-    public ResourceRequest process(ResourceRequest input)
-            throws PluginExecutionException, StopProcessingException {
-        setSubject(input);
+    public QueryResponse processPostQuery(QueryResponse input) throws StopProcessingException {
         return input;
     }
 
@@ -78,12 +69,12 @@ public class SecurityPlugin implements PreQueryPlugin, PreIngestPlugin, PreResou
         try {
             Object requestSubject = operation.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
-            Subject subject = null;
             if (!(requestSubject instanceof ddf.security.Subject)) {
-                subject = SecurityUtils.getSubject();
+                Subject subject = SecurityUtils.getSubject();
                 if (subject instanceof ddf.security.Subject) {
-                    operation.getProperties().put(SecurityConstants.SECURITY_SUBJECT,
-                            (ddf.security.Subject) subject);
+                    operation.getProperties()
+                            .put(SecurityConstants.SECURITY_SUBJECT,
+                                    (ddf.security.Subject) subject);
                     LOGGER.debug(
                             "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
                 } else {
@@ -95,5 +86,4 @@ public class SecurityPlugin implements PreQueryPlugin, PreIngestPlugin, PreResou
             LOGGER.debug("No security subject found, cannot add to current operation.");
         }
     }
-
 }

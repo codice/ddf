@@ -16,6 +16,7 @@ package ddf.catalog.security.filter.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -24,9 +25,12 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PostQueryPlugin;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
@@ -34,38 +38,42 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
- * This {@link PostQueryPlugin} performs redaction and filtering on {@link QueryResponse} objects as
+ * This {@link AccessPlugin} performs redaction and filtering on {@link QueryResponse} objects as
  * they pass through the framework.
- *
  */
-public class FilterPlugin implements PostQueryPlugin {
+public class FilterPlugin implements AccessPlugin {
 
     private final Logger logger = LoggerFactory.getLogger(FilterPlugin.class);
 
-    /**
-     * Processes a {@link ddf.catalog.operation.QueryResponse} after the execution of the
-     * {@link ddf.catalog.operation.Query}.
-     *
-     * @param input
-     *            the {@link ddf.catalog.operation.QueryResponse} to process
-     * @return the value of the processed {@link ddf.catalog.operation.QueryResponse} to pass to the
-     *         next {@link ddf.catalog.plugin.PostQueryPlugin}, or if this is the last
-     *         {@link ddf.catalog.plugin.PostQueryPlugin} to be called
-     * @throws ddf.catalog.plugin.PluginExecutionException
-     *             thrown when an error occurs while processing the
-     *             {@link ddf.catalog.operation.QueryResponse}
-     * @throws ddf.catalog.plugin.StopProcessingException
-     *             thrown to halt processing when a critical issue occurs during processing. This is
-     *             intended to prevent other plugins from processing as well.
-     */
     @Override
-    public QueryResponse process(QueryResponse input)
-            throws PluginExecutionException, StopProcessingException {
-        if (input.getRequest() == null || input.getRequest().getProperties() == null) {
+    public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public UpdateRequest processPreUpdate(UpdateRequest input) throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public QueryRequest processPreQuery(QueryRequest input) throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public QueryResponse processPostQuery(QueryResponse input) throws StopProcessingException {
+        if (input.getRequest() == null || input.getRequest()
+                .getProperties() == null) {
             throw new StopProcessingException(
                     "Unable to filter contents of current message, no user Subject available.");
         }
-        Object securityAssertion = input.getRequest().getProperties()
+        Object securityAssertion = input.getRequest()
+                .getProperties()
                 .get(SecurityConstants.SECURITY_SUBJECT);
         Subject subject;
         if (securityAssertion instanceof Subject) {
@@ -85,13 +93,15 @@ public class FilterPlugin implements PostQueryPlugin {
         for (Result result : results) {
             metacard = result.getMetacard();
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            Map<String, List<String>> map = null;
+            Map<String, Set<String>> map = null;
+
             if (null != attr) {
-                map = (Map<String, List<String>>) attr.getValue();
+                map = (Map<String, Set<String>>) attr.getValue();
             }
             securityPermission.clear();
             if (map != null) {
-                securityPermission.addAll(map);
+                securityPermission =
+                        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, map);
             }
             if (!subject.isPermitted(securityPermission)) {
                 filteredMetacards++;
@@ -100,16 +110,15 @@ public class FilterPlugin implements PostQueryPlugin {
             }
         }
 
-        logger.info("Filtered {} metacards, returned {}", filteredMetacards,
-                (newResults.size() - filteredMetacards));
+        logger.info("Filtered {} metacards, returned {}", filteredMetacards, newResults.size());
         SecurityLogger.logInfo(
-                "Filtered " + filteredMetacards + " metacards, returned " + (newResults.size()
-                        - filteredMetacards));
+                "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
 
-        input.getResults().clear();
-        input.getResults().addAll(newResults);
+        input.getResults()
+                .clear();
+        input.getResults()
+                .addAll(newResults);
         newResults.clear();
-        newResults = null;
         return input;
     }
 }

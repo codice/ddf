@@ -1020,10 +1020,10 @@ bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 
 ==== Filtering
 
-Metacard filtering is performed in a Post Query plugin that occurs after a query has been performed.
+Metacard filtering is performed in a Access plugin that occurs after a query has been performed.
 
 ===== How Filtering Works
-Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.
+Each metacard result will contain security attributes that are populated by the CatalogFramework based on the PolicyPlugins (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.
 The security attribute is a HashMap containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a KeyValueCollectionPermission from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
@@ -1031,7 +1031,7 @@ The decision to filter the metacard eventually relies on the installed PDP (`fea
 The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
 
 The security attributes populated on the metacard are completely dependent on the type of the metacard.
-Each type of metacard must have its own PostQueryPlugin that reads the metadata being returned and populates the metacard's security attribute.
+Each type of metacard must have its own PolicyPlugin that reads the metadata being returned.
 If the subject permissions are missing during filtering, all resources will be filtered.
 
 Example (represented as simple XML for ease of understanding):
@@ -1076,10 +1076,9 @@ In this particular case, the metacard might be allowed if the policy is configur
 
 ==== Filter a New Type of Metacard
 
-To enable filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record.
-The plugin must set the security attribute to a map of list of values extracted from the metacard.
-Note that, in {branding}, there is no default plugin that parses a metacard to populate the security attribute. There are plugins that utilize the Metacard.SECURITY attribute to control operations such as ingest, however.
-A plugin must be created to populate the security attribute field with additional details in order for filtering to work correctly for the specific metadata ingested into {branding}.
+To enable filtering on a new type of record, implement a PolicyPlugin that is able to read the string metadata contained within the metacard record.
+Note that, in {branding}, there is no default plugin that parses a metacard.
+A plugin must be created to create a policy for the metacard.
 
 ==== Security Token Service
 

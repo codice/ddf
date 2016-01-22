@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import junit.framework.Assert;
 
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -60,7 +59,6 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
 import ddf.security.SecurityConstants;
@@ -81,22 +79,22 @@ public class FilterPluginTest {
     public void setup() {
         plugin = new FilterPlugin();
         QueryRequestImpl request = getSampleRequest();
-        Map<String, Serializable> properties = new HashMap<String, Serializable>();
+        Map<String, Serializable> properties = new HashMap<>();
 
         AuthorizingRealm realm = mock(AuthorizingRealm.class);
 
         when(realm.getName()).thenReturn("mockRealm");
-        when(realm.isPermitted(any(PrincipalCollection.class), any(Permission.class)))
-                .then(makeDecision());
+        when(realm.isPermitted(any(PrincipalCollection.class), any(Permission.class))).then(
+                makeDecision());
 
-        Collection<org.apache.shiro.realm.Realm> realms = new ArrayList<org.apache.shiro.realm.Realm>();
+        Collection<org.apache.shiro.realm.Realm> realms = new ArrayList<>();
         realms.add(realm);
 
         DefaultSecurityManager manager = new DefaultSecurityManager();
         manager.setRealms(realms);
 
-        SimplePrincipalCollection principalCollection = new SimplePrincipalCollection(
-                new Principal() {
+        SimplePrincipalCollection principalCollection =
+                new SimplePrincipalCollection(new Principal() {
                     @Override
                     public String getName() {
                         return "testuser";
@@ -123,14 +121,15 @@ public class FilterPluginTest {
 
     public Answer<Boolean> makeDecision() {
 
-        Map<String, List<String>> testRoleMap = new HashMap<String, List<String>>();
-        List<String> testRoles = new ArrayList<String>();
+        Map<String, List<String>> testRoleMap = new HashMap<>();
+        List<String> testRoles = new ArrayList<>();
         testRoles.add("A");
         testRoles.add("B");
         testRoleMap.put("Roles", testRoles);
 
         final KeyValueCollectionPermission testUserPermission = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, testRoleMap);
+                CollectionPermission.READ_ACTION,
+                testRoleMap);
 
         return new Answer<Boolean>() {
             @Override
@@ -146,10 +145,8 @@ public class FilterPluginTest {
     public void testPluginFilter() {
 
         try {
-            QueryResponse response = plugin.process(incomingResponse);
+            QueryResponse response = plugin.processPostQuery(incomingResponse);
             verifyFilterResponse(response);
-        } catch (PluginExecutionException e) {
-            LOGGER.error("Error while processing the redaction plugin", e);
         } catch (StopProcessingException e) {
             LOGGER.error("Stopped processing the redaction plugin", e);
         }
@@ -158,25 +155,28 @@ public class FilterPluginTest {
     @Test(expected = StopProcessingException.class)
     public void testNoSubject() throws Exception {
         QueryResponseImpl response = new QueryResponseImpl(getSampleRequest());
-        plugin.process(response);
+        plugin.processPostQuery(response);
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
 
     @Test(expected = StopProcessingException.class)
     public void testNoRequestSubject() throws Exception {
         QueryResponseImpl response = new QueryResponseImpl(null);
-        plugin.process(response);
+        plugin.processPostQuery(response);
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
 
-    public void verifyFilterResponse(QueryResponse response) {
-        LOGGER.info("Filtered with " + response.getResults().size() + " out of 5 original.");
+    private void verifyFilterResponse(QueryResponse response) {
+        LOGGER.info("Filtered with " + response.getResults()
+                .size() + " out of 5 original.");
         LOGGER.info("Checking Results");
-        Assert.assertEquals(4, response.getResults().size());
+        Assert.assertEquals(4,
+                response.getResults()
+                        .size());
         LOGGER.info("Filtering succeeded.");
     }
 
-    public Metacard getMoreRolesMetacard() {
+    private Metacard getMoreRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -188,14 +188,14 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+                new HashSet<>()));
+        HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A", "B", "CR", "WS"));
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getMissingRolesMetacard() {
+    private Metacard getMissingRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -207,15 +207,15 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A"));
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getExactRolesMetacard() {
+    private Metacard getExactRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -227,15 +227,15 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A", "B"));
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getNoRolesMetacard() {
+    private Metacard getNoRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -247,14 +247,14 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
-        HashMap<String, List<String>> security = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> security = new HashMap<>();
         metacard.setSecurity(security);
         return metacard;
     }
 
-    public Metacard getNoSecurityAttributeMetacard() {
+    private Metacard getNoSecurityAttributeMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
         try {
@@ -267,7 +267,7 @@ public class FilterPluginTest {
         metacard.setTitle("Metacard 1");
         metacard.setContentTypeVersion("1");
         metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
-                new HashSet<AttributeDescriptor>()));
+                new HashSet<>()));
 
         return metacard;
     }
@@ -314,7 +314,12 @@ public class FilterPluginTest {
     private class MockSubject extends DelegatingSubject implements Subject {
 
         public MockSubject(SecurityManager manager, PrincipalCollection principals) {
-            super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
+            super(principals,
+                    true,
+                    null,
+                    new SimpleSession(UUID.randomUUID()
+                            .toString()),
+                    manager);
         }
 
         @Override

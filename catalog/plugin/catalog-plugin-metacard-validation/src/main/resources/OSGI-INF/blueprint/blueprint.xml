@@ -72,6 +72,6 @@
     <!-- Register in the OSGi Service Registry -->
     <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
     <service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>
-    <service ref="post-query-plugin" interface="ddf.catalog.plugin.PostQueryPlugin" ranking="100"/>
+    <service ref="post-query-plugin" auto-export="interfaces" ranking="100"/>
 
 </blueprint>
