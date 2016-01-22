@@ -7,6 +7,8 @@ Version ${version}. Copyright (c) Codice Foundation
 :example-caption!:
 :source-highlighter: coderay
 :data-uri:
+:sectlinks:
+:sectanchors:
 :title-logo: logo_ddf.png
 :last-update-label: Copyright (c) Codice Foundation. +
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +

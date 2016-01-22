@@ -2748,6 +2748,7 @@ Catalog sources are used to connect Catalog components to data sources, local an
 |                  +---------------+                                                           |
 +----------------------------------------------------------------------------------------------+
 ....
+
 === Existing Source Types
 
 ==== Catalog Provider

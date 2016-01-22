@@ -1,4 +1,5 @@
-= Integrating DDF Content Application
+= Integrating {branding} Content Application
 include::config.adoc[]
 
+== Overview
 include::IntContents.adoc[]

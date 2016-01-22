@@ -1,26 +1,33 @@
 
-== Overview
+The {branding} Content Framework is a framework for storing, reading, processing, and transforming content information.
+Content information is consists of files that the client wants parsed and created with a metacard that is subsequently used to create a catalog entry in the Metadata Catalog and stored in the {branding} Content Repository.
 
-The DDF Content application provides a framework for storing, reading, processing, transforming and cataloging data. This guide provides instructions for configuring, maintaining and operation components of the Distributed Data Framework. 
+The files passed into the {branding} Content Framework can be of any type, (e.g., NITF, PDF, Microsoft Word, etc.), as long as:
 
-== DDF Content Framework
-The DDF Content Framework is a framework for storing, reading, processing, and transforming content information. Content information is consists of files that the client wants parsed and created with a metacard that is subsequently used to create a catalog entry in the Metadata Catalog and stored in the DDF Content Repository.
+* the mime type can be resolved,
+* an Input Transformer exists to parse their content into a metacard,
+* and the generated metacard satisfies the constraints of the catalog provider into which the generated metacard will be inserted.
 
-The files passed into the DDF Content Framework can be of any type, e.g., NITF, PDF, Microsoft Word, etc., as long as their mime type can be resolved, an Input Transformer exists to parse their content into a metacard, and the generated metacard satisfies the constraints of the catalog provider into which the generated metacard will be inserted. For example, if the Tika Input Transformer is installed, Microsoft Office documents and PDF files can be transformed into metacards. If the Solr catalog provider is being used, the generated metacard can be successfully inserted.
+For example, if the Tika Input Transformer is installed, Microsoft Office documents and PDF files can be transformed into metacards.
+If the Solr catalog provider is being used, the generated metacard can be successfully inserted.
 
-Clients typically perform create, read, update, and delete (CRUD) operations against the content repository.  At the core of the Content functionality is the Content Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+Clients typically perform create, read, update, and delete (CRUD) operations against the content repository.
+At the core of the Content functionality is the Content Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 
-The DDF Content Framework has several components and an API that connects them together.  The Content API consists of the Java interfaces that define DDF functionality. These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation; therefore, allowing the possibility of alternate implementations that can maintain interoperability and share developed components. As such, new capabilities can be developed independently in a modular fashion, using the Content API interfaces, and reused by other DDF installations.
+The {branding} Content Framework has several components and an API that connects them together.
+The Content API consists of the Java interfaces that define {branding} functionality.
+These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, allowing the possibility of alternate implementations that can maintain interoperability and share developed components. 
+As such, new capabilities can be developed independently in a modular fashion, using the Content API interfaces, and reused by other {branding} installations.
 
-The DDF Content API will evolve with DDF itself, but great care is taken to retain backwards compatibility with developed components.  Compatibility is reflected in version numbers. For more information, see the Software Versioning section in the Appendix.
+The {branding} Content API will evolve with {branding} itself, but great care is taken to retain backwards compatibility with developed components.
+Compatibility is reflected in version numbers.
 
 === Content Framework Architecture
 
-==== Architecture
-
+.Architecture
 [ditaa, content_framework_architecture, png, ${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -58,14 +65,18 @@ The DDF Content API will evolve with DDF itself, but great care is taken to reta
 
 ==== Design
 
-The DDF Content Framework design consists of several major components, namely endpoints, input transformers, the core Content Framework, storage providers, and Content plugins.
+The {branding} Content Framework design consists of several major components, namely: endpoints, input transformers, the core Content Framework, storage providers, and Content plugins.
 
-The endpoints provide external clients access to the Content Framework. Input transformers convert incoming content into a metacard.  The core Content Framework routes requests and responses through the system. The storage providers provide storage of the content to specific types of storage, e.g., file system, relational database, XML database. The Content plugins provide pluggable functionality that can be executed after the content has been stored/update/deleted but before the response has been returned to the client.
+The endpoints provide external clients access to the Content Framework.
+Input transformers convert incoming content into a metacard.
+The core Content Framework routes requests and responses through the system.
+The storage providers provide storage of the content to specific types of  storage, e.g., file system, relational database, XML database.
+The Content plugins provide pluggable functionality that can be executed after the content has been stored/update/deleted but before the response has been returned to the client.
 
+==== {branding} Content API Packaging
 
-==== DDF Content API Packaging
-
-The Content API consists of the Java interfaces that define the methods that this API supports. The following illustrations show these interfaces and how they are packaged.
+The Content API consists of the Java interfaces that define the methods that this API supports.
+The following illustration shows these interfaces and how they are packaged.
 
 .Content API Packaging
 [ditaa, content_api_packaging, png]
@@ -90,18 +101,20 @@ The Content API consists of the Java interfaces that define the methods that thi
 \---------------------------------------------------------------------------------------------------------------------------------/ \-----------------------------------/
 ....
 
-==== DDF Content API Reference Implementation
+==== {branding} Content API Reference Implementation
 
-The Content API Reference Implementation consists of the Java classes that implement the methods defined in the Content API. The following illustrations show these classes and how they are packaged.
+The Content API Reference Implementation consists of the Java classes that implement the methods defined in the Content API.
+The following illustration shows these classes and how they are packaged.
 
+.Content API Packaging Implementation
 [ditaa, content_api_reference_impl, png]
 ....
 +----------------------------------------------------------------------------------------------------------------------------------------------------------------------------\
-|DDF Content API Impl                                                                                                                                                        |
+|{branding} Content API Impl                                                                                                                                                        |
 |+----------------------------------\ +-------------------------\ +-------------------------------------------------------------------------------\ +----------------------\ |
 ||ddf.content.plugin.catalog cDEF   | |ddf.content.provider.file| |ddf.content.operation.impl                                                     | |ddf.content.impl      | |
 ||+---------\ +--------------------\| |     +------------------\| | +-------------\ +-----------\ +------------\ +-----------------\              | |+--------------------\| |
-|||Cataloger| |CatalogContentPlugin|| |     |FileSystemProvider|| | |OperationImpl| |RequestImpl| |ResponseImpl| |CreateRequestImpl|              | ||ContentFrameworkImpl|| | 
+|||Cataloger| |CatalogContentPlugin|| |     |FileSystemProvider|| | |OperationImpl| |RequestImpl| |ResponseImpl| |CreateRequestImpl|              | ||ContentFrameworkImpl|| |
 ||| cFFC    | | cFFC               || |     | cFFC             || | |cFFC         | |cFFC       | |cFFC        | |cFFC             |    cDEF      | ||cFFC                || |
 ||\---------/ \--------------------/| |     \------------------/| | \-------------/ \-----------/ \------------/ \-----------------/              | |\--------------------/| |
 ||                                  | |   cDEF                  | | +------------------\ +---------------\ +----------------\ +-----------------\ | | cDEF                 | |
@@ -120,10 +133,12 @@ The Content API Reference Implementation consists of the Java classes that imple
 
 === Content Component Types
 
-==== Content Data 	Components
+==== Content Data Components
+
+.Content Data Component Architecture
 [ditaa, content_data_components, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -162,13 +177,15 @@ The Content API Reference Implementation consists of the Java classes that imple
 
 ===== Content Item
 
-Content Item is the domain object, which is populated by the Content Endpoint from the client request, that represents the information about the content to be stored in the Storage Provider. A Content Item encapsulates the content's globally unique ID, mime type, and input stream (i.e., the actual content).
+Content Item is the domain object populated by the Content Endpoint from the client request that represents the information about the content to be stored in the Storage Provider.
+A Content Item encapsulates the content's globally unique ID, mime type, and input stream (i.e., the actual content).
 
 ==== Content Endpoints
 
+.Content Endpoint Architecture
 [ditaa, content_endpoints, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -204,8 +221,9 @@ Content Item is the domain object, which is populated by the Content Endpoint fr
 +---------------------------------------------------------------------------+
 ....
 
-Content endpoints act as a proxy between the client and the Content Framework. Endpoints expose the client to the Content Framework.
-	
+Content endpoints act as a proxy between the client and the Content Framework.
+Endpoints expose the client to the Content Framework.
+
 Endpoint interface formats/protocols can include a variety of formats, including (but not limited to):
 
 * SOAP Web services
@@ -217,7 +235,7 @@ Endpoint interface formats/protocols can include a variety of formats, including
 
 Content endpoints provide the capability to create, read, update, and delete content in the content repository, as well as create, update, and delete metacards corresponding to the content in the Metadata Catalog.
 
-Endpoints are the only client-accessible components in DDF.
+Endpoints are the only client-accessible components in {branding}.
 
 ===== Examples
 
@@ -227,9 +245,10 @@ The following endpoints are provided with the Content Framework out of the box:
 
 ==== Content Framework
 
+.Content Framework Architecture
 [ditaa, content_framework, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -264,19 +283,22 @@ The following endpoints are provided with the Content Framework out of the box:
 |                                                    \--------------------/ |
 +---------------------------------------------------------------------------+
 ....
-The Content Framework wires all Content components together via OSGi and the Content API.  It handles all Content operations requested by endpoints, invoking Content Plugins as needed, and for most Operations, sending the request to a Storage Provider for execution.
+
+The Content Framework wires all Content components together via OSGi and the Content API.
+It handles all Content operations requested by endpoints, invoking Content Plugins as needed, and for most Operations, sending the request to a Storage Provider for execution.
 
 ===== Examples
 
-The DDF Content comes with the following Content Frameworks out of the box:
+The {branding} Content comes with the following Content Frameworks out of the box:
 
 * Standard Content Framework
 
 ==== Content Operations
 
+.Content Operations Architecture
 [ditaa, content_operations, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -312,16 +334,22 @@ The DDF Content comes with the following Content Frameworks out of the box:
 +---------------------------------------------------------------------------+
 ....
 
-The DDF Content provides the capability to read, create, update, and delete content from the DDF Content Repository.
+The {branding} Content provides the capability to read, create, update, and delete content from the {branding} Content Repository.
 
-Each of these operations follow a request/response paradigm. The request is the input to the operation and contains all of the input parameters needed by the Content Framework's operation to communicate with the Storage Providers and Content Plugins. The response is the output from the execution of the operation that is returned to the client and contains all of the data returned by the Storage Providers and  Content Plugins. For each operation, there is an associated request/response pair, e.g., the CreateRequest and CreateResponse pair for the Content Framework's create operation.
+Each of these operations follow a request/response paradigm.
+The request is the input to the operation and contains all of the input parameters needed by the Content Framework's operation to communicate with the Storage Providers and Content Plugins.
+The response is the output from the execution of the operation that is returned to the client and contains all of the data returned by the Storage Providers and  Content Plugins.
+For each operation, there is an associated request/response pair, e.g., the `CreateRequest` and `CreateResponse` pair for the Content Framework's create operation.
 
-All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response. This allows additional capability to be added without changing the Content API, helping to maintain backwards compatibility. Refer to the Developer's Guide for details on using this extensibility.
+All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response.
+This allows additional capability to be added without changing the Content API, helping to maintain backwards compatibility.
 
 ==== Content Plugins
+
+.Content Plugin Architecture
 [ditaa, content_plugin, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -357,17 +385,21 @@ All of the request and response objects are extensible in that they can contain 
 +---------------------------------------------------------------------------+
 ....
 
-The Content Framework calls Content plugins to process requests after they have been processed by the Storage Provider. If the request does not specify content storage (only processing), the Content Plugins are called immediately by the Content Framework.
+The Content Framework calls Content plugins to process requests after they have been processed by the Storage Provider.
+If the request does not specify content storage (only processing), the Content Plugins are called immediately by the Content Framework.
 
 ===== Examples
+
 Types of Content Plugins available out of the box:
 
 * Content Cataloger Plugin
 
 ==== Storage Providers
+
+.Storage Provider Architecture
 [ditaa, storage_provider, png,${image.width}]
 ....
-+---------------------------------------------------------------------------+             
++---------------------------------------------------------------------------+
 |                 /-=-----------------\                                     |
 |                 |      Clients      |                                     |
 |                 \-------------------/                                     |
@@ -403,7 +435,8 @@ Types of Content Plugins available out of the box:
 +---------------------------------------------------------------------------+
 ....
 
-Storage providers act as a proxy between the Content Framework and the mechanism storing the content, e.g., file system, relational database. Storage providers expose the storage mechanism to the Content Framework.
+Storage providers act as a proxy between the Content Framework and the mechanism storing the content, e.g., file system, relational database.
+Storage providers expose the storage mechanism to the Content Framework.
 
 Storage providers provide the capability to the Content Framework to create, read, update, and delete content in the content repository.
 
@@ -413,69 +446,83 @@ The following storage providers are provided with the Content Framework out of 
 
 * File System Storage Provider
 
-== DDF Content Core
+=== {branding} Content Core
 
 The `content-core` bundle is a collection of default catalog components that can be used for most situations.
 
-=== Standard Content Framework
+==== Standard Content Framework
 
-The Standard Content Framework provides the reference implementation of a Content Framework that implements all requirements of the Content API. `ContentFrameworkImpl` is the implementation of the Standard Content Framework.
+The Standard Content Framework provides the reference implementation of a Content Framework that implements all requirements of the Content API. 
+`ContentFrameworkImpl` is the implementation of the Standard Content Framework.
 
-==== Using
+===== Using
 
-The Standard Content Framework is the core class of DDF Content. It provides the methods for read, create, update, and delete (CRUD) operations on the Storage Provider.
+The Standard Content Framework is the core class of {branding} Content.
+It provides the methods for read, create, update, and delete (CRUD) operations on the Storage Provider.
 
 Use this framework if:
 
-* access to a storage provider to create, update, and delete content items in the DDF Content Repository is required or
+* access to a storage provider to create, update, and delete content items in the {branding} Content Repository is required or
 * the ability to parse content, create a metacard, and then create, update, and delete catalog entries in the Metadata Catalog based on the parsed content are required.
 
-==== Installing and Uninstalling
+===== Installing and Uninstalling
 
-The Standard Content Framework is bundled in the `content-core` feature and is part of the `content-core-app`. It can be installed and uninstalled using the normal processes described in the Configuration section.
+The Standard Content Framework is bundled in the `content-core` feature and is part of the `content-core-app`. 
+It can be installed and uninstalled using the normal processes described in the Configuration section.
 
-==== Configuring
+===== Configuring
 
-There are no configuration properties for this component. This component can only be installed and uninstalled.
+There are no configuration properties for this component.
+This component can only be installed and uninstalled.
 
 ==== Known Issues
+
 None
 
 === Content Cataloger Plugin
 
 The Content Cataloger Plugin provides the implementation to parse content, create a Metacard, and create, update, and delete catalog entries in the Metadata Catalog.
-	
-The Content Cataloger Plugin is an implementation of the ContentPlugin interface. When installed, it is invoked by the Content Framework after a content item has been processed by the Storage Provider, but before the response is returned to the Content Endpoint.
 
-The Content Cataloger Plugin searches the OSGi service registry for all services registered as `inputTransformers` that can process the content item's mime type. If such a service is found, the service is invoked (for `create` and `update` operations; `delete` operations are handled internally by the Content Cataloger Plugin). The inputTransformer service accepts the content item's InputStream and parses it, creating a Metacard that is returned to the Content Cataloger Plugin. This Metacard is then used in the `create` and `update` operations invoked on the Catalog Framework to interface with the Metadata Catalog.
+The Content Cataloger Plugin is an implementation of the `ContentPlugin` interface.
+When installed, it is invoked by the Content Framework after a content item has been processed by the Storage Provider, but before the response is returned to the Content Endpoint.
 
-Details on how to develop an Input Transformer with either Java or Apache Camel can be found in the Developing an Input Transformer section of Extending Catalog Transformers.
+The Content Cataloger Plugin searches the OSGi service registry for all services registered as `inputTransformers` that can process the content item's mime type.
+If such a service is found, the service is invoked (for `create` and `update` operations; `delete` operations are handled internally by the Content Cataloger Plugin).
+The `inputTransformer` service accepts the content item's `InputStream` and parses it, creating a Metacard that is returned to the Content Cataloger Plugin.
+This Metacard is then used in the `create` and `update` operations invoked on the Catalog Framework to interface with the Metadata Catalog.
 
-==== Using
+===== Using
 
-Use the Content Cataloger Plugin if create/update/delete of catalog entries in the Metadata Catalog based on the content item are desired. These CUD operations on the Metadata Catalog are made possible by parsing the content item to create a metacard and then using this metacard in the CUD operations on the Catalog Framework. The Content Cataloger Plugin is the only component in the DDF Content Framework that has the ability to interface with the Catalog Framework (and hence the Metadata Catalog).
+Use the Content Cataloger Plugin if create/update/delete of catalog entries in the Metadata Catalog based on the content item are desired.
+These CRUD operations on the Metadata Catalog are made possible by parsing the content item to create a metacard and then using this metacard in the CRUD operations on the Catalog Framework.
+The Content Cataloger Plugin is the only component in the {branding} Content Framework that has the ability to interface with the Catalog Framework (and thus the Metadata Catalog).
 
-==== Installing and Uninstalling
+===== Installing and Uninstalling
 
-The Content Cataloger Plugin is bundled as the `content-core-catalogerplugin` feature and can be installed and uninstalled using the normal processes described in the Configuration
- section of the Administrator's Guide.
+The Content Cataloger Plugin is bundled as the `content-core-catalogerplugin` feature.
 
-==== Configuring
+===== Configuring
 
-There are no configurable properties for this component. This component can only be installed and uninstalled.
+There are no configurable properties for this component.
+This component can only be installed and uninstalled.
 
 ==== Known Issues
 
-Content Cataloger Plugin is only partially transactional. On create operations where the content is being stored in the content repository and the content is being parsed to generated a metacard for insertion into the Metadata Catalog, the content storage will be undone (i.e., the recently inserted content removed from the content repository if the Metadata Catalog insertion encountered problems.) Update and delete operations have no transactional capabilities. Once the content is updated or deleted this cannot be undone. Therefore, the content repository and Metadata Catalog could get out of sync.
+Content Cataloger Plugin is only partially transactional.
+On create operations where the content is being stored in the content repository and the content is being parsed to generated a metacard for insertion into the Metadata Catalog, the content storage will be undone (i.e., the recently inserted content removed from the content repository) if the Metadata Catalog insertion encountered problems. Update and delete operations have no transactional capabilities.
+Once the content is updated or deleted this cannot be undone.
+Therefore, the content repository and Metadata Catalog could get out of sync.
 
 === Directory Monitor
 
-The Content Directory Monitor allows files placed in a monitored directory to be ingested into the DDF Content Repository and/or the Metadata Catalog (MDC). A monitored directory is a directory configured to be polled by DDF periodically (typically every one second) for any new files added to the directory that should be ingested into the Content Framework.
+The Content Directory Monitor allows files placed in a monitored directory to be ingested into the {branding} Content Repository and/or the Metadata Catalog (MDC). 
+A monitored directory is a directory configured to be polled by {branding} periodically (typically once per second) for any new files added to the directory that should be ingested into the Content Framework.
 
-. The typical execution flow of the Directory Monitor is:
+The typical execution flow of the Directory Monitor is:
+
 . A new file is detected in the monitored directory, 
 . The file's contents are passed on to the Content Framework and processed based on whether the monitored directory's processing directive was:
-.. configured to just store the file in the DDF Content Repository,
+.. configured to just store the file in the {branding} Content Repository,
 .. configured to just process the file's metadata and ingest it into the MDC, or 
 .. configured to both store the file in the Content Repository and ingest it into the MDC.
 . If the response from the Content Framework is successful, indicating the content was stored and/or processed, the file in the monitored directory is either deleted (default behavior) or copied to a sub-directory called `.ingested` (see below for how to configure this behavior). If the response from the Content Framework was unsuccessful or a failure occurred, the file is moved from the monitored directory to a sub-folder named `.errors`, allowing easy identification of the ingested files that had problems.
@@ -484,7 +531,8 @@ Multiple monitored directories can be configured, each monitoring different dire
 
 ==== Using
 
-The Content Directory Monitor provides the capability to easily create content in the DDF Content Repository and metacards in the MDC by simply placing a file in a directory that has been configured to be monitored by DDF. For example, this would be useful for copying files from a hard drive (or directory) in a batch-like operation to the monitored directory and having all of the files processed by the Content Framework.
+The Content Directory Monitor provides the capability to easily create content in the {branding} Content Repository and metacards in the MDC by simply placing a file in a directory that has been configured to be monitored by {branding}.
+For example, this would be useful for copying files from a hard drive (or directory) in a batch-like operation to the monitored directory and having all of the files processed by the Content Framework.
 
 ===== Sample Usage Scenarios
 
@@ -534,19 +582,16 @@ The Content Directory Monitor provides the capability to easily create content i
 
 The Content Directory Monitor is packaged as the `content-core-directorymonitor` feature and is part of the `content-core-app`. It is installed by default.
 
-It can be installed and uninstalled using the normal processes described in the Configuration section.
-
 [NOTE]
 ====
-Note that the `content-core-catalogerplugin` feature must be installed for the metacards to be created and inserted into the MDC. This feature provides the linkage between the Content Framework and the  Catalog Framework. If the client attempts a STORE_AND_PROCESS or a PROCESS only without this feature installed a failure will be returned.
+Note that the `content-core-catalogerplugin` feature must be installed for the metacards to be created and inserted into the MDC.
+This feature provides the linkage between the Content Framework and the  Catalog Framework.
+If the client attempts a STORE_AND_PROCESS or a PROCESS only without this feature installed a failure will be returned.
 ====
 
 ==== Configuring
 
-This component can be configured using the normal processes described in the 
-Configuration section.
-
-The configurable properties for the Content Directory Monitor are accessed from the *Content Directory Monitor* Configuration in the Web Console.
+The configurable properties for the Content Directory Monitor are accessed from the *Content Directory Monitor* Configuration in the Admin Console.
 
 ===== Configuring Content Directory Monitors
 
@@ -566,15 +611,15 @@ Managed Service Factory PID:
 |Required
 
 |Directory Path
-|monitoredDirectoryPath
+|`monitoredDirectoryPath`
 |String
-|Specifies the directory to be monitored. 
-Can be a fully-qualified directory or a relative path (which is relative to the DDF installation directory).
+|Specifies the directory to be monitored.
+Can be a fully-qualified directory or a relative path (which is relative to the {branding} installation directory).
 |N/A
 |Yes
 
 |Processing Directive
-|directive
+|`directive`
 |String
 |One of three possible values from a drop down box:
 
@@ -585,7 +630,7 @@ Can be a fully-qualified directory or a relative path (which is relative to the 
 |Yes
 
 |Copy Files to Backup Directory
-|copyIngestedFiles
+|`copyIngestedFiles`
 |Boolean
 |Checking this option indicates that a backup of the file placed in the monitored directory should be made upon successful processing of the file. The file is moved into the `.ingested` sub-directory of the monitored directory.
 |False
@@ -599,20 +644,26 @@ None
 
 === File System Storage Provider
 
-The File System Storage Provider is used to create/update/delete content items as files in the DDF Content Repository. The File System Storage Provider is an implementation of the Storage Provider interface. When installed, it is invoked by the Content Framework to create, update,or delete a file in the DDF Content Repository.
+The File System Storage Provider is used to create/update/delete content items as files in the {branding} Content Repository. 
+The File System Storage Provider is an implementation of the Storage Provider interface.
+When installed, it is invoked by the Content Framework to create, update,or delete a file in the {branding} Content Repository.
 
-* For `create` operations, the File System Storage Provider (using the `MimeTypeMapper`) examines the mime type of the content item and determines the extension to use for the file to be stored.  The File System Storage Provider also auto-generates a Globally Unique ID (GUID) for the content item. This GUID is used as the sub-directory for the content item's location in the Content Repository. This is to insure the files in the Content Repository are more evenly distributed rather than all being stored in one monolithic directory. The content is stored using the file name specified in the create request.
+* For `create` operations, the File System Storage Provider (using the `MimeTypeMapper`) examines the mime type of the content item and determines the extension to use for the file to be stored.
+The File System Storage Provider also auto-generates a Globally Unique ID (GUID) for the content item.
+This GUID is used as the sub-directory for the content item's location in the Content Repository.
+This is to insure the files in the Content Repository are more evenly distributed rather than all being stored in one monolithic directory. 
+The content is stored using the file name specified in the create request.
 
-As an example, if the content item's mime type was `image/nitf`, then:
+For example, if the content item's mime type was `image/nitf`, then:
 
-** the file extension would be `.nitf`, 
+** the file extension would be `.nitf`,
 ** a GUID would be auto-generated (an example GUID would be `54947df8-0e9e-4471-a2f9-9af509fb5889`),
 ** the file name is specified in the `create` request (example: myfile.nitf), and
-** the location in the Content Repository would be determined based on the GUID and the file name specified in the request (example: 54947df80e9e4471a2f99af509fb5889/myfile.nitf).
+** the location in the Content Repository would be determined based on the GUID and the file name specified in the request (example: `54947df80e9e4471a2f99af509fb5889/myfile.nitf`).
 
-* For `read` operations, the File System Storage Provider reads the content file with the GUID specified in the ReadRequest.
-* For `update` operations, the File System Storage Provider updates the content file with the content item's new InputStream contents. The GUID of the content file to be updated is included in the UpdateRequest.
-* For `delete` operations, the File System Storage Provider deletes the content file with the GUID specified in the DeleteRequest.
+* For `read` operations, the File System Storage Provider reads the content file with the GUID specified in the `ReadRequest`.
+* For `update` operations, the File System Storage Provider updates the content file with the content item's new `InputStream` contents. The GUID of the content file to be updated is included in the `UpdateRequest`.
+* For `delete` operations, the File System Storage Provider deletes the content file with the GUID specified in the `DeleteRequest`.
 
 [WARNING]
 ====
@@ -625,34 +676,38 @@ Use the File System Storage Provider if creating, reading, updating, and/or dele
 
 ==== Installing and Uninstalling
 
-The File System Storage Provider is packaged as the `content-core-filesystemstorageprovider` feature and can be installed and uninstalled using the normal processes described in the Configuration section. This feature is installed by default.
+The File System Storage Provider is packaged as the `content-core-filesystemstorageprovider` feature and is installed by default.
 
 ==== Configuring
 
-The location used for content storage can be configured in the webconsole under 
-Configuration -> Content File System Storage Provider.
+The location used for content storage can be configured in the Admin console under {branding} Content -> Configuration -> Content File System Storage Provider.
 
 ==== Known Issues
+
 None.
 
-=== DDF Content REST CRUD Endpoint
+=== {branding} Content REST CRUD Endpoint
 
-The Content REST endpoint provides a CDR REST Retrieve v2.0-compliant DDF endpoint that allows clients to perform CRUD operations on the Content Repository using REST, a simple architectural style that performs communication using HTTP.
+The Content REST endpoint provides a CDR REST Retrieve v2.0-compliant {branding} endpoint that allows clients to perform CRUD operations on the Content Repository using REST, a simple architectural style that performs communication using HTTP.
 
-The URL exposing the REST functionality will be located at `http://<DDF_HOST>:<DDF_PORT>/services/content`, where `DDF_HOST` is the IP address of where DDF is installed and `DDF_PORT` is the port number on which DDF is listening.
+The URL exposing the REST functionality will be located at `http://<DDF_HOST>:<DDF_PORT>/services/content`, where `DDF_HOST` is the IP address of where {branding} is installed and `DDF_PORT` is the port number on which {branding} is listening.
 
-The Content REST CRUD endpoint provides the capability to read, create, update, and delete content in the Content Repository, as well as create, update, and delete metacards in the catalog provider, i.e., the Metadata Catalog (MDC). Furthermore, this endpoint allows the client to perform the create/update/delete operations on just the Content Repository, just the MDC, or both in one operation.
+The Content REST CRUD endpoint provides the capability to read, create, update, and delete content in the Content Repository, as well as create, update, and delete metacards in the catalog provider, i.e., the Metadata Catalog (MDC).
+Furthermore, this endpoint allows the client to perform the create/update/delete operations on just the Content Repository, just the MDC, or both in one operation.
 
 [WARNING]
 ====
-The Content Framework is currently transactional for create operations only. Therefore, the client sends a create request to create content in the DDF Content Repository, processes the content to create a metacard, and ingests it into the MDC (i.e.,directive=STORE_AND_PROCESS), If a problem is encountered during the catalog ingest, the content is removed from the DDF Content Repository, analogous to a rollback. This is so that the DDF Content Repository and the MDC are kept in sync.
+The Content Framework is currently transactional for create operations only.
+Therefore, the client sends a create request to create content in the {branding} Content Repository, processes the content to create a metacard, and ingests it into the MDC (i.e.,directive=STORE_AND_PROCESS).
+If a problem is encountered during the catalog ingest, the content is removed from the {branding} Content Repository, analogous to a rollback.
+This is so that the {branding} Content Repository and the MDC are kept in sync.
 
-The Content Framework does not support rollback capability for update or delete operations that affect both the DDF Content Repository and the MDC.
+The Content Framework does not support rollback capability for update or delete operations that affect both the {branding} Content Repository and the MDC.
 ====
 
 ==== Using
 
-The Content REST CRUD endpoint provides the capability to read, create, update, and delete content in the DDF Content Repository as well as create, update, and delete metacards in the catalog provider as follows. Sample requests and repsonses are provided in a separate table.
+The Content REST CRUD endpoint provides the capability to read, create, update, and delete content in the {branding} Content Repository as well as create, update, and delete metacards in the catalog provider as follows. Sample requests and repsonses are provided in a separate table.
 
 [cols="2,2,4a,4"]
 |===
@@ -664,7 +719,7 @@ The Content REST CRUD endpoint provides the capability to read, create, update, 
 
 |Create Content and Catalog Entry
 |HTTP POST
-|The multipart/form-data REST request that contains the binary data to be stored in the DDF Content Repository and to be parsed to create a metacard for ingest into the MDC. This binary data can be included in the request's body or as a file attachment.
+|The multipart/form-data REST request that contains the binary data to be stored in the {branding} Content Repository and to be parsed to create a metacard for ingest into the MDC. This binary data can be included in the request's body or as a file attachment.
 
 An HTTP 201 CREATED status code is returned to the client with:
 
@@ -672,70 +727,70 @@ An HTTP 201 CREATED status code is returned to the client with:
 
 * Catalog-ID HTTP header set to the catalog ID assigned to the new catalog entry created based on the metacard generated from the parsed content
 
-* Content-URI HTTP header set to the resource URI for the content stored in the DDF Content Repository
+* Content-URI HTTP header set to the resource URI for the content stored in the {branding} Content Repository
 
 * Location URI HTTP header with URI containing the content ID
 
-|`http://<DDF_HOST>:<DDF_PORT>/services/content`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content
 
-Where the `directive` form parameter is set to `STORE_AND_PROCESS`, and the `file` form parameter that specifies the binary data with an optional `filename` parameter that should be stored as in the DDF Content Repository.
+Where the `directive` form parameter is set to `STORE_AND_PROCESS`, and the `file` form parameter that specifies the binary data with an optional `filename` parameter that should be stored as in the {branding} Content Repository.
  
 |Create Content Only
 |HTTP POST
-|The multipart/form-data REST request that contains the binary data to be stored in the DDF Content Repository. This binary data can be included in the request's body or as a file attachment.
+|The multipart/form-data REST request that contains the binary data to be stored in the {branding} Content Repository. This binary data can be included in the request's body or as a file attachment.
 
 An HTTP 201 CREATED status code is returned to the client with:
 
 * Content-ID HTTP header set to GUID assigned to content item by Content Framework
 * Location URI HTTP header with URI containing the content ID
 
-|http://<DDF_HOST>:<DDF_PORT>/services/content
+|\http://<DDF_HOST>:<DDF_PORT>/services/content
 
-Where the `directive` form parameter is set to `STORE`, and the `file` form parameter that specifies the binary data with an optional `filename` parameter that should be stored as in the DDF Content Repository.
+Where the `directive` form parameter is set to `STORE`, and the `file` form parameter that specifies the binary data with an optional `filename` parameter that should be stored as in the {branding} Content Repository.
 
 |Create Catalog Entry Only
 |HTTP POST
-|The multipart/form-data REST request that contains the binary data to be parsed to create a metacard for ingest into the MDC. This binary data can be included in the request's body or as a file attachment. 
+|The multipart/form-data REST request that contains the binary data to be parsed to create a metacard for ingest into the MDC. This binary data can be included in the request's body or as a file attachment.
 
 An HTTP 200 OK status code is returned to the client with:
 
 * Catalog-ID HTTP header set to the catalog ID assigned to the new catalog entry created based on the metacard generated from the parsed content
 
-|`http://<DDF_HOST>:<DDF_PORT>/services/content`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content
 
 Where the `directive` form parameter is set to `PROCESS`, the `contentUri` form parameter is set to the URI of content being processed, and the `file` form parameter specifying the binary data.
 
 |Update Content and Catalog Entry
 |HTTP PUT
-|The ID of the content item in the DDF Content Repository to be updated is appended to the end of the URL. 
+|The ID of the content item in the {branding} Content Repository to be updated is appended to the end of the URL.
 
-The body of the REST request contains the binary data to update the DDF Content Repository.
+The body of the REST request contains the binary data to update the {branding} Content Repository.
 
 An HTTP 200 OK status code is returned to the client with:
 
 * Content-ID HTTP header set to GUID updated by the Content Framework
 * Catalog-ID HTTP header set to the catalog ID that was updated in the MDC
-|`http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123
 
 Where `ABC123` is the ID of the content item to be updated, and the `directive` HTTP header parameter is set to `STORE_AND_PROCESS`.
 
 |Update Content Only
 |HTTP PUT
-|The ID of the content item in the DDF Content Repository to be updated is appended to the end of the URL.
+|The ID of the content item in the {branding} Content Repository to be updated is appended to the end of the URL.
 
-The body of the REST request contains the data to update the DDF Content Repository.
+The body of the REST request contains the data to update the {branding} Content Repository.
 
-An HTTP 200 OK status code is returned to 
+An HTTP 200 OK status code is returned to
 the client with:
 
 * Content-ID HTTP header set to GUID updated by the Content Framework
-|http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123
+|\http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123
 
 Where `ABC123` is the ID of the content item to be updated, and the `directive` HTTP header parameter is set to `STORE`.
 
 |Update Catalog Entry Only and Content ID is provided
 |HTTP PUT
-|The ID of the content item in the DDF Content Repository to be updated is appended to the end of the URL.
+|The ID of the content item in the {branding} Content Repository to be updated is appended to the end of the URL.
 
 The body of the REST request contains the data to update the catalog entry in the MDC.
 
@@ -743,7 +798,7 @@ An HTTP 200 OK status code is returned to the client with:
 
 * Catalog-ID HTTP header set to the catalog ID that was updated in the MDC
 * Content-ID HTTP header set to GUID updated by the Content Framework 
-|`http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123
 
 Where `ABC123` is the ID of the content item to be updated, and the `directive` HTTP header parameter is set to `STORE_AND_PROCESS`.
 
@@ -756,17 +811,17 @@ The body of the REST request contains the data to update the catalog entry in th
 An HTTP 200 OK status code is returned to the client with:
 
 *Catalog-ID HTTP header set to the catalog ID that was updated in the MDC
-|`http://<DDF_HOST>:<DDF_PORT>/services/content`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content
 
-The `directive` is set to `PROCESS` in the Content REST Endpoint; it does not need to be explicitly set in the the `directive` HTTP header parameter.
+The directive is set to `PROCESS` in the Content REST Endpoint; it does not need to be explicitly set in the the `directive` HTTP header parameter.
 
 |Delete Content and Catalog Entry
 |HTTP DELETE
-|The ID of the content item in the DDF Content Repository to be deleted is appended to the end of the URL.
+|The ID of the content item in the {branding} Content Repository to be deleted is appended to the end of the URL.
 
 HTTP status code of 204 NO CONTENT is returned upon successful deletion.
 
-* Content-ID 
+* Content-ID
 * HTTP header set to GUID deleted by the Content Framework
 * Catalog-ID HTTP header set to the catalog ID that was deleted from the MDC
 |`http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123`
@@ -775,32 +830,32 @@ Where `ABC123` is the ID of the content item to be deleted, and the `directive` 
 
 |Delete Content Only
 |HTTP DELETE
-|The ID of the content item in the DDF Content Repository to be deleted is appended to the end of the URL.
+|The ID of the content item in the {branding} Content Repository to be deleted is appended to the end of the URL.
 
 HTTP status code of 204 NO CONTENT is returned upon successful deletion.
-|`http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123
 
-Where `ABC123` is the ID of the content item to be deleted, and the `directive` HTTP header parameter is set to `STORE`. 
+Where `ABC123` is the ID of the content item to be deleted, and the directive HTTP header parameter is set to `STORE`.
 
 |Delete Catalog Entry Only
 |HTTP DELETE
 |The URI of the content item in the MDC to be deleted is specified in the `contentUri` HTTP header parameter.
 
-HTTP status code of 204 NO CONTENT is returned to the client upon successful 
+HTTP status code of 204 NO CONTENT is returned to the client upon successful
 deletion with:
 
 * Catalog-ID HTTP header set to the catalog ID that was deleted from the MDC
-|`http://<DDF_HOST>:<DDF_PORT>/services/content`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content
 
 The `contentUri` HTTP header parameter is set to the URI of the catalog entry in the MDC to be deleted.
 
 |Read
 |HTTP GET
-|The ID of the content item in the DDF Content Repository to be retrieved is appended to the end of the URL.
+|The ID of the content item in the {branding} Content Repository to be retrieved is appended to the end of the URL.
 
 An HTTP 200 OK status code is returned upon successful read, and the contents of the retrieved content item are contained in the HTTP body.
 
-|`http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123`
+|\http://<DDF_HOST>:<DDF_PORT>/services/content/ABC123
 
 Where `ABC123` is the ID of the content item to be retrieved
 
@@ -808,21 +863,27 @@ Where `ABC123` is the ID of the content item to be retrieved
 
 [TIP]
 ====
-For all Content REST CRUD commands, only one content item ID is supported in the URL; i.e., bulk operations are not supported.
+For all Content REST CRUD commands, only one content item ID is supported in the URL.
+Bulk operations are not supported.
 ====
 
 ===== Interact with REST Endpoint
 
-Any web browser can be used to perform a REST read. Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.).
+Any web browser can be used to perform a REST read.
+Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.).
 
 ====== Create Request Multipart/Form-Data Parameters
 
-The `create` (`HTTP POST`) request is a multipart/form-data request, allowing the binary data (i.e., the content) to be either included in the request's body or attached as a file. This binary data is defined in a `Content-Disposition` part of the request where the `name` parameter is set to `file`, and the optional `filename` parameter indicates the name of the file that the content should be stored as.
+The `create` (`HTTP POST`) request is a multipart/form-data request, allowing the binary data (i.e., the content) to be either included in the request's body or attached as a file.
+This binary data is defined in a `Content-Disposition` part of the request where the `name` parameter is set to `file`, and the optional `filename` parameter indicates the name of the file that should store the content.
 
-Optional form parameters for the `create` request are the `directive` and `contentUri`. The `directive` form parameter's value can be either`STORE`, `PROCESS`, or `STORE_AND_PROCESS`, indicating if the content should be only stored in the Content Repository, only processed to generate a metacard and then ingested into the MDC, or both. The `directive` form parameter will default to `STORE_AND_PROCESS` if it is not
-specified. 
+Optional form parameters for the `create` request are the `directive` and `contentUri`. 
+The `directive` form parameter's value can be either`STORE`, `PROCESS`, or `STORE_AND_PROCESS`, indicating if the content should be only stored in the Content Repository, only processed to generate a metacard and then ingested into the MDC, or both.
+The `directive` form parameter will default to `STORE_AND_PROCESS` if it is not specified. 
 
-The `contentUri` form parameter allows the client to specify the URI of a product stored remotely/externally (relative to DDF). This `contentUri` is used to indicate that the client will manage the content storage but wants the Content Framework to parse the content and create/update/delete a catalog entry in the MDC using this content URI as the entry's product URI. This parameter is used when the `directive` is set to `PROCESS`.
+The `contentUri` form parameter allows the client to specify the URI of a product stored remotely/externally (relative to {branding}).
+This `contentUri` is used to indicate that the client will manage the content storage but wants the Content Framework to parse the content and create/update/delete a catalog entry in the MDC using this content URI as the entry's product URI. 
+This parameter is used when the `directive` is set to `PROCESS`.
 
 ====== Update and Delete Request HTTP Header Parameters
 
@@ -830,18 +891,20 @@ Two optional HTTP header parameters are available on the `update` and `delete` R
 
 The `directive` header parameter allows the client to optionally direct the Content Framework to:
 
-* only store the content in the DDF Content Repository (`directive=STORE`)
+* only store the content in the {branding} Content Repository (`directive=STORE`)
 * store the content in the repository and parse the content to create a metacard (`directive=STORE_AND_PROCESS`); this metacard is then created/updated/deleted in the Metadata Catalog (by invoking the Catalog Framework operations)
 
-`STORE_AND_PROCESS` is the default value for the `directive` header parameter. The `directive` header parameter is only used on the `PUT` and `DELETE` RESTful URLs that have a `contentId` in the URL.
+`STORE_AND_PROCESS` is the default value for the `directive` header parameter.
+The `directive` header parameter is only used on the `PUT` and `DELETE` RESTful URLs that have a `contentId` in the URL.
 
-The `contentUri` header parameter allows the client to specify the URI of a product stored remotely/externally (relative to DDF). The `contentUri` header parameter is only used with the `PUT` and `DELETE` RESTful URLs, where the `contentId` is not appended to the URL.
+The `contentUri` header parameter allows the client to specify the URI of a product stored remotely/externally (relative to {branding}).
+The `contentUri` header parameter is only used with the `PUT` and `DELETE` RESTful URLs, where the `contentId` is not appended to the URL.
 
 ====== Sample Requests and Responses
 
 The table below displays sample REST requests and their responses for each of the operations supported by the Content REST endpoint.
 
-For the examples below, DDF was running on host DDF_HOST on port DDF_PORT. Also, for all examples below the binary data, i.e., the "content", is not included in the request's body.
+For the examples below, {branding} was running on host `DDF_HOST` on port `DDF_PORT`. Also, for all examples below the binary data, i.e., the "content", is not included in the request's body.
 
 [cols="2,3a,3a" options="header"]
 |===
@@ -868,7 +931,7 @@ Content-Type: application/json;id=geojson
 
 <content included in payload but omitted here for brevity>
 --ARCFormBoundaryuxprlpjxmakbj4i--
----- 
+----
 
 |
 ----
@@ -876,10 +939,10 @@ HTTP/1.1 201 Created
 Catalog-ID: e82a31253e634a409c83d7164638f029
 Content-ID: ef0ef614bbdb4ede99e2371ebd2280ee
 Content-Length: 0
-Content-URI: 
+Content-URI:
 content:ef0ef614bbdb4ede99e2371ebd2280ee
 Date: Wed, 13 Feb 2013 21:56:15 GMT
-Location: 
+Location:
 http://127.0.0.1:8181/services/content/ef0ef614bbdb4ede99e2371ebd2280ee
 Server: Jetty(7.5.4.v20111024)
 ----
@@ -907,10 +970,10 @@ Content-Type: application/json;id=geojson
 HTTP/1.1 201 Created
 Content-ID: 7d671cd8e9aa4637960b37c7b3870aed
 Content-Length: 0
-Content-URI: 
+Content-URI:
 content:7d671cd8e9aa4637960b37c7b3870aed
 Date: Wed, 13 Feb 2013 21:56:16 GMT
-Location: 
+Location:
 http://127.0.0.1:8181/services/content/7d671cd8e9aa4637960b37c7b3870aed
 Server: Jetty(7.5.4.v20111024)
 
@@ -1033,7 +1096,7 @@ Date: Wed, 11 Sep 2013 15:23:01 GMT
 Server: Jetty(7.6.8.v20121106)
 ----
 
-|Delete Content and Catalog Entry	
+|Delete Content and Catalog Entry
 |
 ----
 DELETE http://DDF_HOST:DDF_PORT/services/content/911e27aba723448ea420142b0e793d38 HTTP/1.1
@@ -1052,7 +1115,7 @@ Date: Wed, 13 Feb 2013 21:56:31 GMT
 Server: Jetty(7.5.4.v20111024)
 ----
 
-|Delete Content Only	
+|Delete Content Only
 |
 ----
 DELETE http://DDF_HOST:DDF_PORT/services/content/eb91c8ee225d4cddb4d9fbe2d9bf5d7c HTTP/1.1
@@ -1070,7 +1133,7 @@ Date: Wed, 13 Feb 2013 21:56:31 GMT
 Server: Jetty(7.5.4.v20111024)
 ----
 
-|Delete Catalog Entry Only	
+|Delete Catalog Entry Only
 |
 ----
 DELETE http://DDF_HOST:DDF_PORT/services/content/ HTTP/1.1
@@ -1088,7 +1151,7 @@ Date: Wed, 13 Feb 2013 21:56:31 GMT
 Server: Jetty(7.5.4.v20111024)
 ----
 
-|Read	
+|Read
 |
 ----
 GET http://DDF_HOST:DDF_PORT/services/content/d34fd2b31f314aa6ade162015ba3016f HTTP/1.1
@@ -1110,11 +1173,14 @@ Server: Jetty(7.5.4.v20111024)
 
 ==== cURL Commands
 
-The table below illustrates sample cURL commands corresponding to a few of the above REST requests. Pay special attention to the flags, as they vary between operations.
+The table below illustrates sample cURL commands corresponding to a few of the above REST requests.
+Pay special attention to the flags, as they vary between operations.
 
-For these examples, DDF was running on host DDF_HOST on port DDF_PORT. We ingested/updated a file named geojson_valid.json whose MIME type was application/json;id=geojson, and whose content ID ended up being CONTENT_ID.
+For these examples, {branding} was running on host `DDF_HOST` on port `DDF_PORT`.
+We ingested/updated a file named `geojson_valid.json` whose MIME type was `application/json;id=geojson`, and whose content ID ended up being `CONTENT_ID`.
 
-To perform each operation without using the catalog, replace `STORE_AND_PROCESS` with `STORE`. To manipulate the catalog entry only, replace `STORE_AND_PROCESS` with `PROCESS`.
+To perform each operation without using the catalog, replace `STORE_AND_PROCESS` with `STORE`. 
+To manipulate the catalog entry only, replace `STORE_AND_PROCESS` with `PROCESS`.
 
 [cols="2,5a" options="header"]
 |===
@@ -1154,11 +1220,12 @@ curl -i -X GET http://DDF_HOST:DDF_PORT/services/content/CONTENT_ID
 
 ===== Install and Uninstall
 
-The Content REST CRUD endpoint, packaged as the content-rest-endpoint feature, can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The Content REST CRUD endpoint is packaged as the `content-rest-endpoint` feature.
 
 ===== Configuration
 
-The Content REST CRUD endpoint has no configurable properties. It can only be installed or uninstalled.
+The Content REST CRUD endpoint has no configurable properties.
+It can only be installed or uninstalled.
 
 ===== Known Issues
 

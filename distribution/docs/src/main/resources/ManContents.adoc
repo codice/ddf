@@ -1886,7 +1886,6 @@ By default, this value is set to 128. It is not recommended to set this value ex
 A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use."
 
 A detailed view is available of the properties to update.
-
 ====
 
 ===== Auditing
