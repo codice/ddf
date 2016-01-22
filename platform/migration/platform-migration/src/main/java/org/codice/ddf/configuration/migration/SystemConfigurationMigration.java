@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,14 +35,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SystemConfigurationMigration {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(SystemConfigurationMigration.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(SystemConfigurationMigration.class);
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
     private static final String TRUSTSTORE_SYSTEM_PROP = "javax.net.ssl.trustStore";
 
-    private static final String FILE_CONTAINING_CRL_LOCATION = "etc/ws-security/server/encryption.properties";
+    private static final String FILE_CONTAINING_CRL_LOCATION =
+            "etc/ws-security/server/encryption.properties";
 
     private static final String WS_SECURITY_DIR = "etc/ws-security";
 
@@ -68,7 +70,13 @@ public class SystemConfigurationMigration {
                     + "or update the property value and export again.";
 
     private static final String UNREAL_PATH_WARNING =
-            "The value for property [%s] is set to a path [%s] that could not coerced into a real path; "
+            "The value for property [%s] is set to a path [%s] that could not be coerced into a real path; "
+                    + "therefore, the file will not be included in the export.  "
+                    + "Check that the file exists on the system you're migrating to "
+                    + "or update the property value and export again.";
+
+    private static final String SYMBOLIC_LINK_PATH_WARNING =
+            "The value for property [%s] is set to a symbolic path [%s] that could not be coerced into a real path; "
                     + "therefore, the file will not be included in the export.  "
                     + "Check that the file exists on the system you're migrating to "
                     + "or update the property value and export again.";
@@ -84,6 +92,7 @@ public class SystemConfigurationMigration {
 
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         migrationWarnings.addAll(exportSecurity(exportDirectory));
+
         return migrationWarnings;
     }
 
@@ -135,7 +144,8 @@ public class SystemConfigurationMigration {
             }
         } else {
             LOGGER.debug("Unable to find CRL location in [%s] using property [%s].",
-                    encryptionPropertiesFile.toString(), CRL_PROP_KEY);
+                    encryptionPropertiesFile.toString(),
+                    CRL_PROP_KEY);
         }
         return migrationWarnings;
     }
@@ -146,7 +156,8 @@ public class SystemConfigurationMigration {
             Path destination = constructDestination(source, exportDirectory);
             copyDirectory(source, destination);
         } catch (MigrationException e) {
-            LOGGER.info(String.format("Unable to copy %s. It doesn't exist.", SECURITY_DIRECTORY), e);
+            LOGGER.info(String.format("Unable to copy %s. It doesn't exist.", SECURITY_DIRECTORY),
+                    e);
         }
     }
 
@@ -175,7 +186,8 @@ public class SystemConfigurationMigration {
         try {
             FileUtils.copyFile(source.toFile(), destination.toFile());
         } catch (IOException e) {
-            String message = String.format("Unable to copy [%s] to [%s].", source.toString(),
+            String message = String.format("Unable to copy [%s] to [%s].",
+                    source.toString(),
                     destination.toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
@@ -186,9 +198,11 @@ public class SystemConfigurationMigration {
         try {
             FileUtils.copyDirectory(source.toFile(), destination.toFile());
         } catch (IOException e) {
-            String message = String
-                    .format("Unable to copy [%s] to [%s].", source.toAbsolutePath().toString(),
-                            source.toAbsolutePath().toString());
+            String message = String.format("Unable to copy [%s] to [%s].",
+                    source.toAbsolutePath()
+                            .toString(),
+                    source.toAbsolutePath()
+                            .toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
@@ -201,14 +215,25 @@ public class SystemConfigurationMigration {
      */
     private Collection<MigrationWarning> checkIfPathIsMigratable(String propertyName, Path path) {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+
         try {
             if (path.isAbsolute()) {
-                String message = String
-                        .format(ABSOLUTE_PATH_WARNING, propertyName, path.toString());
+                String message = String.format(ABSOLUTE_PATH_WARNING,
+                        propertyName,
+                        path.toString());
                 LOGGER.debug(message);
                 migrationWarnings.add(new MigrationWarning(message));
+            } else if (Files.isSymbolicLink(path)) {
+                String message = String.format(SYMBOLIC_LINK_PATH_WARNING,
+                        propertyName,
+                        path.toString());
+                LOGGER.debug(message);
+                migrationWarnings.add(new MigrationWarning(message));
+
             } else if (!getRealPath(ddfHome.resolve(path)).startsWith(ddfHome)) {
-                String message = String.format(OUTSIDE_PATH_WARNING, propertyName, path.toString(),
+                String message = String.format(OUTSIDE_PATH_WARNING,
+                        propertyName,
+                        path.toString(),
                         ddfHome.toString());
                 LOGGER.debug(message);
                 migrationWarnings.add(new MigrationWarning(message));
@@ -218,6 +243,7 @@ public class SystemConfigurationMigration {
             LOGGER.debug(message);
             migrationWarnings.add(new MigrationWarning(message));
         }
+
         return migrationWarnings;
     }
 
@@ -227,8 +253,8 @@ public class SystemConfigurationMigration {
             properties.load(inputStream);
             return properties;
         } catch (IOException e) {
-            String message = String
-                    .format("Unable to read properties file [%s].", propertiesFile.toString());
+            String message = String.format("Unable to read properties file [%s].",
+                    propertiesFile.toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
@@ -239,8 +265,8 @@ public class SystemConfigurationMigration {
             Path realPath = path.toRealPath();
             return realPath;
         } catch (IOException e) {
-            String message = String
-                    .format("Unable to construct real path from [%s].", path.toString());
+            String message = String.format("Unable to construct real path from [%s].",
+                    path.toString());
             LOGGER.error(message, e);
             throw new MigrationException(message, e);
         }
