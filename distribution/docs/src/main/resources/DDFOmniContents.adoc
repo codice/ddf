@@ -113,6 +113,12 @@ include::${project.build.directory}/apps/security/ManContents.adoc[]
 
 <<<
 
+== Managing {branding} Solr
+
+include::${project.build.directory}/apps/solr/ManContents.adoc[]
+
+<<<
+
 == Managing {branding} Spatial
 
 include::${project.build.directory}/apps/spatial/ManContents.adoc[]
@@ -161,6 +167,12 @@ include::${project.build.directory}/apps/security/IntContents.adoc[]
 
 <<<
 
+== Integrating {branding} Solr
+
+include::${project.build.directory}/apps/solr/IntContents.adoc[]
+
+<<<
+
 == Integrating {branding} Spatial
 
 include::${project.build.directory}/apps/spatial/IntContents.adoc[]
@@ -206,6 +218,12 @@ include::${project.build.directory}/apps/platform/ExtContents.adoc[]
 == Extending {branding} Security
 
 include::${project.build.directory}/apps/security/ExtContents.adoc[]
+
+<<<
+
+== Extending {branding} Solr
+
+include::${project.build.directory}/apps/solr/ExtContents.adoc[]
 
 <<<
 

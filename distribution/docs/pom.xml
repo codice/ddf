@@ -152,6 +152,14 @@
                                             <outputDirectory>${project.build.directory}/apps/security</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
+                                            <groupId>ddf.catalog.solr</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/apps/solr</outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
                                             <groupId>org.codice.ddf.spatial</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>

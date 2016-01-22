@@ -1,4 +1,5 @@
 = Managing DDF Solr Catalog Application
 include::config.adoc[]
-                     
+
+== Overview
 include::ManContents.adoc[]
