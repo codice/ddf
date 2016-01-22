@@ -20,7 +20,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>security-pdp-authzrealm</artifactId>
-    <name>DDF :: Security :: PDP :: Simple AuthZ Realm</name>
+    <name>DDF :: Security :: PDP :: AuthZ Realm</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -35,15 +35,50 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.balana</groupId>
+            <artifactId>org.wso2.balana</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>xjc</id>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <arguments>-extension</arguments>
+                    <!-- The name of your generated source package -->
+                    <packageName>oasis.names.tc.xacml._3_0.core.schema.wd_17</packageName>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            org.wso2.balana,
+                            commons-io
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
@@ -75,12 +110,12 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.24</minimum>
+                                            <minimum>0.19</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.55</minimum>
+                                            <minimum>0.45</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

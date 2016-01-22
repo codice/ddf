@@ -47,7 +47,7 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
          - SAML 2.0 Web Browser SSO Profile with included IdP server and client
          - SAML Security Token Service (STS) based on WS-Trust
          - Automatic protection and Single Sign On (SSO) for web applications without modifying the application itself
-         - Extensible Java PDP and XACML PDP for authorization decisions
+         - Extensible PDP with XACML 3.0 support for authorization decisions
          - LDAP integration
              - Included OSGi enabled OpenDJ LDAP server
          - CAS integration

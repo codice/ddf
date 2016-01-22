@@ -137,6 +137,8 @@ public class KeyValuePermission implements Permission {
      */
     private WildcardPermission buildWildcardFromKeyValue(KeyValuePermission perm) {
         StringBuilder wildcardString = new StringBuilder();
+        wildcardString.append(perm.getKey());
+        wildcardString.append(":");
         for (String value : perm.getValues()) {
             wildcardString.append(value);
             wildcardString.append(",");

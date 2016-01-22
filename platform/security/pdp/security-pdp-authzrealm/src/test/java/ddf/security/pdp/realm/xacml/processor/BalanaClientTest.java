@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.pdp.xacml.processor;
+package ddf.security.pdp.realm.xacml.processor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +34,6 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.pdp.xacml.PdpException;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributesType;
@@ -43,8 +42,8 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 
-public class BalanaPdpTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaPdpTest.class);
+public class BalanaClientTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaClientTest.class);
 
     private static final String ROLE_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
@@ -160,7 +159,7 @@ public class BalanaPdpTest {
             xacmlRequestType.getAttributes().add(subjectAttributes);
             xacmlRequestType.getAttributes().add(categoryAttributes);
 
-            BalanaPdp pdp = new BalanaPdp(destDir);
+            BalanaClient pdp = new BalanaClient(destDir.getCanonicalPath());
 
             // Perform Test
             ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -186,7 +185,7 @@ public class BalanaPdpTest {
     public void testEvaluateroleuseractionquerycitizenshipCA() throws Exception {
         LOGGER.debug("\n\n\n##### testEvaluate_role_user_action_query_citizenship_CA");
 
-        final String COUNTRY = "CA";
+        final String country = "CA";
 
         testSetup();
 
@@ -232,7 +231,7 @@ public class BalanaPdpTest {
         citizenshipAttribute.setIncludeInResult(false);
         AttributeValueType citizenshipValue = new AttributeValueType();
         citizenshipValue.setDataType(STRING_DATA_TYPE);
-        citizenshipValue.getContent().add(COUNTRY);
+        citizenshipValue.getContent().add(country);
         citizenshipAttribute.getAttributeValue().add(citizenshipValue);
         categoryAttributes.getAttribute().add(citizenshipAttribute);
 
@@ -240,7 +239,7 @@ public class BalanaPdpTest {
         xacmlRequestType.getAttributes().add(subjectAttributes);
         xacmlRequestType.getAttributes().add(categoryAttributes);
 
-        BalanaPdp pdp = new BalanaPdp(tempDir);
+        BalanaClient pdp = new BalanaClient(tempDir.getCanonicalPath());
 
         // Perform Test
         ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -257,12 +256,12 @@ public class BalanaPdpTest {
     }
 
     @Test
-    public void testBalanaPdppoliciesdirectorydoesnotexist() throws PdpException, IOException {
-        LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_does_not_exist");
+    public void testBalanaWrapperpoliciesdirectorydoesnotexist() throws PdpException, IOException {
+        LOGGER.debug("\n\n\n##### testBalanaWrapper_policies_directory_does_not_exist");
 
         // Perform Test on new directory
         // Expect directory to be created
-        new BalanaPdp(TEST_CREATION_DIR);
+        new BalanaClient(TEST_CREATION_DIR);
 
         // Delete the directory that was just created
         FileUtils.forceDelete(new File(TEST_CREATION_DIR));
@@ -271,8 +270,8 @@ public class BalanaPdpTest {
     @Test
     /**
      * No longer expect an exception thrown here since we can start with an empty directory
-     */ public void testBalanaPdppoliciesdirectoryexistsandisempty() throws Exception {
-        LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_exists_and_is_empty");
+     */ public void testBalanaWrapperpoliciesdirectoryexistsandisempty() throws Exception {
+        LOGGER.debug("\n\n\n##### testBalanaWrapper_policies_directory_exists_and_is_empty");
 
         // Setup
         File dir = folder.newFolder(TEMP_DIR_NAME);
@@ -282,7 +281,7 @@ public class BalanaPdpTest {
             assertTrue(isDirEmpty(dir));
 
             // Perform Test
-            new BalanaPdp(dir);
+            new BalanaClient(dir.getCanonicalPath());
 
             // Cleanup
             LOGGER.debug("Deleting directory: {}", dir.getPath());
@@ -293,22 +292,21 @@ public class BalanaPdpTest {
     }
 
     @Test
-    public void testBalanaPdppoliciesdirectorypolicyadded() throws Exception {
-        LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_policy_added");
+    public void testBalanaWrapperpoliciesdirectorypolicyadded() throws Exception {
+        LOGGER.debug("\n\n\n##### testBalanaWrapper_policies_directory_policy_added");
 
         File policyDir = folder.newFolder("tempDir");
 
+        BalanaClient.defaultPollingIntervalInSeconds = 1;
         // Perform Test
-        BalanaPdp pdp = new BalanaPdp(policyDir);
+        BalanaClient pdp = new BalanaClient(policyDir.getCanonicalPath());
 
         File srcFile = new File(
                 projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
                         + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, policyDir);
 
-        // By setting the polling interval to a second
-        // the policy will be loaded
-        pdp.setPollingInterval(1);
+        Thread.sleep(2000);
 
         RequestType xacmlRequestType = new RequestType();
         xacmlRequestType.setCombinedDecision(false);

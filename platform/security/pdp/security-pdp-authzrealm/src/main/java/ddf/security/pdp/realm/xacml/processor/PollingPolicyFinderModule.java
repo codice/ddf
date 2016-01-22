@@ -11,11 +11,10 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.security.pdp.xacml.processor;
+package ddf.security.pdp.realm.xacml.processor;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Set;
 
@@ -40,6 +39,9 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
         implements FileAlterationListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PollingPolicyFinderModule.class);
 
+    /*
+     * Milliseconds
+     */
     private static final int MULTIPLIER = 1000;
 
     private FileAlterationMonitor monitor;
@@ -56,10 +58,10 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
     public PollingPolicyFinderModule(Set<String> xacmlPolicyDirectories, long pollingInterval) {
         super(xacmlPolicyDirectories);
         this.xacmlPolicyDirectories = xacmlPolicyDirectories;
-        initialize(xacmlPolicyDirectories, pollingInterval);
+        initialize(pollingInterval);
     }
 
-    private void initialize(Set<String> xacmlPolicyDirectories, long pollingInterval) {
+    private void initialize(long pollingInterval) {
         LOGGER.debug("initializing polling: {}, every {}", xacmlPolicyDirectories, pollingInterval);
         monitor = new FileAlterationMonitor(pollingInterval * MULTIPLIER);
 
@@ -188,52 +190,11 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
 
     }
 
-    /**
-     * Checks if the XACML policy directory is empty.
-     *
-     * @param xacmlPoliciesDirectory
-     *            The directory containing the XACML policy.
-     * @return true if the directory is empty and false otherwise.
-     */
-    private boolean isXacmlPoliciesDirectoriesEmpty(Set<String> xacmlPoliciesDirectories) {
-
-        // This method is currently not called, but remains in case
-        // multiple directories are supported
-        for (String xacmlPolicyDirectory : xacmlPoliciesDirectories) {
-            if (!isXacmlPoliciesDirectoryEmpty(xacmlPolicyDirectory)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private FileFilter getXmlFileFilter() {
-        FileFilter xmlFileFilter = new FileFilter() {
-            public boolean accept(File pathName) {
-                return pathName.getName().toLowerCase().endsWith(".xml");
-            }
-
-        };
-
-        return xmlFileFilter;
+        return pathName -> pathName.getName().toLowerCase().endsWith(".xml");
     }
 
-    private FilenameFilter getXmlFilenameFilter() {
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".xml");
-            }
-        };
-
-        return filter;
-    }
-
-    public void setPollingInterval(long pollingInterval) {
-        initialize(xacmlPolicyDirectories, pollingInterval);
-    }
-
-    private void reloadPolicies() {
+    public void reloadPolicies() {
         LOGGER.debug("Reloading XACML policies");
         this.loadPolicies();
     }

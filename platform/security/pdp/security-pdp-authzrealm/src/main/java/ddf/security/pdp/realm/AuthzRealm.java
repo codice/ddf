@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,13 +28,14 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.PermissionResolver;
 import org.apache.shiro.authz.permission.RolePermissionResolver;
-import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.pdp.realm.xacml.XacmlPdp;
+import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -50,66 +50,32 @@ import ddf.security.service.impl.AbstractAuthorizingRealm;
  *
  * @author tustisos
  */
-public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
-    /**
-     * Identifies the key used to retrieve a List of Strings that represent the mapping between
-     * metacard and user attributes. The mappings defined in this List of Strings are used by the
-     * "match all" evaluation to determine if this user should be authorized to access this data.
-     * <p>
-     * Each string is of the format: <code>metacardAttribute=userAttribute</code> where
-     * metacardAttribute is the name of an attribute in the metacard and userAttribute is the name
-     * of the corresponding attribute in the user credentials. It is the value of each of these
-     * attributes that will be evaluated against each other when determining if authorization should
-     * be allowed.
-     */
-    public static final String MATCH_ALL_MAPPINGS = "matchAllMappings";
+public class AuthzRealm extends AbstractAuthorizingRealm {
 
-    /**
-     * Identifies the key used to retrieve a List of Strings that represent the mapping between
-     * metacard and user attributes. The mappings defined in this List of Strings are used by the
-     * "match one" evaluation to determine if this user should be authorized to access this data.
-     * <p>
-     * Each string is of the format: <code>metacardAttribute=userAttribute</code> where
-     * metacardAttribute is the name of an attribute in the metacard and userAttribute is the name
-     * of the corresponding attribute in the user credentials. It is the value of each of these
-     * attributes that will be evaluated against each other when determining if authorization should
-     * be allowed.
-     */
-    public static final String MATCH_ONE_MAPPINGS = "matchOneMappings";
-
-    /**
-     * Identifies the key used to retrieve a List of Strings that represent roles that will be
-     * allowed to perform restricted actions. Each string defines the role name.
-     */
-    public static final String ACCESS_ROLE_LIST = "accessRoleList";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleAuthzRealm.class);
-
-    private static final String ACCESS_DENIED_MSG = "User not authorized";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthzRealm.class);
 
     private static final String PERMISSION_FINISH_1_MSG = "Finished permission check for user [";
 
     private static final String PERMISSION_FINISH_2_MSG = "]. Result is that permission [";
 
-    // This method is for testing purposes only, Mockito was not able to mock the
-    // getAuthorizationInfo method
-    AuthorizationInfo info = null;
-
     private List<PolicyExtension> policyExtensions = new ArrayList<>();
 
-    private HashMap<String, String> matchAllMap = new HashMap<String, String>();
+    private HashMap<String, String> matchAllMap = new HashMap<>();
 
-    private HashMap<String, String> matchOneMap = new HashMap<String, String>();
+    private HashMap<String, String> matchOneMap = new HashMap<>();
+
+    private XacmlPdp xacmlPdp;
+
+    public AuthzRealm(String dirPath) throws PdpException {
+        super();
+        xacmlPdp = new XacmlPdp(dirPath);
+    }
 
     // this realm is for authorization only
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
             throws AuthenticationException {
         return null;
-    }
-
-    public void setAuthorizationInfo(AuthorizationInfo info) {
-        this.info = info;
     }
 
     /**
@@ -163,9 +129,6 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      */
     @Override
     public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
-        if (info != null) {
-            return info;
-        }
         return super.getAuthorizationInfo(principals);
     }
 
@@ -210,10 +173,10 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     public boolean[] isPermitted(PrincipalCollection subjectPrincipal,
             List<Permission> permissions) {
         boolean[] results = new boolean[permissions.size()];
-        AuthorizationInfo info = getAuthorizationInfo(subjectPrincipal);
+        AuthorizationInfo authorizationInfo = getAuthorizationInfo(subjectPrincipal);
         int i = 0;
         for (Permission permission : permissions) {
-            results[i++] = isPermitted(subjectPrincipal, permission, info);
+            results[i++] = isPermitted(subjectPrincipal, permission, authorizationInfo);
         }
 
         return results;
@@ -224,18 +187,15 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * implies the given Permission.
      *
      * @param permission the permission being checked.
-     * @param info       the application-specific subject/user identifier.
+     * @param authorizationInfo       the application-specific subject/user identifier.
      * @return true if the user is permitted
      */
     private boolean isPermitted(PrincipalCollection subjectPrincipal, Permission permission,
-            AuthorizationInfo info) {
-        Collection<Permission> perms = getPermissions(info);
+            AuthorizationInfo authorizationInfo) {
+        Collection<Permission> perms = getPermissions(authorizationInfo);
         String curUser = "<user>";
         if (subjectPrincipal != null && subjectPrincipal.getPrimaryPrincipal() != null) {
             curUser = subjectPrincipal.getPrimaryPrincipal().toString();
-        }
-        if (SecurityLogger.isDebugEnabled()) {
-            SecurityLogger.logDebug("Starting permissions check for user [" + curUser + "]");
         }
         if (!CollectionUtils.isEmpty(perms)) {
             if (permission instanceof KeyValuePermission) {
@@ -248,35 +208,31 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             if (permission != null && permission instanceof KeyValueCollectionPermission) {
                 KeyValueCollectionPermission kvcp = (KeyValueCollectionPermission) permission;
                 List<KeyValuePermission> keyValuePermissions = kvcp.getKeyValuePermissionList();
-                List<KeyValuePermission> matchOnePermissions = new ArrayList<KeyValuePermission>();
-                List<KeyValuePermission> matchAllPermissions = new ArrayList<KeyValuePermission>();
+                List<KeyValuePermission> matchOnePermissions = new ArrayList<>();
+                List<KeyValuePermission> matchAllPermissions = new ArrayList<>();
+
+                List<KeyValuePermission> matchAllPreXacmlPermissions = new ArrayList<>();
 
                 for (KeyValuePermission keyValuePermission : keyValuePermissions) {
                     String metacardKey = keyValuePermission.getKey();
-                    // user specificied this key in the match all list - remap key
+                    // user specified this key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
-                        if (SecurityLogger.isDebugEnabled()) {
-                            SecurityLogger.logDebug(
-                                    "Mapping key " + metacardKey + " to " + matchAllMap
-                                            .get(metacardKey));
-                        }
                         KeyValuePermission kvp = new KeyValuePermission(
                                 matchAllMap.get(metacardKey), keyValuePermission.getValues());
                         matchAllPermissions.add(kvp);
                         // user specified this key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
-                        if (SecurityLogger.isDebugEnabled()) {
-                            SecurityLogger.logDebug(
-                                    "Mapping key " + metacardKey + " to " + matchOneMap
-                                            .get(metacardKey));
-                        }
                         KeyValuePermission kvp = new KeyValuePermission(
                                 matchOneMap.get(metacardKey), keyValuePermission.getValues());
                         matchOnePermissions.add(kvp);
                         // this key was not specified in either - default to match all with the
                         // same key value
                     } else {
-                        matchAllPermissions.add(keyValuePermission);
+                        //creating a KeyValuePermission list to try to quick match all of these permissions
+                        //if that fails, then XACML will try to match them
+                        //this covers the case where attributes on the user match up perfectly with the permissions being implied
+                        //this also allows the xacml permissions to run through the policy extensions
+                        matchAllPreXacmlPermissions.add(keyValuePermission);
                     }
                 }
 
@@ -284,17 +240,22 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                         CollectionPermission.UNKNOWN_ACTION, perms);
                 KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
                         kvcp.getAction(), matchAllPermissions);
+                KeyValueCollectionPermission matchAllPreXacmlCollection = new KeyValueCollectionPermission(
+                        kvcp.getAction(), matchAllPreXacmlPermissions);
                 KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
                         kvcp.getAction(), matchOnePermissions);
 
                 matchAllCollection = isPermittedByExtensionAll(subjectAllCollection,
                         matchAllCollection);
+                matchAllPreXacmlCollection = isPermittedByExtensionAll(subjectAllCollection,
+                        matchAllPreXacmlCollection);
                 matchOneCollection = isPermittedByExtensionOne(subjectAllCollection,
                         matchOneCollection);
                 MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(
                         perms);
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
+                boolean matchAllXacml = subjectAllCollection.implies(matchAllPreXacmlCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
                 if (SecurityLogger.isDebugEnabled()) {
                     if (matchAll && matchOne) {
@@ -307,7 +268,13 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                                         + permission + "] is not implied.");
                     }
                 }
-                return (matchAll && matchOne);
+
+                //if we weren't able to automatically imply these permissions, call out to XACML
+                if (!matchAllXacml) {
+                    KeyValueCollectionPermission xacmlPermissions = new KeyValueCollectionPermission(kvcp.getAction(), matchAllPreXacmlPermissions);
+                    matchAllXacml = xacmlPdp.isPermitted(curUser, authorizationInfo, xacmlPermissions);
+                }
+                return matchAll && matchOne && matchAllXacml;
             }
 
             for (Permission perm : perms) {
@@ -373,42 +340,26 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     }
 
     /**
-     * Returns a {@link WildcardPermission} representing a {@link KeyValuePermission}
-     *
-     * @param perm the permission to convert.
-     * @return new equivalent permission
-     */
-    private WildcardPermission buildWildcardFromKeyValue(KeyValuePermission perm) {
-        StringBuilder wildcardString = new StringBuilder();
-        for (String value : perm.getValues()) {
-            wildcardString.append(value);
-            wildcardString.append(",");
-        }
-        return new WildcardPermission(
-                wildcardString.toString().substring(0, wildcardString.length() - 1));
-    }
-
-    /**
      * Returns a collection of {@link Permission} objects that the {@link AuthorizationInfo} object
      * of a {@link ddf.security.Subject} is asserting.
      *
-     * @param info the application-specific subject/user identifier.
+     * @param authorizationInfo the application-specific subject/user identifier.
      * @return collection of Permissions.
      */
-    private Collection<Permission> getPermissions(AuthorizationInfo info) {
-        Set<Permission> permissions = new HashSet<Permission>();
+    private Collection<Permission> getPermissions(AuthorizationInfo authorizationInfo) {
+        Set<Permission> permissions = new HashSet<>();
 
-        if (info != null) {
-            Collection<Permission> perms = info.getObjectPermissions();
+        if (authorizationInfo != null) {
+            Collection<Permission> perms = authorizationInfo.getObjectPermissions();
             if (!CollectionUtils.isEmpty(perms)) {
                 permissions.addAll(perms);
             }
-            perms = resolvePermissions(info.getStringPermissions());
+            perms = resolvePermissions(authorizationInfo.getStringPermissions());
             if (!CollectionUtils.isEmpty(perms)) {
                 permissions.addAll(perms);
             }
 
-            perms = resolveRolePermissions(info.getRoles());
+            perms = resolveRolePermissions(authorizationInfo.getRoles());
             if (!CollectionUtils.isEmpty(perms)) {
                 permissions.addAll(perms);
             }
@@ -428,7 +379,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         Collection<Permission> perms = Collections.emptySet();
         PermissionResolver resolver = getPermissionResolver();
         if (resolver != null && !CollectionUtils.isEmpty(stringPerms)) {
-            perms = new LinkedHashSet<Permission>(stringPerms.size());
+            perms = new HashSet<>(stringPerms.size());
             for (String strPermission : stringPerms) {
                 Permission permission = getPermissionResolver().resolvePermission(strPermission);
                 perms.add(permission);
@@ -448,7 +399,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         Collection<Permission> perms = Collections.emptySet();
         RolePermissionResolver resolver = getRolePermissionResolver();
         if (resolver != null && !CollectionUtils.isEmpty(roleNames)) {
-            perms = new LinkedHashSet<Permission>(roleNames.size());
+            perms = new HashSet<>(roleNames.size());
             for (String roleName : roleNames) {
                 Collection<Permission> resolved = resolver.resolvePermissionsInRole(roleName);
                 if (!CollectionUtils.isEmpty(resolved)) {
@@ -484,9 +435,9 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * Sets the mappings used by the "match all" evaluation to determine if this user should be
      * authorized to access requested data.
      * <p>
-     * Each string is of the format: <code>metacardAttribute=userAttribute</code><br/>
-     * where <code>metacardAttribute</code> is the name of an attribute in the metacard and
-     * <code>userAttribute</code> is the name of the corresponding attribute in the user
+     * Each string is of the format: <code>subjectAttrName=metacardAttrName</code><br/>
+     * where <code>metacardAttrName</code> is the name of an attribute in the metacard and
+     * <code>subjectAttrName</code> is the name of the corresponding attribute in the user
      * credentials.<br/>
      * It is the values corresponding to each of these attributes that will be evaluated against
      * each other when determining if authorization should be allowed.
@@ -514,22 +465,12 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
     }
 
     /**
-     * Takes in a comma-delimited string of match all mappings.
-     *
-     * @param commaStr
-     * @see SimpleAuthzRealm#setMatchAllMappings(List)
-     */
-    public void setMatchAllMappings(String commaStr) {
-        setMatchAllMappings(convertToList(commaStr));
-    }
-
-    /**
      * Sets the mappings used by the "match one" evaluation to determine if this user should be
      * authorized to access requested data.
      * <p>
-     * Each string is of the format: <code>metacardAttribute=userAttribute</code><br/>
-     * where <code>metacardAttribute</code> is the name of an attribute in the metacard and
-     * <code>userAttribute</code> is the name of the corresponding attribute in the user
+     * Each string is of the format: <code>subjectAttrName=metacardAttrName</code><br/>
+     * where <code>metacardAttrName</code> is the name of an attribute in the metacard and
+     * <code>subjectAttrName</code> is the name of the corresponding attribute in the user
      * credentials.<br/>
      * It is the values corresponding to each of these attributes that will be evaluated against
      * each other when determining if authorization should be allowed.
@@ -554,26 +495,5 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                 }
             }
         }
-    }
-
-    /**
-     * Takes in a comma-delimited string of match one mappings.
-     *
-     * @param commaStr
-     * @see SimpleAuthzRealm#setMatchOneMappings(List)
-     */
-    public void setMatchOneMappings(String commaStr) {
-        setMatchOneMappings(convertToList(commaStr));
-    }
-
-    private List<String> convertToList(String commaStr) {
-        List<String> list = new ArrayList<String>();
-        if (commaStr != null) {
-            for (String curValue : commaStr.split(",")) {
-                curValue = curValue.trim();
-                list.add(curValue);
-            }
-        }
-        return list;
     }
 }

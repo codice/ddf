@@ -900,12 +900,8 @@ The AnonymousHandler also checks for the existence of basic auth credentials or 
 |ddf.security.service.AbstractAuthorizingRealm
 |This is an abstract authorizing realm that takes care of caching and parsing the Subject's AuthorizingInfo and should be extended to allow the implementing realm focus on making the decision.
 
-|ddf.security.pdp.realm.XACMLRealm
-|This realm delegates the authorization decision to a XACML-based Policy Decision Point (PDP) backend.
-It creates a XACML 3.0 request and looks on the OSGi framework for any service implementing ddf.security.pdp.api.PolicyDecisionPoint.
-
-|ddf.security.pdp.realm.SimpleAuthZRealm
-|This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision.
+|ddf.security.pdp.realm.AuthZRealm
+|This realm performs the authorization decision and may or may not delegate out to the external XACML processing engine. It uses the incoming permissions to create a decision.
 However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface.
 This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies.
 This approach is often easier to configure for those that are not familiar with XACML.
@@ -967,8 +963,8 @@ This means that it is still possible to federate and pass a machine's identity, 
 |       |                   |SAML Assert|  |                      |  |  AuthZ  |   |       |       |cDEF    |   /=--------\                                  |
 |       |                   |  Handler  |  |                      \->| Filter  |-->|----=->|------>|        |-->|         |                                  |
 |       |   /--------\      \-----------/  |      /-----------\      |/-------\|   |       |       |  PDP   |   |Expansion|                                  |
-|       |   | cF55   |            |        |      | cF55      |  No  || Has   ||   |       |       | (Java) |   | Service |                                  |
-|       |   | Not    |            v        |      | Not       |<-----|| Perm? ||   |       |       | (XACML)|   |         |                                  |
+|       |   | cF55   |            |        |      | cF55      |  No  || Has   ||   |       |       |        |   | Service |                                  |
+|       |   | Not    |            v        |      | Not       |<-----|| Perm? ||   |       |       |        |   |         |                                  |
 |       |   |Handled |      /-----------\  |      | Authorized|      |\-------/|<--|<----=-|<------|        |<--|         |                                  |
 |       |   \--------/      |   Other   |  |      \-----------/      |    |Yes |   |       |       |        |   \---------/                                  |
 |       |       ^           | Handlers  |  |                         |    v    |   |       |       \--------/                                                |
@@ -1027,11 +1023,11 @@ Each metacard result will contain security attributes that are populated by the 
 The security attribute is a HashMap containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a KeyValueCollectionPermission from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
-The decision to filter the metacard eventually relies on the installed PDP (`features:install security-pdp-java`OR `features:install security-pdp-xacml`).
-The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
+The decision to filter the metacard eventually relies on the PDP (`features:install security-pdp-authz`).
+The PDP returns a decision, and the metacard will either be filtered or allowed to pass through.
 
 The security attributes populated on the metacard are completely dependent on the type of the metacard.
-Each type of metacard must have its own PolicyPlugin that reads the metadata being returned.
+Each type of metacard must have its own PolicyPlugin that reads the metadata being returned and returns the metacard's security attribute.
 If the subject permissions are missing during filtering, all resources will be filtered.
 
 Example (represented as simple XML for ease of understanding):
@@ -2210,8 +2206,8 @@ Note that the rules listed for each key are processed in order, so they may buil
 | |        |------------->|             |Authorized? /-------\       /-------------\         |
 | |        |              |   Policy    |----------->|--=--->|------>|             |         |
 | |        |              | Enforcement | Decision   |       |       |    PDP      |         |
-| |        |   results    |   Point     |<-----------|<--=---|<------|   (Java)    |         |
-| | cDEF   |<-------------|        cDEF |            |       |       |   (XACML)   |         |
+| |        |   results    |   Point     |<-----------|<--=---|<------|             |         |
+| | cDEF   |<-------------|        cDEF |            |       |       |             |         |
 | |        |              |             |<-------\   |       |       |             |         |
 | \--------/              \-------------/        |   |       |       |    cDEF     |         |
 |                                                |   |       |       \-------------/         |

@@ -1251,7 +1251,9 @@ None
 
 == Security PDP
 
-The DDF Security PDP application contains services that are able to perform authorization decisions based on configurations and policies. In the DDF Security Framework, these components are called realms, and they implement the `org.apache.shiro.realm.Realm` and `org.apache.shiro.authz.Authorizer` interfaces. Although these components perform decisions on access control, enforcement of this decision is performed by components within the Security PEP application.
+The DDF Security PDP module contains services that are able to perform authorization decisions based on configurations and policies.
+In the DDF Security Framework, these components are called realms, and they implement the `org.apache.shiro.realm.Realm` and `org.apache.shiro.authz.Authorizer` interfaces.
+Although these components perform decisions on access control, enforcement of this decision is performed by components within the notional PEP application.
 
 === Components
 [cols="3" options="header"]
@@ -1261,27 +1263,29 @@ The DDF Security PDP application contains services that are able to perform auth
 |Located in Feature
 |Description/Link to Bundle Page
 
-|security-pdp-xacmlrealm
-|security-pdp-xacml
-|Security PDP XACML Realm
-
 |security-pdp-authzrealm
-|security-pdp-java
+|security-pdp-authz
 |Security PDP Java Realm
 
 |===
 
-=== Security PDP Java Realm
+=== Security PDP AuthZ Realm
 
-The DDF Security PDP Java Realm exposes a realm service that makes decisions on authorization requests using the attributes stored within the metacard to determine if access should be granted. Unlike the Security PDP XACML Realm, this realm does not use XACML and does not delegate decisions to an external processing engine. Decisions are made based on "match-all" and "match-one" logic. The configuration below provides the mapping between user attributes and metacard attributes - one map exists for each type of mapping (each map may contain multiple values).
+The DDF Security PDP AuthZ Realm exposes a realm service that makes decisions on authorization requests using the attributes stored within the metacard to determine if access should be granted.
+This realm can use XACML and will delegate decisions to an external processing engine if internal processing fails.
+Decisions are first made based on the "match-all" and "match-one" logic.
+Any attributes listed in the "match-all" or "match-one" sections will not be passed to the XACML processing engine and they will be matched internally.
+It is recommended to list as many attributes as possible in these sections to avoid going out to the XACML processing engine for performance reasons.
+If it is desired that all decisions be passed to the XACML processing engine, remove all of the "match-all" and "match-one" configurations.
+The configuration below provides the mapping between user attributes and the attributes being asserted - one map exists for each type of mapping (each map may contain multiple values).
 
-* Match-All Mapping:  This mapping is used to guarantee that all values present in the specified metacard attribute exist in the corresponding user attribute.
+* Match-All Mapping:  This mapping is used to guarantee that all values present in the attribute being asserted exist in the corresponding user attribute.
 
-* Match-One Mapping:  This mapping is used to guarantee that at least one of the values present in the specified metacard attribute exists in the corresponding user attribute.
+* Match-One Mapping:  This mapping is used to guarantee that at least one of the values present in the attribute being asserted exists in the corresponding user attribute.
 
 ==== Installation
 
-This bundle is installed by default and can be added by installing the `security-pdp-java` feature if it was uninstalled previously.
+This bundle is installed by default and can be added by installing the `security-pdp-authz` feature if it was uninstalled previously.
 
 ==== Configuration
 
@@ -1321,40 +1325,7 @@ None
 
 |org.apache.shiro.realm.Realm +
 org.apache.shiro.authz.Authorizer
-|ddf.security.pdp.realm.SimpleAuthzRealm
-|None
-
-|===
-
-=== Security PDP XACML Realm
-
-The DDF Security PDP XACML realm exposes a realm that creates a XACML request with the incoming authorization information and sends the request to a XACML processing engine. The engine that is sent the request is not hardcoded and is retrieved at runtime by the OSGi service registry. This realm contains an embedded XACML processing engine that handles the requests and policies.
-
-==== Installation
-
-This bundle is not installed by default and can be added by installing the `security-pdp-xacml` feature.
-
-==== Configuration
-
-===== Settings
-None
-
-==== Implementation Details
-
-===== Imported Services
-None
-
-===== Exported Services
-[cols="3" options="header"]
-|===
-
-|Registered Interfaces
-|Implementation Class
-|Properties Set
-
-|org.apache.shiro.realm.Realm +
-org.apache.shiro.authz.Authorizer
-|ddf.security.pep.realm.XACMLRealm
+|ddf.security.pdp.realm.AuthzRealm
 |None
 
 |===
