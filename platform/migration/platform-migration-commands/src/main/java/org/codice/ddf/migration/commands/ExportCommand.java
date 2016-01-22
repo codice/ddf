@@ -11,11 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.platform;
+package org.codice.ddf.migration.commands;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 
+import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationWarning;
@@ -25,8 +27,9 @@ import org.codice.ddf.migration.MigrationWarning;
  * are exported to the directory specified in the implementation of the service
  * (see {@link ConfigurationFileDirectory} for an example).
  */
-@Command(scope = PlatformCommands.NAMESPACE, name = "config-export", description = "Exports configurations")
-public class ExportCommand extends PlatformCommands {
+@Command(scope = MigrationCommands.NAMESPACE, name = "export", description = "The export command delegates to all "
+        + "registered Migratable services to export bundle specific configuration and data.")
+public class ExportCommand extends MigrationCommands {
 
     private static final String STARTING_EXPORT_MESSAGE = "Exporting current configurations to %s.";
 
@@ -40,6 +43,9 @@ public class ExportCommand extends PlatformCommands {
 
     protected final Path defaultExportDirectory;
 
+    @Argument(index = 0, name = "exportDirectory", description = "Path to directory to store export", required = false, multiValued = false)
+    String exportDirectoryArgument;
+
     public ExportCommand(ConfigurationMigrationService configurationMigrationService,
             Path defaultExportDirectory) {
         this.configurationMigrationService = configurationMigrationService;
@@ -48,10 +54,17 @@ public class ExportCommand extends PlatformCommands {
 
     @Override
     protected Object doExecute() {
-        outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, defaultExportDirectory));
+        Path exportDirectory;
+        if (exportDirectoryArgument == null || exportDirectoryArgument.isEmpty()) {
+            exportDirectory = defaultExportDirectory;
+        } else {
+            exportDirectory = Paths.get(exportDirectoryArgument);
+        }
+
+        outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, exportDirectory));
         try {
             Collection<MigrationWarning> migrationWarnings = configurationMigrationService
-                    .export(defaultExportDirectory);
+                    .export(exportDirectory);
 
             if (migrationWarnings.isEmpty()) {
                 outputSuccessMessage(String.format(SUCCESSFUL_EXPORT_MESSAGE));
@@ -59,7 +72,7 @@ public class ExportCommand extends PlatformCommands {
                 for (MigrationWarning migrationWarning : migrationWarnings) {
                     outputWarningMessage(migrationWarning.getMessage());
                 }
-                outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, defaultExportDirectory));
+                outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, exportDirectory));
             }
         } catch (Exception e) {
             outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e.getMessage()));

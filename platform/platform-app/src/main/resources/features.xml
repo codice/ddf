@@ -644,6 +644,11 @@
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-migration-commands" install="manual" version="${project.version}"
+             description="Migration Command line tools">
+        <bundle>mvn:ddf.platform.migration/platform-migration-commands/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-scheduler" install="manual" version="${project.version}"
              description="Schedules tasks">
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
@@ -938,6 +943,7 @@
         <feature>common-libraries</feature>
         <feature>platform-migratable-api</feature>
         <feature>platform-migration</feature>
+        <feature>platform-migration-commands</feature>
         <feature>platform-security-session</feature>
         <feature>cxf</feature>
         <feature>camel</feature>
