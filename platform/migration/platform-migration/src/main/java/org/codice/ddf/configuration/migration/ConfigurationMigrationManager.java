@@ -35,7 +35,6 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -142,9 +141,7 @@ public class ConfigurationMigrationManager
         for (ServiceReference<Migratable> serviceReference : getMigratableServiceReferences()) {
 
             Migratable migratable = getBundleContext().getService(serviceReference);
-            MigrationMetadata migrationMetadata =
-                    migratable.export(exportDirectory.resolve((String) serviceReference.getProperty(
-                            Constants.SERVICE_PID)));
+            MigrationMetadata migrationMetadata = migratable.export(exportDirectory);
             warnings.addAll(migrationMetadata.getMigrationWarnings());
         }
 

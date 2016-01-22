@@ -199,7 +199,7 @@ public class MigratableUtilTest {
 
         assertThat(warnings, is(empty()));
         verifyStatic();
-        FileUtils.copyFile(VALID_SOURCE_PATH.toFile(),
+        FileUtils.copyDirectory(VALID_SOURCE_PATH.toFile(),
                 VALID_DESTINATION_PATH.resolve(VALID_SOURCE_PATH)
                         .toFile());
     }
@@ -253,10 +253,10 @@ public class MigratableUtilTest {
     @Test(expected = MigrationException.class)
     public void copyDirectoryFails() throws IOException {
         doThrow(new IOException()).when(FileUtils.class);
-        FileUtils.copyFile(any(File.class), any(File.class));
+        FileUtils.copyDirectory(any(File.class), any(File.class));
 
         MigratableUtil migratableUtil = new MigratableUtil();
-        migratableUtil.copyFile(VALID_SOURCE_PATH, VALID_DESTINATION_PATH, warnings);
+        migratableUtil.copyDirectory(VALID_SOURCE_PATH, VALID_DESTINATION_PATH, warnings);
     }
 
     @Test

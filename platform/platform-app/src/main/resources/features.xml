@@ -639,6 +639,11 @@
         <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
     </feature>
 
+    <feature name ="platform-migratable" install="manual" version="${project.version}"
+             description="Exports Platform configurations and system files">
+        <bundle>mvn:ddf.platform/platform-migratable/${project.version}</bundle>
+    </feature>
+
     <feature name ="platform-migration" install="manual" version="${project.version}"
              description="Listens for new configuration files and updates configuration admin with the new configurations.">
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
@@ -966,6 +971,7 @@
         <feature>error</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
+        <feature>platform-migratable</feature>
 
         <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
         <!-- for slf4j-ext -->
@@ -979,6 +985,7 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}</bundle>
         <bundle>mvn:org.joda/joda-convert/${joda-convert.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
+        <bundle>mvn:javax.validation/validation-api/${validation.version}</bundle>
     </feature>
 
     <feature name="platform-security-session" install="manual" version="${project.version}"

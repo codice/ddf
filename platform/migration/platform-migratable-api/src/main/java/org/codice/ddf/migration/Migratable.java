@@ -15,6 +15,8 @@ package org.codice.ddf.migration;
 
 import java.nio.file.Path;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * This interface provides the mechanism for implementers to define how their data shall be
  * exported for later import into a new system.
@@ -30,19 +32,19 @@ public interface Migratable {
     * Export all migratable data to the specified directory
     *
     * @param exportPath Path where {@link Migratable} specific data must be exported. 
-    *                   The path is unique to the {@link Migratable} to prevent name collisions.
-    *                   exportPath cannot be null.
-    *
+    *                   exportPath will never be null.              
+    *       
     * @return Metadata describing the results of the migration
     */
-    public MigrationMetadata export(Path exportPath) throws MigrationException;
+    @NotNull 
+    public MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
     
     /**
     * Get a description of the migratable data. This description will be
     * used for display purposes by consumers of {@link Migratable} services.
-    * The description returned cannot be null.
     * @return A short description of the migratable data
     */
+    @NotNull 
     public String getDescription();
     
     /**

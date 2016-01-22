@@ -65,10 +65,6 @@ import com.google.common.collect.ImmutableList;
 @PrepareForTest(ConfigurationMigrationManager.class)
 public class ConfigurationMigrationManagerTest {
 
-    private static final String SERVICE_PID_1 = "migratable1";
-
-    private static final String SERVICE_PID_2 = "migratable2";
-
     private static ObjectName configMigrationServiceObjectName;
 
     @Mock
@@ -114,10 +110,8 @@ public class ConfigurationMigrationManagerTest {
 
         when(bundleContext.getServiceReferences(Migratable.class, null)).thenReturn(
                 serviceReferences);
-        when(serviceReference1.getProperty("service.pid")).thenReturn(SERVICE_PID_1);
         when(bundleContext.getService(serviceReference1)).thenReturn(migratable1);
         when(migratable1.export(any(Path.class))).thenReturn(noWarnings);
-        when(serviceReference2.getProperty("service.pid")).thenReturn(SERVICE_PID_2);
         when(bundleContext.getService(serviceReference2)).thenReturn(migratable2);
         when(migratable2.export(any(Path.class))).thenReturn(noWarnings);
 
@@ -333,8 +327,8 @@ public class ConfigurationMigrationManagerTest {
                 export(() -> configurationMigrationManager.export(exportPath));
 
         assertThat(migrationWarnings, is(empty()));
-        verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
-        verify(migratable2).export(exportPath.resolve(SERVICE_PID_2));
+        verify(migratable1).export(exportPath);
+        verify(migratable2).export(exportPath);
     }
 
     @Test
@@ -355,8 +349,8 @@ public class ConfigurationMigrationManagerTest {
                 export(() -> configurationMigrationManager.export(exportPath));
 
         assertThat(migrationWarnings, containsInAnyOrder(expectedWarnings));
-        verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
-        verify(migratable2).export(exportPath.resolve(SERVICE_PID_2));
+        verify(migratable1).export(exportPath);
+        verify(migratable2).export(exportPath);
     }
 
     @Test(expected = MigrationException.class)
@@ -370,7 +364,7 @@ public class ConfigurationMigrationManagerTest {
         try {
             export(() -> configurationMigrationManager.export(exportPath));
         } finally {
-            verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
+            verify(migratable1).export(exportPath);
             verify(migratable2, never()).export(any(Path.class));
         }
     }
@@ -385,7 +379,7 @@ public class ConfigurationMigrationManagerTest {
         try {
             export(() -> configurationMigrationManager.export(exportPath));
         } finally {
-            verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
+            verify(migratable1).export(exportPath);
             verify(migratable2, never()).export(any(Path.class));
         }
     }
