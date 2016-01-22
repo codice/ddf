@@ -1,10 +1,9 @@
 
-== Overview
 The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
 This page describes:
 
-* which applications must be installed prior to installing this application. 
+* which applications must be installed prior to installing this application.
 * how to install the {branding} Spatial Application.
 * how to verify if the application was successfully installed.
 * how to uninstall the application.
@@ -12,15 +11,15 @@ This page describes:
 * the optional features available in the application.
 * the console commands that come with the application.
 
-== Prerequisites
+=== Prerequisites
 
 Before the {branding} Spatial Application can be installed:
 
 * the {branding} Kernel must be running
-* the {branding} Platform Application must be installed 
+* the {branding} Platform Application must be installed
 * the {branding} Catalog Application must be installed
 
-== Installing
+=== Installing
 . Before installing a {branding} application, verify that its prerequisites have been met.
 . Copy the {branding} application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
 
@@ -29,11 +28,11 @@ Before the {branding} Spatial Application can be installed:
 These Installation steps are the same whether {branding} was installed from a distribution zip or a custom installation using the {branding} Kernel zip.
 ====
 
-== Verifying
+==== Verifying
 . Verify the appropriate features for the {branding} application have been installed using the `features:list` command to view the KAR file's features.
 . Verify that the bundles within the installed features are in an active state.
 
-== Uninstalling
+==== Uninstalling
 [WARNING]
 ====
 It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
@@ -58,7 +57,7 @@ The repository URLs for installed applications can be obtained by entering:
       `features:listrepositories -u`
 ====
 
-== Reverting the Uninstall
+==== Reverting the Uninstall
 
 If the uninstall of the {branding} application needs to be reverted, this is accomplished by either:
 
@@ -69,49 +68,54 @@ If the uninstall of the {branding} application needs to be reverted, this is acc
 ----
 features:addurl <Application's feature repository URL>
 features:install <Application's main feature>
-
-Example:
-
-    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
-    ddf@local>features:install catalog-app
 ----
 
-== Upgrading
+.Example
+----
+ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+ddf@local>features:install catalog-app
+----
+
+==== Upgrading
 
 To upgrade an application, complete the following procedure.
 
 . Uninstall the application by following the Uninstall Applications instructions above.
-. Install the new application KAR file by copying the `admin-app-X.Y.kar` file to the `<INSTALL_DIRECTORY>/deploy` directory. 
+. Install the new application KAR file by copying the `admin-app-X.Y.kar` file to the `<INSTALL_DIRECTORY>/deploy` directory.
 . Start the application.
 . Complete the steps in the Verify section above to determine if the upgrade was successful.
 
-== Optional Features
+=== Optional Features
 
-=== Offline Gazetteer Service
+==== Offline Gazetteer Service
 
-In the Spatial Application, you have the option to install a feature called `offline-gazetteer`. This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
+In the Spatial Application, you have the option to install a feature called `offline-gazetteer`.
+This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
 
-To use the offline gazetteer, you will need to create an index. To do so, you'll need to use the `geonames:update` command which is explained in the next section.
+To use the offline gazetteer, you will need to create an index.
+To do so, you'll need to use the `geonames:update` command which is explained in the next section.
 
-== Console Commands
-=== GeoNames Commands
+=== Console Commands
+
+.GeoNames Commands
 [cols="2,2,6" options="header"]
 |===
 |Title
 |Namespace
 |Description
 
-|DDF :: Spatial :: Commands
+|{branding} :: Spatial :: Commands
 |`geonames`
 |The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
 |===
 
-=== Commands
+==== Commands
+
 ----
 geonames:update
 ----
 
-=== Command Descriptions
+==== Command Descriptions
 [cols="2,8a" options="header"]
 |===
 |Command
@@ -121,7 +125,7 @@ geonames:update
 |Adds new entries to an existing local GeoNames index.  Entries can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip).  Currently .txt and .zip files are supported for manual entries.  Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country to the local GeoNames index.  The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt.  Using the argument "all" will download all of the current country codes (this process may take some time).  In addition to country codes, GeoNames also provides entries for cities based on their population sizes.  The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
 
 The index location can be configured via the Admin UI or the Felix Web Console. By default, the index location is `data/geonames-index`. If you specify a relative path, it is relative to the location of the unzipped
-DDF distribution. You may specify an absolute path if you want the index to be located somewhere else.
+{branding} distribution. You may specify an absolute path if you want the index to be located somewhere else.
 
 The `-c` or `--create` flag can be added to create a new GeoNames index. This will overwrite any existing index at the location specified in the Admin UI or Felix Web Console. The new index will be filled with the entries in the file you pass to the command. You must create an index before you can add additional entries to it (i.e. running the command without the `-c` or `--create` flag).
 |===
