@@ -13,6 +13,8 @@
 -->
 <features name="${project.artifactId}-${project.version}">
 
+    <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
+
     <feature name="security-handler-api" install="manual" version="${project.version}"
              description="API for authentication handlers for web applications.">
         <bundle>mvn:ddf.security.handler/security-handler-api/${project.version}</bundle>

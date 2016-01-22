@@ -36,7 +36,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Fragment-Host>org.apache.karaf.webconsole.console;bundle-version="[2.4.1,3)"</Fragment-Host>
+                        <Fragment-Host>org.apache.karaf.webconsole.console</Fragment-Host>
                         <Export-Package/>
                         <Import-Package/>
                     </instructions>
