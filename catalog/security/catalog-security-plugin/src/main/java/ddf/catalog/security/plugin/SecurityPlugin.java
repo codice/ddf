@@ -18,11 +18,14 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
@@ -62,6 +65,19 @@ public class SecurityPlugin implements AccessPlugin {
 
     @Override
     public QueryResponse processPostQuery(QueryResponse input) throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public ResourceRequest processPreResource(ResourceRequest input)
+            throws StopProcessingException {
+        setSubject(input);
+        return input;
+    }
+
+    @Override
+    public ResourceResponse processPostResource(ResourceResponse input, Metacard metacard)
+            throws StopProcessingException {
         return input;
     }
 

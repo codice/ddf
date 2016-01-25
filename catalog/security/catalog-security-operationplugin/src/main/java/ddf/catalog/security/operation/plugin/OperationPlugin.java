@@ -16,11 +16,14 @@ package ddf.catalog.security.operation.plugin;
 import java.util.Map;
 import java.util.Set;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PolicyPlugin;
@@ -63,6 +66,19 @@ public class OperationPlugin implements AccessPlugin {
 
     @Override
     public QueryResponse processPostQuery(QueryResponse input) throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public ResourceRequest processPreResource(ResourceRequest input)
+            throws StopProcessingException {
+        checkOperation(input);
+        return input;
+    }
+
+    @Override
+    public ResourceResponse processPostResource(ResourceResponse input, Metacard metacard)
+            throws StopProcessingException {
         return input;
     }
 

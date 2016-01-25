@@ -29,6 +29,8 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
@@ -95,7 +97,7 @@ public class FilterPlugin implements AccessPlugin {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
             Map<String, Set<String>> map = null;
 
-            if (null != attr) {
+            if (attr != null) {
                 map = (Map<String, Set<String>>) attr.getValue();
             }
             securityPermission.clear();
@@ -119,6 +121,51 @@ public class FilterPlugin implements AccessPlugin {
         input.getResults()
                 .addAll(newResults);
         newResults.clear();
+        return input;
+    }
+
+    @Override
+    public ResourceRequest processPreResource(ResourceRequest input)
+            throws StopProcessingException {
+        return input;
+    }
+
+    @Override
+    public ResourceResponse processPostResource(ResourceResponse input, Metacard metacard)
+            throws StopProcessingException {
+        if (input.getRequest() == null || input.getRequest()
+                .getProperties() == null) {
+            throw new StopProcessingException(
+                    "Unable to filter contents of current message, no user Subject available.");
+        }
+        Object securityAssertion = input.getRequest()
+                .getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT);
+        KeyValueCollectionPermission securityPermission = new KeyValueCollectionPermission(
+                CollectionPermission.READ_ACTION);
+        Attribute attr = metacard.getAttribute(Metacard.SECURITY);
+        Map<String, Set<String>> map = null;
+
+        Subject subject;
+        if (securityAssertion instanceof Subject) {
+            subject = (Subject) securityAssertion;
+            logger.debug("Filter plugin found Subject for resource response.");
+        } else {
+            throw new StopProcessingException(
+                    "Unable to filter contents of current message, no user Subject available.");
+        }
+
+        if (attr != null) {
+            map = (Map<String, Set<String>>) attr.getValue();
+        }
+        if (map != null) {
+            securityPermission =
+                    new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, map);
+        }
+        if (!subject.isPermitted(securityPermission)) {
+            throw new StopProcessingException(
+                    "Subject not permitted to receive resource.");
+        }
         return input;
     }
 }

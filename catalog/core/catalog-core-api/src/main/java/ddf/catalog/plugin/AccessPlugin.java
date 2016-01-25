@@ -13,10 +13,13 @@
  */
 package ddf.catalog.plugin;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 
 /**
@@ -31,7 +34,6 @@ public interface AccessPlugin {
      *
      * @param input the {@link CreateRequest} to process
      * @return the value of the processed {@link CreateRequest} to pass to the next {@link AccessPlugin}
-     * @throws PluginExecutionException thrown when an error occurs while processing the {@link CreateRequest}
      * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
      *                                  intended to prevent other plugins from processing as well.
      */
@@ -44,7 +46,6 @@ public interface AccessPlugin {
      *
      * @param input the {@link UpdateRequest} to process
      * @return the value of the processed {@link UpdateRequest} to pass to the next {@link AccessPlugin}
-     * @throws PluginExecutionException thrown when an error occurs while processing the {@link UpdateRequest}
      * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
      *                                  intended to prevent other plugins from processing as well.
      */
@@ -57,7 +58,6 @@ public interface AccessPlugin {
      *
      * @param input the {@link DeleteRequest} to process
      * @return the value of the processed {@link DeleteRequest} to pass to the next {@link AccessPlugin}
-     * @throws PluginExecutionException thrown when an error occurs while processing the {@link DeleteRequest}
      * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
      *                                  intended to prevent other plugins from processing as well.
      */
@@ -71,7 +71,6 @@ public interface AccessPlugin {
      *
      * @param input the {@link QueryRequest} to process
      * @return the value of the processed {@link QueryRequest} to pass to the next {@link AccessPlugin}
-     * @throws PluginExecutionException thrown when an error occurs while processing the {@link QueryRequest}
      * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
      *                                  intended to prevent other plugins from processing as well.
      */
@@ -85,10 +84,35 @@ public interface AccessPlugin {
      *
      * @param input the {@link QueryResponse} to process
      * @return the value of the processed {@link QueryResponse} to pass to the next {@link AccessPlugin}
-     * @throws PluginExecutionException thrown when an error occurs while processing the {@link QueryResponse}
      * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
      *                                  intended to prevent other plugins from processing as well.
      */
     QueryResponse processPostQuery(QueryResponse input)
+            throws StopProcessingException;
+
+    /**
+     * Processes a {@link ResourceRequest}, prior to execution of the {@link ddf.catalog.operation.ResourceRequest},
+     * to determine whether or not the user can access the Catalog operation. The AccessPlugins will be run
+     * in the same order for both processPreQuery and processPostQuery
+     *
+     * @param input the {@link ResourceRequest} to process
+     * @return the value of the processed {@link QueryRequest} to pass to the next {@link AccessPlugin}
+     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
+     *                                  intended to prevent other plugins from processing as well.
+     */
+    ResourceRequest processPreResource(ResourceRequest input)
+            throws StopProcessingException;
+
+    /**
+     * Processes a {@link ResourceResponse}, following the execution of the {@link ddf.catalog.operation.ResourceRequest},
+     * to determine whether or not the user can access the Response. The AccessPlugins will be run
+     * in the same order for both processPreResource and processPostResource
+     *
+     * @param input the {@link ResourceResponse} to process
+     * @return the value of the processed {@link ResourceResponse} to pass to the next {@link AccessPlugin}
+     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
+     *                                  intended to prevent other plugins from processing as well.
+     */
+    ResourceResponse processPostResource(ResourceResponse input, Metacard metacard)
             throws StopProcessingException;
 }

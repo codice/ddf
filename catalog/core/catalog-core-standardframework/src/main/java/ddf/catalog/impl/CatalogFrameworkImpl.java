@@ -1581,6 +1581,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         validateGetResourceRequest(resourceReq);
         try {
+            HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+            for (PolicyPlugin plugin : policy) {
+                PolicyResponse policyResponse = plugin.processPreResource(resourceReq);
+                buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy().entrySet());
+            }
+            resourceReq.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                resourceReq = plugin.processPreResource(resourceReq);
+            }
 
             for (PreResourcePlugin plugin : preResource) {
                 try {
@@ -1701,6 +1711,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             resourceResponse = validateFixGetResourceResponse(resourceResponse, resourceReq);
+
+            HashMap<String, Set<String>> responsePolicyMap = new HashMap<>();
+            for (PolicyPlugin plugin : policy) {
+                PolicyResponse policyResponse = plugin.processPostResource(resourceResponse, metacard);
+                buildPolicyMap(responsePolicyMap, policyResponse.operationPolicy()
+                        .entrySet());
+            }
+            resourceResponse.getProperties().put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
+
+            for (AccessPlugin plugin : access) {
+                resourceResponse = plugin.processPostResource(resourceResponse, metacard);
+            }
 
             for (PostResourcePlugin plugin : postResource) {
                 try {
