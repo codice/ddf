@@ -1,8 +1,9 @@
 Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
 :toc: left
-:toclevel: 6
 :branding: DDF
+:admin-console: Admin Console
+:command-console: Command Console
 :icons: font
 :example-caption!:
 :source-highlighter: coderay
