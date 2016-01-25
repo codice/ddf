@@ -1,120 +1,109 @@
 
-== Overview
+The Security application provides authentication, authorization, and auditing services for the {branding}.
+They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements.
 
-The Security application provides authentication, authorization, and auditing services for the DDF. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
+This section documents the installation, maintenance, and support of this application.
 
-This page documents the installation, maintenance, and support of this application.
+=== Installing {branding} Security
 
-== Install and Uninstall
+==== Prerequisites
 
-=== Prerequisites
+Before the {branding} Security application can be installed:
 
-Before the DDF Security application can be installed:
+* the {branding} Kernel must be running
+* the {branding} Platform Application must be installed
 
-* the DDF Kernel must be running
-* the DDF Platform Application must be installed
+==== Installing
 
-=== Install
+{branding} Security is included with a standard installation.
 
-. Before installing a DDF application, verify that its prerequisites have been met. 
-. Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+==== Configuring {branding} Security
 
-[NOTE]
-====
-These Installation steps are the same whether DDF was installed from a distribution zip or a custom installation using the DDF Kernel zip.
-====
+From the Web Admin Console, the following configurations are available from a standard installation.
 
-=== Verify
+[cols="1,3,3" options="header"]
+|===
+|Configuration
+|Configuration ID
+|Description
 
-. Verify the appropriate features for the DDF application have been installed using the
-`features:list` command to view the KAR file's features.
-. Verify that the bundles within the installed features are in an active state.
+|Login Page
+|`org.codice.ddf.security.handler.guest.configuration`
+|Options for customizing the Login page, such as header, footer, text style
 
-=== Uninstall
+|SAML NameID Policy
+|`ddf.security.service.SecurityManager`
+|Customize attributes to replace username of logged-in user.
 
-[WARNING]
-====
-It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
-====
+|STS Server Token Endpoint
+|`ddf.security.sts.StsStaticService`
+|Add or update addresses to use with STS service.
 
-If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+|Security SOAP Guest Interceptor
+|`org.codice.ddf.security.interceptor.GuestInterceptor`
+|Settings for allowing Guest access.
 
-Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
+|Security STS Address Provider
+|`ddf.security.sts.address.provider`
+|Configure use of alternate STS address provider
 
-.Uninstall DDF application from DDF distribution
-[source,terminal,linenums]
-----
-features:removeurl -u <DDF application's feature repository URL>
+|Security STS Client
+|`ddf.security.sts.client.configuration`
+|Settings for STS client
 
-Example:   features:removeurl -u mvn:ddf.security/security-services-app/2.4.0/xml/features
-----
+|Security STS Guest Claims Handler
+|`ddf.security.sts.guestclaims`
+|Add or remove attributes to be attached to claims for guest users.
 
-The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+|Security STS Guest Validator
+|`ddf.security.sts.guestvalidator`
+|Configure realms to use with Guest Validator
 
-[NOTE]
-====
-The repository URLs for installed applications can be obtained by entering:
+|Security STS PKI Token Validator
+|`org.codice.ddf.security.validator.pki`
+|Configure realms to use with PKI Token Validator
 
-`features:listrepositories -u`
-====
+|Security STS Property File Claims Handler
+|`org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler`
+|Settings for retrieving claims from properties file
 
-==== Revert the Uninstall
+|Security STS Server
+|`ddf.security.sts`
+|Settings for STS Server
 
-If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+|Security STS WSS
+|`ddf.security.sts.wss.configuration`
+|WSS-enabled version of STS
 
-* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
-* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+|Security Simple AuthZ Realm
+|`ddf.security.pdp.realm.SimpleAuthzRealm`
+|Configuration of Match-One and/or Match-All mappings in SimpleAuthz realme
 
-.Reverting DDF application's uninstall
-[source,terminal,linenums]
-----
-features:addurl <DDF application's feature repository URL>
-features:install <DDF application's main feature>
+|Session
+|`org.codice.ddf.security.filter.login.Session`
+|Set session timeout
 
-Example:
+|Web Context Policy Manager
+|`org.codice.ddf.security.policy.context.impl.PolicyManager`
+|Configure Realms, Auth types, and Attributes for different contexts.
 
-    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
-    ddf@local>features:install catalog-app
-----
+|===
 
-=== Upgrade
+==== Applications Included in {branding} Security
 
-To upgrade an application, complete the following procedure.
-
-. Uninstall the application by following the Uninstall Applications instructions above.
-. Install the new application KAR file by copying the admin-app-X.Y.kar file to the `<INSTALL_DIRECTORY>/deploy` directory.
-. Start the application. +
-`features:install admin-app`
-. Complete the steps in the Verify section above to determine if the upgrade was successful.
-
-== Configuration
-
-This component can be configured using the normal processes described in the 
-Configuration section. Within the pages for each of the applications are specific instructions on the configurations for the bundles and any additional information that may help decide how the configuration should be set for use cases.
-
-== Whitelist
-
-The following packages have been exported by the DDF Security application and are approved for use by third parties:
-
-* ddf.security.expansion
-* ddf.security.sts.client.configuration
-* ddf.security.common.callback
-* ddf.security.common.util
-
-== Applications
-
-* Security Core
 * Security CAS
+* Security Core
 * Security Encryption
+* Security IdP
 * Security PEP
 * Security PDP
 * Security STS
 
 === IdP/SP
 
-The {branding} Security IdP application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
+The {branding} Security Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
 
-==== Installation
+==== Installing
 
 The IdP bundles are not installed by default.
 They can be started by installing the `security-idp` feature.
@@ -123,14 +112,14 @@ They can be started by installing the `security-idp` feature.
 
 The IdP client that interacts with the specified Identity Provider.
 
-===== Configuration
+===== Configuring
 
-. Navigate to Admin Console -> DDF Security -> Configuration -> IdP Client
+. Navigate to Admin Console -> {branding} Security -> Configuration -> IdP Client
 . Populate IdP Metadata field through one of the following:
 .. An HTTPS URL (https://)
 .. A file URL (file:)
 .. An XML block to refer to desired metadata
-... (e.g., https://localhost:8993/services/idp/login/metadata)
+... (e.g., \https://localhost:8993/services/idp/login/metadata)
 
 .IdP Client (SP) example.xml
 [source,xml,linenums]
@@ -178,7 +167,7 @@ An internal Identity Provider solution.
 
 ===== Configuration
 
-. Navigate to Admin Console -> DDF Security -> Configuration -> IdP Server
+. Navigate to Admin Console -> {branding} Security -> Configuration -> IdP Server
 . Click the + next to SP Metadata to add a new entry
 . Populate the new entry:
 .. with an HTTPS URL (https://),
@@ -218,7 +207,7 @@ An internal Identity Provider solution.
 
 ==== Related Configuration
 
-. Navigate to Admin Console -> DDF Security -> Configuration -> Web Context Policy Manager
+. Navigate to Admin Console -> {branding} Security -> Configuration -> Web Context Policy Manager
 . Under Authentication Types, set the IDP authentication type as necessary.
 Note that it should _only_ be used on context paths that will be accessed by users via web browsers.
 For example:
@@ -232,6 +221,3 @@ If you have configured /search to use IDP, ensure to select the "External Authen
 ==== Limitations
 
 The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
-
-
-

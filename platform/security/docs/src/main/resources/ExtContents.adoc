@@ -1,20 +1,64 @@
 
-== Overview
+This section supports developers creating extensions of the existing framework.
 
-The Security application provides authentication, authorization, and auditing services for the DDF. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
+=== Whitelist
 
-This guide supports developers creating extensions of the existing framework.
+The following packages have been exported by the {branding} Security application and are approved for use by third parties:
 
-== Developing Token Validators
+* `ddf.security.assertion.impl`
+* `ddf.security.common.util`
+* `ddf.security.encryption`
+* `ddf.security.expansion`
+* `ddf.security.http.impl`
+* `ddf.security.impl`
+* `ddf.security.pdp.realm`
+* `ddf.security.realm.sts`
+* `ddf.security.samlp.impl`
+* `ddf.security.service.impl`
+* `ddf.security.soap.impl`
+* `ddf.security.sts`
+* `ddf.security.ws.policy.impl`
+* `org.apache.cxf.sts.cache`
+* `org.apache.cxf.sts.claims`
+* `org.apache.cxf.sts.event.map`
+* `org.apache.cxf.sts.event`
+* `org.apache.cxf.sts.interceptor`
+* `org.apache.cxf.sts.operation`
+* `org.apache.cxf.sts.provider`
+* `org.apache.cxf.sts.request`
+* `org.apache.cxf.sts.service`
+* `org.apache.cxf.sts.token.canceller`
+* `org.apache.cxf.sts.token.delegation`
+* `org.apache.cxf.sts.token.provider`
+* `org.apache.cxf.sts.token.realm`
+* `org.apache.cxf.sts.token.renewer`
+* `org.apache.cxf.sts.token.validator`
+* `org.apache.cxf.sts`
+* `org.codice.ddf.security.certificate.generator`
+* `org.codice.ddf.security.certificate.keystore.editor`
+* `org.codice.ddf.security.common`
+* `org.codice.ddf.security.filter.authorization`
+* `org.codice.ddf.security.filter.login`
+* `org.codice.ddf.security.filter.websso`
+* `org.codice.ddf.security.handler.api`
+* `org.codice.ddf.security.handler.basic`
+* `org.codice.ddf.security.handler.guest.configuration`
+* `org.codice.ddf.security.handler.guest`
+* `org.codice.ddf.security.handler.pki`
+* `org.codice.ddf.security.handler.saml`
+* `org.codice.ddf.security.interceptor`
+* `org.codice.ddf.security.interceptor`
+* `org.codice.ddf.security.policy.context.attributes`
+* `org.codice.ddf.security.policy.context.impl`
+* `org.codice.ddf.security.policy.context`
+* `org.codice.ddf.security.servlet.logout`
+* `org.codice.ddf.security.validator.username`
 
-Token validators are used by the Security Token Service (STS) to validate incoming token requests. The TokenValidator CXF interface must be implemented by any custom token validator class. The canHandleToken and validateToken methods must be overridden. The canHandleToken method should return true or false based on the ValueType value of the token that the validator is associated with. The validator may be able to handle any number of different tokens that you specify. The validateToken method returns a TokenValidatorResponse object that contains the Principal of the identity being validated and also validates the ReceivedToken object that was collected from the RST (RequestSecurityToken) message.
+=== Developing Token Validators
 
-=== Usage
-
-At the moment, validators must be added to the cxf-sts.xml blueprint file manually. There is a section labeled as the "Delegate Configuration" in that file. That is where the validator must be added along with the existing validators. In the future, we expect this to be pluggable without changes to the blueprint file.
-
-[NOTE]
-====
-The validator services that are currently bundled on their own are webSSOTokenValidator, SamlTokenValidator, and x509TokenValidator. Each has its own blueprint.xml file that defines and exports the service.  They can be individually turned on/off as a bundle/service.  
-====
- 
+Token validators are used by the Security Token Service (STS) to validate incoming token requests.
+The `TokenValidator` CXF interface must be implemented by any custom token validator class.
+The `canHandleToken` and `validateToken` methods must be overridden.
+The `canHandleToken` method should return true or false based on the `ValueType` value of the token that the validator is associated with.
+The validator may be able to handle any number of different tokens that you specify.
+The `validateToken` method returns a `TokenValidatorResponse` object that contains the `Principal` of the identity being validated and also validates the `ReceivedToken` object that was collected from the RST (`RequestSecurityToken`) message.
