@@ -15,3 +15,9 @@ atlassian-ide-plugin.xml
 **/webapp/css/styles.css
 platform/solr/**/overlays
 dependency-reduced-pom.xml
+
+# JMeter Related files to ignore
+jmeter.log
+*.jmx.log
+*.jtl
+
