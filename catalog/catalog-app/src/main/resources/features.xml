@@ -285,6 +285,7 @@
         <feature>catalog-transformer-video</feature>
         <feature>catalog-security-plugin</feature>
         <feature>catalog-security-ingestplugin</feature>
+        <feature>catalog-security-operationplugin</feature>
         <feature>catalog-admin-module-sources</feature>
         <feature>catalog-core-backupplugin</feature>
         <feature>catalog-plugin-jpeg2000</feature>

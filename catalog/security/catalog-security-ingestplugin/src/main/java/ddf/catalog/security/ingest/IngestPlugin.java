@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,54 +13,34 @@
  */
 package ddf.catalog.security.ingest;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.PreIngestPlugin;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.plugin.PolicyPlugin;
+import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.security.common.util.Security;
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
 /**
  * IngestPlugin is a PreIngestPlugin that restricts the create/update/delete operations
  * on the catalog to a group defined by a set of configurable user attributes.
  */
-public class IngestPlugin implements PreIngestPlugin {
+public class IngestPlugin implements PolicyPlugin {
 
     private String[] permissionStrings;
 
-    private List<KeyValuePermission> permissions = new ArrayList<>();
-
-    public CreateRequest process(CreateRequest createRequest)
-            throws PluginExecutionException, StopProcessingException {
-        if (!Security.authorizeCurrentUser(CollectionPermission.CREATE_ACTION, permissions)) {
-            throw new StopProcessingException("User is not authorized to create records");
-        }
-        return createRequest;
-    }
-
-    public UpdateRequest process(UpdateRequest updateRequest)
-            throws PluginExecutionException, StopProcessingException {
-        if (!Security.authorizeCurrentUser(CollectionPermission.UPDATE_ACTION, permissions)) {
-            throw new StopProcessingException("User is not authorized to update records");
-        }
-        return updateRequest;
-    }
-
-    public DeleteRequest process(DeleteRequest deleteRequest)
-            throws PluginExecutionException, StopProcessingException {
-        if (!Security.authorizeCurrentUser(CollectionPermission.DELETE_ACTION, permissions)) {
-            throw new StopProcessingException("User is not authorized to delete records");
-        }
-        return deleteRequest;
-    }
+    private Map<String, Set<String>> permissions = new HashMap<>();
 
     /**
      * Getter used by the framework to populate the configuration ui
@@ -68,7 +48,7 @@ public class IngestPlugin implements PreIngestPlugin {
      * @return
      */
     public String[] getPermissionStrings() {
-        if(permissionStrings != null) {
+        if (permissionStrings != null) {
             return Arrays.copyOf(this.permissionStrings, permissionStrings.length);
         }
         return null;
@@ -79,8 +59,8 @@ public class IngestPlugin implements PreIngestPlugin {
      *
      * @return
      */
-    public List<KeyValuePermission> getPermissions() {
-        return Collections.unmodifiableList(permissions);
+    public Map<String, Set<String>> getPermissions() {
+        return Collections.unmodifiableMap(permissions);
     }
 
     /**
@@ -89,7 +69,7 @@ public class IngestPlugin implements PreIngestPlugin {
      * @param permStrings
      */
     public void setPermissionStrings(String[] permStrings) {
-        if(permStrings != null) {
+        if (permStrings != null) {
             this.permissionStrings = Arrays.copyOf(permStrings, permStrings.length);
             parsePermissionsFromString(permStrings);
         }
@@ -108,10 +88,52 @@ public class IngestPlugin implements PreIngestPlugin {
                 if (parts.length == 2) {
                     String attributeName = parts[0];
                     String attributeValue = parts[1];
-                    permissions.add(new KeyValuePermission(attributeName,
-                            Arrays.asList(attributeValue)));
+                    permissions.put(attributeName, new HashSet<>(
+                            Collections.singletonList(attributeValue)));
                 }
             }
         }
+    }
+
+    @Override
+    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(permissions, null);
+    }
+
+    @Override
+    public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(permissions, null);
+    }
+
+    @Override
+    public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
+            Map<String, Serializable> properties) throws StopProcessingException {
+        return new PolicyResponseImpl(permissions, null);
+    }
+
+    @Override
+    public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPreResource(ResourceRequest resourceRequest)
+            throws StopProcessingException {
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
+            throws StopProcessingException {
+        return new PolicyResponseImpl();
     }
 }
