@@ -120,6 +120,11 @@
         <bundle>mvn:ddf.security.admin/security-admin-module/${project.version}</bundle>
     </feature>
 
+    <feature name ="security-migratable" install="manual" version="${project.version}"
+             description="Exports security configurations and system files">
+        <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>
+    </feature>
+
     <feature name="security-services-app" install="auto" version="${project.version}"
              description="The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::DDF Security">
         <feature>platform-app</feature>
@@ -131,6 +136,7 @@
         <feature>security-interceptor-guest-wrapper</feature>
         <feature>security-guest</feature>
         <feature>security-certificate</feature>
+        <feature>security-migratable</feature>
     </feature>
 
     <feature name="security-web-sso-defaults" install="manual" version="${project.version}"

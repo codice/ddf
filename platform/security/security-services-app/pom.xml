@@ -337,5 +337,10 @@
             <artifactId>security-core-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.migration</groupId>
+            <artifactId>security-migratable</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
