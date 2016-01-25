@@ -57,9 +57,13 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.resource.Resource;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
@@ -74,6 +78,8 @@ public class FilterPluginTest {
     FilterPlugin plugin;
 
     QueryResponseImpl incomingResponse;
+
+    ResourceResponseImpl resourceResponse;
 
     @Before
     public void setup() {
@@ -106,6 +112,10 @@ public class FilterPluginTest {
         request.setProperties(properties);
 
         incomingResponse = new QueryResponseImpl(request);
+        ResourceRequest resourceRequest = mock(ResourceRequest.class);
+        when(resourceRequest.getProperties()).thenReturn(properties);
+        resourceResponse = new ResourceResponseImpl(resourceRequest, mock(Resource.class));
+        resourceResponse.setProperties(properties);
 
         ResultImpl result1 = new ResultImpl(getMoreRolesMetacard());
         ResultImpl result2 = new ResultImpl(getMissingRolesMetacard());
@@ -152,10 +162,27 @@ public class FilterPluginTest {
         }
     }
 
+    @Test
+    public void testPluginFilterResourceGood() throws StopProcessingException {
+        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testPluginFilterResourceBad() throws StopProcessingException {
+        ResourceResponse response = plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
+    }
+
     @Test(expected = StopProcessingException.class)
     public void testNoSubject() throws Exception {
         QueryResponseImpl response = new QueryResponseImpl(getSampleRequest());
         plugin.processPostQuery(response);
+        fail("Plugin should have thrown exception when no subject was sent in.");
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testNoSubjectResource() throws Exception {
+        ResourceResponseImpl response = new ResourceResponseImpl(mock(Resource.class));
+        plugin.processPostResource(response, mock(Metacard.class));
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
 

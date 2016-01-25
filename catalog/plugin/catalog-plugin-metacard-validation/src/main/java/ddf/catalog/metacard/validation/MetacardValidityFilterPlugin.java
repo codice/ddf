@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
@@ -103,5 +105,17 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
         }
 
         return new PolicyResponseImpl(new HashMap<>(), securityMap);
+    }
+
+    @Override
+    public PolicyResponse processPreResource(ResourceRequest resourceRequest)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
     }
 }

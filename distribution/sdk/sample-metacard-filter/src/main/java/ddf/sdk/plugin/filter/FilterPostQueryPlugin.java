@@ -24,6 +24,8 @@ import java.util.Set;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
@@ -61,5 +63,17 @@ public class FilterPostQueryPlugin implements PolicyPlugin {
         HashMap<String, Set<String>> securityFinalMap = new HashMap<>();
         securityFinalMap.put(Metacard.POINT_OF_CONTACT, new HashSet(Arrays.asList("admin")));
         return new PolicyResponseImpl(new HashMap<>(), securityFinalMap);
+    }
+
+    @Override
+    public PolicyResponse processPreResource(ResourceRequest resourceRequest)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
+            throws StopProcessingException {
+        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
     }
 }
