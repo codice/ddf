@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define, require */
+/* global define*/
 define([
         'application',
         'icanhaz',
@@ -35,6 +35,7 @@ define([
         'cesium',
         'wreqr',
         // load dependencies
+        'spectrum',
         'jquerySortable'
     ],
     function (Application, ich, _, Marionette, Backbone, $, properties,
@@ -99,8 +100,43 @@ define([
                 this.modelBinder.bind(this.viewModel, this.$el, this.colorBindings);
                 this.colorButtonsRegion.show(this.colorButtons);
             },
+            initSpectrum: function () {
+                /*
+                 the following fixes color input types for IE/chrome/firefox.
+
+                 - see http://caniuse.com/#feat=input-color
+
+                 - when spectrum is defined/required, it feature detects native support for
+                 input[type=color]. Since chrome/firefox have native support, spectrum does
+                 NOT "replace" the inputs at define/require time. IE does not have native support,
+                 and spectrum DOES "replace" color inputs at define/require time.
+
+                 - $.spectrum() does not do feature detection and always replaces the
+                 input[type=color] element it's called on.
+
+                 - also fixes native input color picker bug (chrome/firefox) where the native color
+                 picker stays visible when the modal is dismissed.
+
+                 - could not get modelbinder to work directly with spectrum; thus the colorChange
+                 function and re-running initSpectrum from resetDefaults.
+                 */
+                this.$colorInputs = $('div[id="colorTab"] input[type="color"]');
+
+                var colorChange = function (spectrumTinyColor) {
+                    var newColor = spectrumTinyColor.toHexString();
+                    this.$colorInput.val(newColor);
+                };
+
+                this.$colorInputs.each(function () {
+                    var $color = $(this);
+                    $color.spectrum({
+                        change: _.bind(colorChange, {$colorInput: $color})
+                    });
+                });
+            },
             onShow: function () {
-                require(['spectrum']);
+                // initSpectrum can only find $colorInputs after onShow completes.
+                _.defer(this.initSpectrum);
             },
             onEdit: function () {
                 if (!this.isEdited) {
@@ -119,13 +155,13 @@ define([
             resetDefaults: function () {
                 this.onEdit();
                 this.viewModel.set(this.model.getDefaults());
+                this.initSpectrum();
             },
             onDestroy: function () {
                 this.viewModel = null;
                 this.modelBinder.unbind();
-                _.each(this.colorBindings, function (colorBinding) {
-                    var selector = 'input' + colorBinding.selector;
-                    $(selector).spectrum("destroy");
+                $(this.$colorInputs).each(function () {
+                    $(this).spectrum("destroy");
                 });
             }
         });
