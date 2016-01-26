@@ -1721,7 +1721,8 @@ div.modal-body div.preferenceTabButtons {
     text-align: right;
 }
 
-.layerPickerMap {
+/* cesium, but not openlayers, requires a height set on container */
+.miniMap {
     height: 350px;
 }
 /* end style for preference modal map layer */
