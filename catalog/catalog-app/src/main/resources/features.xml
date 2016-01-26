@@ -42,6 +42,7 @@
         <feature>catalog-core-api</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-migratable/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
         <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle>
