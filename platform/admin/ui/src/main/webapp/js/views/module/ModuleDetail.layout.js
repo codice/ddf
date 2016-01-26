@@ -18,8 +18,9 @@ define([
     'marionette',
     'icanhaz',
     'js/wreqr',
-    'text!moduleDetailLayout'
-], function(Backbone, Marionette, ich, wreqr, moduleDetailLayout) {
+    'text!moduleDetailLayout',
+    'js/views/module/ExportModal.view'
+], function(Backbone, Marionette, ich, wreqr, moduleDetailLayout, ExportModal) {
     "use strict";
 
     ich.addTemplate('moduleDetailLayout', moduleDetailLayout);
@@ -30,15 +31,22 @@ define([
         regions: {
             content: '.content',
             tabs: '.tab-container',
-            tabContent: '.tab-content-container'
+            tabContent: '.tab-content-container',
+            modalRegion: '.modal-region'
         },
         events: {
             'click .nav-to-applications': 'navToApplications',
-            'click #featureTab': 'getFeatures'
+            'click #featureTab': 'getFeatures',
+            'click .header > .btn': 'export'
         },
 
         selectFirstTab: function(){
             this.$('.tab-container a:first').tab('show');
+        },
+        export: function(){
+            var modal = new ExportModal();
+            this.modalRegion.show(modal);
+            modal.show();
         }
     });
 

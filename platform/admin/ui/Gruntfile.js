@@ -93,6 +93,11 @@ module.exports = function (grunt) {
                 tasks: ['bower']
             }
         },
+        simplemocha: {
+            test: {
+                src: ['src/test/js/unit/*.js']
+            }
+        },
         mochaWebdriver: {
             options: {
                 autoInstall: true,
@@ -175,7 +180,7 @@ module.exports = function (grunt) {
     });
 
 
-    grunt.registerTask('test', ['port:allocator', 'express:test', 'mochaWebdriver:phantom']);
+    grunt.registerTask('test', [ 'simplemocha:test' /*, 'port:allocator', 'express:test', 'mochaWebdriver:phantom'*/ ]);
     grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
     grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
