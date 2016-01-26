@@ -24,7 +24,7 @@
     </parent>
     <artifactId>platform-app</artifactId>
     <name>DDF :: Platform :: App</name>
-    <packaging>pom</packaging>
+    <packaging>kar</packaging>
     <dependencies>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -516,18 +516,17 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
-                        <id>create-kar</id>
+                        <id>kar</id>
                         <goals>
-                            <goal>create-kar</goal>
+                            <goal>kar</goal>
                         </goals>
                         <configuration>
                             <resourcesDir>${project.build.directory}/resources</resourcesDir>
                             <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-                            <!-- See https://issues.apache.org/jira/browse/KARAF-2357 for details on this setting -->
-                            <ignoreDependencyFlag>true</ignoreDependencyFlag>
                         </configuration>
                     </execution>
                 </executions>

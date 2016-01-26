@@ -39,11 +39,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Import-Package>
-            	org.apache.felix.webconsole,
-            	org.apache.commons.io,
-            	org.osgi.service.blueprint
-            </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

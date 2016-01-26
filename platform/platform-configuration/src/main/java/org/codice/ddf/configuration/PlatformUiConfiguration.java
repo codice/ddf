@@ -76,6 +76,7 @@ public class PlatformUiConfiguration {
 
     private BrandingPlugin branding;
 
+    // TODO - why isn't this injected???
     private BrandingResourceProvider provider =new BrandingResourceProviderImpl();
 
     private String title;

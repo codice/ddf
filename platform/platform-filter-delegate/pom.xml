@@ -77,13 +77,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>ddf-security-common,platform-util-unavailableurls</Embed-Dependency>
-                        <Import-Package>
-                            javax.servlet; version="[2.5.0,3.0.0)",
-                            javax.servlet.http; version="[2.5.0,3.0.0)",
-                            org.eclipse.jetty.servlet;version="[8,9)",
-                            *
-                        </Import-Package>
+                        <Embed-Dependency>platform-util</Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>

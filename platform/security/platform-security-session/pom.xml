@@ -35,7 +35,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[2,4)"
+                        <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[4,5)"
                         </Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <DynamicImport-Package>

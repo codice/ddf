@@ -25,10 +25,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.webconsole</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
@@ -75,6 +71,10 @@
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.webconsole</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -86,9 +86,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>joda-time,common-system,platform-util</Embed-Dependency>
                         <Import-Package>
-                            javax.servlet;version="[2.5,3)",
-                            javax.servlet.http;version="[2.5,3)",
-                            org.apache.felix.webconsole; version="[3.1.0,4.0.0)",
+                            org.apache.felix.webconsole; version="[3.1.0,5.0.0)",
                             org.joda.convert;resolution:=optional,
                             *
                         </Import-Package>

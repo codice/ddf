@@ -33,11 +33,6 @@
             <artifactId>org.apache.felix.webconsole</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse</groupId>
-            <artifactId>osgi</artifactId>
-            <version>3.9.1-v20140110-1610</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
@@ -76,7 +71,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.89</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -91,7 +86,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
