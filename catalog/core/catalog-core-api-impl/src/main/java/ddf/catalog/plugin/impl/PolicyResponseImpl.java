@@ -13,6 +13,7 @@
  */
 package ddf.catalog.plugin.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,9 +28,19 @@ public class PolicyResponseImpl implements PolicyResponse {
 
     private Map<String, Set<String>> itemPolicy;
 
+    public PolicyResponseImpl() {
+        this.operationPolicy = new HashMap<>();
+        this.itemPolicy = new HashMap<>();
+    }
+
     public PolicyResponseImpl(Map<String, Set<String>> operationPolicy, Map<String, Set<String>> itemPolicy) {
-        this.operationPolicy = operationPolicy;
-        this.itemPolicy = itemPolicy;
+        this();
+        if (operationPolicy != null) {
+            this.operationPolicy = operationPolicy;
+        }
+        if (itemPolicy != null) {
+            this.itemPolicy = itemPolicy;
+        }
     }
 
     @Override

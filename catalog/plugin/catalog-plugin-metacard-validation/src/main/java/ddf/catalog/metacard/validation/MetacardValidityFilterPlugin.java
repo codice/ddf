@@ -61,25 +61,25 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
@@ -87,7 +87,7 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
             throws StopProcessingException {
 
         if (input == null || input.getMetacard() == null) {
-            return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+            return new PolicyResponseImpl();
         }
         Metacard metacard = input.getMetacard();
         HashMap<String, Set<String>> securityMap = new HashMap<>();
@@ -110,12 +110,12 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreResource(ResourceRequest resourceRequest)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 }
