@@ -99,8 +99,55 @@ define([
                 this.modelBinder.bind(this.viewModel, this.$el, this.colorBindings);
                 this.colorButtonsRegion.show(this.colorButtons);
             },
+            initSpectrum: function () {
+                /*
+                 the following fixes color input types for IE/chrome/firefox.
+
+                 - see http://caniuse.com/#feat=input-color
+
+                 - spectrum feature detects (chrome/firefox) native support for input[type=color],
+                 and spectrum will NOT "replace" these inputs.
+
+                 - IE has no native support for input[type=color], and the require of spectrum
+                 causes these inputs to be hidden, and spectrum builds "replacer" divs
+                 and the color pickers.
+
+                 - spectrum is implemented as a auto-executed anonymous function. This, plus
+                 semantics of require, means that spectrum only runs once per user session.
+                 Thus (w/o this fix), when a user opens the pref modal more than once, the
+                 input elements show only the color hex value as text.
+
+                 - also fixes native input color picker bug (chrome/firefox) where the native color
+                 picker stays visible when the modal is dismissed.
+
+                 - could not get modelbinder to work directly with spectrum; thus the colorChange
+                 function and re-running initSpectrum from resetDefaults.
+                 */
+                var $colorInputs = $('div[id="colorTab"] input[type="color"]');
+                var colorTabView = this;
+
+                var colorChange = function (spectrumTinyColor) {
+                    var newColor = spectrumTinyColor.toHexString();
+                    this.$colorInput.val(newColor);
+                };
+
+                $colorInputs.each(function () {
+                    var $color = $(this);
+                    $color.spectrum({
+                        change: _.bind(colorChange, {$colorInput: $color})
+                    });
+
+                    var $replacer = $color.siblings('div.sp-replacer');
+
+                    // mimic bootstrap styling.
+                    $replacer.css('width', '100%');
+                    $replacer.find('div.sp-dd').css('float', 'right');
+                    $replacer.find('div.sp-preview').css('width', '97%');
+                });
+                colorTabView.spReplacers = $colorInputs.siblings('div.sp-replacer');
+            },
             onShow: function () {
-                require(['spectrum']);
+                require(['spectrum'], this.initSpectrum);
             },
             onEdit: function () {
                 if (!this.isEdited) {
@@ -119,13 +166,13 @@ define([
             resetDefaults: function () {
                 this.onEdit();
                 this.viewModel.set(this.model.getDefaults());
+                this.initSpectrum();
             },
             onDestroy: function () {
                 this.viewModel = null;
                 this.modelBinder.unbind();
-                _.each(this.colorBindings, function (colorBinding) {
-                    var selector = 'input' + colorBinding.selector;
-                    $(selector).spectrum("destroy");
+                $(this.spReplacers).each(function () {
+                    $(this).spectrum("destroy");
                 });
             }
         });
