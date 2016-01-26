@@ -76,7 +76,7 @@ public class SystemConfigurationMigration {
                     + "or update the property value and export again.";
 
     private static final String SYMBOLIC_LINK_PATH_WARNING =
-            "The value for property [%s] is set to a symbolic path [%s] that could not be coerced into a real path; "
+            "The value for property [%s] is set to a symbolic path [%s]; "
                     + "therefore, the file will not be included in the export.  "
                     + "Check that the file exists on the system you're migrating to "
                     + "or update the property value and export again.";

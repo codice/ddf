@@ -14,10 +14,13 @@
 package org.codice.ddf.configuration.migration;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +31,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -38,13 +43,19 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -54,16 +65,39 @@ import com.google.common.collect.ImmutableList;
 @PrepareForTest(ConfigurationMigrationManager.class)
 public class ConfigurationMigrationManagerTest {
 
+    private static final String SERVICE_PID_1 = "migratable1";
+
+    private static final String SERVICE_PID_2 = "migratable2";
+
     private static ObjectName configMigrationServiceObjectName;
 
     @Mock
-    ConfigurationAdminMigration configurationAdminMigration;
+    private ConfigurationAdminMigration configurationAdminMigration;
 
     @Mock
-    SystemConfigurationMigration systemConfigurationMigration;
+    private SystemConfigurationMigration systemConfigurationMigration;
 
     @Mock
-    MBeanServer mBeanServer;
+    private MBeanServer mBeanServer;
+
+    @Mock
+    BundleContext bundleContext;
+
+    private Collection<ServiceReference<Migratable>> serviceReferences;
+
+    @Mock
+    ServiceReference<Migratable> serviceReference1;
+
+    @Mock
+    ServiceReference<Migratable> serviceReference2;
+
+    @Mock
+    Migratable migratable1;
+
+    @Mock
+    Migratable migratable2;
+
+    MigrationMetadata noWarnings = new MigrationMetadata(ImmutableList.of());
 
     Path exportPath = Paths.get("/export/dir");
 
@@ -74,8 +108,21 @@ public class ConfigurationMigrationManagerTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws InvalidSyntaxException {
+        serviceReferences = new ArrayList<>(2);
+        Collections.addAll(serviceReferences, serviceReference1, serviceReference2);
+
+        when(bundleContext.getServiceReferences(Migratable.class, null)).thenReturn(
+                serviceReferences);
+        when(serviceReference1.getProperty("service.pid")).thenReturn(SERVICE_PID_1);
+        when(bundleContext.getService(serviceReference1)).thenReturn(migratable1);
+        when(migratable1.export(any(Path.class))).thenReturn(noWarnings);
+        when(serviceReference2.getProperty("service.pid")).thenReturn(SERVICE_PID_2);
+        when(bundleContext.getService(serviceReference2)).thenReturn(migratable2);
+        when(migratable2.export(any(Path.class))).thenReturn(noWarnings);
+
         mockStatic(Files.class);
+        mockStatic(FrameworkUtil.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -98,9 +145,7 @@ public class ConfigurationMigrationManagerTest {
     @Test
     public void init() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
         configurationMigrationManager.init();
 
         verify(mBeanServer).registerMBean(configurationMigrationManager,
@@ -110,9 +155,7 @@ public class ConfigurationMigrationManagerTest {
     @Test
     public void initWhenServiceAlreadyRegisteredAsMBean() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         when(mBeanServer.registerMBean(configurationMigrationManager,
                 configMigrationServiceObjectName)).thenThrow(new InstanceAlreadyExistsException())
@@ -128,9 +171,7 @@ public class ConfigurationMigrationManagerTest {
     @Test(expected = MBeanRegistrationException.class)
     public void initWhenMBeanUnregistrationFails() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         when(mBeanServer.registerMBean(configurationMigrationManager,
                 configMigrationServiceObjectName)).thenThrow(new InstanceAlreadyExistsException());
@@ -143,9 +184,7 @@ public class ConfigurationMigrationManagerTest {
     @Test(expected = MBeanRegistrationException.class)
     public void initWhenMBeanReRegistrationFails() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         when(mBeanServer.registerMBean(configurationMigrationManager,
                 configMigrationServiceObjectName)).thenThrow(new InstanceAlreadyExistsException(),
@@ -154,25 +193,30 @@ public class ConfigurationMigrationManagerTest {
         configurationMigrationManager.init();
     }
 
+    @Test(expected = MigrationException.class)
+    public void exportWhenServiceReferencesCannotBeRetrieved() throws Exception {
+        when(bundleContext.getServiceReferences(any(Class.class),
+                any(String.class))).thenThrow(new InvalidSyntaxException("", ""));
+        ConfigurationMigrationManager configurationMigrationManager =
+                createConfigurationMigrationManager();
+
+        export(() -> configurationMigrationManager.export(exportPath));
+    }
+
     @Test
     public void exportWithPath() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         Collection<MigrationWarning> migrationWarnings =
                 export(() -> configurationMigrationManager.export(exportPath));
         assertThat(migrationWarnings, is(empty()));
-
     }
 
     @Test
     public void exportWithString() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         Collection<MigrationWarning> migrationWarnings =
                 export(() -> configurationMigrationManager.export("/export/dir"));
@@ -182,9 +226,7 @@ public class ConfigurationMigrationManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void exportWithNullPath() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export((Path) null);
     }
@@ -192,9 +234,7 @@ public class ConfigurationMigrationManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void exportWithNullPathString() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export((String) null);
     }
@@ -202,9 +242,7 @@ public class ConfigurationMigrationManagerTest {
     @Test
     public void exportWithWarnings() {
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         MigrationWarning migrationWarning = new MigrationWarning("");
         when(systemConfigurationMigration.export(exportPath)).thenReturn(ImmutableList.of(
@@ -220,9 +258,7 @@ public class ConfigurationMigrationManagerTest {
         when(Files.createDirectories(exportPath)).thenThrow(new IOException());
 
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export(exportPath);
     }
@@ -234,9 +270,7 @@ public class ConfigurationMigrationManagerTest {
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export(exportPath);
     }
@@ -249,9 +283,7 @@ public class ConfigurationMigrationManagerTest {
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export(exportPath);
     }
@@ -263,9 +295,7 @@ public class ConfigurationMigrationManagerTest {
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export(exportPath);
     }
@@ -277,9 +307,7 @@ public class ConfigurationMigrationManagerTest {
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export(exportPath);
     }
@@ -291,11 +319,86 @@ public class ConfigurationMigrationManagerTest {
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =
-                new ConfigurationMigrationManager(configurationAdminMigration,
-                        systemConfigurationMigration,
-                        mBeanServer);
+                createConfigurationMigrationManager();
 
         configurationMigrationManager.export(exportPath);
+    }
+
+    @Test
+    public void exportCallsMigratables() throws Exception {
+        ConfigurationMigrationManager configurationMigrationManager =
+                createConfigurationMigrationManager();
+
+        Collection<MigrationWarning> migrationWarnings =
+                export(() -> configurationMigrationManager.export(exportPath));
+
+        assertThat(migrationWarnings, is(empty()));
+        verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
+        verify(migratable2).export(exportPath.resolve(SERVICE_PID_2));
+    }
+
+    @Test
+    public void exportWhenMigratablesReturnWarnings() throws Exception {
+        ConfigurationMigrationManager configurationMigrationManager =
+                createConfigurationMigrationManager();
+
+        MigrationWarning[] expectedWarnings = new MigrationWarning[] {new MigrationWarning(
+                "Warning1"), new MigrationWarning("Warning2")};
+
+        when(migratable1.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of(
+                expectedWarnings[0])));
+
+        when(migratable2.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of(
+                expectedWarnings[1])));
+
+        Collection<MigrationWarning> migrationWarnings =
+                export(() -> configurationMigrationManager.export(exportPath));
+
+        assertThat(migrationWarnings, containsInAnyOrder(expectedWarnings));
+        verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
+        verify(migratable2).export(exportPath.resolve(SERVICE_PID_2));
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportFailsWhenMigratableThrowsMigrationException() throws Exception {
+        ConfigurationMigrationManager configurationMigrationManager =
+                createConfigurationMigrationManager();
+
+        when(migratable1.export(any(Path.class))).thenThrow(new MigrationException(""));
+        when(migratable2.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of()));
+
+        try {
+            export(() -> configurationMigrationManager.export(exportPath));
+        } finally {
+            verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
+            verify(migratable2, never()).export(any(Path.class));
+        }
+    }
+
+    @Test(expected = MigrationException.class)
+    public void exportFailsWhenMigratableThrowsRuntimeException() throws Exception {
+        ConfigurationMigrationManager configurationMigrationManager =
+                createConfigurationMigrationManager();
+
+        when(migratable1.export(any(Path.class))).thenThrow(new RuntimeException());
+
+        try {
+            export(() -> configurationMigrationManager.export(exportPath));
+        } finally {
+            verify(migratable1).export(exportPath.resolve(SERVICE_PID_1));
+            verify(migratable2, never()).export(any(Path.class));
+        }
+    }
+
+    private ConfigurationMigrationManager createConfigurationMigrationManager() {
+        return new ConfigurationMigrationManager(configurationAdminMigration,
+                systemConfigurationMigration,
+                mBeanServer) {
+            @Override
+            BundleContext getBundleContext() {
+                return bundleContext;
+            }
+        };
     }
 
     private Collection<MigrationWarning> export(Supplier<Collection<MigrationWarning>> exportCall)
