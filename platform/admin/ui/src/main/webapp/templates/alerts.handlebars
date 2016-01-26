@@ -12,7 +12,7 @@
  **/
  --}}
 {{#notEmpty items}}
-    <div class="panel panel-danger accordion">
+    <div class="panel panel-{{type}} accordion">
         <div class="panel-heading">
             <h4 class="panel-title">
                 <i class="fa fa-exclamation-triangle"></i>
@@ -29,7 +29,7 @@
                     <tr>
                         <td><i class="fa fa-chevron-circle-right"></i></td>
                         <td>{{#if this.message}}
-                            {{this.message}}
+                            {{{this.message}}}
                         {{else}}
                             {{this}}
                         {{/if}}</td>

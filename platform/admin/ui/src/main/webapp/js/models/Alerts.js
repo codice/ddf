@@ -20,7 +20,8 @@ define([
         defaults: {
             'banner': 'You should look at this.',
             'button': 'Show',
-            'collapse': 'out'
+            'collapse': 'out',
+            'type': 'danger'
         }
     });
 
