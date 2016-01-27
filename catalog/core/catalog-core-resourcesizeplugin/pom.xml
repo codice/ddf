@@ -34,7 +34,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -72,7 +71,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <!-- This should not be  embedding notifications: https://tools.codice.org/jira/browse/DDF-415-->
                         <Embed-Dependency>
-                            guava,
                             notifications,
                             activities,
                             hazelcast;scope=runtime|compile,

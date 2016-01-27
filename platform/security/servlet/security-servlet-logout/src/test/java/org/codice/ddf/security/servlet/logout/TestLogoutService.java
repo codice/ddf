@@ -32,10 +32,10 @@ import org.junit.Test;
 
 import ddf.action.Action;
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
-import ddf.security.http.impl.HttpSessionFactory;
+import ddf.security.common.SecurityTokenHolder;
+import ddf.security.http.SessionFactory;
+import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import ddf.security.service.impl.SecurityManagerImpl;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -43,9 +43,9 @@ import net.minidev.json.parser.ParseException;
 
 public class TestLogoutService {
 
-    private static HttpSessionFactory sessionFactory;
+    private static SessionFactory sessionFactory;
 
-    private static SecurityManagerImpl sm;
+    private static SecurityManager sm;
 
     @BeforeClass
     public static void initialize() {
@@ -54,10 +54,10 @@ public class TestLogoutService {
         realmTokenMap.put("karaf", new SecurityToken());
         realmTokenMap.put("ldap", new SecurityToken());
 
-        sessionFactory = mock(HttpSessionFactory.class);
+        sessionFactory = mock(SessionFactory.class);
         HttpSession httpSession = mock(HttpSession.class);
         SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
-        sm = mock(SecurityManagerImpl.class);
+        sm = mock(SecurityManager.class);
 
         when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
         when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(

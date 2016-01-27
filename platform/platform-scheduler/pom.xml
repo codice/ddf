@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
+            <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -48,6 +48,33 @@
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util-unavailableurls</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -67,7 +94,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>quartz,c3p0</Embed-Dependency>
+                        <Embed-Dependency>quartz,c3p0,httpclient,httpcore,platform-util-unavailableurls,ddf-security-common</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
                             ddf.platform.scheduler,

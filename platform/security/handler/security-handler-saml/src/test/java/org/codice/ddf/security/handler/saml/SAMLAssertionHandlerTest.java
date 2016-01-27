@@ -43,7 +43,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 
 public class SAMLAssertionHandlerTest {
 
@@ -80,7 +80,8 @@ public class SAMLAssertionHandlerTest {
         FilterChain chain = mock(FilterChain.class);
 
         Element assertion = readDocument("/saml.xml").getDocumentElement();
-        String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
+        String assertionId = assertion.getAttributeNodeNS(null, "ID")
+                .getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
         SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
         String saml = wrappedAssertion.assertionToString();
@@ -106,7 +107,8 @@ public class SAMLAssertionHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        doReturn(null).when(request).getHeader(SecurityConstants.SAML_HEADER_NAME);
+        doReturn(null).when(request)
+                .getHeader(SecurityConstants.SAML_HEADER_NAME);
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
@@ -128,7 +130,8 @@ public class SAMLAssertionHandlerTest {
         FilterChain chain = mock(FilterChain.class);
 
         Element assertion = readDocument("/saml.xml").getDocumentElement();
-        String assertionId = assertion.getAttributeNodeNS(null, "ID").getNodeValue();
+        String assertionId = assertion.getAttributeNodeNS(null, "ID")
+                .getNodeValue();
         SecurityToken samlToken = new SecurityToken(assertionId, assertion, null);
         SamlAssertionWrapper wrappedAssertion = new SamlAssertionWrapper(samlToken.getToken());
         String saml = wrappedAssertion.assertionToString();

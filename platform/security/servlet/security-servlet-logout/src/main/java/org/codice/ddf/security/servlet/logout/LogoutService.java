@@ -37,7 +37,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;

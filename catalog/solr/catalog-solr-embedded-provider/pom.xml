@@ -263,7 +263,6 @@
                             lucene-suggest,
                             lucene-grouping,
                             lucene-queries,
-                            guava,
                             lucene-spatial,
                             httpclient,
                             httpcore,
@@ -287,6 +286,7 @@
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
+                            com.google.*,
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.geom.impl,

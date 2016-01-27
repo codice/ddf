@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 
 public class LocalLogoutServlet extends HttpServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutServlet.class);

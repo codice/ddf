@@ -91,7 +91,6 @@
                         <Embed-Dependency>
                             catalog-transformer-common,
                             imgscalr-lib,
-                            guava,
                             jai-imageio-core-standalone,
                             jai-imageio-jpeg2000,
                             Saxon-HE

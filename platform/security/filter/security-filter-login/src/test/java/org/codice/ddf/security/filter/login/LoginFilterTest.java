@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,6 +53,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -62,12 +63,13 @@ import org.xml.sax.SAXException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.util.SecurityTokenHolder;
-import ddf.security.http.impl.HttpSessionFactory;
+import ddf.security.common.SecurityTokenHolder;
+import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
 public class LoginFilterTest {
+    SessionFactory sessionFactory;
 
     public static Document readXml(InputStream is)
             throws SAXException, IOException, ParserConfigurationException {
@@ -90,15 +92,20 @@ public class LoginFilterTest {
     }
 
     @BeforeClass
-    public static void setUp() {
+    public static void init() {
         OpenSAMLUtil.initSamlEngine();
+    }
+
+    @Before
+    public void setup() {
+        sessionFactory = mock(SessionFactory.class);
     }
 
     @Test
     public void testNoSubject() {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        loginFilter.setSessionFactory(new HttpSessionFactory());
+        loginFilter.setSessionFactory(sessionFactory);
         try {
             loginFilter.init(filterConfig);
         } catch (ServletException e) {
@@ -126,6 +133,7 @@ public class LoginFilterTest {
 
     /**
      * Test with a bad subject - shouldn't call the filter chain, just returns.
+     *
      * @throws IOException
      * @throws ServletException
      */
@@ -133,7 +141,7 @@ public class LoginFilterTest {
     public void testBadSubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        loginFilter.setSessionFactory(new HttpSessionFactory());
+        loginFilter.setSessionFactory(sessionFactory);
         try {
             loginFilter.init(filterConfig);
         } catch (ServletException e) {
@@ -158,7 +166,7 @@ public class LoginFilterTest {
     public void testValidEmptySubject() throws IOException, ServletException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        loginFilter.setSessionFactory(new HttpSessionFactory());
+        loginFilter.setSessionFactory(sessionFactory);
         loginFilter.init(filterConfig);
 
         HttpServletRequest servletRequest = new TestHttpServletRequest();
@@ -177,7 +185,7 @@ public class LoginFilterTest {
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        loginFilter.setSessionFactory(new HttpSessionFactory());
+        loginFilter.setSessionFactory(sessionFactory);
         ddf.security.service.SecurityManager securityManager =
                 mock(ddf.security.service.SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
@@ -194,6 +202,7 @@ public class LoginFilterTest {
         HttpSession session = mock(HttpSession.class);
         when(servletRequest.getSession(true)).thenReturn(session);
         when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(new SecurityTokenHolder());
+        when(sessionFactory.getOrCreateSession(servletRequest)).thenReturn(session);
 
         Subject subject = mock(Subject.class, RETURNS_DEEP_STUBS);
         when(securityManager.getSubject(token)).thenReturn(subject);
@@ -213,7 +222,7 @@ public class LoginFilterTest {
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        loginFilter.setSessionFactory(new HttpSessionFactory());
+        loginFilter.setSessionFactory(sessionFactory);
         ddf.security.service.SecurityManager securityManager =
                 mock(ddf.security.service.SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
@@ -245,7 +254,7 @@ public class LoginFilterTest {
             SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
-        loginFilter.setSessionFactory(new HttpSessionFactory());
+        loginFilter.setSessionFactory(sessionFactory);
         ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
         loginFilter.setSecurityManager(securityManager);
         loginFilter.setSignaturePropertiesFile("signature.properties");

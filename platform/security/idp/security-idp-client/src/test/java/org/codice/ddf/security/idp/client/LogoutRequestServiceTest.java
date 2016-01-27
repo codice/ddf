@@ -44,7 +44,7 @@ import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
 import org.opensaml.xmlsec.signature.SignableXMLObject;
 
 import ddf.security.SecurityConstants;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;

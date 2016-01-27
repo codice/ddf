@@ -81,7 +81,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -105,8 +104,7 @@
                             spatial-wfs-common,
                             spatial-ogc-common,
                             spatial-wfs-converter;scope=compile|runtime,
-                            catalog-core-api-impl,
-                            guava
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -46,7 +46,6 @@
                         <Export-Package>org.codice.ddf.migration</Export-Package>
                         <Embed-Dependency>
                             commons-lang,
-                            validation-api
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

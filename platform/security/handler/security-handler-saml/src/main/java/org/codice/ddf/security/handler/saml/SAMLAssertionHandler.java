@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
 
 import ddf.security.SecurityConstants;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 
 /**
