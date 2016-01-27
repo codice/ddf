@@ -25,6 +25,5 @@
     <packaging>pom</packaging>
     <modules>
         <module>catalog-rest-endpoint</module>
-        <module>catalog-rest-app</module>
     </modules>
 </project>
