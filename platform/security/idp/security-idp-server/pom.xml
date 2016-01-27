@@ -227,7 +227,11 @@
                             commons-lang3,
                             common-system
                         </Embed-Dependency>
-                        <Import-Package>!org.abego.treelayout.*, *</Import-Package>
+                        <Import-Package>
+                            !org.abego.treelayout.*,
+                            com.sun.management;resolution:=optional,
+                            *
+                        </Import-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>

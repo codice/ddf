@@ -23,7 +23,7 @@
     </parent>
     <groupId>ddf.security</groupId>
     <artifactId>security-services-app</artifactId>
-    <packaging>pom</packaging>
+    <packaging>kar</packaging>
     <name>DDF :: Security Services App</name>
     <build>
         <plugins>
@@ -50,12 +50,13 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
-                        <id>create-kar</id>
+                        <id>kar</id>
                         <goals>
-                            <goal>create-kar</goal>
+                            <goal>kar</goal>
                         </goals>
                         <configuration>
                             <resourcesDir>${project.build.directory}/resources</resourcesDir>

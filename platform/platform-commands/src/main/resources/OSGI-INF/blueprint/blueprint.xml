@@ -19,7 +19,11 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
         <command>
-            <action class="org.codice.ddf.commands.platform.DescribeCommand"/>
+            <action class="org.codice.ddf.commands.platform.DescribeCommand">
+                <property name="bundleContext" ref="blueprintBundleContext"/>
+                <argument ref="urlHelper"/>
+                <argument ref="systemInfo"/>
+            </action>
         </command>
         <command>
             <action class="org.codice.ddf.commands.platform.EnvListCommand"/>
@@ -30,5 +34,8 @@
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
+
+    <bean id="urlHelper" class="org.codice.ddf.configuration.SystemBaseUrl"/>
+    <bean id="systemInfo" class="org.codice.ddf.configuration.SystemInfo"/>
 
 </blueprint>

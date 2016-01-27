@@ -42,7 +42,7 @@
         http://cxf.apache.org/blueprint/schemas/jaxws.xsd" default-activation="lazy">
 
     <type-converters>
-        <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
+        <bean class="ddf.security.sts.PropertiesConverter"/>
     </type-converters>
 
     <ext:property-placeholder/>

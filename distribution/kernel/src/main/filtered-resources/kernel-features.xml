@@ -30,13 +30,13 @@
     <feature name="web" version="${project.version}" install="manual">
         <feature prerequisite="true" version="${project.version}">kernel</feature>
         <feature prerequisite="true" version="${karaf.version}">http</feature>
-        <feature>platform-filter-delegate</feature>
-        <feature>war</feature>
+        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>
 
     <feature name="kernel-webconsolebranding" description="" version="${project.version}">
         <feature prerequisite="true">web</feature>
         <feature prerequisite="true">webconsole</feature>
+        <feature>war</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
