@@ -750,9 +750,6 @@
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
         <bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}</bundle>
-        <!-- TODO - can't start metrics-ui before admin makes it's interfaces available.
-            Should move into admin-app -->
-        <!--<bundle>mvn:ddf.metrics.ui/metrics-ui/${project.version}</bundle>-->
     </feature>
 
     <feature name="metrics-services" install="manual" version="${project.version}"
@@ -780,11 +777,6 @@
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
         <feature>common-libraries</feature>
     </feature>
-
-    <!--<feature name="platform-filter-delegate" install="manual" version="${project.version}"-->
-             <!--description="Adds a filter delegate to every incoming servlet context.">-->
-        <!--<bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>-->
-    <!--</feature>-->
 
     <feature name="solr" install="manual" version="${project.version}"
              description="DDF Standalone Solr Server">

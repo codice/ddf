@@ -15,14 +15,13 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>metrics</artifactId>
-        <groupId>ddf.metrics</groupId>
+        <artifactId>admin-modules</artifactId>
+        <groupId>ddf.admin.modules</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ddf.metrics.ui</groupId>
-    <artifactId>metrics-ui</artifactId>
-    <name>DDF :: Metrics :: Plugin :: UI</name>
+    <artifactId>admin-metrics-ui</artifactId>
+    <name>DDF :: Admin :: Modules :: Metrics UI</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>

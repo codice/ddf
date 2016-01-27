@@ -27,5 +27,8 @@
         <module>admin-modules-installer</module>
         <module>admin-modules-configuration</module>
         <module>admin-modules-application</module>
+        <module>platform-metrics-ui</module>
+        <module>security-admin-module</module>
+        <module>security-certificate-adminmodule</module>
     </modules>
 </project>

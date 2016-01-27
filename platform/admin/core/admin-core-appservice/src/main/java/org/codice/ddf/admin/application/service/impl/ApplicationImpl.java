@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
@@ -64,16 +65,20 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     public ApplicationImpl(Repository repo) {
         location = repo.getURI();
         try {
-            features = new HashSet<Feature>(Arrays.asList(repo.getFeatures()));
+            features = new HashSet<>(Arrays.asList(repo.getFeatures()));
         } catch (Exception e) {
             logger.warn(
                     "Error occured while trying to parse information for application. Application created but may have missing information.");
-            features = new HashSet<Feature>();
+            features = new HashSet<>();
         }
-        List<Feature> autoFeatures = new ArrayList<Feature>();
-        for (Feature curFeature : features) {
-            if (curFeature.getInstall().equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
-                autoFeatures.add(curFeature);
+        List<Feature> autoFeatures = new ArrayList<>();
+        if (features.size() == 1) {
+            autoFeatures.add(features.iterator().next());
+        } else {
+            for (Feature curFeature : features) {
+                if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE, curFeature.getInstall())) {
+                    autoFeatures.add(curFeature);
+                }
             }
         }
         if (autoFeatures.size() == 1) {
@@ -149,7 +154,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     @Override
     public int hashCode() {
-        return name.concat(version).hashCode();
+        return name.concat(version)
+                .hashCode();
     }
 
     @Override
@@ -187,7 +193,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
         @Override
         public int compare(BundleInfo bundle1, BundleInfo bundle2) {
-            return bundle1.getLocation().compareTo(bundle2.getLocation());
+            return bundle1.getLocation()
+                    .compareTo(bundle2.getLocation());
         }
 
     }

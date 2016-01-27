@@ -159,10 +159,15 @@ public class ApplicationServiceImpl implements ApplicationService {
         // check features
         try {
             Set<Feature> features = application.getFeatures();
-            for (Feature curFeature : features) {
-                if (curFeature.getInstall()
-                        .equals(Feature.DEFAULT_INSTALL_MODE)) {
-                    requiredFeatures.addAll(getAllDependencyFeatures(curFeature));
+            if (features.size() == 1) {
+                requiredFeatures.addAll(getAllDependencyFeatures(features.iterator()
+                        .next()));
+            } else {
+                for (Feature curFeature : features) {
+                    if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE,
+                            curFeature.getInstall())) {
+                        requiredFeatures.addAll(getAllDependencyFeatures(curFeature));
+                    }
                 }
             }
 

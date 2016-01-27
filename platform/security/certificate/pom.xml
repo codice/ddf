@@ -23,7 +23,6 @@
     <artifactId>certificate</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>security-certificate-adminmodule</module>
         <module>security-certificate-keystoreeditor</module>
         <module>security-certificate-generator</module>
     </modules>

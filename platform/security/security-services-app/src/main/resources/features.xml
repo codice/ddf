@@ -123,11 +123,6 @@
         <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
     </feature>
 
-    <feature name="security-admin-module" install="manual" version="${project.version}"
-             description="Security configuration module.">
-        <bundle>mvn:ddf.security.admin/security-admin-module/${project.version}</bundle>
-    </feature>
-
     <feature name="security-handler-basic" install="manual" version="${project.version}"
              description="Basic Authentication Handler for web applications.">
         <bundle>mvn:ddf.security.handler/security-handler-basic/${project.version}</bundle>
@@ -209,9 +204,6 @@
         <bundle>
             mvn:ddf.security.certificate/security-certificate-keystoreeditor/${project.version}
         </bundle>
-        <!-- TODO - move to admin-app -->
-        <!--<bundle>mvn:ddf.security.certificate/security-certificate-adminmodule/${project.version}-->
-        <!--</bundle>-->
         <bundle>mvn:ddf.security.certificate/security-certificate-generator/${project.version}
         </bundle>
     </feature>
@@ -245,8 +237,6 @@
     <feature name="security-services-app" install="auto" version="${project.version}"
              description="The Security Application provides Authentication, Authorization, and Auditing services for the DDF.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::DDF Security">
         <feature prerequisite="true">platform-app</feature>
-        <!-- TODO - move to admin-app -->
-        <!--<feature>security-admin-module</feature>-->
         <feature>security-all</feature>
     </feature>
 
