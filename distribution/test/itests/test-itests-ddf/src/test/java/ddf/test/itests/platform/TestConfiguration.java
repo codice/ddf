@@ -584,7 +584,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 containsString(String.format(FAILED_IMPORT_MESSAGE, invalidConfigFileName)));
         assertThat(Files.exists(getPathToFailedDirectory().resolve(invalidConfigFileName)),
                 is(true));
-        SECONDS.sleep(10);
+        SECONDS.sleep(11);
         addConfigurationFileAndWaitForSuccessfulProcessing(VALID_CONFIG_FILE_1,
                 getResourceAsStream(VALID_CONFIG_FILE_1));
         String output2 = console.runCommand(STATUS_COMMAND);
