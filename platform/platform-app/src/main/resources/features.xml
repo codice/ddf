@@ -930,7 +930,7 @@
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
 
-    <feature name="common-libraries" version="${project.version}" description="Common Libraries.">
+    <feature name="common-libraries" version="${project.version}" install="manual" description="Common Libraries.">
         <bundle dependency="true">mvn:javax.validation/validation-api/${validation.version}</bundle>
         <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
