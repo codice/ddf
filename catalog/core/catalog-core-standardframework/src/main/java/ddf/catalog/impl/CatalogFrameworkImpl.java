@@ -1306,7 +1306,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     LOGGER.throwing(federationException);
                     throw federationException;
                 } else {
-                    LOGGER.debug("FederationStratgy was not specified, using default strategy: "
+                    LOGGER.debug("FederationStrategy was not specified, using default strategy: "
                             + defaultFederationStrategy.getClass());
                     fedStrategy = defaultFederationStrategy;
                 }

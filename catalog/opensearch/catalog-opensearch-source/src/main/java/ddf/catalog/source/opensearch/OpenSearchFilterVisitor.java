@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,10 +50,11 @@ import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 
 public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
-    private static final String ONLY_AND_MSG = "Opensearch only supports AND operations for non-contextual criteria.";
+    private static final String ONLY_AND_MSG =
+            "Opensearch only supports AND operations for non-contextual criteria.";
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
+    private static XLogger logger =
+            new XLogger(LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
 
     private List<Filter> filters;
 
@@ -64,7 +65,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     private SpatialFilter spatialSearch;
 
-    private NestedTypes curNest = null;
+    private NestedTypes currentNest = null;
 
     public OpenSearchFilterVisitor() {
         filters = new ArrayList<Filter>();
@@ -77,13 +78,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(Not filter, Object data) {
         Object newData;
-        NestedTypes parentNest = curNest;
-        logger.debug("ENTERING: NOT filter");
-        curNest = NestedTypes.NOT;
+        NestedTypes parentNest = currentNest;
+        logger.trace("ENTERING: NOT filter");
+        currentNest = NestedTypes.NOT;
         filters.add(filter);
         newData = super.visit(filter, data);
-        curNest = parentNest;
-        logger.debug("EXITING: NOT filter");
+        currentNest = parentNest;
+        logger.trace("EXITING: NOT filter");
 
         return newData;
     }
@@ -91,13 +92,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(Or filter, Object data) {
         Object newData;
-        NestedTypes parentNest = curNest;
-        logger.debug("ENTERING: OR filter");
-        curNest = NestedTypes.OR;
+        NestedTypes parentNest = currentNest;
+        logger.trace("ENTERING: OR filter");
+        currentNest = NestedTypes.OR;
         filters.add(filter);
         newData = super.visit(filter, data);
-        curNest = parentNest;
-        logger.debug("EXITING: OR filter");
+        currentNest = parentNest;
+        logger.trace("EXITING: OR filter");
 
         return newData;
     }
@@ -105,13 +106,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(And filter, Object data) {
         Object newData;
-        NestedTypes parentNest = curNest;
-        logger.debug("ENTERING: AND filter");
-        curNest = NestedTypes.AND;
+        NestedTypes parentNest = currentNest;
+        logger.trace("ENTERING: AND filter");
+        currentNest = NestedTypes.AND;
         filters.add(filter);
         newData = super.visit(filter, data);
-        curNest = parentNest;
-        logger.debug("EXITING: AND filter");
+        currentNest = parentNest;
+        logger.trace("EXITING: AND filter");
 
         return newData;
     }
@@ -121,8 +122,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(DWithin filter, Object data) {
-        logger.debug("ENTERING: DWithin filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest)) {
+        logger.trace("ENTERING: DWithin filter");
+        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -134,7 +135,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             // we
             // can cast it
             PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-            double[] coords = point.getCentroid().getCoordinate();
+            double[] coords = point.getCentroid()
+                    .getCoordinate();
             double distance = filter.getDistance();
 
             logger.debug("point: coords[0] = " + coords[0] + ",   coords[1] = " + coords[1]);
@@ -147,7 +149,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             logger.warn(ONLY_AND_MSG);
         }
 
-        logger.debug("EXITING: DWithin filter");
+        logger.trace("EXITING: DWithin filter");
 
         return super.visit(filter, data);
     }
@@ -157,8 +159,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(Contains filter, Object data) {
-        logger.debug("ENTERING: Contains filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest)) {
+        logger.trace("ENTERING: Contains filter");
+        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -172,7 +174,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
 
-                Coordinate[] coords = polygon.getJTSGeometry().getCoordinates();
+                Coordinate[] coords = polygon.getJTSGeometry()
+                        .getCoordinates();
 
                 geometryWkt.append("POLYGON((");
                 for (int i = 0; i < coords.length; i++) {
@@ -198,7 +201,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             logger.warn(ONLY_AND_MSG);
         }
 
-        logger.debug("EXITING: Contains filter");
+        logger.trace("EXITING: Contains filter");
 
         return super.visit(filter, data);
     }
@@ -208,8 +211,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(Intersects filter, Object data) {
-        logger.debug("ENTERING: Intersects filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest)) {
+        logger.trace("ENTERING: Intersects filter");
+        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -223,7 +226,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
 
-                Coordinate[] coords = polygon.getJTSGeometry().getCoordinates();
+                Coordinate[] coords = polygon.getJTSGeometry()
+                        .getCoordinates();
 
                 geometryWkt.append("POLYGON((");
                 for (int i = 0; i < coords.length; i++) {
@@ -248,7 +252,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             logger.warn(ONLY_AND_MSG);
         }
 
-        logger.debug("EXITING: Intersects filter");
+        logger.trace("EXITING: Intersects filter");
 
         return super.visit(filter, data);
     }
@@ -258,13 +262,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(TOverlaps filter, Object data) {
-        logger.debug("ENTERING: TOverlaps filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest)) {
+        logger.trace("ENTERING: TOverlaps filter");
+        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             handleTemporal(filter);
         } else {
             logger.warn(ONLY_AND_MSG);
         }
-        logger.debug("EXITING: TOverlaps filter");
+        logger.trace("EXITING: TOverlaps filter");
 
         return super.visit(filter, data);
     }
@@ -274,13 +278,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(During filter, Object data) {
-        logger.debug("ENTERING: TOverlaps filter");
-        if (curNest == null || NestedTypes.AND.equals(curNest)) {
+        logger.trace("ENTERING: TOverlaps filter");
+        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
             handleTemporal(filter);
         } else {
             logger.warn(ONLY_AND_MSG);
         }
-        logger.debug("EXITING: TOverlaps filter");
+        logger.trace("EXITING: TOverlaps filter");
 
         return super.visit(filter, data);
     }
@@ -288,15 +292,19 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     private void handleTemporal(BinaryTemporalOperator filter) {
 
         Literal literalWrapper = (Literal) filter.getExpression2();
-        logger.debug("literalWrapper.getValue() = " + literalWrapper.getValue());
+        logger.trace("literalWrapper.getValue() = " + literalWrapper.getValue());
 
         Object literal = literalWrapper.evaluate(null);
         if (literal instanceof Period) {
             Period period = (Period) literal;
 
             // Extract the start and end dates from the filter
-            Date start = period.getBeginning().getPosition().getDate();
-            Date end = period.getEnding().getPosition().getDate();
+            Date start = period.getBeginning()
+                    .getPosition()
+                    .getDate();
+            Date end = period.getEnding()
+                    .getPosition()
+                    .getDate();
 
             temporalSearch = new TemporalFilter(start, end);
 
@@ -306,7 +314,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
 
             // Extract the start and end dates from the filter
-            Date end = Calendar.getInstance().getTime();
+            Date end = Calendar.getInstance()
+                    .getTime();
             Date start = new Date(end.getTime() - duration.getTimeInMillis());
 
             temporalSearch = new TemporalFilter(start, end);
@@ -321,11 +330,11 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(PropertyIsEqualTo filter, Object data) {
-        logger.debug("ENTERING: PropertyIsEqualTo filter");
+        logger.trace("ENTERING: PropertyIsEqualTo filter");
 
         filters.add(filter);
 
-        logger.debug("EXITING: PropertyIsEqualTo filter");
+        logger.trace("EXITING: PropertyIsEqualTo filter");
 
         return super.visit(filter, data);
     }
@@ -335,48 +344,53 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(PropertyIsLike filter, Object data) {
-        logger.debug("ENTERING: PropertyIsLike filter");
+        logger.trace("ENTERING: PropertyIsLike filter");
 
-        LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
+        if (currentNest != NestedTypes.NOT) {
 
-        AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
-        String selectors = expression.getPropertyName();
-        logger.debug("selectors = " + selectors);
+            LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
 
-        String searchPhrase = likeFilter.getLiteral();
-        logger.debug("searchPhrase = [" + searchPhrase + "]");
-        if (contextualSearch != null) {
-            contextualSearch.setSearchPhrase(
-                    contextualSearch.getSearchPhrase() + " " + curNest.toString() + " "
-                            + searchPhrase);
-        } else {
-            contextualSearch = new ContextualSearch(selectors, searchPhrase,
-                    likeFilter.isMatchingCase());
+            AttributeExpressionImpl expression =
+                    (AttributeExpressionImpl) likeFilter.getExpression();
+            String selectors = expression.getPropertyName();
+            logger.debug("selectors = " + selectors);
+
+            String searchPhrase = likeFilter.getLiteral();
+            logger.debug("searchPhrase = [" + searchPhrase + "]");
+            if (contextualSearch != null) {
+                contextualSearch.setSearchPhrase(
+                        contextualSearch.getSearchPhrase() + " " + currentNest.toString() + " "
+                                + searchPhrase);
+            } else {
+                contextualSearch = new ContextualSearch(selectors,
+                        searchPhrase,
+                        likeFilter.isMatchingCase());
+            }
         }
 
-        logger.debug("EXITING: PropertyIsLike filter");
+        logger.trace("EXITING: PropertyIsLike filter");
 
         return super.visit(filter, data);
     }
 
     @Override
     public Object visit(PropertyName expression, Object data) {
-        logger.debug("ENTERING: PropertyName expression");
+        logger.trace("ENTERING: PropertyName expression");
 
         // countOccurrence( expression );
 
-        logger.debug("EXITING: PropertyName expression");
+        logger.trace("EXITING: PropertyName expression");
 
         return data;
     }
 
     @Override
     public Object visit(Literal expression, Object data) {
-        logger.debug("ENTERING: Literal expression");
+        logger.trace("ENTERING: Literal expression");
 
         // countOccurrence( expression );
 
-        logger.debug("EXITING: Literal expression");
+        logger.trace("EXITING: Literal expression");
 
         return data;
     }
