@@ -38,6 +38,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.dynamic.api.DynamicMetacard;
+import ddf.catalog.data.dynamic.api.MetacardFactory;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -64,17 +65,21 @@ public class CatalogContentPlugin implements ContentPlugin {
 
     private final CatalogFramework catalogFramework;
 
+    private MetacardFactory metacardFactory;
+
     private Cataloger cataloger;
 
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
     public CatalogContentPlugin(CatalogFramework catalogFramework,
-            MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
+            MimeTypeToTransformerMapper mimeTypeToTransformerMapper,
+            MetacardFactory factory) {
         LOGGER.trace("INSIDE: CatalogContentPlugin constructor");
 
         this.catalogFramework = catalogFramework;
         this.cataloger = new Cataloger(catalogFramework);
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
+        this.metacardFactory = factory;
     }
 
     @Override
@@ -265,7 +270,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     }
 
                     if (generatedMetacard instanceof DynamicMetacard) {
-                        LOGGER.debug("Adding fields to dynamic metacard of type {}", contentMetacard.getContentTypeName());
+                        LOGGER.debug("Adding fields to dynamic metacard of type {}", generatedMetacard.getContentTypeName());
                         DynamicMetacard metacard = (DynamicMetacard) generatedMetacard;
 
                         // set the user name
@@ -355,5 +360,9 @@ public class CatalogContentPlugin implements ContentPlugin {
                     name,
                     value)));
         }
+    }
+
+    public void setMetacardFactory(MetacardFactory factory) {
+        metacardFactory = factory;
     }
 }

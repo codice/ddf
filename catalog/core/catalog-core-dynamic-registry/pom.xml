@@ -19,9 +19,10 @@
         <artifactId>core</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-    <artifactId>catalog-core-dynamic-impl</artifactId>
-    <name>DDF :: Catalog :: Core :: Dynamic :: Impl</name>
-    <description>Dynamic Implementations for the Dynamic DDF Catalog Core API</description>
+    <artifactId>catalog-core-dynamic-registry</artifactId>
+    <packaging>bundle</packaging>
+    <name>DDF :: Catalog :: Core :: Dynamic :: Registry</name>
+    <description>Registry for Dynamic Metacard Registration</description>
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -30,6 +31,11 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-dynamic-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-dynamic-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -175,7 +181,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -184,6 +189,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            catalog-core-dynamic-impl,
                             commons-beanutils,
                             commons-logging,
                             commons-digester,
@@ -212,7 +218,6 @@
                     </instructions>
                 </configuration>
             </plugin>
--->
              <!--Generate Javadocs for this project-->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>

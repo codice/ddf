@@ -24,6 +24,7 @@
                 update-strategy="container-managed"/>
 		<argument ref="catalogFramework"/>
 		<argument ref="transformerMapper"/>
+        <argument ref="metacardFactory"/>
 	</bean>
 
     <!-- export the bean on the service registry -->
@@ -32,6 +33,7 @@
 	
 	<reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
 
+    <reference id="metacardFactory" interface="ddf.catalog.data.dynamic.api.MetacardFactory"/>
 
     <!--***********  ContentResourceReader  ***************-->
 
