@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,6 +31,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
+import ddf.catalog.util.impl.Requests;
 
 /**
  * IngestPlugin is a PreIngestPlugin that restricts the create/update/delete operations
@@ -88,8 +89,8 @@ public class IngestPlugin implements PolicyPlugin {
                 if (parts.length == 2) {
                     String attributeName = parts[0];
                     String attributeValue = parts[1];
-                    permissions.put(attributeName, new HashSet<>(
-                            Collections.singletonList(attributeValue)));
+                    permissions.put(attributeName,
+                            new HashSet<>(Collections.singletonList(attributeValue)));
                 }
             }
         }
@@ -98,19 +99,29 @@ public class IngestPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(permissions, null);
+        if (Requests.isLocal(properties)) {
+            return new PolicyResponseImpl(permissions, null);
+        }
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(permissions, null);
+        if (Requests.isLocal(properties)) {
+            return new PolicyResponseImpl(permissions, null);
+        }
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return new PolicyResponseImpl(permissions, null);
+
+        if (Requests.isLocal(properties)) {
+            return new PolicyResponseImpl(permissions, null);
+        }
+        return new PolicyResponseImpl();
     }
 
     @Override

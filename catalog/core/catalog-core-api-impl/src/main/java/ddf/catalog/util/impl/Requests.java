@@ -13,6 +13,9 @@
  */
 package ddf.catalog.util.impl;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import ddf.catalog.Constants;
 import ddf.catalog.operation.Request;
 
@@ -22,7 +25,7 @@ import ddf.catalog.operation.Request;
 public class Requests {
     /**
      * Returns true if this request will be run on a remote catalog. This does not mean that
-     * this same request will not be run on the local catalog. Default implementation requires
+     * this same request will not be run on the local catalog. Implementation requires
      * the catalog framework to set the needed properties for this method to work.
      *
      * @param req The request to check
@@ -36,15 +39,25 @@ public class Requests {
 
     /**
      * Returns true if this request will be run on the local catalog. This does not mean that
-     * this same request will not be run on a remote catalog. Default implementation requires
+     * this same request will not be run on a remote catalog. Implementation requires
      * the catalog framework to set the needed properties for this method to work.
      *
      * @param req The request to check
      * @return Returns true if the request contains the local catalog id in its store ids otherwise returns false
      */
     public static boolean isLocal(Request req) {
-        return req == null || !req.hasProperties()
-                || req.getPropertyValue(Constants.LOCAL_DESTINATION_KEY) == null
-                || (boolean) req.getPropertyValue(Constants.LOCAL_DESTINATION_KEY);
+        return req == null || !req.hasProperties() || isLocal(req.getProperties());
+    }
+
+    /**
+     * Returns true if this request will be run on the local catalog. This does not mean that
+     * this same request will not be run on a remote catalog. Implementation requires
+     * the catalog framework to set the needed properties for this method to work.
+     * @param props Property map of a request
+     * @return Returns true if the properties contains the local catalog id in its store ids otherwise returns false
+     */
+    public static boolean isLocal(Map<String, Serializable> props) {
+        return props == null || props.get(Constants.LOCAL_DESTINATION_KEY) == null
+                || (boolean) props.get(Constants.LOCAL_DESTINATION_KEY);
     }
 }
