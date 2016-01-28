@@ -1,0 +1,5 @@
+= Extending {branding} Spatial App
+include::./_contents/config.adoc[]
+
+== Overview
+include::./_contents/extcontents.adoc[]

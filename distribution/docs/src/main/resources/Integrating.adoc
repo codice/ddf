@@ -1,6 +1,0 @@
-= Integrating {branding}
-include::config.adoc[]
-
-== Overview
-
-include::IntContents.adoc[]

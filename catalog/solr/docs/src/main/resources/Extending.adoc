@@ -1,5 +1,0 @@
-= Extending {branding} Solr Catalog Application
-include::config.adoc[]
-
-== Overview
-include::ExtContents.adoc[]

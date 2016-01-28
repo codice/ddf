@@ -1,5 +1,0 @@
-= Extending {branding} Adminstrative Application
-include::config.adoc[]
-
-== Overview
-include::ExtContents.adoc[]

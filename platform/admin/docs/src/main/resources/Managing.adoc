@@ -1,5 +1,0 @@
-= Managing {branding} Admin Application
-include::config.adoc[]
-
-== Overview
-include::ManContents.adoc[]

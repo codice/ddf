@@ -1,0 +1,5 @@
+= Managing {branding} Admin Application
+include::./_contents/config.adoc[]
+
+== Overview
+include::./_contents/mancontents.adoc[]
