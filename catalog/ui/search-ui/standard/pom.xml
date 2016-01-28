@@ -113,6 +113,10 @@
             <type>tar.gz</type>
             <classifier>npm</classifier>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -175,7 +179,8 @@
                             platform-error-servlet,
                             proxy-camel-servlet,
                             proxy-camel-route,
-                            catalog-core-api-impl;scope=!test
+                            catalog-core-api-impl;scope=!test,
+                            platform-util
                         </Embed-Dependency>
                         <Web-ContextPath>/search/standard</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
