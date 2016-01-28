@@ -164,7 +164,7 @@ public final class SolrServerFactory {
         SolrServer server;
         try {
             server = getSolrServer(url, coreName, configFile, coreUrl);
-        } catch (SolrException ex) {
+        } catch (Exception ex) {
             return pool.submit(new SolrServerFetcher(url, coreName, configFile, coreUrl));
         }
 
@@ -173,7 +173,7 @@ public final class SolrServerFactory {
     }
 
     private static SolrServer getSolrServer(String url, String coreName, String configFile,
-            String coreUrl) throws SolrException {
+            String coreUrl) throws SolrException, IOException, SolrServerException {
         SolrServer server;
         if (StringUtils.startsWith(url, "https")) {
             CloseableHttpClient client = getHttpClient();
@@ -373,7 +373,7 @@ public final class SolrServerFactory {
     }
 
     private static void createSolrCore(String url, String coreName, String configFileName,
-            HttpClient client) {
+            HttpClient client) throws IOException, SolrServerException {
         HttpSolrServer solrServer;
         if (client != null) {
             solrServer = new HttpSolrServer(url, client);
@@ -387,26 +387,14 @@ public final class SolrServerFactory {
             String instanceDir = System.getProperty("karaf.home") + "/data/solr/" + coreName;
             String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
 
-            try {
-                CoreAdminRequest.createCore(coreName,
-                        instanceDir,
-                        solrServer,
-                        configFile,
-                        DEFAULT_SCHEMA_XML);
-            } catch (SolrServerException e) {
-                LOGGER.error("SolrServerException creating " + coreName + " core", e);
-            } catch (IOException e) {
-                LOGGER.error("IOException creating " + coreName + " core", e);
-            }
+            CoreAdminRequest.createCore(coreName,
+                    instanceDir,
+                    solrServer,
+                    configFile,
+                    DEFAULT_SCHEMA_XML);
         } else {
             LOGGER.info("Solr core {} already exists - just reload it", coreName);
-            try {
-                CoreAdminRequest.reloadCore(coreName, solrServer);
-            } catch (SolrServerException e) {
-                LOGGER.error("SolrServerException reloading " + coreName + " core", e);
-            } catch (IOException e) {
-                LOGGER.error("IOException reloading " + coreName + " core", e);
-            }
+            CoreAdminRequest.reloadCore(coreName, solrServer);
         }
     }
 
@@ -415,11 +403,8 @@ public final class SolrServerFactory {
             CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, solrServer);
             return response.getCoreStatus(coreName)
                     .get("instanceDir") != null;
-        } catch (SolrServerException e) {
-            LOGGER.info("SolrServerException getting " + coreName + " core status", e);
-            return false;
-        } catch (IOException e) {
-            LOGGER.info("IOException getting " + coreName + " core status", e);
+        } catch (Exception e) {
+            LOGGER.debug("Exception getting " + coreName + " core status", e);
             return false;
         }
     }
