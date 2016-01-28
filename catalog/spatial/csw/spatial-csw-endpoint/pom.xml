@@ -87,6 +87,15 @@
             <artifactId>xpp3</artifactId>
             <version>1.1.4c</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -118,7 +127,8 @@
                             spatial-csw-common,
                             spatial-csw-transformer,
                             gt-cql,
-                            catalog-core-api-impl
+                            catalog-core-api-impl,
+                            platform-util
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.spatial.ogc.csw.catalog.endpoint.*

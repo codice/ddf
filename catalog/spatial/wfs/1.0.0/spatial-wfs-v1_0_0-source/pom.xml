@@ -115,6 +115,10 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -142,7 +146,9 @@
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
                             security-rest-cxfwrapper,
-                            ddf-security-common,platform-util-unavailableurls
+                            ddf-security-common,
+                            platform-util,
+                            platform-util-unavailableurls
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

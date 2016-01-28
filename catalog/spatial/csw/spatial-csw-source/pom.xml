@@ -132,6 +132,10 @@
             <artifactId>ddf-security-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -175,7 +179,9 @@
                             gt-cql,
                             ogc-tools-gml-jts,
                             security-rest-cxfwrapper,
-                            ddf-security-common,platform-util-unavailableurls,
+                            ddf-security-common,
+                            platform-util
+                            platform-util-unavailableurls,
                             jaxb2-basics-runtime
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

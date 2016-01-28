@@ -91,6 +91,15 @@
             <artifactId>catalog-transformer-xml</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -111,7 +120,8 @@
                         <Embed-Dependency>
                             spatial-csw-common,
                             spatial-ogc-common,
-                            catalog-core-api-impl
+                            catalog-core-api-impl,
+                            platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
