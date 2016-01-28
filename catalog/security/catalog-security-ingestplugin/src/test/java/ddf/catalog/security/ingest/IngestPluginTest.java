@@ -19,6 +19,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -135,6 +137,12 @@ public class IngestPluginTest {
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()
                 .size(), equalTo(1));
+        response = ingestPlugin.processPreCreate(mock(Metacard.class), Collections.singletonMap(Constants.LOCAL_DESTINATION_KEY, false));
+        assertThat(response.itemPolicy()
+                .size(), equalTo(0));
+        assertThat(response.operationPolicy()
+                .size(), equalTo(0));
+
     }
 
     @Test
@@ -146,6 +154,11 @@ public class IngestPluginTest {
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()
                 .size(), equalTo(1));
+        response = ingestPlugin.processPreUpdate(mock(Metacard.class), Collections.singletonMap(Constants.LOCAL_DESTINATION_KEY, false));
+        assertThat(response.itemPolicy()
+                .size(), equalTo(0));
+        assertThat(response.operationPolicy()
+                .size(), equalTo(0));
     }
 
     @Test
@@ -157,6 +170,11 @@ public class IngestPluginTest {
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()
                 .size(), equalTo(1));
+        response = ingestPlugin.processPreDelete("blah", new ArrayList<>(), Collections.singletonMap(Constants.LOCAL_DESTINATION_KEY, false));
+        assertThat(response.itemPolicy()
+                .size(), equalTo(0));
+        assertThat(response.operationPolicy()
+                .size(), equalTo(0));
     }
 
     @Test

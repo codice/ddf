@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-public interface Operation {
+public interface Operation extends Serializable {
 
     public Set<String> getPropertyNames();
 

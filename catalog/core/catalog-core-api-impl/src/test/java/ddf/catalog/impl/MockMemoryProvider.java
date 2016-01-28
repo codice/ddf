@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -89,7 +89,12 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
     private boolean hasReceivedQuery = false;
 
-    private String sourceId = "mockMemoryProvider";
+    private String sourceId;
+
+    public MockMemoryProvider(String id, boolean isAvailable) {
+        this(id, "", "", "", new HashSet<>(), isAvailable, new Date());
+        sourceId = id;
+    }
 
     /**
      * Mock provider, saves entries in memory. Cannot perform queries.
@@ -105,57 +110,33 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
     public MockMemoryProvider(String shortName, String title, String version, String organization,
             Set<ContentType> catalogTypes, boolean isAvailable, Date lastAvailability) {
         super(shortName, title, version, organization, catalogTypes, isAvailable, lastAvailability);
-        store = new HashMap<Serializable, Metacard>();
+        store = new HashMap<>();
+        sourceId = "mockMemoryProvider";
     }
-
-    // public BlockingQueue<Response<Metacard>> read( Subject user, List<String>
-    // ids ) throws CatalogException
-    // {
-    // hasReceivedRead = true;
-    // int foundEntries = 0;
-    // LinkedBlockingQueue<Response<Metacard>> returnQueue = new
-    // LinkedBlockingQueue<Response<Metacard>>();
-    // for( String id : ids )
-    // {
-    // if ( store.containsKey( UUID.fromString( id ) ) )
-    // {
-    // foundEntries++;
-    // try
-    // {
-    // returnQueue.put( new ResponseImpl<Metacard>( store.get( id ),
-    // foundEntries ) );
-    // }
-    // catch ( InterruptedException ie )
-    // {
-    // throw new CatalogException( "Problems during read:" + ie.getMessage(),
-    // ie.getCause() );
-    // }
-    // }
-    // }
-    //
-    // return returnQueue;
-    // }
 
     @Override
     public CreateResponse create(CreateRequest request) {
         List<Metacard> oldCards = request.getMetacards();
         hasReceivedCreate = true;
-        List<Metacard> returnedMetacards = new ArrayList<Metacard>(oldCards.size());
-        Map<String, Serializable> properties = new HashMap<String, Serializable>();
+        List<Metacard> returnedMetacards = new ArrayList<>(oldCards.size());
+        Map<String, Serializable> properties = new HashMap<>();
 
         for (Metacard curCard : oldCards) {
-            UUID id = UUID.randomUUID();
 
             MetacardImpl card = new MetacardImpl(curCard);
-            card.setId(id.toString());
-            LOGGER.debug("Storing metacard with id: {}", id.toString());
-            store.put(id.toString(), card);
-            properties.put(id.toString(), card);
+            if (card.getId() == null) {
+                card.setId(UUID.randomUUID()
+                        .toString());
+            }
+            LOGGER.debug("Storing metacard with id: {}", card.getId());
+            store.put(card.getId(), card);
+            properties.put(card.getId(), card);
             returnedMetacards.add(card);
 
         }
 
-        CreateResponse ingestResponseImpl = new CreateResponseImpl(request, properties,
+        CreateResponse ingestResponseImpl = new CreateResponseImpl(request,
+                properties,
                 returnedMetacards);
 
         return ingestResponseImpl;
@@ -168,15 +149,19 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         hasReceivedUpdate = true;
         hasReceivedUpdateByIdentifier = true;
         List<Entry<Serializable, Metacard>> updatedCards = request.getUpdates();
-        Map<String, Serializable> properties = new HashMap<String, Serializable>();
+        Map<String, Serializable> properties = new HashMap<>();
 
-        List<Update> returnedMetacards = new ArrayList<Update>(updatedCards.size());
+        List<Update> returnedMetacards = new ArrayList<>(updatedCards.size());
         for (Entry<Serializable, Metacard> curCard : updatedCards) {
-            if (store.containsKey(curCard.getValue().getId())) {
+            if (store.containsKey(curCard.getValue()
+                    .getId())) {
                 LOGGER.debug("Store contains the key");
-                Metacard oldMetacard = store.get(curCard.getValue().getId());
-                store.put(curCard.getValue().getId(), curCard.getValue());
-                properties.put(curCard.getValue().getId(), curCard.getValue());
+                Metacard oldMetacard = store.get(curCard.getValue()
+                        .getId());
+                store.put(curCard.getValue()
+                        .getId(), curCard.getValue());
+                properties.put(curCard.getValue()
+                        .getId(), curCard.getValue());
                 LOGGER.debug("adding returnedMetacard");
                 returnedMetacards.add(new UpdateImpl(curCard.getValue(), oldMetacard));
             } else {
@@ -195,9 +180,9 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @SuppressWarnings("unchecked")
         List<String> ids = (List<String>) deleteRequest.getAttributeValues();
 
-        Map<String, Serializable> properties = new HashMap<String, Serializable>();
+        Map<String, Serializable> properties = new HashMap<>();
 
-        List<Metacard> returnedMetacards = new ArrayList<Metacard>(ids.size());
+        List<Metacard> returnedMetacards = new ArrayList<>(ids.size());
         for (int i = 0; i < ids.size(); i++) {
             String id = (String) ids.get(i);
             UUID curUUID = UUID.fromString(id);
@@ -209,7 +194,8 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
             }
         }
 
-        DeleteResponse response = new DeleteResponseImpl(deleteRequest, properties,
+        DeleteResponse response = new DeleteResponseImpl(deleteRequest,
+                properties,
                 returnedMetacards);
 
         return response;
@@ -274,19 +260,19 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
 
     @Override
     public Set<ContentType> getContentTypes() {
-        return new HashSet<ContentType>();
+        return new HashSet<>();
 
     }
 
     class MockMemoryFilterVisitor extends DefaultFilterVisitor {
-        Set<Metacard> filteredMetacards = new HashSet<Metacard>();
 
         @Override
         public Object visit(Not filter, Object data) {
             LOGGER.trace("entry {},{}", filter, data);
-            Set<Metacard> notFilteredSet = new HashSet<Metacard>();
+            Set<Metacard> notFilteredSet = new HashSet<>();
             notFilteredSet.addAll((Collection<? extends Metacard>) data);
-            Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter().accept(this, data);
+            Set<Metacard> filteredSet = (Set<Metacard>) filter.getFilter()
+                    .accept(this, data);
             notFilteredSet.removeAll(filteredSet);
             LOGGER.trace("exit {}", notFilteredSet.size());
             return notFilteredSet;
@@ -295,15 +281,18 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @Override
         public Object visit(After after, Object data) {
             LOGGER.trace("entry {},{}", after, data);
-            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            Set<Metacard> filteredSet = new HashSet<>();
             PropertyName propName = (PropertyName) after.getExpression1();
             Object obj = ((Literal) after.getExpression2()).getValue();
-            Date afterFilter = null;
+            Date afterFilter;
             LOGGER.debug("what is object? {}", obj);
             if (obj instanceof Period) {
-                afterFilter = ((Period) obj).getEnding().getPosition().getDate();
+                afterFilter = ((Period) obj).getEnding()
+                        .getPosition()
+                        .getDate();
             } else {
-                afterFilter = ((Instant) obj).getPosition().getDate();
+                afterFilter = ((Instant) obj).getPosition()
+                        .getDate();
             }
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
@@ -323,14 +312,17 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @Override
         public Object visit(Before before, Object data) {
             LOGGER.trace("entry {},{}", before, data);
-            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            Set<Metacard> filteredSet = new HashSet<>();
             PropertyName propName = (PropertyName) before.getExpression1();
             Object obj = ((Literal) before.getExpression2()).getValue();
-            Date beforeFilter = null;
+            Date beforeFilter;
             if (obj instanceof Period) {
-                beforeFilter = ((Period) obj).getBeginning().getPosition().getDate();
+                beforeFilter = ((Period) obj).getBeginning()
+                        .getPosition()
+                        .getDate();
             } else {
-                beforeFilter = ((Instant) obj).getPosition().getDate();
+                beforeFilter = ((Instant) obj).getPosition()
+                        .getDate();
             }
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
@@ -350,10 +342,12 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @Override
         public Object visit(Begins begins, Object data) {
             LOGGER.trace("entry {},{}", begins, data);
-            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            Set<Metacard> filteredSet = new HashSet<>();
             PropertyName propName = (PropertyName) begins.getExpression1();
             Object obj = ((Literal) begins.getExpression2()).getValue();
-            Date beginsFilter = ((Period) obj).getBeginning().getPosition().getDate();
+            Date beginsFilter = ((Period) obj).getBeginning()
+                    .getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {
@@ -379,11 +373,15 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @Override
         public Object visit(During during, Object data) {
             LOGGER.trace("entry {},{}", during, data);
-            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            Set<Metacard> filteredSet = new HashSet<>();
             PropertyName propName = (PropertyName) during.getExpression1();
             Period filterPeriod = (Period) ((Literal) during.getExpression2()).getValue();
-            Date startFilter = filterPeriod.getBeginning().getPosition().getDate();
-            Date endFilter = filterPeriod.getEnding().getPosition().getDate();
+            Date startFilter = filterPeriod.getBeginning()
+                    .getPosition()
+                    .getDate();
+            Date endFilter = filterPeriod.getEnding()
+                    .getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {
@@ -409,10 +407,12 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @Override
         public Object visit(Ends ends, Object data) {
             LOGGER.trace("entry {},{}", ends, data);
-            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            Set<Metacard> filteredSet = new HashSet<>();
             PropertyName propName = (PropertyName) ends.getExpression1();
             Object obj = ((Literal) ends.getExpression2()).getValue();
-            Date endsFilter = ((Period) obj).getEnding().getPosition().getDate();
+            Date endsFilter = ((Period) obj).getEnding()
+                    .getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {
@@ -460,10 +460,11 @@ public class MockMemoryProvider extends MockSource implements CatalogProvider {
         @Override
         public Object visit(TEquals equals, Object data) {
             LOGGER.trace("entry {},{}", equals, data);
-            Set<Metacard> filteredSet = new HashSet<Metacard>();
+            Set<Metacard> filteredSet = new HashSet<>();
             PropertyName propName = (PropertyName) equals.getExpression1();
             Object obj = ((Literal) equals.getExpression2()).getValue();
-            Date equalsFilter = ((Instant) obj).getPosition().getDate();
+            Date equalsFilter = ((Instant) obj).getPosition()
+                    .getDate();
             if (data instanceof Collection<?>) {
                 Collection<Metacard> mcData = (Collection<Metacard>) data;
                 for (Metacard mc : mcData) {

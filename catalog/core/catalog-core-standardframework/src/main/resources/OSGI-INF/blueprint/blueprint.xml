@@ -21,6 +21,7 @@
     <!-- According to the schema the type-converters element must be above all other elements except 'description' -->
     <type-converters>
         <bean id="listConverter" class="ddf.catalog.util.impl.ListConverter"/>
+        <bean id="mapConverter" class="ddf.catalog.util.impl.MapConverter"/>
     </type-converters>
 
     <ext:property-placeholder/>
@@ -52,6 +53,10 @@
     </bean>
     <bean id="accessSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
+    <bean id="catalogStoreMap" class="ddf.catalog.util.impl.DescribableServiceMap">
+    </bean>
+    <bean id="federatedSourceMap" class="ddf.catalog.util.impl.DescribableServiceMap">
+    </bean>
 
 
     <!-- END of Sorted Plugin lists -->
@@ -68,24 +73,30 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="ddf"/>
     </reference-list>
+	<!-- CATALOG STORE REFERENCE -->
+	<reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
+					availability="optional">
+		<reference-listener bind-method="bind"
+							unbind-method="unbind" ref="catalogStoreMap"/>
+	</reference-list>
     <!-- PREINGEST REFERENCE -->
     <reference-list id="preIngest" interface="ddf.catalog.plugin.PreIngestPlugin"
                     availability="optional">
-        <reference-listener bind-method="bindPlugin"
+		<reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preIngestSortedList"/>
-    </reference-list>
+	</reference-list>
     <!-- POSTINGEST REFERENCE -->
     <reference-list id="postIngest" interface="ddf.catalog.plugin.PostIngestPlugin"
                     availability="optional">
-        <reference-listener bind-method="bindPlugin"
+		<reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="postIngestSortedList"/>
-    </reference-list>
+	</reference-list>
     <!-- PREQUERY REFERENCE -->
     <reference-list id="preQuery" interface="ddf.catalog.plugin.PreQueryPlugin"
                     availability="optional">
-        <reference-listener bind-method="bindPlugin"
+		<reference-listener bind-method="bindPlugin"
                             unbind-method="unbindPlugin" ref="preQuerySortedList"/>
-    </reference-list>
+	</reference-list>
     <!-- POSTQUERY REFERENCE -->
     <reference-list id="postQuery" interface="ddf.catalog.plugin.PostQueryPlugin"
                     availability="optional">
@@ -129,6 +140,8 @@
                     availability="optional">
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="sourcePollerRunner"/>
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="federatedSourceMap"/>
     </reference-list>
 
     <reference-list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"
@@ -258,6 +271,7 @@
         <argument>
             <bean class="ddf.catalog.impl.FrameworkProperties">
                 <property name="catalogProviders" ref="catalogProviderSortedList"/>
+                <property name="catalogStoresMap" ref="catalogStoreMap"/>
                 <property name="bundleContext" ref="blueprintBundleContext"/>
                 <property name="preIngest" ref="preIngestSortedList"/>
                 <property name="postIngest" ref="postIngestSortedList"/>
@@ -266,7 +280,7 @@
                 <property name="preResource" ref="preResourceSortedList"/>
                 <property name="postResource" ref="postResourceSortedList"/>
                 <property name="connectedSources" ref="connectedSources"/>
-                <property name="federatedSources" ref="federatedSources"/>
+                <property name="federatedSources" ref="federatedSourceMap"/>
                 <property name="resourceReaders" ref="resourceReaderSortedList"/>
                 <property name="federationStrategy" ref="federationStrategy"/>
                 <property name="pool" ref="queryThreadPool"/>

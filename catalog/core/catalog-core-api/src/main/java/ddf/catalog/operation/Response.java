@@ -13,6 +13,9 @@
  */
 package ddf.catalog.operation;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public interface Response<T extends Request> extends Operation {
     /**
      * Get the request that generated this response
@@ -20,4 +23,8 @@ public interface Response<T extends Request> extends Operation {
      * @return {@link Request} - the {@link Request} that generated this {@link Response}.
      */
     public T getRequest();
+
+    default Set<ProcessingDetails> getProcessingErrors() {
+        return new HashSet<>();
+    }
 }

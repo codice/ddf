@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,8 +15,10 @@ package ddf.catalog.operation.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
@@ -29,6 +31,9 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
 
     /** The metacards to be created */
     protected List<Metacard> metacards;
+
+    /** The set of destination ids to send this request to **/
+    protected Set<String> destinations = new HashSet<>();
 
     /**
      * Instantiates a new CreateRequestImpl with a single {@link Metacard}.
@@ -60,8 +65,21 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
      *            the properties
      */
     public CreateRequestImpl(List<Metacard> metacards, Map<String, Serializable> properties) {
+        this(metacards, properties, new HashSet<>());
+    }
+
+    public CreateRequestImpl(List<Metacard> metacards, Map<String, Serializable> properties,
+            Set<String> destinations) {
         super(properties);
         this.metacards = metacards;
+        if (destinations != null) {
+            this.destinations = destinations;
+        }
+    }
+
+    @Override
+    public Set<String> getStoreIds() {
+        return destinations;
     }
 
     /*

@@ -38,6 +38,7 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.util.impl.Requests;
 
 public class RestReplicatorPlugin implements PostIngestPlugin {
 
@@ -59,7 +60,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
 
-        if (client != null && transformer != null) {
+        if (Requests.isLocal(input.getRequest()) && client != null && transformer != null) {
 
             for (Metacard m : input.getCreatedMetacards()) {
 
@@ -78,7 +79,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
 
-        if (client != null && transformer != null) {
+        if (Requests.isLocal(input.getRequest()) && client != null && transformer != null) {
 
             WebClient updateClient = WebClient.fromClient(client);
 
@@ -124,13 +125,13 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
 
-        if (client != null) {
+        if (input != null && Requests.isLocal(input.getRequest()) && client != null) {
 
             WebClient updateClient = WebClient.fromClient(client);
 
             updateClient.type(MediaType.APPLICATION_JSON);
 
-            if (input == null || input.getDeletedMetacards() == null || input.getDeletedMetacards()
+            if (input.getDeletedMetacards() == null || input.getDeletedMetacards()
                     .isEmpty()) {
                 return input;
             }

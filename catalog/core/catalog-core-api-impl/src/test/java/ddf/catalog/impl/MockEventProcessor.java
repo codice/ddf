@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,6 +30,7 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.util.impl.Requests;
 
 public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
 
@@ -116,6 +117,9 @@ public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
         LOGGER.trace("ENTERING: process (CreateResponse)");
+        if (!Requests.isLocal(input.getRequest())) {
+            return input;
+        }
         List<Metacard> createdMetacards = input.getCreatedMetacards();
         wasSent = true;
         wasPosted = true;
@@ -128,6 +132,9 @@ public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
         LOGGER.trace("ENTERING: process (UpdateResponse)");
+        if (!Requests.isLocal(input.getRequest())) {
+            return input;
+        }
         List<Update> updates = input.getUpdatedMetacards();
         Update lastUpdate = updates.get(updates.size() - 1);
         wasSent = true;
@@ -141,6 +148,10 @@ public class MockEventProcessor implements EventProcessor, PostIngestPlugin {
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
         LOGGER.trace("ENTERING: process (DeleteResponse)");
+
+        if (!Requests.isLocal(input.getRequest())) {
+            return input;
+        }
 
         List<Metacard> deletedMetacards = input.getDeletedMetacards();
         wasSent = true;

@@ -14,6 +14,7 @@
 package ddf.catalog.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.osgi.framework.BundleContext;
@@ -32,6 +33,7 @@ import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.util.impl.SourcePoller;
@@ -43,6 +45,8 @@ import ddf.catalog.util.impl.SourcePoller;
 public class FrameworkProperties {
 
     private List<CatalogProvider> catalogProviders;
+
+    private Map<String, CatalogStore> catalogStoresMap;
 
     private BundleContext bundleContext;
 
@@ -64,7 +68,7 @@ public class FrameworkProperties {
 
     private List<ConnectedSource> connectedSources;
 
-    private List<FederatedSource> federatedSources;
+    private Map<String, FederatedSource> federatedSources;
 
     private List<ResourceReader> resourceReaders;
 
@@ -170,11 +174,11 @@ public class FrameworkProperties {
         this.connectedSources = connectedSources;
     }
 
-    public List<FederatedSource> getFederatedSources() {
+    public Map<String, FederatedSource> getFederatedSources() {
         return federatedSources;
     }
 
-    public void setFederatedSources(List<FederatedSource> federatedSources) {
+    public void setFederatedSources(Map<String, FederatedSource> federatedSources) {
         this.federatedSources = federatedSources;
     }
 
@@ -243,5 +247,13 @@ public class FrameworkProperties {
     public void setReliableResourceDownloadManager(
             ReliableResourceDownloadManager reliableResourceDownloadManager) {
         this.reliableResourceDownloadManager = reliableResourceDownloadManager;
+    }
+
+    public Map<String, CatalogStore> getCatalogStoresMap() {
+        return catalogStoresMap;
+    }
+
+    public void setCatalogStoresMap(Map<String, CatalogStore> catalogStoresMap) {
+        this.catalogStoresMap = catalogStoresMap;
     }
 }
