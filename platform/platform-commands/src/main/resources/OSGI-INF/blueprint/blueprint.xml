@@ -13,7 +13,6 @@
 -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
@@ -24,54 +23,8 @@
         <command name="platform/envlist">
             <action class="org.codice.ddf.commands.platform.EnvListCommand"/>
         </command>
-        <command name="platform/config-status">
-            <action
-                    class="org.codice.ddf.commands.platform.ConfigStatusCommand">
-                <argument ref="configStatusService"/>
-            </action>
-        </command>
-        <command name="platform/config-export">
-            <action class="org.codice.ddf.commands.platform.ExportCommand">
-                <argument ref="configurationMigrationService"/>
-                <argument ref="defaultExportDirectoryPath"/>
-            </action>
-        </command>
 
     </command-bundle>
-
-    <ext:property-placeholder>
-        <ext:default-properties>
-            <ext:property name="defaultExportDirectory" value="${ddf.home}/etc/exported"/>
-        </ext:default-properties>
-    </ext:property-placeholder>
-
-    <reference id="configStatusService"
-               interface="org.codice.ddf.configuration.status.ConfigurationStatusService"/>
-
-    <reference id="configurationMigrationService"
-               interface="org.codice.ddf.configuration.migration.ConfigurationMigrationService"/>
-
-    <!-- Base URI for DDF home -->
-    <bean id="ddfHomeFile" class="java.io.File">
-        <argument value="${ddf.home}"/>
-    </bean>
-
-    <bean id="ddfHomeUri" class="java.net.URI" factory-ref="ddfHomeFile" factory-method="toURI"/>
-
-    <!-- Default Directory Export Path -->
-    <bean id="defaultExportDirectoryUri" class="java.nio.file.Uri" factory-ref="ddfHomeUri"
-          factory-method="resolve">
-        <argument value="etc/exported"/>
-    </bean>
-
-    <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths" factory-method="get">
-        <argument ref="defaultExportDirectoryUri"/>
-    </bean>
-
-    <bean id="platformExportCommand" class="org.codice.ddf.commands.platform.ExportCommand">
-        <argument ref="configurationMigrationService"/>
-        <argument ref="defaultExportDirectoryPath"/>
-    </bean>
 
     <bean id="platformDescribeCommand" class="org.codice.ddf.commands.platform.DescribeCommand">
         <property name="bundleContext" ref="blueprintBundleContext"/>

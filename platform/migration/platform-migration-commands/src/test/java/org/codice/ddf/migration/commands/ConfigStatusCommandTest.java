@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.platform;
+package org.codice.ddf.migration.commands;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -81,7 +81,7 @@ public class ConfigStatusCommandTest {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(
                 CONFIG_STATUS_MSGS);
-        ConfigStatusCommand configStatusCommand = new ConfigStatusCommand(mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -89,7 +89,7 @@ public class ConfigStatusCommandTest {
         };
 
         // Perform Test
-        configStatusCommand.doExecute();
+        migrationStatusCommand.doExecute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -98,12 +98,12 @@ public class ConfigStatusCommandTest {
         assertThat(values.get(0), is(ERROR_RED));
         assertThat(
                 values.get(1),
-                is(String.format(ConfigStatusCommand.FAILED_IMPORT_MESSAGE,
+                is(String.format(MigrationStatusCommand.FAILED_IMPORT_MESSAGE,
                         FAILED_CONFIG_FILE1.toString())));
         assertThat(values.get(0), is(ERROR_RED));
         assertThat(
                 values.get(3),
-                is(String.format(ConfigStatusCommand.FAILED_IMPORT_MESSAGE,
+                is(String.format(MigrationStatusCommand.FAILED_IMPORT_MESSAGE,
                         FAILED_CONFIG_FILE2.toString())));
     }
 
@@ -111,7 +111,7 @@ public class ConfigStatusCommandTest {
     public void testDoExecuteNoFailedImports() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(new ArrayList<>(0));
-        ConfigStatusCommand configStatusCommand = new ConfigStatusCommand(mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -119,21 +119,21 @@ public class ConfigStatusCommandTest {
         };
 
         // Perform Test
-        configStatusCommand.doExecute();
+        migrationStatusCommand.doExecute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         verify(mockConsole, times(2)).print(argument.capture());
         List<String> values = argument.getAllValues();
         assertThat(values.get(0), is(SUCCESS_GREEN));
-        assertThat(values.get(1), is(ConfigStatusCommand.SUCCESSFUL_IMPORT_MESSAGE));
+        assertThat(values.get(1), is(MigrationStatusCommand.SUCCESSFUL_IMPORT_MESSAGE));
     }
 
     @Test
     public void testDoExecuteRuntimeExceptionWhileReadingFailedDirectory() throws Exception {
         // Setup
         doThrow(new RuntimeException()).when(mockConfigStatusService).getFailedConfigurationFiles();
-        ConfigStatusCommand configStatusCommand = new ConfigStatusCommand(mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -141,7 +141,7 @@ public class ConfigStatusCommandTest {
         };
 
         // Perform Test
-        configStatusCommand.doExecute();
+        migrationStatusCommand.doExecute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -156,7 +156,7 @@ public class ConfigStatusCommandTest {
     public void testDoExecuteNullConfigurationStatus() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(null);
-        ConfigStatusCommand configStatusCommand = new ConfigStatusCommand(mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -164,18 +164,18 @@ public class ConfigStatusCommandTest {
         };
 
         // Perform Test
-        configStatusCommand.doExecute();
+        migrationStatusCommand.doExecute();
 
         // Verify
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         verify(mockConsole, times(2)).print(argument.capture());
         List<String> values = argument.getAllValues();
         assertThat(values.get(0), is(ERROR_RED));
-        assertThat(values.get(1), is(ConfigStatusCommand.NO_CONFIG_STATUS_MESSAGE));
+        assertThat(values.get(1), is(MigrationStatusCommand.NO_CONFIG_STATUS_MESSAGE));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorNullConfigurationStatusService() {
-        new ConfigStatusCommand(null);
+        new MigrationStatusCommand(null);
     }
 }

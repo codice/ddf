@@ -42,7 +42,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.ops4j.pax.exam.Option;
@@ -72,9 +74,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestConfiguration.class);
 
-    private static final String EXPORT_COMMAND = "platform:config-export";
+    private static final String EXPORT_COMMAND = "migration:export";
 
-    private static final String STATUS_COMMAND = "platform:config-status";
+    private static final String STATUS_COMMAND = "migration:status";
 
     private static final String SUCCESSFUL_IMPORT_MESSAGE =
             "All config files imported successfully.";
@@ -142,6 +144,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     @BeforeExam
     public void beforeExam() throws Exception {
         basePort = getBasePort();
@@ -155,7 +160,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     public void resetInitialState() throws Exception {
 
-        FileUtils.deleteQuietly(getExportDirectory().toFile());
+        FileUtils.deleteQuietly(getDefaultExportDirectory().toFile());
         FileUtils.deleteQuietly(new File(TEST_FILE));
         FileUtils.deleteQuietly(symbolicLink.toFile());
 
@@ -246,37 +251,33 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(EXPORT_COMMAND);
 
-        assertThat(getExportSubDirectory("system.properties").toFile()
-                .exists(), is(true));
-        assertThat(getExportSubDirectory("users.properties").toFile()
-                .exists(), is(true));
-        assertThatDirectoryContains(getExportSubDirectory("keystores"),
-                "serverKeystore.jks",
-                "serverTruststore.jks");
-        assertThatDirectoryContains(getExportSubDirectory("pdp", "policies"), "access-policy.xml");
-        assertThatDirectoryContains(getExportSubDirectory("ws-security"),
-                "attributeMap.properties",
-                "issuer",
-                "server");
-        assertThatDirectoryContains(getExportSubDirectory("ws-security", "issuer"),
-                "encryption.properties",
-                "signature.properties");
-        assertThatDirectoryContains(getExportSubDirectory("ws-security", "server"),
-                "encryption.properties",
-                "signature.properties");
+        assertExportContents(getDefaultExportDirectory());
+    }
+
+    @Test
+    public void testExportToDirectory() throws Exception {
+        resetInitialState();
+
+        String response = console.runCommand(EXPORT_COMMAND + " " + temporaryFolder.getRoot());
+
+        assertThat(String.format("Exporting current configurations to %s.",
+                temporaryFolder.toString()),
+                response,
+                containsString("Successfully exported all configurations."));
+        assertExportContents(temporaryFolder.getRoot().toPath());
     }
 
     @Test
     public void testExportOnTopOfFile() throws Exception {
         resetInitialState();
 
-        File file = getExportDirectory().toFile();
+        File file = getDefaultExportDirectory().toFile();
         file.createNewFile();
 
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString("Unable to create export directories."));
     }
@@ -285,16 +286,16 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportOnTopOfNestedFile() throws Exception {
         resetInitialState();
 
-        File file = getExportDirectory().toFile();
+        File file = getDefaultExportDirectory().toFile();
         file.mkdir();
-        File fileEtc = getExportDirectory().resolve("etc")
+        File fileEtc = getDefaultExportDirectory().resolve("etc")
                 .toFile();
         fileEtc.createNewFile();
 
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString("Unable to create export directories."));
     }
@@ -312,7 +313,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(EXPORT_COMMAND);
 
-        assertThat("Saved configuration should be exported.", getPathToExportedConfig(
+        assertThat("Saved configuration should be exported.", getPathToExportedConfig(getDefaultExportDirectory(),
                 managedServiceNewConfig1.pid).toFile()
                 .isFile(), is(true));
     }
@@ -332,7 +333,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(EXPORT_COMMAND);
 
-        assertThat("Deleted configuration should not be exported.", getPathToExportedConfig(
+        assertThat("Deleted configuration should not be exported.", getPathToExportedConfig(getDefaultExportDirectory(),
                 managedServiceNewConfig2.pid).toFile()
                 .isFile(), is(false));
     }
@@ -352,10 +353,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+                        getDefaultExportDirectory())));
     }
 
     /**
@@ -373,10 +374,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String response = console.runCommand(EXPORT_COMMAND);
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+                        getDefaultExportDirectory())));
     }
 
     /**
@@ -398,10 +399,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+                        getDefaultExportDirectory())));
 
     }
 
@@ -423,10 +424,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString(String.format("Failed to export all configurations to %s",
-                        getExportDirectory())));
+                        getDefaultExportDirectory())));
     }
 
     /**
@@ -443,7 +444,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString("An error was encountered while executing this command."));
     }
@@ -462,7 +463,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString("An error was encountered while executing this command."));
     }
@@ -481,7 +482,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString("An error was encountered while executing this command."));
     }
@@ -499,7 +500,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String response = console.runCommand(EXPORT_COMMAND);
         assertThat(String.format("Should not have been able to export to %s.",
-                getExportDirectory()),
+                getDefaultExportDirectory()),
                 response,
                 containsString("An error was encountered while executing this command."));
     }
@@ -515,14 +516,14 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String firstExportMessage = console.runCommand(EXPORT_COMMAND);
 
-        File firstExport = getExportSubDirectory("system.properties").toFile();
+        File firstExport = getExportSubDirectory(getDefaultExportDirectory(), "system.properties").toFile();
         long firstLength = firstExport.length();
         FileUtils.copyFile(SYSTEM_PROPERTIES.toFile(), SYSTEM_PROPERTIES_COPY.toFile());
         FileUtils.writeStringToFile(SYSTEM_PROPERTIES.toFile(), "testtesttest", true);
 
         String secondExportMessage = console.runCommand(EXPORT_COMMAND);
 
-        File secondExport = getExportSubDirectory("system.properties").toFile();
+        File secondExport = getExportSubDirectory(getDefaultExportDirectory(), "system.properties").toFile();
         long secondLength = secondExport.length();
 
         assertThat("The first export failed to export",
@@ -612,25 +613,47 @@ public class TestConfiguration extends AbstractIntegrationTest {
     /**
      * Returns the default location for exported configuration files
      *
+     * @param exportDirectory root directory of the export
      * @param pid PID of the configuration file
      * @return Full path to the exported configuration file
      */
-    private Path getPathToExportedConfig(String pid) {
-        return getExportSubDirectory(pid + ".config");
+    private Path getPathToExportedConfig(Path exportDirectory, String pid) {
+        return getExportSubDirectory(exportDirectory, pid + ".config");
     }
 
-    private Path getExportDirectory() {
+    private Path getDefaultExportDirectory() {
         return Paths.get(ddfHome, "etc", "exported");
     }
 
-    private Path getExportSubDirectory(String... paths) {
-        Path directory = getExportDirectory().resolve("etc");
+    private Path getExportSubDirectory(Path exportDirectory, String... paths) {
+        Path directory = exportDirectory.resolve("etc");
 
         for (String path : paths) {
             directory = directory.resolve(path);
         }
 
         return directory;
+    }
+
+    private void assertExportContents(Path exportDirectory) {
+        assertThat(getExportSubDirectory(exportDirectory, "system.properties").toFile()
+                .exists(), is(true));
+        assertThat(getExportSubDirectory(exportDirectory, "users.properties").toFile()
+                .exists(), is(true));
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "keystores"),
+                "serverKeystore.jks",
+                "serverTruststore.jks");
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "pdp", "policies"), "access-policy.xml");
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security"),
+                "attributeMap.properties",
+                "issuer",
+                "server");
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security", "issuer"),
+                "encryption.properties",
+                "signature.properties");
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security", "server"),
+                "encryption.properties",
+                "signature.properties");
     }
 
     private void addConfigurationFile(String fileName, InputStream inputStream) throws IOException {

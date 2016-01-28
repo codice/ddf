@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.platform;
+package org.codice.ddf.migration.commands;
 
 import static org.apache.commons.lang.Validate.notNull;
 
@@ -24,8 +24,10 @@ import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
 import org.codice.ddf.migration.MigrationWarning;
 
-@Command(scope = PlatformCommands.NAMESPACE, name = "config-status", description = "Lists import status of configuration files.")
-public class ConfigStatusCommand extends PlatformCommands {
+@Command(scope = MigrationCommands.NAMESPACE, name = "status", description = "Lists import status of configuration files "
+        + "that were imported through the Migration Service. Files that failed to import correctly will be moved to the "
+        + "etc/failed directory. All successful imports will be moved to the etc/processed directory")
+public class MigrationStatusCommand extends MigrationCommands {
 
     static final String SUCCESSFUL_IMPORT_MESSAGE = "All config files imported successfully.";
 
@@ -35,7 +37,7 @@ public class ConfigStatusCommand extends PlatformCommands {
 
     private ConfigurationStatusService configStatusService;
 
-    public ConfigStatusCommand(@NotNull ConfigurationStatusService configStatusService) {
+    public MigrationStatusCommand(@NotNull ConfigurationStatusService configStatusService) {
         notNull(configStatusService, "Configuration Status Service cannot be null");
         this.configStatusService = configStatusService;
     }

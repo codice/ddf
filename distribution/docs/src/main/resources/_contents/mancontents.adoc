@@ -4093,8 +4093,8 @@ The Configuration Export/Import capability allows administrators to export the c
 
 To export the current {branding} configuration:
 
-. Using the {branding} Command Line Console, type in `platform:config-export`. This command creates the exported configuration files that are saved to `<DDF_HOME>/etc/exported`.
-. Zip up the exported files in `<DDF_HOME>/etc/exported`
+. Using the {branding} Command Line Console, type in `migration:export <directory>`. This command creates the exported configuration files that are saved to the specified directory. If no directory is specified it will default to `<DDF_HOME>/etc/exported`
+. Zip up the exported files in the export directory.
 ----
 cd  <DDF_HOME>/etc/exported
 zip exportedFiles.zip *
@@ -4105,7 +4105,7 @@ zip exportedFiles.zip *
 Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore`
 property which provides the path to system key store.
 The files referred to in the system configuration files will be included in the export process only if the path is relative to `DDF_HOME`.
-Using absolute paths and/or symbolic links in those cases will cause the `platform:config-export` command to display warnings about those files and exclude them from the export process.
+Using absolute paths and/or symbolic links in those cases will cause the `migration:export` command to display warnings about those files and exclude them from the export process.
 The export process itself will not be aborted.
 ====
 
@@ -4119,7 +4119,7 @@ To import a previously exported configuration:
 . If needed, manually update system configuration files such as `system.properties`, `users.properties`. keystores, etc.
 . Launch the newly installed {branding}.
 . Step through the installation process. The newly installed {branding} will have the previous {branding}'s settings imported.
-. To get a status of the import, run the `platform:config-status` from the Command Line Console.
+. To get a status of the import, run the `migration:status` from the Command Line Console.
 
 
 === Starting {branding}
@@ -4818,7 +4818,7 @@ The Platform Commands are installed when the Platform application is installed.
 
 ----
 ddf@local>platform:
-platform:config-export    platform:config-status    platform:describe    platform:envlist
+platform:describe    platform:envlist
 ----
 
 [cols="2" options="header"]
@@ -4826,12 +4826,6 @@ platform:config-export    platform:config-status    platform:describe    platfor
 
 |Command
 |Description
-
-|config-export
-|Exports the current configurations.
-
-|config-status
-|Lists import status of configuration files.
 
 |describe
 |Shows the current platform configuration.
