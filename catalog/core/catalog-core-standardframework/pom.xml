@@ -469,7 +469,7 @@
                             javax.security.auth.spi,
                             javax.security.auth.x500,
                             javax.security.sasl,
-                            javax.servlet;version="2.5",
+                            javax.servlet,
                             javax.servlet.http,
                             javax.ws.rs,
                             javax.ws.rs.core,

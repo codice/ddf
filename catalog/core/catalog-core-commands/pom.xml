@@ -121,6 +121,7 @@
                             catalog-core-api-impl,
                             ddf-security-common,
                             platform-util-unavailableurls,
+                            platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>

@@ -109,6 +109,7 @@
                             ddf.common;version=${project.version},
                             ddf.util;version=${project.version}
                         </Export-Package>
+                        <Embed-Dependency>platform-util</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

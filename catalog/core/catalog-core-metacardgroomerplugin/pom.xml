@@ -35,6 +35,10 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -47,7 +51,8 @@
                         </Private-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test
+                            catalog-core-api-impl;scope=!test,
+                            platform-util
                         </Embed-Dependency>
                         <Export-Package/>
                     </instructions>

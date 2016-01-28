@@ -92,6 +92,10 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -101,7 +105,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,catalog-core-api-impl,common-system</Embed-Dependency>
+                        <Embed-Dependency>json-smart,catalog-core-api-impl,common-system,platform-util</Embed-Dependency>
                         <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
                     </instructions>
                 </configuration>

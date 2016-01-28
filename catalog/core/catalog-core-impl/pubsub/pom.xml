@@ -118,7 +118,8 @@
                             ddf.catalog.pubsub.predicate,
                             ddf.catalog.operation.impl,
                             ddf.catalog.data.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Import-Package>
                             com.vividsolutions.jts.operation.distance;version="1.1.0",
