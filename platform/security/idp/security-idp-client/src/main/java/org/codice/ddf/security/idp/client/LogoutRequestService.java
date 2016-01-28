@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -33,7 +34,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
@@ -187,8 +187,8 @@ public class LogoutRequestService {
         simpleSign.signSamlObject(logoutRequest);
         LOGGER.debug("Converting SAML Request to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(logoutRequest, doc));
-        String encodedSamlRequest = new String(Base64.encodeBase64(assertionResponse.getBytes(
-                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        String encodedSamlRequest = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
+                StandardCharsets.UTF_8));
         String singleLogoutLocation = idpMetadata.getSingleLogoutLocation();
         String submitFormUpdated = String.format(submitForm,
                 singleLogoutLocation,
@@ -415,8 +415,8 @@ public class LogoutRequestService {
         simpleSign.signSamlObject(samlResponse);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-        String encodedSamlResponse = new String(Base64.encodeBase64(assertionResponse.getBytes(
-                StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        String encodedSamlResponse = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
+                StandardCharsets.UTF_8));
 
         return Response.ok(HtmlResponseTemplate.getPostPage(idpMetadata.getSingleLogoutLocation(),
                 SamlProtocol.Type.RESPONSE,
@@ -440,8 +440,7 @@ public class LogoutRequestService {
     }
 
     private String decodeBase64(String encoded) {
-        return new String(Base64.decodeBase64(encoded.getBytes(StandardCharsets.UTF_8)),
-                StandardCharsets.UTF_8);
+        return Base64.getMimeEncoder().encodeToString(encoded.getBytes(StandardCharsets.UTF_8));
     }
 
     private Response buildLogoutResponse(String message) {

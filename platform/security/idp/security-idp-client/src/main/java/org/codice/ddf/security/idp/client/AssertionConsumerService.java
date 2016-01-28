@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -40,7 +41,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -329,8 +329,8 @@ public class AssertionConsumerService {
                 rootContext);
 
         EntityDescriptor entityDescriptor = SamlProtocol.createSpMetadata(entityId,
-                Base64.encodeBase64String(issuerCert.getEncoded()),
-                Base64.encodeBase64String(encryptionCert.getEncoded()),
+                Base64.getEncoder().encodeToString(issuerCert.getEncoded()),
+                Base64.getEncoder().encodeToString(encryptionCert.getEncoded()),
                 logoutLocation,
                 assertionConsumerServiceLocation,
                 assertionConsumerServiceLocation);
@@ -373,7 +373,7 @@ public class AssertionConsumerService {
     }
 
     private String decodeBase64(String encoded) {
-        return new String(Base64.decodeBase64(encoded.getBytes(StandardCharsets.UTF_8)),
+        return new String(Base64.getMimeDecoder().decode(encoded.getBytes(StandardCharsets.UTF_8)),
                 StandardCharsets.UTF_8);
     }
 

@@ -21,9 +21,9 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Properties;
 
-import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
 import org.junit.Test;
 
 public class CrlCheckerTest {
@@ -144,7 +144,7 @@ public class CrlCheckerTest {
      */
     private X509Certificate[] extractX509CertsFromString(String certString)
             throws CertificateException {
-        InputStream stream = new ByteArrayInputStream(Base64.decodeBase64(certString.getBytes()));
+        InputStream stream = new ByteArrayInputStream(Base64.getMimeDecoder().decode(certString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[1];

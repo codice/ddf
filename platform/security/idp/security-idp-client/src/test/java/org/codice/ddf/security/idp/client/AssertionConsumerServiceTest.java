@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.util.Base64;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -36,7 +37,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -125,9 +125,8 @@ public class AssertionConsumerServiceTest {
 
     @Test
     public void testPostSamlResponse() throws Exception {
-        Response response =
-                assertionConsumerService.postSamlResponse(new String(Base64.encodeBase64(this.cannedResponse.getBytes())),
-                        RELAY_STATE_VAL);
+        Response response = assertionConsumerService.postSamlResponse(Base64.getEncoder()
+                .encodeToString(this.cannedResponse.getBytes()), RELAY_STATE_VAL);
         assertThat("The http response was not 303 SEE OTHER",
                 response.getStatus(),
                 is(HttpStatus.SC_SEE_OTHER));
@@ -140,9 +139,8 @@ public class AssertionConsumerServiceTest {
     @Test
     public void testPostSamlResponseNotSecure() throws Exception {
         when(httpRequest.isSecure()).thenReturn(false);
-        Response response =
-                assertionConsumerService.postSamlResponse(new String(Base64.encodeBase64(this.cannedResponse.getBytes())),
-                        RELAY_STATE_VAL);
+        Response response = assertionConsumerService.postSamlResponse(Base64.getEncoder()
+                .encodeToString(this.cannedResponse.getBytes()), RELAY_STATE_VAL);
         assertThat("The http response was not 500 ERROR",
                 response.getStatus(),
                 is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
@@ -376,12 +374,12 @@ public class AssertionConsumerServiceTest {
                 .toString());
         assertThat("SingleLogoutService Binding attribute was not the expected HTTP-Redirect",
                 document,
-                hasXPath("//urn:oasis:names:tc:SAML:2.0:metadata:SingleLogoutService/@Binding", is(
-                        equalTo("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"))));
+                hasXPath("//urn:oasis:names:tc:SAML:2.0:metadata:SingleLogoutService/@Binding",
+                        is(equalTo("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"))));
         assertThat("SingleLogoutService Binding attribute was not the expected HTTP-Redirect",
                 document,
-                hasXPath("//urn:oasis:names:tc:SAML:2.0:metadata:SingleLogoutService/@Location", is(
-                        equalTo("https://localhost:8993/logout"))));
+                hasXPath("//urn:oasis:names:tc:SAML:2.0:metadata:SingleLogoutService/@Location",
+                        is(equalTo("https://localhost:8993/logout"))));
         assertThat("The http response was not 200 OK", response.getStatus(), is(HttpStatus.SC_OK));
         assertThat("Response entity was null", response.getEntity(), notNullValue());
 
@@ -401,8 +399,9 @@ public class AssertionConsumerServiceTest {
     @Test
     public void testGetLoginFilter() throws Exception {
         Filter filter = assertionConsumerService.getLoginFilter();
-        assertThat("Returned login filter was not the same as the one set", filter, equalTo(
-                loginFilter));
+        assertThat("Returned login filter was not the same as the one set",
+                filter,
+                equalTo(loginFilter));
     }
 
 }

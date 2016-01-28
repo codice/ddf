@@ -17,6 +17,7 @@ import static org.boon.Boon.toJson;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.cxf.common.util.Base64Utility;
 import org.codice.ddf.platform.error.handler.ErrorHandler;
 import org.eclipse.jetty.util.ByteArrayISO8859Writer;
 import org.osgi.framework.Bundle;
@@ -73,7 +73,7 @@ public class DefaultErrorHandler implements ErrorHandler {
         jsonMap.put("throwable", stack);
         jsonMap.put("uri", uri);
         String data = toJson(jsonMap);
-        String encodedBytes = Base64Utility.encode(data.getBytes(StandardCharsets.UTF_8));
+        String encodedBytes = Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8));
 
         String localIndexHtml = indexHtml.replace("WINDOW_DATA", "\"" + encodedBytes + "\"");
 

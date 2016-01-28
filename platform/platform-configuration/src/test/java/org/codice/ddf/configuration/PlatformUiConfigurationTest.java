@@ -19,8 +19,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.ddf.branding.BrandingResourceProvider;
 import org.junit.Test;
@@ -70,9 +70,9 @@ public class PlatformUiConfigurationTest {
         assertEquals("background", jsonObject.get(PlatformUiConfiguration.BACKGROUND));
         assertEquals("color", jsonObject.get(PlatformUiConfiguration.COLOR));
         assertEquals("product", jsonObject.get(PlatformUiConfiguration.VERSION));
-        assertEquals("image", new String(Base64.decodeBase64(
+        assertEquals("image", new String(Base64.getMimeDecoder().decode(
                 (String) jsonObject.get(PlatformUiConfiguration.PRODUCT_IMAGE))));
-        assertEquals("fav", new String(Base64.decodeBase64(
+        assertEquals("fav", new String(Base64.getMimeDecoder().decode(
                 (String) jsonObject.get(PlatformUiConfiguration.FAV_ICON))));
     }
 

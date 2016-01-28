@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,7 +31,6 @@ import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.codice.ddf.security.handler.pki.CrlChecker;
-import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
 import org.junit.Test;
 
 /**
@@ -85,7 +85,7 @@ public class CrlInterceptorTest {
 
         // add in certificate
         InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
+                Base64.getMimeDecoder().decode(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[] {cert};
@@ -98,7 +98,7 @@ public class CrlInterceptorTest {
         String certificateString = getTestCertString();
 
         InputStream stream = new ByteArrayInputStream(
-                Base64.decodeBase64(certificateString.getBytes()));
+                Base64.getMimeDecoder().decode(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[1];

@@ -16,6 +16,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.io.Serializable;
+import java.util.Base64;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -268,7 +268,7 @@ class CswMarshallHelper {
 
         switch (attrFormat) {
         case BINARY:
-            xmlValue = Base64.encodeBase64String((byte[]) value);
+            xmlValue = Base64.getEncoder().encodeToString((byte[]) value);
             break;
         case DATE:
             GregorianCalendar cal = new GregorianCalendar();

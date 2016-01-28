@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLConnection;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.codec.binary.Base64;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.osgi.framework.Bundle;
@@ -172,7 +172,7 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer
                             metacardElement.appendChild(createElement(doc,
                                     XML_RESULTS_NAMESPACE,
                                     "thumbnail",
-                                    Base64.encodeBase64String(metacard.getThumbnail())));
+                                    Base64.getEncoder().encodeToString(metacard.getThumbnail())));
                             try {
                                 String mimeType =
                                         URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(

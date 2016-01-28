@@ -25,12 +25,12 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
+import java.util.Base64;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -101,7 +101,6 @@ public class SimpleSignTest {
         dsaCert = writer.toString()
                 .replace("-----BEGIN CERTIFICATE-----", "")
                 .replace("-----END CERTIFICATE-----", "");
-
     }
 
     @Test
@@ -232,7 +231,7 @@ public class SimpleSignTest {
             tokenStream.write(value.getBytes(StandardCharsets.UTF_8));
             tokenStream.close();
 
-            return new String(Base64.encodeBase64(valueBytes.toByteArray()));
+            return Base64.getEncoder().encodeToString(valueBytes.toByteArray());
         }
     }
 

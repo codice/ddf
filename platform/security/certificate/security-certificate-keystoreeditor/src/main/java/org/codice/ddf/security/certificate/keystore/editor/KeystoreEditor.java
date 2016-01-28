@@ -42,6 +42,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +77,6 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
-import org.bouncycastle.util.encoders.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,7 +290,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     private boolean validKeystoreAlias(String alias, String keystorePassword, String keystoreData,
             String keystoreFileName) throws KeystoreEditorException {
         boolean valid = false;
-        try (InputStream inputStream = new ByteArrayInputStream(Base64.decode(keystoreData))) {
+        try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreData))) {
             if (StringUtils.isBlank(alias)) {
                 throw new IllegalArgumentException("Alias cannot be null.");
             }
@@ -316,7 +316,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             String data, String type, String fileName, String path, String storepass,
             KeyStore store) throws KeystoreEditorException {
         OutputStream fos = null;
-        try (InputStream inputStream = new ByteArrayInputStream(Base64.decode(data))) {
+        try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data))) {
             if (StringUtils.isBlank(alias)) {
                 throw new IllegalArgumentException("Alias cannot be null.");
             }

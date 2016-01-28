@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.UUID;
 
 import javax.servlet.FilterChain;
@@ -31,7 +32,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
@@ -305,7 +305,7 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     private String encodePostRequest(String request) throws WSSecurityException, IOException {
-        return new String(Base64.encodeBase64(request.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(request.getBytes(StandardCharsets.UTF_8));
     }
 
     private String recreateFullRequestUrl(HttpServletRequest request) {

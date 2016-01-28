@@ -22,9 +22,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.ddf.branding.BrandingResourceProvider;
 import org.junit.BeforeClass;
@@ -72,7 +72,7 @@ public class TestLandingPage {
         assertThat(landingPage.getTitle(), is(equalTo(productName)));
         assertThat(landingPage.getFavicon(), is(equalTo("")));
         assertThat(landingPage.getProductImage(),
-                is(equalTo(Base64.encodeBase64String(fakeImg.getBytes()))));
+                is(equalTo(Base64.getEncoder().encodeToString(fakeImg.getBytes()))));
     }
 
     @Test

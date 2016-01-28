@@ -23,11 +23,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.List;
 
 import javax.ws.rs.core.UriBuilder;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -140,7 +140,7 @@ public class SimpleSign {
         try {
             uriBuilder.queryParam(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, "UTF-8"));
             uriBuilder.queryParam(SSOConstants.SIGNATURE,
-                    URLEncoder.encode(Base64.encodeBase64String(signatureBytes), "UTF-8"));
+                    URLEncoder.encode(Base64.getEncoder().encodeToString(signatureBytes), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new SignatureException(e);
         }
@@ -217,7 +217,7 @@ public class SimpleSign {
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             Certificate certificate = certificateFactory.generateCertificate(
-                    new ByteArrayInputStream(Base64.decodeBase64(encodedPublicKey)));
+                    new ByteArrayInputStream(Base64.getMimeDecoder().decode(encodedPublicKey)));
 
             String jceSigAlgo = "SHA1withRSA";
             if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
@@ -227,9 +227,9 @@ public class SimpleSign {
             java.security.Signature sig = java.security.Signature.getInstance(jceSigAlgo);
             sig.initVerify(certificate.getPublicKey());
             sig.update(queryParamsToValidate.getBytes("UTF-8"));
-            return sig.verify(Base64.decodeBase64(encodedSignature));
+            return sig.verify(Base64.getMimeDecoder().decode(encodedSignature));
         } catch (NoSuchAlgorithmException | InvalidKeyException | CertificateException | UnsupportedEncodingException
-                | java.security.SignatureException e) {
+                | java.security.SignatureException | IllegalArgumentException e) {
             throw new SignatureException(e);
         }
     }
