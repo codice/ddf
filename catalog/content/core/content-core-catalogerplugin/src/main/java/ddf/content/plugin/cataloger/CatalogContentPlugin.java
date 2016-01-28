@@ -37,6 +37,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.dynamic.api.DynamicMetacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -250,22 +251,12 @@ public class CatalogContentPlugin implements ContentPlugin {
                 try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
                         .openStream()) {
                     Metacard generatedMetacard = transformer.transform(inputStreamMessageCopy);
-                    contentMetacard = new MetacardImpl(new ContentMetacardType());
 
-                    //copy attributes in loop
-                    for (AttributeDescriptor descriptor : generatedMetacard.getMetacardType()
-                            .getAttributeDescriptors()) {
-                        Attribute attribute = generatedMetacard.getAttribute(descriptor.getName());
-                        if (attribute != null) {
-                            contentMetacard.setAttribute(attribute);
-                        }
-                    }
-
+                    String name = null;
                     try {
                         Subject subject = SecurityUtils.getSubject();
                         if (subject != null) {
-                            contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                    SubjectUtils.getName(subject)));
+                            name = SubjectUtils.getName(subject);
                         }
                     } catch (IllegalStateException e) {
                         LOGGER.debug("Unable to retrieve user from request.", e);
@@ -273,18 +264,63 @@ public class CatalogContentPlugin implements ContentPlugin {
                         LOGGER.debug("Unable to retrieve Security Manager.", e);
                     }
 
-                    if (uri != null) {
-                        //Setting the non-transformer specific information not including creation and modification dates/times
-                        contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-                        contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                                String.valueOf(size)));
+                    if (generatedMetacard instanceof DynamicMetacard) {
+                        LOGGER.debug("Adding fields to dynamic metacard of type {}", contentMetacard.getContentTypeName());
+                        DynamicMetacard metacard = (DynamicMetacard) generatedMetacard;
+
+                        // set the user name
+                        metacard.setAttribute(Metacard.POINT_OF_CONTACT, name);
+
+                        // set the uri
+                        if (uri != null) {
+                            metacard.setAttribute(Metacard.RESOURCE_URI, uri);
+                            metacard.setAttribute(Metacard.RESOURCE_SIZE, String.valueOf(size));
+                        } else {
+                            LOGGER.debug("Metacard had a null uri");
+                        }
+                        if (StringUtils.isBlank(metacard.getTitle())) {
+                            LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                            metacard.setAttribute(Metacard.TITLE, contentItem.getFilename());
+                        }
+                        contentMetacard = generatedMetacard;
                     } else {
-                        LOGGER.debug("Metacard had a null uri");
-                    }
-                    if (StringUtils.isBlank(contentMetacard.getTitle())) {
-                        LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                        contentMetacard.setAttribute(new AttributeImpl(Metacard.TITLE,
-                                contentItem.getFilename()));
+                        contentMetacard = new MetacardImpl(new ContentMetacardType());
+
+                        //copy attributes in loop
+                        for (AttributeDescriptor descriptor : generatedMetacard.getMetacardType()
+                                .getAttributeDescriptors()) {
+                            Attribute attribute = generatedMetacard.getAttribute(descriptor.getName());
+                            if (attribute != null) {
+                                contentMetacard.setAttribute(attribute);
+                            }
+                        }
+
+                        try {
+                            Subject subject = SecurityUtils.getSubject();
+                            if (subject != null) {
+                                contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                        SubjectUtils.getName(subject)));
+                            }
+                        } catch (IllegalStateException e) {
+                            LOGGER.debug("Unable to retrieve user from request.", e);
+                        } catch (UnavailableSecurityManagerException e) {
+                            LOGGER.debug("Unable to retrieve Security Manager.", e);
+                        }
+
+                        if (uri != null) {
+                            //Setting the non-transformer specific information not including creation and modification dates/times
+                            contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                                    uri));
+                            contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                    String.valueOf(size)));
+                        } else {
+                            LOGGER.debug("Metacard had a null uri");
+                        }
+                        if (StringUtils.isBlank(contentMetacard.getTitle())) {
+                            LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                            contentMetacard.setAttribute(new AttributeImpl(Metacard.TITLE,
+                                    contentItem.getFilename()));
+                        }
                     }
                     break;
                 } catch (IOException | CatalogTransformerException e) {
