@@ -249,6 +249,11 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migration-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml
@@ -384,13 +389,13 @@
         <cxf.tika.version>1.7</cxf.tika.version>
         <cxf.jexl.version>2.1.1</cxf.jexl.version>
         <cxf.htrace.version>4.0.1-incubating</cxf.htrace.version>
-        <cxf.checkstyle.extension />
-        <cxf.jaxb.context.class />
+        <cxf.checkstyle.extension/>
+        <cxf.jaxb.context.class/>
         <cxf.jaxb.context.class.property>none</cxf.jaxb.context.class.property>
         <cxf.spring.validation.mode>VALIDATION_AUTO</cxf.spring.validation.mode>
         <cxf.downloadSources>true</cxf.downloadSources>
-        <cxf.pmd.eclipse.ruleset.ext />
-        <cxf.resources.base.path />
+        <cxf.pmd.eclipse.ruleset.ext/>
+        <cxf.resources.base.path/>
         <!-- End apache-cxf-3.1.4-src/parent/pom.xml-->
         <!-- Copied from apache-cxf-3.0.4-src/pom.xml -->
         <cxf.build-utils.version>3.1.0</cxf.build-utils.version>
