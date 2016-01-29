@@ -47,6 +47,7 @@
         <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/3.2.1</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>

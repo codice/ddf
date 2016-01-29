@@ -238,6 +238,7 @@
         <bundle start-level="25" dependency="true">mvn:joda-time/joda-time/${cxf.joda.time.version}</bundle>
         <bundle start-level="25" dependency="true">mvn:commons-codec/commons-codec/${cxf.commons-codec.version}</bundle>
         <bundle start-level="25" dependency="true">mvn:org.apache.santuario/xmlsec/${cxf.xmlsec.bundle.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:com.google.guava/guava/${cxf.guava.version}</bundle>
         <bundle start-level="25" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}</bundle>
         <bundle start-level="25">mvn:org.jvnet.staxex/stax-ex/${cxf.stax-ex.version}</bundle>
         <bundle start-level="25">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}</bundle>
@@ -295,10 +296,10 @@
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-mex/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-security" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-rt-security</feature>
-        <feature version="${cxf.version}">cxf-ws-policy</feature>
-        <feature version="${cxf.wss4j.version}">wss4j</feature>
-        <feature version="${cxf.version}">cxf-ws-addr</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-rt-security</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-ws-policy</feature>
+        <feature prerequisite="true" version="${cxf.wss4j.version}">wss4j</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-ws-addr</feature>
         <bundle start-level="40" dependency="true">mvn:net.sf.ehcache/ehcache/${cxf.ehcache.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-security/${cxf.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-security-saml/${cxf.version}</bundle>
@@ -381,12 +382,12 @@
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-client/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-rs-security-xml" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-jaxrs</feature>
-        <feature version="${cxf.version}">cxf-rt-security-saml</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-jaxrs</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-rt-security-saml</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-xml/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-rs-security-sso-saml" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-rs-security-xml</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-rs-security-xml</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-sso-saml/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-rs-security-cors" version="${cxf.version}" install="manual">

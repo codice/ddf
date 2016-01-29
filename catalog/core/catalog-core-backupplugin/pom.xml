@@ -39,7 +39,8 @@
                         <Embed-Dependency>catalog-core-api-impl;scope=!test</Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.backup,
-                            ddf.catalog.data.impl
+                            ddf.catalog.data.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package>
                         </Export-Package>

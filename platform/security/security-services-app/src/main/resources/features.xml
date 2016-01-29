@@ -257,7 +257,7 @@
         <feature>security-handler-saml</feature>
         <feature>security-handler-basic</feature>
         <feature>security-filter-authz</feature>
-        <feature>security-pdp-java</feature>
+        <feature>security-pdp-authz</feature>
         <feature>security-servlet-logout</feature>
         <feature>security-sts-realm</feature>
     </feature>

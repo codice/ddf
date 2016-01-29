@@ -106,6 +106,10 @@
             <version>2.1.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -140,7 +144,8 @@
                             commons-lang3,
                             platform-util-unavailableurls,
                             ddf-security-common,
-                            common-system
+                            common-system,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             com.sun.management;resolution:=optional,

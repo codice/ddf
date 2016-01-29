@@ -180,7 +180,7 @@
                             ogc-tools-gml-jts,
                             security-rest-cxfwrapper,
                             ddf-security-common,
-                            platform-util
+                            platform-util,
                             platform-util-unavailableurls,
                             jaxb2-basics-runtime
                         </Embed-Dependency>

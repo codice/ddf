@@ -196,6 +196,10 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -229,7 +233,7 @@
                             org.apache.commons.io;version="1.4.0",
                             *
                         </Import-Package>
-                        <Embed-Dependency>httpclient,httpcore,platform-util-unavailableurls,ddf-security-common</Embed-Dependency>
+                        <Embed-Dependency>httpclient,httpcore,platform-util-unavailableurls,ddf-security-common,platform-util</Embed-Dependency>
                         <Export-Package>
                             ddf.security.impl;version=${project.version},
                             ddf.security.service.impl;version=${project.version},

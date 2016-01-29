@@ -77,6 +77,10 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -91,7 +95,8 @@
                             metrics-collector,
                             rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
                             common-system,
-                            catalog-core-api-impl;scope=!test
+                            catalog-core-api-impl;scope=!test,
+                            platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package><!-- START: imports specific for embedding rrd4j -->

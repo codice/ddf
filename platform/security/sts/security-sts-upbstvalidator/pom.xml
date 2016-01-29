@@ -89,6 +89,10 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -99,7 +103,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Embed-Dependency>httpclient,httpcore,platform-util-unavailableurls,ddf-security-common</Embed-Dependency>
+                        <Embed-Dependency>httpclient,httpcore,platform-util-unavailableurls,ddf-security-common,platform-util</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

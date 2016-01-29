@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -79,6 +79,10 @@
             <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -109,7 +113,11 @@
                         <Embed-Dependency>
                             org.wso2.balana,
                             commons-io
-                            httpclient,httpcore,platform-util-unavailableurls,ddf-security-common
+                            httpclient,
+                            httpcore,
+                            platform-util-unavailableurls,
+                            ddf-security-common,
+                            platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
