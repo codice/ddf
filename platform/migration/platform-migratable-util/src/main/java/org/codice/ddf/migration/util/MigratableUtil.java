@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import javax.validation.constraints.NotNull;
 
@@ -47,12 +47,6 @@ import org.slf4j.LoggerFactory;
 public class MigratableUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigratableUtil.class);
-
-    private static final String UNREAL_PATH_WARNING =
-            "The value for property [%s] is set to a path [%s] that could not coerced into a real path; "
-                    + "therefore, the file will not be included in the export.  "
-                    + "Check that the file exists on the system you're migrating to "
-                    + "or update the property value and export again.";
 
     private static final String DDF_HOME_SYSTEM_PROP = "ddf.home";
 
@@ -78,7 +72,7 @@ public class MigratableUtil {
      *                        under this directory.
      * @param warnings        any warnings generated during this operation (e.g., source file
      *                        outside of {@code ddf.home}) will be added to this collection
-     * @throws MigrationException thrown if file system error prevents the file to be copied
+     * @throws MigrationException thrown if a file system error prevents the file to be copied
      */
     public void copyFile(@NotNull Path sourceFile, @NotNull Path exportDirectory,
             @NotNull Collection<MigrationWarning> warnings) throws MigrationException {
@@ -86,10 +80,7 @@ public class MigratableUtil {
                 exportDirectory,
                 warnings,
                 () -> isSourceMigratable(sourceFile,
-                        () -> new PathMigrationWarning(sourceFile, "is absolute"),
-                        () -> new PathMigrationWarning(sourceFile, "contains a symbolic link"),
-                        () -> new PathMigrationWarning(sourceFile,
-                                String.format("is outside [%s]", ddfHome)),
+                        (reason) -> new PathMigrationWarning(sourceFile, reason),
                         warnings));
     }
 
@@ -127,7 +118,7 @@ public class MigratableUtil {
      *                        of {@code ddf.home}) will be added to this collection
      */
     public void copyFileFromSystemPropertyValue(@NotNull String systemProperty,
-            @NotNull Path exportDirectory, @NotNull Collection<MigrationWarning> warnings) {
+            @NotNull Path exportDirectory, @NotNull Collection<MigrationWarning> warnings)  throws MigrationException {
         String source = System.getProperty(systemProperty);
         notEmpty(source,
                 String.format("Source path property [%s] is invalid: [%s]",
@@ -140,13 +131,7 @@ public class MigratableUtil {
                 exportDirectory,
                 warnings,
                 () -> isSourceMigratable(sourcePath,
-                        () -> new PathMigrationWarning(systemProperty, sourcePath, "is absolute"),
-                        () -> new PathMigrationWarning(systemProperty,
-                                sourcePath,
-                                "contains a symbolic link"),
-                        () -> new PathMigrationWarning(systemProperty,
-                                sourcePath,
-                                String.format("is outside [%s]", ddfHome)),
+                        (reason) -> new PathMigrationWarning(systemProperty, sourcePath, reason),
                         warnings));
     }
 
@@ -166,7 +151,7 @@ public class MigratableUtil {
      */
     public void copyFileFromJavaPropertyValue(@NotNull Path propertyFilePath,
             @NotNull String javaProperty, @NotNull Path exportDirectory,
-            @NotNull Collection<MigrationWarning> warnings) {
+            @NotNull Collection<MigrationWarning> warnings) throws MigrationException  {
         notNull(propertyFilePath, "Java properties file cannot be null");
         Properties properties = readPropertiesFile(ddfHome.resolve(propertyFilePath));
         String source = (String) properties.get(javaProperty);
@@ -179,18 +164,10 @@ public class MigratableUtil {
                 exportDirectory,
                 warnings,
                 () -> isSourceMigratable(sourcePath,
-                        () -> new PathMigrationWarning(propertyFilePath,
+                        (reason) -> new PathMigrationWarning(propertyFilePath,
                                 javaProperty,
                                 sourcePath,
-                                "is absolute"),
-                        () -> new PathMigrationWarning(propertyFilePath,
-                                javaProperty,
-                                sourcePath,
-                                "contains a symbolic link"),
-                        () -> new PathMigrationWarning(propertyFilePath,
-                                javaProperty,
-                                sourcePath,
-                                String.format("is outside [%s]", ddfHome)),
+                                reason),
                         warnings));
     }
 
@@ -207,7 +184,7 @@ public class MigratableUtil {
     }
 
     private void copy(Path sourceFile, Path exportDirectory, Collection<MigrationWarning> warnings,
-            BooleanSupplier isSourceMigratable) {
+            BooleanSupplier isSourceMigratable) throws MigrationException {
         notNull(sourceFile, "Source file cannot be null");
         notNull(exportDirectory, "Destination cannot be null");
         notNull(warnings, "Warning collection cannot be null");
@@ -242,18 +219,16 @@ public class MigratableUtil {
     }
 
     private boolean isSourceMigratable(Path source,
-            Supplier<PathMigrationWarning> absolutePathWarning,
-            Supplier<PathMigrationWarning> symbolicLinkWarning,
-            Supplier<PathMigrationWarning> outsidePathWarning,
+            Function<String, PathMigrationWarning> pathWarningBuilder,
             Collection<MigrationWarning> warnings) {
 
         if (source.isAbsolute()) {
-            warnings.add(absolutePathWarning.get());
+            warnings.add(pathWarningBuilder.apply("is absolute"));
             return false;
         }
 
         if (Files.isSymbolicLink(source)) {
-            warnings.add(symbolicLinkWarning.get());
+            warnings.add(pathWarningBuilder.apply("contains a symbolic link"));
             return false;
         }
 
@@ -261,13 +236,12 @@ public class MigratableUtil {
             if (!ddfHome.resolve(source)
                     .toRealPath()
                     .startsWith(ddfHome)) {
-                warnings.add(outsidePathWarning.get());
+                warnings.add(pathWarningBuilder.apply(String.format("is outside [%s]", ddfHome)));
                 return false;
             }
         } catch (IOException e) {
-            String message = String.format("Source file [%s] does not exist.", source.toString());
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            warnings.add(pathWarningBuilder.apply("does not exist or cannot be read"));
+            return false;
         }
 
         return true;

@@ -182,12 +182,14 @@ public class MigratableUtilTest {
         migratableUtil.copyFile(VALID_SOURCE_FILE, VALID_DESTINATION_PATH, warnings);
     }
 
-    @Test(expected = MigrationException.class)
-    public void copyFileSourceOutsideDdfHomeDoesNotExist() {
+    @Test
+    public void copyFileSourceOutsideDdfHomeDoesNotExist() throws IOException {
         MigratableUtil migratableUtil = new MigratableUtil();
         migratableUtil.copyFile(OUTSIDE_DDF_HOME_SOURCE_PATH.resolve("invalid.properties"),
                 VALID_DESTINATION_PATH,
                 warnings);
+
+        assertWarnings(String.format("does not exist or cannot be read", ddfHome));
     }
 
     @Test
@@ -257,12 +259,14 @@ public class MigratableUtilTest {
         migratableUtil.copyFile(VALID_SOURCE_PATH, VALID_DESTINATION_PATH, warnings);
     }
 
-    @Test(expected = MigrationException.class)
-    public void copyDirectorySourceOutsideDdfHomeDoesNotExist() {
+    @Test
+    public void copyDirectorySourceOutsideDdfHomeDoesNotExist() throws IOException {
         MigratableUtil migratableUtil = new MigratableUtil();
         migratableUtil.copyDirectory(OUTSIDE_DDF_HOME_SOURCE_PATH.resolve("invalid"),
                 VALID_DESTINATION_PATH,
                 warnings);
+
+        assertWarnings("does not exist or cannot be read");
     }
 
     @Test
@@ -358,7 +362,7 @@ public class MigratableUtilTest {
                 warnings);
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void copyFileFromSystemPropertyValueSourceOutsideDdfHomeDoesNotExist() {
         System.setProperty(SOURCE_PATH_PROPERTY_NAME,
                 OUTSIDE_DDF_HOME_SOURCE_PATH.resolve("invalid.properties")
@@ -506,7 +510,7 @@ public class MigratableUtilTest {
                 warnings);
     }
 
-    @Test(expected = MigrationException.class)
+    @Test
     public void copyFileFromJavaPropertyValueSourceOutsideDdfHomeDoesNotExist() throws IOException {
         createJavaPropertiesFile(OUTSIDE_DDF_HOME_SOURCE_PATH.resolve("invalid.properties")
                 .toString());
@@ -516,6 +520,8 @@ public class MigratableUtilTest {
                 SOURCE_PATH_PROPERTY_NAME,
                 VALID_DESTINATION_PATH,
                 warnings);
+
+        assertWarnings("does not exist or cannot be read");
     }
 
     private void createTempPropertiesFiles() throws IOException {
