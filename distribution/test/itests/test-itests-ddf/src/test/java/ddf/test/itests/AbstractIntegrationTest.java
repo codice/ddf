@@ -467,7 +467,7 @@ public abstract class AbstractIntegrationTest {
                 .versionAsInProject().getURL();
         return options(
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
-                        "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
+                        "catalog-app,solr-app,spatial-app,sdk-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories", featuresUrl));
     }

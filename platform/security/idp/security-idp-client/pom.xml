@@ -110,6 +110,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>${org.slf4j.version}</version>
@@ -126,7 +130,9 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             common-system,
-                            ddf-security-common,platform-util-unavailableurls
+                            ddf-security-common,
+                            platform-util-unavailableurls,
+                            platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

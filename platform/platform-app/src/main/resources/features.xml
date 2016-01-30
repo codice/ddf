@@ -256,7 +256,7 @@
         <bundle start-level="30">mvn:org.apache.wss4j/wss4j-ws-security-policy-stax/${cxf.wss4j.version}</bundle>
     </feature>
     <feature name="cxf-core" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-specs</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-specs</feature>
         <bundle start-level="30" dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${cxf.xmlschema.version}</bundle>
         <bundle start-level="25" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
         <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastinfoset/${cxf.fastinfoset.bundle.version}</bundle>
@@ -268,7 +268,7 @@
         <bundle start-level="40">mvn:org.apache.cxf.karaf/cxf-karaf-commands/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-wsdl" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-core</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-core</feature>
         <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${cxf.wsdl4j.bundle.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-wsdl/${cxf.version}</bundle>
     </feature>
@@ -359,21 +359,21 @@
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-transports-http-netty-server/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-bindings-soap" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-wsdl</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-wsdl</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-bindings-xml/${cxf.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-bindings-soap/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-jaxws" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-wsdl</feature>
-        <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
-        <feature version="${cxf.version}">cxf-bindings-soap</feature>
-        <feature version="${cxf.version}">cxf-http</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-wsdl</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-databinding-jaxb</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-bindings-soap</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-http</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-frontend-simple/${cxf.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-frontend-jaxws/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-jaxrs" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-core</feature>
-        <feature version="${cxf.version}">cxf-http</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-core</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-http</feature>
         <bundle start-level="30" dependency="true">mvn:org.codehaus.jettison/jettison/${cxf.jettison.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-extension-providers/${cxf.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-extension-search/${cxf.version}</bundle>
@@ -555,6 +555,7 @@
         <bundle>mvn:org.apache.cxf/cxf-tools-corba/${cxf.version}</bundle-->
     </feature>
     <feature name="cxf" version="${cxf.version}" install="manual">
+        <feature prerequisite="true" version="${project.version}">kernel</feature>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
@@ -637,8 +638,8 @@
     </feature>
 
     <feature name="cxf-management-web" version="${cxf.version}" install="manual">
-        <feature version="${cxf.version}">cxf-core</feature>
-        <feature version="${cxf.version}">cxf-jaxrs</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-core</feature>
+        <feature prerequisite="true" version="${cxf.version}">cxf-jaxrs</feature>
         <bundle start-level="35" dependency="true">mvn:commons-lang/commons-lang/${cxf.commons-lang.version}</bundle>
         <bundle start-level="25" dependency="true">mvn:commons-codec/commons-codec/${cxf.commons-codec.version}</bundle>
         <bundle start-level="35">mvn:org.apache.abdera/abdera-core/${cxf.abdera.version}</bundle>

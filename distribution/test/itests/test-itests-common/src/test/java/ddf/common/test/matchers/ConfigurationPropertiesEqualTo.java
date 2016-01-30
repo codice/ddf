@@ -15,7 +15,6 @@ package ddf.common.test.matchers;
 
 import java.util.Dictionary;
 
-import org.codice.ddf.platform.util.ConfigurationPropertiesComparator;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 

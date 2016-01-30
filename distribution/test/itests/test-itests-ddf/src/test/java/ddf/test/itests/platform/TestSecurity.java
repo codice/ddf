@@ -503,7 +503,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         openSearchUnavailProp.put("password", "auth");
         getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
                 openSearchUnavailProp);
-        getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
+//        getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
         String unavailableOpenSearchQuery =
                 SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;

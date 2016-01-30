@@ -31,8 +31,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleState;
-import org.apache.karaf.bundle.state.blueprint.internal.BlueprintStateService;
+import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
@@ -71,7 +72,7 @@ public class ServiceManager {
 
     private final AdminConfig adminConfig;
 
-    private BlueprintStateService blueprintListener;
+    private BundleService bundleService;
 
     public ServiceManager(BundleContext bundleCtx, MetaTypeService metatype,
             AdminConfig adminConfig) {
@@ -280,10 +281,8 @@ public class ServiceManager {
 
     public void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
         boolean ready = false;
-        if (blueprintListener == null) {
-            blueprintListener = new BlueprintStateService();
-            bundleCtx.registerService("org.osgi.service.blueprint.container.BlueprintListener",
-                    blueprintListener, null);
+        if (bundleService == null) {
+            bundleService = getService(BundleService.class);
         }
 
         long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
@@ -294,22 +293,21 @@ public class ServiceManager {
             for (Bundle bundle : bundles) {
                 if (bundle.getSymbolicName().startsWith(symbolicNamePrefix)) {
                     String bundleName = bundle.getHeaders().get(Constants.BUNDLE_NAME);
-                    BundleState blueprintState = blueprintListener.getState(bundle);
-                    if (blueprintState != null) {
-                        if (BundleState.Failure.toString().equals(blueprintState)) {
-                            fail("The blueprint for " + bundleName + " failed.");
-                        } else if (!BundleState.Active.toString().equals(blueprintState)) {
-                            LOGGER.info("{} blueprint not ready with state {}", bundleName,
-                                    blueprintState);
+                    BundleInfo bundleInfo = bundleService.getInfo(bundle);
+                    BundleState bundleState = bundleInfo.getState();
+                    if (bundleInfo.isFragment()) {
+                        if (!BundleState.Resolved.equals(bundleState)){
+                            LOGGER.info("{} bundle not ready yet", bundleName);
                             ready = false;
                         }
-                    }
-
-                    if (!((bundle.getHeaders()
-                            .get("Fragment-Host") != null && bundle.getState() == Bundle.RESOLVED)
-                            || bundle.getState() == Bundle.ACTIVE)) {
-                        LOGGER.info("{} bundle not ready yet", bundleName);
-                        ready = false;
+                    } else if (bundleState != null) {
+                        if (BundleState.Failure.equals(bundleState)) {
+                            fail("The bundle " + bundleName + " failed.");
+                        } else if (!BundleState.Active.equals(bundleState)) {
+                            LOGGER.info("{} bundle not ready with state {}", bundleName,
+                                    bundleState);
+                            ready = false;
+                        }
                     }
                 }
             }

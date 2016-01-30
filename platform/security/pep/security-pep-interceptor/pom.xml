@@ -80,6 +80,7 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -97,7 +98,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>ddf-security-common,platform-util-unavailableurls</Embed-Dependency>
+                        <Embed-Dependency>ddf-security-common,platform-util-unavailableurls,platform-util</Embed-Dependency>
                         <Export-Package>
                             ddf.security.pep.interceptor;version=${project.version}
                         </Export-Package>
