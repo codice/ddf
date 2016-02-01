@@ -74,8 +74,7 @@ define(['underscore',
             var layer = this.layerForCid[model.cid];
             layer.setVisible(model.get('show'));
         },
-        reIndexAll: function () {
-            this.collection.sort();
+        reIndexLayers: function () {
             var olMapLayers = this.map.getLayers();
             olMapLayers.clear();
             this.collection.forEach(function (model) {

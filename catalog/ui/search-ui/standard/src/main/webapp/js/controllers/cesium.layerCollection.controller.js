@@ -75,8 +75,7 @@ define(['underscore',
             var layer = this.layerForCid[model.cid];
             layer.show = model.get('show');
         },
-        reIndexAll: function () {
-            this.collection.sort();
+        reIndexLayers: function () {
             /*
              removing/re-adding the layers causes visible "re-render" of entire map;
              raising/lowering is smoother.
