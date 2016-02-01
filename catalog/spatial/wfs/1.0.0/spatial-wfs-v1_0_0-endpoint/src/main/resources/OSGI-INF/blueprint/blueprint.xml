@@ -53,7 +53,8 @@
             <map>
                 <entry>
                     <key>
-                        <value>ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType</value>
+                        <value>ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType
+                        </value>
                     </key>
                     <value>{http://www.opengis.net/wfs}WFS_Capabilities</value>
                 </entry>
@@ -72,6 +73,18 @@
         <argument ref="filterBuilder"/>
         <argument ref="schemaCache"/>
     </bean>
+
+    <bean id="ddf.catalog.endpoint.wfs" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
+        <property name="url"
+                  value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/wfs"/>
+        <property name="urlBindingName" value="wfsUrl"/>
+        <property name="id" value="registry.federation.method.wfs"/>
+        <property name="name" value="WFS Endpoint"/>
+        <property name="version" value="1.0.0"/>
+        <property name="description" value="The endpoint used for wfs."/>
+        <property name="bindingType" value="Wfs_v1_0_0_Federated_Source"/>
+    </bean>
+    <service ref="ddf.catalog.endpoint.wfs" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
     <jaxrs:server id="WfsService" address="/wfs">
         <jaxrs:serviceBeans>
