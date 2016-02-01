@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -84,7 +84,7 @@ public class ServiceManager {
     /**
      * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
      * asynchronous call that the properties have been updated and the service can be used.
-     * <p/>
+     * <p>
      * For Managed Services not created from a Managed Service Factory, use
      * {@link #startManagedService(String, Map)} instead.
      *
@@ -103,7 +103,7 @@ public class ServiceManager {
     /**
      * Starts a Managed Service. Waits for the asynchronous call that the properties have been
      * updated and the service can be used.
-     * <p/>
+     * <p>
      * For Managed Services created from a Managed Service Factory, use
      * {@link #createManagedService(String, Map)} instead.
      *
@@ -118,6 +118,21 @@ public class ServiceManager {
         startManagedService(sourceConfig, properties);
     }
 
+    /**
+     * Stops a managed service.
+     *
+     * @param servicePid
+     * @throws IOException
+     */
+    public void stopManagedService(String servicePid) throws IOException {
+        Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
+        ServiceConfigurationListener listener = new ServiceConfigurationListener(
+                sourceConfig.getPid());
+
+        adminConfig.getDdfConfigAdmin()
+                .delete(sourceConfig.getPid());
+    }
+
     private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
             throws IOException {
         ServiceConfigurationListener listener = new ServiceConfigurationListener(
@@ -127,7 +142,8 @@ public class ServiceManager {
 
         waitForService(sourceConfig);
 
-        adminConfig.getDdfConfigAdmin().update(sourceConfig.getPid(), properties);
+        adminConfig.getDdfConfigAdmin()
+                .update(sourceConfig.getPid(), properties);
 
         long millis = 0;
         while (!listener.isUpdated() && millis < MANAGED_SERVICE_TIMEOUT) {
@@ -168,7 +184,8 @@ public class ServiceManager {
                                 TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
             }
 
-            servicesList = adminConfig.getDdfConfigAdmin().listServices();
+            servicesList = adminConfig.getDdfConfigAdmin()
+                    .listServices();
             for (Map<String, Object> service : servicesList) {
                 String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
                 if (id.equals(sourceConfig.getPid()) || id.equals(sourceConfig.getFactoryPid())) {
@@ -181,8 +198,8 @@ public class ServiceManager {
     }
 
     public void startFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
-                .getServiceReference(FeaturesService.class);
+        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
+                FeaturesService.class);
         FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
         for (String featureName : featureNames) {
             featuresService.installFeature(featureName);
@@ -193,8 +210,8 @@ public class ServiceManager {
     }
 
     public void stopFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
-                .getServiceReference(FeaturesService.class);
+        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
+                FeaturesService.class);
         FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
         for (String featureName : featureNames) {
             featuresService.uninstallFeature(featureName);
@@ -220,11 +237,13 @@ public class ServiceManager {
         Map<String, Bundle> bundlesToRestart = getBundlesToRestart(bundleSymbolicNameSet);
 
         for (int i = 0; i < bundleSymbolicNames.length; i++) {
-            bundlesToRestart.get(bundleSymbolicNames[i]).stop();
+            bundlesToRestart.get(bundleSymbolicNames[i])
+                    .stop();
         }
 
         for (int i = bundleSymbolicNames.length - 1; i > 0; i--) {
-            bundlesToRestart.get(bundleSymbolicNames[i]).start();
+            bundlesToRestart.get(bundleSymbolicNames[i])
+                    .start();
         }
     }
 
@@ -274,21 +293,25 @@ public class ServiceManager {
 
             ready = true;
             for (Bundle bundle : bundles) {
-                if (bundle.getSymbolicName().startsWith(symbolicNamePrefix)) {
-                    String bundleName = bundle.getHeaders().get(Constants.BUNDLE_NAME);
+                if (bundle.getSymbolicName()
+                        .startsWith(symbolicNamePrefix)) {
+                    String bundleName = bundle.getHeaders()
+                            .get(Constants.BUNDLE_NAME);
                     String blueprintState = blueprintListener.getState(bundle);
                     if (blueprintState != null) {
-                        if (Failure.toString().equals(blueprintState)) {
+                        if (Failure.toString()
+                                .equals(blueprintState)) {
                             fail("The blueprint for " + bundleName + " failed.");
-                        } else if (!Created.toString().equals(blueprintState)) {
+                        } else if (!Created.toString()
+                                .equals(blueprintState)) {
                             LOGGER.info("{} blueprint not ready with state {}", bundleName,
                                     blueprintState);
                             ready = false;
                         }
                     }
 
-                    if (!((bundle.getHeaders().get("Fragment-Host") != null
-                            && bundle.getState() == Bundle.RESOLVED)
+                    if (!((bundle.getHeaders()
+                            .get("Fragment-Host") != null && bundle.getState() == Bundle.RESOLVED)
                             || bundle.getState() == Bundle.ACTIVE)) {
                         LOGGER.info("{} bundle not ready yet", bundleName);
                         ready = false;
@@ -316,7 +339,9 @@ public class ServiceManager {
 
         while (!available) {
             Response response = get(path);
-            available = response.getStatusCode() == 200 && response.getBody().print().length() > 0;
+            available = response.getStatusCode() == 200 && response.getBody()
+                    .print()
+                    .length() > 0;
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail(String.format("%s did not start within %d minutes.", path,
@@ -339,12 +364,17 @@ public class ServiceManager {
 
         while (!available) {
             Response response = get(path);
-            String body = response.getBody().asString();
+            String body = response.getBody()
+                    .asString();
             if (StringUtils.isNotBlank(body)) {
-                available = response.getStatusCode() == 200 && body.length() > 0 && !body
-                        .contains("false") && response.getBody().jsonPath().getList("id") != null;
+                available = response.getStatusCode() == 200 && body.length() > 0 && !body.contains(
+                        "false") && response.getBody()
+                        .jsonPath()
+                        .getList("id") != null;
                 if (available) {
-                    List<Object> ids = response.getBody().jsonPath().getList("id");
+                    List<Object> ids = response.getBody()
+                            .jsonPath()
+                            .getList("id");
                     for (String source : sources) {
                         if (!ids.contains(source)) {
                             available = false;
@@ -368,8 +398,8 @@ public class ServiceManager {
         Map<String, Object> properties = new HashMap<>();
         ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
 
-        for (AttributeDefinition attributeDef : bundleMetatype
-                .getAttributeDefinitions(ObjectClassDefinition.ALL)) {
+        for (AttributeDefinition attributeDef : bundleMetatype.getAttributeDefinitions(
+                ObjectClassDefinition.ALL)) {
             if (attributeDef.getID() != null) {
                 if (attributeDef.getDefaultValue() != null) {
                     if (attributeDef.getCardinality() == 0) {
@@ -421,8 +451,9 @@ public class ServiceManager {
                     MetaTypeInformation mti = metatype.getMetaTypeInformation(bundle);
                     if (mti != null) {
                         try {
-                            ObjectClassDefinition ocd = mti
-                                    .getObjectClassDefinition(pid, Locale.getDefault().toString());
+                            ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid,
+                                    Locale.getDefault()
+                                            .toString());
                             if (ocd != null) {
                                 return ocd;
                             }
@@ -449,12 +480,15 @@ public class ServiceManager {
 
                 while (keys.hasMoreElements()) {
                     String key = keys.nextElement();
-                    headerString.append(key).append("=").append(headers.get(key)).append(", ");
+                    headerString.append(key)
+                            .append("=")
+                            .append(headers.get(key))
+                            .append(", ");
                 }
 
                 headerString.append(" ]");
-                LOGGER.info("{} | {} | {} | {}", bundle.getSymbolicName(),
-                        bundle.getVersion().toString(), OsgiStringUtils.bundleStateAsString(bundle),
+                LOGGER.info("{} | {} | {} | {}", bundle.getSymbolicName(), bundle.getVersion()
+                                .toString(), OsgiStringUtils.bundleStateAsString(bundle),
                         headerString.toString());
             }
         }
@@ -490,7 +524,8 @@ public class ServiceManager {
         @Override
         public void configurationEvent(ConfigurationEvent event) {
             LOGGER.info("Configuration event received: {}", event);
-            if (event.getPid().equals(pid) && ConfigurationEvent.CM_UPDATED == event.getType()) {
+            if (event.getPid()
+                    .equals(pid) && ConfigurationEvent.CM_UPDATED == event.getType()) {
                 updated = true;
             }
         }
