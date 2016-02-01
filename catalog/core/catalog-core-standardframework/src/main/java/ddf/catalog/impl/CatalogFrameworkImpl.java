@@ -828,7 +828,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     policyMap.get(entry.getKey())
                             .addAll(entry.getValue());
                 } else {
-                    policyMap.put(entry.getKey(), entry.getValue());
+                    policyMap.put(entry.getKey(), new HashSet<>(entry.getValue()));
                 }
             }
         }

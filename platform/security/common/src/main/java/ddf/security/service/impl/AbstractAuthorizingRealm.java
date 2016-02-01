@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,10 +13,14 @@
  */
 package ddf.security.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
@@ -74,29 +78,38 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         }
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
         List<Attribute> attributes;
-        Set<Permission> permissions = new HashSet<Permission>();
-        Set<String> roles = new HashSet<String>();
+        Set<Permission> permissions = new HashSet<>();
+        Set<String> roles = new HashSet<>();
         Set<String> attributeSet;
-        KeyValuePermission curPermission;
+        Map<String, Set<String>> permissionsMap = new HashMap<>();
         for (AttributeStatement curStatement : attributeStatements) {
             attributes = curStatement.getAttributes();
 
             for (Attribute curAttribute : attributes) {
                 attributeSet = expandAttributes(curAttribute);
-                curPermission = new KeyValuePermission(curAttribute.getName());
                 if (attributeSet != null) {
-                    for (String attr : attributeSet) {
-                        curPermission.addValue(attr);
-                        if (SAML_ROLE.equals(curAttribute.getName())) {
-                            LOGGER.debug("Adding role to authorization info: {}", attr);
-                            roles.add(attr);
-                        }
+                    if (permissionsMap.containsKey(curAttribute.getName())) {
+                        permissionsMap.get(curAttribute.getName())
+                                .addAll(attributeSet);
+                    } else {
+                        permissionsMap.put(curAttribute.getName(), new HashSet<>(attributeSet));
                     }
                 }
-                LOGGER.debug("Adding permission: {}", curPermission.toString());
-                permissions.add(curPermission);
             }
         }
+        for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
+            permissions.add(new KeyValuePermission(entry.getKey(),
+                    new ArrayList(entry.getValue())));
+            LOGGER.debug("Adding permission: {} : {}",
+                    entry.getKey(),
+                    StringUtils.join(entry.getValue(), ","));
+        }
+
+        if (permissionsMap.containsKey(SAML_ROLE)) {
+            roles.addAll(permissionsMap.get(SAML_ROLE));
+            LOGGER.debug("Adding roles to authorization info: {}", StringUtils.join(roles, ","));
+        }
+
         info.setObjectPermissions(permissions);
         info.setRoles(roles);
 
