@@ -298,4 +298,9 @@
         </bundle>
     </feature>
 
+    <feature name="catalog-registry" install="manual" version="${project.version}"
+             description="DDF Registry">
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
+    </feature>
+
 </features>

@@ -12,21 +12,12 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>ddf.catalog</groupId>
-        <artifactId>catalog</artifactId>
-        <version>2.9.0-SNAPSHOT</version>
-    </parent>
-    <groupId>ddf.catalog.registry</groupId>
-    <artifactId>registry</artifactId>
-    <packaging>pom</packaging>
-    <name>DDF :: Catalog :: Registry</name>
-    <modules>
-        <module>catalog-registry-metacard-filter</module>
-        <module>catalog-registry-cswinputtransformer</module>
-    </modules>
-</project>
+<rim:Service id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:service:catalog" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+
+    <!-- each service binding should have at least one slot for bindingType -->
+    <rim:ServiceBinding id="registry.federation.method.csw"
+                        service="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
+
+    </rim:ServiceBinding>
+
+</rim:Service>

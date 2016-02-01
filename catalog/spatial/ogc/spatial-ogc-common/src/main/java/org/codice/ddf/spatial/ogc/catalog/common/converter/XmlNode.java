@@ -45,6 +45,8 @@ public class XmlNode {
 
     private StringBuffer buffer;
 
+    private String node;
+
     public XmlNode(HierarchicalStreamReader reader) {
         this.reader = reader;
         this.buffer = new StringBuffer();
@@ -83,7 +85,9 @@ public class XmlNode {
      * This method is intended to reconstruct XML nodes from an XMLStreamReader
      */
     private String reconstructNode() {
-
+        if (node != null) {
+            return node;
+        }
         reader.moveDown();
         buffer.append(LT);
         String nodeName = reader.getNodeName();
@@ -119,12 +123,17 @@ public class XmlNode {
 
         }
         reader.moveUp();
-        return buffer.toString();
+        node = buffer.toString();
+        return node;
     }
 
     @Override
     public String toString() {
-        return reconstructNode();
+        if (reader != null) {
+            return reconstructNode();
+        } else {
+            return super.toString();
+        }
     }
 
 }
