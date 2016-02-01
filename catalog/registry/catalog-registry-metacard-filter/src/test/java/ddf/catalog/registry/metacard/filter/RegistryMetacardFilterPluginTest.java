@@ -32,6 +32,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.registry.common.filter.RegistryQueryDelegate;
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class RegistryMetacardFilterPluginTest {

@@ -30,6 +30,8 @@ import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
+import ddf.catalog.registry.common.metacard.RegistryServiceMetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;

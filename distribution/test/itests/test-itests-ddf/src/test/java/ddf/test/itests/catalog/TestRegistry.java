@@ -29,7 +29,7 @@ import ddf.test.itests.common.Library;
 @ExamReactorStrategy(PerClass.class)
 public class TestRegistry extends AbstractIntegrationTest {
 
-    private static final String CATALOG_REGISTRY = "catalog-registry";
+    private static final String CATALOG_REGISTRY = "catalog-registry-transformer";
 
     @BeforeExam
     public void beforeExam() throws Exception {

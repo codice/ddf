@@ -30,6 +30,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
+import ddf.catalog.registry.common.metacard.RegistryServiceMetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 
 @RunWith(JUnit4.class)

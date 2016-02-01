@@ -27,6 +27,8 @@
     <name>DDF :: Catalog :: Registry</name>
     <modules>
         <module>catalog-registry-metacard-filter</module>
+        <module>catalog-registry-policyplugin</module>
         <module>catalog-registry-cswinputtransformer</module>
+        <module>catalog-registry-common</module>
     </modules>
 </project>

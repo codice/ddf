@@ -39,6 +39,9 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
+import ddf.catalog.registry.common.metacard.RegistryServiceMetacardType;
 
 public class RegistryServiceConverter implements Converter {
 
