@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleInfo;
-import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleService;
+import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;

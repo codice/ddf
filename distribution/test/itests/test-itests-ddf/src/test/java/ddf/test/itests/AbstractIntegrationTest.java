@@ -49,6 +49,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.shell.api.console.SessionFactory;
 import org.junit.Rule;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
@@ -245,6 +246,9 @@ public abstract class AbstractIntegrationTest {
 
     @Inject
     protected FeaturesService features;
+
+    @Inject
+    protected SessionFactory sessionFactory;
 
     @Inject
     protected MetaTypeService metatype;

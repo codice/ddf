@@ -58,7 +58,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         getServiceManager().waitForAllBundles();
         getCatalogBundle().waitForCatalogProvider();
         getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-        console = new KarafConsole(bundleCtx);
+        console = new KarafConsole(bundleCtx, features, sessionFactory);
     }
 
     @Test

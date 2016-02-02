@@ -251,6 +251,7 @@
 
     <feature name="security-web-sso-defaults" install="manual" version="${project.version}"
              description="Installs the default features needed for web-based SSO authentication.">
+        <feature prerequisite="true">security-policy-context</feature>
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
         <feature>security-filter-login</feature>

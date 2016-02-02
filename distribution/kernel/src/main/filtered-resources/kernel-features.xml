@@ -24,19 +24,18 @@
         <feature prerequisite="true" version="${karaf.version}">standard</feature>
         <feature prerequisite="true" version="${karaf.version}">eventadmin</feature>
         <feature prerequisite="true" version="${karaf.version}">jasypt-encryption</feature>
-
+        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
     </feature>
     
     <feature name="web" version="${project.version}" install="manual">
         <feature prerequisite="true" version="${project.version}">kernel</feature>
         <feature prerequisite="true" version="${karaf.version}">http</feature>
-        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+        <feature>war</feature>
     </feature>
 
     <feature name="kernel-webconsolebranding" description="" version="${project.version}">
         <feature prerequisite="true">web</feature>
-        <feature prerequisite="true">webconsole</feature>
-        <feature>war</feature>
+        <feature>webconsole</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>

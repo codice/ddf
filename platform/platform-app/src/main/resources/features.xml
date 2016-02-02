@@ -151,8 +151,8 @@
     -->
     <feature name='camel-jetty9' version='2.16.1' start-level='50'>
         <details>camel-jetty9 intend to work with jetty9, so this feature only works in the karaf container which support jetty9, e.g. karaf 4.x</details>
-        <feature version="[9,10)">jetty</feature>
-        <feature version='${project.version}'>camel-core</feature>
+        <feature prerequisite="true" version="[9,10)">jetty</feature>
+        <feature prerequisite="true" version="2.16.1">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-http-common/2.16.1</bundle>
         <bundle>mvn:org.apache.camel/camel-jetty-common/2.16.1</bundle>
         <bundle>mvn:org.apache.camel/camel-jetty9/2.16.1</bundle>
@@ -300,6 +300,7 @@
         <feature prerequisite="true" version="${cxf.version}">cxf-ws-policy</feature>
         <feature prerequisite="true" version="${cxf.wss4j.version}">wss4j</feature>
         <feature prerequisite="true" version="${cxf.version}">cxf-ws-addr</feature>
+        <bundle start-level="25">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}</bundle>
         <bundle start-level="40" dependency="true">mvn:net.sf.ehcache/ehcache/${cxf.ehcache.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-security/${cxf.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-security-saml/${cxf.version}</bundle>
@@ -555,7 +556,7 @@
         <bundle>mvn:org.apache.cxf/cxf-tools-corba/${cxf.version}</bundle-->
     </feature>
     <feature name="cxf" version="${cxf.version}" install="manual">
-        <feature prerequisite="true" version="${project.version}">kernel</feature>
+        <feature prerequisite="true" version="${project.version}">web</feature>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
