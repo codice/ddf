@@ -44,11 +44,11 @@ public class CatalogEndpointImplTest {
 
         CatalogEndpointImpl catalogEndpoint = new CatalogEndpointImpl();
         Map<String, String> endpointProperties = catalogEndpoint.getEndpointProperties();
-        assertTrue("Endpoint Properties Empty? Should be.", endpointProperties.isEmpty());
+        assertTrue("Endpoint Properties should be empty.", endpointProperties.isEmpty());
 
         catalogEndpoint.setEndpointProperties(propertiesMap);
         endpointProperties = catalogEndpoint.getEndpointProperties();
-        assertFalse("Endpoint Properties Empty? Shouldn't be.", endpointProperties.isEmpty());
+        assertFalse("Endpoint Properties shouldn't be empty.", endpointProperties.isEmpty());
 
         assertEndpointPropertiesContainDefaults(endpointProperties);
     }
@@ -59,7 +59,7 @@ public class CatalogEndpointImplTest {
         CatalogEndpointImpl catalogEndpoint = new CatalogEndpointImpl(endpointProps);
 
         Map<String, String> endpointProperties = catalogEndpoint.getEndpointProperties();
-        assertFalse("Endpoint Properties Empty? Shouldn't be.", endpointProperties.isEmpty());
+        assertFalse("Endpoint Properties shouldn't be empty.", endpointProperties.isEmpty());
 
         assertEndpointPropertiesContainDefaults(endpointProperties);
     }
@@ -77,7 +77,7 @@ public class CatalogEndpointImplTest {
         CatalogEndpointImpl catalogEndpoint = getTestCatalogEndpointWithDefaults();
 
         Map<String, String> endpointProperties = catalogEndpoint.getEndpointProperties();
-        assertFalse("Endpoint Properties empty? Hopefully not.", endpointProperties.isEmpty());
+        assertFalse("Endpoint Properties shouldn't be empty.", endpointProperties.isEmpty());
 
         // Make sure the values were actually set
         assertEndpointPropertiesContainDefaults(endpointProperties);
@@ -89,7 +89,7 @@ public class CatalogEndpointImplTest {
         catalogEndpoint.setUrl(null);
         catalogEndpoint.setUrlBindingName(null);
         catalogEndpoint.setVersion(null);
-        assertTrue("Endpoint Properties empty? Should be.", endpointProperties.isEmpty());
+        assertTrue("Endpoint Properties should be empty.", endpointProperties.isEmpty());
     }
 
     private CatalogEndpointImpl getTestCatalogEndpointWithDefaults() {

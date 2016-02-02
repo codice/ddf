@@ -77,26 +77,14 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             throw new AuthorizationException(msg);
         }
         List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
-        List<Attribute> attributes;
         Set<Permission> permissions = new HashSet<>();
         Set<String> roles = new HashSet<>();
-        Set<String> attributeSet;
+
         Map<String, Set<String>> permissionsMap = new HashMap<>();
         for (AttributeStatement curStatement : attributeStatements) {
-            attributes = curStatement.getAttributes();
-
-            for (Attribute curAttribute : attributes) {
-                attributeSet = expandAttributes(curAttribute);
-                if (attributeSet != null) {
-                    if (permissionsMap.containsKey(curAttribute.getName())) {
-                        permissionsMap.get(curAttribute.getName())
-                                .addAll(attributeSet);
-                    } else {
-                        permissionsMap.put(curAttribute.getName(), new HashSet<>(attributeSet));
-                    }
-                }
-            }
+            addAttributesToMap(curStatement.getAttributes(), permissionsMap);
         }
+
         for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
             permissions.add(new KeyValuePermission(entry.getKey(),
                     new ArrayList(entry.getValue())));
@@ -114,6 +102,21 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         info.setRoles(roles);
 
         return info;
+    }
+
+    private void addAttributesToMap(List<Attribute> attributes, Map<String, Set<String>> permissionsMap) {
+        Set<String> attributeSet;
+        for (Attribute curAttribute : attributes) {
+            attributeSet = expandAttributes(curAttribute);
+            if (attributeSet != null) {
+                if (permissionsMap.containsKey(curAttribute.getName())) {
+                    permissionsMap.get(curAttribute.getName())
+                            .addAll(attributeSet);
+                } else {
+                    permissionsMap.put(curAttribute.getName(), new HashSet<>(attributeSet));
+                }
+            }
+        }
     }
 
     /**

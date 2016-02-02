@@ -23,7 +23,7 @@
     </parent>
     <artifactId>catalog-registry-cswinputtransformer</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Catalog :: Registry :: CSW Input Transformer</name>
+    <name>DDF :: Catalog :: Registry :: CSW-EBRIM Input Transformer</name>
     <dependencies>
         <dependency>
             <groupId>joda-time</groupId>
@@ -115,7 +115,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.94</minimum>
+                                            <minimum>0.92</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

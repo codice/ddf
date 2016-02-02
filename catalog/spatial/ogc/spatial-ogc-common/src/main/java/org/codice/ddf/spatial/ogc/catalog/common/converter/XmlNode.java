@@ -129,11 +129,7 @@ public class XmlNode {
 
     @Override
     public String toString() {
-        if (reader != null) {
-            return reconstructNode();
-        } else {
-            return super.toString();
-        }
+        return (reader == null) ? super.toString() : reconstructNode();
     }
 
 }

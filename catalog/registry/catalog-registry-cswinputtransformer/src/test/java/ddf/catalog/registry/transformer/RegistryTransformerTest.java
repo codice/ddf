@@ -52,7 +52,8 @@ public class RegistryTransformerTest {
     @Test(expected = IOException.class)
     public void testBadInputStream() throws Exception {
         InputStream is = Mockito.mock(InputStream.class);
-        doThrow(new IOException()).when(is).read(any());
+        doThrow(new IOException()).when(is)
+                .read(any());
         rit.transform(is);
     }
 
@@ -113,22 +114,22 @@ public class RegistryTransformerTest {
     @Test
     public void testCustomSlotSaved() throws Exception {
         // Just test that an unknown slot gets saved to the metadata field and not discarded.
-        assertThat(convert("/custom-slot-service.xml").getMetadata().contains("unknowSlotName"),
-                is(true));
+        assertThat(convert("/custom-slot-service.xml").getMetadata()
+                .contains("unknowSlotName"), is(true));
     }
 
     @Test
     public void testServiceWithMinimumBinding() throws Exception {
         RegistryMetacardImpl m = convert("/valid-federation-min-service.xml");
-        assertThat(m.getAttribute(RegistryServiceMetacardType.SERVICE_BINDING_TYPES).getValue(),
-                is("csw"));
+        assertThat(m.getAttribute(RegistryServiceMetacardType.SERVICE_BINDING_TYPES)
+                .getValue(), is("csw"));
     }
 
     @Test
     public void testServiceWithMultipleBindings() throws Exception {
         RegistryMetacardImpl m = convert("/valid-federation-multiple-service.xml");
-        assertThat(m.getAttribute(RegistryServiceMetacardType.SERVICE_BINDING_TYPES).getValue(),
-                is("csw, soap"));
+        assertThat(m.getAttribute(RegistryServiceMetacardType.SERVICE_BINDING_TYPES)
+                .getValue(), is("csw, soap"));
     }
 
     @Test
@@ -140,14 +141,16 @@ public class RegistryTransformerTest {
     public void testMetacardToXml() throws Exception {
         String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-service.xml"));
         Metacard m = rit.transform(IOUtils.toInputStream(in));
-        String out = IOUtils.toString(rit.transform(m, null).getInputStream());
+        String out = IOUtils.toString(rit.transform(m, null)
+                .getInputStream());
         assertThat(in, is(out));
     }
 
     @Test
     public void testLastUpdated() throws Exception {
         RegistryMetacardImpl m = convert("/csw-last-updated.xml");
-        assertThat(m.getModifiedDate().toString(), is("Tue Jan 26 10:16:34 MST 2016"));
+        String utc = m.getModifiedDate().toInstant().toString();
+        assertThat(utc, is("2016-01-26T17:16:34.996Z"));
     }
 
     private RegistryMetacardImpl convert(String path) throws Exception {

@@ -31,7 +31,7 @@ public class CatalogEndpointImpl implements CatalogEndpoint {
      * Creates empty endpoint properties map
      */
     public CatalogEndpointImpl() {
-        setEndpointProperties(new HashMap<>());
+        this(new HashMap<>());
     }
 
     /**
@@ -40,10 +40,10 @@ public class CatalogEndpointImpl implements CatalogEndpoint {
      * @param endpointProperties - a map of endpoint properties
      */
     public CatalogEndpointImpl(Map<String, String> endpointProperties) {
-        if (endpointProperties != null) {
-            setEndpointProperties(endpointProperties);
-        } else {
+        if (endpointProperties == null) {
             setEndpointProperties(new HashMap<>());
+        } else {
+            setEndpointProperties(endpointProperties);
         }
 
     }
@@ -138,10 +138,10 @@ public class CatalogEndpointImpl implements CatalogEndpoint {
     }
 
     private void setProperty(String key, String value) {
-        if (value != null) {
-            getEndpointProperties().put(key, value);
-        } else {
+        if (value == null) {
             getEndpointProperties().remove(key);
+        } else {
+            getEndpointProperties().put(key, value);
         }
     }
 }

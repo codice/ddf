@@ -54,7 +54,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Embed-Dependency>catalog-core-api-impl;scope=!test, catalog-registry-common, commons-lang3
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test,
+                            catalog-registry-common,
+                            commons-lang3
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

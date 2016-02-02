@@ -16,6 +16,9 @@ package ddf.catalog.registry.common.metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 
+/**
+ * RegistryMetacardImpl is used to provide some convenience methods for getting registry attributes
+ */
 public class RegistryMetacardImpl extends MetacardImpl {
 
     private static final RegistryObjectMetacardType ROMT = new RegistryObjectMetacardType();

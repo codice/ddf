@@ -31,6 +31,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.metacard.RegistryServiceMetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -48,7 +49,8 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         this.gml3ToWkt = gml3ToWkt;
 
         xstream = new XStream(new Xpp3Driver());
-        xstream.setClassLoader(this.getClass().getClassLoader());
+        xstream.setClassLoader(this.getClass()
+                .getClassLoader());
         xstream.registerConverter(new RegistryServiceConverter(gml3ToWkt));
         xstream.alias("rim:Service", Metacard.class);
 
@@ -66,14 +68,14 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
 
         RegistryMetacardImpl metacard = null;
         String xml = IOUtils.toString(inputStream);
+        IOUtils.closeQuietly(inputStream);
 
         try {
             metacard = (RegistryMetacardImpl) xstream.fromXML(xml);
         } catch (XStreamException e) {
             throw new CatalogTransformerException(
-                    "Unable to transform from CSW RIM Service Record to Metacard.", e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+                    "Unable to transform from CSW RIM Service Record to Metacard.",
+                    e);
         }
 
         if (metacard == null) {
@@ -84,8 +86,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         }
 
         metacard.setAttribute(Metacard.METADATA, xml);
-        metacard.setContentTypeName(
-                RegistryServiceMetacardType.SERVICE_REGISTRY_METACARD_TYPE_NAME);
+        metacard.setContentTypeName(RegistryServiceMetacardType.SERVICE_REGISTRY_METACARD_TYPE_NAME);
 
         return metacard;
     }
@@ -93,8 +94,15 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
-        String metadata = metacard.getMetadata();
-        return new BinaryContentImpl(IOUtils.toInputStream(metadata));
+        if (metacard.getContentTypeName()
+                .startsWith(RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME)) {
+            String metadata = metacard.getMetadata();
+            return new BinaryContentImpl(IOUtils.toInputStream(metadata));
+        } else {
+            throw new CatalogTransformerException(
+                    "Can't transform metacard of content type " + metacard.getContentTypeName()
+                            + " to csw-ebrim xml");
+        }
     }
 
 }

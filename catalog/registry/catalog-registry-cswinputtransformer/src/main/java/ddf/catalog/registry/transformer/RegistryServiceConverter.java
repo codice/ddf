@@ -51,6 +51,10 @@ public class RegistryServiceConverter implements Converter {
 
     private static final Map<String, String> CLASSIFICATIONS;
 
+    private static final String ID_PATTERN = "urn:uuid:(.*)";
+
+    private static final Pattern PATTERN = Pattern.compile(ID_PATTERN);
+
     static {
         CLASSIFICATIONS = new HashMap<>();
         CLASSIFICATIONS.put("liveDate", RegistryServiceMetacardType.LIVE_DATE);
@@ -86,8 +90,12 @@ public class RegistryServiceConverter implements Converter {
         String postalCode = reader.getAttribute("postalCode");
         String country = reader.getAttribute("country");
 
-        return String
-                .format("%s, %s, %s %s, %s", street, city, stateOrProvince, postalCode, country);
+        return String.format("%s, %s, %s %s, %s",
+                street,
+                city,
+                stateOrProvince,
+                postalCode,
+                country);
     }
 
     /**
@@ -108,46 +116,44 @@ public class RegistryServiceConverter implements Converter {
         }
     }
 
-    /**
-     * Read organization info from a rim:Organization node and attach to metacard.
-     *
-     * @param reader
-     * @param meta
-     */
-    private void readOrgInfo(HierarchicalStreamReader reader, RegistryMetacardImpl meta) {
-
-        reader.moveDown();
-        reader.moveDown();
-        reader.moveDown();
-
-        while (reader.hasMoreChildren()) {
+    private void safeMove(HierarchicalStreamReader reader, Integer amount, Runnable callback) {
+        for (int i = 0; i < amount; i++) {
             reader.moveDown();
-
-            switch (reader.getNodeName()) {
-
-            case "rim:Name":
-                meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME, readValue(reader));
-                break;
-            case "rim:EmailAddress":
-                meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL,
-                        reader.getAttribute("address"));
-                break;
-            case "rim:TelephoneNumber":
-                meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
-                        readPhoneNumber(reader));
-                break;
-            case "rim:Address":
-                meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
-                        readAddress(reader));
-                break;
-            }
-
-            reader.moveUp();
         }
+        try {
+            callback.run();
+        } finally {
+            for (int i = 0; i < amount; i++) {
+                reader.moveUp();
+            }
+        }
+    }
 
-        reader.moveUp();
-        reader.moveUp();
-        reader.moveUp();
+    private void readOrgInfo(HierarchicalStreamReader reader, RegistryMetacardImpl meta) {
+        safeMove(reader, 3, () -> {
+            while (reader.hasMoreChildren()) {
+                safeMove(reader, 1, () -> {
+                    switch (reader.getNodeName()) {
+                    case "rim:Name":
+                        meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME,
+                                readValue(reader));
+                        break;
+                    case "rim:EmailAddress":
+                        meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL,
+                                reader.getAttribute("address"));
+                        break;
+                    case "rim:TelephoneNumber":
+                        meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
+                                readPhoneNumber(reader));
+                        break;
+                    case "rim:Address":
+                        meta.setAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
+                                readAddress(reader));
+                        break;
+                    }
+                });
+            }
+        });
     }
 
     String readValue(HierarchicalStreamReader reader) {
@@ -163,26 +169,21 @@ public class RegistryServiceConverter implements Converter {
      * @param reader
      * @return
      */
-    private String readGml(HierarchicalStreamReader reader) {
+    private void readGml(HierarchicalStreamReader reader, MetacardImpl meta, String attributeKey) {
 
-        reader.moveDown();
-        reader.moveDown();
-        reader.moveDown();
+        safeMove(reader, 3, () -> {
 
-        // buffer up the current gml node and all its children
-        Writer out = new StringWriter();
-        HierarchicalStreamWriter writer = new CompactWriter(out);
-        HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
-        copier.copy(reader, writer);
-        String xml = out.toString();
+            // buffer up the current gml node and all its children
+            Writer out = new StringWriter();
+            HierarchicalStreamWriter writer = new CompactWriter(out);
+            HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
+            copier.copy(reader, writer);
+            String xml = out.toString();
 
-        xml = xml.replaceFirst(">", " xmlns:gml=\"http://www.opengis.net/gml\">");
+            xml = xml.replaceFirst(">", " xmlns:gml=\"http://www.opengis.net/gml\">");
 
-        reader.moveUp();
-        reader.moveUp();
-        reader.moveUp();
-
-        return gml3ToWkt.convert(xml);
+            meta.setAttribute(attributeKey, gml3ToWkt.convert(xml));
+        });
     }
 
     /**
@@ -201,23 +202,27 @@ public class RegistryServiceConverter implements Converter {
                 String name = reader.getAttribute("name");
                 switch (name) {
                 case "location":
-                    meta.setAttribute(Metacard.GEOGRAPHY, readGml(reader));
+                    readGml(reader, meta, Metacard.GEOGRAPHY);
                     break;
                 default:
-                    String key = CLASSIFICATIONS.get(name);
-                    if (key != null) {
-                        if ("xs:dateTime".equals(reader.getAttribute("slotType"))) {
-                            meta.setAttribute(key, readDates(reader).get(0));
-                        } else {
-                            meta.setAttribute(key, String.join(", ", readValueList(reader)));
-                        }
-                    }
+                    readClassificationValue(reader, meta, name);
                 }
                 break;
 
             }
 
             reader.moveUp();
+        }
+    }
+
+    private void readClassificationValue(HierarchicalStreamReader reader, MetacardImpl meta, String name) {
+        String key = CLASSIFICATIONS.get(name);
+        if (key != null) {
+            if ("xs:dateTime".equals(reader.getAttribute("slotType"))) {
+                meta.setAttribute(key, readDates(reader).get(0));
+            } else {
+                meta.setAttribute(key, String.join(", ", readValueList(reader)));
+            }
         }
     }
 
@@ -279,8 +284,10 @@ public class RegistryServiceConverter implements Converter {
             reader.moveUp();
         }
 
-        String contact = String
-                .format("%s, %s, %s", map.get("name"), map.get("telephone"), map.get("email"));
+        String contact = String.format("%s, %s, %s",
+                map.get("name"),
+                map.get("telephone"),
+                map.get("email"));
 
         meta.setAttribute(Metacard.POINT_OF_CONTACT, contact);
 
@@ -320,22 +327,20 @@ public class RegistryServiceConverter implements Converter {
             }
 
             reader.moveUp();
+
+            if (bindingTypes > 1) {
+                throw new ConversionException(
+                        "ServiceBinding with id = " + id + " has too many bindingType.");
+            }
         }
 
         if (bindingTypes == 0) {
             throw new ConversionException(
                     "ServiceBinding with id = " + id + " has no bindingType.");
-        } else if (bindingTypes > 1) {
-            throw new ConversionException(
-                    "ServiceBinding with id = " + id + " has too many bindingType.");
         }
 
         return bindingType;
     }
-
-    private static final String ID_PATTERN = "urn:uuid:(.*)";
-
-    private static final Pattern PATTERN = Pattern.compile(ID_PATTERN);
 
     /**
      * Validate that a service has a correct object type and id.
@@ -370,12 +375,30 @@ public class RegistryServiceConverter implements Converter {
     }
 
     private static Date parseISO8601(String str) {
-        return dateOptionalTimeParser().parseDateTime(str).toDate();
+        return dateOptionalTimeParser().parseDateTime(str)
+                .toDate();
     }
 
     private List<Date> readDates(HierarchicalStreamReader reader) {
-        return readValueList(reader).stream().map(RegistryServiceConverter::parseISO8601)
+        return readValueList(reader).stream()
+                .map(RegistryServiceConverter::parseISO8601)
                 .collect(toList());
+    }
+
+    private void readTopLevelSlots(HierarchicalStreamReader reader, RegistryMetacardImpl meta) {
+        switch (reader.getAttribute("name")) {
+        case "organization":
+            readOrgInfo(reader, meta);
+            break;
+        case "pointOfContact":
+            readPointOfContact(reader, meta);
+            break;
+        case "lastUpdated":
+            List<Date> ds = readDates(reader);
+            meta.setModifiedDate(ds.get(0));
+            break;
+        }
+
     }
 
     @Override
@@ -394,18 +417,7 @@ public class RegistryServiceConverter implements Converter {
 
             switch (reader.getNodeName()) {
             case "rim:Slot":
-                switch (reader.getAttribute("name")) {
-                case "organization":
-                    readOrgInfo(reader, meta);
-                    break;
-                case "pointOfContact":
-                    readPointOfContact(reader, meta);
-                    break;
-                case "lastUpdated":
-                    List<Date> ds = readDates(reader);
-                    meta.setModifiedDate(ds.get(0));
-                    break;
-                }
+                readTopLevelSlots(reader, meta);
                 break;
             case "rim:Description":
                 meta.setAttribute(Metacard.DESCRIPTION, readValue(reader));

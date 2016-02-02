@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:ows="http://www.opengis.net/ows"
+        targetNamespace="http://www.disy.de/ogc/ows"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+	<import namespace="http://www.opengis.net/ows" schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
+
+	<element name="MetaData" substitutionGroup="ows:AbstractMetaData"/>
+</schema>

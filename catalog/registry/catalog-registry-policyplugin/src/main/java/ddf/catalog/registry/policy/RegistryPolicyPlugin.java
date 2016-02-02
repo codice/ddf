@@ -14,7 +14,6 @@
 package ddf.catalog.registry.policy;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,41 +21,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.shiro.subject.ExecutionException;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
-import ddf.catalog.registry.common.filter.RegistryQueryDelegate;
 import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import ddf.catalog.util.impl.Requests;
-import ddf.security.Subject;
-import ddf.security.common.util.Security;
 
 public class RegistryPolicyPlugin implements PolicyPlugin {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryPolicyPlugin.class);
 
     private boolean whiteList = false;
 
     private boolean registryDisabled = false;
 
-    private Set<String> registryEntryIds;
+    private Set<String> registryEntryIds = new HashSet<>();
 
     private List<String> registryBypassPolicyStrings;
 
@@ -64,61 +47,11 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private List<String> readAccessPolicyStrings;
 
-    private HashMap<String, Set<String>> bypassAccessPolicy;
+    private HashMap<String, Set<String>> bypassAccessPolicy = new HashMap<>();
 
-    private HashMap<String, Set<String>> writeAccessPolicy;
+    private HashMap<String, Set<String>> writeAccessPolicy = new HashMap<>();
 
-    private HashMap<String, Set<String>> readAccessPolicy;
-
-    private FilterBuilder filterBuilder;
-
-    private CatalogFramework framework;
-
-    public RegistryPolicyPlugin(CatalogFramework framework, FilterBuilder filterBuilder) {
-        this.framework = framework;
-        this.filterBuilder = filterBuilder;
-        registryEntryIds = new HashSet<>();
-        bypassAccessPolicy = new HashMap<>();
-        writeAccessPolicy = new HashMap<>();
-        readAccessPolicy = new HashMap<>();
-    }
-
-    protected Subject getSubject() {
-        return Security.getSystemSubject();
-    }
-
-    protected boolean catalogRegistryEntriesIncluded(String attributeName,
-            List<Serializable> attributeValues) {
-        Filter registryFilter = filterBuilder.attribute(Metacard.CONTENT_TYPE)
-                .is()
-                .like()
-                .text(RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME
-                        + RegistryQueryDelegate.WILDCARD_CHAR);
-        List<Filter> filters = new ArrayList<>(attributeValues.size());
-        for (Serializable value : attributeValues) {
-            filters.add(filterBuilder.attribute(attributeName)
-                    .is()
-                    .like()
-                    .text(value.toString()));
-        }
-
-        try {
-            Boolean result = getSubject().execute(() -> {
-                QueryRequest request = new QueryRequestImpl(new QueryImpl(filterBuilder.allOf(
-                        registryFilter,
-                        filterBuilder.anyOf(filters))));
-
-                QueryResponse response = framework.query(request);
-                return response.getResults()
-                        .size() != 0;
-
-            });
-            return result != null && result;
-        } catch (ExecutionException e) {
-            LOGGER.error("Exception when querying catalog for registry entries.", e);
-        }
-        return false;
-    }
+    private HashMap<String, Set<String>> readAccessPolicy = new HashMap<>();
 
     /**
      * @return Returns true if the registry entry ids represents a set of 'white listed' entries. Default is false.
@@ -221,9 +154,7 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
         }
     }
 
-    @Override
-    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
-            throws StopProcessingException {
+    private PolicyResponse getWritePolicy(Metacard input, Map<String, Serializable> properties) {
         HashMap<String, Set<String>> operationPolicy = new HashMap<>();
         if (Requests.isLocal(properties) && input.getContentTypeName() != null
                 && input.getContentTypeName()
@@ -235,37 +166,39 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
             }
         }
         return new PolicyResponseImpl(operationPolicy, new HashMap<>());
+    }
+
+    @Override
+    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return getWritePolicy(input, properties);
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        HashMap<String, Set<String>> operationPolicy = new HashMap<>();
-        if (Requests.isLocal(properties) && input.getContentTypeName() != null
-                && input.getContentTypeName()
-                .startsWith(RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME)) {
-            if (isRegistryDisabled()) {
-                operationPolicy.putAll(bypassAccessPolicy);
-            } else {
-                operationPolicy.putAll(writeAccessPolicy);
-            }
-        }
-        return new PolicyResponseImpl(operationPolicy, new HashMap<>());
+        return getWritePolicy(input, properties);
     }
 
     @Override
-    public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
+    public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
-        HashMap<String, Set<String>> operationPolicy = new HashMap<>();
-        if (Requests.isLocal(properties) && catalogRegistryEntriesIncluded(attributeName,
-                attributeValues)) {
-            if (isRegistryDisabled()) {
-                operationPolicy.putAll(bypassAccessPolicy);
-            } else {
-                operationPolicy.putAll(writeAccessPolicy);
+        if (metacards != null) {
+            for (Metacard metacard : metacards) {
+                PolicyResponse response = getWritePolicy(metacard, properties);
+                if (!response.operationPolicy()
+                        .isEmpty()) {
+                    return response;
+                }
             }
         }
-        return new PolicyResponseImpl(operationPolicy, new HashMap<>());
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPostDelete(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl();
     }
 
     @Override

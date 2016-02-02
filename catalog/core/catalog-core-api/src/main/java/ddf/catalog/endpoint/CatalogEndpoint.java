@@ -15,6 +15,11 @@ package ddf.catalog.endpoint;
 
 import java.util.Map;
 
+/**
+ * CatalogEndpoint represents an endpoint that accesses the catalog and wants to advertise itself to the system.
+ * It does this by providing a map of properties about itself.
+ * An example use of this interface is the registry framework which uses the interface to identify which endpoints can be used as federation methods.
+ */
 public interface CatalogEndpoint {
     String BINDING_TYPE_KEY = "bindingType";
     String DESCRIPTION_KEY = "description";
