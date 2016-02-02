@@ -30,10 +30,12 @@ import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -111,15 +113,13 @@ public class ConfigurationMigrationManager
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
             LOGGER.error("Unable to create export directories", e);
-            throw new MigrationException(String.format(
-                    "Failed to export configurations: Unable to create export directories. %s",
-                    e.getMessage()), e);
+            throw new ExportMigrationException("Unable to create export directories", e);
         } catch (MigrationException e) {
             LOGGER.error("Export operation failed", e);
             throw e;
         } catch (RuntimeException e) {
             LOGGER.error("Failure to export, internal error occurred", e);
-            throw new MigrationException("Failed to export configurations: Internal error", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
 
         return migrationWarnings;
@@ -158,7 +158,7 @@ public class ConfigurationMigrationManager
             LOGGER.error(
                     "Export failed: could not get list of Migratable service references from bundle context",
                     e);
-            throw new MigrationException("Failed to export configurations: Internal error", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
     }
 }

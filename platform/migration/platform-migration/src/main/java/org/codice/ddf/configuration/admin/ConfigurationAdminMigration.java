@@ -28,8 +28,10 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -177,26 +179,22 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
                         LOGGER.error("Could not create configuration file {} for configuration {}.",
                                 exportedFilePath,
                                 configuration.getPid());
-                        throw new MigrationException(String.format(
-                                "Failed to export configurations: %s",
-                                e.getMessage()), e);
+                        throw new ExportMigrationException(e);
                     } catch (IOException e) {
                         LOGGER.error("Could not export configuration {} to {}.",
                                 configuration.getPid(),
                                 exportedFilePath);
-                        throw new MigrationException(String.format(
-                                "Failed to export configurations: %s",
-                                e.getMessage()), e);
+                        throw new ExportMigrationException(e);
                     }
                 }
             }
         } catch (InvalidSyntaxException e) {
             LOGGER.error("Invalid filter string {}", FILTER, e);
-            throw new MigrationException("Failed to export configurations: Internal error", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         } catch (IOException e) {
             LOGGER.error("There was an issue retrieving configurations from ConfigurationAdmin: {}",
                     e.getMessage());
-            throw new MigrationException("Failed to export configurations: Internal error", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
     }
 

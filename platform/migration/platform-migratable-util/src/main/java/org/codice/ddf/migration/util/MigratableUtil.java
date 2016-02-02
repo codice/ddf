@@ -31,6 +31,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
@@ -117,9 +118,9 @@ public class MigratableUtil {
                     source.toString(),
                     exportDirectory.toString());
             LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            throw new ExportMigrationException(message, e);
         }
-        
+
     }
 
     /**
@@ -195,11 +196,9 @@ public class MigratableUtil {
         String prop = System.getProperty(property);
 
         if (StringUtils.isBlank(prop)) {
-            String message = String.format(
-                    "Failed to export configurations: System property [%s] is not set.",
-                    property);
+            String message = String.format("System property [%s] is not set", property);
             LOGGER.error(message);
-            throw new MigrationException(message);
+            throw new ExportMigrationException(message);
         }
 
         return prop;
@@ -218,12 +217,11 @@ public class MigratableUtil {
                                 .toFile());
             }
         } catch (IOException e) {
-            String message = String.format(
-                    "Failed to export configurations: Unable to copy [%s] to [%s].",
+            String message = String.format("Unable to copy [%s] to [%s]",
                     sourceFile.toString(),
                     exportDirectory.toString());
             LOGGER.error(message, e);
-            throw new MigrationException(String.format("%s %s", message, e.getMessage()), e);
+            throw new ExportMigrationException(message, e);
         }
     }
 
@@ -234,11 +232,10 @@ public class MigratableUtil {
             properties.load(inputStream);
             return properties;
         } catch (IOException e) {
-            String message = String.format(
-                    "Failed to export configurations: Unable to read properties file [%s]. ",
+            String message = String.format("Unable to read properties file [%s]",
                     propertiesFile.toString());
             LOGGER.error(message, e);
-            throw new MigrationException(String.format("%s %s", message, e.getMessage()), e);
+            throw new ExportMigrationException(message, e);
         }
     }
 
