@@ -100,7 +100,26 @@ public class MigratableUtil {
      */
     public void copyDirectory(@NotNull Path source, @NotNull Path exportDirectory,
             @NotNull Collection<MigrationWarning> warnings) throws MigrationException {
-        copyFile(source, exportDirectory, warnings);
+        notNull(source, "Source cannot be null");
+        notNull(exportDirectory, "Destination cannot be null");
+        notNull(warnings, "Warning collection cannot be null");
+
+        try {
+            if (isSourceMigratable(source,
+                    (reason) -> new PathMigrationWarning(source, reason),
+                    warnings)) {
+                FileUtils.copyDirectory(source.toFile(),
+                        exportDirectory.resolve(source)
+                                .toFile());
+            }
+        } catch (IOException e) {
+            String message = String.format("Unable to copy [%s] to [%s].",
+                    source.toString(),
+                    exportDirectory.toString());
+            LOGGER.error(message, e);
+            throw new MigrationException(message, e);
+        }
+        
     }
 
     /**

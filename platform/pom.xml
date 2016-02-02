@@ -314,6 +314,7 @@
         <module>util</module>
         <module>platform-configuration</module>
         <module>migration</module>
+        <module>platform-migratable</module>
         <module>parser</module>
         <module>action</module>
         <module>compression</module>
