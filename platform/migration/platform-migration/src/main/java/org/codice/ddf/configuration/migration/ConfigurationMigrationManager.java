@@ -110,13 +110,16 @@ public class ConfigurationMigrationManager
             migrationWarnings.addAll(systemConfigurationMigration.export(exportDirectory));
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
-            String message = "Unable to create export directories.";
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            LOGGER.error("Unable to create export directories", e);
+            throw new MigrationException(String.format(
+                    "Failed to export configurations: Unable to create export directories. %s",
+                    e.getMessage()), e);
+        } catch (MigrationException e) {
+            LOGGER.error("Export operation failed", e);
+            throw e;
         } catch (RuntimeException e) {
-            String message = "Failure to export, internal error occurred.";
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            LOGGER.error("Failure to export, internal error occurred", e);
+            throw new MigrationException("Failed to export configurations: Internal error", e);
         }
 
         return migrationWarnings;
@@ -155,7 +158,7 @@ public class ConfigurationMigrationManager
             LOGGER.error(
                     "Export failed: could not get list of Migratable service references from bundle context",
                     e);
-            throw new MigrationException("Failure to export, internal error occurred.", e);
+            throw new MigrationException("Failed to export configurations: Internal error", e);
         }
     }
 }
