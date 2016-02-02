@@ -90,7 +90,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/security-config</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
+                        <_wab>src/main/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             platform-error-servlet

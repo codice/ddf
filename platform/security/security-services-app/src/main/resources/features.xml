@@ -136,6 +136,7 @@
 
     <feature name="security-filter-authz" install="manual" version="${project.version}"
              description="Authz Filter for web applications.">
+        <feature prerequisite="true">security-policy-context</feature>
         <bundle>mvn:ddf.security.filter/security-filter-authorization/${project.version}</bundle>
     </feature>
 
