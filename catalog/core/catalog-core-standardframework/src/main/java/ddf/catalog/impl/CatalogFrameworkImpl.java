@@ -1800,8 +1800,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     @Override
     public Set<String> getSourceIds() {
-        TreeSet ids = new TreeSet<>(federatedSources.keySet());
+        Set<String> ids = new TreeSet<>();
         ids.add(getId());
+        if (!fanoutEnabled) {
+            ids.addAll(federatedSources.keySet());
+        }
         return ids;
     }
 
