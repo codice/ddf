@@ -710,7 +710,15 @@ public class MetacardImpl implements Metacard {
      *            the value of the {@link Attribute}
      */
     public void setAttribute(String name, Serializable value) {
-        setAttribute(new AttributeImpl(name, value));
+        if (value != null && name.equalsIgnoreCase(RESOURCE_URI)
+                && !String.class.isAssignableFrom(value.getClass())) {
+            if(LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Attribute " + RESOURCE_URI + " should be set with a string, not a URI.");
+            }
+            setAttribute(new AttributeImpl(name, value.toString()));
+        } else {
+            setAttribute(new AttributeImpl(name, value));
+        }
     }
 
     @Override
