@@ -23,5 +23,5 @@
     </bean>
 
     <service id="platformMigratableService" ref="platformMigratable"
-        auto-export="interfaces" />
+        interface="org.codice.ddf.migration.Migratable" />
 </blueprint>
