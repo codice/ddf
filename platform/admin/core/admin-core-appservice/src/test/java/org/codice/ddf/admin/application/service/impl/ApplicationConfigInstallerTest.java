@@ -24,8 +24,10 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.EnumSet;
 
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.FeaturesService.Option;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.junit.Test;
@@ -84,7 +86,7 @@ public class ApplicationConfigInstallerTest {
         verify(appService).startApplication("solr-app");
 
         // verify the post start and post stop features were called
-        verify(featuresService).installFeature(START_FEATURE);
+        verify(featuresService).installFeature(START_FEATURE, EnumSet.of(Option.NoAutoRefreshBundles));
         verify(featuresService).uninstallFeature(STOP_FEATURE);
     }
 
@@ -110,7 +112,7 @@ public class ApplicationConfigInstallerTest {
         verify(appService).startApplication("solr-app");
 
         // verify the post start and post stop features were called
-        verify(featuresService).installFeature(START_FEATURE);
+        verify(featuresService).installFeature(START_FEATURE, EnumSet.of(Option.NoAutoRefreshBundles));
         verify(featuresService).uninstallFeature(STOP_FEATURE);
     }
 
@@ -137,7 +139,7 @@ public class ApplicationConfigInstallerTest {
         verify(appService, never()).startApplication(anyString());
 
         // verify the post start and post stop features were not called
-        verify(featuresService, never()).installFeature(anyString());
+        verify(featuresService, never()).installFeature(anyString(), any(EnumSet.class));
         verify(featuresService, never()).uninstallFeature(anyString());
     }
 
@@ -155,7 +157,7 @@ public class ApplicationConfigInstallerTest {
         configInstaller.run();
 
         // verify the post start and post stop features were not called
-        verify(featuresService, never()).installFeature(anyString());
+        verify(featuresService, never()).installFeature(anyString(), any(EnumSet.class));
         verify(featuresService, never()).uninstallFeature(anyString());
 
     }

@@ -122,11 +122,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.metrics.ui</groupId>
-            <artifactId>metrics-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.metrics.interceptor</groupId>
             <artifactId>metrics-interceptor</artifactId>
             <version>${project.version}</version>

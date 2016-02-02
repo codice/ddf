@@ -18,6 +18,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.FeaturesService.Option;
 import org.apache.karaf.features.Repository;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
@@ -649,8 +651,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
-                featuresService.installFeature(application.getMainFeature()
-                        .getName());
+                featuresService.installFeature(application.getMainFeature().getName(),
+                        EnumSet.of(Option.NoAutoRefreshBundles));
             } else {
                 logger.debug(
                         "Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
@@ -661,7 +663,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         logger.debug("Installing feature {} for application {}",
                                 curFeature.getName(),
                                 application.getName());
-                        featuresService.installFeature(curFeature.getName());
+                        featuresService.installFeature(curFeature.getName(),
+                                EnumSet.of(Option.NoAutoRefreshBundles));
                     }
                 }
             }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.EnumSet;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -106,7 +107,8 @@ public class ApplicationConfigInstaller extends Thread {
 
                 try {
                     if (!StringUtils.isBlank(postInstallFeatureStart)) {
-                        featuresService.installFeature(postInstallFeatureStart);
+                        featuresService.installFeature(postInstallFeatureStart, EnumSet.of(
+                                FeaturesService.Option.NoAutoRefreshBundles));
                     }
                     if (!StringUtils.isBlank(postInstallFeatureStop)) {
                         featuresService.uninstallFeature(postInstallFeatureStop);

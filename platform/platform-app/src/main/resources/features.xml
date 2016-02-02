@@ -983,12 +983,12 @@
 
     <feature name="platform-app" install="auto" version="${project.version}"
              description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
-        <feature prerequisite="true">kernel-webconsolebranding</feature>
         <feature prerequisite="true">platform-dependencies</feature>
         <feature>platform-all</feature>
     </feature>
 
     <feature name="platform-dependencies" version="${project.version}">
+        <feature prerequisite="true">kernel-webconsolebranding</feature>
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">camel-http</feature>
         <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>

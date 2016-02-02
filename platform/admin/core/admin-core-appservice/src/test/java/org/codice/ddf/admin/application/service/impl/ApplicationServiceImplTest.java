@@ -47,6 +47,7 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.FeaturesService.Option;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
@@ -1099,7 +1100,8 @@ public class ApplicationServiceImplTest {
 
         appService.startApplication(testApp);
 
-        verify(featuresService, atLeastOnce()).installFeature(TEST_FEATURE_1_NAME);
+        verify(featuresService, atLeastOnce()).installFeature(TEST_FEATURE_1_NAME, EnumSet.of(
+                Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1127,7 +1129,7 @@ public class ApplicationServiceImplTest {
         when(testApp.getMainFeature()).thenReturn(testFeature);
 
         doThrow(new ApplicationServiceException()).when(featuresService)
-                .installFeature(anyString());
+                .installFeature(anyString(), any(EnumSet.class));
 
         appService.startApplication(testApp);
 
@@ -1169,8 +1171,10 @@ public class ApplicationServiceImplTest {
 
         appService.startApplication(testApp);
 
-        verify(featuresService).installFeature(TEST_FEATURE_1_NAME);
-        verify(featuresService).installFeature(TEST_FEATURE_2_NAME);
+        verify(featuresService).installFeature(TEST_FEATURE_1_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).installFeature(TEST_FEATURE_2_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1193,8 +1197,10 @@ public class ApplicationServiceImplTest {
 
         appService.startApplication(mainFeatureRepo.getName());
 
-        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[0].getName());
-        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[1].getName());
+        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[0].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[1].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1507,8 +1513,8 @@ public class ApplicationServiceImplTest {
         Set<Feature> featureSet = new HashSet<>();
         featureSet.add(testFeature1);
         featureSet.add(testFeature2);
-        featuresService.installFeature(testFeature1, EnumSet.noneOf(FeaturesService.Option.class));
-        featuresService.installFeature(testFeature2, EnumSet.noneOf(FeaturesService.Option.class));
+        featuresService.installFeature(testFeature1, EnumSet.noneOf(Option.class));
+        featuresService.installFeature(testFeature2, EnumSet.noneOf(Option.class));
 
         when(testApp.getFeatures()).thenReturn(featureSet);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);

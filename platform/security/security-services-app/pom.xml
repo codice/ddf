@@ -214,11 +214,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.admin</groupId>
-            <artifactId>security-admin-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-basic</artifactId>
             <version>${project.version}</version>
@@ -296,11 +291,6 @@
         <dependency>
             <groupId>ddf.security.certificate</groupId>
             <artifactId>security-certificate-keystoreeditor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.certificate</groupId>
-            <artifactId>security-certificate-adminmodule</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
