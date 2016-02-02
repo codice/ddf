@@ -33,7 +33,7 @@ import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.CometdServlet;
+import org.cometd.server.CometDServlet;
 import org.cometd.server.DefaultSecurityPolicy;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -53,7 +53,7 @@ public class CometdEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpoint.class);
 
-    private final CometdServlet cometdServlet;
+    private final CometDServlet cometdServlet;
 
     private final FilterBuilder filterBuilder;
 
@@ -87,7 +87,7 @@ public class CometdEndpoint {
      * @param filterBuilder
      *            - FilterBuilder for the SearchService to use
      */
-    public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework,
+    public CometdEndpoint(CometDServlet cometdServlet, CatalogFramework framework,
             FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry,
             ExecutorService executorService) {

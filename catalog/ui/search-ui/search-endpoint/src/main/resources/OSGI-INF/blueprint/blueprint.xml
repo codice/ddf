@@ -19,7 +19,7 @@
 
     <ext:property-placeholder/>
 
-    <bean id="comet" class="org.cometd.server.CometdServlet">
+    <bean id="comet" class="org.cometd.server.CometDServlet">
     </bean>
 
     <bean id="searchThreadPool" class="java.util.concurrent.Executors"

@@ -34,8 +34,8 @@ import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.JSONContext;
-import org.cometd.common.JacksonJSONContextClient;
-import org.cometd.server.JacksonJSONContextServer;
+import org.cometd.common.Jackson1JSONContextClient;
+import org.cometd.server.Jackson1JSONContextServer;
 import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class WorkspaceService {
                         // Convert workspace's JSON representation back to nested maps of Map<String, Object>
                         Map<String, Object> workspaces = (Map<String, Object>) workspacesList
                                 .get(0);
-                        JSONContext.Client jsonContext = new JacksonJSONContextClient();
+                        JSONContext.Client jsonContext = new Jackson1JSONContextClient();
                         String json = (String) workspaces.get("workspaces_json_txt");
                         LOGGER.debug("workspaces extracted JSON text:\n {}", json);
                         Map<String, Object> workspacesMap;
@@ -104,11 +104,11 @@ public class WorkspaceService {
                             username, e);
                 }
                 reply.put(Search.SUCCESSFUL, true);
-                remote.deliver(serverSession, "/service/workspaces", reply, null);
+                remote.deliver(serverSession, "/service/workspaces", reply);
             } else {
                 LOGGER.debug("Persisting workspaces for username = {}", username);
                 // Use JSON serializer so that only "data" component is serialized, not entire Message
-                JSONContext.Server jsonContext = new JacksonJSONContextServer();
+                JSONContext.Server jsonContext = new Jackson1JSONContextServer();
                 String json = jsonContext.getGenerator().generate(data);
                 LOGGER.debug("workspaces JSON text:\n {}", json);
                 PersistentItem item = new PersistentItem();
@@ -123,7 +123,7 @@ public class WorkspaceService {
                             username, e);
                 }
                 reply.put(Search.SUCCESSFUL, true);
-                remote.deliver(serverSession, "/service/workspaces", reply, null);
+                remote.deliver(serverSession, "/service/workspaces", reply);
             }
         }
     }

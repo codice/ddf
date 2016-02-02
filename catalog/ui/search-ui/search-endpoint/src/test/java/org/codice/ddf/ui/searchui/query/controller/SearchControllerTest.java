@@ -22,7 +22,6 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -133,7 +132,7 @@ public class SearchControllerTest {
         searchController.executeQuery(request, mockServerSession, null);
 
         verify(channel, timeout(1000).only())
-                .publish(any(ServerSession.class), reply.capture(), anyString());
+                .publish(any(ServerSession.class), reply.capture());
         List<Mutable> replies = reply.getAllValues();
         assertReplies(replies);
     }
@@ -159,7 +158,7 @@ public class SearchControllerTest {
         searchController.executeQuery(request, mockServerSession, null);
 
         verify(channel, timeout(1000).times(2))
-                .publish(any(ServerSession.class), reply.capture(), anyString());
+                .publish(any(ServerSession.class), reply.capture());
         List<Mutable> replies = reply.getAllValues();
         assertReplies(replies);
     }
@@ -221,7 +220,7 @@ public class SearchControllerTest {
         searchController.executeQuery(request, mockServerSession, null);
 
         // Verify
-        verify(channel, times(1)).publish(any(), any(), any());
+        verify(channel, times(1)).publish(any(), any());
     }
 
     private List<String> cacheQuery(Set<String> srcIds, int queryRequestCount)

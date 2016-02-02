@@ -122,7 +122,7 @@ public class SearchController {
 
         LOGGER.debug("Sending results to subscribers on: {}", channelName);
 
-        bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
+        bayeuxServer.getChannel(channelName).publish(serverSession, reply);
     }
 
     /**

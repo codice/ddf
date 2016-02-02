@@ -139,7 +139,7 @@ public class ActivityController extends AbstractEventController {
                 }
             }
 
-            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD_NEW, propMap, null);
+            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD_NEW, propMap);
         } else {
             LOGGER.debug("Session with ID \"{}\" is not connected to the server. Ignoring activity",
                     sessionId);

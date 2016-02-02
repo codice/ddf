@@ -33,8 +33,8 @@ import org.cometd.bayeux.Message;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.JSONContext;
-import org.cometd.common.JacksonJSONContextClient;
-import org.cometd.server.JacksonJSONContextServer;
+import org.cometd.common.Jackson1JSONContextClient;
+import org.cometd.server.Jackson1JSONContextServer;
 import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +85,7 @@ public class UserService {
                             .get(PersistentStore.PREFERENCES_TYPE, "user = '" + username + "'");
                     if (preferencesList.size() == 1) {
                         Map<String, Object> preferences = preferencesList.get(0);
-                        JSONContext.Client jsonContext = new JacksonJSONContextClient();
+                        JSONContext.Client jsonContext = new Jackson1JSONContextClient();
                         String json = (String) preferences.get("preferences_json_txt");
                         LOGGER.debug("preferences extracted JSON text:\n {}", json);
                         Map preferencesMap;
@@ -106,9 +106,9 @@ public class UserService {
                 }
                 reply.put("user", userMap);
                 reply.put(Search.SUCCESSFUL, true);
-                remote.deliver(serverSession, "/service/user", reply, null);
+                remote.deliver(serverSession, "/service/user", reply);
             } else {
-                JSONContext.Server jsonContext = new JacksonJSONContextServer();
+                JSONContext.Server jsonContext = new Jackson1JSONContextServer();
                 String json = jsonContext.getGenerator().generate(data);
                 LOGGER.debug("preferences JSON text:\n {}", json);
                 String username = SubjectUtils.getName(subject);
@@ -126,7 +126,7 @@ public class UserService {
             }
         } else {
             reply.put(Search.SUCCESSFUL, false);
-            remote.deliver(serverSession, "/service/user", reply, null);
+            remote.deliver(serverSession, "/service/user", reply);
         }
     }
 }
