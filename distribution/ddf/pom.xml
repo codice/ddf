@@ -146,18 +146,18 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/ddf
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.admin</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <type>zip</type>
-                                            <classifier>export</classifier>
-                                            <overWrite>true</overWrite>
                                             <outputDirectory>${setup.folder}/docs/admin
                                             </outputDirectory>
+                                            <overWrite>true</overWrite>
+                                            <classifier>adoc-files</classifier>
+                                            <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.catalog</groupId>
@@ -165,7 +165,7 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/catalog
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
@@ -174,7 +174,7 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/solr
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
@@ -183,7 +183,7 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/content
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
@@ -192,7 +192,7 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/platform
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
@@ -201,7 +201,7 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/security
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
@@ -219,7 +219,7 @@
                                             <version>${project.version}</version>
                                             <outputDirectory>${setup.folder}/docs/ui
                                             </outputDirectory>
-                                            <classifier>export</classifier>
+                                            <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                     </artifactItems>

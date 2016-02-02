@@ -1,0 +1,159 @@
+[NOTE]
+====
+Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the {admin-console} prior to disabling it for hardening purposes.
+The {admin-console} can be re-enabled for additional configuration changes.
+====
+
+In an environment hardened for security purposes, access to the ${ddf-branding} {admin-console} might be denied.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files or the {admin-console}.
+Configuration via the Karaf command line console is not supported and may result in configuration errors.
+The OSGi container detects the creation of `.config` files in the `etc/` directory.
+The following sections describe how to configure each ${branding} item using both of these mechanisms.
+A template file is provided for some configurable ${branding} items so that they can be copied/renamed then modified with the appropriate settings.
+
+[WARNING]
+====
+If at a later time the {admin-console} is enabled again, all of the configuration done via `.config` files is loaded and displayed.
+However, note that the name of the `.config` file is not used in the {admin-console}.
+Rather, OSGi assigns a universally unique identifier (UUID) when the ${branding} item was created and displays this UUID in the console (e.g., `OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b`)
+====
+
+Templates included with ${ddf-branding}:
+
+[cols="1,4,4,1" options="header"]
+|===
+
+|${ddf-branding} Service
+|Template File Name
+|Factory PID
+|Configurable Properties
+
+|${ddf-branding} Catalog Framework
+|`${ddf-branding-lowercase}.catalog.impl.service.CatalogFrameworkImpl.cfg`
+|`${ddf-branding-lowercase}.catalog.CatalogFrameworkImpl`
+|Standard Catalog Framework
+
+|===
+
+===== Configuring Using a `.cfg` File Template
+
+The following steps define the procedure for configuring a new source or feature using a `config` file.
+
+. Copy/rename the provided template file in the ``etc/templates` directory to the `etc` directory. (Refer to the table above to determine correct template.)
+.. *Mandatory*: The dash between the PID (e.g., `OpenSearchSource_site.cfg`) and the instance name (e.g., `OpenSearchSource_site.cfg`) is required. The dash is a reserved character used by OSGi that identifies instances of a managed service factory that should be created.
+.. Not required, but a good practice is to change the instance name (e.g., `federated_source`) of the file to something identifiable (`source1- ddf`).
+. Edit the copied file to etc with the settings for the configuration. (Refer to the table above to determine the configurable properties).
+.. This file is a Java properties file, hence the syntax is `<key>` = `<value>`.
+.. Consult the inline comments in the file for guidance on what to modify.
+.. The Configurable Properties tables in the Integrator's Guide for the Included Catalog Components also describe each field and its value.
+
+The new service can now be used as if it was created using the {admin-console}.
+
+===== Managing Applications From the {command-console}
+
+Applications can be installed from the {command-console} using the following commands:
+
+.App Commands
+[cols="2,5" options="header"]
+|===
+|Command
+|Effect
+
+|`app:add <appName>`
+|Install an app.
+
+|`app:list`
+|List all installed apps and current status.
+
+|`app:remove <appName>`
+|Uninstall an app.
+
+|`app:start`
+|Start an inactive app.
+
+|`app:status <appName>`
+|Detailed view of application status
+
+|`app:stop <appName>`
+|Stop an active app.
+
+|`app:tree`
+|Dependency tree view of all installed apps.
+|===
+
+===== Managing Features From the {command-console}
+
+. Determine which feature to install by viewing the available features on ${branding}. +
+`${branding-lowercase}${at-symbol}local>features:list`
+. The console outputs a list of all features available (installed and uninstalled). A snippet of the list output is shown below (the versions may differ):
+
+----
+State         Version            Name                                     Repository                           Description
+[installed  ] [${project.version}  ] security-handler-api                     security-services-app-${project.version} API for authentication handlers for web applications.
+[installed  ] [${project.version}  ] security-core                            security-services-app-${project.version} DDF Security Core
+[uninstalled] [${project.version}  ] security-expansion                       security-services-app-${project.version} DDF Security Expansion
+[uninstalled] [${project.version}  ] security-cas-client                      security-services-app-${project.version} DDF Security CAS Client.
+[uninstalled] [${project.version}  ] security-cas-tokenvalidator              security-services-app-${project.version} DDF Security CAS Validator for the STS.
+[uninstalled] [${project.version}  ] security-cas-cxfservletfilter            security-services-app-${project.version} DDF Security CAS Servlet Filter for CXF.
+[installed  ] [${project.version}  ] security-pdp-authz                       security-services-app-${project.version} DDF Security PDP.
+[uninstalled] [${project.version}  ] security-pep-serviceauthz                security-services-app-${project.version} DDF Security PEP Service AuthZ
+[uninstalled] [${project.version}  ] security-pep-user-attributes             security-services-app-${project.version} DDF Security PEP User Attributes Expansion
+[uninstalled] [${project.version}  ] security-pep-metacard-attributes         security-services-app-${project.version} DDF Security PEP Metacard Attributes Expansion
+[installed  ] [${project.version}  ] security-sts-server                      security-services-app-${project.version} DDF Security STS.
+[installed  ] [${project.version}  ] security-sts-realm                       security-services-app-${project.version} DDF Security STS Realm.
+[uninstalled] [${project.version}  ] security-sts-ldaplogin                   security-services-app-${project.version} DDF Security STS JAAS LDAP Login.
+[uninstalled] [${project.version}  ] security-sts-ldapclaimshandler           security-services-app-${project.version} Retrieves claims attributes from an LDAP store.
+----
+. Check the bundle status to verify the service is started. +
+`${branding-lowercase}${at-symbol}local>list`
+
+The console output should show an entry similar to the following:
+----
+[ 117] [Active     ] [            ] [Started] [   75] ${ddf-branding} :: Catalog :: Source :: Dummy (<version>)
+----
+
+====== Uninstall Features
+
+. Check the feature list to verify the feature is installed properly. +
+`${branding-lowercase}${at-symbol}local>features:list`
+
+----
+State         Version          Name                          Repository  		   Description
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-core                      ddf-${project.version}
+[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-sts                       ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-security-common           ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
+----
+
+. Uninstall the feature. +
+`${branding-lowercase}${at-symbol}local>features:uninstall ${branding-lowercase}-source-dummy`
+
+[WARNING]
+====
+Dependencies that were auto-installed by the feature are not automatically uninstalled.
+====
+
+. Verify that the feature has uninstalled properly. +
+`${branding-lowercase}${at-symbol}local>features:list`
+
+----
+State         Version          Name                          Repository  Description
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-core                      ddf-${project.version}
+[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-sts                       ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-security-common           ddf-${project.version}
+[installed  ] [${project.version}         ] ${ddf-branding-lowercase}-resource-impl             ddf-${project.version}
+[uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
+----
+
+===== Configuring HTTP Port from the {command-console}
+
+
+==== Configuring HTTP to HTTPS Proxy From the {command-console}
+
+[NOTE]
+====
+If ${branding} has not been installed, use the <<How to install this feature using the Admin Console>> guide.
+====
+
+. Type the command `features:install platform-http-proxy`

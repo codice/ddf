@@ -1,0 +1,272 @@
+
+=== Configuring ${branding}
+
+${branding} can be configured in several ways, depending on need:
+
+* Using the browser and the {admin-console}. <<Configuring ${branding} From the {admin-console}>>
+* Using a terminal and the {command-console}. <<Configuring ${branding} From the {command-console}>>
+* Editing configuration files. <<Configuring ${branding} From Configuration Files>>
+* Importing the configurations from an existing ${branding} instance. <<Importing / Exporting Configurations>>
+
+==== Managing Features
+
+${branding} includes many components, packaged as _features_, that can be installed and/or uninstalled without restarting the system.
+Features are collections of OSGi bundles, configuration data, and/or other features.
+
+.Transitive Dependencies
+[NOTE]
+====
+Features may have dependencies on other features and will auto-install them as needed.
+====
+
+==== Configuring ${branding} with New Certificates
+
+${branding} ships with a default security certificate configured to identify the instance machine as `localhost`.
+This allows the distribution to be unzipped and run immediately in a secure manner.
+If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
+If the hostname was left as `localhost` or the hostname was changed after installation, in order to access the ${branding} instance from another machine over HTTPS (now the default for many services) the default certificates need to be replaced with a certificates that use the fully qualified hostname of the server running the ${branding} instance.
+
+.Important Terms for Certificates
+[cols="3" options="header"]
+|===
+
+|Term
+|Definition
+|Example Value
+
+|`<${branding}_HOME>`
+|The path to the unzipped ${branding} distribution
+|`/opt/${branding-lowercase}/${branding-lowercase}-${project.version}`
+
+|alias
+|The nickname given to a certificate within a keystore to make it easily identifiable. Normally, the alias should be the FQDN.
+|`localhost`
+
+|certificate
+|A combination of an entity's identity information with the entity's public key.
+The entity can be a person, organization, or something else, but in this case the entity is a computer on the network.
+To be valid, a certificate must be digitally (cryptographically) signed by a certificate authority.
+By signing a certificate, the CA attests that the public key truly belongs to the entity and no one else.
+See also *PKIX*.
+|`<FQDN>.crt`
+
+|CN
+|Common Name - The FQDN of the ${branding} instance as defined within the Certificate.
+|`search.codice.org`
+
+|certification path
+|A list of certificates, starting with the server's certificate and followed certificate of the CA who signed the server's CSR.
+The list of certificates continues, with each subsequent certificate belonging to the CA that signed the current CA's certificate.
+This chain continues until it reaches a trusted anchor, or root CA certificate.
+The chain establishes a link between the trust anchor and the server's certificate.
+See https://tools.ietf.org/html/rfc4158[IETF RFC 4158] for details.
+|
+
+|chain of trust
+|See certification path.
+|
+
+|CSR
+|Certificate Signing Request. A certificate that has not yet been signed by a certificate auhority.
+|`<FQDN>.csr`
+
+|digital certificate
+|See *certificate*.
+|
+
+|FQDN
+|Fully Qualified Domain Name
+|`search.codice.org`
+
+|HTTPS
+|Hyper-Text Transfer Protocol Secure.
+An encrypted alternative to HTTP.
+The HTTP connection is encrypted over TLS.
+See https://tools.ietf.org/html/rfc2818[IETF RFC 2818] for more information.
+|`https://`
+
+|JKS
+|Java *keystore*.
+A dictionary of cryptographic objects (e.g. private keys, certificates) referenced by an *alias*.
+The JKS format is specific to Java.
+|
+
+|keystore
+|Refers to either a JKS keystore or a PKCS#12 keystore.
+For the purposes of these instructions, a keystore is always a file.
+|
+
+|keytool
+|The Java keytool is a key and certificate management command line utility.
+|
+
+|openssl
+|The openssl program is a command line tool for using the various cryptography functions of OpenSSL's crypto library from the shell.
+|
+
+|PKCS#12
+|Personal Information Exchange Syntax.
+A standard that allows certificates, private keys, and optional attributes to be combined into a single file.
+See https://tools.ietf.org/html/rfc7292[IETF RFC 7292] for more information.
+|<FQDN>.p12
+
+|PKIX
+|A public key infrastructure also known as X.509.
+It is documented in the https://www.ietf.org/html/rfc5280[IEFT RFC 5280] and defines what a *certificate* is.
+|
+
+|PORT
+|TCP Port of service
+|`8993`
+
+|security certificate
+|See *certificate*.
+|
+
+|TLS
+|Transport Layer Security protocol.
+Provides privacy and data integrity between client and server.
+See https://tools.ietf.org/html/rfc5246[IETF RFC 5246] for more information.
+|
+
+|===
+
+==== Configuring ${branding} Web Service Providers
+
+By default Solr, STS server, STS client and the rest of the services use the system property `org.codice.${ddf-branding}.system.hostname` which is defaulted to 'localhost' and not to the fully qualified domain name of the ${branding} instance.
+Assuming the ${branding} instance is providing these servcies, the configuration must be updated to use the *fully qualified domain name* as the service provider.
+
+This can be changed during <<Initial Configuration>> or later by editing the `<INSTALL_DIRECTORY>/etc/system.properties` file. See <<Editing ${branding} Web Service Providers Configuration Files>>
+
+===== Creating and Installing Keys and Certificates
+
+To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
+To use the scripts, run them out of the <${branding}_HOME>/etc/certs directory. For *NIX, use the CertNew.sh script.
+
+`sh CertNew.sh <FQDN>`
+
+The above command creates a new entry in the keystore for a server named `my.server.com`.
+To create and install the certificates on Windows, use the `CertNew.cmd` file in the same directory.
+
+`CertNew <FQDN>`
+
+To install a certificate signed by a different Certificate Authority, see <<Import into a Java Keystore (JKS)>>.
+
+===== Restart and Test
+
+Finally, restart the ${branding} instance.
+Browse the {admin-console} at \https://<FQDN>:8993/admin to test changes.
+
+[WARNING]
+====
+If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
+====
+
+[TIP]
+====
+The ${branding} instance can be tested even if there is no entry for the FQDN in the DNS.
+First, test if the FQDN is already recognized.
+Execute this command:
+
+`ping <FQDN>`
+
+If the command responds with an error message such as unknown host, then modify the system's `hosts` file to point the server's FQDN to the loopback address.
+For example:
+
+`127.0.0.1 <FQDN>`
+====
+
+[NOTE]
+====
+By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled.
+To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
+
+`Enable Backup Plugin: true`
+====
+
+[IMPORTANT]
+====
+The Embedded LDAP has hard-coded values for the keystore path, truststore path, keystore password, and truststore password (https://github.com/codice/opendj-osgi/blob/d5021cbac4db831467ceb109ffd7ffd2c734dcd4/embedded/opendj-embedded-server/src/main/resources/config/config.ldif).
+So if using a non-default keystore and non-default truststore, the Embedded LDAP will not work.
+You will see errors in `<${branding-lowercase}-home>/etc/org.codice.opendj/ldap/logs/errors` similar to the one below:
+
+[source]
+----
+`21/Jan/2015:08:58:57 -0700] category=CORE severity=NOTICE msgID=458891 msg=The Directory Server has sent an alert notification generated by class org.opends.server.protocols.ldap.LDAPConnectionHandler (alert type org.opends.server.LDAPHandlerDisabledByConsecutiveFailures, alert ID 2425016):  The LDAP connection handler defined in configuration entry cn=LDAP Connection Handler,cn=Connection Handlers,cn=config has experienced consecutive failures while trying to accept client connections:  An error occurred while attempting to initialize the SSL context for use in the LDAP Connection Handler:  An error occurred while trying to load the keystore contents from file ../../keystores/serverKeystore.jks:  IOException(Keystore was tampered with, or password was incorrect) (id=1310782) (LDAPConnectionHandler.java:1324 LDAPConnectionHandler.java:1255 LDAPConnectionHandler.java:1091 LDAPConnectionHandler.java:974).  This connection handler will be disabled`
+----
+
+A workaround is to modify `config.ldif` as seen in the steps below and hot deploy `opendj-embedded-app-<version>.kar.`
+====
+
+** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`.  This needs to be modified.
+*** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
+*** `ds-cfg-key-store-type: JKS`
+*** `ds-cfg-key-store-pin: password`
+*** `cn: JKS`
+** The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
+*** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
+*** `ds-cfg-trust-store-pin: password`
+*** `cn: JKS`
+
+==== Configuring ${branding} to use an LDAP server
+
+[WARNING]
+====
+The configurations for Security STS LDAP and Roles Claims Handler and Security STS LDAP Login contain plain text default passwords for the embedded LDAP, which is insecure to use in production.
+====
+
+Use the encryption service, described in <<Encryption Service>>, on the command line to set passwords for your LDAP server.
+Then change the LDAP Bind User Password in the configurations to use the encrypted password.
+
+==== Standalone Security Token Service (STS) Installation
+
+To run a STS-only ${branding} installation, uninstall the catalog components that are not being used.
+The following list displays the features that can be uninstalled to minimize the runtime size of ${branding} in an STS-only mode.
+This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.
+
+.Unnecessary Features
+* `catalog-core-standardframework`
+* `catalog-solr-embedded-provider`
+* `catalog-opensearch-endpoint`
+* `catalog-opensearch-souce`
+* `catalog-rest-endpoint`
+
+===== STS Claims Handlers
+
+Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
+An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
+These attributes are then mapped and added to the SAML assertion being created.
+Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
+
+====== Description
+
+A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
+A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
+
+////
+ADMIN CONSOLE
+////
+
+==== Configuring ${branding} from the {admin-console}
+include::configuring-from-the-admin-console-contents.adoc[]
+
+////
+COMMAND CONSOLE SECTION
+////
+
+==== Configuring ${branding} from the {command-console}
+include::configuring-from-the-command-console-contents.adoc[]
+
+////
+CONFIGURATION FILES
+////
+
+==== Configuring ${branding} from Configuration Files
+include::configuring-from-configuration-files-contents.adoc[]
+
+////
+IMPORTING / EXPORTING
+////
+
+==== Importing / Exporting Configurations
+include::configuring-from-import-contents.adoc[]

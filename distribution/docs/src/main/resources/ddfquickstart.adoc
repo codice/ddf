@@ -1,4 +1,4 @@
-= {branding} Quick Start
+= ${branding} Quick Start
 include::./_contents/config.adoc[]
 
 == Overview

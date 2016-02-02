@@ -1,7 +1,6 @@
 Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
 :toc: left
-:branding: DDF
 :admin-console: Admin Console
 :command-console: Command Console
 :icons: font
@@ -10,6 +9,7 @@ Version ${version}. Copyright (c) Codice Foundation
 :data-uri:
 :sectlinks:
 :sectanchors:
+:branding: DDF
 :title-logo: logo_ddf.png
 :last-update-label: Copyright (c) Codice Foundation. +
 This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). +
