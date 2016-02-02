@@ -110,7 +110,7 @@ public class TestCswRecordMetacardType {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 12, 25);
         Date cswModifiedDate = cal.getTime();
-        metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate);
+        metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate.toString());
         metacard.setAttribute(CswRecordMetacardType.CSW_DESCRIPTION, "abstract_1");
         String cswSpatial =
                 "<dc:spatial><dcmiBox:Box name=\"Geographic\" projection=\"EPSG:4326\"><dcmiBox:northlimit units=\"decimal degrees\">42.01</dcmiBox:northlimit><dcmiBox:eastlimit units=\"decimal degrees\">-109.21</dcmiBox:eastlimit><dcmiBox:southlimit units=\"decimal degrees\">36.98</dcmiBox:southlimit><dcmiBox:westlimit units=\"decimal degrees\">-114.1</dcmiBox:westlimit></dcmiBox:Box></dc:spatial>";
@@ -138,8 +138,8 @@ public class TestCswRecordMetacardType {
                 .getValue(), equalTo("subject_1"));
         assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_RELATION)
                 .getValue(), equalTo("relation_1"));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
-                .getValue(), equalTo(cswModifiedDate));
+        assertThat(metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo(cswModifiedDate.toString()));
         assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_DESCRIPTION)
                 .getValue(), equalTo("abstract_1"));
         assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_SPATIAL)
@@ -170,7 +170,7 @@ public class TestCswRecordMetacardType {
         Calendar cal = Calendar.getInstance();
         cal.set(2013, 12, 25);
         Date cswModifiedDate = cal.getTime();
-        metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate);
+        metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate.toString());
 
         AttributeImpl cswSubjects = new AttributeImpl(CswRecordMetacardType.CSW_SUBJECT,
                 "subject_1");
@@ -182,8 +182,8 @@ public class TestCswRecordMetacardType {
                 .getValue(), equalTo("identifier_1"));
 
         // verifies DATE_TYPE attribute storage and retrieval
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
-                .getValue(), equalTo(cswModifiedDate));
+        assertThat(metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo(cswModifiedDate.toString()));
 
         // verifies multi-value attribute storage and retrieval
         List<?> subjects = (List<?>) metacard.getAttribute(CswRecordMetacardType.CSW_SUBJECT)
@@ -222,22 +222,22 @@ public class TestCswRecordMetacardType {
         metacard.setAttribute(CswRecordMetacardType.CSW_DATE, cswDate);
         cal.set(2013, 1, 1);
         Date cswModifiedDate = cal.getTime();
-        metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate);
+        metacard.setAttribute(CswRecordMetacardType.CSW_MODIFIED, cswModifiedDate.toString());
         cal.set(2012, 2, 2);
         Date cswCreatedDate = cal.getTime();
-        metacard.setAttribute(CswRecordMetacardType.CSW_CREATED, cswCreatedDate);
+        metacard.setAttribute(CswRecordMetacardType.CSW_CREATED, cswCreatedDate.toString());
         cal.set(2013, 3, 3);
         Date cswDateAccepted = cal.getTime();
-        metacard.setAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED, cswDateAccepted);
+        metacard.setAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED, cswDateAccepted.toString());
 
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE)
+        assertThat(metacard.getAttribute(CswRecordMetacardType.CSW_DATE)
                 .getValue(), equalTo(cswDate));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
-                .getValue(), equalTo(cswModifiedDate));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_CREATED)
-                .getValue(), equalTo(cswCreatedDate));
-        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED)
-                .getValue(), equalTo(cswDateAccepted));
+        assertThat(metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo(cswModifiedDate.toString()));
+        assertThat(metacard.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo(cswCreatedDate.toString()));
+        assertThat(metacard.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED)
+                .getValue(), equalTo(cswDateAccepted.toString()));
     }
 
     @Test

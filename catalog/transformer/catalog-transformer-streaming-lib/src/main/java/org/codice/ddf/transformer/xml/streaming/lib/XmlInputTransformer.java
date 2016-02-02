@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -305,10 +306,14 @@ class DynamicMetacardType implements MetacardType {
 
     Set<AttributeDescriptor> attributeDescriptors;
 
+    Map<String, List<AttributeDescriptor>> attributeDescriptorMap;
+
     String name;
 
     public DynamicMetacardType(Set<AttributeDescriptor> attDesc, String name) {
         this.attributeDescriptors = attDesc;
+        this.attributeDescriptorMap = attributeDescriptors.stream()
+                .collect(Collectors.groupingBy(AttributeDescriptor::getName));
         this.name = name + ".metacard";
     }
 
@@ -324,10 +329,10 @@ class DynamicMetacardType implements MetacardType {
 
     @Override
     public AttributeDescriptor getAttributeDescriptor(String attributeName) {
-        return attributeDescriptors.stream()
-                .filter(p -> p.getName()
-                        .equals(attributeName))
-                .collect(Collectors.toList())
-                .get(0);
+        if (attributeDescriptorMap.containsKey(attributeName)) {
+            return attributeDescriptorMap.get(attributeName)
+                    .get(0);
+        }
+        return null;
     }
 }
