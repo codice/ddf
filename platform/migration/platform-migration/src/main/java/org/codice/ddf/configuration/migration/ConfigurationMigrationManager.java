@@ -30,10 +30,12 @@ import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -110,13 +112,14 @@ public class ConfigurationMigrationManager
             migrationWarnings.addAll(systemConfigurationMigration.export(exportDirectory));
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
-            String message = "Unable to create export directories.";
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            LOGGER.error("Unable to create export directories", e);
+            throw new ExportMigrationException("Unable to create export directories", e);
+        } catch (MigrationException e) {
+            LOGGER.error("Export operation failed", e);
+            throw e;
         } catch (RuntimeException e) {
-            String message = "Failure to export, internal error occurred.";
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            LOGGER.error("Failure to export, internal error occurred", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
 
         return migrationWarnings;
@@ -155,7 +158,7 @@ public class ConfigurationMigrationManager
             LOGGER.error(
                     "Export failed: could not get list of Migratable service references from bundle context",
                     e);
-            throw new MigrationException("Failure to export, internal error occurred.", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
     }
 }
