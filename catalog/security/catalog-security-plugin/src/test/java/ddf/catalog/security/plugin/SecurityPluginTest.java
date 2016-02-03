@@ -18,7 +18,9 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.mock;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,18 +30,63 @@ import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.UpdateRequest;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
 public class SecurityPluginTest {
 
     @Test
-    public void testNominalCase() throws Exception {
+    public void testNominalCaseCreate() throws Exception {
         Subject subject = mock(Subject.class);
         ThreadContext.bind(subject);
         CreateRequest request = new MockCreateRequest();
         SecurityPlugin plugin = new SecurityPlugin();
         request = plugin.processPreCreate(request);
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+    }
+
+    @Test
+    public void testNominalCaseUpdate() throws Exception {
+        Subject subject = mock(Subject.class);
+        ThreadContext.bind(subject);
+        UpdateRequest request = new MockUpdateRequest();
+        SecurityPlugin plugin = new SecurityPlugin();
+        request = plugin.processPreUpdate(request, new HashMap<>());
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+    }
+
+    @Test
+    public void testNominalCaseDelete() throws Exception {
+        Subject subject = mock(Subject.class);
+        ThreadContext.bind(subject);
+        DeleteRequest request = new MockDeleteRequest();
+        SecurityPlugin plugin = new SecurityPlugin();
+        request = plugin.processPreDelete(request);
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+    }
+
+    @Test
+    public void testNominalCaseQuery() throws Exception {
+        Subject subject = mock(Subject.class);
+        ThreadContext.bind(subject);
+        QueryRequest request = new MockQueryRequest();
+        SecurityPlugin plugin = new SecurityPlugin();
+        request = plugin.processPreQuery(request);
+        assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
+    }
+
+    @Test
+    public void testNominalCaseResource() throws Exception {
+        Subject subject = mock(Subject.class);
+        ThreadContext.bind(subject);
+        ResourceRequest request = new MockResourceRequest();
+        SecurityPlugin plugin = new SecurityPlugin();
+        request = plugin.processPreResource(request);
         assertThat(request.getPropertyValue(SecurityConstants.SECURITY_SUBJECT), equalTo(subject));
     }
 
@@ -108,6 +155,167 @@ public class SecurityPluginTest {
         @Override
         public Map<String, Serializable> getProperties() {
             return props;
+        }
+    }
+
+    public static class MockUpdateRequest implements UpdateRequest {
+        private Map<String, Serializable> props = new HashMap<>();
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return props.keySet();
+        }
+
+        @Override
+        public Serializable getPropertyValue(String name) {
+            return props.get(name);
+        }
+
+        @Override
+        public boolean containsPropertyName(String name) {
+            return props.containsKey(name);
+        }
+
+        @Override
+        public boolean hasProperties() {
+            return true;
+        }
+
+        @Override
+        public Map<String, Serializable> getProperties() {
+            return props;
+        }
+
+        @Override
+        public String getAttributeName() {
+            return "";
+        }
+
+        @Override
+        public List<Map.Entry<Serializable, Metacard>> getUpdates() {
+            return new ArrayList<>();
+        }
+    }
+
+    public static class MockDeleteRequest implements DeleteRequest {
+        private Map<String, Serializable> props = new HashMap<>();
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return props.keySet();
+        }
+
+        @Override
+        public Serializable getPropertyValue(String name) {
+            return props.get(name);
+        }
+
+        @Override
+        public boolean containsPropertyName(String name) {
+            return props.containsKey(name);
+        }
+
+        @Override
+        public boolean hasProperties() {
+            return true;
+        }
+
+        @Override
+        public Map<String, Serializable> getProperties() {
+            return props;
+        }
+
+        @Override
+        public String getAttributeName() {
+            return "";
+        }
+
+        @Override
+        public List<? extends Serializable> getAttributeValues() {
+            return null;
+        }
+    }
+
+    public static class MockQueryRequest implements QueryRequest {
+        private Map<String, Serializable> props = new HashMap<>();
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return props.keySet();
+        }
+
+        @Override
+        public Serializable getPropertyValue(String name) {
+            return props.get(name);
+        }
+
+        @Override
+        public boolean containsPropertyName(String name) {
+            return props.containsKey(name);
+        }
+
+        @Override
+        public boolean hasProperties() {
+            return true;
+        }
+
+        @Override
+        public Map<String, Serializable> getProperties() {
+            return props;
+        }
+
+        @Override
+        public Query getQuery() {
+            return mock(Query.class);
+        }
+
+        @Override
+        public Set<String> getSourceIds() {
+            return new HashSet<>();
+        }
+
+        @Override
+        public boolean isEnterprise() {
+            return false;
+        }
+    }
+
+    public static class MockResourceRequest implements ResourceRequest {
+        private Map<String, Serializable> props = new HashMap<>();
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return props.keySet();
+        }
+
+        @Override
+        public Serializable getPropertyValue(String name) {
+            return props.get(name);
+        }
+
+        @Override
+        public boolean containsPropertyName(String name) {
+            return props.containsKey(name);
+        }
+
+        @Override
+        public boolean hasProperties() {
+            return true;
+        }
+
+        @Override
+        public Map<String, Serializable> getProperties() {
+            return props;
+        }
+
+        @Override
+        public String getAttributeName() {
+            return "";
+        }
+
+        @Override
+        public Serializable getAttributeValue() {
+            return "";
         }
     }
 }

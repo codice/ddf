@@ -13,6 +13,8 @@
  */
 package ddf.catalog.security.plugin;
 
+import java.util.Map;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -46,7 +49,8 @@ public class SecurityPlugin implements AccessPlugin {
     }
 
     @Override
-    public UpdateRequest processPreUpdate(UpdateRequest input) throws StopProcessingException {
+    public UpdateRequest processPreUpdate(UpdateRequest input,
+            Map<String, Metacard> existingMetacards) throws StopProcessingException {
         setSubject(input);
         return input;
     }
@@ -54,6 +58,11 @@ public class SecurityPlugin implements AccessPlugin {
     @Override
     public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
         setSubject(input);
+        return input;
+    }
+
+    @Override
+    public DeleteResponse processPostDelete(DeleteResponse input) throws StopProcessingException {
         return input;
     }
 

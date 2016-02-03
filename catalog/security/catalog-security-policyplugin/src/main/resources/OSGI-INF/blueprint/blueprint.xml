@@ -13,10 +13,25 @@
 -->
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="ingestPlugin" class="ddf.catalog.security.ingest.IngestPlugin">
-        <cm:managed-properties persistent-id="ddf.catalog.security.ingest.IngestPlugin"
+    <bean id="ingestPlugin" class="org.codice.ddf.catalog.security.CatalogPolicy">
+        <cm:managed-properties persistent-id="org.codice.ddf.catalog.security.CatalogPolicy"
                                update-strategy="container-managed" />
-        <property name="permissionStrings">
+        <property name="createPermissions">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+            </array>
+        </property>
+        <property name="updatePermissions">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+            </array>
+        </property>
+        <property name="deletePermissions">
+            <array>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+            </array>
+        </property>
+        <property name="readPermissions">
             <array>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
             </array>

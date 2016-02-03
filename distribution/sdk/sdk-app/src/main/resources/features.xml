@@ -28,10 +28,6 @@
         <bundle>mvn:ddf.distribution/sample-metacard-filter/${project.version}</bundle>
     </feature>
 
-    <feature name="filter-plugin" version="${project.version}" install="manual"
-             description="Catalog Filter Plugin for DDF">
-        <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
-    </feature>
     <feature name="sdk-rest" version="${project.version}" install="manual"
              description="SDK Sample rest service whoami">
         <bundle>mvn:ddf.distribution/sample-rest-endpoint/${project.version}</bundle>
