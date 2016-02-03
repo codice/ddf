@@ -1,0 +1,35 @@
+{
+  "name": "pom-fix",
+  "version": "2.9.0",
+  "description": "Fix the poms!",
+  "bin": {
+    "pom-fix": "./bin/pom-fix"
+  },
+  "scripts": {
+    "pretest": "standard lib/*.js test/*.js",
+    "test": "tap test/"
+  },
+  "author": "Codice",
+  "license": "LGPL-3.0",
+  "dependencies": {
+    "chalk": "^1.1.1",
+    "cheerio": "^0.19.0",
+    "commander": "^2.9.0",
+    "event-stream": "^3.3.2",
+    "readdirp": "^2.0.0",
+    "stream-combiner": "^0.2.2",
+    "vkbeautify": "^0.99.1"
+  },
+  "devDependencies": {
+    "standard": "^5.4.1",
+    "tap": "^5.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "private": true
+}

@@ -25,6 +25,8 @@
     <name>DDF Lib</name>
     <description>DDF Libraries</description>
     <modules>
+        <module>libs-pomfix</module>
+        <module>libs-pomfix-run</module>
         <module>activities</module>
         <module>httpproxy</module>
         <module>notifications</module>
