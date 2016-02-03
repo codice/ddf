@@ -46,7 +46,7 @@ public class MetacardAttributeDescriptor implements AttributeDescriptor, Attribu
 
     @Override
     public boolean isMultiValued() {
-        return false;
+        return propertyDescriptor.isIndexed();
     }
 
     @Override

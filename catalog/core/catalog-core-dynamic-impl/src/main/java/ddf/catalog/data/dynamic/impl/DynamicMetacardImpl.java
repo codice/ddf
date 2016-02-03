@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.commons.beanutils.LazyDynaBean;
 import org.apache.commons.collections.CollectionUtils;
@@ -70,21 +69,6 @@ import ddf.catalog.data.impl.AttributeImpl;
 public class DynamicMetacardImpl implements DynamicMetacard {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicMetacardImpl.class);
 
-    // Constants provided by Metacard
-    //public static final String CREATED_DATE = "createdDate"; // -> CREATED
-    //public static final String MODIFIED_DATE = "modifiedDate"; // -> MODIFIED
-    //public static final String EXPIRATION_DATE = "expirationDate";  // -> EXPIRATION
-    //public static final String EFFECTIVE_DATE = "effectiveDate"; // -> EFFECTIVE
-    //public static final String ID = "id";
-    //public static final String THUMBNAIL = "thumbnail";
-    //public static final String TITLE = "title";
-    //public static final String METADATA = "metadata";
-    //public static final String POINT_OF_CONTACT = "pointOfContact";
-    //public static final String DESCRIPTION = "description";
-    //public static final String RESOURCE_URI = "resourceURI";
-    //public static final String RESOURCE_SIZE = "resourceSize";
-    //public static final String SECURITY = "security";
-
     private LazyDynaBean attributesBean;
     private ArrayList<String> metacardTypes = new ArrayList<>();
 
@@ -96,19 +80,17 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      * Creates a {@link Metacard} from the provided {@link DynaClass} with empty
      * {@link Attribute}s.
      */
+/*
     public DynamicMetacardImpl(DynaClass dynaClass) {
         attributesBean = new LazyDynaBean(dynaClass);
     }
+*/
 
     /**
      * Creates a {@link Metacard} from the provided {@link LazyDynaBean} or another DynamicMetacardImpl
      * with empty {@link Attribute}s.
      */
     public DynamicMetacardImpl(LazyDynaBean dynaBean) {
-        attributesBean = dynaBean;
-    }
-
-    public void setAttributesBean(LazyDynaBean dynaBean) {
         attributesBean = dynaBean;
     }
 
@@ -399,12 +381,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
         if (o instanceof String) {
             s = (String) o;
         } else {
-            LOGGER.warn("Unexpected data type retrieving {}: {}",
-                    attributeName,
-                    o == null ?
-                            "null" :
-                            o.getClass()
-                                    .getName());
+            logUnexpectedDataType(attributeName, o);
         }
         return s;
     }
@@ -421,12 +398,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
         if (o instanceof Date) {
             date = (Date) o;
         } else {
-            LOGGER.warn("Unexpected data type retrieving {}: {}",
-                    attributeName,
-                    o == null ?
-                            "null" :
-                            o.getClass()
-                                    .getName());
+            logUnexpectedDataType(attributeName, o);
         }
         return date;
     }
@@ -446,12 +418,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
                 binary = null;
             }
         } else {
-            LOGGER.warn("Unexpected data type retrieving {}: {}",
-                    attributeName,
-                    o == null ?
-                            "null" :
-                            o.getClass()
-                                    .getName());
+            logUnexpectedDataType(attributeName, o);
         }
         return binary;
     }
@@ -477,14 +444,15 @@ public class DynamicMetacardImpl implements DynamicMetacard {
                         e.getMessage());
             }
         } else {
-            LOGGER.warn("Unexpected data type retrieving {}: {}",
-                    attributeName,
-                    o == null ?
-                            "null" :
-                            o.getClass()
-                                    .getName());
+            logUnexpectedDataType(attributeName, o);
         }
         return uri;
+    }
+
+    private void logUnexpectedDataType(String attributeName, Object o) {
+        LOGGER.warn("Unexpected data type retrieving {}: {}",
+                attributeName,
+                o == null ? "null" : o.getClass().getName());
     }
 
     /**
@@ -523,7 +491,14 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      */
     @Override
     public AttributeDescriptor getAttributeDescriptor(String s) {
-        return null;
+        AttributeDescriptor descriptor = null;
+        if (s != null) {
+            DynaProperty dynaProperty = attributesBean.getDynaClass().getDynaProperty(s);
+            if (dynaProperty != null) {
+                descriptor = new MetacardAttributeDescriptor(dynaProperty);
+            }
+        }
+        return descriptor;
     }
 
     /**
@@ -535,6 +510,11 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      */
     @Override
     public void addAttribute(String name, Object value) {
+        if (name == null) {
+            LOGGER.warn("Call to add attribute with null name - no action taken.");
+            return;
+        }
+
         DynaProperty dynaProperty = attributesBean.getDynaClass().getDynaProperty(name);
         if (value instanceof URI) {
             value = ((URI) value).toString();
@@ -582,6 +562,11 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      */
     @Override
     public void setAttribute(String name, Object value) {
+        if (name == null) {
+            LOGGER.warn("Call to set attribute with null name - no action taken.");
+            return;
+        }
+
         DynaProperty dynaProperty = attributesBean.getDynaClass()
                 .getDynaProperty(name);
         if (value == null) {

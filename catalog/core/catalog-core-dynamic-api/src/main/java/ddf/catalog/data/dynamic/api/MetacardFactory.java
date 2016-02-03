@@ -29,7 +29,7 @@ public interface MetacardFactory {
      * @param name the name of the metacard type to create
      * @return an instance of a dynamic metacard of the type whose name was provided
      */
-    DynamicMetacard newInstance(String name);
+    DynamicMetacard newInstance(String name) throws IllegalArgumentException;
 
     /**
      * Creates an instance of a dynamic metacard containing attributes corresponding to each

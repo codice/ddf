@@ -44,9 +44,6 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
 
     private static MetacardPropertyDescriptorImpl[] metacardPropertyDescriptors;
 
-    static {
-    }
-
     public MetacardFactoryImpl() {
 
         // register the base ddf type
@@ -170,6 +167,8 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
                 properties[i++] = getDynaProperty(descriptor);
             }
             LazyDynaClass dynaClass = new LazyDynaClass(name, properties);
+            // set to return null when getter is called with non-existent property
+            dynaClass.setReturnNull(true);
             LOGGER.info("Registering new dynamic metacard - name {}", dynaClass.getName());
             typeClasses.put(dynaClass.getName(), dynaClass);
             typeProperties.put(name, descriptors.toArray(new MetacardPropertyDescriptor[0]));
@@ -205,6 +204,7 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
         }
         typeProperties.put(name, descriptorArray);
         LazyDynaClass dynaClass = new LazyDynaClass(name, descriptorArray);
+        dynaClass.setReturnNull(true);
         LOGGER.info("Registering new dynamic metacard - name {}", dynaClass.getName());
         typeClasses.put(dynaClass.getName(), dynaClass);
 
