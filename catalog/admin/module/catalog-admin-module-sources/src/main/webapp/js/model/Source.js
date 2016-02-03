@@ -37,7 +37,7 @@ function (wreqr, Service, Backbone, _, poller, Status) {
             this.set('disabledConfigurations', new Source.ConfigurationList());
         },
         addDisabledConfiguration: function(configuration) {
-            if(this.get("disabledConfigurations")) {
+            if(this.get("disabledConfigurations") && !this.get("disabledConfigurations").contains(configuration)) {
                 this.get("disabledConfigurations").add(configuration);
             }
         },

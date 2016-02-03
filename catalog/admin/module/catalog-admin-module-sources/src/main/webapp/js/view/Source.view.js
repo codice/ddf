@@ -92,12 +92,14 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
             var optionSelected = $select.find("option:selected");
             var valueSelected = optionSelected.val();
             var cfgToDisable;
+            var deferred = $.Deferred().resolve();
 
             if (valueSelected === 'Disabled') {
                 cfgToDisable = currentConfig;
                 if (!_.isUndefined(cfgToDisable)) {
-                    cfgToDisable.makeDisableCall();
-                    model.removeConfiguration(cfgToDisable);
+                    deferred = deferred.then(function() {
+                        return cfgToDisable.makeDisableCall();
+                    });
                 }
             } else {
                 var cfgToEnable = disabledConfigs.find(function(cfg) {
@@ -106,15 +108,21 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
 
                 if (cfgToEnable) {
                     cfgToDisable = currentConfig;
-                    cfgToEnable.makeEnableCall();
-                    model.removeConfiguration(cfgToEnable);
+
                     if (!_.isUndefined(cfgToDisable)) {
-                        cfgToDisable.makeDisableCall();
-                        model.removeConfiguration(cfgToDisable);
+                        deferred = deferred.then(function() {
+                            return cfgToDisable.makeDisableCall();
+                        });
                     }
+
+                    deferred = deferred.then(function() {
+                        return cfgToEnable.makeEnableCall();
+                    });
                 }
             }
-            wreqr.vent.trigger('refreshSources');
+            deferred.then(function() {
+                wreqr.vent.trigger('refreshSources');
+            });
             evt.stopPropagation();
         },
         updateStatus: function(status) {
@@ -174,7 +182,7 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         editSource: function(service) {
             wreqr.vent.trigger("showModal",
                 new ModalSource.View({
-                    model: service,
+                    model: this.model.getSourceModelWithServices(service),
                     source: this.model,
                     mode: 'edit'
                 })
