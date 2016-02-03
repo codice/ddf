@@ -33,14 +33,19 @@
     </bean>
 
     <bean id="attributeQueryHandler"
-          class="org.codice.ddf.security.claims.attributequery.AttributeQueryClaimsHandler">
+          class="org.codice.ddf.security.claims.attributequery.common.AttributeQueryClaimsHandler">
         <cm:managed-properties persistent-id="ddf.security.sts.attributequery"
                                update-strategy="container-managed"/>
+        <property name="wsdlLocation" value=""/>
+        <property name="serviceName" value=""/>
+        <property name="portName" value=""/>
         <property name="externalAttributeStoreUrl" value=""/>
         <property name="attributeMapLocation" value=""/>
         <property name="simpleSign" ref="simpleSign"/>
         <property name="issuer" value=""/>
         <property name="destination" value=""/>
+        <property name="signatureProperties" ref="signatureProperties"/>
+        <property name="encryptionProperties" ref="encryptionProperties"/>
         <property name="supportedClaims">
             <list>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
@@ -50,6 +55,14 @@
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="encryptionProperties" class="ddf.security.sts.PropertiesWrapper">
+        <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
+    </bean>
+
+    <bean id="signatureProperties" class="ddf.security.sts.PropertiesWrapper">
+        <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
     </bean>
 
     <service ref="attributeQueryHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>

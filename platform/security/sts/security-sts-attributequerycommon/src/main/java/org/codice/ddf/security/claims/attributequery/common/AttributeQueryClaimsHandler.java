@@ -11,17 +11,27 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.claims.attributequery;
+package org.codice.ddf.security.claims.attributequery.common;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxws.DispatchImpl;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
@@ -49,6 +59,16 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     protected static final String ERROR_RETRIEVING_ATTRIBUTES_SEC_LOG =
             "Error retrieving attributes from external attribute store [%s] for DN [%s]. ";
 
+    private Object signatureProperties;
+
+    private Object encryptionProperties;
+
+    private String wsdlLocation;
+
+    private String serviceName;
+
+    private String portName;
+
     private String attributeMapLocation;
 
     private List<String> supportedClaims;
@@ -64,7 +84,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     protected String destination;
 
     public AttributeQueryClaimsHandler() {
-        LOGGER.debug("Starting AttributeQueryClaimsHandler");
+        LOGGER.debug("Creating {}", this.getClass());
     }
 
     /**
@@ -130,6 +150,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
 
     /**
      * Gets the attributes for the supplied user from the external attribute store.
+     * Returns null if the AttributeQueryClient is null.
      *
      * @param nameId used for the request.
      * @return The collection of attributes retrieved from the external attribute store.
@@ -140,13 +161,17 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
 
         LOGGER.debug("Sending AttributeQuery Request.");
 
+        AttributeQueryClient attributeQueryClient;
         Assertion assertion;
         try {
-            assertion = createAttributeQueryClient(simpleSign,
+            attributeQueryClient = createAttributeQueryClient(simpleSign,
                     externalAttributeStoreUrl,
                     issuer,
-                    destination).retrieveResponse(nameId);
-
+                    destination);
+            if (attributeQueryClient == null) {
+                return null;
+            }
+            assertion = attributeQueryClient.query(nameId);
             if (assertion != null) {
                 createClaims(claimCollection, assertion);
             }
@@ -182,8 +207,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                     String claimValue = attribute.getDOM()
                             .getTextContent();
                     if (attributeMap.containsKey(claimValue)) {
-                        claimsCollection.add(createSingleValuedClaim(claimType, attributeMap.get(
-                                claimValue)));
+                        claimsCollection.add(createSingleValuedClaim(claimType,
+                                attributeMap.get(claimValue)));
                     } else {
                         claimsCollection.add(createSingleValuedClaim(claimType, claimValue));
                     }
@@ -207,7 +232,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         ProcessedClaim claim = new ProcessedClaim();
 
         claim.setClaimType(new URI(claimType));
-        claim.setValues(ImmutableList.of(claimValue));
+        claim.setValues(ImmutableList.<Object>of(claimValue));
 
         LOGGER.debug("Created claim with type [{}] and value [{}].", claimType, claimValue);
 
@@ -215,8 +240,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     }
 
     /**
-     * Creates a client for sending an AttributeQuery
-     * request to a specified external attribute store.
+     * Creates a client to interface with an external attribute store via an AttributeQuery request.
      *
      * @param simpleSign                to create signature for request
      * @param externalAttributeStoreUrl endpoint of external web service
@@ -226,7 +250,81 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
      */
     protected AttributeQueryClient createAttributeQueryClient(SimpleSign simpleSign,
             String externalAttributeStoreUrl, String issuer, String destination) {
-        return new AttributeQueryClient(simpleSign, externalAttributeStoreUrl, issuer, destination);
+        Dispatch<StreamSource> dispatcher = createDispatcher(createService());
+        if (dispatcher == null) {
+            return null;
+        }
+        return new AttributeQueryClient(dispatcher,
+                simpleSign,
+                externalAttributeStoreUrl,
+                issuer,
+                destination);
+    }
+
+    /**
+     * Creates a dynamic service from the provided wsdl location.
+     */
+    protected Service createService() {
+        Service service = null;
+        URL wsdlURL;
+        if (StringUtils.isNotBlank(wsdlLocation) && StringUtils.isNotBlank(serviceName)) {
+            try {
+                URIResolver uriResolver = new URIResolver();
+                uriResolver.resolve("", wsdlLocation, this.getClass());
+                wsdlURL = uriResolver.isResolved() ? uriResolver.getURL() : new URL(wsdlLocation);
+                service = Service.create(wsdlURL, QName.valueOf(serviceName));
+            } catch (Exception e) {
+                LOGGER.error("Unable to create service from WSDL location.", e);
+            }
+        }
+        return service;
+    }
+
+    /**
+     * Creates a dispatcher for dispatching requests.
+     */
+    protected Dispatch<StreamSource> createDispatcher(Service service) {
+        Dispatch<StreamSource> dispatch = null;
+        if (service != null) {
+            dispatch = service.createDispatch(QName.valueOf(portName),
+                    StreamSource.class,
+                    Service.Mode.MESSAGE);
+            dispatch.getRequestContext()
+                    .put(Dispatch.ENDPOINT_ADDRESS_PROPERTY, externalAttributeStoreUrl);
+            dispatch.getRequestContext()
+                    .put("ws-security.signature.properties", signatureProperties);
+            dispatch.getRequestContext()
+                    .put("ws-security.encryption.properties", encryptionProperties);
+            ((DispatchImpl) dispatch).getClient()
+                    .getBus()
+                    .getOutInterceptors()
+                    .add(new LoggingInInterceptor());
+            ((DispatchImpl) dispatch).getClient()
+                    .getBus()
+                    .getOutInterceptors()
+                    .add(new LoggingOutInterceptor());
+        }
+        return dispatch;
+    }
+
+    public void setSignatureProperties(Object signatureProperties) {
+        this.signatureProperties = signatureProperties;
+    }
+
+    public void setEncryptionProperties(Object encryptionProperties) {
+        this.encryptionProperties = encryptionProperties;
+    }
+
+    public void setWsdlLocation(String wsdlLocation) {
+        this.wsdlLocation = wsdlLocation;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public void setPortName(String portName) {
+        this.portName = portName;
     }
 
     public void setSimpleSign(SimpleSign simpleSign) {

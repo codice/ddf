@@ -39,6 +39,7 @@
         <module>security-sts-guestvalidator</module>
         <module>security-sts-guestclaimshandler</module>
         <module>security-sts-attributequeryclaimshandler</module>
+        <module>security-sts-attributequerycommon</module>
         <module>security-sts-propertyclaimshandler</module>
     </modules>
 </project>
