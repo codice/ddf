@@ -51,6 +51,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import com.google.common.io.FileBackedOutputStream;
 import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
@@ -62,6 +64,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
+
 import net.sf.saxon.TransformerFactoryImpl;
 
 public class TikaInputTransformer implements InputTransformer {
@@ -84,10 +87,8 @@ public class TikaInputTransformer implements InputTransformer {
         }
 
         registerService(bundleContext);
-        IIORegistry.getDefaultInstance()
-                .registerServiceProvider(new J2KImageReaderSpi());
-        IIORegistry.getDefaultInstance()
-                .registerServiceProvider(new TIFFImageReaderSpi());
+        IIORegistry.getDefaultInstance().registerServiceProvider(new J2KImageReaderSpi());
+        IIORegistry.getDefaultInstance().registerServiceProvider(new TIFFImageReaderSpi());
     }
 
     @Override
@@ -113,13 +114,12 @@ public class TikaInputTransformer implements InputTransformer {
             }
 
             Parser parser = new AutoDetectParser();
-            ToXMLContentHandler handler = new ToXMLContentHandler();
+            ToXMLContentHandler handler = new EmptyBodyXMLHandler();
             TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
                     handler);
 
             Metadata metadata;
-            try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
-                    .openStream()) {
+            try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource().openStream()) {
                 metadata = tikaMetadataExtractor.parseMetadata(inputStreamCopy, new ParseContext());
             }
 
@@ -150,8 +150,7 @@ public class TikaInputTransformer implements InputTransformer {
     private void registerService(BundleContext bundleContext) {
         LOGGER.debug("Registering {} as an osgi service.",
                 TikaInputTransformer.class.getSimpleName());
-        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class,
-                this,
+        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this,
                 getServiceProperties());
     }
 
@@ -169,8 +168,7 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     private List<String> getSupportedMimeTypes() {
-        SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry()
-                .getTypes();
+        SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry().getTypes();
         List<String> mimeTypes = new ArrayList<>(mediaTypes.size());
 
         for (MediaType mediaType : mediaTypes) {
@@ -190,8 +188,7 @@ public class TikaInputTransformer implements InputTransformer {
 
             if (null != image) {
                 BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
-                        image.getHeight(null),
-                        BufferedImage.TYPE_INT_RGB);
+                        image.getHeight(null), BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = bufferedImage.createGraphics();
                 graphics.drawImage(image, null, null);
                 graphics.dispose();
@@ -224,4 +221,54 @@ public class TikaInputTransformer implements InputTransformer {
             return xhtml;
         }
     }
+
+    /*
+        XML handler that outputs empty body.
+     */
+    private static class EmptyBodyXMLHandler extends ToXMLContentHandler {
+        private boolean bodyStartTag = false;
+
+        private boolean bodyEndTag = false;
+
+        private boolean insideBodyTag() {
+            return bodyStartTag && !bodyEndTag ? true : false;
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (!this.insideBodyTag()) {
+                super.characters(ch, start, length);
+            }
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts)
+                throws SAXException {
+            if (!this.insideBodyTag()) {
+                super.startElement(uri, localName, qName, atts);
+            }
+            /*
+                - once found, stop checking.
+                - check after, so empty body tag is output
+             */
+            if (!bodyStartTag) {
+                bodyStartTag = "body".equals(localName);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            /*
+                - once found, stop checking.
+                - check before, so empty body tag is output
+             */
+            if (!bodyEndTag) {
+                bodyEndTag = "body".equals(localName);
+            }
+            if (!this.insideBodyTag()) {
+                super.endElement(uri, localName, qName);
+            }
+        }
+    }
+
 }
