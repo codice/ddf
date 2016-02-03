@@ -11,17 +11,18 @@
  *
  **/ -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="migrationUtil" class="org.codice.ddf.migration.util.MigratableUtil" />
-    
-    <bean id="platformMigratable" class="org.codice.ddf.platform.migratable.impl.PlatformMigratable">
-        <argument value="Exports Platform system files" />
-        <argument value="false" />
-        <argument ref="migrationUtil" />
+    <bean id="migratableUtil" class="org.codice.ddf.migration.util.MigratableUtil"/>
+
+    <bean id="securityMigratable"
+          class="org.codice.ddf.security.migratable.impl.SecurityMigratable">
+        <argument value="Exports Security system files"/>
+        <argument value="false"/>
+        <argument ref="migratableUtil"/>
     </bean>
 
-    <service id="platformMigratableService" ref="platformMigratable"
-        interface="org.codice.ddf.migration.Migratable" />
+    <service id="securityMigratableService" ref="securityMigratable"
+             interface="org.codice.ddf.migration.Migratable"/>
 </blueprint>

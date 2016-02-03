@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -60,28 +60,22 @@ public class ConfigurationMigrationManager
 
     private final ConfigurationAdminMigration configurationAdminMigration;
 
-    private final SystemConfigurationMigration systemConfigurationMigration;
-
     private final MBeanServer mBeanServer;
 
     /**
      * Constructor.
      *
-     * @param configurationAdminMigration  object used to export {@link org.osgi.service.cm.Configuration}
-     *                                     objects from {@link org.osgi.service.cm.ConfigurationAdmin}
-     * @param systemConfigurationMigration object used to export other system configuration files
-     * @param mBeanServer                  object used to register this object as an MBean
+     * @param configurationAdminMigration object used to export {@link org.osgi.service.cm.Configuration}
+     *                                    objects from {@link org.osgi.service.cm.ConfigurationAdmin}
+     * @param mBeanServer                 object used to register this object as an MBean
      */
     public ConfigurationMigrationManager(
             @NotNull ConfigurationAdminMigration configurationAdminMigration,
-            @NotNull SystemConfigurationMigration systemConfigurationMigration,
             @NotNull MBeanServer mBeanServer) {
         notNull(configurationAdminMigration, "ConfigurationAdminMigration cannot be null");
-        notNull(systemConfigurationMigration, "SystemConfigurationMigration cannot be null");
         notNull(mBeanServer, "MBeanServer cannot be null");
 
         this.configurationAdminMigration = configurationAdminMigration;
-        this.systemConfigurationMigration = systemConfigurationMigration;
         this.mBeanServer = mBeanServer;
     }
 
@@ -109,7 +103,6 @@ public class ConfigurationMigrationManager
         try {
             Files.createDirectories(exportDirectory);
             configurationAdminMigration.export(exportDirectory);
-            migrationWarnings.addAll(systemConfigurationMigration.export(exportDirectory));
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
             LOGGER.error("Unable to create export directories", e);

@@ -99,11 +99,6 @@
         <argument value="${configFileExtension}"/>
     </bean>
 
-    <bean id="systemConfigurationMigration"
-          class="org.codice.ddf.configuration.migration.SystemConfigurationMigration">
-        <argument ref="ddfHome"/>
-    </bean>
-
     <bean id="mBeanServer"
           class="java.lang.management.ManagementFactory"
           factory-method="getPlatformMBeanServer"/>
@@ -112,7 +107,6 @@
           class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager"
           init-method="init">
         <argument ref="configurationAdminMigration"/>
-        <argument ref="systemConfigurationMigration"/>
         <argument ref="mBeanServer"/>
     </bean>
 
