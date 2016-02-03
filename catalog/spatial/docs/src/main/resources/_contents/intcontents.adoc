@@ -549,14 +549,21 @@ The `GetRecords` operation request retrieves the default representation of catal
 This operation presumes that a previous query has been performed in order to obtain the identifiers that may be used with this operation.
 For example, records returned by a `GetRecords` operation may contain references to other records in the catalog that may be retrieved using the `GetRecordById` operation.
 This operation is also a subset of the `GetRecords` operation and is included as a convenient short form for retrieving and linking to records in a catalog.
+
+Clients can also retrieve products from the catalog using the `GetRecordById` operation.
+The client sets the output schema to `http://www.iana.org/assignments/media-types/application/octet-stream` and the output format to `application/octet-stream` within the request.
+The endpoint will do the following: check that only one Id is provided, otherwise an error will occur as multiple products cannot be retrieved.
+If both output format and output schema are set to values mentioned above, the catalog framework will retrieve the resource for that Id.
+The HTTP content type is then set to the resource's MIME type and the data is sent out.
+
 There are two request types: one for `GET` and one for `POST`.
 Each request has the following common data parameters:
 
 Namespace:: In POST operations, namespaces are defined in the XML. In GET operations namespaces are defined in a comma separated list of the form: xmlns([prefix=]namespace-url)(,xmlns([prefix=]namespace-url))*
 Service:: The service being used, in this case it is fixed at "CSW"
 Version:: The version of the service being used (2.0.2).
-OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
-OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+OutputFormat:: The requester wants the response to be in this intended output. Currently, two output formats are supported: `application/xml` for retrieving records, and `application/octet-stream` for retrieving a product. If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
+OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema). Additionally the output schema `http://www.iana.org/assignments/media-types/application/octet-stream` is recognized and used to retrieve a product.
 ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
 Id:: The Id parameter is a comma-separated list of record identifiers for the records that CSW returns to the client. In the XML encoding, one or more <Id> elements may be used to specify the record identifier to be retrieved.
 
