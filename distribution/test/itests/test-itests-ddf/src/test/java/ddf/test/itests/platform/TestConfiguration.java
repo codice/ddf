@@ -466,10 +466,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String response = console.runCommand(EXPORT_COMMAND);
 
-        assertThat(String.format("Should not have been able to export to %s.",
+        assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString("An error was encountered while executing this command."));
+                containsString(
+                        "Path [etc/system.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -485,10 +486,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String response = console.runCommand(EXPORT_COMMAND);
 
-        assertThat(String.format("Should not have been able to export to %s.",
+        assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString("An error was encountered while executing this command."));
+                containsString(
+                        "Path [etc/users.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -522,10 +524,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
         FileUtils.moveDirectory(PDP.toFile(), PDP_COPY.toFile());
 
         String response = console.runCommand(EXPORT_COMMAND);
-        assertThat(String.format("Should not have been able to export to %s.",
+        assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString("An error was encountered while executing this command."));
+                containsString(
+                        "Path [etc/pdp] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
