@@ -19,6 +19,7 @@ import java.util.Set;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Operation;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -47,7 +48,7 @@ public class OperationPlugin implements AccessPlugin {
     }
 
     @Override
-    public UpdateRequest processPreUpdate(UpdateRequest input) throws StopProcessingException {
+    public UpdateRequest processPreUpdate(UpdateRequest input, Map<String, Metacard> existingMetacards) throws StopProcessingException {
         checkOperation(input);
         return input;
     }
@@ -55,6 +56,11 @@ public class OperationPlugin implements AccessPlugin {
     @Override
     public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
         checkOperation(input);
+        return input;
+    }
+
+    @Override
+    public DeleteResponse processPostDelete(DeleteResponse input) throws StopProcessingException {
         return input;
     }
 

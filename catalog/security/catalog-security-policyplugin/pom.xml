@@ -19,8 +19,8 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>catalog-security-ingestplugin</artifactId>
-    <name>DDF :: Catalog :: Security :: Ingest Plugin</name>
+    <artifactId>catalog-security-policyplugin</artifactId>
+    <name>DDF :: Catalog :: Security :: Policy Plugin</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>

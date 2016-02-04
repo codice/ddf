@@ -25,7 +25,7 @@ import ddf.catalog.operation.ResourceResponse;
 
 /**
  * A PolicyPlugin is used to build policy information regarding the Catalog action a user is attempting.
- *
+ * <p/>
  * The {@link PolicyResponse} object contains 1 or more policy objects of the type: Map<String, Set<String>>.
  * Where the key is some attribute that you wish to assert against a Subject and Set<String> would be the values
  * associated with that key.
@@ -37,11 +37,11 @@ public interface PolicyPlugin {
     /**
      * Processes a {@link Metacard}, prior to ddf.catalog.source.CatalogProvider#create(ddf.catalog.operation.CreateRequest), to return policy information
      *
-     * @param input the {@link Metacard} to process
+     * @param input      the {@link Metacard} to process
      * @param properties the request properties
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
     PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException;
@@ -49,36 +49,47 @@ public interface PolicyPlugin {
     /**
      * Processes a {@link Metacard}, prior to ddf.catalog.source.CatalogProvider#update(ddf.catalog.operation.UpdateRequest), to return policy information
      *
-     * @param input the {@link Metacard} to process
-     * @param properties the request properties
+     * @param newMetacard the new {@link Metacard} to process
+     * @param properties  the request properties
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
-    PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
+    PolicyResponse processPreUpdate(Metacard newMetacard, Map<String, Serializable> properties)
             throws StopProcessingException;
 
     /**
      * Processes a {@link ddf.catalog.operation.DeleteRequest}, prior to ddf.catalog.source.CatalogProvider#delete(ddf.catalog.operation.DeleteRequest), to return policy information
      *
-     * @param attributeName the name of the attribute being used in the delete
-     * @param attributeValues the values of the attribute to use for the delete
+     * @param metacards  the list of metacards being deleted
      * @param properties the request properties
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
-    PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues, Map<String, Serializable> properties)
+    PolicyResponse processPreDelete(List<Metacard> metacards, Map<String, Serializable> properties)
+            throws StopProcessingException;
+
+    /**
+     * Processes a {@link Metacard}, following the execution of ddf.catalog.source.CatalogProvider#delete(ddf.catalog.operation.DeleteRequest), to return policy information
+     *
+     * @param input      the {@link Metacard} to process
+     * @param properties the request properties
+     * @return policy information to pass to the {@link AccessPlugin}
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
+     */
+    PolicyResponse processPostDelete(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException;
 
     /**
      * Processes a {@link Query}, prior to execution of the {@link ddf.catalog.operation.Query}, to return policy information
      *
-     * @param query the {@link Query} to process
+     * @param query      the {@link Query} to process
      * @param properties the request properties
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
     PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
             throws StopProcessingException;
@@ -86,11 +97,11 @@ public interface PolicyPlugin {
     /**
      * Processes a {@link Result}, following the execution of the {@link ddf.catalog.operation.Query}, to return policy information
      *
-     * @param input the {@link Result} to process
+     * @param input      the {@link Result} to process
      * @param properties the request properties
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
     PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
             throws StopProcessingException;
@@ -100,8 +111,8 @@ public interface PolicyPlugin {
      *
      * @param resourceRequest the {@link ResourceRequest} to process
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
     PolicyResponse processPreResource(ResourceRequest resourceRequest)
             throws StopProcessingException;
@@ -110,10 +121,10 @@ public interface PolicyPlugin {
      * Processes a {@link ResourceResponse}, following the execution of the {@link ddf.catalog.operation.ResourceRequest}, to return policy information
      *
      * @param resourceResponse the {@link ResourceResponse} to process
-     * @param metacard the {@link Metacard} related to the response
+     * @param metacard         the {@link Metacard} related to the response
      * @return policy information to pass to the {@link AccessPlugin}
-     * @throws StopProcessingException  thrown to halt processing when a critical issue occurs during processing. This is
-     *                                  intended to prevent other plugins from processing as well.
+     * @throws StopProcessingException thrown to halt processing when a critical issue occurs during processing. This is
+     *                                 intended to prevent other plugins from processing as well.
      */
     PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException;
