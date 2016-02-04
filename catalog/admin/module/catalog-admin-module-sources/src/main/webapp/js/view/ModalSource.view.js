@@ -154,50 +154,56 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             var view = this;
             var service = view.model.get('editConfig');
             if (service) {
-            var fpid = service.get("fpid");
-            var idx = fpid.indexOf("_disabled");
-            if (idx > 0) {
-               service.set("fpid", fpid.substring(0, idx));
-            }
-            service.save().then(function(response) {
-                // check to see if the service corresponds to an existing source
-                // if it does, return the source
-                var existingSource = view.source.get('collection').find(function(item) {
-                    var config = item.get('currentConfiguration');
-                   return (config && config.get('properties').id === service.get('properties').id);
-                });
+                var fpid = service.get("fpid");
+                var idx = fpid.indexOf("_disabled");
+                if (idx > 0) {
+                    service.set("fpid", fpid.substring(0, idx));
+                }
 
-                // Logic to check if the service we are adding is going to be a member of an already existing source;
-                // if it is, we need to disable the new service as soon at is created.
-                if (existingSource && view.mode === 'add' && existingSource.get('currentConfiguration') !== service) {
+                if (_.isUndefined(service.get('properties').id)) {
+                    var name = this.$(".sourceName").find('input').val().trim();
+                    this.setConfigName(service, name);
+                }
 
-                    // https://codice.atlassian.net/browse/DDF-1642
-                    // this works around an issue in json-simple where the .toString() of an array
-                    // is returned in the arguments field of configs with array attributes,
-                    // causing the JSON string from jolokia to be unparseable, so we remove it,
-                    // since we don't care about the arguments for our parsing needs
+                service.save().then(function (response) {
+                        // check to see if the service corresponds to an existing source
+                        // if it does, return the source
+                        var existingSource = view.source.get('collection').find(function (item) {
+                            var config = item.get('currentConfiguration');
+                            return (config && config.get('properties').id === service.get('properties').id);
+                        });
 
-                    response = response.replace(/\[L[\w\.;@]*/g, '""');
-                    var jsonResult = JSON.parse(response.toString().trim());
+                        // Logic to check if the service we are adding is going to be a member of an already existing source;
+                        // if it is, we need to disable the new service as soon at is created.
+                        if (existingSource && view.mode === 'add' && existingSource.get('currentConfiguration') !== service) {
 
-                    // Since the source we are editing has a currentConfig already, we don't want to disable it.
-                    // Using the response from the creation of the new service, disable the newly created service
-                    // with a call to makeDisableCallByPid.
+                            // https://codice.atlassian.net/browse/DDF-1642
+                            // this works around an issue in json-simple where the .toString() of an array
+                            // is returned in the arguments field of configs with array attributes,
+                            // causing the JSON string from jolokia to be unparseable, so we remove it,
+                            // since we don't care about the arguments for our parsing needs
 
-                    Service.Configuration.prototype.makeDisableCallByPid(jsonResult.request['arguments'][0]).done(function() {
+                            response = response.replace(/\[L[\w\.;@]*/g, '""');
+                            var jsonResult = JSON.parse(response.toString().trim());
+
+                            // Since the source we are editing has a currentConfig already, we don't want to disable it.
+                            // Using the response from the creation of the new service, disable the newly created service
+                            // with a call to makeDisableCallByPid.
+
+                            Service.Configuration.prototype.makeDisableCallByPid(jsonResult.request['arguments'][0]).done(function () {
+                                wreqr.vent.trigger('refreshSources');
+                                view.closeAndUnbind();
+                            });
+                        } else {
+                            wreqr.vent.trigger('refreshSources');
+                            view.closeAndUnbind();
+                        }
+                    },
+                    function () {
                         wreqr.vent.trigger('refreshSources');
+                    }).always(function () {
                         view.closeAndUnbind();
                     });
-                } else {
-                    wreqr.vent.trigger('refreshSources');
-                    view.closeAndUnbind();
-                }
-            },
-                function() {
-                    wreqr.vent.trigger('refreshSources');
-                }).always(function() {
-                    view.closeAndUnbind();
-                });
             }
         },
         sourceNameChanged: function(evt) {
