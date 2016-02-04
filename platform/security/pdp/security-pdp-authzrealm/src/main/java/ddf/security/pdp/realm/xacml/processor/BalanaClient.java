@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,11 +13,11 @@
  */
 package ddf.security.pdp.realm.xacml.processor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +25,7 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -36,6 +34,9 @@ import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.balana.PDP;
@@ -53,6 +54,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
@@ -64,13 +67,17 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 public class BalanaClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanaClient.class);
 
-    private static final String XACML30_NAMESPACE = "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
+    private static final String XACML30_NAMESPACE =
+            "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
 
     private static final String XACML_PREFIX = "xacml";
 
-    private static final String NULL_DIRECTORY_EXCEPTION_MSG = "Cannot read from null XACML Policy Directory";
-
     private static JAXBContext jaxbContext;
+
+    private static final long DEFAULT_POLLING_INTERVAL_IN_SECONDS = 60;
+
+    private static final String NULL_DIRECTORY_EXCEPTION_MSG =
+            "Cannot read from null XACML Policy Directory";
 
     static long defaultPollingIntervalInSeconds = 60;
 
@@ -78,22 +85,27 @@ public class BalanaClient {
 
     private Set<String> xacmlPolicyDirectories;
 
+    private final Parser parser;
+
     /**
      * Creates the proxy to the real Balana PDP.
      *
-     * @param relativeXacmlPoliciesDirectoryPath
-     *            Relative directory path to the root of the DDF installation.
+     * @param relativeXacmlPoliciesDirectoryPath Relative directory path to the root of the DDF installation.
+     * @param parser                             for marshal and unmarshal
      * @throws PdpException
      */
-    public BalanaClient(String relativeXacmlPoliciesDirectoryPath) throws PdpException {
+    public BalanaClient(String relativeXacmlPoliciesDirectoryPath, Parser parser)
+            throws PdpException {
+        this.parser = parser;
         if (StringUtils.isEmpty(relativeXacmlPoliciesDirectoryPath)) {
             throw new PdpException(NULL_DIRECTORY_EXCEPTION_MSG);
         }
+
         File xacmlPoliciesDirectory;
 
         try {
-            xacmlPoliciesDirectory = new File(relativeXacmlPoliciesDirectoryPath)
-                    .getCanonicalFile();
+            xacmlPoliciesDirectory =
+                    new File(relativeXacmlPoliciesDirectoryPath).getCanonicalFile();
         } catch (IOException e) {
             throw new PdpException(e.getMessage(), e);
         }
@@ -113,8 +125,6 @@ public class BalanaClient {
         }
         checkXacmlPoliciesDirectory(xacmlPoliciesDirectory);
 
-        createJaxbContext();
-
         /**
          * We currently only support one XACML policies directory, but we may support multiple
          * directories in the future.
@@ -127,8 +137,7 @@ public class BalanaClient {
     /**
      * Evaluates the XACML request and returns a XACML response.
      *
-     * @param xacmlRequestType
-     *            XACML request
+     * @param xacmlRequestType XACML request
      * @return XACML response
      * @throws PdpException
      */
@@ -142,20 +151,6 @@ public class BalanaClient {
         DOMResult domResult = addNamespaceAndPrefixes(xacmlResponse);
 
         return unmarshal(domResult);
-    }
-
-    /**
-     * Creates a JAXB context for the XACML request and response types.
-     *
-     * @throws PdpException
-     */
-    private void createJaxbContext() throws PdpException {
-        try {
-            jaxbContext = JAXBContext.newInstance(RequestType.class, ResponseType.class);
-        } catch (JAXBException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new PdpException(e);
-        }
     }
 
     /**
@@ -181,13 +176,15 @@ public class BalanaClient {
         attributeFinderModules.add(selectorModule);
         attributeFinderModules.add(currentEnvModule);
         attributeFinder.setModules(attributeFinderModules);
-
         return new PDPConfig(attributeFinder,
-                createPolicyFinder(), null, false);
+                createPolicyFinder(),
+                null,
+                false);
     }
 
     /**
      * Creates a policy finder to find XACML polices.
+     *
      * @return PolicyFinder
      */
     private PolicyFinder createPolicyFinder() {
@@ -195,7 +192,8 @@ public class BalanaClient {
                 xacmlPolicyDirectories);
         PolicyFinder policyFinder = new PolicyFinder();
         PollingPolicyFinderModule policyFinderModule = new PollingPolicyFinderModule(
-                xacmlPolicyDirectories, defaultPollingIntervalInSeconds);
+                xacmlPolicyDirectories,
+                defaultPollingIntervalInSeconds);
         policyFinderModule.start();
         Set<PolicyFinderModule> policyFinderModules = new HashSet<>(1);
         policyFinderModules.add(policyFinderModule);
@@ -207,8 +205,7 @@ public class BalanaClient {
     /**
      * Performs basic checks on the XACML policy directory.
      *
-     * @param xacmlPoliciesDirectory
-     *            The directory containing the XACML policy.
+     * @param xacmlPoliciesDirectory The directory containing the XACML policy.
      * @throws PdpException
      */
     private void checkXacmlPoliciesDirectory(File xacmlPoliciesDirectory) throws PdpException {
@@ -237,8 +234,7 @@ public class BalanaClient {
     /**
      * Calls the real Balana PDP to evaluate the XACML request.
      *
-     * @param xacmlRequest
-     *            The XACML request as a string.
+     * @param xacmlRequest The XACML request as a string.
      * @return The XACML response as a string.
      */
     private String callPdp(String xacmlRequest) {
@@ -251,20 +247,21 @@ public class BalanaClient {
      * Balana PDP returns a response with no namespaces, so we need to add them to unmarshal the
      * response.
      *
-     * @param xacmlResponse
-     *            The XACML response as a string.
+     * @param xacmlResponse The XACML response as a string.
      * @return DOM representation of the XACML response with namespaces and namespace prefixes.
      * @throws PdpException
      */
     private DOMResult addNamespaceAndPrefixes(String xacmlResponse) throws PdpException {
-        XMLReader xmlReader;
+        XMLReader xmlReader = null;
 
         try {
             xmlReader = new XMLFilterImpl(XMLReaderFactory.createXMLReader()) {
                 @Override
                 public void startElement(String uri, String localName, String qName,
                         Attributes attributes) throws SAXException {
-                    super.startElement(XACML30_NAMESPACE, localName, XACML_PREFIX + ":" + qName,
+                    super.startElement(XACML30_NAMESPACE,
+                            localName,
+                            XACML_PREFIX + ":" + qName,
                             attributes);
                 }
 
@@ -281,23 +278,25 @@ public class BalanaClient {
         }
 
         DOMResult domResult;
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(BalanaClient.class.getClassLoader());
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
+        Thread.currentThread()
+                .setContextClassLoader(BalanaClient.class.getClassLoader());
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
             domResult = new DOMResult();
 
             Transformer transformer = transformerFactory.newTransformer();
-            transformer.transform(
-                    new SAXSource(xmlReader, new InputSource(new StringReader(xacmlResponse))),
-                    domResult);
+            transformer.transform(new SAXSource(xmlReader,
+                    new InputSource(new StringReader(xacmlResponse))), domResult);
         } catch (TransformerException e) {
             String message = "Unable to transform XACML response:\n" + xacmlResponse;
             LOGGER.error(message);
             throw new PdpException(message, e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
 
         return domResult;
@@ -306,28 +305,28 @@ public class BalanaClient {
     /**
      * Marshalls the XACML request to a string.
      *
-     * @param xacmlRequestType
-     *            The XACML request to marshal.
+     * @param xacmlRequestType The XACML request to marshal.
      * @return A string representation of the XACML request.
      */
     private String marshal(RequestType xacmlRequestType) throws PdpException {
-        ObjectFactory objectFactory = new ObjectFactory();
-        Writer writer = new StringWriter();
-        JAXBElement<RequestType> xacmlRequestTypeElement = objectFactory
-                .createRequest(xacmlRequestType);
-
-        Marshaller marshaller;
-        String xacmlRequest;
-
+        if (null == parser) {
+            throw new IllegalStateException("XMLParser must be configured.");
+        }
+        String xacmlRequest = null;
         try {
-            marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(xacmlRequestTypeElement, writer);
-
-            xacmlRequest = writer.toString();
-        } catch (JAXBException e) {
+            List<String> ctxPath = new ArrayList<>(1);
+            ctxPath.add(ResponseType.class.getPackage()
+                    .getName());
+            ParserConfigurator configurator = parser.configureParser(ctxPath,
+                    BalanaClient.class.getClassLoader());
+            configurator.addProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ObjectFactory objectFactory = new ObjectFactory();
+            parser.marshal(configurator, objectFactory.createRequest(xacmlRequestType), os);
+            xacmlRequest = os.toString("UTF-8");
+        } catch (ParserException | UnsupportedEncodingException e) {
             String message = "Unable to marshal XACML request.";
-            LOGGER.error(message);
+            LOGGER.error(message, e);
             throw new PdpException(message, e);
         }
 
@@ -339,25 +338,32 @@ public class BalanaClient {
     /**
      * Unmarshalls the XACML response.
      *
-     * @param xacmlResponse
-     *            The XACML response with all namespaces and namespace prefixes added.
+     * @param xacmlResponse The XACML response with all namespaces and namespace prefixes added.
      * @return The XACML response.
      * @throws PdpException
      */
+    @SuppressWarnings("unchecked")
     private ResponseType unmarshal(DOMResult xacmlResponse) throws PdpException {
-        JAXBElement<ResponseType> xacmlResponseTypeElement = null;
+        List<String> ctxPath = ImmutableList.of(ResponseType.class.getPackage()
+                .getName());
+
+        if (null == parser) {
+            throw new IllegalStateException("XMLParser must be configured.");
+        }
+
+        ParserConfigurator configurator = parser.configureParser(ctxPath,
+                BalanaClient.class.getClassLoader());
 
         try {
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            JAXBElement<ResponseType> xacmlResponseTypeElement = parser.unmarshal(configurator,
+                    JAXBElement.class,
+                    xacmlResponse.getNode());
+            return xacmlResponseTypeElement.getValue();
 
-            xacmlResponseTypeElement = unmarshaller
-                    .unmarshal(xacmlResponse.getNode(), ResponseType.class);
-        } catch (JAXBException e) {
+        } catch (ParserException e) {
             String message = "Unable to unmarshal XACML response.";
             LOGGER.error(message);
             throw new PdpException(message, e);
         }
-
-        return xacmlResponseTypeElement.getValue();
     }
 }

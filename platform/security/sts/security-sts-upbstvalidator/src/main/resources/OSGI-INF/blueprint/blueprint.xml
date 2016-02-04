@@ -21,7 +21,12 @@
         <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
     </type-converters>
 
-    <bean class="org.codice.ddf.security.validator.uname.UPBSTValidator" id="utValidator"/>
+    <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
+               availability="mandatory"/>
+
+    <bean class="org.codice.ddf.security.validator.uname.UPBSTValidator" id="utValidator">
+        <argument ref="xmlParser"/>
+    </bean>
 
     <reference-list id="jaasRealmList" interface="org.apache.karaf.jaas.config.JaasRealm">
         <reference-listener bind-method="addRealm" unbind-method="removeRealm" ref="utValidator"/>

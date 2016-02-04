@@ -38,8 +38,12 @@
         <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
     </type-converters>
 
+    <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
+               availability="mandatory"/>
+
     <bean class="org.codice.ddf.security.validator.username.UsernameTokenValidator"
           id="userValidator">
+        <argument ref="xmlParser"/>
     </bean>
 
     <reference-list interface="org.apache.karaf.jaas.config.JaasRealm">
