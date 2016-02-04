@@ -256,7 +256,7 @@ public class MigratableUtil {
         try {
             if (!ddfHome.resolve(source)
                     .toRealPath()
-                    .startsWith(ddfHome)) {
+                    .startsWith(ddfHome.toRealPath())) {
                 warnings.add(pathWarningBuilder.apply(String.format("is outside [%s]", ddfHome)));
                 return false;
             }
