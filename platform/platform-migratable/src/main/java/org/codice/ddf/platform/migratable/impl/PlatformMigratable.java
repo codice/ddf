@@ -47,6 +47,8 @@ public class PlatformMigratable extends AbstractMigratable {
 
     private static final Path USERS_PROPERTIES = Paths.get("etc", "users.properties");
     
+    private static final Path APPLICATION_LIST = Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties");
+    
     private final MigratableUtil migratableUtil;
     
     public PlatformMigratable(@NotNull String description, boolean isOptional, @NotNull MigratableUtil migratableUtil) {
@@ -63,9 +65,10 @@ public class PlatformMigratable extends AbstractMigratable {
     }
 
     private void exportSystemFiles(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
-        LOGGER.debug("Exporting system files: [{}] and [{}]", SYSTEM_PROPERTIES.toString(), USERS_PROPERTIES.toString());
+        LOGGER.debug("Exporting system files: [{}], [{}], and [{}]", SYSTEM_PROPERTIES.toString(), USERS_PROPERTIES.toString(), APPLICATION_LIST.toString());
         migratableUtil.copyFile(SYSTEM_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(USERS_PROPERTIES, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(APPLICATION_LIST, exportDirectory, migrationWarnings);
     }
 
     private void exportWsSecurity(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
