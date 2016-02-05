@@ -865,8 +865,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             //Search for all entries that have validation-warnings or no validation warnings
             //Only search that will actually return all entries
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS,
-                    "sample-validator")
-                    .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sample-validator2")
+                    "sampleWarnings")
+                    .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sampleWarnings")
                     .addLogicalOperator(AND)
                     .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)

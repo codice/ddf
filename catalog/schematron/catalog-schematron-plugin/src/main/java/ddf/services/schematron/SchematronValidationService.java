@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,8 +14,10 @@
 
 package ddf.services.schematron;
 
+import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -25,26 +27,22 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.lang.StringUtils;
-import org.osgi.framework.Bundle;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
-import net.sf.saxon.trans.DynamicLoader;
 
 /**
  * This pre-ingest service provides validation of an ingested XML document against a Schematron
@@ -73,538 +71,196 @@ import net.sf.saxon.trans.DynamicLoader;
  * @author rodgersh
  *
  */
-public class SchematronValidationService implements MetacardValidator {
-    private static final int DEFAULT_PRIORITY = 100;
+public class SchematronValidationService implements MetacardValidator, Describable {
 
-    private static final String CLASS_NAME = SchematronValidationService.class.getName();
-
-    /** ISO Schematron XSLT to expand inclusions in provided Schematron schema file */
-    private static final String ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME = "iso-schematron/iso_dsdl_include.xsl";
-
-    /** ISO Schematron XSLT to expand abstractions in provided Schematron schema file */
-    private static final String ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME = "iso-schematron/iso_abstract_expand.xsl";
-
-    /**
-     * SVRL extension to ISO Schematron skeleton, allowing an XML-formatted report output from
-     * Schematron validation
-     */
-    private static final String ISO_SVRL_XSL_FILENAME = "iso-schematron/iso_svrl_for_xslt2.xsl";
-
-    /**
-     * Base directory in the bundle that all paths to resources will be relative to,
-     * e.g., "xyz" could be the bundle base directory and path to CVE files would be appended
-     * to this bundle base directory. A value of null indicates that "/" is the default
-     * base directory for the bundle.
-     */
-    private final String bundleBaseDir;
-
-    /** This class' logger */
+    private static final String SCHEMATRON_BASE_FOLDER = Paths.get(System.getProperty("ddf.home"), "schematron").toString();
     private static final Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
 
-    /** The original Schematron .sch file */
-    private String schematronSchemaFilename;
-
-    /**
-     * Priority of this service using this Schematron .sch ruleset file. This is retrieved by
-     * LocalSite implementation to determine the order of execution of the PreIngest services.
-     */
-    private int priority;
-
-    /**
-     * Flag indicating if Schematron warnings should be suppressed, meaning that if only warnings
-     * are detected during validation, then Catalog Entry is considered valid.
-     */
-    private boolean suppressWarnings;
-
-    /**
-     * Saxon transformer factory. The Saxon TransformerFactory is specified to JAXP via the
-     * META-INF/services/javax.xml.transform.TransformerFactory file.
-     */
     private TransformerFactory transformerFactory;
+    private List<Templates> validators;
+    private Vector<String> warnings;
+    private int priority = 10;
+    private SchematronReport schematronReport;
 
-    /** The compiled Schematron schema file used to validate the input XML document */
-    private Templates validator;
+    private List<String> schematronFileNames;
+    private boolean suppressWarnings = false;
+    private String namespace;
+    private String id;
 
-    /** Generated xsl:messages from the preprocessor */
-    private Vector<String> warnings = new Vector<String>();
-
-    /** Report generated during transformation/validation of input XML against precompiled .sch file */
-    private SchematronReport report;
-
-    /**
-     * @param bundle
-     *            OSGi bundle containing sch file that will be using this service
-     * @param schematronSchemaFilename
-     *            client-provided Schematron rules in XML-format, usually with a .sch file extension
-     *
-     * @throws SchematronInitializationException
-     */
-    public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename)
-            throws SchematronInitializationException {
-        this(bundle, schematronSchemaFilename, false);
-    }
-
-    /**
-     * @param bundle
-     *            OSGi bundle containing sch file that will be using this service
-     * @param schematronSchemaFilename
-     *            client-provided Schematron rules in XML-format, usually with a .sch file extension
-     * @param suppressWarnings
-     *            indicates whether to suppress Schematron validation warnings and indicate that a
-     *            Catalog Entry with only warnings is valid
-     *
-     * @throws SchematronInitializationException
-     */
-    public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename,
-            boolean suppressWarnings) throws SchematronInitializationException {
-        String methodName = "constructor";
-        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
-        LOGGER.debug("schematronSchemaFilename = {}", schematronSchemaFilename);
-        LOGGER.debug("suppressWarnings = {}", suppressWarnings);
-
-        this.schematronSchemaFilename = schematronSchemaFilename;
-        this.bundleBaseDir = null;
-        this.suppressWarnings = suppressWarnings;
-        this.priority = DEFAULT_PRIORITY;
-
-        init(bundle, schematronSchemaFilename);
-
-        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
-    }
-
-    /**
-     * @param bundle
-     *            OSGi bundle containing sch file that will be using this service
-     * @param schematronSchemaFilename
-     *            client-provided Schematron rules in XML-format, usually with a .sch file extension
-     * @param bundleBaseDir
-     *            base directory in the bundle for getting resources out of the bundle
-     * @param suppressWarnings
-     *            indicates whether to suppress Schematron validation warnings and indicate that a
-     *            Catalog Entry with only warnings is valid
-     *
-     * @throws SchematronInitializationException
-     */
-    public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename,
-            String bundleBaseDir, boolean suppressWarnings)
-            throws SchematronInitializationException {
-        String methodName = "constructor";
-        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
-        LOGGER.debug("schematronSchemaFilename = {}", schematronSchemaFilename);
-        LOGGER.debug("suppressWarnings = {}", suppressWarnings);
-
-        this.schematronSchemaFilename = schematronSchemaFilename;
-        this.bundleBaseDir = bundleBaseDir;
-        this.suppressWarnings = suppressWarnings;
-        this.priority = DEFAULT_PRIORITY;
-
-        init(bundle, schematronSchemaFilename);
-
-        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
-    }
-
-    /**
-     * @param bundle
-     *            OSGi bundle containing sch file that will be using this service
-     * @param schematronSchemaFilename
-     *
-     * @throws SchematronInitializationException
-     */
-    private void init(final Bundle bundle, String schematronSchemaFilename)
-            throws SchematronInitializationException {
-        String methodName = "init";
-        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
-
-        // Initialize TransformerFactory if not already done
+    public void init() throws SchematronInitializationException {
         if (transformerFactory == null) {
-            transformerFactory = TransformerFactory
-                    .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                            SchematronValidationService.class.getClassLoader());
+            transformerFactory = TransformerFactory.newInstance(
+                    TransformerFactoryImpl.class.getName(),
+                    SchematronValidationService.class.getClassLoader());
         }
 
-        // Build the URI resolver to resolve any address for those who call base XSLTs from
-        // extension bundles
-        // (i.e., bundles other than the one we are currently running in)
+        // DDF-855: set ErrorListener to catch any warnings/errors during loading of the
+        // ruleset file and log (vs. Saxon default of writing to console) the warnings/errors
+        Configuration config = ((TransformerFactoryImpl) transformerFactory).getConfiguration();
+        config.setErrorListener(new SaxonErrorListener(schematronFileNames));
+
+        updateValidators();
+    }
+
+    private void updateValidators() throws SchematronInitializationException {
+        validators = new ArrayList<>(schematronFileNames.size());
+        for (String schematronFileName : schematronFileNames) {
+            Templates template = compileSchematronRules(schematronFileName);
+            validators.add(template);
+        }
+    }
+
+    private Templates compileSchematronRules(String schematronFileName) throws SchematronInitializationException {
+
+        Templates template;
+        File schematronFile = new File(schematronFileName);
+        if (!schematronFile.exists()) {
+            throw new SchematronInitializationException("Could not locate schematron file" + schematronFileName);
+        }
+
         try {
-            URIResolver resolver = new URIResolver() {
-                @Override
-                public Source resolve(String href, String base) throws TransformerException {
-                    LOGGER.debug("URIResolver:  href = {},   base = {}", href, base);
-                    LOGGER.debug("bundleBaseDir = {}", bundleBaseDir);
-
-                    // Since paths to resources within a bundle are not actually file system paths,
-                    // paths with relative pathing in them should be stripped out. Relative pathing
-                    // notation is not understood by the bundle.getResource(...) method.
-
-                    // Example: the path xyz/Schematron/subdir1/../../CVE/subdir2 is *not* the equivalient
-                    //     to xyz/CVE/subdir2. xyz would have been passed in as the bundleBaseDir, and
-                    //     the href passed in would be ../../CVE/subdir2, hence the relative pathing
-                    //     needs to be removed.
-                    href = StringUtils.remove(href, "../");
-                    href = StringUtils.remove(href, "./");
-
-                    if (StringUtils.isNotBlank(bundleBaseDir)) {
-                        href = bundleBaseDir + "/" + href;
-                    }
-                    LOGGER.debug("URIResolver:  (Modified) href = {}", href);
-
-                    try {
-                        URL resourceAddressURL = bundle.getResource(href);
-                        String resourceAddress = resourceAddressURL.toString();
-                        LOGGER.debug("Resolved resource address: {}", resourceAddress);
-
-                        return new StreamSource(resourceAddress);
-                    } catch (Exception e) {
-                        LOGGER.error("URIResolver error: {}", e.getMessage(), e);
-                        return null;
-                    }
-                }
-            };
-
-            transformerFactory.setURIResolver(resolver);
-
-            // Use Saxon-specific Configuration class to setup a dynamic class loader so we can
-            // search across bundles for imported XSLTs
-            Configuration config = ((TransformerFactoryImpl) transformerFactory).getConfiguration();
-            DynamicLoader dynamicLoader = new DynamicLoader();
-            dynamicLoader.setClassLoader(new BundleProxyClassLoader(bundle));
-            config.setDynamicLoader(dynamicLoader);
-
-            // DDF-855: set ErrorListener to catch any warnings/errors during loading of the 
-            // ruleset file and log (vs. Saxon default of writing to console) the warnings/errors
-            config.setErrorListener(new SaxonErrorListener(this.schematronSchemaFilename));
-
-            // Retrieve the Schematron schema XML file (usually a .sch file)
-            URL schUrl = bundle.getResource(schematronSchemaFilename);
+            URL schUrl = schematronFile.toURI().toURL();
             Source schSource = new StreamSource(schUrl.toString());
 
             // Stage 1: Perform inclusion expansion on Schematron schema file
-            DOMResult stage1Result = performStage(bundle, schSource,
-                    ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME);
+            DOMResult stage1Result = performStage(schSource, getClass().getClassLoader().getResource("iso-schematron/iso_dsdl_include.xsl"));
             DOMSource stage1Output = new DOMSource(stage1Result.getNode());
 
             // Stage 2: Perform abstract expansion on output file from Stage 1
-            DOMResult stage2Result = performStage(bundle, stage1Output,
-                    ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME);
+            DOMResult stage2Result = performStage(stage1Output, getClass().getClassLoader().getResource("iso-schematron/iso_abstract_expand.xsl"));
             DOMSource stage2Output = new DOMSource(stage2Result.getNode());
 
             // Stage 3: Compile the .sch rules that have been prepocessed by Stages 1 and 2 (i.e.,
             // the output of Stage 2)
-            DOMResult stage3Result = performStage(bundle, stage2Output, ISO_SVRL_XSL_FILENAME);
+            DOMResult stage3Result = performStage(stage2Output, getClass().getClassLoader().getResource("iso-schematron/iso_svrl_for_xslt2.xsl"));
             DOMSource stage3Output = new DOMSource(stage3Result.getNode());
 
-            // Precompile the Schematron preprocessor XSL file
-            this.validator = transformerFactory.newTemplates(stage3Output);
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error("Couldn't create transfomer", e);
-            throw new SchematronInitializationException(
-                    "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
-        } catch (TransformerException e) {
-            LOGGER.error("Couldn't create transfomer", e);
-            throw new SchematronInitializationException(
-                    "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
-        } catch (ParserConfigurationException e) {
-            LOGGER.error("Couldn't create transfomer", e);
-            throw new SchematronInitializationException(
-                    "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
-
-        // Would go here if an invalid .sch file was passed in
+            template = transformerFactory.newTemplates(stage3Output);
         } catch (Exception e) {
-            LOGGER.error("Couldn't create transfomer", e);
             throw new SchematronInitializationException(
-                    "Error trying to create SchematronValidationService using sch file "
-                            + this.schematronSchemaFilename, e);
+                    "Error trying to create SchematronValidationService using sch file " + schematronFileName, e);
         }
 
-        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
+        return template;
     }
 
-    /**
-     * Execute a Schematron preprocessing/compile stage on the provided input source using the
-     * provided preprocessor file.
-     *
-     * @param bundle
-     *            OSGi bundle
-     * @param input
-     *            name of file to be transformed
-     * @param preprocessorFilename
-     *            name of preprocessor file to use for the transformation
-     *
-     * @return result of transforming the preprocessor file into a DOMResult
-     * @throws TransformerException
-     * @throws TransformerConfigurationException
-     * @throws ParserConfigurationException
-     */
-    private DOMResult performStage(final Bundle bundle, Source input, String preprocessorFilename)
-            throws TransformerException, TransformerConfigurationException,
-            ParserConfigurationException, SchematronInitializationException {
-        String methodName = "performStage";
-        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
-        LOGGER.debug("preprocessorFilename = {}", preprocessorFilename);
+    private DOMResult performStage(Source input, URL preprocessorUrl)
+            throws TransformerException, ParserConfigurationException, SchematronInitializationException {
 
-        // Retrieve the preprocessor XSL file
-        URL preprocessorUrl = bundle.getResource(preprocessorFilename);
-        if (preprocessorUrl == null) {
-            LOGGER.debug(
-                    "preprocessorUrl is NULL - cannot perform staging of Schematron preprocessor file");
-            throw new SchematronInitializationException(
-                    "preprocessorUrl is NULL for file " + preprocessorFilename
-                            + " - cannot perform staging of Schematron preprocessor file");
-        } else {
-            LOGGER.debug("URL = {}", preprocessorUrl.toString());
-        }
         Source preprocessorSource = new StreamSource(preprocessorUrl.toString());
 
         // Initialize container for warnings we may receive during transformation of input
-        warnings = new Vector<String>();
-
-        TransformerFactory transformerFactory = TransformerFactory
-                .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                        SchematronValidationService.class.getClassLoader());
+        warnings = new Vector<>();
 
         Transformer transformer = transformerFactory.newTransformer(preprocessorSource);
 
         // Setup an error listener to catch warnings and errors generated during transformation
-        Listener listener = new Listener();
-        transformer.setErrorListener(listener);
+        transformer.setErrorListener(new Listener());
 
         // Transform the input using the preprocessor's transformer, capturing the output in a DOM
         DOMResult domResult = new DOMResult();
         transformer.transform(input, domResult);
 
-        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
-
         return domResult;
     }
 
-    /**
-     * Perform Schematron validation on specified catalog entry.
-     *
-     * @param catalogEntryNum
-     *            of the catalog entry being validated (ranges from 1 to n)
-     * @param catalogEntry
-     *            catalog entry to be validated
-     *
-     * @throws StopProcessingException
-     */
-    public void performSchematronValidation(int catalogEntryNum, Metacard catalogEntry)
-            throws StopProcessingException {
-        String methodName = "performSchematronValidation";
-        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
-
-        LOGGER.debug("Using .sch ruleset: {}", this.schematronSchemaFilename);
-
-        // Convert the catalog entry's Document to a String
-        String entryDocument = catalogEntry.getMetadata();
-        LOGGER.debug("entryDocument: {}", entryDocument);
-
-        // Create a Reader for the catalog entry's contents
-        StringReader entryDocumentReader = new StringReader(entryDocument);
-
-        try {
-            // Using the precompiled/stored Schematron validator, validate the catalog entry's
-            // contents
-            Transformer transformer = validator.newTransformer();
-            DOMResult schematronResult = new DOMResult();
-            transformer.transform(new StreamSource(entryDocumentReader), schematronResult);
-            this.report = new SvrlReport(schematronResult);
-
-            LOGGER.trace("SVRL Report:\n\n{}", report.getReportAsText());
-
-            // If the Schematron validation failed, then throw an exception with details of the
-            // errors
-            // and warnings from the Schematron report included in the exception that is thrown to
-            // the client.
-            if (!this.report.isValid(this.suppressWarnings)) {
-                StringBuffer errorMessage = new StringBuffer(
-                        "Schematron validation failed for catalog entry #" + catalogEntryNum
-                                + ".\n\n");
-                List<String> errors = this.report.getErrors();
-                LOGGER.debug("errors.size() = {}", errors.size());
-                for (String error : errors) {
-                    errorMessage.append(error);
-                    errorMessage.append("\n");
-                }
-
-                // If warnings are to be included from the Schematron report as part of the errors
-                // message
-                if (!this.suppressWarnings) {
-                    List<String> warnings = this.report.getWarnings();
-                    LOGGER.debug("warnings.size() = {}", warnings.size());
-                    for (String warning : warnings) {
-                        LOGGER.debug("warning = {}", warning);
-                        errorMessage.append(warning);
-                        errorMessage.append("\n");
-                    }
-
-                }
-                throw new StopProcessingException(errorMessage.toString());
-            }
-
-        } catch (TransformerException te) {
-            LOGGER.debug("Unable to setup validator", te);
-            LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
-
-            throw new StopProcessingException("Could not setup validator to perform validation.");
-        }
-
-        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
-    }
-
-    /**
-     * Retrieve the Schematron validation results.
-     *
-     * @return Schematron validation output report
-     */
-    public SchematronReport getSchematronReport() {
-        return this.report;
-    }
-
-    /**
-     * Retrieve the name of the original Schematron .sch file provided as input to this validation
-     * service.
-     *
-     * @return name of original Schematron .sch file
-     */
-    public String getSchematronSchemaFilename() {
-        return this.schematronSchemaFilename;
-    }
-
-    /**
-     * Retrieve suppress warnings flag.
-     *
-     * @return true indicates Schematron warnings are being suppressed
-     */
-    public boolean getSuppressWarnings() {
-        LOGGER.debug("ENTERING: getSuppressWarnings");
-
-        return this.suppressWarnings;
-    }
-
-    /**
-     * Suppress Schematron warnings, such that only errors mark a request as invalid. This method is
-     * called whenever the Save button is selected for a Schematron ruleset bundle on the OSGi
-     * container's web console Configuration admin page.
-     *
-     * @param suppressWarnings
-     *            true indicates Schematron warnings are to be suppressed
-     */
     public void setSuppressWarnings(boolean suppressWarnings) {
-        LOGGER.debug("ENTERING: setSuppressWarnings");
-        LOGGER.debug("suppressWarnings = {} (sch filename = {})", suppressWarnings,
-                this.schematronSchemaFilename);
-
         this.suppressWarnings = suppressWarnings;
-
-        LOGGER.debug("EXITING: setSuppressWarnings");
     }
 
-    /**
-     * Retrieve the priority of this validation service.
-     *
-     * @return priority of this service
-     */
-    public int getPriority() {
-        return this.priority;
+    public void setSchematronFileNames(List<String> schematronFileNames) throws SchematronInitializationException {
+        this.schematronFileNames = new ArrayList<>();
+        for (String filename : schematronFileNames) {
+            String fullpath = Paths.get(filename).toString();
+            if (!Paths.get(filename).isAbsolute()) {
+                fullpath = Paths.get(SCHEMATRON_BASE_FOLDER, fullpath).toString();
+            }
+            this.schematronFileNames.add(fullpath);
+        }
+        if (transformerFactory != null) {
+            updateValidators();
+        }
     }
 
-    /**
-     * Sets the priority of this Schematron Validation Service, which indicates its order of
-     * execution amongst all preingest services.
-     *
-     * @param priority
-     *            priority of service, ranging from 1 to 100 (1 being highest priority)
-     */
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
     public void setPriority(int priority) {
-        String methodName = "setPriority";
-        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
-        LOGGER.debug("Setting priority = {}", priority);
-
         this.priority = priority;
 
-        // Bound priority to be between 1 and 100 (inclusive)
+        // 1 is the highest priority, 100 the lowest
         if (this.priority > 100) {
             this.priority = 100;
         } else if (this.priority < 1) {
             this.priority = 1;
         }
+    }
 
-        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
+    public SchematronReport getSchematronReport() {
+        return schematronReport;
     }
 
     @Override
     public void validate(Metacard metacard) throws ValidationException {
-        LOGGER.debug("Using .sch ruleset: {}", this.schematronSchemaFilename);
-
-        // Convert the metacard's metadata to a String
-        String metadata = metacard.getMetadata();
-        LOGGER.debug("metadata: {}", metadata);
-        if (metadata != null) {
-            // Create a Reader for the catalog entry's contents
-            StringReader metadataReader = new StringReader(metadata);
-
-            try {
-                // Using the precompiled/stored Schematron validator, validate
-                // the catalog entry's
-                // contents
-                Transformer transformer = validator.newTransformer();
-                DOMResult schematronResult = new DOMResult();
-                transformer.transform(new StreamSource(metadataReader), schematronResult);
-                this.report = new SvrlReport(schematronResult);
-
-                LOGGER.trace("SVRL Report:\n\n{}", report.getReportAsText());
-
-                // If the Schematron validation failed, then throw an exception
-                // with details of the
-                // errors
-                // and warnings from the Schematron report included in the
-                // exception that is thrown to
-                // the client.
-                if (!this.report.isValid(this.suppressWarnings)) {
-                    List<String> warnings = new ArrayList<String>();
-
-                    StringBuffer errorMessage = new StringBuffer(
-                            "Schematron validation failed.\n\n");
-                    List<String> errors = this.report.getErrors();
-
-                    List<String> trimmedErrors = new ArrayList<>();
-                    LOGGER.debug("errors.size() = {}", errors.size());
-                    for (String error : errors) {
-                        errorMessage.append(error);
-                        errorMessage.append("\n");
-                        trimmedErrors.add(error.trim());
-                    }
-                    // If warnings are to be included from the Schematron report
-                    // as part of the errors
-                    // message
-                    List<String> trimmedWarnings = new ArrayList<>();
-                    if (!this.suppressWarnings) {
-                        warnings = this.report.getWarnings();
-                        LOGGER.debug("warnings.size() = {}", warnings.size());
-                        for (String warning : warnings) {
-                            LOGGER.debug("warning = {}", warning);
-                            errorMessage.append(warning);
-                            errorMessage.append("\n");
-                            trimmedWarnings.add(warning.trim());
-                        }
-                    }
-                    LOGGER.debug(errorMessage.toString());
-                    throw new SchematronValidationException("Schematron validation failed.",
-                            trimmedErrors, trimmedWarnings);
-                }
-
-            } catch (TransformerException te) {
-                LOGGER.warn("Could not setup validator to perform validation", te);
+        for (Templates validator : validators) {
+            String metadata = metacard.getMetadata();
+            if (metadata == null) {
                 throw new SchematronValidationException(
-                        "Could not setup validator to perform validation.");
+                        "The Metacard.METADATA attribute must not be null to run schematron validation against the Metacard");
             }
-        } else {
-            throw new SchematronValidationException(
-                    "The Metacard.METADATA attribute must not be null to run shematron validation against the Metacard");
+            if (namespace != null && !namespace.equals(XMLUtils.getRootNamespace(metadata))) {
+                return;
+            }
+            schematronReport = generateReport(metadata, validator);
+            if (!schematronReport.isValid(suppressWarnings)) {
+                throw new SchematronValidationException("Schematron validation failed.", schematronReport.getErrors(), schematronReport.getWarnings());
+            }
         }
+    }
+
+    private SchematronReport generateReport(String metadata, Templates validator) throws SchematronValidationException {
+        StringReader metadataReader = new StringReader(metadata);
+
+        SchematronReport report;
+        try {
+            Transformer transformer = validator.newTransformer();
+            DOMResult schematronResult = new DOMResult();
+            transformer.transform(new StreamSource(metadataReader), schematronResult);
+            report = new SvrlReport(schematronResult);
+        } catch (TransformerException e) {
+            throw new SchematronValidationException("Could not setup validator to perform validation.", e);
+        }
+        return report;
+    }
+
+    @Override
+    public String getVersion() {
+        return null;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getTitle() {
+        return null;
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
+    public String getOrganization() {
+        return null;
     }
 
     /**
@@ -615,30 +271,27 @@ public class SchematronValidationService implements MetacardValidator {
      */
     private static class SaxonErrorListener implements ErrorListener {
 
-        private String schematronSchemaFilename;
+        private List<String> schematronFileNames;
 
-        public SaxonErrorListener(String schematronSchemaFilename) {
-            this.schematronSchemaFilename = schematronSchemaFilename;
+        public SaxonErrorListener(List<String> schematronFileNames) {
+            this.schematronFileNames = schematronFileNames;
         }
 
         @Override
         public void warning(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
-                    this.schematronSchemaFilename);
+            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(), this.schematronFileNames);
             LOGGER.debug("Saxon exception", e);
         }
 
         @Override
         public void error(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
-                    this.schematronSchemaFilename);
+            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(), this.schematronFileNames);
             LOGGER.debug("Saxon exception", e);
         }
 
         @Override
         public void fatalError(TransformerException e) throws TransformerException {
-            LOGGER.error("Transformer error: (Schematron file = {}):",
-                    this.schematronSchemaFilename, e);
+            LOGGER.error("Transformer error: (Schematron file = {}):", this.schematronFileNames, e);
         }
     }
 
@@ -659,5 +312,4 @@ public class SchematronValidationService implements MetacardValidator {
             throw e;
         }
     }
-
 }

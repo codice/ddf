@@ -75,7 +75,7 @@ public class MetacardValidityMarkerPluginTest {
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
         assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
-                .contains(ID), is(true));
+                .contains(SAMPLE), is(true));
         assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
                 .size(), is(1));
         assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS),
@@ -94,7 +94,7 @@ public class MetacardValidityMarkerPluginTest {
                 is(nullValue(null)));
         assertThat(
                 filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
-                        .contains(ID), is(true));
+                        .contains(SAMPLE), is(true));
         assertThat(
                 filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
                         .size(), is(1));
@@ -109,12 +109,12 @@ public class MetacardValidityMarkerPluginTest {
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
         assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
-                .contains(ID), is(true));
+                .contains(SAMPLE), is(true));
         assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
                 .size(), is(1));
         assertThat(
                 filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
-                        .contains(ID), is(true));
+                        .contains(SAMPLE), is(true));
         assertThat(
                 filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
                         .size(), is(1));
