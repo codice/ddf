@@ -47,7 +47,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    protected static final JSONParser PARSER = new JSONParser();
+    private static final JSONParser PARSER = new JSONParser();
 
     private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
@@ -73,6 +73,16 @@ public class GeoJsonInputTransformer implements InputTransformer {
         return transform(input, null);
     }
 
+    private static synchronized JSONObject parse(InputStream input)
+            throws CatalogTransformerException, IOException {
+        try {
+            return (JSONObject) PARSER.parse(IOUtils.toString(input));
+        } catch (ParseException e) {
+            LOGGER.error("Parse exception while trying to transform input", e);
+            throw new CatalogTransformerException("Could not parse json text:", e);
+        }
+    }
+
     @Override
     public Metacard transform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
@@ -81,14 +91,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Cannot transform null input.");
         }
 
-        JSONObject rootObject = null;
-
-        try {
-            rootObject = (JSONObject) PARSER.parse(IOUtils.toString(input));
-        } catch (ParseException e) {
-            LOGGER.error("Parse exception while trying to transform input", e);
-            throw new CatalogTransformerException("Could not parse json text:", e);
-        }
+        JSONObject rootObject = parse(input);
 
         Object typeValue = rootObject.get(CompositeGeometry.TYPE_KEY);
         if (typeValue == null || !typeValue.equals("Feature")) {
