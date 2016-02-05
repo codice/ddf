@@ -23,7 +23,7 @@
     </parent>
     <groupId>ddf.security</groupId>
     <artifactId>security-services-app</artifactId>
-    <packaging>kar</packaging>
+    <packaging>pom</packaging>
     <name>DDF :: Security Services App</name>
     <build>
         <plugins>

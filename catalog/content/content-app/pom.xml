@@ -20,7 +20,7 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>content-app</artifactId>
-    <packaging>kar</packaging>
+    <packaging>pom</packaging>
     <name>DDF :: Content App</name>
     <build>
         <plugins>

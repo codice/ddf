@@ -346,6 +346,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -415,7 +416,8 @@
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
                             ddf.catalog.resourceretriever,
-                            ddf.catalog.core.impl
+                            ddf.catalog.core.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,
@@ -423,6 +425,8 @@
                             ddf.catalog.resource.data
                         </Export-Package>
                         <Import-Package>
+                            !org.eclipse.jetty.server.bio,
+                            !org.eclipse.jetty.server.ssl,
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.geom.impl,
@@ -497,7 +501,6 @@
                             org.apache.xerces.xni.parser,
                             org.apache.xml.resolver,
                             org.apache.xml.resolver.helpers,
-                            org.codice.ddf.platform.util,
                             org.eclipse.jetty.server.*,
                             org.eclipse.jetty.servlet,
                             org.eclipse.jetty.util.*,

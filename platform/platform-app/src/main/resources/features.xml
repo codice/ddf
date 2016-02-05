@@ -685,6 +685,7 @@
 
     <feature name="platform-commands" install="manual" version="${project.version}"
              description="Platform Command line tools">
+        <feature prerequisite="true">platform-configuration</feature>
         <bundle>mvn:ddf.platform/platform-commands/${project.version}</bundle>
     </feature>
 

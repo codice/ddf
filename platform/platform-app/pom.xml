@@ -24,7 +24,7 @@
     </parent>
     <artifactId>platform-app</artifactId>
     <name>DDF :: Platform :: App</name>
-    <packaging>kar</packaging>
+    <packaging>pom</packaging>
     <dependencies>
         <dependency>
             <groupId>ddf.security.core</groupId>

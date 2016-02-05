@@ -419,7 +419,8 @@
                             activities,
                             jackson-mapper-asl,
                             jackson-core-asl,
-                            commons-collections
+                            commons-collections,
+                            platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Web-ContextPath>/search/cometd</Web-ContextPath>
@@ -429,10 +430,13 @@
                         <Private-Package>
                             org.codice.ddf.ui.searchui.query.*,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
+                            !org.eclipse.jetty.server.bio,
+                            !org.eclipse.jetty.server.ssl,
                             com.google.*,
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
@@ -505,8 +509,7 @@
                             org.apache.xml.resolver.helpers,
                             org.codice.ddf.configuration,
                             org.codice.ddf.persistence,
-                            org.codice.ddf.platform.util,
-                            org.eclipse.jetty.*; version="[7.6.0,9.0.0)",
+                            org.eclipse.jetty.*;version="[9.2,10)",
                             org.geotools.factory,
                             org.geotools.filter,
                             org.geotools.filter.capability,
