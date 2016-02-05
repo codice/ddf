@@ -1194,142 +1194,23 @@ Otherwise, caching is canceled if the user cancels the product download.
 
 As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.
 
-=== {branding} Catalog Schematron
+=== {branding} Schematron
 
-The Schematron Validation Plugin (`plugin-schematron-validation` bundle) provides a pre-ingest interceptor that validates the incoming request against a Schematron ruleset (or rule sets).
-If the request has warnings or errors based on the Schematron validation, the request is marked as invalid and a SOAP fault is returned with details on the exact reason why the request was invalid.
-This bundle has the following characteristics:
-
-* It provides the Schematron engine, meaning it provides the infrastructure to load, parse, and apply Schematron rule sets.
-* It does not contain any Schematron ruleset(s) - those must be installed (as features) separately.
-
-The Schematron validation bundle works with Schematron rule set bundles to obtain the rules for validation.
-The Schematron validation bundle and the Schematron rule set bundle are uninstalled by default.
-Learn more about http://www.schematron.com[Schematron].
-
-===== Understanding Schematron
-
-Schematron is a language for making assertions about the presence or absence of patterns in XML documents.
-It is not a replacement for XML Schema (XSD) validation.
-Rather, it is used in conjunction with many grammar-based structure-validation languages, such as XSD.
-
-Schematron is an ISO standard:  `ISO/IEC 19757-3:2006` Information technology -- Document Schema Definition Language (DSDL) -- Part 3: Rule-based validation -- Schematron
-
-Schematron assertions are based on two simple actions:
-
-. First, find context nodes in the document (typically an element) based on XPath criteria.
-
-. Then, check to see if some other XPath expressions are true, for each of the nodes returned in the first step.
-
-Schematron assertions (or rules) are defined in a `.sch` file by convention, which is an XML file conforming to Schematron's rules for defining assertions.
-This file is referred to as a "Schematron ruleset."
-These rules are contained in one `.sch` file or a hierarchy of `.sch` files.
-However, there is ultimately one `.sch` file that includes or uses all of the other `.sch` files.
-This one `.sch` file is the "ruleset" used by the {branding} Schematron Validation Service.
-
-Schematron also includes SVRL (Schematron Validation Report Language) report generation, which is in XML format.
-This report includes the results of all of the Schematron rulesets' assertions, classifying them as warnings or errors (based on the ruleset).
-
-{branding} implements Schematron as a Pre-Ingest Plugin, running the Schematron ruleset(s) against each catalog entry in each `create` and `update` ingest request that {branding} receives.
-The {branding} Schematron Validation Pre-Ingest Plugin consists of two components: the Schematron "engine" and the client ruleset bundle(s).
-Each are described below.
-
-===== Schematron Validation Plugin
-
-The Schematron Validation Service is in a single OSGi bundle named `plugin-schematron-validation`.
-This bundle includes all of the code to implement:
-
-. Loading and pre-compilation of the client ruleset bundle
-. Executing the ruleset against ingest requests
-. Generating the SVRL report. From this report, the Schematron Validation Service determines if errors and/or warnings were detected during validation. If errors or warnings exist, validation fails and the ingest request is rejected. A SOAP fault is then returned to the client, including details on why the request is invalid.
-
-The client's ruleset bundle determines what rules generate warnings and what rules generate errors.
-The Schematron Validation Service provides a configuration option (accessible via the Admin Console's Configuration page) to suppress warnings.
-When this option is set, if only warnings are detected during Schematron validation, then the request is considered valid.
-By default, this suppress warnings option is unset (hence warnings result in invalid requests by default).
-
-Validation is executed per catalog entry in the ingest request.
-If multiple catalog entries are in the request, Schematron validation stops once a catalog entry is determined to be invalid.
-For example, if ten catalog entries are in a singe create ingest request and entry #4 is invalid, entries 5 through 10 will not even be validated. Schematron returns an invalid status after entry #4 is validated.
+Custom schematron rulesets can be used to validate metacard metadata.
+Multiple services can be created, and each service can have multiple rule sets associated with it.
+Namespaces are used to distinguish services.
+The root schematron files may be placed anywhere on the file system as long as they are configured with an absolute path.
+Any root schematron files with a relative path are assumed to be relative to `DDF_HOME/schematron`.
 
 [TIP]
 ====
-If only the Schematron Validation Service is installed, no Schematron validation occurs because the Schematron Validation Service has no ruleset to validate the request against; it only provides the framework for Schematron rulesets to be applied to ingest requests.
-At least one client ruleset bundle must also be installed.
+Schematron files may reference other schematron files using an include statement with a relative path.
+However, when using the document function within a schematron ruleset to reference another file, the path must be absolute or relative to the DDF installation home directory.
 ====
-
-===== Schematron Client "Ruleset" Bundle(s)
-
-A client must deploy at least one Schematron ruleset bundle before Schematron validation occurs.
-
-The Schematron ruleset bundle consists of three required items:
-
-* The `.sch` ruleset file defining the Schematron applied rules
-* A bundle wiring specification file (e.g., Blueprint, Spring DM, Declarative Services, etc.) specifying the `.sch` file used and associating theruleset to the Schematron Validation Service
-* An OSGi metatype XML file that specifies the configurable options for the Schematron Validation Service (namely the suppress warnings option)
-
-The diagram below illustrates how these Schematron components interact:
-[ditaa, schematron_diagram,png,${image-width}]
-....
-| Schematron Validation Service OSGi Bundle
-                                          |
-                                          |     +---------------------------------+
-                                          |     | ISO Schematron XSLT             |
-                                          |     | implementation                  |
-                                          |     |                                 |
-                                          |     |   +-------------------------+   |
-                                          |     |   |{d}                      |   |
-                                          |     |   | Iso_abstract_expand.xsl |   |
-                                          |     |   |                         |   |
-                                          |     |   +-------------------------+   |
-                                          |     |                                 |
-                                          |     |   +-------------------------+   |
-                                          |     |   |{d}                      |   |
-                                          |     |   |  Iso_dsdl_include.xsl   |   |
-                                          |     |   |                         |   |
-                                          |     |   +-------------------------+   |
-                                          |     |                                 |
-                                          |     |   +-------------------------+   |
-                                          |     |   |{d}                      |   |
-                                          |     |   | Iso_svrl_for_xslt2.xsl  |   |
-                                          |     |   |                         |   |
-                                          |     |   +-------------------------+   |
-                                          |     |                                 |
-                                          |     +----------------+----------------+
-                                          |                      |
-  OSGi Bundle(s) of                       |                      |
-  Schematron schema                       |                      |
-  provided by client                      |                      |
-+--------------------+                    |                      |
-|                    |                    |                      |
-|   +------------+   |                    |                      v
-|   |{d}         |   |                    |         +-------------------------+                        +-------------------------+
-|   | Schematron |   |                    |         |                         |                        |                         |
-|   | schema     |   |                    |         |           XSL           |                        |  Schematron Validation  |
-|   |(.sch file) |   +----------input-----+-------->|      "Compilation"      +---------Provides------>|         Service         |
-|   |            |   |                    |         |                         |     Compiled Rules     |                         |
-|   +------------+   |                    |         |                         |                        |                         |
-|                    |                    |         +-------------------------+                        +------------+------------+
-|   +------------+   |                    |                                                                         |
-|   |{d}         |   |                    |                                                                      produces
-|   | blueprint  |   |                    |                                                                         |
-|   |(.xml file) |   |                    |                                                                         V
-|   |            |   |                    |                                                                  +------------+
-|   +------------+   |                    |                                                                  | Schematron |
-|                    |                    |                                                                  | SVRL Report|
-+--------------------+                    |                                                                  |{d}  XML    |
-                                          |                                                                  +------------+
-                                          |
-                                          |
-                                          |
-                                          |
-....
-
-===== Installing and Uninstalling
-
-The Schematron Validation `ddf.catalog.source.solr.Library` can be installed and uninstalled using the normal processes described in the
-Configuring {branding} section.
 
 ===== Configuring
 
-There are no configuration options for this application.
+Schematron validation services are configured with a namespace and one or more schematron rule sets.
+Additionally, warnings may be suppressed so that only errors are reported.
+To create a new service, ensure that catalog-schematron-plugin is started and then click Schematron Validation Services.
+

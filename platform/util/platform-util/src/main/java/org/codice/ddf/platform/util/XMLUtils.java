@@ -13,10 +13,15 @@
  */
 package org.codice.ddf.platform.util;
 
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map.Entry;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -34,6 +39,8 @@ import org.w3c.dom.Node;
  * Utility for handling XML
  */
 public class XMLUtils {
+
+    protected static volatile XMLInputFactory xmlInputFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLUtils.class);
 
@@ -109,6 +116,56 @@ public class XMLUtils {
     public static Result transform(Node nodeXml, TransformerProperties transformerProperties,
             Result result) {
         return transform(new DOMSource(nodeXml), transformerProperties, result);
+    }
+
+    /**
+     * @param xml The XML whose root namespace you want
+     * @return Root Namespace
+     */
+    public static String getRootNamespace(String xml) {
+
+        String rootNamespace = null;
+
+        if (xml == null) {
+            return null;
+        }
+
+        initializeXMLInputFactory();
+
+        XMLStreamReader xmlStreamReader = null;
+
+        try (StringReader strReader = new StringReader(xml)) {
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(strReader);
+
+            while (xmlStreamReader.hasNext()) {
+                int event = xmlStreamReader.next();
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    rootNamespace = xmlStreamReader.getNamespaceURI();
+                    return rootNamespace;
+                }
+            }
+        } catch (XMLStreamException e) {
+            LOGGER.warn("Unable to parse root namespace from XML", e);
+        } finally {
+            if (xmlStreamReader != null) {
+                try {
+                    xmlStreamReader.close();
+                } catch (XMLStreamException e) {
+                    // ignore
+                }
+            }
+        }
+
+        return rootNamespace;
+    }
+
+    protected static synchronized void initializeXMLInputFactory() {
+        if (xmlInputFactory == null) {
+            xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+        }
     }
 
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
