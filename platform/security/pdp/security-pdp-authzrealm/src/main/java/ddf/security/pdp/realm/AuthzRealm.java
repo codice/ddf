@@ -347,7 +347,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
      * @param authorizationInfo the application-specific subject/user identifier.
      * @return collection of Permissions.
      */
-    private Collection<Permission> getPermissions(AuthorizationInfo authorizationInfo) {
+    protected Collection<Permission> getPermissions(AuthorizationInfo authorizationInfo) {
         Set<Permission> permissions = new HashSet<>();
 
         if (authorizationInfo != null) {
