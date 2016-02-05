@@ -16,6 +16,10 @@ package org.codice.ddf.commands.catalog;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
@@ -25,8 +29,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.transform.InputTransformer;
 
 /**
  * Tests the {@link IngestCommand} output.
@@ -57,6 +65,20 @@ public class TestIngestCommand extends AbstractCommandTest {
             @Override
             protected Object doExecute() throws Exception {
                 return executeWithSubject();
+            }
+
+            public BundleContext getBundleContext() {
+                BundleContext bundleContext = mock(BundleContext.class);
+                try {
+                    when(bundleContext.getServiceReferences(anyString(),
+                            anyString())).thenReturn(
+                            new ServiceReference[]{mock(ServiceReference.class)});
+                    InputTransformer inputTransformer = mock(InputTransformer.class);
+                    when(bundleContext.getService(anyObject())).thenReturn(inputTransformer);
+                } catch (InvalidSyntaxException e) {
+                    //ignore
+                }
+                return bundleContext;
             }
         };
         command.filePath = testFolder.getRoot().getAbsolutePath();
