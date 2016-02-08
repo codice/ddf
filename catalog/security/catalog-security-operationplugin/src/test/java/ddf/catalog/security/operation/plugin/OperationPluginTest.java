@@ -42,7 +42,12 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.ResourceRequestById;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
@@ -155,8 +160,20 @@ public class OperationPluginTest {
         perms.put("Roles", roles);
         properties.put(PolicyPlugin.OPERATION_SECURITY, perms);
         CreateRequestImpl request = new CreateRequestImpl(new ArrayList<>(), properties);
+        QueryRequestImpl queryRequest = new QueryRequestImpl(mock(Query.class), properties);
+        UpdateRequestImpl updateRequest = new UpdateRequestImpl(new ArrayList<>(), "", properties);
+        DeleteRequestImpl deleteRequest = new DeleteRequestImpl(new String[] {""}, properties);
+        ResourceRequestById resourceRequestById = new ResourceRequestById("", properties);
 
         plugin.processPreCreate(request);
+
+        plugin.processPreQuery(queryRequest);
+
+        plugin.processPreUpdate(updateRequest, new HashMap<>());
+
+        plugin.processPreDelete(deleteRequest);
+
+        plugin.processPreResource(resourceRequestById);
     }
 
     private class MockSubject extends DelegatingSubject implements Subject {

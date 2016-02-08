@@ -92,6 +92,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static final String VALID_CONFIG_FILE_1 =
             "ddf.test.itests.platform.TestPlatform.startup.config";
 
+    private static final String CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE = "/encryption.properties";
+
     private static final String TEST_FILE = "../cat.txt";
 
     private static final Path SYSTEM_PROPERTIES = Paths.get("etc", "system.properties");
@@ -109,6 +111,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static final Path PDP = Paths.get("etc", "pdp");
 
     private static final Path PDP_COPY = Paths.get("etc", "pdp-copy");
+
+    private static final Path ENCRYPTION_PROPERTIES = Paths.get("etc",
+            "ws-security",
+            "server",
+            "encryption.properties");
 
     private static final String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
 
@@ -156,6 +163,19 @@ public class TestConfiguration extends AbstractIntegrationTest {
         basePort = getBasePort();
         symbolicLink = Paths.get(ddfHome)
                 .resolve("link");
+        enableCrlInEncyptionPropertiesFile();
+    }
+
+    private void enableCrlInEncyptionPropertiesFile() throws IOException {
+        File encryptionPropertiesLocation = Paths.get(ddfHome)
+                .resolve(ENCRYPTION_PROPERTIES)
+                .toFile();
+        encryptionPropertiesLocation.delete();
+        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(
+                CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE),
+                Paths.get(ddfHome)
+                        .resolve(ENCRYPTION_PROPERTIES)
+                        .toFile());
     }
 
     public void resetInitialState() throws Exception {
@@ -264,7 +284,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 temporaryFolder.toString()),
                 response,
                 containsString("Successfully exported all configurations."));
-        assertExportContents(temporaryFolder.getRoot().toPath());
+        assertExportContents(temporaryFolder.getRoot()
+                .toPath());
     }
 
     @Test
@@ -313,7 +334,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(EXPORT_COMMAND);
 
-        assertThat("Saved configuration should be exported.", getPathToExportedConfig(getDefaultExportDirectory(),
+        assertThat("Saved configuration should be exported.", getPathToExportedConfig(
+                getDefaultExportDirectory(),
                 managedServiceNewConfig1.pid).toFile()
                 .isFile(), is(true));
     }
@@ -333,7 +355,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(EXPORT_COMMAND);
 
-        assertThat("Deleted configuration should not be exported.", getPathToExportedConfig(getDefaultExportDirectory(),
+        assertThat("Deleted configuration should not be exported.", getPathToExportedConfig(
+                getDefaultExportDirectory(),
                 managedServiceNewConfig2.pid).toFile()
                 .isFile(), is(false));
     }
@@ -443,10 +466,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String response = console.runCommand(EXPORT_COMMAND);
 
-        assertThat(String.format("Should not have been able to export to %s.",
+        assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString("An error was encountered while executing this command."));
+                containsString(
+                        "Path [etc/system.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -462,10 +486,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String response = console.runCommand(EXPORT_COMMAND);
 
-        assertThat(String.format("Should not have been able to export to %s.",
+        assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString("An error was encountered while executing this command."));
+                containsString(
+                        "Path [etc/users.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -499,10 +524,11 @@ public class TestConfiguration extends AbstractIntegrationTest {
         FileUtils.moveDirectory(PDP.toFile(), PDP_COPY.toFile());
 
         String response = console.runCommand(EXPORT_COMMAND);
-        assertThat(String.format("Should not have been able to export to %s.",
+        assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString("An error was encountered while executing this command."));
+                containsString(
+                        "Path [etc/pdp] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -516,14 +542,16 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         String firstExportMessage = console.runCommand(EXPORT_COMMAND);
 
-        File firstExport = getExportSubDirectory(getDefaultExportDirectory(), "system.properties").toFile();
+        File firstExport = getExportSubDirectory(getDefaultExportDirectory(),
+                "system.properties").toFile();
         long firstLength = firstExport.length();
         FileUtils.copyFile(SYSTEM_PROPERTIES.toFile(), SYSTEM_PROPERTIES_COPY.toFile());
         FileUtils.writeStringToFile(SYSTEM_PROPERTIES.toFile(), "testtesttest", true);
 
         String secondExportMessage = console.runCommand(EXPORT_COMMAND);
 
-        File secondExport = getExportSubDirectory(getDefaultExportDirectory(), "system.properties").toFile();
+        File secondExport = getExportSubDirectory(getDefaultExportDirectory(),
+                "system.properties").toFile();
         long secondLength = secondExport.length();
 
         assertThat("The first export failed to export",
@@ -614,7 +642,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * Returns the default location for exported configuration files
      *
      * @param exportDirectory root directory of the export
-     * @param pid PID of the configuration file
+     * @param pid             PID of the configuration file
      * @return Full path to the exported configuration file
      */
     private Path getPathToExportedConfig(Path exportDirectory, String pid) {
@@ -640,10 +668,13 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 .exists(), is(true));
         assertThat(getExportSubDirectory(exportDirectory, "users.properties").toFile()
                 .exists(), is(true));
+        assertThat(getExportSubDirectory(exportDirectory, "org.codice.ddf.admin.applicationlist.properties").toFile()
+                .exists(), is(true));
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "keystores"),
                 "serverKeystore.jks",
                 "serverTruststore.jks");
-        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "pdp", "policies"), "access-policy.xml");
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "pdp", "policies"),
+                "access-policy.xml");
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security"),
                 "attributeMap.properties",
                 "issuer",

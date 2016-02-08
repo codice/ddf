@@ -94,54 +94,44 @@ define(function (require) {
 
         makeEnableCall: function(){
             var model = this;
-            var deferred = $.Deferred();
             var pid = model.get('id');
             var url = [model.configUrl, "enableConfiguration", pid].join("/");
-            if(pid){
-                $.ajax({
+            if (pid) {
+                return $.ajax({
                     url: url,
                     dataType: 'json'
-                }).then(function(){
-                        // massage some data to match the new backend pid.
-                        model.trigger('enabled');
-                        //enabling the model means the PID will be regenerated. This model no longer exists on the server.
-                        model.destroy();
-                        deferred.resolve();
-                    }).fail(function(){
-                        deferred.reject(new Error('Could not enable configuratoin ' + pid));
-                        deferred.resolve();
-                    });
-            } else {
-                deferred.fail(new Error("Cannot enable since this model has no pid."));
+                }).done(function(){
+                    // massage some data to match the new backend pid.
+                    model.trigger('enabled');
+                    //enabling the model means the PID will be regenerated. This model no longer exists on the server.
+                    model.destroy();
+                }).fail(function(){
+                    new Error('Could not enable configuratoin ' + pid);
+                });
             }
 
-            return deferred;
+            return $.Deferred().fail(new Error("Cannot enable since this model has no pid."));
 
         },
 
         makeDisableCall: function(){
             var model = this;
-            var deferred = $.Deferred();
             var pid = model.get('id');
             var url = [model.configUrl, "disableConfiguration", pid].join("/");
-            if(pid){
-                $.ajax({
+            if (pid) {
+                return $.ajax({
                     url: url,
                     dataType: 'json'
-                }).then(function(){
-                        model.trigger('disabled');
-                        //disabling the model means the PID will be regenerated. This model no longer exists on the server.
-                        model.destroy();
-                        deferred.resolve();
-                    }).fail(function(){
-                        deferred.reject(new Error('Could not disable configuration ' + pid));
-                        deferred.resolve();
-                    });
-            } else {
-                deferred.reject(new Error("Cannot enable since this model has no pid."));
+                }).done(function(){
+                    model.trigger('disabled');
+                    //disabling the model means the PID will be regenerated. This model no longer exists on the server.
+                    model.destroy();
+                }).fail(function(){
+                    new Error('Could not disable configuration ' + pid);
+                });
             }
 
-            return deferred;
+            return $.Deferred().reject(new Error("Cannot enable since this model has no pid."));
         },
 
         // Used to make a call to the backend to disable the service that corresponds to the pid.

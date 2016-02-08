@@ -70,15 +70,15 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 } catch (ValidationException e) {
                     // If validator is not explicitly turned on by admin, set invalid and allow through
                     if (checkEnforcedMetacardValidators(metacardValidator)) {
-                        Boolean validationErrorsExist = !e.getErrors().isEmpty();
-                        Boolean validationWarningsExist = !e.getWarnings().isEmpty();
+                        Boolean validationErrorsExist   = e.getErrors()   != null && !e.getErrors().isEmpty();
+                        Boolean validationWarningsExist = e.getWarnings() != null && !e.getWarnings().isEmpty();
                         if (validationErrorsExist || validationWarningsExist) {
                             // Check for warnings and errors
                             if (validationErrorsExist) {
-                                validationErrors.add(getValidatorName(metacardValidator));
+                                validationErrors.addAll(e.getErrors());
                             }
                             if (validationWarningsExist) {
-                                validationWarnings.add(getValidatorName(metacardValidator));
+                                validationWarnings.addAll(e.getWarnings());
                             }
                         } else {
                             LOGGER.error(
@@ -98,9 +98,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 }
             }
             if (toReturn) {
-                newMetacard
-                        .setAttribute(new AttributeImpl(VALIDATION_WARNINGS, validationWarnings));
-                newMetacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS, validationErrors));
+                newMetacard.setAttribute(new AttributeImpl(VALIDATION_WARNINGS, validationWarnings));
+                newMetacard.setAttribute(new AttributeImpl(VALIDATION_ERRORS,   validationErrors));
                 returnMetacards.add(newMetacard);
             }
         }

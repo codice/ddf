@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -54,9 +55,11 @@ public class XacmlPdpTest {
     // Subject info
     private static final String TEST_COUNTRY = "ATA";
 
-    private static final String NAME_IDENTIFIER = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+    private static final String NAME_IDENTIFIER =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
-    private static final String GIVEN_NAME = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
+    private static final String GIVEN_NAME =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
 
     private static final String COUNTRY = "http://www.opm.gov/feddata/CountryOfCitizenship";
 
@@ -64,31 +67,32 @@ public class XacmlPdpTest {
 
     @BeforeClass()
     public static void setupLogging() throws PdpException {
-        testRealm = new XacmlPdp("src/test/resources/policies");
+        testRealm = new XacmlPdp("src/test/resources/policies", new XmlParser());
     }
 
-    @Test (expected = PdpException.class)
+    @Test(expected = PdpException.class)
     public void testBadSetupNull() throws PdpException {
-        XacmlPdp xacmlPdp = new XacmlPdp(null);
+        XacmlPdp xacmlPdp = new XacmlPdp(null, new XmlParser());
     }
 
-    @Test (expected = PdpException.class)
+    @Test(expected = PdpException.class)
     public void testBadSetupEmpty() throws PdpException {
-        XacmlPdp xacmlPdp = new XacmlPdp("");
+        XacmlPdp xacmlPdp = new XacmlPdp("", new XmlParser());
     }
 
     @Test
     public void testActionGoodCountry() {
-        RequestType request = testRealm
-                .createXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
-                        new KeyValueCollectionPermission(QUERY_ACTION));
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo(TEST_COUNTRY),
+                new KeyValueCollectionPermission(QUERY_ACTION));
 
         assertTrue(testRealm.isPermitted(request));
     }
 
     @Test
     public void testActionBadCountry() {
-        RequestType request = testRealm.createXACMLRequest(USER_NAME, generateSubjectInfo("CAN"),
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo("CAN"),
                 new KeyValueCollectionPermission(QUERY_ACTION));
 
         assertFalse(testRealm.isPermitted(request));
@@ -98,7 +102,8 @@ public class XacmlPdpTest {
     public void testActionGoodSiteName() {
         SimpleAuthorizationInfo blankUserInfo = new SimpleAuthorizationInfo(new HashSet<String>());
         blankUserInfo.setObjectPermissions(new HashSet<Permission>());
-        RequestType request = testRealm.createXACMLRequest(USER_NAME, blankUserInfo,
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                blankUserInfo,
                 new KeyValueCollectionPermission(SITE_NAME_ACTION));
 
         assertTrue(testRealm.isPermitted(request));
@@ -107,9 +112,9 @@ public class XacmlPdpTest {
     @Test
     public void testActionBadAction() {
 
-        RequestType request = testRealm
-                .createXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
-                        new KeyValueCollectionPermission("bad"));
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo(TEST_COUNTRY),
+                new KeyValueCollectionPermission("bad"));
 
         assertFalse(testRealm.isPermitted(request));
     }
@@ -121,11 +126,12 @@ public class XacmlPdpTest {
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, security);
+                CollectionPermission.READ_ACTION,
+                security);
 
-        RequestType request = testRealm
-                .createXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
-                        resourcePermissions);
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo(TEST_COUNTRY),
+                resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
 
@@ -138,10 +144,11 @@ public class XacmlPdpTest {
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, security);
-        RequestType request = testRealm
-                .createXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
-                        resourcePermissions);
+                CollectionPermission.READ_ACTION,
+                security);
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo(TEST_COUNTRY),
+                resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
 
@@ -154,10 +161,11 @@ public class XacmlPdpTest {
         security.put(RESOURCE_ACCESS, Arrays.asList(ACCESS_TYPE_A, ACCESS_TYPE_B, ACCESS_TYPE_C));
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
-                CollectionPermission.READ_ACTION, security);
-        RequestType request = testRealm
-                .createXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
-                        resourcePermissions);
+                CollectionPermission.READ_ACTION,
+                security);
+        RequestType request = testRealm.createXACMLRequest(USER_NAME,
+                generateSubjectInfo(TEST_COUNTRY),
+                resourcePermissions);
 
         assertFalse(testRealm.isPermitted(request));
 

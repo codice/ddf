@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
@@ -85,6 +86,8 @@ public class FrameworkProperties {
     private DownloadsStatusEventPublisher downloadsStatusEventPublisher;
 
     private ReliableResourceDownloadManager reliableResourceDownloadManager;
+
+    private FilterBuilder filterBuilder;
 
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
@@ -255,5 +258,13 @@ public class FrameworkProperties {
 
     public void setCatalogStoresMap(Map<String, CatalogStore> catalogStoresMap) {
         this.catalogStoresMap = catalogStoresMap;
+    }
+
+    public FilterBuilder getFilterBuilder() {
+        return filterBuilder;
+    }
+
+    public void setFilterBuilder(FilterBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
     }
 }

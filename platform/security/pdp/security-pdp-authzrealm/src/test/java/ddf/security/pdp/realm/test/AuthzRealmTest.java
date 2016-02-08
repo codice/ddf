@@ -25,6 +25,7 @@ import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.authz.permission.WildcardPermission;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.codice.ddf.parser.xml.XmlParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -72,7 +73,7 @@ public class AuthzRealmTest {
         authorizationInfo.addRole("admin");
         authorizationInfo.addStringPermission("wild");
 
-        testRealm = new AuthzRealm("src/test/resources/policies") {
+        testRealm = new AuthzRealm("src/test/resources/policies", new XmlParser()) {
             @Override
             public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
                 return authorizationInfo;
@@ -198,7 +199,7 @@ public class AuthzRealmTest {
         authorizationInfo.addObjectPermission(countryPermission);
         authorizationInfo.addRole("admin");
 
-        AuthzRealm testRealm = new AuthzRealm("src/test/resources/policies") {
+        AuthzRealm testRealm = new AuthzRealm("src/test/resources/policies", new XmlParser()) {
             @Override
             public AuthorizationInfo getAuthorizationInfo(PrincipalCollection principals) {
                 return authorizationInfo;

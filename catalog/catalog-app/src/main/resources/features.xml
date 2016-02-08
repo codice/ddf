@@ -254,9 +254,9 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-auditplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-ingestplugin" install="manual" version="${project.version}"
-             description="DDF Security Ingest Plugins">
-        <bundle>mvn:ddf.catalog.security/catalog-security-ingestplugin/${project.version}</bundle>
+    <feature name="catalog-security-policyplugin" install="manual" version="${project.version}"
+             description="DDF Catalog Policy Plugins">
+        <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-admin-module-sources" install="manual" version="${project.version}"
@@ -289,11 +289,12 @@
         <feature>catalog-transformer-tika</feature>
         <feature>catalog-transformer-video</feature>
         <feature>catalog-security-plugin</feature>
-        <feature>catalog-security-ingestplugin</feature>
+        <feature>catalog-security-policyplugin</feature>
         <feature>catalog-security-operationplugin</feature>
         <feature>catalog-admin-module-sources</feature>
         <feature>catalog-core-backupplugin</feature>
         <feature>catalog-plugin-jpeg2000</feature>
+        <feature>catalog-schematron-plugin</feature>
     </feature>
 
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"

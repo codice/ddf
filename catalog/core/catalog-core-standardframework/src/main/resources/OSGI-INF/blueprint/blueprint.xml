@@ -264,6 +264,8 @@
         <argument ref="downloadThreadPool"/>
     </bean>
 
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
     <!-- create the ddf bean -->
     <bean id="ddf" class="ddf.catalog.impl.CatalogFrameworkImpl">
         <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
@@ -292,6 +294,7 @@
                           ref="reliableResourceDownloadManager"/>
                 <property name="policyPlugins" ref="policySortedList"/>
                 <property name="accessPlugins" ref="accessSortedList"/>
+                <property name="filterBuilder" ref="filterBuilder"/>
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>

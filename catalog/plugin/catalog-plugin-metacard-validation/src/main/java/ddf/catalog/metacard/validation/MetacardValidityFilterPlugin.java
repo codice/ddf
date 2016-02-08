@@ -71,8 +71,14 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     }
 
     @Override
-    public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
+    public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPostDelete(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
         return new PolicyResponseImpl();
     }
 

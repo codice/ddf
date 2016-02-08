@@ -230,6 +230,7 @@
         <module>security-admin-module</module>
         <module>idp</module>
         <module>rest</module>
+        <module>security-migratable</module>
         <module>security-services-app</module>
         <module>docs</module>
     </modules>

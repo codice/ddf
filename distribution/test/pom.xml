@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>ddf</groupId>
         <artifactId>distribution</artifactId>
@@ -22,12 +24,13 @@
     <groupId>ddf.test</groupId>
     <artifactId>test</artifactId>
     <packaging>pom</packaging>
-    <name>DDF Test</name>
+    <name>DDF :: Test</name>
     <modules>
         <module>features-xml</module>
         <module>test-input-transformer-stubs</module>
         <module>thirdparty</module>
         <module>itests</module>
+        <module>performance</module>
     </modules>
     <repositories>
         <repository>

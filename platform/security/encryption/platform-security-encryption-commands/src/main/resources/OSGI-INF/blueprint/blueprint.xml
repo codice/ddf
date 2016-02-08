@@ -14,18 +14,18 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
- 
-	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-		<command name="security/encrypt">
-			<action class="ddf.security.command.EncryptCommand">
-				<property name="encryptionService" ref="encryptionService"/>
-			</action>
-		</command>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
-	</command-bundle>
+        <command name="security/encrypt">
+            <action class="ddf.security.command.EncryptCommand">
+                <property name="encryptionService" ref="encryptionService"/>
+            </action>
+        </command>
+
+    </command-bundle>
 
 
 </blueprint>

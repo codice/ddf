@@ -30,6 +30,7 @@ import org.apache.shiro.authz.permission.PermissionResolver;
 import org.apache.shiro.authz.permission.RolePermissionResolver;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
+import org.codice.ddf.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +67,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
     private XacmlPdp xacmlPdp;
 
-    public AuthzRealm(String dirPath) throws PdpException {
+    public AuthzRealm(String dirPath, Parser parser) throws PdpException {
         super();
-        xacmlPdp = new XacmlPdp(dirPath);
+        xacmlPdp = new XacmlPdp(dirPath, parser);
     }
 
     // this realm is for authorization only
@@ -346,7 +347,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
      * @param authorizationInfo the application-specific subject/user identifier.
      * @return collection of Permissions.
      */
-    private Collection<Permission> getPermissions(AuthorizationInfo authorizationInfo) {
+    protected Collection<Permission> getPermissions(AuthorizationInfo authorizationInfo) {
         Set<Permission> permissions = new HashSet<>();
 
         if (authorizationInfo != null) {

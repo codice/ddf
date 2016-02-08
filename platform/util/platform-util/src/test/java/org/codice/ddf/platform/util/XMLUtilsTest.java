@@ -47,6 +47,8 @@ public class XMLUtilsTest {
 
     private static final String PRETTY_XML_NODE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<node>Valid-XML</node>\n";
 
+    private static final String XML_WITH_NAMESPACE = "<?xml version=\"1.0\"?><dog:Dog xmlns:dog=\"doggy-namespace\"></dog:Dog>";
+
     @Test
     public void testFormatSource() throws ParserConfigurationException, IOException, SAXException {
         Source xmlSource = new StreamSource(new StringReader(XML));
@@ -98,6 +100,11 @@ public class XMLUtilsTest {
                 new StreamResult(new StringWriter()));
 
         assertThat(result.getWriter().toString(), is(equalTo(XML)));
+    }
+
+    @Test
+    public void testGetRootNamespace() {
+        assert "doggy-namespace".equals(XMLUtils.getRootNamespace(XML_WITH_NAMESPACE));
     }
 
     private TransformerProperties setTransformerProperties() {

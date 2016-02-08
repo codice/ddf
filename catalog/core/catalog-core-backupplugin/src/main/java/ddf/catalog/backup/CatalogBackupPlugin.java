@@ -305,8 +305,12 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         LOGGER.debug("Removing {} file extension.", TEMP_FILE_EXTENSION);
         File destination = new File(StringUtils.removeEnd(source.getAbsolutePath(),
                 TEMP_FILE_EXTENSION));
-        FileUtils.moveFile(source, destination);
-        LOGGER.debug("Moved {} to {}.", source.getAbsolutePath(), destination.getAbsolutePath());
+        boolean success = source.renameTo(destination);
+        if (success) {
+            LOGGER.debug("Moved {} to {}.", source.getAbsolutePath(), destination.getAbsolutePath());
+        } else {
+            LOGGER.debug("Failed to move {} to {}.", source.getAbsolutePath(), destination.getAbsolutePath());
+        }
     }
 
     /**

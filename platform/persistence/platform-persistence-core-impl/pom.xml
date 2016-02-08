@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.persistence</groupId>
@@ -159,6 +161,46 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -179,7 +221,11 @@
                             solr-factory,
                             noggit,
                             zookeeper,
-                            common-system
+                            common-system,
+                            commons-lang,
+                            commons-io,
+                            joda-time,
+                            commons-codec
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
@@ -187,9 +233,67 @@
                         </Private-Package>
                         <Import-Package>
                             com.google.*,
+                            com.vividsolutions.jts.geom,
+                            com.vividsolutions.jts.io,
+                            ddf.security.encryption,
+                            javax.crypto,
+                            javax.crypto.spec,
+                            javax.management,
+                            javax.management.openmbean,
+                            javax.management.remote,
+                            javax.naming,
+                            javax.naming.directory,
+                            javax.naming.ldap,
+                            javax.net,
+                            javax.net.ssl,
+                            javax.script,
+                            javax.security.auth,
+                            javax.security.auth.callback,
+                            javax.security.auth.kerberos,
+                            javax.security.auth.login,
+                            javax.security.auth.spi,
+                            javax.security.auth.x500,
+                            javax.security.sasl,
+                            javax.servlet,
+                            javax.servlet.http,
+                            javax.xml.bind,
+                            javax.xml.namespace,
+                            javax.xml.parsers,
+                            javax.xml.stream,
+                            javax.xml.transform,
+                            javax.xml.transform.dom,
+                            javax.xml.transform.sax,
+                            javax.xml.transform.stream,
+                            javax.xml.xpath,
+                            jline,
+                            org.apache.commons.logging,
                             org.codice.ddf.persistence;version=1.0.0-SNAPSHOT,
+                            org.eclipse.jetty.*,
+                            org.geotools.factory,
+                            org.geotools.filter,
+                            org.geotools.filter.capability,
+                            org.geotools.filter.visitor,
+                            org.geotools.referencing.crs,
+                            org.geotools.temporal.object,
+                            org.geotools.util,
+                            org.geotools.util.logging,
+                            org.opengis.feature.simple,
+                            org.opengis.feature.type,
                             org.opengis.filter,
-                            *;resolution:=optional
+                            org.opengis.filter.capability,
+                            org.opengis.filter.expression,
+                            org.opengis.filter.identity,
+                            org.opengis.filter.spatial,
+                            org.opengis.filter.temporal,
+                            org.opengis.parameter,
+                            org.opengis.temporal,
+                            org.osgi.framework,
+                            org.osgi.service.blueprint,
+                            org.slf4j,
+                            org.w3c.dom,
+                            org.xml.sax,
+                            org.xml.sax.ext,
+                            org.xml.sax.helpers
                         </Import-Package>
                     </instructions>
                 </configuration>

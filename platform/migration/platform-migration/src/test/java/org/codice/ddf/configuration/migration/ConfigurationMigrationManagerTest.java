@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -71,9 +71,6 @@ public class ConfigurationMigrationManagerTest {
     private ConfigurationAdminMigration configurationAdminMigration;
 
     @Mock
-    private SystemConfigurationMigration systemConfigurationMigration;
-
-    @Mock
     private MBeanServer mBeanServer;
 
     @Mock
@@ -121,19 +118,12 @@ public class ConfigurationMigrationManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfigurationAdminMigrator() {
-        new ConfigurationMigrationManager(null, systemConfigurationMigration, mBeanServer);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorWithNullSystemConfigurationMigrator() {
-        new ConfigurationMigrationManager(configurationAdminMigration, null, mBeanServer);
+        new ConfigurationMigrationManager(null, mBeanServer);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullMBeanServer() {
-        new ConfigurationMigrationManager(configurationAdminMigration,
-                systemConfigurationMigration,
-                null);
+        new ConfigurationMigrationManager(configurationAdminMigration, null);
     }
 
     @Test
@@ -239,8 +229,13 @@ public class ConfigurationMigrationManagerTest {
                 createConfigurationMigrationManager();
 
         MigrationWarning migrationWarning = new MigrationWarning("");
-        when(systemConfigurationMigration.export(exportPath)).thenReturn(ImmutableList.of(
-                migrationWarning));
+
+        Collection<MigrationWarning> warningList = new ArrayList<>();
+        warningList.add(migrationWarning);
+        MigrationMetadata warning = new MigrationMetadata(warningList);
+
+        when(bundleContext.getService(serviceReference1)).thenReturn(migratable1);
+        when(migratable1.export(any(Path.class))).thenReturn(warning);
 
         Collection<MigrationWarning> migrationWarnings = configurationMigrationManager.export(
                 exportPath);
@@ -286,30 +281,6 @@ public class ConfigurationMigrationManagerTest {
     public void exportWhenConfigurationAdminMigratorThrowsRuntimeException() throws Exception {
         when(Files.createDirectories(exportPath)).thenReturn(exportPath);
         doThrow(new RuntimeException("")).when(configurationAdminMigration)
-                .export(exportPath);
-
-        ConfigurationMigrationManager configurationMigrationManager =
-                createConfigurationMigrationManager();
-
-        configurationMigrationManager.export(exportPath);
-    }
-
-    @Test(expected = MigrationException.class)
-    public void exportWhenSystemConfigurationMigratorThrowsMigrationException() throws Exception {
-        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
-        doThrow(new MigrationException("")).when(systemConfigurationMigration)
-                .export(exportPath);
-
-        ConfigurationMigrationManager configurationMigrationManager =
-                createConfigurationMigrationManager();
-
-        configurationMigrationManager.export(exportPath);
-    }
-
-    @Test(expected = MigrationException.class)
-    public void exportWhenSystemConfigurationMigratorThrowsRuntimeException() throws Exception {
-        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
-        doThrow(new RuntimeException("")).when(systemConfigurationMigration)
                 .export(exportPath);
 
         ConfigurationMigrationManager configurationMigrationManager =
@@ -385,9 +356,7 @@ public class ConfigurationMigrationManagerTest {
     }
 
     private ConfigurationMigrationManager createConfigurationMigrationManager() {
-        return new ConfigurationMigrationManager(configurationAdminMigration,
-                systemConfigurationMigration,
-                mBeanServer) {
+        return new ConfigurationMigrationManager(configurationAdminMigration, mBeanServer) {
             @Override
             BundleContext getBundleContext() {
                 return bundleContext;
@@ -405,7 +374,6 @@ public class ConfigurationMigrationManagerTest {
         Files.createDirectories(exportPath);
 
         verify(configurationAdminMigration, times(1)).export(exportPath);
-        verify(systemConfigurationMigration, times(1)).export(exportPath);
 
         return migrationWarnings;
     }

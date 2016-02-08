@@ -36,25 +36,31 @@ public class FilterPostQueryPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
-    public PolicyResponse processPreDelete(String attributeName, List<Serializable> attributeValues,
+    public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPostDelete(Metacard input, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
@@ -68,12 +74,12 @@ public class FilterPostQueryPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreResource(ResourceRequest resourceRequest)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException {
-        return new PolicyResponseImpl(new HashMap<>(), new HashMap<>());
+        return new PolicyResponseImpl();
     }
 }

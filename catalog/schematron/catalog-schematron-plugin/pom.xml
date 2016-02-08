@@ -33,28 +33,17 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
-        <!-- saxon-dom.jar is needed for DOMResult class usage -->
+        <!--&lt;!&ndash; saxon-dom.jar is needed for DOMResult class usage &ndash;&gt;-->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.osgi</groupId>
-            <artifactId>spring-osgi-mock</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -69,7 +58,9 @@
                             ddf.services.schematron;version=${project.version}
                         </Export-Package>
                         <Embed-Dependency>
-                            catalog-core-api-impl
+                            catalog-core-api-impl;scope=!test,
+                            commons-io,
+                            Saxon-HE
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -92,22 +83,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

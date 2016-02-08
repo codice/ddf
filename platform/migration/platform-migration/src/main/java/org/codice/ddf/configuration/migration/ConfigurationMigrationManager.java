@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,10 +30,12 @@ import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -58,28 +60,22 @@ public class ConfigurationMigrationManager
 
     private final ConfigurationAdminMigration configurationAdminMigration;
 
-    private final SystemConfigurationMigration systemConfigurationMigration;
-
     private final MBeanServer mBeanServer;
 
     /**
      * Constructor.
      *
-     * @param configurationAdminMigration  object used to export {@link org.osgi.service.cm.Configuration}
-     *                                     objects from {@link org.osgi.service.cm.ConfigurationAdmin}
-     * @param systemConfigurationMigration object used to export other system configuration files
-     * @param mBeanServer                  object used to register this object as an MBean
+     * @param configurationAdminMigration object used to export {@link org.osgi.service.cm.Configuration}
+     *                                    objects from {@link org.osgi.service.cm.ConfigurationAdmin}
+     * @param mBeanServer                 object used to register this object as an MBean
      */
     public ConfigurationMigrationManager(
             @NotNull ConfigurationAdminMigration configurationAdminMigration,
-            @NotNull SystemConfigurationMigration systemConfigurationMigration,
             @NotNull MBeanServer mBeanServer) {
         notNull(configurationAdminMigration, "ConfigurationAdminMigration cannot be null");
-        notNull(systemConfigurationMigration, "SystemConfigurationMigration cannot be null");
         notNull(mBeanServer, "MBeanServer cannot be null");
 
         this.configurationAdminMigration = configurationAdminMigration;
-        this.systemConfigurationMigration = systemConfigurationMigration;
         this.mBeanServer = mBeanServer;
     }
 
@@ -107,16 +103,16 @@ public class ConfigurationMigrationManager
         try {
             Files.createDirectories(exportDirectory);
             configurationAdminMigration.export(exportDirectory);
-            migrationWarnings.addAll(systemConfigurationMigration.export(exportDirectory));
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
-            String message = "Unable to create export directories.";
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            LOGGER.error("Unable to create export directories", e);
+            throw new ExportMigrationException("Unable to create export directories", e);
+        } catch (MigrationException e) {
+            LOGGER.error("Export operation failed", e);
+            throw e;
         } catch (RuntimeException e) {
-            String message = "Failure to export, internal error occurred.";
-            LOGGER.error(message, e);
-            throw new MigrationException(message, e);
+            LOGGER.error("Failure to export, internal error occurred", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
 
         return migrationWarnings;
@@ -155,7 +151,7 @@ public class ConfigurationMigrationManager
             LOGGER.error(
                     "Export failed: could not get list of Migratable service references from bundle context",
                     e);
-            throw new MigrationException("Failure to export, internal error occurred.", e);
+            throw new UnexpectedMigrationException("Export failed", e);
         }
     }
 }

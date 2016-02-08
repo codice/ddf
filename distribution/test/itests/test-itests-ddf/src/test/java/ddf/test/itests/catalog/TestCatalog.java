@@ -626,7 +626,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse response = executeOpenSearch("xml", "q=*");
         response.body(hasXPath(xPath));
 
-        getServiceManager().startFeature(true, "sample-filter", "filter-plugin");
+        getServiceManager().startFeature(true, "sample-filter", "catalog-security-filter");
 
         try {
             // Configure the PDP
@@ -647,8 +647,12 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(hasXPath(xPath));
 
         } finally {
+            Configuration config = configAdmin.getConfiguration(
+                    "ddf.security.pdp.realm.AuthzRealm", null);
+            Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
+            config.update(configProps);
+            getServiceManager().stopFeature(true, "sample-filter", "catalog-security-filter");
             deleteMetacard(id1);
-            getServiceManager().stopFeature(true, "sample-filter", "filter-plugin");
         }
     }
 
@@ -664,12 +668,12 @@ public class TestCatalog extends AbstractIntegrationTest {
         response.body(hasXPath(xPath1));
 
         //change ingest plugin role to ingest
-        IngestProperties ingestProperties = new IngestProperties();
-        ingestProperties.put("permissionStrings",
+        CatalogPolicyProperties catalogPolicyProperties = new CatalogPolicyProperties();
+        catalogPolicyProperties.put("createPermissions",
                 new String[] {"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=ingest"});
         Configuration config = configAdmin
-                .getConfiguration("ddf.catalog.security.ingest.IngestPlugin", null);
-        Dictionary<String, Object> configProps = new Hashtable<>(ingestProperties);
+                .getConfiguration("org.codice.ddf.catalog.security.CatalogPolicy", null);
+        Dictionary<String, Object> configProps = new Hashtable<>(catalogPolicyProperties);
         config.update(configProps);
         waitForAllBundles();
 
@@ -682,7 +686,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         response.body(hasXPath(xPath1));
 
         //revert to original configuration
-        configProps.put("permissionStrings",
+        configProps.put("createPermissions",
                 new String[] {"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"});
         config.update(configProps);
         waitForAllBundles();
@@ -809,7 +813,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                     String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
 
             deleteMetacard(id1);
-            deleteMetacard(id2);
         } finally {
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
@@ -862,8 +865,8 @@ public class TestCatalog extends AbstractIntegrationTest {
             //Search for all entries that have validation-warnings or no validation warnings
             //Only search that will actually return all entries
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS,
-                    "sample-validator")
-                    .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sample-validator2")
+                    "sampleWarnings")
+                    .addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS, "sampleWarnings")
                     .addLogicalOperator(AND)
                     .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
                     .addLogicalOperator(OR)
@@ -909,7 +912,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                     String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1))));
 
             deleteMetacard(id1);
-            deleteMetacard(id2);
         } finally {
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
@@ -919,7 +921,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testValidationFiltering() throws Exception {
         getServiceManager()
-                .startFeature(true, "catalog-plugin-metacard-validation", "filter-plugin");
+                .startFeature(true, "catalog-plugin-metacard-validation", "catalog-security-filter");
         try {
             // Update metacardMarkerPlugin config with no enforcedMetacardValidators
             Configuration config = configAdmin.getConfiguration(
@@ -1007,7 +1009,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id2);
         } finally {
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation",
-                    "filter-plugin");
+                    "catalog-security-filter");
         }
     }
 
@@ -1115,12 +1117,12 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     }
 
-    public class IngestProperties extends HashMap<String, Object> {
-        public static final String SYMBOLIC_NAME = "catalog-security-ingestplugin";
+    public class CatalogPolicyProperties extends HashMap<String, Object> {
+        public static final String SYMBOLIC_NAME = "catalog-security-policyplugin";
 
-        public static final String FACTORY_PID = "ddf.catalog.security.ingest.IngestPlugin";
+        public static final String FACTORY_PID = "org.codice.ddf.catalog.security.CatalogPolicy";
 
-        public IngestProperties() {
+        public CatalogPolicyProperties() {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
         }
     }

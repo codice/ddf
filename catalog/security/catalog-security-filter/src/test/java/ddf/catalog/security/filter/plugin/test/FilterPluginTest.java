@@ -13,6 +13,8 @@
  */
 package ddf.catalog.security.filter.plugin.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -55,16 +57,23 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
+import ddf.catalog.security.filter.strategy.FilteringStrategy;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
@@ -81,9 +90,17 @@ public class FilterPluginTest {
 
     ResourceResponseImpl resourceResponse;
 
+    CreateRequestImpl createRequest;
+
+    UpdateRequestImpl updateRequest;
+
+    DeleteResponse deleteResponse;
+
+    DeleteResponse badDeleteResponse;
+
     @Before
     public void setup() {
-        plugin = new FilterPlugin();
+        plugin = new FilterPlugin(Arrays.asList(new FilteringStrategy()));
         QueryRequestImpl request = getSampleRequest();
         Map<String, Serializable> properties = new HashMap<>();
 
@@ -116,6 +133,24 @@ public class FilterPluginTest {
         when(resourceRequest.getProperties()).thenReturn(properties);
         resourceResponse = new ResourceResponseImpl(resourceRequest, mock(Resource.class));
         resourceResponse.setProperties(properties);
+
+        DeleteRequest deleteRequest = mock(DeleteRequest.class);
+        when(deleteRequest.getProperties()).thenReturn(properties);
+        List<Metacard> deletedMetacards = new ArrayList<>();
+        deletedMetacards.add(getExactRolesMetacard());
+        deleteResponse = new DeleteResponseImpl(deleteRequest, properties,
+                deletedMetacards);
+
+        List<Metacard> badDeletedMetacards = new ArrayList<>();
+        badDeletedMetacards.add(getMoreRolesMetacard());
+        badDeleteResponse = new DeleteResponseImpl(deleteRequest, properties,
+                badDeletedMetacards);
+
+        createRequest = new CreateRequestImpl(getExactRolesMetacard());
+        createRequest.setProperties(properties);
+
+        updateRequest = new UpdateRequestImpl("", getExactRolesMetacard());
+        updateRequest.setProperties(properties);
 
         ResultImpl result1 = new ResultImpl(getMoreRolesMetacard());
         ResultImpl result2 = new ResultImpl(getMissingRolesMetacard());
@@ -163,13 +198,53 @@ public class FilterPluginTest {
     }
 
     @Test
+    public void testPluginFilterNoStrategies() {
+        plugin = new FilterPlugin(new ArrayList<>());
+        try {
+            QueryResponse response = plugin.processPostQuery(incomingResponse);
+            verifyFilterResponse(response);
+        } catch (StopProcessingException e) {
+            LOGGER.error("Stopped processing the redaction plugin", e);
+        }
+    }
+
+    @Test
     public void testPluginFilterResourceGood() throws StopProcessingException {
+        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
+    }
+
+    @Test
+    public void testPluginFilterResourceNoStrategiesGood() throws StopProcessingException {
+        plugin = new FilterPlugin(new ArrayList<>());
         ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
     }
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterResourceBad() throws StopProcessingException {
         ResourceResponse response = plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
+    }
+
+    @Test
+    public void testPluginFilterDeleteBad() throws StopProcessingException {
+        DeleteResponse response = plugin.processPostDelete(badDeleteResponse);
+        assertThat(response.getDeletedMetacards().size(), is(0));
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testPluginFilterDeleteNoRequest() throws StopProcessingException {
+        DeleteResponse response = plugin.processPostDelete(mock(DeleteResponse.class));
+    }
+
+    @Test
+    public void testPluginFilterDeleteGood() throws StopProcessingException {
+        DeleteResponse response = plugin.processPostDelete(deleteResponse);
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testPluginFilterResourceNoStrategiesBad() throws StopProcessingException {
+        plugin = new FilterPlugin(new ArrayList<>());
+        ResourceResponse response = plugin.processPostResource(resourceResponse,
+                getMoreRolesMetacard());
     }
 
     @Test(expected = StopProcessingException.class)
@@ -191,6 +266,46 @@ public class FilterPluginTest {
         QueryResponseImpl response = new QueryResponseImpl(null);
         plugin.processPostQuery(response);
         fail("Plugin should have thrown exception when no subject was sent in.");
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testNoRequestSubjectNoStrategies() throws Exception {
+        QueryResponseImpl response = new QueryResponseImpl(null);
+        plugin = new FilterPlugin(new ArrayList<>());
+        plugin.processPostQuery(response);
+        fail("Plugin should have thrown exception when no subject was sent in.");
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testPreCreateNoSubject() throws Exception {
+        plugin.processPreCreate(new CreateRequestImpl(mock(Metacard.class)));
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testPreUpdateNoSubject() throws Exception {
+        plugin.processPreUpdate(new UpdateRequestImpl("", mock(Metacard.class)), new HashMap<>());
+    }
+
+    @Test
+    public void testPreCreate() throws Exception {
+        plugin.processPreCreate(createRequest);
+    }
+
+    @Test
+    public void testPreUpdate() throws Exception {
+        Map<String, Metacard> metacardMap = new HashMap<>();
+        Metacard metacard = getExactRolesMetacard();
+        metacardMap.put(metacard.getId(), metacard);
+        plugin.processPreUpdate(updateRequest, metacardMap);
+    }
+
+    @Test
+    public void testUnusedMethods() throws StopProcessingException {
+        QueryRequest queryRequest = plugin.processPreQuery(mock(QueryRequest.class));
+
+        DeleteRequest deleteRequest = plugin.processPreDelete(mock(DeleteRequest.class));
+
+        ResourceRequest resourceRequest = plugin.processPreResource(mock(ResourceRequest.class));
     }
 
     private void verifyFilterResponse(QueryResponse response) {

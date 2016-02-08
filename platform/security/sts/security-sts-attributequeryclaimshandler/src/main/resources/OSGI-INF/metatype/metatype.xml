@@ -17,6 +17,24 @@
     <OCD description="SAML Protocol AttributeQuery Claims Handler Configuration"
          name="Security STS AttributeQuery Claims Handler" id="ddf.security.sts.attributequery">
 
+        <AD name="WSDL Location" id="wsdlLocation" required="true"
+            type="String"
+            default=""
+            description="Location or address of the WSDL.">
+        </AD>
+
+        <AD name="Service Name" id="serviceName" required="true"
+            type="String"
+            default=""
+            description="Service name from the WSDL. Example format: {NamespaceURI}ServiceName">
+        </AD>
+
+        <AD name="Port Name" id="portName" required="true"
+            type="String"
+            default=""
+            description="Port name that is supported by the service. Example format: {NamespaceURI}PortName">
+        </AD>
+
         <AD name="External Attribute Store URL" id="externalAttributeStoreUrl" required="true"
             type="String"
             default=""
