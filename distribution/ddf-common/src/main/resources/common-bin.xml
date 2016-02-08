@@ -34,6 +34,7 @@
         <exclude>etc/users.properties</exclude>
         <exclude>etc/system.properties</exclude>
         <exclude>etc/shell.init.script</exclude>
+        <exclude>etc/org.apache.karaf.kar.cfg</exclude>
         <!--
         Since Karaf v2.2.9, Karaf includes a default user "karaf" with its own authentication key in it, thus
         when running client script it logs in as "karaf" user without requiring a password.

@@ -1011,10 +1011,9 @@
         <!-- This feature handles Felix style configuration files for DDF and MUST be the first
              one in the platform-app feature
         -->
+        <feature>platform-migrate-all</feature>
         <feature>common-libraries</feature>
-        <feature>platform-migratable-api</feature>
-        <feature>platform-migration</feature>
-        <feature>platform-migration-commands</feature>
+
         <feature>platform-security-session</feature>
 
         <!-- TODO - fix after DDF-1814 is merged
@@ -1057,6 +1056,14 @@
              description="Landing page and branding support.">
         <bundle>mvn:ddf.platform/branding-resources/${project.version}</bundle>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-migrate-all" version="${project.version}">
+        <feature prerequisite="true">platform-dependencies</feature>
+        <feature>platform-migratable-api</feature>
+        <feature>platform-migration</feature>
+        <feature>platform-migration-commands</feature>
+        <feature>platform-migratable</feature>
     </feature>
 
 </features>
