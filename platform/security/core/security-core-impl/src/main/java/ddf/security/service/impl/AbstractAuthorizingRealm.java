@@ -21,7 +21,6 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.opensaml.saml2.core.Attribute;
@@ -49,7 +48,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     private List<Expansion> expansionServiceList;
 
     public AbstractAuthorizingRealm() {
-        this.setCacheManager(new MemoryConstrainedCacheManager());
+        setAuthorizationCachingEnabled(false);
     }
 
     /**
