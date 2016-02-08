@@ -36,7 +36,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Option(name = "Persistence Type", aliases = {"-t", "--type"}, required = true,
-            description = "Type of entry in the persistence store to perform the current operation on.\nOptions: metacard, saved_query, notification, activity, or workspace",
+            description = "Type of entry in the persistence store to perform the current operation on.\nOptions: attributes, preferences, metacard, saved_query, notification, activity, or workspace",
             multiValued = false)
     protected String type;
 

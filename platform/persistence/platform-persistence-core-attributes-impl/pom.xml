@@ -20,16 +20,18 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <groupId>ddf.persistence.core</groupId>
-    <artifactId>persistence-core-api</artifactId>
-    <name>DDF :: Persistence :: Core :: API</name>
+    <artifactId>persistence-core-attributes-impl</artifactId>
+    <name>DDF :: Persistence :: Core :: Attributes :: Internal Implementation</name>
     <packaging>bundle</packaging>
-    <properties>
-        <persistence.api.version>1.0.0-SNAPSHOT</persistence.api.version>
-    </properties>
     <dependencies>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>ddf.persistence.core</groupId>
+            <artifactId>persistence-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -40,10 +42,13 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>
-                            org.codice.ddf.persistence;version=${persistence.api.version},
-                            org.codice.ddf.persistence.attributes;version=${persistence.api.version}
-                        </Export-Package>
+                        <Private-Package>
+                            org.codice.ddf.persistence.attributes.internal
+                        </Private-Package>
+                        <Import-Package>
+                            org.codice.ddf.persistence.attributes;version=1.0.0-SNAPSHOT,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -65,22 +70,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.17</minimum>
+                                            <minimum>1.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.16</minimum>
+                                            <minimum>1.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.04</minimum>
+                                            <minimum>1.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.14</minimum>
+                                            <minimum>1.0</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -73,6 +73,9 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
         }
 
         String id = metacard.getId();
+        if(StringUtils.isNotEmpty(metacard.getResourceSize())) {
+            arguments.put(Metacard.RESOURCE_SIZE, metacard.getResourceSize());
+        }
 
         LOGGER.debug("executing resource request with id '{}'", id);
 
