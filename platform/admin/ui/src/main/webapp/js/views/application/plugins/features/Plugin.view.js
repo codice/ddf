@@ -35,7 +35,7 @@ define([
             });
         },
         onRender: function(){
-            this.controller.show(this.model.getAppKey());
+            this.controller.show(this.model.get('name'));
         }
     });
 

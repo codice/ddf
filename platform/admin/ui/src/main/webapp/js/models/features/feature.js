@@ -19,8 +19,8 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
 
     var featureUrl = '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/AllFeatures';
     var featureByAppUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/findApplicationFeatures/';
-    var installUrl = '/jolokia/exec/org.apache.karaf:type=features,name=root/installFeature(java.lang.String)/';
-    var uninstallUrl = '/jolokia/exec/org.apache.karaf:type=features,name=root/uninstallFeature(java.lang.String)/';
+    var installUrl = '/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/';
+    var uninstallUrl = '/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/';
 
 
 
@@ -35,14 +35,14 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
         install: function(){
             return $.ajax({
                 type: 'GET',
-                url: installUrl + this.name,
+                url: installUrl + this.name + "/true",
                 dataType: 'JSON'
             });
         },
         uninstall: function(){
             return $.ajax({
                 type: 'GET',
-                url: uninstallUrl + this.name,
+                url: uninstallUrl + this.name + "/true",
                 dataType: 'JSON'
             });
         }

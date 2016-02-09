@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleState;
@@ -653,8 +654,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
-                featuresService.installFeature(application.getMainFeature().getName(),
-                        EnumSet.of(Option.NoAutoRefreshBundles));
+                featuresService.installFeature(application.getMainFeature()
+                        .getName(), EnumSet.of(Option.NoAutoRefreshBundles));
             } else {
                 logger.debug(
                         "Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
@@ -706,7 +707,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                                     .contains(curFeature)
                                     && featuresService.isInstalled(curFeature)) {
                                 featuresService.uninstallFeature(curFeature.getName(),
-                                        curFeature.getVersion());
+                                        curFeature.getVersion(),
+                                        EnumSet.of(Option.NoAutoRefreshBundles));
                             }
                         } catch (Exception e) {
                             logger.debug("Error while trying to uninstall {}",
@@ -727,7 +729,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         logger.debug("Uninstalling feature {} for application {}",
                                 curFeature.getName(),
                                 application.getName());
-                        featuresService.uninstallFeature(curFeature.getName());
+                        featuresService.uninstallFeature(curFeature.getName(),
+                                EnumSet.of(Option.NoAutoRefreshBundles));
                     }
                 }
             }
@@ -831,7 +834,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             for (Feature feature : features) {
                 if (featuresService.isInstalled(feature)) {
                     try {
-                        featuresService.uninstallFeature(feature.getName(), feature.getVersion());
+                        featuresService.uninstallFeature(feature.getName(),
+                                feature.getVersion(),
+                                EnumSet.of(Option.NoAutoRefreshBundles));
                     } catch (Exception e) {
                         //if there is an issue uninstalling a feature try to keep uninstalling the other features
                         logger.warn("Could not uninstall feature: {} version: {}",
@@ -881,12 +886,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<FeatureDetails> findApplicationFeatures(String applicationName) {
-        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
-        for (Feature feature : getRepositoryFeatures(applicationName)) {
-            if (!isAppInFeatureList(feature, applicationName)) {
-                features.add(getFeatureView(feature));
-            }
-        }
+        List<FeatureDetails> features = getRepositoryFeatures(applicationName).stream()
+                .filter(feature -> !isAppInFeatureList(feature, applicationName))
+                .map(this::getFeatureView)
+                .collect(Collectors.toList());
         return features;
     }
 
@@ -898,9 +901,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     private List<Feature> getRepositoryFeatures(String repositoryName) {
         List<Feature> repoFeatures = new ArrayList<>();
         try {
+            Feature feature = featuresService.getFeature(repositoryName);
             for (Repository repository : featuresService.listRepositories()) {
-                if (repository.getName()
-                        .equalsIgnoreCase(repositoryName)) {
+                if (StringUtils.equals(repository.getURI()
+                        .toString(), feature.getRepositoryUrl())) {
                     repoFeatures = Arrays.asList(repository.getFeatures());
                     break;
                 }
