@@ -118,7 +118,7 @@ public class OperationPlugin implements AccessPlugin {
 
         if (!subject.isPermitted(securityPermission)) {
             throw new StopProcessingException("User " + SubjectUtils.getName(subject, "UNKNOWN")
-                    + "does not have the required attributes " + perms);
+                    + " does not have the required attributes " + perms);
         }
     }
 

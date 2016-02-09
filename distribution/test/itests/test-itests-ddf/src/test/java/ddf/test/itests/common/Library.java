@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,7 +13,10 @@
  */
 package ddf.test.itests.common;
 
+import java.io.IOException;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.io.IOUtils;
 
 /**
  * Helper class containing test data.
@@ -134,6 +137,14 @@ public final class Library {
                 + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
                 + "    <csw:Insert typeName=\"" + typeName + "\">\n" + record
                 + "    </csw:Insert>\n" + "</csw:Transaction>";
+    }
+
+    public static String getRegistryService() throws IOException {
+        return IOUtils.toString(Library.class.getResourceAsStream("/csw-rim-service.xml"));
+    }
+
+    public static String getCswRegistryInsert() throws IOException {
+        return Library.getCswInsert("ebrim", getRegistryService());
     }
 
     public static String getCswFilterDelete() {

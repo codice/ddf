@@ -12,16 +12,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package ddf.catalog.registry.metacard.filter;
+package ddf.catalog.registry.common.filter;
 
 import java.util.Date;
 import java.util.List;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 
 public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
-
     /*
     Returns false if this is a query that should not return registry metacards
     Return true if this is a query that should return registry metacards
@@ -62,7 +62,7 @@ public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
     @Override
     public Boolean propertyIsEqualTo(String propertyName, String pattern, boolean isCaseSensitive) {
         return propertyName.equals(Metacard.CONTENT_TYPE) && pattern.startsWith(
-                RegistryMetacardFilterPlugin.REGISTRY_CONTENT_TYPE);
+                RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME);
     }
 
     @Override
@@ -384,7 +384,7 @@ public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
     @Override
     public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         return propertyName.equals(Metacard.CONTENT_TYPE) && pattern.startsWith(
-                RegistryMetacardFilterPlugin.REGISTRY_CONTENT_TYPE);
+                RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME);
     }
 
     @Override

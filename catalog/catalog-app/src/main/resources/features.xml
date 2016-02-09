@@ -264,6 +264,14 @@
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-registry" install="manual" version="${project.version}"
+             description="DDF Registry">
+        <feature>catalog-core-api</feature>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-metacard-filter/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-policyplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-app" install="auto" version="${project.version}"
              description="The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog">
         <feature>platform-app</feature>
@@ -297,5 +305,7 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
         </bundle>
     </feature>
+
+
 
 </features>

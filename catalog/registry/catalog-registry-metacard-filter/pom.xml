@@ -22,7 +22,7 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-registry-metacard-filter</artifactId>
-    <name>DDF :: Catalog :: Registry :: Registry Metacard Filter Plugin</name>
+    <name>DDF :: Catalog :: Registry :: Metacard Filter Plugin</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -37,6 +37,11 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.registry</groupId>
+            <artifactId>catalog-registry-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 
@@ -49,7 +54,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Embed-Dependency>catalog-core-api-impl;scope=!test, commons-lang3
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test,
+                            catalog-registry-common,
+                            commons-lang3
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

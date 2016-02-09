@@ -356,6 +356,26 @@
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-metacard-validation</artifactId>
             <version>${project.version}</version>
+         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.registry</groupId>
+            <artifactId>catalog-registry-metacard-filter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.registry</groupId>
+            <artifactId>catalog-registry-cswinputtransformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.registry</groupId>
+            <artifactId>catalog-registry-policyplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.registry</groupId>
+            <artifactId>catalog-registry-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.security</groupId>

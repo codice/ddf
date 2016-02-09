@@ -130,6 +130,18 @@
         <argument ref="inputTransformerManager"/>
     </bean>
 
+    <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
+        <property name="url"
+                  value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/csw"/>
+        <property name="urlBindingName" value="cswUrl"/>
+        <property name="id" value="registry.federation.method.csw"/>
+        <property name="name" value="CSW Endpoint"/>
+        <property name="version" value="2.0.2"/>
+        <property name="description" value="The endpoint used for csw."/>
+        <property name="bindingType" value="Csw_Federated_Source"/>
+    </bean>
+    <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
+
     <jaxrs:server id="CswService" address="/csw">
         <jaxrs:serviceBeans>
             <ref component-id="CswSvc"/>
