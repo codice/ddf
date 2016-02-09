@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
@@ -287,11 +288,23 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
-
-        Filter filter = filterBuilder.attribute(Metacard.ID)
-                .is()
-                .like()
-                .text(WILDCARD);
+        Filter filter = filterBuilder.allOf(filterBuilder.attribute(Metacard.ID)
+                        .is()
+                        .like()
+                        .text(WILDCARD),
+                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                                .is()
+                                .like()
+                                .text(WILDCARD)),
+                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                                .is()
+                                .like()
 
         if (expired) {
             filter = filterBuilder.attribute(Metacard.EXPIRATION)
@@ -313,11 +326,24 @@ public class RemoveAllCommand extends CatalogCommands {
 
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
-
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
-                .is()
-                .like()
-                .text(WILDCARD);
+        Filter filter = filterBuilder.allOf(filterBuilder.attribute(Metacard.ANY_TEXT)
+                        .is()
+                        .like()
+                        .text(WILDCARD),
+                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                                .is()
+                                .like()
+                                .text(WILDCARD)),
+                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                                .is()
+                                .like()
+                                .text(WILDCARD)));
 
         if (expired) {
             DateTime twoThousandYearsAgo = new DateTime().minusYears(2000);

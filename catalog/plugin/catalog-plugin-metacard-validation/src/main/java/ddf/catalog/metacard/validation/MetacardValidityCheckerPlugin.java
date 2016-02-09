@@ -60,6 +60,10 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
                         filterBuilder.attribute(VALIDATION_WARNINGS)
                                 .is()
                                 .empty()));
+                query.setPageSize(input.getQuery()
+                        .getPageSize());
+                query.setRequestsTotalResultsCount(input.getQuery()
+                        .requestsTotalResultsCount());
                 queryRequest = new QueryRequestImpl(query,
                         input.isEnterprise(),
                         input.getSourceIds(),
