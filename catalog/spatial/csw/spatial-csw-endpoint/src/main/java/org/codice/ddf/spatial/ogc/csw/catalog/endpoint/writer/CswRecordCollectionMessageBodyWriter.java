@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.resource.Resource;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 
@@ -49,11 +50,15 @@ import ddf.catalog.transform.QueryResponseTransformer;
 public class CswRecordCollectionMessageBodyWriter
         implements MessageBodyWriter<CswRecordCollection> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswRecordCollectionMessageBodyWriter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            CswRecordCollectionMessageBodyWriter.class);
 
-    private static final List<String> XML_MIME_TYPES = Collections
-            .unmodifiableList(Arrays.asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
+    private static final List<String> XML_MIME_TYPES = Collections.unmodifiableList(Arrays.asList(
+            MediaType.APPLICATION_XML,
+            MediaType.TEXT_XML));
+
+    private static final String OCTET_STREAM_OUTPUT_SCHEMA =
+            "http://www.iana.org/assignments/media-types/application/octet-stream";
 
     private final TransformerManager transformerManager;
 
@@ -82,17 +87,27 @@ public class CswRecordCollectionMessageBodyWriter
         final String mimeType = recordCollection.getMimeType();
         LOGGER.debug(
                 "Attempting to transform RecordCollection with mime-type: {} & outputSchema: {}",
-                mimeType, recordCollection.getOutputSchema());
+                mimeType,
+                recordCollection.getOutputSchema());
         QueryResponseTransformer transformer;
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
-        if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils
-                .isNotBlank(mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
+        if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils.isNotBlank(
+                mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
             transformer = transformerManager.getTransformerByMimeType(mimeType);
+        } else if (recordCollection.getOutputSchema()
+                .equals(OCTET_STREAM_OUTPUT_SCHEMA)) {
+            Resource resource = recordCollection.getResource();
+            httpHeaders.put("Content-Type", Arrays.asList(resource.getMimeType()));
+            httpHeaders.put("Content-Disposition",
+                    Arrays.asList("inline; filename=\"" + resource.getName() + "\""));
+            IOUtils.copy(resource.getInputStream(), outStream);
+            return;
         } else {
             transformer = transformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
             if (recordCollection.getElementName() != null) {
                 arguments.put(CswConstants.ELEMENT_NAMES,
-                        recordCollection.getElementName().toArray());
+                        recordCollection.getElementName()
+                                .toArray());
             }
             arguments.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, recordCollection.getOutputSchema());
             arguments.put(CswConstants.ELEMENT_SET_TYPE, recordCollection.getElementSetType());
@@ -103,8 +118,8 @@ public class CswRecordCollectionMessageBodyWriter
         }
 
         if (transformer == null) {
-            throw new WebApplicationException(
-                    new CatalogTransformerException("Unable to locate Transformer."));
+            throw new WebApplicationException(new CatalogTransformerException(
+                    "Unable to locate Transformer."));
         }
 
         BinaryContent content = null;
@@ -117,8 +132,8 @@ public class CswRecordCollectionMessageBodyWriter
         if (content != null) {
             IOUtils.copy(content.getInputStream(), outStream);
         } else {
-            throw new WebApplicationException(
-                    new CatalogTransformerException("Transformer returned null."));
+            throw new WebApplicationException(new CatalogTransformerException(
+                    "Transformer returned null."));
         }
 
     }

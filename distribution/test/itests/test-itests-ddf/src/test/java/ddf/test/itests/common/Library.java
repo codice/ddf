@@ -96,7 +96,9 @@ public final class Library {
     }
 
     public static String getCswQuery(String propertyName, String literalValue) {
-        return getCswQuery(propertyName, literalValue, "application/xml",
+        return getCswQuery(propertyName,
+                literalValue,
+                "application/xml",
                 "http://www.opengis.net/cat/csw/2.0.2");
     }
 
@@ -273,6 +275,14 @@ public final class Library {
                 + "id=placeholder_id";
     }
 
+    public static String getGetRecordByIdProductRetrievalUrl() {
+        return "?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="
+                + "http://www.opengis.net/cat/csw/2.0.2&"
+                + "outputFormat=application/octet-stream&outputSchema="
+                + "http://www.iana.org/assignments/media-types/application/octet-stream&"
+                + "id=placeholder_id";
+    }
+
     public static String getGetRecordByIdXml() {
         return "<GetRecordById xmlns=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
                 + "xmlns:ogc=\"http://www.opengis.net/ogc\"\n"
@@ -282,5 +292,14 @@ public final class Library {
                 + "xsi:schemaLocation=\"http://www.opengis.net/cat/csw/2.0.2../../../csw/2.0.2/CSW-discovery.xsd\">\n"
                 + "  <ElementSetName>full</ElementSetName>\n" + "  <Id>placeholder_id_1</Id>\n"
                 + "  <Id>placeholder_id_2</Id>\n" + "</GetRecordById>";
+    }
+
+    public static String getGetRecordByIdProductRetrievalXml() {
+        return "<GetRecordById xmlns=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "xmlns:ogc=\"http://www.opengis.net/ogc\"\n"
+                + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + "service=\"CSW\" version=\"2.0.2\" outputFormat=\"application/octet-stream\"\n"
+                + "outputSchema=\"http://www.iana.org/assignments/media-types/application/octet-stream\">\n"
+                + "  <Id>placeholder_id_1</Id>\n" + "</GetRecordById>";
     }
 }

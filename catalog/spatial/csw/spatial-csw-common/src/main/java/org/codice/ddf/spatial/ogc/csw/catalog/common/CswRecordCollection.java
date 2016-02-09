@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -21,6 +20,7 @@ import javax.xml.namespace.QName;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.resource.Resource;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
@@ -59,6 +59,8 @@ public class CswRecordCollection {
     private ResultType resultType;
 
     private boolean doWriteNamespaces;
+
+    private Resource resource;
 
     /**
      * Retrieves the request made that generated this set of CSW Records, if applicable
@@ -182,5 +184,13 @@ public class CswRecordCollection {
 
     public void setDoWriteNamespaces(boolean doWriteNamespaces) {
         this.doWriteNamespaces = doWriteNamespaces;
+    }
+
+    public void setResource(Resource resource) {
+        this.resource = resource;
+    }
+
+    public Resource getResource() {
+        return resource;
     }
 }
