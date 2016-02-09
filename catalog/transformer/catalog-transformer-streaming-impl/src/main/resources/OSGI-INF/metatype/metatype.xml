@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+    <OCD description="Streaming Input Transformer Configuration"
+         name="Streaming Input Transformer Configuration"
+         id="XmlInputTransformer">
+        <AD name="Id for transformer" id="id" required="true" type="String" default=""/>
+        <AD name="Title of transformer" id="title" required="false" type="String" default=""/>
+        <AD name="Description of transformer" id="description" required="false" type="String" default="" />
+        <AD name="Version of transformer" id="version" required="false" type="String" default="" />
+        <AD name="Organization of transformer" id="organization" required="false" type="String" default="" />
+        <AD name="Sax Event Handler Configuration" id="saxEventHandlerConfiguration" required="true" type="String" cardinality="100" default="" />
+    </OCD>
+    <Designate pid="XmlInputTransformer" factoryPid="XmlInputTransformer">
+        <Object ocdref="XmlInputTransformer"/>
+    </Designate>
+</metatype:MetaData>

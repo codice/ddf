@@ -272,7 +272,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public void maskId(String id) {
-        LOGGER.info("Sitename changed from [{}] to [{}]", getId(), id);
+        LOGGER.trace("Sitename changed from [{}] to [{}]", getId(), id);
         super.maskId(id);
     }
 

@@ -397,22 +397,25 @@ public class ServiceManager {
     public Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
         Map<String, Object> properties = new HashMap<>();
         ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
-
-        for (AttributeDefinition attributeDef : bundleMetatype.getAttributeDefinitions(
-                ObjectClassDefinition.ALL)) {
-            if (attributeDef.getID() != null) {
-                if (attributeDef.getDefaultValue() != null) {
-                    if (attributeDef.getCardinality() == 0) {
-                        properties.put(attributeDef.getID(),
-                                getAttributeValue(attributeDef.getDefaultValue()[0],
-                                        attributeDef.getType()));
-                    } else {
-                        properties.put(attributeDef.getID(), attributeDef.getDefaultValue());
+        if (bundleMetatype != null) {
+            for (AttributeDefinition attributeDef : bundleMetatype
+                    .getAttributeDefinitions(ObjectClassDefinition.ALL)) {
+                if (attributeDef.getID() != null) {
+                    if (attributeDef.getDefaultValue() != null) {
+                        if (attributeDef.getCardinality() == 0) {
+                            properties.put(attributeDef.getID(),
+                                    getAttributeValue(attributeDef.getDefaultValue()[0],
+                                            attributeDef.getType()));
+                        } else {
+                            properties.put(attributeDef.getID(), attributeDef.getDefaultValue());
+                        }
+                    } else if (attributeDef.getCardinality() != 0) {
+                        properties.put(attributeDef.getID(), new String[0]);
                     }
-                } else if (attributeDef.getCardinality() != 0) {
-                    properties.put(attributeDef.getID(), new String[0]);
                 }
             }
+        } else {
+            LOGGER.debug("Metatype was null, returning an empty properties Map");
         }
 
         return properties;
