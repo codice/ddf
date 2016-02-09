@@ -16,7 +16,7 @@ These steps will demonstrate:
 
 .Setting `JAVA_HOME` on *NIX
 ----
-JAVA_HOME=/usr/java/jdk1.8.0
+JAVA_HOME=/usr/java/jdk1.8.0_<BUILDNUMBER>
 export JAVA_HOME
 ----
 
@@ -94,7 +94,7 @@ ${branding-lowercase}${at-symbol}local>
 
 ==== Catalog Capabilities
 
-. Create an entry in the Catalog by ingesting a valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file].
+. Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here].
 . Navigate in the browser to the Search UI at http://localhost:8993/search.
 . Click the *upload* icon icon:upload[role="blue"] in the upper right corner.
 . Select the file to upload.
@@ -103,7 +103,7 @@ ${branding-lowercase}${at-symbol}local>
 
 Using the Content framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
 
-. In the {admin-console}, select the *${ddf-branding} Content* application tile.
+. In the {admin-console}, select the *${ddf-branding} Content* application.
 . Select *Configuration* tab.
 . Select the *Content Directory Monitor*.
 . Set the directory path to `inbox`.

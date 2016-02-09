@@ -24,10 +24,8 @@ ${ddf-branding} Content Application::
 The ${ddf-branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data.
 
 ${ddf-branding} Platform Application::
-The Platform application is considered to be a core application of the distribution. The Platform application has fundamental building blocks that the distribution needs to run. +
-These building blocks include subsets of: http://karaf.apache.org/[Karaf], http://cxf.apache.org/[CXF], and http://camel.apache.org/[Camel]. +
-Included as part of the Platform application is also a Command Scheduler.
-The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals.
+The Platform application is considered to be a core application of the distribution.
+The Platform application has fundamental building blocks that the distribution needs to run.
 
 ${ddf-branding} Security Application::
 The Security application provides authentication, authorization, and auditing services for the ${branding}.

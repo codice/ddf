@@ -144,8 +144,27 @@
                                             <groupId>ddf</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/ddf
+                                            <outputDirectory>${setup.folder}/docs-pre/ddf
                                             </outputDirectory>
+                                            <classifier>adoc-files</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/documentation-final/ddf
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.admin</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/admin
+                                            </outputDirectory>
+                                            <overWrite>true</overWrite>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
@@ -153,9 +172,18 @@
                                             <groupId>ddf.admin</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/admin
+                                            <outputDirectory>${setup.folder}/documentation-final/admin
                                             </outputDirectory>
                                             <overWrite>true</overWrite>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.catalog</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/catalog
+                                            </outputDirectory>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
                                         </artifactItem>
@@ -163,7 +191,16 @@
                                             <groupId>ddf.catalog</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/catalog
+                                            <outputDirectory>${setup.folder}/documentation-final/catalog
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.catalog.solr</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/solr
                                             </outputDirectory>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
@@ -172,7 +209,16 @@
                                             <groupId>ddf.catalog.solr</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/solr
+                                            <outputDirectory>${setup.folder}/documentation-final/solr
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.content</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/content
                                             </outputDirectory>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
@@ -181,7 +227,16 @@
                                             <groupId>ddf.content</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/content
+                                            <outputDirectory>${setup.folder}/documentation-final/content
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.platform</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/platform
                                             </outputDirectory>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
@@ -190,7 +245,16 @@
                                             <groupId>ddf.platform</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/platform
+                                            <outputDirectory>${setup.folder}/documentation-final/platform
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.platform.security</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/security
                                             </outputDirectory>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
@@ -199,7 +263,16 @@
                                             <groupId>ddf.platform.security</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/security
+                                            <outputDirectory>${setup.folder}/documentation-final/security
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.codice.ddf.spatial</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/docs-pre/spatial
                                             </outputDirectory>
                                             <classifier>adoc-files</classifier>
                                             <type>zip</type>
@@ -208,7 +281,7 @@
                                             <groupId>org.codice.ddf.spatial</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/spatial
+                                            <outputDirectory>${setup.folder}/documentation-final/spatial
                                             </outputDirectory>
                                             <classifier>export</classifier>
                                             <type>zip</type>
@@ -217,9 +290,18 @@
                                             <groupId>ddf.ui</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs/ui
+                                            <outputDirectory>${setup.folder}/docs-pre/ui
                                             </outputDirectory>
                                             <classifier>adoc-files</classifier>
+                                            <type>zip</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.ui</groupId>
+                                            <artifactId>docs</artifactId>
+                                            <version>${project.version}</version>
+                                            <outputDirectory>${setup.folder}/documentation-final/ui
+                                            </outputDirectory>
+                                            <classifier>export</classifier>
                                             <type>zip</type>
                                         </artifactItem>
                                     </artifactItems>
@@ -242,31 +324,31 @@
                                 <configuration>
                                     <tasks>
                                         <copy todir="${setup.folder}/docs/ddf">
-                                            <fileset dir="${setup.folder}/docs/ddf/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/ddf/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/admin">
-                                            <fileset dir="${setup.folder}/docs/admin/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/admin/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/catalog">
-                                            <fileset dir="${setup.folder}/docs/catalog/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/catalog/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/solr">
-                                            <fileset dir="${setup.folder}/docs/solr/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/solr/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/content">
-                                            <fileset dir="${setup.folder}/docs/content/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/content/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/platform">
-                                            <fileset dir="${setup.folder}/docs/platform/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/platform/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/security">
-                                            <fileset dir="${setup.folder}/docs/security/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/security/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/spatial">
-                                            <fileset dir="${setup.folder}/docs/spatial/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/spatial/docs-${project.version}"/>
                                         </copy>
                                         <copy todir="${setup.folder}/docs/ui">
-                                            <fileset dir="${setup.folder}/docs/ui/docs-${project.version}"/>
+                                            <fileset dir="${setup.folder}/documentation-final/ui/docs-${project.version}"/>
                                         </copy>
                                     </tasks>
                                 </configuration>

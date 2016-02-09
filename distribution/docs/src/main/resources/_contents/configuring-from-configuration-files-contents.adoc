@@ -55,7 +55,7 @@ These properties can be manually set by editing this file or set via the initial
 |String
 |File extension to use with server truststore
 |`jks`
-|yes
+|Yes
 
 6+^| Global URL Properties
 
@@ -64,7 +64,7 @@ These properties can be manually set by editing this file or set via the initial
 |String
 |Default protocol that should be used to connect to this machine.
 |`https://`
-|yes
+|Yes
 
 |Hostname
 |`org.codice.${ddf-branding-lowercase}.system.hostname`
@@ -73,7 +73,7 @@ These properties can be manually set by editing this file or set via the initial
 
 NOTE: Does not change the address the system runs on.
 |`localhost`
-|yes
+|Yes
 
 |HTTPS Port
 |`org.codice.${ddf-branding-lowercase}.system.httpsPort`
@@ -82,7 +82,7 @@ NOTE: Does not change the address the system runs on.
 
 NOTE: This *DOES* change the port the system runs on.
 |`8993`
-|yes
+|Yes
 
 |HTTP Port
 |`org.codice.${ddf-branding-lowercase}.system.httpPort`
@@ -91,7 +91,7 @@ NOTE: This *DOES* change the port the system runs on.
 
 NOTE: This *DOES* change the port the system runs on.
 |`8181`
-|yes
+|Yes
 
 |Default Port
 |`org.codice.${ddf-branding-lowercase}.system.port`
@@ -100,14 +100,14 @@ NOTE: This *DOES* change the port the system runs on.
 
 NOTE: Does not change the port the system runs on.
 |`8993`
-|yes
+|Yes
 
 |Root Context
 |`org.codice.${ddf-branding-lowercase}.system.rootContext`
 |String
 |The the base or root context that services will be made available under.
 |`/services`
-|yes
+|Yes
 
 6+^|System Information Properties
 
@@ -116,14 +116,14 @@ NOTE: Does not change the port the system runs on.
 |String
 |The site name for ${branding}.
 |`${ddf-branding-lowercase}.distribution`
-|yes
+|Yes
 
 |Site Contact
 |`org.codice.${ddf-branding-lowercase}.system.siteContact`
 |String
 |The email address of the site contact.
 |
-|no
+|No
 
 |Version
 |`org.codice.${ddf-branding-lowercase}.system.version`
@@ -132,14 +132,14 @@ NOTE: Does not change the port the system runs on.
 
 This value should not be changed from the factory default.
 |`${project.version}`
-|yes
+|Yes
 
 |Organization
 |`org.codice.${ddf-branding-lowercase}.system.organization`
 |String
 |The organization responsible for this installation of ${branding}.
 |Codice Foundation
-|yes
+|Yes
 
 6+^|Thread Pool Settings
 
@@ -163,14 +163,14 @@ TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
 TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
 
 TLS_RSA_WITH_AES_128_CBC_SHA`
-|no
+|No
 
 |Https Protocols
 |`https.protocols`
 |String
 |Protocols to allow for secure connections
 |`TLSv1.1,TLSv1.2`
-|no
+|No
 
 |Allow Basic Auth Over Http
 |`org.codice.allowBasicAuthOverHttp`
@@ -179,12 +179,12 @@ TLS_RSA_WITH_AES_128_CBC_SHA`
 |`false`
 |Yes
 
-|// ?
+|Parse XML documents into DOM object trees
 |`javax.xml.parsers.DocumentBuilderFactory`
 |String
-|// ?
+|Enables Xerces-J implementation of `DocumentBuilderFactory`
 |`org.apache.xerces.jaxp.DocumentBuilderFactoryImpl`
-|// ?
+|Yes
 
 |===
 
