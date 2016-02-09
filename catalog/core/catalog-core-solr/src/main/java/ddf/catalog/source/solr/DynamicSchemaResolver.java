@@ -210,6 +210,10 @@ public class DynamicSchemaResolver {
             if (metacard.getAttribute(ad.getName()) != null) {
                 List<Serializable> attributeValues = metacard.getAttribute(ad.getName())
                         .getValues();
+                if (ad.getType()
+                        .equals(BasicTypes.STRING_TYPE)) {
+                    fieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX);
+                }
 
                 if (attributeValues != null && attributeValues.size() > 0
                         && attributeValues.get(0) != null) {
