@@ -109,6 +109,8 @@ public class CometdEndpoint {
         properties.put("alias", "/cometd");
         properties.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none");
         properties.put("org.eclipse.jetty.servlet.SessionPath", "/");
+        properties.put("load-on-startup", "1");
+        properties.put("async-supported", "true");
         bundleContext.registerService(Servlet.class, cometdServlet, properties);
         bayeuxServer = (BayeuxServer) cometdServlet.getServletContext()
                 .getAttribute(BayeuxServer.ATTRIBUTE);

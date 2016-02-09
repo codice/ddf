@@ -136,7 +136,10 @@ public class FilterInjector {
 
             if (filterReg == null) {
                 filterReg = context.getFilterRegistration(DELEGATING_FILTER);
+            } else {
+                ((FilterRegistration.Dynamic) filterReg).setAsyncSupported(true);
             }
+
             filterReg.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, ALL_URLS);
         } catch (IllegalStateException ise) {
             LOGGER.warn("Could not inject filter into " + refBundle.getSymbolicName()

@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
@@ -31,6 +31,7 @@ import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.JSONContext;
@@ -40,6 +41,8 @@ import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 
 /**
@@ -49,6 +52,9 @@ import ddf.security.SubjectUtils;
 public class WorkspaceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceService.class);
+
+    @Inject
+    private BayeuxServer bayeux;
 
     @Session
     private ServerSession serverSession;
@@ -64,13 +70,9 @@ public class WorkspaceService {
     public void getWorkspaces(final ServerSession remote, Message message) {
         ServerMessage.Mutable reply = new ServerMessageImpl();
         Map<String, Object> data = message.getDataAsMap();
-        String username = "";
-        try {
-            Subject subject = SecurityUtils.getSubject();
-            username = SubjectUtils.getName(subject);
-        } catch (Exception e) {
-            LOGGER.debug("Unable to retrieve user from request.", e);
-        }
+        Subject subject = (Subject) bayeux.getContext()
+                .getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
+        String username = SubjectUtils.getName(subject);
 
         // Only persist/retrieve workspaces if this is a logged in user.
         // No workspaces persisted for a guest user (whose username="")

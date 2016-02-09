@@ -93,36 +93,31 @@ public class SearchController {
 
     /**
      * Push results out to clients
-     * @param channel - Channel to send results on
+     * @param id - request id
      * @param jsonData
      * @param serverSession
      */
-    public synchronized void pushResults(String channel, Map<String, Object> jsonData,
+    public synchronized void pushResults(String id, Map<String, Object> jsonData,
             ServerSession serverSession) {
-        String channelName;
-        //you can't have 2 leading slashes, but if there isn't one, add it
-        if (channel.startsWith("/")) {
-            channelName = channel;
-        } else {
-            channelName = "/" + channel;
-        }
+        String channel = "/" + id;
 
-        LOGGER.debug("Creating channel if it doesn't exist: {}", channelName);
+        LOGGER.debug("Creating channel if it doesn't exist: {}", channel);
 
         bayeuxServer
-                .createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer() {
-                    public void configureChannel(ConfigurableServerChannel channel) {
-                        channel.setPersistent(true);
+                .createChannelIfAbsent(channel, new ConfigurableServerChannel.Initializer() {
+                    public void configureChannel(ConfigurableServerChannel serverChannel) {
+                        serverChannel.setPersistent(true);
                     }
                 });
 
+        jsonData.put(Search.SUCCESSFUL, true);
+
         ServerMessage.Mutable reply = new ServerMessageImpl();
-        reply.put(Search.SUCCESSFUL, true);
-        reply.putAll(jsonData);
+        reply.setChannel(channel);
+        reply.setData(jsonData);
 
-        LOGGER.debug("Sending results to subscribers on: {}", channelName);
-
-        bayeuxServer.getChannel(channelName).publish(serverSession, reply);
+        LOGGER.debug("Sending results to subscribers on: {}", channel);
+        bayeuxServer.getChannel(channel).publish(serverSession, reply);
     }
 
     /**
