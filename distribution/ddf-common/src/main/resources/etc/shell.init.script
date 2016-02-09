@@ -32,3 +32,8 @@ log:list = { log:get ALL } ;
 service:get = { $.context getService ($.context getServiceReference $args) };
 phil = { bundle:list -t 0 | grep -v Active };
 jay = { system:shutdown -f };
+scott = {
+ while { (la | grep -i "active.*DDF\s::\sadmin\s::\sUI" | tac) isEmpty } { sleep 1 }
+ while {("4" equals ((la | grep -i -v "active" | grep -i "hosts:" | wc -l | tac) trim) | tac) equals "false"} { sleep 1 }
+ echo "System Ready"
+};

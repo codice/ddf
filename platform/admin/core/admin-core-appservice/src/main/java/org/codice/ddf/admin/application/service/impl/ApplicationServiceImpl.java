@@ -530,7 +530,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             for (Dependency dependencyFeature : curFeature.getDependencies()) {
                 Feature feat = featuresService.getFeature(dependencyFeature.getName(),
                         dependencyFeature.getVersion());
-                tmpList.addAll(getAllDependencyFeatures(feat));
+                if (StringUtils.equals(curFeature.getRepositoryUrl(), feat.getRepositoryUrl())) {
+                    tmpList.addAll(getAllDependencyFeatures(feat));
+                }
             }
             tmpList.add(curFeature);
         } else {

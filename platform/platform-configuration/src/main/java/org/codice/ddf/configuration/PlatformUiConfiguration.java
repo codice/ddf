@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -23,7 +23,6 @@ import javax.ws.rs.Produces;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.ddf.branding.BrandingResourceProvider;
-import org.codice.ddf.branding.impl.BrandingResourceProviderImpl;
 
 import net.minidev.json.JSONObject;
 
@@ -76,8 +75,7 @@ public class PlatformUiConfiguration {
 
     private BrandingPlugin branding;
 
-    // TODO - why isn't this injected???
-    private BrandingResourceProvider provider =new BrandingResourceProviderImpl();
+    private BrandingResourceProvider provider;
 
     private String title;
 
@@ -126,16 +124,16 @@ public class PlatformUiConfiguration {
 
     public void setBranding(BrandingPlugin branding) throws IOException {
         this.branding = branding;
-        setVersion();
-        setTitle();
-        this.productImage = getBase64(branding.getProductImage());
-        this.favicon = getBase64(branding.getFavIcon());
+        setInfo();
     }
 
     private String getBase64(String productImage) throws IOException {
-        byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
-        if (resourceAsBytes.length > 0) {
-            return Base64.getEncoder().encodeToString(resourceAsBytes);
+        if (provider != null) {
+            byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
+            if (resourceAsBytes.length > 0) {
+                return Base64.getEncoder()
+                        .encodeToString(resourceAsBytes);
+            }
         }
         return "";
     }
@@ -204,7 +202,17 @@ public class PlatformUiConfiguration {
         this.background = background;
     }
 
-    public void setProvider(BrandingResourceProvider provider) {
+    public void setProvider(BrandingResourceProvider provider) throws IOException {
         this.provider = provider;
+        setInfo();
+    }
+
+    private void setInfo() throws IOException {
+        if (branding != null && provider !=null) {
+            setVersion();
+            setTitle();
+            this.productImage = getBase64(branding.getProductImage());
+            this.favicon = getBase64(branding.getFavIcon());
+        }
     }
 }

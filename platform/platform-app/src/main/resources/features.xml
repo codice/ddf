@@ -691,6 +691,7 @@
 
     <feature name="platform-configuration" install="manual" version="${project.version}"
              description="Shared platform configuration">
+        <feature prerequisite="true">landing-page</feature>
         <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
     </feature>
 

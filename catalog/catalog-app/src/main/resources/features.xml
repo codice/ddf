@@ -47,7 +47,7 @@
         <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-        <bundle dependency="true">mvn:commons-collections/commons-collections/3.2.1</bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
@@ -289,6 +289,7 @@
 
     <feature name="catalog-admin-module-sources" install="manual" version="${project.version}"
              description="DDF Admin Module">
+        <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
 
