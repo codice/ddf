@@ -117,6 +117,10 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     public static final String NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE = "numberOfRecordsReturned";
 
+    private static final String REQUEST_ID_NODE_NAME = "RequestId";
+
+    private static final String REQUEST_ID_QNAME = CSW_PREFIX + REQUEST_ID_NODE_NAME;
+
     private TransformerManager metacardTransformerManager;
 
     private ThreadPoolExecutor queryExecutor;
@@ -185,6 +189,15 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
         if (!cswRecordCollection.isById()) {
             writer.addAttribute(VERSION_ATTRIBUTE, CswConstants.VERSION_2_0_2);
+
+            if (cswRecordCollection.getRequest() != null && StringUtils.isNotBlank(
+                    cswRecordCollection.getRequest()
+                            .getRequestId())) {
+                writer.startNode(REQUEST_ID_QNAME);
+                writer.setValue(cswRecordCollection.getRequest()
+                        .getRequestId());
+                writer.endNode();
+            }
 
             writer.startNode(SEARCH_STATUS_QNAME);
             writer.addAttribute(TIMESTAMP_ATTRIBUTE,

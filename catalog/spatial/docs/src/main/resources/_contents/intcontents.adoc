@@ -1273,6 +1273,184 @@ The following is an example of an `application/xml` response to the Transaction 
 </csw:TransactionResponse>
 ----
 
+===== Subscription `GetRecords` Operation
+
+The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching the GetRecords request used in the subscription.
+The response to a `GetRecords` request on the subscription url will be an acknowledgement containing the original GetRecords request and a requestId
+The client will be assigned a requestId (URN).
+A distributed search argument will be ignored in this context. It will only send events for metacards ingested locally.
+
+
+===== Subscription `GetRecords` `HTTP GET`
+
+.`GetRecords` KVP Encoding
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw/subscription?service=CSW&version=2.0.2&request=GetRecords&o
+utputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=
+xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&
+ElementSetName=brief&ResponseHandler=https%3A%2F%2Fsome.ddf%2Fservices%2Fcsw%2Fsubscription%2Fevent&
+ConstraintLanguage=CQL_TEXT&constraint=Text Like '%25'
+----
+
+===== Subscription `GetRecords` `HTTP POST`
+
+.Subscription `GetRecords` XML Request
+[source,xml,linenums]
+----
+<?xml version="1.0" ?>
+<GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        service="CSW"
+        version="2.0.2"
+        maxRecords="4"
+        startPosition="1"
+        resultType="results"
+        outputFormat="application/xml"
+        outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+        xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+    <ResponseHandler>https://some.ddf/services/csw/subscription/event</ResponseHandler>
+    <Query typeNames="Record">
+        <ElementSetName>summary</ElementSetName>
+        <Constraint version="1.1.0">
+            <ogc:Filter>
+                <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+                    <ogc:PropertyName>AnyText</ogc:PropertyName>
+                    <ogc:Literal>%</ogc:Literal>
+                </ogc:PropertyIsLike>
+            </ogc:Filter>
+        </Constraint>
+    </Query>
+</GetRecords>
+----
+
+===== Subscription `GetRecords` `HTTP PUT`
+
+The `HTTP PUT` request GetRecords is the exact same as the `POST` but is used to update an existing subscription but the requestid urn tacked on the end of the url.
+
+.Subscription `GetRecords` XML Request
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
+----
+
+===== Subscription `GetRecords` Response
+
+The following is an example of an `application/xml` response to the `GetRecords` operation.
+
+.Subscription `GetRecords` XML Response
+[source,xml,linenums]
+----
+
+
+<?xml version="1.0" ?>
+<Acknowledgement timeStamp="2008-09-28T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
+                                                 xmlns:ogc="http://www.opengis.net/ogc"
+                                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                                 xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+  <EchoedRequest>
+    <GetRecords
+            requestId="urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f"
+            service="CSW"
+            version="2.0.2"
+            maxRecords="4"
+            startPosition="1"
+            resultType="results"
+            outputFormat="application/xml"
+            outputSchema="urn:catalog:metacard">
+        <ResponseHandler>https://some.ddf/services/csw/subscription/event</ResponseHandler>
+        <Query typeNames="Record">
+            <ElementSetName>summary</ElementSetName>
+            <Constraint version="1.1.0">
+                <ogc:Filter>
+                    <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:Literal>%</ogc:Literal>
+                    </ogc:PropertyIsLike>
+                </ogc:Filter>
+            </Constraint>
+        </Query>
+    </GetRecords>
+  </EchoedRequest>
+  <RequestId>urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f</ns:RequestId>
+</Acknowledgement>
+
+----
+
+===== Subscription `GetRecords` event Response
+
+The following is an example of an `application/xml` event sent to a subscribers `ResponseHandler` using an `HTTP POST` for a create, `HTTP PUT` for an update, and `HTTP DELETE` for a delete.
+
+.Subscription `GetRecords` event XML Response
+[source,xml,linenums]
+----
+<csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
+    <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="5" recordSchema="http://www.opengis.net/cat/csw/2.0.2" elementSet="summary">
+      <csw:SummaryRecord>
+        <dc:identifier>182fb33103414e5cbb06f8693b526239</dc:identifier>
+        <dc:title>Product10</dc:title>
+        <dc:type>pdf</dc:type>
+        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+          <ows:LowerCorner>20.0 10.0</ows:LowerCorner>
+          <ows:UpperCorner>20.0 10.0</ows:UpperCorner>
+        </ows:BoundingBox>
+      </csw:SummaryRecord>
+    </csw:SearchResults>
+  </csw:GetRecordsResponse>
+----
+
+===== Subscription `HTTP GET` or `HTTP DELETE` Request
+The following is an example `HTTP GET` Request to retrieve an active subscription
+
+.Subscription `HTTP GET` or `HTTP DELETE`
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
+----
+
+===== Subscription `HTTP GET`or `HTTP DELETE` Response
+The following is an example `HTTP GET` Response retrieving an active subscription
+
+.Subscription `HTTP GET` or `HTTP DELETE` XML Response
+[source,xml,linenums]
+----
+
+
+<?xml version="1.0" ?>
+<Acknowledgement timeStamp="2008-09-28T18:49:45" xmlns="http://www.opengis.net/cat/csw/2.0.2"
+                                                 xmlns:ogc="http://www.opengis.net/ogc"
+                                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                                 xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+  <EchoedRequest>
+    <GetRecords
+            requestId="urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f"
+            service="CSW"
+            version="2.0.2"
+            maxRecords="4"
+            startPosition="1"
+            resultType="results"
+            outputFormat="application/xml"
+            outputSchema="urn:catalog:metacard">
+        <ResponseHandler>https://some.ddf/services/csw/subscription/event</ResponseHandler>
+        <Query typeNames="Record">
+            <ElementSetName>summary</ElementSetName>
+            <Constraint version="1.1.0">
+                <ogc:Filter>
+                    <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:Literal>%</ogc:Literal>
+                    </ogc:PropertyIsLike>
+                </ogc:Filter>
+            </Constraint>
+        </Query>
+    </GetRecords>
+  </EchoedRequest>
+  <RequestId>urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f</ns:RequestId>
+</Acknowledgement>
+
+----
+
+
 ==== Install and Uninstall
 
 The CSW endpoint can be installed and uninstalled using the normal processes described in the Configuration section.

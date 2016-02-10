@@ -13,10 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -43,7 +40,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -52,10 +48,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -69,18 +63,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionR
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.geotools.feature.NameImpl;
-import org.geotools.filter.AttributeExpressionImpl;
-import org.geotools.filter.text.cql2.CQL;
-import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.Parser;
-import org.opengis.filter.Filter;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,15 +82,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.filter.delegate.TagsFilterDelegate;
-import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceResponse;
@@ -115,8 +92,6 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.Resource;
@@ -126,7 +101,6 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.permission.Permissions;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -148,12 +122,10 @@ import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.EID;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
-import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.GeometryOperandsType;
 import net.opengis.filter.v_1_1_0.IdCapabilitiesType;
 import net.opengis.filter.v_1_1_0.LogicalOperators;
 import net.opengis.filter.v_1_1_0.ScalarCapabilitiesType;
-import net.opengis.filter.v_1_1_0.SortByType;
 import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
@@ -227,9 +199,6 @@ public class CswEndpoint implements Csw {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
-    private static final Configuration PARSER_CONFIG =
-            new org.geotools.filter.v1_1.OGCConfiguration();
-
     private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
 
     private static final String OCTET_STREAM_OUTPUT_SCHEMA =
@@ -248,17 +217,11 @@ public class CswEndpoint implements Csw {
 
     private static Map<String, Element> documentElements = new HashMap<String, Element>();
 
-    private static JAXBContext jaxBContext;
-
     private final TransformerManager mimeTypeTransformerManager;
 
     private final TransformerManager schemaTransformerManager;
 
     private final TransformerManager inputTransformerManager;
-
-    private FilterBuilder builder;
-
-    private FilterAdapter adapter;
 
     private BundleContext context;
 
@@ -266,7 +229,9 @@ public class CswEndpoint implements Csw {
 
     private CapabilitiesType capabilitiesType;
 
-    private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
+    private Validator validator;
+
+    private CswQueryFactory queryFactory;
 
     @Context
     private UriInfo uri;
@@ -274,35 +239,18 @@ public class CswEndpoint implements Csw {
     /**
      * JAX-RS Server that represents a CSW v2.0.2 Server.
      */
-    public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            FilterAdapter filterAdapter, TransformerManager mimeTypeManager,
-            TransformerManager schemaManager, TransformerManager inputManager) {
+    public CswEndpoint(BundleContext context, CatalogFramework ddf,
+            TransformerManager mimeTypeManager, TransformerManager schemaManager,
+            TransformerManager inputManager, Validator validator, CswQueryFactory queryFactory) {
         LOGGER.trace("Entering: CSW Endpoint constructor.");
         this.context = context;
         this.framework = ddf;
-        this.builder = filterBuilder;
-        this.adapter = filterAdapter;
         this.mimeTypeTransformerManager = mimeTypeManager;
         this.schemaTransformerManager = schemaManager;
         this.inputTransformerManager = inputManager;
+        this.validator = validator;
+        this.queryFactory = queryFactory;
         LOGGER.trace("Exiting: CSW Endpoint constructor.");
-    }
-
-    /* Constructor for unit testing */
-    public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            FilterAdapter filterAdapter, UriInfo uri, TransformerManager manager,
-            TransformerManager schemaManager, TransformerManager inputManager) {
-        this(context, ddf, filterBuilder, filterAdapter, manager, schemaManager, inputManager);
-        this.uri = uri;
-    }
-
-    public static synchronized JAXBContext getJaxBContext() throws JAXBException {
-        if (jaxBContext == null) {
-
-            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
-                    + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
-        }
-        return jaxBContext;
     }
 
     @Override
@@ -316,7 +264,7 @@ public class CswEndpoint implements Csw {
         capabilitiesType = buildCapabilitiesType();
 
         if (request.getAcceptVersions() != null) {
-            validateVersion(request.getAcceptVersions());
+            validator.validateVersion(request.getAcceptVersions());
         }
 
         List<String> sectionList = null;
@@ -340,7 +288,7 @@ public class CswEndpoint implements Csw {
 
         LOGGER.trace("Entering: getCapabilities.");
         if (request.getAcceptVersions() != null) {
-            validateVersion(request.getAcceptVersions()
+            validator.validateVersion(request.getAcceptVersions()
                     .toString());
         }
 
@@ -365,18 +313,18 @@ public class CswEndpoint implements Csw {
             throw new CswException("DescribeRecordRequest request is null");
         }
 
-        validateOutputFormat(request.getOutputFormat());
-        validateSchemaLanguage(request.getSchemaLanguage());
+        validator.validateOutputFormat(request.getOutputFormat(), mimeTypeTransformerManager);
+        validator.validateSchemaLanguage(request.getSchemaLanguage());
 
         Map<String, String> namespacePrefixToUriMappings =
                 request.parseNamespaces(request.getNamespace());
 
-        validateTypeNameToNamespaceMappings(request.getTypeName(),
+        validator.validateTypeNameToNamespaceMappings(request.getTypeName(),
                 request.getNamespace(),
                 namespacePrefixToUriMappings);
 
         if (request.getVersion() != null) {
-            validateVersion(request.getVersion());
+            validator.validateVersion(request.getVersion());
         }
 
         List<QName> types = typeStringToQNames(request.getTypeName(), namespacePrefixToUriMappings);
@@ -394,8 +342,8 @@ public class CswEndpoint implements Csw {
             throw new CswException("DescribeRecordRequest request is null");
         }
 
-        validateOutputFormat(request.getOutputFormat());
-        validateSchemaLanguage(request.getSchemaLanguage());
+        validator.validateOutputFormat(request.getOutputFormat(), mimeTypeTransformerManager);
+        validator.validateSchemaLanguage(request.getSchemaLanguage());
 
         return buildDescribeRecordResponseFromTypes(request.getTypeName(),
                 CswConstants.VERSION_2_0_2);
@@ -414,7 +362,7 @@ public class CswEndpoint implements Csw {
         if (StringUtils.isEmpty(request.getVersion())) {
             request.setVersion(CswConstants.VERSION_2_0_2);
         } else {
-            validateVersion(request.getVersion());
+            validator.validateVersion(request.getVersion());
         }
 
         LOGGER.trace("Exiting getRecords");
@@ -433,8 +381,8 @@ public class CswEndpoint implements Csw {
             LOGGER.debug("{} attempting to get records.", request.getService());
         }
 
-        validateOutputFormat(request.getOutputFormat());
-        validateOutputSchema(request.getOutputSchema());
+        validator.validateOutputFormat(request.getOutputFormat(), mimeTypeTransformerManager);
+        validator.validateOutputSchema(request.getOutputSchema(), schemaTransformerManager);
 
         if (request.getAbstractQuery() != null) {
             if (!request.getAbstractQuery()
@@ -449,8 +397,8 @@ public class CswEndpoint implements Csw {
             QueryType query = (QueryType) request.getAbstractQuery()
                     .getValue();
 
-            validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
-            validateElementNames(query);
+            validator.validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
+            validator.validateElementNames(query);
 
             if (query.getConstraint() != null &&
                     query.getConstraint()
@@ -475,8 +423,8 @@ public class CswEndpoint implements Csw {
 
         String outputFormat = request.getOutputFormat();
         String outputSchema = request.getOutputSchema();
-        validateOutputFormat(outputFormat);
-        validateOutputSchema(outputSchema);
+        validator.validateOutputFormat(outputFormat, mimeTypeTransformerManager);
+        validator.validateOutputSchema(outputSchema, schemaTransformerManager);
 
         if (StringUtils.isNotBlank(request.getId())) {
             List<String> ids = Arrays.asList(request.getId()
@@ -519,8 +467,8 @@ public class CswEndpoint implements Csw {
 
         String outputFormat = request.getOutputFormat();
         String outputSchema = request.getOutputSchema();
-        validateOutputFormat(outputFormat);
-        validateOutputSchema(outputSchema);
+        validator.validateOutputFormat(outputFormat, mimeTypeTransformerManager);
+        validator.validateOutputSchema(outputSchema, schemaTransformerManager);
 
         List<String> ids = request.getId();
         if (!ids.isEmpty()) {
@@ -688,11 +636,8 @@ public class CswEndpoint implements Csw {
             UnsupportedQueryException {
         List<QName> qNames = typeStringToQNames(deleteAction.getTypeName(),
                 deleteAction.getPrefixToUriMappings());
-        Filter filter = buildFilter(deleteAction.getConstraint(), qNames).getVisitedFilter();
-        QueryImpl query = new QueryImpl(filter);
-        query.setPageSize(-1);
 
-        QueryRequest queryRequest = new QueryRequestImpl(query);
+        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint(), qNames);
         QueryResponse response = framework.query(queryRequest);
 
         List<String> ids = new ArrayList<>();
@@ -739,14 +684,9 @@ public class CswEndpoint implements Csw {
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
-            Filter filter = buildFilter(constraint,
+            QueryRequest queryRequest = queryFactory.getQuery(constraint,
                     typeStringToQNames(updateAction.getTypeName(),
-                            updateAction.getPrefixToUriMappings())).getVisitedFilter();
-
-            QueryImpl query = new QueryImpl(filter);
-            query.setPageSize(-1);
-
-            QueryRequest queryRequest = new QueryRequestImpl(query);
+                            updateAction.getPrefixToUriMappings()));
             QueryResponse response = framework.query(queryRequest);
 
             if (response.getHits() > 0) {
@@ -824,46 +764,6 @@ public class CswEndpoint implements Csw {
     }
 
     /**
-     * Validates TypeName to namspace uri mapping in query request.
-     *
-     * @param typeNames                    this can be a comma separated list of types which
-     *                                     can be prefixed with prefixes.
-     *                                     example csw:Record
-     * @param namespaces                   the namespace parameter from the request
-     *                                     example NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)
-     * @param namespacePrefixToUriMappings map of namespace prefixes to namespace uri
-     *                                     example key=csw value=http://www.opengis.net/cat/csw/2.0.2
-     * @throws CswException
-     */
-    private void validateTypeNameToNamespaceMappings(String typeNames, String namespaces,
-            Map<String, String> namespacePrefixToUriMappings) throws CswException {
-
-        // No typeName in query.
-        if (StringUtils.isBlank(typeNames)) {
-            return;
-        }
-
-        String[] types = typeNames.split(CswConstants.COMMA);
-        String prefix = null;
-
-        for (String type : types) {
-            if (type.contains(CswConstants.NAMESPACE_DELIMITER)) {
-                // Get the prefix. For example in csw:Record, get csw.
-                prefix = type.split(CswConstants.NAMESPACE_DELIMITER)[0];
-            } else {
-                prefix = "";
-            }
-
-            // if the prefix does not map to a provided namespace, throw an exception.
-            if (!namespacePrefixToUriMappings.containsKey(prefix)) {
-                throw new CswException(
-                        "Unable to map [" + type + "] to one of the following namespaces ["
-                                + namespaces + "].");
-            }
-        }
-    }
-
-    /**
      * Returns a list of QNames based on typeNames and namespaces given
      *
      * @param typeNames                    this can be a comma separated list of types which
@@ -931,7 +831,7 @@ public class CswEndpoint implements Csw {
     private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types,
             String version) throws CswException {
 
-        validateFullyQualifiedTypes(types);
+        validator.validateFullyQualifiedTypes(types);
 
         DescribeRecordResponseType response = new DescribeRecordResponseType();
         List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
@@ -950,7 +850,8 @@ public class CswEndpoint implements Csw {
             try {
                 Writer writer = new StringWriter();
                 try {
-                    Marshaller marshaller = getJaxBContext().createMarshaller();
+                    Marshaller marshaller = CswQueryFactory.getJaxBContext()
+                            .createMarshaller();
                     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
                     JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory().createGetRecords(
@@ -984,37 +885,10 @@ public class CswEndpoint implements Csw {
 
         if (ResultType.HITS.equals(request.getResultType())
                 || ResultType.RESULTS.equals(request.getResultType())) {
-            CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint(),
-                    query.getTypeNames());
-            QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
-            frameworkQuery.setSortBy(buildSort(query.getSortBy()));
-
-            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords()
-                    .intValue() < 1) {
-                frameworkQuery.setStartIndex(1);
-                frameworkQuery.setPageSize(1);
-            } else {
-                frameworkQuery.setStartIndex(request.getStartPosition()
-                        .intValue());
-                frameworkQuery.setPageSize(request.getMaxRecords()
-                        .intValue());
-            }
-            QueryRequest queryRequest = null;
-            boolean isDistributed = request.getDistributedSearch() != null && (
-                    request.getDistributedSearch()
-                            .getHopCount()
-                            .longValue() > 1);
-
-            if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
-                queryRequest = new QueryRequestImpl(frameworkQuery, true);
-            } else if (isDistributed && !CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
-                queryRequest = new QueryRequestImpl(frameworkQuery, filterVisitor.getSourceIds());
-            } else {
-                queryRequest = new QueryRequestImpl(frameworkQuery, false);
-            }
-
+            QueryRequest queryRequest = queryFactory.getQuery(request);
             try {
-                queryRequest = updateQueryRequestTags(queryRequest, request.getOutputSchema());
+                queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
+                        request.getOutputSchema());
                 LOGGER.debug("Attempting to execute query: {}", response.getRequest());
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
@@ -1030,120 +904,6 @@ public class CswEndpoint implements Csw {
             }
         }
         return response;
-    }
-
-    protected QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema) throws UnsupportedQueryException {
-        QueryRequest newRequest = queryRequest;
-        Set<String> tags = schemaToTagsMapping.get(schema);
-        if (!CollectionUtils.isEmpty(tags)) {
-            Query origQuery = queryRequest.getQuery();
-            if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags))) {
-                List<Filter> filters = new ArrayList<>(tags.size());
-                for (String tag : tags) {
-                    filters.add(builder.attribute(Metacard.TAGS)
-                            .is()
-                            .like()
-                            .text(tag));
-                }
-                QueryImpl newQuery = new QueryImpl(builder.allOf(builder.anyOf(filters),
-                        origQuery),
-                        origQuery.getStartIndex(),
-                        origQuery.getPageSize(),
-                        origQuery.getSortBy(),
-                        origQuery.requestsTotalResultsCount(),
-                        origQuery.getTimeoutMillis());
-                newRequest = new QueryRequestImpl(newQuery,
-                        queryRequest.isEnterprise(),
-                        queryRequest.getSourceIds(),
-                        queryRequest.getProperties());
-            }
-        }
-        return newRequest;
-    }
-
-    private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint,
-            List<QName> typeNames) throws CswException {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
-        Filter filter = null;
-        if (constraint != null) {
-            if (constraint.isSetCqlText()) {
-                try {
-                    filter = CQL.toFilter(constraint.getCqlText());
-                } catch (CQLException e) {
-                    throw new CswException("Unable to parse CQL Constraint: " + e.getMessage(), e);
-                }
-            } else if (constraint.isSetFilter()) {
-                FilterType constraintFilter = constraint.getFilter();
-                filter = parseFilter(constraintFilter);
-            }
-        } else {
-            // not supported by catalog:
-            //filter = Filter.INCLUDE;
-            filter = builder.attribute(Metacard.ID)
-                    .is()
-                    .like()
-                    .text(FilterDelegate.WILDCARD_CHAR);
-        }
-
-        if (filter == null) {
-            throw new CswException("Invalid Filter Expression",
-                    CswConstants.NO_APPLICABLE_CODE,
-                    null);
-        }
-        visitor.setVisitedFilter(filter);
-        if (typeNames.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                CswConstants.CSW_RECORD_LOCAL_NAME,
-                CswConstants.CSW_NAMESPACE_PREFIX))) {
-
-            try {
-                visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
-            } catch (UnsupportedOperationException ose) {
-                throw new CswException(ose.getMessage(),
-                        CswConstants.INVALID_PARAMETER_VALUE,
-                        null);
-            }
-        }
-        return visitor;
-    }
-
-    private SortBy buildSort(SortByType sort) throws CswException {
-        if (sort == null || sort.getSortProperty() == null) {
-            return null;
-        }
-
-        SortBy[] sortByArr = parseSortBy(sort);
-
-        if (sortByArr.length > 1) {
-            LOGGER.warn("Query request has multiple sort criteria, only primary will be used");
-        }
-
-        SortBy sortBy = sortByArr[0];
-
-        if (sortBy.getPropertyName() == null) {
-            LOGGER.warn("No property name in primary sort criteria");
-            return null;
-        }
-
-        if (!DefaultCswRecordMap.getDefaultCswRecordMap()
-                .hasDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
-                                .getPropertyName(),
-                        sortBy.getPropertyName()
-                                .getNamespaceContext())) {
-            throw new CswException("Property " + sortBy.getPropertyName()
-                    .getPropertyName() + " is not a valid SortBy Field",
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    "SortProperty");
-        }
-
-        String name = DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getDefaultMetacardFieldForPrefixedString(sortBy.getPropertyName()
-                                .getPropertyName(),
-                        sortBy.getPropertyName()
-                                .getNamespaceContext());
-
-        PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
-
-        return new SortByImpl(propName, sortBy.getSortOrder());
     }
 
     private SchemaComponentType getSchemaComponentType() throws CswException {
@@ -1480,118 +1240,6 @@ public class CswEndpoint implements Csw {
                 .add(createDomainType(CswConstants.FEDERATED_CATALOGS, sourceIds));
     }
 
-    /**
-     * Verifies that that if types are passed, then they are fully qualified
-     *
-     * @param types List of QNames representing types
-     */
-    private void validateFullyQualifiedTypes(List<QName> types) throws CswException {
-        for (QName type : types) {
-            if (StringUtils.isBlank(type.getNamespaceURI())) {
-                throw new CswException("Unqualified type name: '" + type.getLocalPart() + "'",
-                        CswConstants.INVALID_PARAMETER_VALUE,
-                        null);
-            }
-        }
-    }
-
-    /**
-     * Verifies that if types are passed, then they exist.
-     *
-     * @param types   List of QNames representing types
-     * @param version the specified version of the types
-     */
-    private void validateTypes(List<QName> types, String version) throws CswException {
-        if (types == null || types.size() == 0) {
-            // No type at all is valid, just return
-            return;
-        }
-
-        if (types.size() == 1) {
-            if (!types.get(0)
-                    .equals(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                            CswConstants.CSW_RECORD_LOCAL_NAME))) {
-                throw createUnknownTypeException(types.get(0)
-                        .toString());
-            }
-
-        }
-    }
-
-    /**
-     * Verifies that if the ElementName or ElementSetName is passed, that they are
-     * valid and mutually exclusive according to the OpenGIS CSW spec.
-     *
-     * @param query QueryType to be validated
-     */
-    private void validateElementNames(QueryType query) throws CswException {
-
-        if (query.isSetElementSetName() && query.isSetElementName()) {
-            throw new CswException("ElementSetName and ElementName must be mutually exclusive",
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    "ElementName");
-        } else if (query.isSetElementName() && query.getElementName()
-                .size() > 0) {
-
-            for (QName elementName : query.getElementName()) {
-                String elementNameString = elementName.getLocalPart();
-                if (!ELEMENT_NAMES.contains(elementNameString)) {
-                    throw new CswException("Unknown ElementName " + elementNameString,
-                            CswConstants.INVALID_PARAMETER_VALUE,
-                            "ElementName");
-                }
-            }
-        } else if (query.isSetElementSetName() && query.getElementSetName()
-                .getValue() == null) {
-            throw new CswException("Unknown ElementSetName",
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    "ElementSetName");
-        }
-
-    }
-
-    private void validateOutputSchema(String schema) throws CswException {
-        if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null
-                || schema.equals(OCTET_STREAM_OUTPUT_SCHEMA)) {
-            return;
-        }
-        throw createUnknownSchemaException(schema);
-    }
-
-    private void validateVersion(String versions) throws CswException {
-        if (!versions.contains(CswConstants.VERSION_2_0_2)) {
-            throw new CswException(
-                    "Version(s) " + versions + " is not supported, we currently support version "
-                            + CswConstants.VERSION_2_0_2,
-                    CswConstants.VERSION_NEGOTIATION_FAILED,
-                    null);
-        }
-    }
-
-    private void validateOutputFormat(String format) throws CswException {
-        if (!StringUtils.isEmpty(format)) {
-            if (!DEFAULT_OUTPUT_FORMAT.equals(format)
-                    && !mimeTypeTransformerManager.getAvailableMimeTypes()
-                    .contains(format)) {
-                if (!MediaType.APPLICATION_OCTET_STREAM.equals(format)) {
-                    throw new CswException("Invalid output format '" + format + "'",
-                            CswConstants.INVALID_PARAMETER_VALUE,
-                            "outputformat");
-                }
-            }
-        }
-    }
-
-    private void validateSchemaLanguage(String schemaLanguage) throws CswException {
-        if (!StringUtils.isEmpty(schemaLanguage)) {
-            if (!CswConstants.VALID_SCHEMA_LANGUAGES.contains(schemaLanguage)) {
-                throw new CswException("Invalid schema language '" + schemaLanguage + "'",
-                        CswConstants.INVALID_PARAMETER_VALUE,
-                        "schemaLanguage");
-            }
-        }
-    }
-
     private void notImplemented(final String methodName) throws CswException {
         throw new CswException("The method " + methodName + " is not yet implemented.");
     }
@@ -1602,88 +1250,13 @@ public class CswEndpoint implements Csw {
                 null);
     }
 
-    private CswException createUnknownSchemaException(final String schema) {
-        return new CswException("The schema '" + schema + "' is not known to this service.",
-                CswConstants.INVALID_PARAMETER_VALUE,
-                "OutputSchema");
-    }
-
-    private InputStream marshalJaxB(JAXBElement<?> filterElement) throws JAXBException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        getJaxBContext().createMarshaller()
-                .marshal(filterElement, os);
-        ByteArrayInputStream input = new ByteArrayInputStream(os.toByteArray());
-        IOUtils.closeQuietly(os);
-
-        return input;
-    }
-
-    private Filter parseFilter(FilterType filterType) throws CswException {
-        if (!filterType.isSetComparisonOps() && !filterType.isSetId() && !filterType.isSetLogicOps()
-                && !filterType.isSetSpatialOps()) {
-            throw new CswException("Empty Filter provided. Unable to preform query.",
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    "Filter");
-        }
-        JAXBElement<FilterType> filterElement =
-                new net.opengis.filter.v_1_1_0.ObjectFactory().createFilter(filterType);
-
-        return (Filter) parseJaxB(filterElement);
-    }
-
-    private SortBy[] parseSortBy(SortByType sortByType) throws CswException {
-        JAXBElement<SortByType> sortByElement =
-                new net.opengis.filter.v_1_1_0.ObjectFactory().createSortBy(sortByType);
-
-        return (SortBy[]) parseJaxB(sortByElement);
-    }
-
-    private Object parseJaxB(JAXBElement<?> element) throws CswException {
-        Parser parser = new Parser(PARSER_CONFIG);
-        InputStream inputStream = null;
-
-        try {
-            inputStream = marshalJaxB(element);
-            return parser.parse(inputStream);
-        } catch (JAXBException e) {
-            throw new CswException("Failed to parse Element: (JAXBException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (IOException e) {
-            throw new CswException("Failed to parse Element: (IOException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (SAXException e) {
-            throw new CswException("Failed to parse Element: (SAXException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (ParserConfigurationException e) {
-            throw new CswException(
-                    "Failed to parse Element: (ParserConfigurationException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (RuntimeException e) {
-            throw new CswException("Failed to parse Element: (RuntimeException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        }
-    }
-
-    private CswRecordCollection queryById(List<String> ids, String outputSchema) throws CswException {
-        List<Filter> filters = new ArrayList<>();
-        for (String id : ids) {
-            filters.add(builder.attribute(Metacard.ID)
-                    .is()
-                    .equalTo()
-                    .text(id));
-        }
-
-        Filter anyOfFilter = builder.anyOf(filters);
-        QueryRequest queryRequest = new QueryRequestImpl(new QueryImpl(anyOfFilter), false);
+    private CswRecordCollection queryById(List<String> ids, String outputSchema)
+            throws CswException {
+        QueryRequest queryRequest = queryFactory.getQueryById(ids);
         try {
             CswRecordCollection response = new CswRecordCollection();
             response.setById(true);
-            queryRequest = updateQueryRequestTags(queryRequest, outputSchema);
+            queryRequest = queryFactory.updateQueryRequestTags(queryRequest, outputSchema);
             QueryResponse queryResponse = framework.query(queryRequest);
             response.setSourceResponse(queryResponse);
 
@@ -1750,11 +1323,9 @@ public class CswEndpoint implements Csw {
         return cswRecordCollection;
     }
 
-    public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {
-        if (schemaToTagsMappingStrings != null) {
-            schemaToTagsMapping.clear();
-            schemaToTagsMapping.putAll(Permissions.parsePermissionsFromString(
-                    schemaToTagsMappingStrings));
-        }
+    /* For unit testing */
+    void setUri(UriInfo uri) {
+        this.uri = uri;
     }
+
 }
