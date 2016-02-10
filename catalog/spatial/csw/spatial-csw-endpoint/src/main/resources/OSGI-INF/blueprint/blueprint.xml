@@ -22,6 +22,10 @@
         <argument value="csw"/>
     </bean>
 
+    <bean id="subscriptionManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.SubscriptionManager">
+    </bean>
+
     <bean id="cswJaxbElementProvider"
           class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider">
         <property name="singleJaxbContext" value="true"/>
@@ -30,6 +34,7 @@
                 <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
                 <value>net.opengis.cat.csw.v_2_0_2.CapabilitiesType</value>
                 <value>net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType</value>
+                <value>net.opengis.cat.csw.v_2_0_2.AcknowledgementType</value>
             </list>
         </property>
         <property name="marshallAsJaxbElement" value="true"/>
@@ -58,6 +63,12 @@
                         <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
                     </key>
                     <value>{http://www.opengis.net/cat/csw/2.0.2}TransactionResponse</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>net.opengis.cat.csw.v_2_0_2.AcknowledgementType</value>
+                    </key>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}Acknowledgement</value>
                 </entry>
             </map>
         </property>
@@ -130,6 +141,7 @@
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
         <argument ref="inputTransformerManager"/>
+        <argument ref="subscriptionManager"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">
                 <value type="java.lang.String">http://www.opengis.net/cat/wrs/1.0=registry</value>

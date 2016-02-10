@@ -36,17 +36,24 @@ import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,6 +77,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscription;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.SubscriptionManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.feature.NameImpl;
@@ -98,6 +107,8 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.event.InvalidSubscriptionException;
+import ddf.catalog.event.Subscription;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -127,10 +138,12 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.permission.Permissions;
+import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
+import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
@@ -256,6 +269,8 @@ public class CswEndpoint implements Csw {
 
     private final TransformerManager inputTransformerManager;
 
+    private final SubscriptionManager subscriptionManager;
+
     private FilterBuilder builder;
 
     private FilterAdapter adapter;
@@ -265,6 +280,10 @@ public class CswEndpoint implements Csw {
     private CatalogFramework framework;
 
     private CapabilitiesType capabilitiesType;
+
+    private ObjectFactory objectFactory = new ObjectFactory();
+
+    private DatatypeFactory datatypeFactory;
 
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
@@ -276,7 +295,8 @@ public class CswEndpoint implements Csw {
      */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
             FilterAdapter filterAdapter, TransformerManager mimeTypeManager,
-            TransformerManager schemaManager, TransformerManager inputManager) {
+            TransformerManager schemaManager, TransformerManager inputManager,
+            SubscriptionManager subscriptionManager) {
         LOGGER.trace("Entering: CSW Endpoint constructor.");
         this.context = context;
         this.framework = ddf;
@@ -285,15 +305,13 @@ public class CswEndpoint implements Csw {
         this.mimeTypeTransformerManager = mimeTypeManager;
         this.schemaTransformerManager = schemaManager;
         this.inputTransformerManager = inputManager;
+        this.subscriptionManager = subscriptionManager;
+        try {
+            this.datatypeFactory = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            LOGGER.error("Error initializing datatypeFactory", e);
+        }
         LOGGER.trace("Exiting: CSW Endpoint constructor.");
-    }
-
-    /* Constructor for unit testing */
-    public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            FilterAdapter filterAdapter, UriInfo uri, TransformerManager manager,
-            TransformerManager schemaManager, TransformerManager inputManager) {
-        this(context, ddf, filterBuilder, filterAdapter, manager, schemaManager, inputManager);
-        this.uri = uri;
     }
 
     public static synchronized JAXBContext getJaxBContext() throws JAXBException {
@@ -824,6 +842,211 @@ public class CswEndpoint implements Csw {
     }
 
     /**
+     * Deletes an active subscription
+     *
+     * @param requestId the requestId of the subscription to be removed
+     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * deleted or an empty 404 if none are found
+     * @throws CswException
+     */
+    @Override
+    @DELETE
+    @Path("/subscription/{requestId}")
+    @Produces({MediaType.WILDCARD})
+    public Response deleteRecordsSubscription(@PathParam("requestId") String requestId)
+            throws CswException {
+        Subscription subscription = subscriptionManager.getSubscription(context, requestId);
+        if (subscription == null || !(subscription instanceof CswSubscription)) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+        try {
+            subscriptionManager.deleteSubscription(context, requestId);
+        } catch (InvalidSubscriptionException e) {
+            throw new CswException("Invalid ResponseHandler URL", e);
+        }
+        return createAcknowledgment(((CswSubscription) subscription).getOriginalRequest());
+    }
+
+    /**
+     * Get an active subscription
+     *
+     * @param requestId the requestId of the subscription to get
+     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * found or an empty 404 if none are found
+     * @throws CswException
+     */
+    @Override
+    @GET
+    @Path("/subscription/{requestId}")
+    @Produces({MediaType.WILDCARD})
+    public Response getRecordsSubscription(@PathParam("requestId") String requestId)
+            throws CswException {
+
+        Subscription subscription = subscriptionManager.getSubscription(context, requestId);
+        if (subscription == null || !(subscription instanceof CswSubscription)) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+        return createAcknowledgment(((CswSubscription) subscription).getOriginalRequest());
+    }
+
+    /**
+     * Updates an active subscription
+     *
+     * @param requestId the requestId of the subscription to get
+     * @param request   the GetRocordsType request which contains the filter that the
+     *                  subscription is subscribing too and a ResponseHandler URL that will
+     *                  handle the CswRecordCollection response messages. When an create, update
+     *                  or delete event is received a CswRecordCollection will be sent via a
+     *                  POST, PUT or DELETE to the ResponseHandler URL.
+     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * updated or added
+     * @throws CswException
+     */
+    @Override
+    @PUT
+    @Path("/subscription/{requestId}")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.WILDCARD})
+    public Response updateRecordsSubscription(@PathParam("requestId") String requestId,
+            GetRecordsType request) throws CswException {
+
+        return createOrUpdateSubscription(request, requestId);
+    }
+
+    /**
+     * Create a subscription
+     *
+     * @param request the GetRecordsRequest request which contains the filter that the
+     *                subscription is subscribing too and a ResponseHandler URL that will
+     *                handle the CswRecordCollection response messages. When an create, update
+     *                or delete event is received a CswRecordCollection will be sent via a
+     *                POST, PUT or DELETE to the ResponseHandler URL.
+     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * added
+     * @throws CswException
+     */
+    @Override
+    @GET
+    @Path("/subscription")
+    @Produces({MediaType.WILDCARD})
+    public Response createRecordsSubscription(@QueryParam("") GetRecordsRequest request)
+            throws CswException {
+        if (request == null) {
+            throw new CswException("GetRecordsSubscription request is null");
+        } else {
+            LOGGER.debug("{} attempting to subscribe.", request.getRequest());
+        }
+        if (StringUtils.isEmpty(request.getVersion())) {
+            request.setVersion(CswConstants.VERSION_2_0_2);
+        } else {
+            validateVersion(request.getVersion());
+        }
+
+        LOGGER.trace("Exiting getRecordsSubscription");
+
+        return createOrUpdateSubscription(request.get202RecordsType(), null);
+    }
+
+    /**
+     * Create a subscription
+     *
+     * @param request the GetRecordsType request which contains the filter that the
+     *                subscription is subscribing too and a ResponseHandler URL that will
+     *                handle the CswRecordCollection response messages. When an create, update
+     *                or delete event is received a CswRecordCollection will be sent via a
+     *                POST, PUT or DELETE to the ResponseHandler URL
+     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * added
+     * @throws CswException
+     */
+    @Override
+    @POST
+    @Path("/subscription")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.WILDCARD})
+    public Response createRecordsSubscription(GetRecordsType request) throws CswException {
+        return createOrUpdateSubscription(request, null);
+    }
+
+    private Response createOrUpdateSubscription(GetRecordsType request, String requestId)
+            throws CswException {
+
+        if (request == null) {
+            throw new CswException("Request is null");
+        } else {
+            LOGGER.debug("{} attempting to subscribe.", request.getService());
+        }
+
+        validateOutputFormat(request.getOutputFormat());
+
+        validateOutputSchema(request.getOutputSchema());
+
+        if (request.getAbstractQuery() != null) {
+            if (!request.getAbstractQuery()
+                    .getValue()
+                    .getClass()
+                    .equals(QueryType.class)) {
+                throw new CswException("Unknown QueryType: " + request.getAbstractQuery()
+                        .getValue()
+                        .getClass());
+            }
+
+            QueryType query = (QueryType) request.getAbstractQuery()
+                    .getValue();
+
+            validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
+
+            validateElementNames(query);
+
+            if (query.getConstraint() != null &&
+                    query.getConstraint()
+                            .isSetFilter() && query.getConstraint()
+                    .isSetCqlText()) {
+                throw new CswException("A Csw Query can only have a Filter or CQL constraint");
+            }
+        }
+
+        QueryRequest query = getQuery(request);
+
+        Subscription subscription = new CswSubscription(mimeTypeTransformerManager, request, query);
+
+        try {
+            String subscriptionId = subscriptionManager.addOrUpdateSubscription(context,
+                    subscription,
+                    requestId,
+                    request.getResponseHandler()
+                            .get(0));
+            request.setRequestId(subscriptionId);
+        } catch (InvalidSubscriptionException e) {
+            throw new CswException(e);
+        }
+
+        LOGGER.trace("Exiting getRecordsSubscription.");
+
+        return createAcknowledgment(request);
+    }
+
+    private Response createAcknowledgment(GetRecordsType request) {
+        AcknowledgementType acknowledgementType = new AcknowledgementType();
+        if (request != null) {
+            EchoedRequestType echoedRequest = new EchoedRequestType();
+            echoedRequest.setAny(objectFactory.createGetRecords(request));
+            acknowledgementType.setEchoedRequest(echoedRequest);
+            acknowledgementType.setRequestId(request.getRequestId());
+        }
+
+        if (datatypeFactory != null) {
+            acknowledgementType.setTimeStamp(datatypeFactory.newXMLGregorianCalendar());
+        }
+
+        return Response.ok()
+                .entity(acknowledgementType)
+                .build();
+    }
+
+    /**
      * Validates TypeName to namspace uri mapping in query request.
      *
      * @param typeNames                    this can be a comma separated list of types which
@@ -945,6 +1168,42 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
+    private QueryRequest getQuery(GetRecordsType request) throws CswException {
+
+        QueryType query = (QueryType) request.getAbstractQuery()
+                .getValue();
+
+        CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint(),
+                query.getTypeNames());
+        QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
+        frameworkQuery.setSortBy(buildSort(query.getSortBy()));
+
+        if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords()
+                .intValue() < 1) {
+            frameworkQuery.setStartIndex(1);
+            frameworkQuery.setPageSize(1);
+        } else {
+            frameworkQuery.setStartIndex(request.getStartPosition()
+                    .intValue());
+            frameworkQuery.setPageSize(request.getMaxRecords()
+                    .intValue());
+        }
+        QueryRequest queryRequest = null;
+        boolean isDistributed = request.getDistributedSearch() != null && (
+                request.getDistributedSearch()
+                        .getHopCount()
+                        .longValue() > 1);
+
+        if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
+            queryRequest = new QueryRequestImpl(frameworkQuery, true);
+        } else if (isDistributed && !CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
+            queryRequest = new QueryRequestImpl(frameworkQuery, filterVisitor.getSourceIds());
+        } else {
+            queryRequest = new QueryRequestImpl(frameworkQuery, false);
+        }
+        return queryRequest;
+    }
+
     private CswRecordCollection queryCsw(GetRecordsType request) throws CswException {
         if (LOGGER.isDebugEnabled()) {
             try {
@@ -984,35 +1243,7 @@ public class CswEndpoint implements Csw {
 
         if (ResultType.HITS.equals(request.getResultType())
                 || ResultType.RESULTS.equals(request.getResultType())) {
-            CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint(),
-                    query.getTypeNames());
-            QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
-            frameworkQuery.setSortBy(buildSort(query.getSortBy()));
-
-            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords()
-                    .intValue() < 1) {
-                frameworkQuery.setStartIndex(1);
-                frameworkQuery.setPageSize(1);
-            } else {
-                frameworkQuery.setStartIndex(request.getStartPosition()
-                        .intValue());
-                frameworkQuery.setPageSize(request.getMaxRecords()
-                        .intValue());
-            }
-            QueryRequest queryRequest = null;
-            boolean isDistributed = request.getDistributedSearch() != null && (
-                    request.getDistributedSearch()
-                            .getHopCount()
-                            .longValue() > 1);
-
-            if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
-                queryRequest = new QueryRequestImpl(frameworkQuery, true);
-            } else if (isDistributed && !CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
-                queryRequest = new QueryRequestImpl(frameworkQuery, filterVisitor.getSourceIds());
-            } else {
-                queryRequest = new QueryRequestImpl(frameworkQuery, false);
-            }
-
+            QueryRequest queryRequest = getQuery(request);
             try {
                 queryRequest = updateQueryRequestTags(queryRequest, request.getOutputSchema());
                 LOGGER.debug("Attempting to execute query: {}", response.getRequest());
@@ -1032,7 +1263,8 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
-    protected QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema) throws UnsupportedQueryException {
+    protected QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema)
+            throws UnsupportedQueryException {
         QueryRequest newRequest = queryRequest;
         Set<String> tags = schemaToTagsMapping.get(schema);
         if (!CollectionUtils.isEmpty(tags)) {
@@ -1045,8 +1277,7 @@ public class CswEndpoint implements Csw {
                             .like()
                             .text(tag));
                 }
-                QueryImpl newQuery = new QueryImpl(builder.allOf(builder.anyOf(filters),
-                        origQuery),
+                QueryImpl newQuery = new QueryImpl(builder.allOf(builder.anyOf(filters), origQuery),
                         origQuery.getStartIndex(),
                         origQuery.getPageSize(),
                         origQuery.getSortBy(),
@@ -1669,7 +1900,8 @@ public class CswEndpoint implements Csw {
         }
     }
 
-    private CswRecordCollection queryById(List<String> ids, String outputSchema) throws CswException {
+    private CswRecordCollection queryById(List<String> ids, String outputSchema)
+            throws CswException {
         List<Filter> filters = new ArrayList<>();
         for (String id : ids) {
             filters.add(builder.attribute(Metacard.ID)
@@ -1748,6 +1980,11 @@ public class CswEndpoint implements Csw {
         cswRecordCollection.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
         LOGGER.debug("{} successfully retrieved product for ID: {}", id);
         return cswRecordCollection;
+    }
+
+    /* For unit testing */
+    void setUri(UriInfo uri) {
+        this.uri = uri;
     }
 
     public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {

@@ -196,7 +196,6 @@ public class Security {
         return cachedSystemSubject;
     }
 
-    //// TODO (RWY) - should this class be in the api or common or somewhere else?
     public static SecurityManager getSecurityManager() {
         BundleContext context = getBundleContext();
         if (context != null) {

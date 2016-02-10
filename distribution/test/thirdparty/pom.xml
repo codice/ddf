@@ -30,5 +30,6 @@
     </properties>
     <modules>
         <module>rest-assured</module>
+        <module>restito</module>
     </modules>
 </project>
