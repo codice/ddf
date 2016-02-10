@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -101,28 +101,30 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_TABLE_OF_CONTENTS_QNAME, Metacard.DESCRIPTION);
         qNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION_QNAME, Metacard.DESCRIPTION);
 
-
         CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
         Map<String, List<QName>> metacardMap = new HashMap<String, List<QName>>();
 
-        metacardMap.put(Metacard.ID, Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME,
-                CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
-        metacardMap.put(Metacard.TITLE, Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
-                CswRecordMetacardType.CSW_ALTERNATIVE_QNAME));
+        metacardMap.put(Metacard.ID,
+                Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME,
+                        CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
+        metacardMap.put(Metacard.TITLE,
+                Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
+                        CswRecordMetacardType.CSW_ALTERNATIVE_QNAME));
         metacardMap.put(Metacard.CONTENT_TYPE, Arrays.asList(CswRecordMetacardType.CSW_TYPE_QNAME));
-        metacardMap.put(Metacard.MODIFIED, Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
-                CswRecordMetacardType.CSW_MODIFIED_QNAME,
-                CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
-                CswRecordMetacardType.CSW_ISSUED_QNAME));
+        metacardMap.put(Metacard.MODIFIED,
+                Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
+                        CswRecordMetacardType.CSW_MODIFIED_QNAME,
+                        CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
+                        CswRecordMetacardType.CSW_ISSUED_QNAME));
 
         metacardMap.put(Metacard.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME));
         metacardMap.put(Metacard.EFFECTIVE,
                 Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME,
                         CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME));
         metacardMap.put(Metacard.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
-        metacardMap
-                .put(Metacard.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
+        metacardMap.put(Metacard.RESOURCE_URI,
+                Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
         metacardMap.put(Metacard.POINT_OF_CONTACT,
                 Arrays.asList(CswRecordMetacardType.CSW_PUBLISHER_QNAME,
                         CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME,
@@ -142,12 +144,12 @@ public class DefaultCswRecordMap {
         prefixMapping.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
         prefixMapping.put(CswConstants.XML_SCHEMA_INSTANCE_NAMESPACE_PREFIX,
                 XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        prefixMapping
-                .put(CswConstants.XML_SCHEMA_NAMESPACE_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        prefixMapping.put(CswConstants.XML_SCHEMA_NAMESPACE_PREFIX,
+                XMLConstants.W3C_XML_SCHEMA_NS_URI);
         prefixMapping.put(CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
         prefixMapping.put(CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
-        prefixMapping
-                .put(CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX, CswConstants.DUBLIN_CORE_SCHEMA);
+        prefixMapping.put(CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX,
+                CswConstants.DUBLIN_CORE_SCHEMA);
         prefixMapping.put(CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
                 CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
 
@@ -200,7 +202,7 @@ public class DefaultCswRecordMap {
 
     public static boolean hasDefaultMetacardFieldForPrefixedString(String propertyName,
             NamespaceSupport namespaceSupport) {
-        if (propertyName.contains(":")) {
+        if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
             String prefix = propertyName.substring(0, propertyName.indexOf(":"));
             String localName = propertyName.substring(propertyName.indexOf(":") + 1);
             if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
@@ -215,6 +217,10 @@ public class DefaultCswRecordMap {
         }
     }
 
+    private static boolean isXpathPropertyName(String propertyName) {
+        return propertyName.contains("/") || propertyName.contains("@");
+    }
+
     public static String getDefaultMetacardFieldForPrefixedString(String name) {
         return getDefaultMetacardFieldForPrefixedString(name, null);
     }
@@ -222,7 +228,8 @@ public class DefaultCswRecordMap {
     public static String getDefaultMetacardFieldForPrefixedString(String propertyName,
             NamespaceSupport namespaceSupport) {
         String name;
-        if (propertyName.contains(":")) {
+
+        if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
             String prefix = propertyName.substring(0, propertyName.indexOf(":"));
             String localName = propertyName.substring(propertyName.indexOf(":") + 1);
             if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
