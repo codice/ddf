@@ -163,21 +163,21 @@ public class IngestCommand extends CatalogCommands {
         }
 
         BundleContext bundleContext = getBundleContext();
+        if (!DEFAULT_TRANSFORMER_ID.equals(transformerId)) {
+            ServiceReference[] refs = null;
 
-        ServiceReference[] refs = null;
+            try {
+                refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
+                        "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
+            } catch (InvalidSyntaxException e) {
+                throw new IllegalArgumentException("Invalid transformer transformerId: " + transformerId, e);
+            }
 
-        try {
-            refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
-                    "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
-        } catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException(
-                    "Invalid transformer transformerId: " + transformerId, e);
-        }
-
-        if (refs == null || refs.length == 0) {
-            throw new IllegalArgumentException("Transformer " + transformerId + " not found");
-        } else {
-            transformer = (InputTransformer) bundleContext.getService(refs[0]);
+            if (refs == null || refs.length == 0) {
+                throw new IllegalArgumentException("Transformer " + transformerId + " not found");
+            } else {
+                transformer = (InputTransformer) bundleContext.getService(refs[0]);
+            }
         }
 
         BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
