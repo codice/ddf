@@ -14,6 +14,7 @@
 package ddf.test.itests.common;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.io.IOUtils;
@@ -111,16 +112,16 @@ public final class Library {
     }
 
     public static String getCswIngest() {
-        return getCswInsert("csw:Record", getCswRecord());
+        return getCswInsert("csw:Record", getCswRecord(UUID.randomUUID().toString()));
     }
 
-    public static String getCswRecord() {
+    public static String getCswRecord(String id) {
         return "        <csw:Record\n" + "            xmlns:ows=\"http://www.opengis.net/ows\"\n"
                 + "            xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
                 + "            xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n"
                 + "            xmlns:dct=\"http://purl.org/dc/terms/\"\n"
                 + "            xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
-                + "            <dc:identifier>123</dc:identifier>\n"
+                + "            <dc:identifier>" + id + "</dc:identifier>\n"
                 + "            <dc:title>Aliquam fermentum purus quis arcu</dc:title>\n"
                 + "            <dc:type>http://purl.org/dc/dcmitype/Text</dc:type>\n"
                 + "            <dc:subject>Hydrography--Dictionaries</dc:subject>\n"

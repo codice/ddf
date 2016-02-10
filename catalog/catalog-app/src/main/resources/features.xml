@@ -302,8 +302,7 @@
 
     <feature name="catalog-registry" install="manual" version="${project.version}"
              description="DDF Registry">
-        <feature>catalog-core-api</feature>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-metacard-filter/${project.version}</bundle>
+        <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-policyplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
     </feature>

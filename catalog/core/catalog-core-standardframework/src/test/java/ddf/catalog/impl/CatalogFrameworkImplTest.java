@@ -78,6 +78,7 @@ import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -133,6 +134,9 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.CachedSource;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.permission.KeyValueCollectionPermission;
 
 public class CatalogFrameworkImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImplTest.class);
@@ -606,26 +610,15 @@ public class CatalogFrameworkImplTest {
             }
 
         };
-
-        CatalogFrameworkImpl framework =
-                new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
-                        context,
-                        new ArrayList<PreIngestPlugin>(),
-                        new ArrayList<PostIngestPlugin>(),
-                        new ArrayList<PreQueryPlugin>(),
-                        Arrays.asList(stopQueryPlugin),
-                        new ArrayList<PreResourcePlugin>(),
-                        new ArrayList<PostResourcePlugin>(),
-                        new ArrayList<ConnectedSource>(),
-                        new ArrayList<FederatedSource>(),
-                        new ArrayList<ResourceReader>(),
-                        federationStrategy,
-                        mock(QueryResponsePostProcessor.class),
-                        null,
-                        poller,
-                        null,
-                        null,
-                        null);
+        FrameworkProperties props = new FrameworkProperties();
+        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setBundleContext(context);
+        props.setPostQuery(Arrays.asList(stopQueryPlugin));
+        props.setFederationStrategy(federationStrategy);
+        props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+        props.setSourcePoller(poller);
+        props.setFilterBuilder(new GeotoolsFilterBuilder());
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
 
         framework.bind(provider);
         framework.query(request);
@@ -1601,25 +1594,15 @@ public class CatalogFrameworkImplTest {
         List<ResourceReader> resourceReaders = new ArrayList<ResourceReader>();
         resourceReaders.add(resourceReader);
 
-        CatalogFrameworkImpl framework =
-                new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
-                        null,
-                        new ArrayList<PreIngestPlugin>(),
-                        new ArrayList<PostIngestPlugin>(),
-                        new ArrayList<PreQueryPlugin>(),
-                        new ArrayList<PostQueryPlugin>(),
-                        new ArrayList<PreResourcePlugin>(),
-                        new ArrayList<PostResourcePlugin>(),
-                        new ArrayList<ConnectedSource>(),
-                        federatedSources,
-                        resourceReaders,
-                        strategy,
-                        mock(QueryResponsePostProcessor.class),
-                        null,
-                        mockPoller,
-                        null,
-                        null,
-                        null);
+        FrameworkProperties props = new FrameworkProperties();
+        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setFederatedSources(Collections.singletonMap(federatedSite1Name, federatedSource1));
+        props.setResourceReaders(resourceReaders);
+        props.setFederationStrategy(strategy);
+        props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+        props.setSourcePoller(mockPoller);
+        props.setFilterBuilder(new GeotoolsFilterBuilder());
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
         framework.setId("ddf");
 
@@ -1714,25 +1697,17 @@ public class CatalogFrameworkImplTest {
         when(resourceCache.getValid(isA(String.class),
                 isA(Metacard.class))).thenReturn(mockResource);
 
-        CatalogFrameworkImpl framework =
-                new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
-                        null,
-                        new ArrayList<PreIngestPlugin>(),
-                        new ArrayList<PostIngestPlugin>(),
-                        new ArrayList<PreQueryPlugin>(),
-                        new ArrayList<PostQueryPlugin>(),
-                        new ArrayList<PreResourcePlugin>(),
-                        new ArrayList<PostResourcePlugin>(),
-                        new ArrayList<ConnectedSource>(),
-                        federatedSources,
-                        resourceReaders,
-                        strategy,
-                        mock(QueryResponsePostProcessor.class),
-                        null,
-                        mockPoller,
-                        resourceCache,
-                        null,
-                        null);
+        FrameworkProperties props = new FrameworkProperties();
+        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setFederatedSources(Collections.singletonMap(federatedSite1Name, federatedSource1));
+        props.setResourceReaders(resourceReaders);
+        props.setFederationStrategy(strategy);
+        props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+        props.setSourcePoller(mockPoller);
+        props.setResourceCache(resourceCache);
+
+        props.setFilterBuilder(new GeotoolsFilterBuilder());
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
         framework.setId("ddf");
 
@@ -1942,6 +1917,139 @@ public class CatalogFrameworkImplTest {
         assertThat(queryResponse.getResults()
                 .size(), is(0));
 
+    }
+
+    @Test(expected = FederationException.class)
+    public void testFederatedQueryPermissionsNoSubject() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider",
+                "Provider",
+                "v1.0",
+                "DDF",
+                new HashSet<>(),
+                true,
+                new Date());
+
+        Map<String, CatalogStore> storeMap = new HashMap<>();
+        Map<String, FederatedSource> sourceMap = new HashMap<>();
+
+        Map<String, Set<String>> securityAttributes = new HashMap<>();
+        securityAttributes.put("role", Collections.singleton("myRole"));
+        MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
+        storeMap.put(store.getId(), store);
+        sourceMap.put(store.getId(), store);
+
+        CatalogFramework framework = createDummyCatalogFramework(provider,
+                storeMap,
+                sourceMap,
+                eventAdmin);
+
+        FilterBuilder builder = new GeotoolsFilterBuilder();
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .like()
+                .text("someType"));
+        QueryRequestImpl request = new QueryRequestImpl(query,
+                Collections.singletonList("catalogStoreId-1"));
+        framework.query(request);
+    }
+
+    @Test(expected = FederationException.class)
+    public void testFederatedQueryPermissionsNotPermitted() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider",
+                "Provider",
+                "v1.0",
+                "DDF",
+                new HashSet<>(),
+                true,
+                new Date());
+
+        Map<String, CatalogStore> storeMap = new HashMap<>();
+        Map<String, FederatedSource> sourceMap = new HashMap<>();
+
+        Map<String, Set<String>> securityAttributes = new HashMap<>();
+        securityAttributes.put("role", Collections.singleton("myRole"));
+        MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
+        storeMap.put(store.getId(), store);
+        sourceMap.put(store.getId(), store);
+
+        CatalogFramework framework = createDummyCatalogFramework(provider,
+                storeMap,
+                sourceMap,
+                eventAdmin);
+
+        FilterBuilder builder = new GeotoolsFilterBuilder();
+        Subject subject = mock(Subject.class);
+        when(subject.isPermitted(any(KeyValueCollectionPermission.class))).thenReturn(false);
+        HashMap<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .like()
+                .text("someType"));
+        QueryRequestImpl request = new QueryRequestImpl(query,
+                false,
+                Collections.singletonList("catalogStoreId-1"),
+                properties);
+        framework.query(request);
+    }
+
+    @Test
+    public void testFederatedQueryPermissions() throws Exception {
+        MockEventProcessor eventAdmin = new MockEventProcessor();
+        MockMemoryProvider provider = new MockMemoryProvider("Provider",
+                "Provider",
+                "v1.0",
+                "DDF",
+                new HashSet<>(),
+                true,
+                new Date());
+
+        Map<String, CatalogStore> storeMap = new HashMap<>();
+        Map<String, FederatedSource> sourceMap = new HashMap<>();
+
+        Map<String, Set<String>> securityAttributes = new HashMap<>();
+        securityAttributes.put("role", Collections.singleton("myRole"));
+        MockCatalogStore store = new MockCatalogStore("catalogStoreId-1", true, securityAttributes);
+        storeMap.put(store.getId(), store);
+        sourceMap.put(store.getId(), store);
+
+        CatalogFramework framework = createDummyCatalogFramework(provider,
+                storeMap,
+                sourceMap,
+                eventAdmin);
+
+        List<Metacard> metacards = new ArrayList<>();
+        MetacardImpl newCard = new MetacardImpl();
+        newCard.setId(null);
+        newCard.setContentTypeName("someType");
+        metacards.add(newCard);
+        Map<String, Serializable> reqProps = new HashMap<>();
+        HashSet<String> destinations = new HashSet<>();
+
+        //==== test writing to store and not local ====
+        destinations.add("catalogStoreId-1");
+        framework.create(new CreateRequestImpl(metacards, reqProps, destinations));
+
+        FilterBuilder builder = new GeotoolsFilterBuilder();
+        Subject subject = mock(Subject.class);
+        when(subject.isPermitted(any(KeyValueCollectionPermission.class))).thenReturn(true);
+        HashMap<String, Serializable> properties = new HashMap<>();
+        properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.CONTENT_TYPE)
+                .is()
+                .like()
+                .text("someType"));
+        QueryRequestImpl request = new QueryRequestImpl(query,
+                false,
+                Collections.singletonList("catalogStoreId-1"),
+                properties);
+        QueryResponse response = framework.query(request);
+
+        assertThat(response.getResults()
+                .size(), is(1));
     }
 
     /**
@@ -2181,9 +2289,21 @@ public class CatalogFrameworkImplTest {
     }
 
     public static class MockCatalogStore extends MockMemoryProvider implements CatalogStore {
+        private Map<String, Set<String>> attributes = new HashMap<>();
+
+        public MockCatalogStore(String id, boolean isAvailable,
+                Map<String, Set<String>> attributes) {
+            this(id, isAvailable);
+            this.attributes = attributes;
+        }
 
         public MockCatalogStore(String id, boolean isAvailable) {
             super(id, isAvailable);
+        }
+
+        @Override
+        public Map<String, Set<String>> getSecurityAttributes() {
+            return attributes;
         }
     }
 }

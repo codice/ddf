@@ -27,6 +27,8 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
  */
 public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
+    public static final String REGISTRY_TAG = "registry";
+
     public static final String REGISTRY_METACARD_TYPE_NAME = "registry";
 
     public static final String METACARD_TYPE = "metacard-type";
@@ -53,6 +55,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     }
 
     private void addRegistryAttributes() {
+        addQueryableString(Metacard.TAGS, true);
         addQueryableString(Metacard.ID, false);
         addQueryableString(Metacard.CONTENT_TYPE, false);
         addXml(Metacard.METADATA, true);

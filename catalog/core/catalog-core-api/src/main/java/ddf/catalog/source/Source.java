@@ -13,6 +13,8 @@
  */
 package ddf.catalog.source;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import ddf.catalog.data.ContentType;
@@ -72,5 +74,13 @@ public interface Source extends Describable {
      * @return a {@link Set} of {@link ContentType}s currently available from this {@link Source}.
      */
     public Set<ContentType> getContentTypes();
+
+    /**
+     * Gets the map of security attributes associated with this source
+     * @return a map of security attributes
+     */
+    default Map<String, Set<String>> getSecurityAttributes() {
+        return new HashMap<>();
+    }
 
 }

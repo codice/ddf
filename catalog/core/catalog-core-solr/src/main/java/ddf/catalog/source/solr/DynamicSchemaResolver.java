@@ -140,6 +140,7 @@ public class DynamicSchemaResolver {
         fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
         fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED
                 + SchemaFields.HAS_CASE);
+        fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
     }
 
     /**

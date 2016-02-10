@@ -54,7 +54,9 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.CatalogFrameworkImpl;
+import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.impl.MockDelayProvider;
 import ddf.catalog.impl.QueryResponsePostProcessor;
 import ddf.catalog.operation.CreateResponse;
@@ -67,17 +69,8 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
-import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.plugin.PostQueryPlugin;
-import ddf.catalog.plugin.PostResourcePlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
-import ddf.catalog.plugin.PreIngestPlugin;
-import ddf.catalog.plugin.PreQueryPlugin;
-import ddf.catalog.plugin.PreResourcePlugin;
-import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
@@ -128,25 +121,13 @@ public class FederationStrategyTest {
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
-        CatalogFrameworkImpl framework =
-                new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
-                        null,
-                        new ArrayList<PreIngestPlugin>(),
-                        new ArrayList<PostIngestPlugin>(),
-                        new ArrayList<PreQueryPlugin>(),
-                        new ArrayList<PostQueryPlugin>(),
-                        new ArrayList<PreResourcePlugin>(),
-                        new ArrayList<PostResourcePlugin>(),
-                        new ArrayList<ConnectedSource>(),
-                        new ArrayList<FederatedSource>(),
-                        new ArrayList<ResourceReader>(),
-                        fedStrategy,
-                        mock(QueryResponsePostProcessor.class),
-                        null,
-                        poller,
-                        null,
-                        null,
-                        null);
+        FrameworkProperties props = new FrameworkProperties();
+        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setFederationStrategy(fedStrategy);
+        props.setSourcePoller(poller);
+        props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+        props.setFilterBuilder(new GeotoolsFilterBuilder());
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
@@ -234,9 +215,8 @@ public class FederationStrategyTest {
      * Verify that a modified version of the query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the sources.
-     *
+     * <p>
      * Special results handling done by OffsetResultsHandler.
-     *
      */
     @Test
     public void testFederateTwoSourcesOffsetTwoPageSizeThree() throws Exception {
@@ -414,7 +394,7 @@ public class FederationStrategyTest {
      * Verify that the original query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the source.
-     *
+     * <p>
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
@@ -490,7 +470,7 @@ public class FederationStrategyTest {
      * Verify that the original query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the sources.
-     *
+     * <p>
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
@@ -628,7 +608,7 @@ public class FederationStrategyTest {
      * Verify that the original query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the source.
-     *
+     * <p>
      * No special results handling done by OffsetResultsHandler.
      */
     @Test

@@ -869,8 +869,22 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
 
     public Object visit(Begins begins, Object delegate) {
-        throw new UnsupportedOperationException(
-                Begins.NAME + "filter not supported by Filter Adapter.");
+
+        ExpressionValues filterValues = getExpressions(begins, delegate);
+        if (filterValues.literal instanceof Period) {
+            Period period = (Period) filterValues.literal;
+            Date start = period.getBeginning()
+                    .getPosition()
+                    .getDate();
+            Date end = period.getEnding()
+                    .getPosition()
+                    .getDate();
+
+            return ((FilterDelegate<?>) delegate).begins(filterValues.propertyName, start, end);
+        } else {
+            throw new UnsupportedOperationException(
+                    Begins.NAME + "filter not supported by Filter Adapter.");
+        }
     }
 
     public Object visit(BegunBy begunBy, Object delegate) {

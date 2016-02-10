@@ -16,6 +16,9 @@ package ddf.catalog.data;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A {@link Metacard} is a container for Metadata.
@@ -86,6 +89,11 @@ public interface Metacard extends Serializable {
      * Every {@link ddf.catalog.source.Source} is required to return this attribute.
      */
     public static final String ID = "id";
+
+    /**
+     * {@link Attribute} name for accessing the tags of the {@link Metacard}. <br/>
+     */
+    public static final String TAGS = "metacard-tags";
 
     /**
      * {@link Attribute} name for accessing the title of the {@link Metacard}. <br/>
@@ -187,6 +195,11 @@ public interface Metacard extends Serializable {
     public static final String DESCRIPTION = "description";
 
     /**
+     * The default tag type for all metacards
+     */
+    public static final String DEFAULT_TAG = "resource";
+
+    /**
      * Returns {@link Attribute} for given attribute name.
      *
      * @param name
@@ -225,6 +238,23 @@ public interface Metacard extends Serializable {
      * @see Metacard#ID
      */
     public String getId();
+
+    /**
+     * Returns the tags associated with this metacard.
+     *
+     * @return Returns the TAGS attribute values if it exists otherwise return null
+     */
+    public default Set<String> getTags() {
+        Attribute attribute = getAttribute(TAGS);
+        if (attribute == null || attribute.getValue() == null) {
+            return new HashSet<>();
+        } else {
+            return new HashSet<>(getAttribute(TAGS).getValues()
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList()));
+        }
+    }
 
     /**
      * Returns the metadata associated with this {@link Metacard}. <br/>

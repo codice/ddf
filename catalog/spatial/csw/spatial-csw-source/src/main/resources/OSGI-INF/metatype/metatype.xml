@@ -118,6 +118,13 @@
             <Option label="Within" value="Within"/>
         </AD>
 
+        <AD description="Security attributes for this source" name="Security Attributes"
+            id="securityAttributeStrings" required="true" type="String" cardinality="1000"/>
+
+        <AD description="Schema to tag mapping. The tags for a given output schema will be required for this source to be queried"
+            name="Schema/Tag Mapping" id="schemaToTagsMapping" required="true" type="String"
+            default="http://www.opengis.net/cat/wrs/1.0=registry" cardinality="100"/>
+
     </OCD>
 
     <OCD description="CSW Connected Source" name="CSW Connected Source" id="Csw_Connected_Source">

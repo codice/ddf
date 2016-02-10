@@ -99,12 +99,15 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceResponse;
@@ -123,6 +126,7 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.permission.Permissions;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -254,11 +258,15 @@ public class CswEndpoint implements Csw {
 
     private FilterBuilder builder;
 
+    private FilterAdapter adapter;
+
     private BundleContext context;
 
     private CatalogFramework framework;
 
     private CapabilitiesType capabilitiesType;
+
+    private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
     @Context
     private UriInfo uri;
@@ -267,12 +275,13 @@ public class CswEndpoint implements Csw {
      * JAX-RS Server that represents a CSW v2.0.2 Server.
      */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            TransformerManager mimeTypeManager, TransformerManager schemaManager,
-            TransformerManager inputManager) {
+            FilterAdapter filterAdapter, TransformerManager mimeTypeManager,
+            TransformerManager schemaManager, TransformerManager inputManager) {
         LOGGER.trace("Entering: CSW Endpoint constructor.");
         this.context = context;
         this.framework = ddf;
         this.builder = filterBuilder;
+        this.adapter = filterAdapter;
         this.mimeTypeTransformerManager = mimeTypeManager;
         this.schemaTransformerManager = schemaManager;
         this.inputTransformerManager = inputManager;
@@ -281,9 +290,9 @@ public class CswEndpoint implements Csw {
 
     /* Constructor for unit testing */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            UriInfo uri, TransformerManager manager, TransformerManager schemaManager,
-            TransformerManager inputManager) {
-        this(context, ddf, filterBuilder, manager, schemaManager, inputManager);
+            FilterAdapter filterAdapter, UriInfo uri, TransformerManager manager,
+            TransformerManager schemaManager, TransformerManager inputManager) {
+        this(context, ddf, filterBuilder, filterAdapter, manager, schemaManager, inputManager);
         this.uri = uri;
     }
 
@@ -481,7 +490,7 @@ public class CswEndpoint implements Csw {
             }
 
             LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
-            CswRecordCollection response = queryById(ids);
+            CswRecordCollection response = queryById(ids, outputSchema);
             response.setOutputSchema(outputSchema);
             if (StringUtils.isNotBlank(request.getElementSetName())) {
                 response.setElementSetType(ElementSetType.fromValue(request.getElementSetName()));
@@ -524,7 +533,7 @@ public class CswEndpoint implements Csw {
             }
 
             LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
-            CswRecordCollection response = queryById(ids);
+            CswRecordCollection response = queryById(ids, outputSchema);
             response.setOutputSchema(outputSchema);
             if (request.isSetElementSetName() && request.getElementSetName()
                     .getValue() != null) {
@@ -1005,6 +1014,7 @@ public class CswEndpoint implements Csw {
             }
 
             try {
+                queryRequest = updateQueryRequestTags(queryRequest, request.getOutputSchema());
                 LOGGER.debug("Attempting to execute query: {}", response.getRequest());
                 QueryResponse queryResponse = framework.query(queryRequest);
                 response.setSourceResponse(queryResponse);
@@ -1020,6 +1030,35 @@ public class CswEndpoint implements Csw {
             }
         }
         return response;
+    }
+
+    protected QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema) throws UnsupportedQueryException {
+        QueryRequest newRequest = queryRequest;
+        Set<String> tags = schemaToTagsMapping.get(schema);
+        if (!CollectionUtils.isEmpty(tags)) {
+            Query origQuery = queryRequest.getQuery();
+            if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags))) {
+                List<Filter> filters = new ArrayList<>(tags.size());
+                for (String tag : tags) {
+                    filters.add(builder.attribute(Metacard.TAGS)
+                            .is()
+                            .like()
+                            .text(tag));
+                }
+                QueryImpl newQuery = new QueryImpl(builder.allOf(builder.anyOf(filters),
+                        origQuery),
+                        origQuery.getStartIndex(),
+                        origQuery.getPageSize(),
+                        origQuery.getSortBy(),
+                        origQuery.requestsTotalResultsCount(),
+                        origQuery.getTimeoutMillis());
+                newRequest = new QueryRequestImpl(newQuery,
+                        queryRequest.isEnterprise(),
+                        queryRequest.getSourceIds(),
+                        queryRequest.getProperties());
+            }
+        }
+        return newRequest;
     }
 
     private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint,
@@ -1630,7 +1669,7 @@ public class CswEndpoint implements Csw {
         }
     }
 
-    private CswRecordCollection queryById(List<String> ids) throws CswException {
+    private CswRecordCollection queryById(List<String> ids, String outputSchema) throws CswException {
         List<Filter> filters = new ArrayList<>();
         for (String id : ids) {
             filters.add(builder.attribute(Metacard.ID)
@@ -1644,7 +1683,7 @@ public class CswEndpoint implements Csw {
         try {
             CswRecordCollection response = new CswRecordCollection();
             response.setById(true);
-
+            queryRequest = updateQueryRequestTags(queryRequest, outputSchema);
             QueryResponse queryResponse = framework.query(queryRequest);
             response.setSourceResponse(queryResponse);
 
@@ -1709,5 +1748,13 @@ public class CswEndpoint implements Csw {
         cswRecordCollection.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
         LOGGER.debug("{} successfully retrieved product for ID: {}", id);
         return cswRecordCollection;
+    }
+
+    public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {
+        if (schemaToTagsMappingStrings != null) {
+            schemaToTagsMapping.clear();
+            schemaToTagsMapping.putAll(Permissions.parsePermissionsFromString(
+                    schemaToTagsMappingStrings));
+        }
     }
 }
