@@ -17,17 +17,23 @@ import java.security.Principal;
 
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.itests.KarafTestSupport;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.osgi.framework.BundleContext;
 
 /**
  * Class that provides access to the Karaf Console.
- *
+ * <p>
  * Note: This class is needed to expose the protected methods provided by {@link KarafTestSupport}.
  * Since we already extend from our own base class, out test classes cannot extend from this one
  * to access its protected methods.
  */
 public class KarafConsole extends KarafTestSupport {
+
+    private static final RolePrincipal[] DEFAULT_ROLES =
+            {new RolePrincipal("admin"), new RolePrincipal("group"), new RolePrincipal("manager"),
+                    new RolePrincipal("viewer"), new RolePrincipal("webconsole"), new RolePrincipal(
+                    "system-admin"), new RolePrincipal("systembundles")};
 
     /**
      * Karaf console constructor.
@@ -67,5 +73,16 @@ public class KarafConsole extends KarafTestSupport {
      */
     public String runCommand(String command, Principal... principals) {
         return executeCommand(command, principals);
+    }
+
+    /**
+     * Runs a shell command and returns output as a String. Commands have a default timeout of
+     * 10 seconds. Uses the DEFAULT_ROLES to execute the command as an administrator.
+     *
+     * @param command command to execute. Cannot be {@code null}.
+     * @return command output. Can be empty but not {@code null}.
+     */
+    public String runCommand(String command) {
+        return executeCommand(command, DEFAULT_ROLES);
     }
 }
