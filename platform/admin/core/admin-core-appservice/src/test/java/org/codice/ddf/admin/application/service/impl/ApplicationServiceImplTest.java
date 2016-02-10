@@ -102,6 +102,8 @@ public class ApplicationServiceImplTest {
 
     private static final String TEST_APP_NAME = "TestApp";
 
+    private static final String TEST_REPO_URI = "mvn:group.id/artifactid/1.0.0/xml/features";
+
     private static final String NO_REPO_FEATURES = "Could not get Repository Features";
 
     private static final String NO_APP_FEATURES = "Could not obtain Application Features.";
@@ -1262,8 +1264,9 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testApp1);
 
-        verify(featuresService, atLeastOnce())
-                .uninstallFeature(TEST_FEATURE_1_NAME, TEST_FEATURE_VERSION);
+        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+                TEST_FEATURE_VERSION,
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1376,7 +1379,8 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testAppName);
 
-        verify(featuresService).uninstallFeature(featureList[0].getName());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1417,8 +1421,10 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testApp);
 
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME);
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_2_NAME);
+        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_2_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1445,8 +1451,10 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testAppName);
 
-        verify(featuresService).uninstallFeature(featureList[0].getName());
-        verify(featuresService).uninstallFeature(featureList[1].getName());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).uninstallFeature(featureList[1].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1528,8 +1536,9 @@ public class ApplicationServiceImplTest {
         appService.removeApplication(testApp);
 
         verify(testApp).getURI();
-        verify(featuresService, Mockito.times(2))
-                .uninstallFeature(TEST_FEATURE_1_NAME, TEST_FEATURE_VERSION);
+        verify(featuresService, Mockito.times(2)).uninstallFeature(TEST_FEATURE_1_NAME,
+                TEST_FEATURE_VERSION,
+                EnumSet.of(Option.NoAutoRefreshBundles));
         verify(featuresService).removeRepository(null, false);
     }
 
@@ -1697,7 +1706,8 @@ public class ApplicationServiceImplTest {
         when(testApp.getFeatures()).thenReturn(featureSet);
 
         doThrow(new Exception()).when(featuresService)
-                .uninstallFeature(anyString(), anyString());
+                .uninstallFeature(anyString(),
+                        anyString(), any(EnumSet.class));
 
         appService.removeApplication(testApp);
 
@@ -1769,16 +1779,16 @@ public class ApplicationServiceImplTest {
         Feature testFeature1 = mock(Feature.class);
         Feature[] featureList = {testFeature1};
         Repository testRepo = mock(Repository.class);
-        when(testRepo.getName()).thenReturn(TEST_APP_NAME);
+        when(testFeature1.getRepositoryUrl()).thenReturn(TEST_REPO_URI);
+        when(testRepo.getURI()).thenReturn(new URI(TEST_REPO_URI));
         when(testRepo.getFeatures()).thenReturn(featureList);
         Repository[] repositoryList = {testRepo};
+        when(featuresService.getFeature(TEST_APP_NAME)).thenReturn(testFeature1);
         when(featuresService.listRepositories()).thenReturn(repositoryList);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);
 
         List<FeatureDetails> result = appService.findApplicationFeatures(TEST_APP_NAME);
 
-        assertThat("Returned features should match features given.", result.get(0).getRepository(),
-                is(TEST_APP_NAME));
         assertThat("Should return one feature.", result.size(), is(1));
     }
 
@@ -1939,10 +1949,12 @@ public class ApplicationServiceImplTest {
         appService.removeApplication(testURL);
 
         verify(featuresService).removeRepository(testURL, false);
-        verify(featuresService)
-                .uninstallFeature(featureList[0].getName(), featureList[0].getVersion());
-        verify(featuresService)
-                .uninstallFeature(featureList[1].getName(), featureList[1].getVersion());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                featureList[0].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).uninstallFeature(featureList[1].getName(),
+                featureList[1].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1997,10 +2009,12 @@ public class ApplicationServiceImplTest {
 
         appService.removeApplication(testAppName);
 
-        verify(featuresService)
-                .uninstallFeature(featureList[0].getName(), featureList[0].getVersion());
-        verify(featuresService)
-                .uninstallFeature(featureList[1].getName(), featureList[1].getVersion());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                featureList[0].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).uninstallFeature(featureList[1].getName(),
+                featureList[1].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**

@@ -726,6 +726,7 @@
 
     <feature name="mime-core-api" install="manual" version="${project.version}"
              description="DDF MIME API">
+        <feature prerequisite="true">platform-dependencies</feature>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
     </feature>
 
@@ -990,8 +991,8 @@
         <feature>platform-all</feature>
     </feature>
 
-    <feature name="platform-dependencies" version="${project.version}">
-        <feature prerequisite="true">kernel-webconsolebranding</feature>
+    <feature name="platform-dependencies" version="${project.version}" install="manual" hidden="true">
+        <feature prerequisite="true">kernel-webconsole</feature>
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">camel-http</feature>
         <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
@@ -1055,6 +1056,7 @@
 
     <feature name="landing-page" install="manual" version="${project.version}"
              description="Landing page and branding support.">
+        <feature prerequisite="true">platform-dependencies</feature>
         <bundle>mvn:ddf.platform/branding-resources/${project.version}</bundle>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
     </feature>

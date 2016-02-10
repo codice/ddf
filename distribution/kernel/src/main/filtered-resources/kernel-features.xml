@@ -33,10 +33,14 @@
         <feature>war</feature>
     </feature>
 
-    <feature name="kernel-webconsolebranding" description="" version="${project.version}">
+    <feature name="kernel-webconsole" install="manual" version="${project.version}">
         <feature prerequisite="true">web</feature>
         <feature>webconsole</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    </feature>
+
+    <feature name="kernel-webconsolebranding" description="" version="${project.version}">
+        <feature prerequisite="true">kernel-webconsole</feature>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
     </feature>
