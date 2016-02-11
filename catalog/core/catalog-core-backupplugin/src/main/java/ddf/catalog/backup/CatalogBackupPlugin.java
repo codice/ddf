@@ -25,6 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateResponse;
@@ -55,6 +57,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
+    private static final int BATCH_SIZE = 1000;
+
     private File rootBackupDir;
 
     private int subDirLevels;
@@ -81,17 +85,19 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            List<String> errors = new ArrayList<String>();
+            List<String> errors = new ArrayList<>();
 
-            List<Metacard> metacards = input.getCreatedMetacards();
-
-            for (Metacard metacard : metacards) {
-                try {
-                    backupMetacard(metacard);
-                } catch (IOException e) {
-                    errors.add(metacard.getId());
-                }
-            }
+            List<List<Metacard>> batches = Lists.partition(input.getCreatedMetacards(), BATCH_SIZE);
+            batches.parallelStream()
+                    .forEach(batch -> {
+                        for (Metacard metacard : batch) {
+                            try {
+                                backupMetacard(metacard);
+                            } catch (IOException e) {
+                                errors.add(metacard.getId());
+                            }
+                        }
+                    });
 
             if (errors.size() > 0) {
                 throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
