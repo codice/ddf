@@ -78,6 +78,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+
         if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
             LOGGER.debug("Performing backup of metacards in CreateResponse.");
 
@@ -87,6 +88,31 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
             List<String> errors = new ArrayList<>();
 
+            Thread thread = startExecution(input, errors);
+
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new PluginExecutionException(e);
+            }
+
+            if (!errors.isEmpty()) {
+                return throwPluginExceptionWith(errors);
+            }
+        }
+        return input;
+    }
+
+    private CreateResponse throwPluginExceptionWith(List<String> errors)
+            throws PluginExecutionException {
+        throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
+                null,
+                errors,
+                OPERATION.CREATE));
+    }
+
+    private Thread startExecution(CreateResponse input, List<String> errors) {
+        return new Thread(() -> {
             List<List<Metacard>> batches = Lists.partition(input.getCreatedMetacards(), BATCH_SIZE);
             batches.parallelStream()
                     .forEach(batch -> {
@@ -98,15 +124,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                             }
                         }
                     });
-
-            if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
-                        null,
-                        errors,
-                        OPERATION.CREATE));
-            }
-        }
-        return input;
+        });
     }
 
     /**
