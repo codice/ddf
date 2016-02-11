@@ -560,6 +560,7 @@
         <module>measure</module>
         <module>common</module>
         <module>core</module>
+        <module>nato</module>
         <module>schematron</module>
         <module>transformer</module>
         <module>plugin</module>
