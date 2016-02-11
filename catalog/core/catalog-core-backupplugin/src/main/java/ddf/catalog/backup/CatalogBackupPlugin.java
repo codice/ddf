@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -84,10 +87,15 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
             List<String> errors = new ArrayList<>();
 
-            Thread thread = startExecution(input.getCreatedMetacards(), errors);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
 
+            executor.submit(() -> startExecution(input.getCreatedMetacards(), errors));
+            //Stop accepting new tasks
+            executor.shutdown();
+
+            //Block until tasks have completed
             try {
-                thread.join();
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 throw new PluginExecutionException(e);
             }
@@ -107,17 +115,15 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 OPERATION.CREATE));
     }
 
-    private Thread startExecution(List<Metacard> metacards, List<String> errors) {
-        return new Thread(() -> {
-            metacards.parallelStream()
-                    .forEach(metacard -> {
-                        try {
-                            backupMetacard(metacard);
-                        } catch (IOException e) {
-                            errors.add(metacard.getId());
-                        }
-                    });
-        });
+    private void startExecution(List<Metacard> metacards, List<String> errors) {
+        metacards.parallelStream()
+                .forEach(metacard -> {
+                    try {
+                        backupMetacard(metacard);
+                    } catch (IOException e) {
+                        errors.add(metacard.getId());
+                    }
+                });
     }
 
     /**
