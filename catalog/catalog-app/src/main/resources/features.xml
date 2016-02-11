@@ -265,7 +265,7 @@
     </feature>
     
     <feature name="catalog-plugin-resource-usage" install="manual" version="${project.version}"
-             description="">
+             description="DDF Resource Plugin tracking data usage ">
         <bundle>mvn:ddf.catalog.plugin/resource-usage-plugin/${project.version}</bundle>
     </feature>
 

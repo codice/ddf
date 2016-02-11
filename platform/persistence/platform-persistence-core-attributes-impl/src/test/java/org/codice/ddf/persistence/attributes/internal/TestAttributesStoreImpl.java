@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,8 +15,6 @@ package org.codice.ddf.persistence.attributes.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,38 +27,73 @@ import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 public class TestAttributesStoreImpl {
 
-    AttributesStoreImpl attributesStore;
+    private AttributesStoreImpl attributesStore;
 
-    List<Map<String, Object>> attributesList;
+    private List<Map<String, Object>> attributesList;
 
-    PersistentStore persistentStore = mock(PersistentStore.class);
+    private PersistentStore persistentStore = mock(PersistentStore.class);
+
+    private static final String USER = "user";
 
     @Before
     public void setup() {
-
         attributesStore = new AttributesStoreImpl(persistentStore);
-
     }
 
     @Test
-    public void testNormal() throws PersistenceException {
+    public void testGetDataUsage() throws PersistenceException {
         attributesList = new ArrayList<>();
         Map<String, Object> attributes = new HashMap<>();
         attributes.put("data_usage_lng", 100L);
         attributesList.add(attributes);
         when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
 
-        long usage = attributesStore.getCurrentDataUsageByUser("user");
+        long usage = attributesStore.getCurrentDataUsageByUser(USER);
 
         assertEquals(100L, usage);
-        attributesStore.updateUserDataUsage("user", 500L);
+    }
 
+    @Test
+    public void testUpdateDataUsage() throws PersistenceException {
+        attributesList = new ArrayList<>();
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("data_usage_lng", 100L);
+        attributesList.add(attributes);
+        when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
+
+        attributesStore.updateUserDataUsage(USER, 500L);
+    }
+
+    @Test
+    public void testSetDataUsage() throws PersistenceException {
+        attributesList = new ArrayList<>();
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("data_usage_lng", 100L);
+        attributesList.add(attributes);
+        when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
+
+        attributesStore.setDataUsage(USER, 500L);
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testSetDataUsageNullUsername() throws PersistenceException {
+
+        attributesStore.setDataUsage(null, 500L);
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testUpdateDataUsageNullUsername() throws PersistenceException {
+
+        attributesStore.updateUserDataUsage(null, 500L);
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testGetDataUsageNullUsername() throws PersistenceException {
+
+        attributesStore.getCurrentDataUsageByUser(null);
     }
 
     @Test
@@ -68,9 +101,8 @@ public class TestAttributesStoreImpl {
 
         when(persistentStore.get(any(String.class), any(String.class))).thenReturn(null);
 
-        assertEquals(0L, attributesStore.getCurrentDataUsageByUser("user"));
-        attributesStore.updateUserDataUsage("user", 500L);
-
+        assertEquals(0L, attributesStore.getCurrentDataUsageByUser(USER));
+        attributesStore.updateUserDataUsage(USER, 500L);
     }
 
     @Test
@@ -79,28 +111,16 @@ public class TestAttributesStoreImpl {
         when(persistentStore.get(any(String.class),
                 any(String.class))).thenReturn(new ArrayList<Map<String, Object>>());
 
-        assertEquals(0L, attributesStore.getCurrentDataUsageByUser("user"));
-        attributesStore.updateUserDataUsage("user", 500L);
-
+        assertEquals(0L, attributesStore.getCurrentDataUsageByUser(USER));
     }
 
-    @Test
-    public void testPersistenceStoreThrowsException() throws PersistenceException {
+    @Test(expected = PersistenceException.class)
+    public void testPersistenceStoreThrowsExceptionOnGet() throws PersistenceException {
 
         when(persistentStore.get(any(String.class),
                 any(String.class))).thenThrow(new PersistenceException());
 
-        assertEquals(0L, attributesStore.getCurrentDataUsageByUser("user"));
-
-        Mockito.doAnswer(new Answer<Void>() {
-            public Void answer(InvocationOnMock invocation) throws PersistenceException {
-                throw new PersistenceException();
-            }
-        })
-                .when(persistentStore)
-                .add(anyString(), anyMap());
-
-        attributesStore.updateUserDataUsage("user", 500L);
+        attributesStore.updateUserDataUsage(USER, 500L);
 
     }
 

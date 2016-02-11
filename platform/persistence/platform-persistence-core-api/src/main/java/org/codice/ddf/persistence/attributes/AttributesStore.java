@@ -14,6 +14,8 @@
 
 package org.codice.ddf.persistence.attributes;
 
+import org.codice.ddf.persistence.PersistenceException;
+
 public interface AttributesStore {
     public static final String DATA_USAGE_KEY = "data_usage";
 
@@ -24,15 +26,25 @@ public interface AttributesStore {
      *
      * @param username
      * @return data usage
+     * @throws PersistenceException
      */
-    public long getCurrentDataUsageByUser(String username);
+    public long getCurrentDataUsageByUser(String username) throws PersistenceException;
 
     /**
-     * Updates the user's data usage in the persistent store
+     * Adds the specified data usage in bytes to the user's data usage in the persistent store
      * @param username
      * @param dataUsage
+     * @throws PersistenceException
      */
-    public void updateUserDataUsage(String username, long dataUsage);
+    public void updateUserDataUsage(String username, long dataUsage) throws PersistenceException;
+
+    /**
+     * Resets the user's data usage in the persistent store to the usage specified in bytes
+     * @param username
+     * @param dataUsage
+     * @throws PersistenceException
+     */
+    public void setDataUsage(String username, long dataUsage) throws PersistenceException;
  
 
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,8 +17,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
@@ -38,9 +41,11 @@ import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
+import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
@@ -51,54 +56,20 @@ import ddf.security.Subject;
 
 public class TestResourceUsagePlugin {
 
-    ResourceUsagePlugin plugin;
+    private ResourceUsagePlugin plugin;
 
-    AttributesStore attributeStore;
-
-    AttributesStore emptyAttributeStore;
+    private AttributesStore attributeStore;
 
     private static final String TEST_USER = "testuser";
 
     private static final String RESOURCE_SIZE = "100";
 
-    Subject subject;
+    private Subject subject;
 
     @Before
     public void setup() {
-        attributeStore = spy(new AttributesStore() {
-            @Override
-            public long getCurrentDataUsageByUser(String username) {
-                assertEquals(TEST_USER, username);
-                return 500L;
-            }
+        attributeStore = mock(AttributesStore.class);
 
-            @Override
-            public void updateUserDataUsage(String username, long dataUsage) {
-
-                assertEquals(TEST_USER, username);
-                assertEquals(Long.valueOf(RESOURCE_SIZE) + 500L, dataUsage);
-
-                return;
-            }
-        });
-
-        emptyAttributeStore = spy(new AttributesStore() {
-            @Override
-            public long getCurrentDataUsageByUser(String username) {
-                assertEquals(TEST_USER, username);
-                return 0L;
-            }
-
-            @Override
-            public void updateUserDataUsage(String username, long dataUsage) {
-
-                assertEquals(TEST_USER, username);
-                long resourceSize = Long.valueOf(RESOURCE_SIZE);
-                assertEquals(resourceSize, dataUsage);
-
-                return;
-            }
-        });
         plugin = new ResourceUsagePlugin(attributeStore);
     }
 
@@ -108,38 +79,51 @@ public class TestResourceUsagePlugin {
     }
 
     @Test
-    public void testValidResourceSize() throws StopProcessingException, PluginExecutionException {
+    public void testValidResourceSize()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
+
+        ArgumentCaptor<String> usernameArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Long> dataSizeArg = ArgumentCaptor.forClass(Long.class);
 
         ResourceRequest origRequest = getMockResourceRequest(RESOURCE_SIZE, TEST_USER);
         ResourceRequest request = plugin.process(origRequest);
-        assertNotNull(plugin.process(origRequest));
+        assertNotNull(request);
         assertEquals(origRequest, request);
 
+        verify(attributeStore).updateUserDataUsage(usernameArg.capture(), dataSizeArg.capture());
+
+        assertEquals(TEST_USER, usernameArg.getValue());
+        assertEquals(Long.valueOf(RESOURCE_SIZE), dataSizeArg.getValue());
     }
 
     @Test
     public void testResourceSizeNotFound()
-            throws StopProcessingException, PluginExecutionException {
+            throws PersistenceException, PluginExecutionException, StopProcessingException {
         ResourceRequest origRequest = getMockResourceRequest(null, TEST_USER);
         ResourceRequest request = plugin.process(origRequest);
-        assertNotNull(plugin.process(origRequest));
+        assertNotNull(request);
         assertEquals(origRequest, request);
+        verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
     }
 
     @Test
-    public void testInvalidResourceSize() throws StopProcessingException, PluginExecutionException {
+    public void testInvalidResourceSize()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
         ResourceRequest origRequest = getMockResourceRequest("47 bytes", TEST_USER);
         ResourceRequest request = plugin.process(origRequest);
-        assertNotNull(plugin.process(origRequest));
+        assertNotNull(request);
         assertEquals(origRequest, request);
+        verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
     }
 
     @Test
-    public void testNoSubject() throws StopProcessingException, PluginExecutionException {
+    public void testNoSubject()
+            throws StopProcessingException, PluginExecutionException, PersistenceException {
         ResourceRequest origRequest = getMockResourceRequestNoSubject(RESOURCE_SIZE);
         ResourceRequest request = plugin.process(origRequest);
-        assertNotNull(plugin.process(origRequest));
+        assertNotNull(request);
         assertEquals(origRequest, request);
+        verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
 
     }
 
@@ -188,7 +172,7 @@ public class TestResourceUsagePlugin {
     private ResourceRequest getMockResourceRequestNoSubject(String resourceSize) {
 
         ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
+        Map<String, Serializable> requestProperties = new HashMap<>();
 
         requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
 
@@ -202,12 +186,8 @@ public class TestResourceUsagePlugin {
     private class MockSubject extends DelegatingSubject implements Subject {
 
         public MockSubject(SecurityManager manager, PrincipalCollection principals) {
-            super(principals,
-                    true,
-                    null,
-                    new SimpleSession(UUID.randomUUID()
-                            .toString()),
-                    manager);
+            super(principals, true, null, new SimpleSession(UUID.randomUUID()
+                    .toString()), manager);
         }
 
         @Override

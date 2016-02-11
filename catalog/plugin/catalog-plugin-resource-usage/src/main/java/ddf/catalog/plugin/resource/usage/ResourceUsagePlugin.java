@@ -14,6 +14,7 @@
 package ddf.catalog.plugin.resource.usage;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,6 @@ public class ResourceUsagePlugin implements PreResourcePlugin {
 
     public ResourceUsagePlugin(AttributesStore attributesStore) {
         this.attributesStore = attributesStore;
-
     }
 
     @Override
@@ -62,9 +62,12 @@ public class ResourceUsagePlugin implements PreResourcePlugin {
                     username = getUsernameFromSubject(input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT));
 
                     if (StringUtils.isNotEmpty(username)) {
-                        long currentDataUsage = attributesStore.getCurrentDataUsageByUser(username);
 
-                        attributesStore.updateUserDataUsage(username, resourceSize+currentDataUsage);
+                        try {
+                            attributesStore.updateUserDataUsage(username, resourceSize);
+                        } catch (PersistenceException e) {
+                            LOGGER.info("Persistence exception updating user {} data usage", username, e);
+                        }
                     }
                 }
             }
