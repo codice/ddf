@@ -2,10 +2,10 @@
 === Design
 
 The Catalog is composed of several components and an API that connects them together.
-The Catalog API is central to {branding}'s architectural qualities of extensibility and flexibility. 
+The Catalog API is central to ${branding}'s architectural qualities of extensibility and flexibility. 
 The Catalog API consists of Java interfaces that define Catalog functionality and specify interactions between components. 
 These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, thus allowing the possibility of alternate implementations that can maintain interoperability and share developed components.
-As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other {branding} installations.
+As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other ${branding} installations.
 
 ==== Ensuring Compatibility
 
@@ -71,14 +71,14 @@ Endpoints are meant to be the only client-accessible components in the Catalog.
 
 The following endpoints are provided with the default Catalog out of the box:
 
-===== {branding} Catalog RESTful CRUD Endpoint
+===== ${ddf-catalog} RESTful CRUD Endpoint
 
 The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. 
 The URL exposing the REST functionality is located at \http://<HOST>:<PORT>/services/catalog, where `HOST` is the IP address of where the distribution is installed and `PORT` is the port number on which the distribution is listening.
 
 ====== Installing and Uninstalling
 
-The RESTful CRUD Endpoint can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The RESTful CRUD Endpoint can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ====== Configuring
 
@@ -147,14 +147,14 @@ where `<sourceid>` is the `FEDERATED SOURCE ID` and `<metacardId>` is the `Metac
 
 ====== Sources Operation Example
 
-In the example below there is the local {branding} distribution and a {branding} OpenSearch federated source with id "DDF-OS". 
+In the example below there is the local ${branding} distribution and a ${branding} OpenSearch federated source with id "${ddf-branding}-OS". 
 
 .Sources Response Example
 [source,javascript,linenums]
 ----
 [
    {
-      "id" : "DDF-OS",
+      "id" : "${ddf-branding}-OS",
       "available" : true,
       "contentTypes" :
          [
@@ -202,9 +202,9 @@ Transforms also work on read operations for metacards in federated sources.
 \http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
 ====
 
-===== Metacard Transforms Available in {branding}
+===== Metacard Transforms Available in ${branding}
 
-DDF includes the following Metacard Transformers:
+${ddf-branding} includes the following Metacard Transformers:
 
 HTML Metacard Transformer:: transforms a Metacard into an HTML formatted document
 XML Metacard Transformer:: transforms a Metacard into an XML formatted document
@@ -299,7 +299,7 @@ None
 |XML Element
 
 |`id`
-|`metacard/@gml:id`
+|`metacard/${at-symbol}gml:id`
 
 |`metacardType`
 |`metacard/type`
@@ -312,7 +312,7 @@ None
 
 For instance, the value for the Metacard Attribute named "`title`" would be found at:
 
-`metacard/string[@name='title']/value`
+`metacard/string[${at-symbol}name='title']/value`
 
 |===
 
@@ -604,7 +604,7 @@ None.
 
 ==== OpenSearch Endpoint
 
-The OpenSearch Endpoint provides a CDR REST Search v3.0 and CDR REST Brokered Search 1.1 compliant {branding} endpoint that a client accesses to send query parameters and receive search results.
+The OpenSearch Endpoint provides a CDR REST Search v3.0 and CDR REST Brokered Search 1.1 compliant ${branding} endpoint that a client accesses to send query parameters and receive search results.
 
 This endpoint uses the input query parameters to create an OpenSearch query.
 The client does not need to specify all of the query parameters, only the query parameters of interest.
@@ -613,7 +613,7 @@ This endpoint is a `JAX-RS` RESTful service and is compliant with the CDR IPT Br
 
 ===== Installing and Uninstalling
 
-The OpenSearch Endpoint can be installed and uninstalled using the normal processes described in the  Configuring {branding} section.
+The OpenSearch Endpoint can be installed and uninstalled using the normal processes described in the  Configuring ${branding} section.
 
 ===== Configuring
 
@@ -622,7 +622,7 @@ It can only be installed or uninstalled.
 
 ===== Using the OpenSearch Endpoint
 
-Once installed, the OpenSearch endpoint is accessible from `http://<DDF_HOST>:<DDF_PORT>/services/catalog/query`.
+Once installed, the OpenSearch endpoint is accessible from `http://<${ddf-branding}_HOST>:<${ddf-branding}_PORT>/services/catalog/query`.
 
 ====== Using the endpoint
 
@@ -642,7 +642,7 @@ The request call is an HTTP GET with the query options being parameters that are
 http://<ddf_host>:8181/services/catalog/query?q=Predator
 ----
 
-This request performs a full-text search for the phrase 'Predator' on the {branding} providers and provides the results as Atom-formatted XML for the web browser to render.
+This request performs a full-text search for the phrase 'Predator' on the ${branding} providers and provides the results as Atom-formatted XML for the web browser to render.
 
 ===== Parameter List
 
@@ -820,7 +820,7 @@ If src is not provided, the default behavior is to execute an enterprise search 
 
 |===
 
-====== {branding} Extensions
+====== ${branding} Extensions
 
 [cols="4*", options="header"]
 |===
@@ -928,12 +928,12 @@ Complete the following procedure to create an endpoint. 
 
 . Add the endpoint's business logic, invoking `CatalogFramework` calls as needed.  
 
-. Import the {branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
+. Import the ${branding} packages to the bundle's manifest for run-time (in addition to any other required packages): +
 `Import-Package: ddf.catalog, ddf.catalog.*`
 
 . Retrieve an instance of `CatalogFramework` from the OSGi registry. (Refer to the Working with OSGi - Service Registry section for examples.)
 
-Deploy the packaged service to {branding}.
+Deploy the packaged service to ${branding}.
 (Refer to the Working with OSGi - Bundles section.)
 
 [NOTE]
@@ -944,7 +944,7 @@ It is recommended to use the maven bundle plugin to create the Endpoint bundle's
 [TIP]
 ====
 *No implementation of an interface is required* +
-Unlike other {branding} components that require you to implement a standard interface, no implementation of an interface is required in order to create an endpoint.
+Unlike other ${branding} components that require you to implement a standard interface, no implementation of an interface is required in order to create an endpoint.
 ====
 
 ==== Common Endpoint Business Logic
@@ -973,7 +973,7 @@ create, update, and delete. 
 
 |===
 // end move
-=== {branding} Data Migration
+=== ${branding} Data Migration
 
 Data migration is the process of moving metadata from one catalog provider to another.
 It is also the process of translating metadata from one format to another. 
@@ -983,16 +983,16 @@ In addition, the procedures define the steps for converting metadata to differen
 
 ==== Set Up
 
-Set up {branding} as instructed in Starting {branding} section.
+Set up ${branding} as instructed in Starting ${branding} section.
 
 ==== Move Metadata from One Catalog Provider to Another
 
 ===== Export Metadata Out of Catalog Provider
 
 . Configure a desired catalog provider.
-. From the command line of {branding} console, use the command to export all metadata from the catalog provider into serialized data files dump. The following example shows a command for running on Linux and a command for running on Windows.
+. From the command line of ${branding} console, use the command to export all metadata from the catalog provider into serialized data files dump. The following example shows a command for running on Linux and a command for running on Windows.
 
-.ddf@local
+.${branding-lowercase}${at-symbol}local
 ----
 dump "/myDirectory/exportFolder"
 or
@@ -1003,9 +1003,9 @@ dump "C:/myDirectory/exportFolder"
 
 . Configure a different catalog provider.
 
-. From the command line of {branding} console, use the *ingest* command to import exported metadata from serialized data files into catalog provider. The following example shows a command for running on Linux and a command for running on Windows.
+. From the command line of ${branding} console, use the *ingest* command to import exported metadata from serialized data files into catalog provider. The following example shows a command for running on Linux and a command for running on Windows.
 
-.ddf@local
+.${branding-lowercase}${at-symbol}local
 ----
 ingest -p "/myDirectory/exportFolder"
 or
@@ -1143,12 +1143,12 @@ log:set
   |           |               |                       |create(QueryRequest)   |               |                     |              |         |
   |           |               |                       |------------------------------------------------------------>|query         |         |
   |           |               |                       |                       :               |                     |--------------|-------->|
-  |           |               |                       |                       |               |                     |              |       response     |
+  |           |               |                       |                       |               |                     |                     response     |
   |           |               |                       |                       |               |        QueryResponse|<-------------|---------|
   |           |               |                       |<------------------------------------------------------------|              |         |
   |           |               |                       | process(QueryResponse)|               |                     |              |         |
   |           |               |                       |-----------------------:-------------->|                     |              |         |
-  |           |               |                       |                       |  QueryResponse|                     |              |         |
+  |           |               |                       |                       | QueryResponse |                     |              |         |
   |           |               |          QueryResponse|<--------------------------------------|                     |              |         |
   | Web Service Query Response|<----------------------|                       :               |                     |              |         |
   |<----------|---------------|                       |                       |               |                     |              |         |
@@ -1194,18 +1194,18 @@ Otherwise, caching is canceled if the user cancels the product download.
 
 As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.
 
-=== {branding} Schematron
+=== ${branding} Schematron
 
 Custom schematron rulesets can be used to validate metacard metadata.
 Multiple services can be created, and each service can have multiple rule sets associated with it.
 Namespaces are used to distinguish services.
 The root schematron files may be placed anywhere on the file system as long as they are configured with an absolute path.
-Any root schematron files with a relative path are assumed to be relative to `DDF_HOME/schematron`.
+Any root schematron files with a relative path are assumed to be relative to `${ddf-branding}_HOME/schematron`.
 
 [TIP]
 ====
 Schematron files may reference other schematron files using an include statement with a relative path.
-However, when using the document function within a schematron ruleset to reference another file, the path must be absolute or relative to the DDF installation home directory.
+However, when using the document function within a schematron ruleset to reference another file, the path must be absolute or relative to the ${ddf-branding} installation home directory.
 ====
 
 ===== Configuring

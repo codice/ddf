@@ -1,52 +1,52 @@
 
-The {branding} Catalog provides a framework for storing, searching, processing, and transforming information.  Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.  Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 
 This guide supports developers creating extensions of the existing framework.
 
 === Whitelist
 
-The following packages have been exported by the {branding} Catalog application and are approved for use by third parties:
+The following packages have been exported by the ${ddf-catalog} application and are approved for use by third parties:
 
-* `ddf.camel.component.catalog`
-* `ddf.catalog`
-* `ddf.catalog.cache`
-* `ddf.catalog.data`
-* `ddf.catalog.data.metacardtype`
-* `ddf.catalog.event`
-* `ddf.catalog.federation`
-* `ddf.catalog.federation.impl`
-* `ddf.catalog.filter`
-* `ddf.catalog.filter.delegate`
-* `ddf.catalog.impl.filter`
-* `ddf.catalog.operation`
-* `ddf.catalog.plugin`
-* `ddf.catalog.plugin.groomer`
-* `ddf.catalog.pubsub`
-* `ddf.catalog.pubsub.tracker`
-* `ddf.catalog.resource`
-* `ddf.catalog.resource.data`
-* `ddf.catalog.resource.impl`
-* `ddf.catalog.resourceretriever`
-* `ddf.catalog.service`
-* `ddf.catalog.source`
-* `ddf.catalog.transform`
-* `ddf.catalog.transformer.api`
-* `ddf.catalog.transformer.metacard.geojson`
-* `ddf.catalog.util`
-* `ddf.catalog.validation`
-* `ddf.common`
-* `ddf.geo.formatter`
-* `ddf.util`
-* `org.codice.ddf.endpoints`
-* `org.codice.ddf.endpoints.rest`
-* `org.codice.ddf.endpoints.rest.action`
-* `org.codice.ddf.opensearch.query`
-* `org.codice.ddf.opensearch.query.filter`
+* `${ddf-branding-lowercase}.camel.component.catalog`
+* `${ddf-branding-lowercase}.catalog`
+* `${ddf-branding-lowercase}.catalog.cache`
+* `${ddf-branding-lowercase}.catalog.data`
+* `${ddf-branding-lowercase}.catalog.data.metacardtype`
+* `${ddf-branding-lowercase}.catalog.event`
+* `${ddf-branding-lowercase}.catalog.federation`
+* `${ddf-branding-lowercase}.catalog.federation.impl`
+* `${ddf-branding-lowercase}.catalog.filter`
+* `${ddf-branding-lowercase}.catalog.filter.delegate`
+* `${ddf-branding-lowercase}.catalog.impl.filter`
+* `${ddf-branding-lowercase}.catalog.operation`
+* `${ddf-branding-lowercase}.catalog.plugin`
+* `${ddf-branding-lowercase}.catalog.plugin.groomer`
+* `${ddf-branding-lowercase}.catalog.pubsub`
+* `${ddf-branding-lowercase}.catalog.pubsub.tracker`
+* `${ddf-branding-lowercase}.catalog.resource`
+* `${ddf-branding-lowercase}.catalog.resource.data`
+* `${ddf-branding-lowercase}.catalog.resource.impl`
+* `${ddf-branding-lowercase}.catalog.resourceretriever`
+* `${ddf-branding-lowercase}.catalog.service`
+* `${ddf-branding-lowercase}.catalog.source`
+* `${ddf-branding-lowercase}.catalog.transform`
+* `${ddf-branding-lowercase}.catalog.transformer.api`
+* `${ddf-branding-lowercase}.catalog.transformer.metacard.geojson`
+* `${ddf-branding-lowercase}.catalog.util`
+* `${ddf-branding-lowercase}.catalog.validation`
+* `${ddf-branding-lowercase}.common`
+* `${ddf-branding-lowercase}.geo.formatter`
+* `${ddf-branding-lowercase}.util`
+* `org.codice.${ddf-branding-lowercase}.endpoints`
+* `org.codice.${ddf-branding-lowercase}.endpoints.rest`
+* `org.codice.${ddf-branding-lowercase}.endpoints.rest.action`
+* `org.codice.${ddf-branding-lowercase}.opensearch.query`
+* `org.codice.${ddf-branding-lowercase}.opensearch.query.filter`
 
 === Catalog Application Services
 
-As an OSGi system, {branding} does Intra-module conversations via services. 
-The following summarizes {branding} internal services within the Catalog application.
+As an OSGi system, ${branding} does Intra-module conversations via services. 
+The following summarizes ${branding} internal services within the Catalog application.
 
 ==== Catalog Framework
 
@@ -63,7 +63,7 @@ A source is a system consisting of a catalog containing Metacards.
 ==== CatalogProvider
 
 The Catalog Provider is an API is used to interact with data providers, such as files systems or databases, to query, create, update, or delete data.
-The provider also translates between {branding} objects and native data formats.
+The provider also translates between ${branding} objects and native data formats.
 
 ==== `ConnectedSource`
 
@@ -153,13 +153,13 @@ This section introduces the fundamentals of working with the Catalog API the OGC
 
 The Catalog API implementations, which are denoted with the suffix of `Impl` on the Java file names, have multiple purposes and uses.
 
-* First, they provide a good starting point for other developers to extend functionality in the framework. For instance, extending the `MetacardImpl` allows developers to focus less on the inner workings of {branding} and more on the developer's intended purposes and objectives. 
+* First, they provide a good starting point for other developers to extend functionality in the framework. For instance, extending the `MetacardImpl` allows developers to focus less on the inner workings of ${branding} and more on the developer's intended purposes and objectives. 
 
 * Second, the Catalog API Implementations display the proper usage of an interface and an interface's intentions. Also, they are good code examples for future implementations. If a developer does not want to extend the simple implementations, the developer can at least have a working code reference to base future development.
 
 ==== Use of the Whiteboard Design Pattern
 
-The {branding} Catalog makes extensive use of the Whiteboard Design Pattern.
+The ${ddf-catalog} makes extensive use of the Whiteboard Design Pattern.
 Catalog Components are registered as services in the OSGi Service Registry, and the Catalog Framework or any other clients tracking the OSGi Service Registry are automatically notified by the OSGi Framework of additions and removals of relevant services.
 
 The Whiteboard Design Pattern is a common OSGi technique that is derived from a technical whitepaper provided by the OSGi Alliance in 2004.
@@ -167,7 +167,7 @@ It is recommended to use the Whiteboard pattern over the Listener pattern in OSG
 
 ==== Working with Queries
 
-Clients use `ddf.catalog.operation.Query` objects to describe which metacards are needed from Sources. 
+Clients use `${ddf-branding}.catalog.operation.Query` objects to describe which metacards are needed from Sources. 
 Query objects have two major components:
 
 * Filter 
@@ -200,7 +200,7 @@ The Query Options are used to further restrict the Filter's set of requested me
 |===
 
 ===== Creating a query
-The easiest way to create a Query is to use `ddf.catalog.operation.QueryImpl` object.
+The easiest way to create a Query is to use `${ddf-branding}.catalog.operation.QueryImpl` object.
 It is first necessary to create an OGC Filter object then set the Query Options after `QueryImpl` has been constructed.
 
 .QueryImpl Example 1
@@ -242,18 +242,18 @@ A developer should consult a Source's documentation for the limitations, capabil
 An OGC Filter is a Open Geospatial Consortium (OGC) standard (
 http://www.opengeospatial.org/standards/filter
 ) that describes a query expression
-in terms of Extensible Markup Language (XML) and key-value pairs (KVP). The {branding} Catalog Framework does not use the XML representation of
-the OGC Filter standard. {branding} instead utilizes the Java implementation provided by Geotools (
+in terms of Extensible Markup Language (XML) and key-value pairs (KVP). The ${ddf-catalog} Framework does not use the XML representation of
+the OGC Filter standard. ${branding} instead utilizes the Java implementation provided by Geotools (
 http://geotools.org/
 ). Geotools provides Java
 equivalent classes for OGC Filter XML elements. Geotools originally provided the standard Java classes for the OGC Filter Encoding 1.0 under the
 package name 
-`org.opengis.filter`. The same package name is used today and is currently used by {branding}.  Java developers do not parse or
+`org.opengis.filter`. The same package name is used today and is currently used by ${branding}.  Java developers do not parse or
 view the XML representation of a 
 Filter
- in {branding}. Instead, developers use only the Java objects to complete query tasks.
+ in ${branding}. Instead, developers use only the Java objects to complete query tasks.
 
-Note that the ddf.catalog.operation.Query interface extends the org.opengis.filter.Filter interface, which means that a Query object is an OGC Java Filter with Query Options.
+Note that the ${ddf-branding}.catalog.operation.Query interface extends the org.opengis.filter.Filter interface, which means that a Query object is an OGC Java Filter with Query Options.
 
 .A Query is an OGC Filter
 [source,java]
@@ -265,9 +265,9 @@ public interface Query extends Filter
 
 ==== FilterBuilder API
 
-To abstract developers from the complexities of working with the Filter interface directly and implementing the {branding} Profile of the Filter specification, the {branding} Catalog includes an API, primarily in `ddf.filter`, to build Filters using a fluent API.
+To abstract developers from the complexities of working with the Filter interface directly and implementing the ${branding} Profile of the Filter specification, the ${ddf-catalog} includes an API, primarily in `${ddf-branding}.filter`, to build Filters using a fluent API.
 
-To use the FilterBuilder API, an instance of `ddf.filter.FilterBuilder` should be used via the OSGi registry.
+To use the FilterBuilder API, an instance of `${ddf-branding}.filter.FilterBuilder` should be used via the OSGi registry.
 Typically, this will be injected via a dependency injection framework.
 Once an instance of `FilterBuilder` is available, methods can be called to create and combine Filters.
 
@@ -305,7 +305,7 @@ FilterBuilder.attribute(attributeName).is().like().fuzzyText(String fuzzySearchP
 [WARNING]
 ====
 Implementing the Filter interface directly is only for extremely advanced use cases and is highly discouraged.
-Instead, use of the {branding}-specific `FilterBuilder` API is recommended.
+Instead, use of the ${branding}-specific `FilterBuilder` API is recommended.
 ====
 
 Developers create a `Filter` object in order to filter or constrain the amount of records returned from a `Source`.
@@ -324,7 +324,7 @@ The OGC Filter Specification has several types of filters that can be combined i
 ===== Units of Measure
 
 According to the http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 09-026r1] and http://www.opengeospatial.org/standards/filter[OGC Filter Specifications: 04-095], units of measure can be expressed as a URI.
-To fulfill that requirement, {branding} utilizes the Geotools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
+To fulfill that requirement, ${branding} utilizes the Geotools class `org.geotools.styling.UomOgcMapping` for spatial filters requiring a standard for units of measure for scalar distances.
 Essentially, the `UomOgcMapping` maps the http://www.opengeospatial.org/standards/symbol[OGC Symbology Encoding] standard URIs to Java Units.
 This class provides three options for units of measure: 
 
@@ -332,7 +332,7 @@ This class provides three options for units of measure: 
 * METRE
 * PIXEL
 
-{branding} only supports FOOT and METRE since they are the most applicable to scalar distances.
+${branding} only supports FOOT and METRE since they are the most applicable to scalar distances.
 
 ===== Creating Filters
 
@@ -363,7 +363,7 @@ and the escapeChar itself
 String searchPhrase = "mission" ;
 org.opengis.filter.Filter propertyIsLikeFilter =
     filterFactory.like(filterFactory.property(Metacard.ANY_TEXT), searchPhrase, wildcardChar, singleChar, escapeChar, isCaseSensitive);
-ddf.catalog.operation.QueryImpl query = new QueryImpl( propertyIsLikeFilter );
+${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl( propertyIsLikeFilter );
 ----
 
 The example below illustrates creating an absolute temporal query, meaning the query is searching for Metacards whose modified timestamp occurred during a specific time range.
@@ -385,7 +385,7 @@ String property = Metacard.MODIFIED ; // modified date of a metacard
 
 org.opengis.filter.Filter filter = filterFactory.during( filterFactory.property(property), filterFactory.literal(period)  );
 
-ddf.catalog.operation.QueryImpl query = new QueryImpl(filter) ;
+${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl(filter) ;
 ----
 
 ===== Contextual Searches
@@ -431,12 +431,12 @@ wildcardChar, singleChar, escapeChar, isCaseSensitive),
 wildcardChar, singleChar, escapeChar, isCaseSensitive)
     );
 
-ddf.catalog.operation.QueryImpl query = new QueryImpl( filter );
+${ddf-branding}.catalog.operation.QueryImpl query = new QueryImpl( filter );
 ----
 
 ====== Tree View of Example Creating-Filters-3 
 
-Filters used in {branding} can always be represented in a tree diagram.
+Filters used in ${branding} can always be represented in a tree diagram.
 
 [ditaa,tree1, png,600]
 ....
@@ -479,7 +479,7 @@ Using the Logical Operators and `PropertyIsLike` filters, a developer can crea
 
 ===== Fuzzy Operation 
 
-{branding} only supports one custom function.
+${branding} only supports one custom function.
 The Filter specification does not include a fuzzy operator, so a Filter function was created to represent a fuzzy operation.
 The function and class is called `FuzzyFunction`, which is used by clients to notify the Sources to perform a fuzzy search.
 The syntax expected by providers is similar to the Fuzzy Function.
@@ -494,7 +494,7 @@ String escapeChar = "\\" ; // used to escape the meaning of the wildCard, single
 boolean isCaseSensitive = false ;
 
 Filter fuzzyFilter = filterFactory.like(
-     new ddf.catalog.impl.filter.FuzzyFunction(
+     new ${ddf-branding}.catalog.impl.filter.FuzzyFunction(
           Arrays.asList((Expression) (filterFactory.property(Metacard.ANY_TEXT))),
           filterFactory.literal("")),
      searchPhrase,
@@ -1064,29 +1064,29 @@ Geometries are usually represented as Well-Known Text (_WKT_).
 
 ==== Commons-DDF Utilities
 
-The `commons-ddf`bundle, located in `<DDF_HOME_SOURCE_DIRECTORY>/common/commons-ddf`, provides utilities and functionality commonly used across other {branding} components, such as the endpoints and providers. 
+The `commons-${ddf-branding}`bundle, located in `<DDF_HOME_SOURCE_DIRECTORY>/common/commons-${ddf-branding}`, provides utilities and functionality commonly used across other ${branding} components, such as the endpoints and providers. 
 
 ==== Noteworthy Classes
 
 ===== FuzzyFunction
 
-`ddf.catalog.impl.filter.FuzzyFunction` class is used to indicate that a `PropertyIsLike` filter should interpret the search as a fuzzy query. 
+`${ddf-branding}.catalog.impl.filter.FuzzyFunction` class is used to indicate that a `PropertyIsLike` filter should interpret the search as a fuzzy query. 
 
 ===== XPathHelper
 
-`ddf.util.XPathHelper` provides convenience methods for executing XPath operations on XML.
+`${ddf-branding}.util.XPathHelper` provides convenience methods for executing XPath operations on XML.
 It also provides convenience methods for converting XML as a `String` from a `org.w3c.dom.Document` object and vice versa.
 
 ==== Working with Settings
 
-{branding} provides the ability to obtain {branding} settings/properties.
+${branding} provides the ability to obtain ${branding} settings/properties.
 The `DdfConfigurationWatcher` will provide an update of properties to watchers. For example, if the port number changes, the `DDF_PORT` property value will be propagated to the watcher(s) in the form of a map.
 
 ==== Property Values
 
 To obtain the property values, complete the following procedure.
 
-. Import and implement the `ddf.catalog.util.DdfConfigurationWatcher` interface.
+. Import and implement the `${ddf-branding}.catalog.util.DdfConfigurationWatcher` interface.
 
 .Implement DdfConfigurationWatcher
 [source,java]
@@ -1099,20 +1099,20 @@ public class SettingsWatcher implements DdfConfigurationWatcher
 .Handle Properties
 [source,java,linenums]
 ----
-public void ddfConfigurationUpdated( Map properties )
+public void ${ddf-branding}ConfigurationUpdated( Map properties )
 {
   //Get property by name
   Object value = properties.get( DdfConfigurationManager.DDF_HOME_DIR );
   if ( value != null )
   {
-    this.ddfHomeDir = value.toString();
-    logger.debug( "ddfHomeDir = " + this.ddfHomeDir );
+    this.${ddf-branding}HomeDir = value.toString();
+    logger.debug( "${ddf-branding}HomeDir = " + this.${ddf-branding}HomeDir );
   }
 }
 ----
 
 . Export the watcher class as a service in the OSGi Registry. The example below uses the Blueprint dependency injection framework to add this watcher to the OSGi Registry. The 
-`ddf.catalog.DdfConfigurationManager` will search for `ConfigurationWatcher`(s) to send
+`${ddf-branding}.catalog.DdfConfigurationManager` will search for `ConfigurationWatcher`(s) to send
 properties updates.
 
 .Blueprint Example of Export
@@ -1121,22 +1121,22 @@ properties updates.
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
 
  <!-- create the bean -->
- <bean id="SettingsWatcher" class="ddf.catalog.SettingsWatcher">
+ <bean id="SettingsWatcher" class="${ddf-branding}.catalog.SettingsWatcher">
    <cm:managed-properties
-     persistent-id="ddf.catalog.SettingsWatcher"
+     persistent-id="${ddf-branding}.catalog.SettingsWatcher"
      update-strategy="container-managed" />
  </bean>
 
  <!-- export the bean in the service registry as a DdfConfigurationWatcher -->
- <service ref="SettingsWatcher" interface="ddf.catalog.util.DdfConfigurationWatcher">
+ <service ref="SettingsWatcher" interface="${ddf-branding}.catalog.util.DdfConfigurationWatcher">
  </service>
 
 </blueprint>
 ----
 . Import the DDFpackages to the bundle's manifest for run-time (in addition to any other required packages).
-`Import-Package: ddf.catalog, ddf.catalog.util, ddf.catalog.*`
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.util, ${ddf-branding}.catalog.*`
 
-. Deploy the packaged service to {branding} (refer to the Working with OSGi - Bundles section).
+. Deploy the packaged service to ${branding} (refer to the Working with OSGi - Bundles section).
 
 
 === Extending Catalog Plugins
@@ -1238,7 +1238,7 @@ The plugin also makes the following modifications when metacards are in an `Upda
 
 ====== Installing and UnInstalling
 
-This plugin can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+This plugin can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ====== Configuring
 
@@ -1347,7 +1347,7 @@ The output of the first plugin is sent to the next plugin, until all have execut
 This post-query plugin updates the resource size attribute of each metacard in the query results if there is a cached file for the product and it has a size greater than zero; otherwise, the resource size is unmodified and the original result is returned.
 
 ====== Installing and UnInstalling
-This feature can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+This feature can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ====== Configuring
 No configuration is necessary for this plugin. 
@@ -1437,8 +1437,8 @@ The output of a pre-subscription plugin is sent to the next pre-subscription plu
 
 ====== Examples
 
-{branding} includes a pre-subscription plugin example in the SDK that illustrates how to modify a subscription's filter.
-This example is located in the {branding} trunk at `sdk/sample-plugins/ddf/sdk/plugin/presubscription`.
+${branding} includes a pre-subscription plugin example in the SDK that illustrates how to modify a subscription's filter.
+This example is located in the ${branding} trunk at `sdk/sample-plugins/${ddf-branding}/sdk/plugin/presubscription`.
 
 ===== Pre-Delivery Plugin
 
@@ -1487,7 +1487,7 @@ Access plugins are invoked directly after the Policy plugins have been successfu
 
 All failure cases should be handled internally to the plugin with the exception of the StopProcessingException. If the exception encountered should stop/block the request then a StopProcessingException should be thrown.
 
-=== Developing a Catalog Plugin
+==== Developing a Catalog Plugin
 
 Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction. 
 Plugins can be _Pre-Ingest_, _Post-Ingest_, _Pre-Query_, _Post-Query_, _Pre-Subscription_, _Pre-Delivery_, _Pre-Resource_, or _Post-Resource_. 
@@ -1508,52 +1508,52 @@ The following types of plugins can be created:
 |Example
 
 |Pre-Ingest
-|`ddf.catalog.plugin.PreIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PreIngestPlugin`
 |Runs before the Create/Update/Delete method is sent to the CatalogProvider
 |Metadata validation services
 
 |Post-Ingest
-|`ddf.catalog.plugin.PostIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
 |Runs after the Create/Update/Delete method is sent to the CatalogProvider
 |EventProcessor for processing and publishing event notifications to subscribers
 
 |Pre-Query
-|`ddf.catalog.plugin.PreQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PreQueryPlugin`
 |Runs prior to the Query/Read method being sent to the Source
-|An example is not included with {branding}
+|An example is not included with ${branding}
 
 |Post-Query
-|`ddf.catalog.plugin.PostQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PostQueryPlugin`
 |Runs after results have been retrieved from the query but before they are posted to the Endpoint
-|An example is not included with {branding}
+|An example is not included with ${branding}
 
 |Pre-Subscription
-|`ddf.catalog.plugin.PreSubscription`
+|`${ddf-branding}.catalog.plugin.PreSubscription`
 |Runs prior to a Subscription being created or updated
 |Modify a query prior to creating a subscription
 
 |Pre-Delivery
-|`ddf.catalog.plugin.PreDeliveryPlugin`
+|`${ddf-branding}.catalog.plugin.PreDeliveryPlugin`
 |Runs prior to the delivery of a Metacard when an event is posted
 |Inspect a metacard prior to delivering it to the Event Consumer
 
 |Pre-Resource
-|`ddf.catalog.plugin.PreResource`
+|`${ddf-branding}.catalog.plugin.PreResource`
 |Runs prior to a Resource being retrieved
-|An example is not included with {branding}
+|An example is not included with ${branding}
 
 |Post-Resource
-|`ddf.catalog.plugin.PostResource`
+|`${ddf-branding}.catalog.plugin.PostResource`
 |Runs after a Resource is retrieved, but before it is sent to the Endpoint
 |Verification of a resource prior to returning to a client
 
 |Policy
-|ddf.catalog.plugin.PolicyPlugin
+|${ddf-branding}.catalog.plugin.PolicyPlugin
 |Runs prior to all other catalog plugins to esablish the policy for requests/responses
 |An example is MetacardValidityFilterPlugin
 
 |Access
-|ddf.catalog.plugin.AccessPlugin
+|${ddf-branding}.catalog.plugin.AccessPlugin
 |Runs directly after the PolicyPlugin
 |An examples are the FilterPlugin and OperationPlugin
 
@@ -1569,82 +1569,82 @@ The procedure for implementing any of the plugins follows a similar format:
 
 . Create OSGi descriptor file to communicate with the OSGi registry.
 
-.. Import {branding} packages.
+.. Import ${branding} packages.
 
 .. Register plugin class as service to OSGi registry.
 
-. Deploy to {branding}.
+. Deploy to ${branding}.
 
 [TIP]
 ====
-Refer to the Javadoc for more information on all Requests and Responses in the `ddf.catalog.operation` and `ddf.catalog.event` packages.
+Refer to the Javadoc for more information on all Requests and Responses in the `${ddf-branding}.catalog.operation` and `${ddf-branding}.catalog.event` packages.
 ====
 
 ===== Pre-Ingest
 
 . Create a Java class that implements `PreIngestPlugin.` +
-`public class SamplePreIngestPlugin implements ddf.catalog.plugin.PreIngestPlugin`
+`public class SamplePreIngestPlugin implements ${ddf-branding}.catalog.plugin.PreIngestPlugin`
 
 . Implement the required methods. +
  * `public CreateRequest process(CreateRequest input) throws PluginExecutionException;`
  * `public UpdateRequest process(UpdateRequest input) throws PluginExecutionException;`
  * `public DeleteRequest process(DeleteRequest input) throws PluginExecutionException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
 
 . Export the service to the OSGi registry. +
 *Blueprint descriptor example*
-`<service ref="[[SamplePreIngestPlugin ]]"interface="ddf.catalog.plugin.PreIngestPlugin" />`
+`<service ref="[[SamplePreIngestPlugin ]]"interface="${ddf-branding}.catalog.plugin.PreIngestPlugin" />`
 
 ===== Post-Ingest
 
 . Create a Java class that implements `PostIngestPlugin`. +
-`public class SamplePostIngestPlugin implements ddf.catalog.plugin.PostIngestPlugin`
+`public class SamplePostIngestPlugin implements ${ddf-branding}.catalog.plugin.PostIngestPlugin`
 
 . Implement the required methods. +
  * `public CreateResponse process(CreateResponse input) *throws* PluginExecutionException;`
  * `public UpdateResponse process(UpdateResponse input) *throws* PluginExecutionException;`
  * `public DeleteResponse process(DeleteResponse input) *throws* PluginExecutionException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
 
 . Export the service to the OSGi registry. +
 *Blueprint descriptor example*
-`<service ref="[[SamplePostIngestPlugin ]]"interface="ddf.catalog.plugin.PostIngestPlugin" />`
+`<service ref="[[SamplePostIngestPlugin ]]"interface="${ddf-branding}.catalog.plugin.PostIngestPlugin" />`
 
 ===== Pre-Query
 
 . Create a Java class that implements `PreQueryPlugin`. +
-`public class SamplePreQueryPlugin implements ddf.catalog.plugin.PreQueryPlugin`
+`public class SamplePreQueryPlugin implements ${ddf-branding}.catalog.plugin.PreQueryPlugin`
 
 . Implement the required method. +
 `public QueryRequest process(QueryRequest input) *throws* PluginExecutionException, StopProcessingException;`
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
 
 . Export the service to the OSGi registry. +
-`<service ref="[[SamplePreQueryPlugin]]"interface="ddf.catalog.plugin.PreQueryPlugin" />`
+`<service ref="[[SamplePreQueryPlugin]]"interface="${ddf-branding}.catalog.plugin.PreQueryPlugin" />`
 
 ===== Post-Query
 
 . Create a Java class that implements `PostQueryPlugin`. +
-`public class SamplePostQueryPlugin implements ddf.catalog.plugin.PostQueryPlugin`
+`public class SamplePostQueryPlugin implements ${ddf-branding}.catalog.plugin.PostQueryPlugin`
 
 . Implement the required method. +
 `public QueryResponse process(QueryResponse input) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin`
 
 . Export the service to the OSGi registry. +
-`<service ref="[[SamplePostQueryPlugin]]"interface="ddf.catalog.plugin.PostQueryPlugin" />`
+`<service ref="[[SamplePostQueryPlugin]]"interface="${ddf-branding}.catalog.plugin.PostQueryPlugin" />`
 
 ===== Pre-Delivery
 
 . Create a Java class that implements `PreDeliveryPlugin`. +
-`public class SamplePreDeliveryPlugin *implements* ddf.catalog.plugin.PreDeliveryPlugin`
+`public class SamplePreDeliveryPlugin *implements* ${ddf-branding}.catalog.plugin.PreDeliveryPlugin`
 
 . Implement the required methods. +
 `public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
@@ -1653,17 +1653,17 @@ StopProcessingException;`
  * `public Update processUpdateHit(Update update) *throws* PluginExecutionException, StopProcessingException;`
  * `public Metacard processCreate(Metacard metacard) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation,ddf.catalog.event`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation,${ddf-branding}.catalog.event`
 
 . Export the service to the OSGi registry. +
 *Blueprint descriptor example* +
-`<service ref="[[SamplePreDeliveryPlugin]]"interface="ddf.catalog.plugin.PreDeliveryPlugin" />`
+`<service ref="[[SamplePreDeliveryPlugin]]"interface="${ddf-branding}.catalog.plugin.PreDeliveryPlugin" />`
 
 ===== Pre-Subscription
 
 . Create a Java class that implements `PreSubscriptionPlugin`. +
-`public class SamplePreSubscriptionPlugin *implements* ddf.catalog.plugin.PreSubscriptionPlugin
+`public class SamplePreSubscriptionPlugin *implements* ${ddf-branding}.catalog.plugin.PreSubscriptionPlugin
 
 . Implement the required method.
  * `public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`
@@ -1671,44 +1671,44 @@ StopProcessingException;`
 ===== Pre-Resource
 
 . Create a Java class that implements `PreResourcePlugin`.
-`public class SamplePreResourcePlugin *implements* ddf.catalog.plugin.PreResourcePlugin`
+`public class SamplePreResourcePlugin *implements* ${ddf-branding}.catalog.plugin.PreResourcePlugin`
 
 . Implement the required method. +
  * `public ResourceRequest process(ResourceRequest input) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
 
 . Export the service to the OSGi registry.
 .Blueprint descriptor example
 [source,xml]
 ----
-<service ref="[[SamplePreResourcePlugin]]" interface="ddf.catalog.plugin.PreResourcePlugin" />
+<service ref="[[SamplePreResourcePlugin]]" interface="${ddf-branding}.catalog.plugin.PreResourcePlugin" />
 ----
 
 ===== Post-Resource
 
 . Create a Java class that implements `PostResourcePlugin`. +
-`public class SamplePostResourcePlugin *implements* ddf.catalog.plugin.PostResourcePlugin`
+`public class SamplePostResourcePlugin *implements* ${ddf-branding}.catalog.plugin.PostResourcePlugin`
 
 . Implement the required method. +
  * `public ResourceResponse process(ResourceResponse input) *throws* PluginExecutionException, StopProcessingException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
 
 . Export the service to the OSGi registry.
 
 .Blueprint descriptor example
 [source,xml]
 ----
-<service ref="[[SamplePostResourcePlugin]]" interface="ddf.catalog.plugin.PostResourcePlugin" />
+<service ref="[[SamplePostResourcePlugin]]" interface="${ddf-branding}.catalog.plugin.PostResourcePlugin" />
 ----
 
 ===== Policy
 
 . Create a Java class that implements `PolicyPlugin`. +
-`public class SamplePolicyPlugin *implements* ddf.catalog.plugin.PolicyPlugin`
+`public class SamplePolicyPlugin *implements* ${ddf-branding}.catalog.plugin.PolicyPlugin`
 
 . Implement the required methods. +
  * `PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties) *throws* StopProcessingException;`
@@ -1718,17 +1718,17 @@ StopProcessingException;`
  * `PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties) *throws* StopProcessingException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
 
 . Export the service to the OSGi registry.  +
 *Blueprint descriptor example* +
-`<service ref="[[SamplePolicyPlugin]]" interface="ddf.catalog.plugin.PolicyPlugin" />`
+`<service ref="[[SamplePolicyPlugin]]" interface="${ddf-branding}.catalog.plugin.PolicyPlugin" />`
 
 
 ===== Access
 
 . Create a Java class that implements `AccessPlugin`. +
-`public class SamplePostResourcePlugin *implements* ddf.catalog.plugin.AccessPlugin`
+`public class SamplePostResourcePlugin *implements* ${ddf-branding}.catalog.plugin.AccessPlugin`
 
 . Implement the required methods. +
  * `CreateRequest processPreCreate(CreateRequest input) *throws* StopProcessingException;`
@@ -1738,14 +1738,14 @@ StopProcessingException;`
  * `QueryResponse processPostQuery(QueryResponse input) *throws* StopProcessingException;`
 
 . Import the DDF interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.plugin,ddf.catalog.operation`
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.plugin,${ddf-branding}.catalog.operation`
 
 . Export the service to the OSGi registry.  +
 *Blueprint descriptor example* +
-`<service ref="[[SampleAccessPlugin]]" interface="ddf.catalog.plugin.AccessPlugin" />`
+`<service ref="[[SampleAccessPlugin]]" interface="${ddf-branding}.catalog.plugin.AccessPlugin" />`
 
 
-== Extending Operations
+=== Extending Operations
 
 The Catalog provides the capability to query, create, update, and delete metacards; retrieve resources; and retrieve information about the sources in the enterprise.
 
@@ -1822,8 +1822,8 @@ It is a model used to define the attributes of a metacard, much like a schema.
 ===== Default Metacard Type and Attributes
 
 Most metacards within the system are created using with the default metacard type.
-The default metacard type of the system can be programmatically retrieved by calling `ddf.catalog.data.BasicTypes.BASIC_METACARD`.
-The name of the default MetacardType can be retrieved from `ddf.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME`.
+The default metacard type of the system can be programmatically retrieved by calling `${ddf-branding}.catalog.data.BasicTypes.BASIC_METACARD`.
+The name of the default MetacardType can be retrieved from `${ddf-branding}.catalog.data.MetacardType.DEFAULT_METACARD_TYPE_NAME`.
 
 The default metacard type has the following required attributes.
 Though the following attributes are required on all metacard types, setting their values is optional except for ID.
@@ -1833,7 +1833,7 @@ Though the following attributes are required on all metacard types, setting thei
 [cols="4*", options="header"]
 |===
 
-|`ddf.catalog.data.Metacard` Constant
+|`${ddf-branding}.catalog.data.Metacard` Constant
 |Attribute Name
 |Attribute Format
 |Description
@@ -1912,7 +1912,7 @@ Though the following attributes are required on all metacard types, setting thei
 
 [NOTE]
 ====
-It is highly recommended when referencing a default attribute name to use the `ddf.catalog.data.Metacard` constants whenever possible.
+It is highly recommended when referencing a default attribute name to use the `${ddf-branding}.catalog.data.Metacard` constants whenever possible.
 ====
 
 [WARNING]
@@ -1955,7 +1955,7 @@ The `MetacardTypeRegistry` is experimental. 
 While this component has been tested and is functional, it may change as more information is gathered about what is needed and as it is used in more scenarios.
 ====
 
-The `MetacardTypeRegistry` allows {branding} components, primarily CatalogProviders and Sources, to make available the `MetacardTypes` that they support. 
+The `MetacardTypeRegistry` allows ${branding} components, primarily CatalogProviders and Sources, to make available the `MetacardTypes` that they support. 
 It maintains a list of all supported `MetacardTypes` in the `CatalogFramework`, so that other components such as Endpoints, Plugins, and Transformers can make use of those `MetacardTypes`. 
 The `MetacardType` is essential for a component in the `CatalogFramework` to understand how it should interpret a metacard by knowing what attributes are available in that metacard. 
 
@@ -1963,7 +1963,7 @@ For example, an endpoint receiving incoming metadata can perform a lookup in the
 The discovered `MetacardType` will then be used to help the endpoint populate a metacard based on the specified attributes in the `MetacardType`. 
 By doing this, all the incoming metadata elements can then be available for processing, cataloging, and searching by the rest of the `CatalogFramework`.
 
-`MetacardTypes` should be registered with the `MetacardTypeRegistry`.  The `MetacardTypeRegistry` makes those `MetacardTypes` available to other {branding} `CatalogFramework` components. 
+`MetacardTypes` should be registered with the `MetacardTypeRegistry`.  The `MetacardTypeRegistry` makes those `MetacardTypes` available to other ${branding} `CatalogFramework` components. 
 Other components that need to know how to interpret metadata or metacards should look up the appropriate `MetacardType` from the registry. 
 By having these `MetacardTypes` available to the `CatalogFramework`, these components can be aware of the custom attributes. 
 
@@ -1972,19 +1972,19 @@ The following blueprint snippet shows how to inject that service into another co
 
 [source,xml,linenums]
 ----
-<bean id="sampleComponent" class="ddf.catalog.SampleComponent">
+<bean id="sampleComponent" class="${ddf-branding}.catalog.SampleComponent">
     <argument ref="metacardTypeRegistry" />
 </bean>
 
 <!-- Access MetacardTypeRegistry -->
-<reference id="metacardTypeRegistry" interface="ddf.catalog.data.MetacardTypeRegistry"/>
+<reference id="metacardTypeRegistry" interface="${ddf-branding}.catalog.data.MetacardTypeRegistry"/>
 ----
 
 The reference to this service can then be used to register new `MetacardTypes` or to lookup existing ones. 
 
 Typically, new `MetacardTypes` will be registered by `CatalogProviders` or Sources indicating they know how to persist, index, and query attributes from that type. 
 Typically, Endpoints or `InputTransformers` will use the lookup functionality to access a `MetacardType` based on a parameter in the incoming metadata. 
-Once the appropriate `MetacardType` is discovered and obtained from the registry, the component will know how to translate incoming raw metadata into a {branding} Metacard.
+Once the appropriate `MetacardType` is discovered and obtained from the registry, the component will know how to translate incoming raw metadata into a ${branding} Metacard.
 
 ===== Attribute
 
@@ -2077,7 +2077,7 @@ As `Metacard` objects are created, updated, and read throughout the Catalog, 
 
 ===== Basic Types
 
-The Catalog includes definitions of several Basic Types all found in the `ddf.catalog.data.BasicTypes` class.
+The Catalog includes definitions of several Basic Types all found in the `${ddf-branding}.catalog.data.BasicTypes` class.
 
 [cols="3*", options="header"]
 |===
@@ -2183,8 +2183,8 @@ The Catalog API is an OSGi bundle (`catalog-core-api`) that contains the Java i
 
 ===== Standard Catalog Framework
 
-The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the {branding} Catalog API. 
-`CatalogFrameworkImpl` is the implementation of the {branding} Standard Catalog Framework.
+The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog}API. 
+`CatalogFrameworkImpl` is the implementation of the ${branding} Standard Catalog Framework.
 
 ===== Installing and Uninstalling
 
@@ -2256,14 +2256,14 @@ It is recommended to enter an absolute directory path such as `/opt/product-cach
 |===
 
 |Managed Service PID
-|`ddf.catalog.CatalogFrameworkImpl`
+|`${ddf-branding}.catalog.CatalogFrameworkImpl`
 |Managed Service Factory PID
 |N/A
 |===
 
 ===== Using
 
-The Standard Catalog Framework is the core class of {branding}.
+The Standard Catalog Framework is the core class of ${branding}.
 It provides the methods for query, create, update, delete, and resource retrieval (QCRUD) operations on the `Sources`.
 By contrast, the Fanout Catalog Framework only allows for query and resource retrieval operations, no catalog modifications, and all queries are enterprise-wide.
 
@@ -2293,27 +2293,27 @@ If no local catalog provider is configured, the site information returned includ
 |Service Property
 |Value
 
-|`ddf.catalog.federation.FederationStrategy`
+|`${ddf-branding}.catalog.federation.FederationStrategy`
 |shortname
 |sorted
 
 |`org.osgi.service.event.EventHandler`
 |event.topics
-|`ddf/catalog/event/CREATED`, `ddf/catalog/event/UPDATED`, d`df/catalog/event/DELETED`
+|`${ddf-branding}/catalog/event/CREATED`, `${ddf-branding}/catalog/event/UPDATED`, d`df/catalog/event/DELETED`
 
-|`ddf.catalog.CatalogFramework`
+|`${ddf-branding}.catalog.CatalogFramework`
 |
 |
 
-|`org.codice.ddf.configuration.ConfigurationWatcher`
+|`org.codice.${ddf-branding}.configuration.ConfigurationWatcher`
 |
 | 
 
-|`ddf.catalog.event.EventProcessor`
+|`${ddf-branding}.catalog.event.EventProcessor`
 |
 |
 
-|`ddf.catalog.plugin.PostIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
 |
 |
 
@@ -2328,71 +2328,71 @@ If no local catalog provider is configured, the site information returned includ
 |Availability
 |Multiple
 
-|`ddf.catalog.plugin.PostFederatedQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PostFederatedQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PostIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PostQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PostQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PostResourcePlugin`
+|`${ddf-branding}.catalog.plugin.PostResourcePlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreDeliveryPlugin`
+|`${ddf-branding}.catalog.plugin.PreDeliveryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreFederatedQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PreFederatedQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PreIngestPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PreQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreResourcePlugin`
+|`${ddf-branding}.catalog.plugin.PreResourcePlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreSubscriptionPlugin`
+|`${ddf-branding}.catalog.plugin.PreSubscriptionPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PolicyPlugin`
+|`${ddf-branding}.catalog.plugin.PolicyPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.AccessPlugin`
+|`${ddf-branding}.catalog.plugin.AccessPlugin`
 |optional
 |true
 
-|`ddf.catalog.resource.ResourceReader`
+|`${ddf-branding}.catalog.resource.ResourceReader`
 |optional
 |true
 
-|`ddf.catalog.source.CatalogProvider`
+|`${ddf-branding}.catalog.source.CatalogProvider`
 |optional
 |true
 
-|`ddf.catalog.source.ConnectedSource`
+|`${ddf-branding}.catalog.source.ConnectedSource`
 |optional
 |true
 
-|`ddf.catalog.source.FederatedSource`
+|`${ddf-branding}.catalog.source.FederatedSource`
 |optional
 |true
 
-|`ddf.cache.CacheManager`
+|`${ddf-branding}.cache.CacheManager`
 | 
 |false
 
@@ -2412,7 +2412,7 @@ The Fanout Catalog Framework (`fanout-catalogframework` bundle) provides an imp
 All requests are executed as federated queries and resource retrievals, allowing the fanout site to be the sole site exposing the functionality of all of its Federated Sources.
 The Fanout Catalog Framework is the implementation of the Fanout Catalog Framework.
 
-The Fanout Catalog Framework provides the capability to configure {branding} to be a fanout proxy to other federated sources within the enterprise.
+The Fanout Catalog Framework provides the capability to configure ${branding} to be a fanout proxy to other federated sources within the enterprise.
 The Fanout Catalog Framework has no catalog provider configured for it, so it does not allow catalog modifications to take place.
 Therefore, create, update, and delete operations are not supported.
 
@@ -2457,7 +2457,7 @@ Therefore, create, update, and delete operations are not supported.
 
 In addition, the Fanout Catalog Framework provides the following benefits:
 
-* Backwards compatibility (e.g., federating with older versions) with existing older versions of {branding}.
+* Backwards compatibility (e.g., federating with older versions) with existing older versions of ${branding}.
 * A single node being exposed from an enterprise, thus hiding the enterprise from an external client.
 * Ensures all queries and resource retrievals are federated.
 
@@ -2472,7 +2472,7 @@ When this feature is installed, the Standard Catalog Framework feature `catal
 
 ==== Configuring
 
-The Fanout Catalog Framework can be configured using the normal processes described in Configuring {branding}.
+The Fanout Catalog Framework can be configured using the normal processes described in Configuring ${branding}.
 
 The configurable properties for the Fanout Catalog Framework are accessed from the Catalog Fanout Framework configuration in the Admin Console.
 
@@ -2545,14 +2545,14 @@ It is recommended to enter an absolute directory path, such as `/opt/product-cac
 [cols="2*" options="header"]
 |===
 |Managed Service PID
-|`ddf.catalog.impl.service.fanout.FanoutCatalogFramework`
+|`${ddf-branding}.catalog.impl.service.fanout.FanoutCatalogFramework`
 |Managed Service Factory PID
 |N/A
 |===
 
 ===== Using
 
-The Fanout Catalog Framework is a core class of {branding} when configured as a fanout proxy.
+The Fanout Catalog Framework is a core class of ${branding} when configured as a fanout proxy.
 It provides the methods for query and resource retrieval operations on the Sources, where all operations are enterprise-wide operations.
 By contrast, the Standard Catalog Framework supports create/update/delete operations of metacards, in addition to the query and resource retrieval operations.
 
@@ -2579,27 +2579,27 @@ Details of the individual federated sources is not included, only the fanout cat
 |Service Property
 |Value
 
-|`ddf.catalog.federation.FederationStrategy`
+|`${ddf-branding}.catalog.federation.FederationStrategy`
 |shortname
 |sorted
 
 |`org.osgi.service.event.EventHandler`
 |event.topics
-|`ddf/catalog/event/CREATED`, `ddf/catalog/event/UPDATED`, `ddf/catalog/event/DELETED`
+|`${ddf-branding}/catalog/event/CREATED`, `${ddf-branding}/catalog/event/UPDATED`, `${ddf-branding}/catalog/event/DELETED`
 
-|`ddf.catalog.CatalogFramework`
+|`${ddf-branding}.catalog.CatalogFramework`
 |
 |
 
-|`org.codice.ddf.configuration.ConfigurationWatcher`
-|
-| 
-
-|`ddf.catalog.event.EventProcessor`
+|`org.codice.${ddf-branding}.configuration.ConfigurationWatcher`
 |
 | 
 
-|`ddf.catalog.plugin.PostIngestPlugin`
+|`${ddf-branding}.catalog.event.EventProcessor`
+|
+| 
+
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
 |
 |
 
@@ -2614,67 +2614,67 @@ Details of the individual federated sources is not included, only the fanout cat
 |Availability
 |Multiple
 
-|`ddf.cache.CacheManager`
+|`${ddf-branding}.cache.CacheManager`
 |
 |false
 
-|`ddf.catalog.plugin.PostFederatedQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PostFederatedQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PostIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PostIngestPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PostQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PostQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PostResourcePlugin`
+|`${ddf-branding}.catalog.plugin.PostResourcePlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreDeliveryPlugin`
+|`${ddf-branding}.catalog.plugin.PreDeliveryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreFederatedQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PreFederatedQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreIngestPlugin`
+|`${ddf-branding}.catalog.plugin.PreIngestPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreQueryPlugin`
+|`${ddf-branding}.catalog.plugin.PreQueryPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreResourcePlugin`
+|`${ddf-branding}.catalog.plugin.PreResourcePlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PreSubscriptionPlugin`
+|`${ddf-branding}.catalog.plugin.PreSubscriptionPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.PolicyPlugin`
+|`${ddf-branding}.catalog.plugin.PolicyPlugin`
 |optional
 |true
 
-|`ddf.catalog.plugin.AccessPlugin`
+|`${ddf-branding}.catalog.plugin.AccessPlugin`
 |optional
 |true
 
-|`ddf.catalog.resource.ResourceReader`
+|`${ddf-branding}.catalog.resource.ResourceReader`
 |optional
 |true
 
-|`ddf.catalog.source.ConnectedSource`
+|`${ddf-branding}.catalog.source.ConnectedSource`
 |optional
 |true
 
-|`ddf.catalog.source.FederatedSource`
+|`${ddf-branding}.catalog.source.FederatedSource`
 |optional
 |true
 
@@ -2776,7 +2776,7 @@ The Catalog Framework can be requested from the OSGi registry.
 .Blueprint Service Reference
 [source,xml]
 ----
-<reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
+<reference id="catalogFramework" interface="${ddf-branding}.catalog.CatalogFramework" />
 ----
 
 ===== Methods
@@ -2848,17 +2848,17 @@ public BinaryContent transform(SourceResponse response, String transformerId, Ma
 
 ==== Developing Complementary Frameworks
 
-{branding} and the underlying OSGi technology can serve as a robust infrastructure for developing frameworks that complement the {branding} Catalog.
+${branding} and the underlying OSGi technology can serve as a robust infrastructure for developing frameworks that complement the ${ddf-catalog}.
 
 Recommendations for Framework Development
 
-. Provide extensibility similar to that of the {branding} Catalog.
+. Provide extensibility similar to that of the ${ddf-catalog}.
 .. Provide a stable API with interfaces and simple implementations (refer to `http://www.ibm.com/developerworks/websphere/techjournal/1007_charters/1007_charters.html`).
-. Make use of the {branding} Catalog wherever possible to store, search, and transform information.
+. Make use of the ${ddf-catalog} wherever possible to store, search, and transform information.
 . Utilize OSGi standards wherever possible.
 .. ConfigurationAdmin
 .. MetaType
-. Utilize the sub-frameworks available in {branding}.
+. Utilize the sub-frameworks available in ${branding}.
 .. Karaf
 .. CXF
 .. PAX Web and Jetty
@@ -2867,12 +2867,12 @@ Recommendations for Framework Development
 
 ===== Console Commands
 
-{branding} supports development of custom console commands.
+${branding} supports development of custom console commands.
 For more information, see the Karaf website on http://karaf.apache.org/manual/latest-2.2.x/developers-guide/extending-console.html[Extending the Console]. 
 
-===== Custom {branding} Console Commands
+===== Custom ${branding} Console Commands
 
-{branding} includes custom commands for working with the Catalog, as described in the Console Commands section.
+${branding} includes custom commands for working with the Catalog, as described in the Console Commands section.
 
 === Extending Sources
 Catalog sources are used to connect Catalog components to data sources, local and remote.
@@ -2906,8 +2906,6 @@ Sources act as proxies to the actual external data sources, e.g., a RDBMS databa
 +----------------------------------------------------------------------------------------------+
 ....
 
-=== Existing Source Types
-
 ==== Existing Source Types
 
 ===== Catalog Provider
@@ -2940,7 +2938,7 @@ The `retrieveResource( ... )` and `getOptions( ... )` methods will be called and
 ==== Connected Source
 
 A connected source is a remote source that is included in all local and federated queries but remains hidden from external clients.
-A connected source's identifier is removed in all query results by replacing it with {branding}'s source identifier.
+A connected source's identifier is removed in all query results by replacing it with ${branding}'s source identifier.
 The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
 
 .Connected Sources
@@ -2953,8 +2951,8 @@ Federated sources support query and site information operations only.
 Catalog modification operations, such as create, update, and delete, are not allowed.
 Federated sources also expose an event service, which allows the Catalog Framework to subscribe to even notifications when metacards are created, updated, and deleted.
 
-{branding} Catalog instances can also be federated to each other.
-Therefore, a {branding} Catalog can also act as a federated source to another {branding} Catalog.
+${ddf-catalog} instances can also be federated to each other.
+Therefore, a ${ddf-catalog} can also act as a federated source to another ${ddf-catalog}.
 
 ==== OpenSearch Source
 
@@ -2963,11 +2961,11 @@ The OpenSearch source does not provide a Connected Source interface.
 
 ===== Installing and Uninstalling
 
-The OpenSearch source can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The OpenSearch source can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ===== Configuring
 
-This component can be configured using the normal processes described in the Configuring {branding} section.
+This component can be configured using the normal processes described in the Configuring ${branding} section.
 The configurable properties for the OpenSearch source are accessed from the Catalog OpenSearch Federated Source Configuration in the Web Console.
 
 ===== Configuring the OpenSearch Source
@@ -2993,7 +2991,7 @@ The configurable properties for the OpenSearch source are accessed from the Cata
 |OpenSearch service URL
 |`endpointUrl`
 |String
-|The OpenSearch endpoint URL, e.g., {branding}'s OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)
+|The OpenSearch endpoint URL, e.g., ${branding}'s OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query?q={searchTerms}...)
 |https://example.com?q={searchTerms}&amp;src={fs:routeTo?}&amp;mr={fs:maxResults?}&amp;count={count?}&amp;mt={fs:maxTimeout?}&amp;dn={idn:userDN?}&amp;lat={geo:lat?}&amp;lon={geo:lon?}&amp;radius={geo:radius?}&amp;bbox={geo:box?}&amp;polygon={geo:polygon?}&amp;dtstart={time:start?}&amp;dtend={time:end?}&amp;dateName={cat:dateName?}&amp;filter={fsa:filter?}&amp;sort={fsa:sort?}
 |Yes
 
@@ -3014,7 +3012,7 @@ The configurable properties for the OpenSearch source are accessed from the Cata
 |Always perform local query
 |`localQueryOnly`
 |Boolean
-|Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. *This must be set if federating to another {branding}*.
+|Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. *This must be set if federating to another ${branding}*.
 |false
 |Yes
 
@@ -3046,63 +3044,63 @@ These default settings are used if a metadata record is returned without securit
 . Find `Catalog Security Defaults`
 . Select whether or not to apply these defaults by checking or unchecking the box marked "Apply Default Security Settings."
 . If the applied defaults are selected, change the settings in the console to the default metadata security.
-.. These settings can also be changed by editing the file `<INSTALL_DIRECTORY>/etc/ddf/ddf.DefaultSiteSecurity.cfg`
+.. These settings can also be changed by editing the file `<INSTALL_DIRECTORY>/etc/${ddf-branding}/${ddf-branding}.DefaultSiteSecurity.cfg`
 . Click Save at the bottom of the configuration window (or save the file).
 
 [WARNING]
 ====
 * In the CDR Open Search Service, if one of the properties has a blank value, the "last-resort" default is U and USA.
 * If the `DefaultSiteSecurity.cfg` file is deleted, it needs to be replaced otherwise all classification values are set to "last-resort" defaults U and USA.
-* After the file is replaced, either restart {branding} or the restart the CDR Open Search Service to reload the property values.
+* After the file is replaced, either restart ${branding} or the restart the CDR Open Search Service to reload the property values.
 ====
 
 ===== Query Format
 
-====== OpenSearch Parameter to {branding} Query Mapping
+====== OpenSearch Parameter to ${branding} Query Mapping
 
 [cols="2*" options="header"]
 |===
 |OpenSearch/CDR Parameter
-|{branding} Data Location
+|${branding} Data Location
 
 |q={searchTerms}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |src={fs:routeTo?}
 |Unused
 
 |mr={fs:maxResults?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |count={count?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |mt={fs:maxTimeout?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |dn={idn:userDN?}
-|{branding} Subject
+|${branding} Subject
 
 |lat={geo:lat?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |lon={geo:lon?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |radius={geo:radius?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |bbox={geo:box?}
-|Converted from Point-Radius {branding} query.
+|Converted from Point-Radius ${branding} query.
 
 |polygon={geo:polygon?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |dtstart={time:start?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |dtend={time:end?}
-|Pulled verbatim from {branding} query.
+|Pulled verbatim from ${branding} query.
 
 |dateName={cat:dateName?}
 |Unused
@@ -3111,7 +3109,7 @@ These default settings are used if a metadata record is returned without securit
 |Unused
 
 |sort={fsa:sort?}
-|Translated from {branding} query.
+|Translated from ${branding} query.
 Format: "relevance" or "date"
 Supports "asc" and "desc" using colon as delimiter.
 
@@ -3128,7 +3126,7 @@ Supports "asc" and "desc" using colon as delimiter.
 |Service Property
 |Value
 
-|`ddf.catalog.source.FederatedSource`
+|`${ddf-branding}.catalog.source.FederatedSource`
 |
 |
 
@@ -3143,7 +3141,7 @@ Supports "asc" and "desc" using colon as delimiter.
 |Multiple
 |Filter
 
-|ddf.catalog.transform.InputTransformer
+|${ddf-branding}.catalog.transform.InputTransformer
 |required
 |false
 |(&amp;(mime-type=text/xml)(id=xml))
@@ -3156,9 +3154,9 @@ The OpenSearch source does not provide a Connected Source interface.
 
 ==== Developing a Source
 
-Sources are components that enable {branding} to talk to back-end services.
-They let {branding} perform query and ingest operations on catalog stores and query operations on federated sources.
-Sources reside in the Sources area of the {branding} Overview.
+Sources are components that enable ${branding} to talk to back-end services.
+They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.
+Sources reside in the Sources area of the ${branding} Overview.
 
 ===== Creating a New Source
 
@@ -3169,23 +3167,23 @@ All of these types of sources can perform a query operation.
 Operating on queries is the foundation for all sources.
 All of these sources must also be able to return their availability and the list of content types currently stored in their back-end data stores.
 
-* Catalog Provider - `ddf.catalog.source.CatalogProvider` +
+* Catalog Provider - `${ddf-branding}.catalog.source.CatalogProvider` +
 _Used to communicate with back-end storage. Allows for Query and Create/Update/Delete operations._
-* Federated Source - `ddf.catalog.source.FederatedSource` +
+* Federated Source - `${ddf-branding}.catalog.source.FederatedSource` +
 _Used to communicate with remote systems. Only allows query operations._
-* Connected Source - `ddf.catalog.source.ConnectedSource` +
+* Connected Source - `${ddf-branding}.catalog.source.ConnectedSource` +
 _Similar to a Federated Source with the following exceptions:_
 ** _Queried on all local queries_
-** _SiteName is hidden (masked with the {branding} sourceId) in query results_
-** _SiteService does not show this Source's information separate from {branding}'s._
+** _SiteName is hidden (masked with the ${branding} sourceId) in query results_
+** _SiteService does not show this Source's information separate from ${branding}'s._
 
 The procedure for implementing any of the source types follows a similar format:
 . Create a new class that implements the specified Source interface and `ConfiguredService`.
 . Implement the required methods.
 . Create an OSGi descriptor file to communicate with the OSGi registry. (Refer to the OSGi Services  section.)
-.. Import {branding} packages.
+.. Import ${branding} packages.
 .. Register source class as service to the OSGi registry.
-. Deploy to {branding}.
+. Deploy to ${branding}.
 [IMPORTANT]
 ====
 The `factory-pid` property of the metatype must contain one of the following in the name: service, Service, source, Source
@@ -3193,60 +3191,60 @@ The `factory-pid` property of the metatype must contain one of the following in 
 
 ===== Catalog Provider
 . Create a Java class that implements `CatalogProvider`. +
-`public class TestCatalogProvider implements ddf.catalog.source.CatalogProvider`
-. Implement the required methods from the `ddf.catalog.source.CatalogProvider` interface. +
+`public class TestCatalogProvider implements ${ddf-branding}.catalog.source.CatalogProvider`
+. Implement the required methods from the `${ddf-branding}.catalog.source.CatalogProvider` interface. +
 `public CreateResponse create(CreateRequest createRequest) throws IngestException;`
 `public UpdateResponset update(UpdateRequest updateRequest) throws IngestException;`
 `public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException;`
 
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog, ddf.catalog.source`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.source`
 . Export the service to the OSGi registry.
 
 .Blueprint example
 [source,xml]
 ----
-<service ref="[[TestCatalogProvider]]" interface="ddf.catalog.source.CatalogProvider" />
+<service ref="[[TestCatalogProvider]]" interface="${ddf-branding}.catalog.source.CatalogProvider" />
 ----
-The {branding} Integrator's Guide provides details on the following Catalog Providers that come with {branding} out of the box.
+The ${branding} Integrator's Guide provides details on the following Catalog Providers that come with ${branding} out of the box.
 
 [NOTE]
 ====
-A code example of a Catalog Provider delivered with {branding} is the Catalog Solr Embedded Provider.
+A code example of a Catalog Provider delivered with ${branding} is the Catalog Solr Embedded Provider.
 ====
 
 ===== Federated Source
 . Create a Java class that implements `FederatedSource` and `ConfiguredService`. +
-`public class TestFederatedSource implements ddf.catalog.source.FederatedSource, ddf.catalog.service.ConfiguredService`
-. Implement the required methods of the `ddf.catalog.source.FederatedSource` and `ddf.catalog.service.ConfiguredService` interfaces.
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog, ddf.catalog.source`
+`public class TestFederatedSource implements ${ddf-branding}.catalog.source.FederatedSource, ${ddf-branding}.catalog.service.ConfiguredService`
+. Implement the required methods of the `${ddf-branding}.catalog.source.FederatedSource` and `${ddf-branding}.catalog.service.ConfiguredService` interfaces.
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.source`
 . Export the service to the OSGi registry.
 
 .Blueprint example
 [source,xml]
 ----
-<service ref="[[TestFederatedSource]]" interface="ddf.catalog.source.FederatedSource" />
+<service ref="[[TestFederatedSource]]" interface="${ddf-branding}.catalog.source.FederatedSource" />
 ----
 
 [NOTE]
 ====
-A code example of a Federated Source delivered with {branding} can be found in `ddf.catalog.source.solr`
+A code example of a Federated Source delivered with ${branding} can be found in `${ddf-branding}.catalog.source.solr`
 ====
 
 ===== Connected Source
 
 . Create a Java class that implements `ConnectedSource` and `ConfiguredService`. +
-`public class TestConnectedSource implements ddf.catalog.source.ConnectedSource, ddf.catalog.service.ConfiguredService`
-. Implement the required methods of the `ddf.catalog.source.ConnectedSource` and `ddf.catalog.service.ConfiguredService` interfaces.
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog, ddf.catalog.source`
+`public class TestConnectedSource implements ${ddf-branding}.catalog.source.ConnectedSource, ${ddf-branding}.catalog.service.ConfiguredService`
+. Implement the required methods of the `${ddf-branding}.catalog.source.ConnectedSource` and `${ddf-branding}.catalog.service.ConfiguredService` interfaces.
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.source`
 . Export the service to the OSGi registry.
 
 .Blueprint example
 [source,xml,linenums]
 ----
-<service ref="[[TestConnectedSource]]" interface="ddf.catalog.source.ConnectedSource" />
+<service ref="[[TestConnectedSource]]" interface="${ddf-branding}.catalog.source.ConnectedSource" />
 ----
 [IMPORTANT]
 ====
@@ -3281,12 +3279,12 @@ Delegate methods will be called in a depth first order as the Filter Adapter vis
 ===== Implementing the Filter Delegate
 
 . Create a Java class extending `FilterDelegate`. +
-`public class ExampleDelegate extends ddf.catalog.filter.FilterDelegate<ExampleReturnObjectType> {`
-. `FilterDelegate` will throw an appropriate exception for all methods not implemented.  Refer to the {branding} JavaDoc for more details about what is expected of each `FilterDelegate` method.
+`public class ExampleDelegate extends ${ddf-branding}.catalog.filter.FilterDelegate<ExampleReturnObjectType> {`
+. `FilterDelegate` will throw an appropriate exception for all methods not implemented.  Refer to the ${branding} JavaDoc for more details about what is expected of each `FilterDelegate` method.
 
 [NOTE]
 ====
-A code example of a Filter Delegate can be found in `ddf.catalog.filter.proxy.adapter.test` of the `filter-proxy` bundle.
+A code example of a Filter Delegate can be found in `${ddf-branding}.catalog.filter.proxy.adapter.test` of the `filter-proxy` bundle.
 ====
 
 ===== Throwing Exceptions
@@ -3299,7 +3297,7 @@ The FilterAdapter can be requested from the OSGi registry.
 
 [source,xml]
 ----
-<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
+<reference id="filterAdapter" interface="${ddf-branding}.catalog.filter.FilterAdapter" />
 ----
 
 The Query in a QueryRequest implements the Filter interface.
@@ -3308,20 +3306,20 @@ The Query can be passed to a `FilterAdapter` and `FilterDelegate` to process the
 [source,java,linenums]
 ----
 @Override
-public ddf.catalog.operation.QueryResponse query(ddf.catalog.operation.QueryRequest queryRequest)
-    throws ddf.catalog.source.UnsupportedQueryException {
+public ${ddf-branding}.catalog.operation.QueryResponse query(${ddf-branding}.catalog.operation.QueryRequest queryRequest)
+    throws ${ddf-branding}.catalog.source.UnsupportedQueryException {
 
-    ddf.catalog.operation.Query query = queryRequest.getQuery();
+    ${ddf-branding}.catalog.operation.Query query = queryRequest.getQuery();
 
-    ddf.catalog.filter.FilterDelegate<ExampleReturnObjectType> delegate = new ExampleDelegate();
+    ${ddf-branding}.catalog.filter.FilterDelegate<ExampleReturnObjectType> delegate = new ExampleDelegate();
 
-    // ddf.catalog.filter.FilterAdapter adapter injected via Blueprint
+    // ${ddf-branding}.catalog.filter.FilterAdapter adapter injected via Blueprint
     ExampleReturnObjectType result = adapter.adapt(query, delegate);
 }
 ----
 
-Import the {branding} Catalog API Filter package and the reference implementation package of the Filter Adapter in the bundle manifest  (in addition to any other required packages). +
-`Import-Package: ddf.catalog, ddf.catalog.filter, ddf.catalog.source`
+Import the ${ddf-catalog} API Filter package and the reference implementation package of the Filter Adapter in the bundle manifest  (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.filter, ${ddf-branding}.catalog.source`
 
 ===== Filter Support
 
@@ -3401,7 +3399,7 @@ Transformers can be categorized on the basis of when they are invoked and used.
 The existing types are Input transformers, Metacard transformers, and Query Response transformers.
 Additionally, XSLT transformers are provided to aid in developing custom, lightweight Metacard and Query Response transformers.
 
-Transformers are utility objects used to transform a set of standard {branding} components into a desired format, such as into PDF, GeoJSON, XML, or any other format.
+Transformers are utility objects used to transform a set of standard ${branding} components into a desired format, such as into PDF, GeoJSON, XML, or any other format.
 For instance, a transformer can be used to convert a set of query results into an easy-to-read GeoJSON format (GeoJSON Transformer) or convert a set of results into a RSS feed that can be easily published to a URL for RSS feed subscription.
 A major benefit of transformers is that they can be registered in the OSGi Service Registry so that any other developer can access them based on their standard interface and self-assigned identifier, referred to as its "shortname."
 Transformers are often used by endpoints for data conversion in a system standard way.
@@ -3464,7 +3462,7 @@ It is recommend not to use international character sets as they may not be displ
 
 ==== Working with Transformers
 
-The `ddf.catalog.transform` package includes the `InputTransformer`, `MetacardTransformer`, and `QueryResponseTransformer` interfaces.
+The `${ddf-branding}.catalog.transform` package includes the `InputTransformer`, `MetacardTransformer`, and `QueryResponseTransformer` interfaces.
 All implementations can be accessed using the Catalog Framework or OSGi Service Registry, as long as the implementations have been registered with the Service Registry.
 
 ==== Catalog Framework
@@ -3515,7 +3513,7 @@ Using Blueprint or another injection framework, transformers can be injected fro
 .Blueprint Service Reference
 [source,xml]
 ----
-<reference id="[[Reference Id]]" interface="ddf.catalog.transform.[[Transformer Interface Name]]" filter="(shortname=[[Transformer Identifier]])" />
+<reference id="[[Reference Id]]" interface="${ddf-branding}.catalog.transform.[[Transformer Interface Name]]" filter="(shortname=[[Transformer Identifier]])" />
 ----
 
 Each transformer has one or more `transform` methods that can be used to get the desired output.
@@ -3523,7 +3521,7 @@ Each transformer has one or more `transform` methods that can be used to get the
 .Input Transformer Example
 [source,java,linenums]
 ----
-ddf.catalog.transform.InputTransformer inputTransformer = retrieveInjectedInstance() ;
+${ddf-branding}.catalog.transform.InputTransformer inputTransformer = retrieveInjectedInstance() ;
 
 Metacard entry = inputTransformer.transform(messageInputStream);
 ----
@@ -3531,7 +3529,7 @@ Metacard entry = inputTransformer.transform(messageInputStream);
 .Metacard Transformer Example
 [source,java,linenums]
 ----
-ddf.catalog.transform.MetacardTransformer metacardTransformer = retrieveInjectedInstance() ;
+${ddf-branding}.catalog.transform.MetacardTransformer metacardTransformer = retrieveInjectedInstance() ;
 
 BinaryContent content = metacardTransformer.transform(metacard, arguments);
 ----
@@ -3539,7 +3537,7 @@ BinaryContent content = metacardTransformer.transform(metacard, arguments);
 .Query Response Transformer Example
 [source,java,linenums]
 ----
-ddf.catalog.transform.QueryResponseTransformer queryResponseTransformer = retrieveInjectedInstance() ;
+${ddf-branding}.catalog.transform.QueryResponseTransformer queryResponseTransformer = retrieveInjectedInstance() ;
 
 BinaryContent content = queryResponseTransformer.transform(sourceSesponse, arguments);
 ----
@@ -3559,7 +3557,7 @@ Using a `BundleContext` and a filter, references to a registered service can be 
 [source,java,linenums]
 ----
 ServiceReference[] refs =
-    bundleContext.getServiceReferences(ddf.catalog.transform.InputTransformer.class.getName(),"(shortname=" + transformerId + ")");
+    bundleContext.getServiceReferences(${ddf-branding}.catalog.transform.InputTransformer.class.getName(),"(shortname=" + transformerId + ")");
 InputTransformer inputTransformer = (InputTransformer) context.getService(refs[0]);
 Metacard entry = inputTransformer.transform(messageInputStream);
 ----
@@ -3570,14 +3568,14 @@ An input transformer transforms raw data (text/binary) into a Metacard.
 
 Once converted to a Metacard, the data can be used in a variety of ways, such as in an `UpdateRequest`, `CreateResponse`, or within Catalog Endpoints or Sources.
 For instance, an input transformer could be used to receive and translate XML into a Metacard so that it can be placed within a `CreateRequest` in order to be ingested within the Catalog.
-Input transformers should be registered within the Service Registry with the interface `ddf.catalog.transform.InputTransformer` in order to notify some Catalog components of any new transformers.
+Input transformers should be registered within the Service Registry with the interface `${ddf-branding}.catalog.transform.InputTransformer` in order to notify some Catalog components of any new transformers.
 
 ===== Tika Input Transformer
 
 The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into a Catalog Metacard.
 This input transformer utilizes Apache Tika to provide basic support for these mime types.
 As such, the metadata extracted from these types of documents is the metadata that is common across all of these document types, e.g., creation date, author, last modified date, etc.
-The Tika Input Transformer's main purpose is to ingest these types of content into the {branding} Content Repository and the Metadata Catalog.
+The Tika Input Transformer's main purpose is to ingest these types of content into the ${branding} Content Repository and the Metadata Catalog.
 
 The Tika input transformer is given a service ranking (prioity) of -1 so that it is guaranteed to be the last input transformer that is invoked.
 This allows any registered input transformer that are more specific for any of these document types to be invoked instead of this rudimentary default input transformer.
@@ -3592,7 +3590,7 @@ This feature is uninstalled by default.
 None
 
 ====== Using
-Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice documents, or PDF documents into the {branding} Content Repository and/or the Metadata Catalog.
+Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice documents, or PDF documents into the ${branding} Content Repository and/or the Metadata Catalog.
 
 ====== Service Properties
 
@@ -3755,7 +3753,7 @@ Only Required Attributes are recognized in the properties currently.
 
 ====== Metacard Extensibility
 
-GeoJSON supports custom, extensible properties on the incoming GeoJSON using {branding}'s extensible metacard support.
+GeoJSON supports custom, extensible properties on the incoming GeoJSON using ${branding}'s extensible metacard support.
 To have those customized attributes understood by the system, a corresponding `MetacardType` must be registered with the `MetacardTypeRegistry`.
 That `MetacardType` must be specified by name in the metacard-type property of the incoming GeoJSON.
 If a `MetacardType` is specified on the GeoJSON input, the customized properties can be processed, cataloged, and indexed.
@@ -3774,7 +3772,7 @@ If a `MetacardType` is specified on the GeoJSON input, the customized properties
         "modified": "2012-09-01T00:09:19.368+0000",
         "min-frequency": "10000000",
         "max-frequency": "20000000",
-        "metacard-type": "ddf.metacard.custom.type"
+        "metacard-type": "${ddf-branding}.metacard.custom.type"
  },
     "type": "Feature",
     "geometry": {
@@ -3805,7 +3803,7 @@ _Services_
 
 _Exported Services_
 
-.ddf.catalog.transform.InputTransformer
+.${ddf-branding}.catalog.transform.InputTransformer
 [cols="2"]
 |===
 
@@ -3826,7 +3824,7 @@ _Exported Services_
 |Service Property
 |Value
 
-|`ddf.catalog.transform.InputTransformer`
+|`${ddf-branding}.catalog.transform.InputTransformer`
 |mime-type
 |application/json
 
@@ -3844,20 +3842,20 @@ Does not handle multiple geometries yet.
 
 ===== Using Java
 
-. Create a new Java class that implements ddf.catalog.transform.InputTransformer. +
-`public class SampleInputTransformer implements ddf.catalog.transform.InputTransformer`
+. Create a new Java class that implements ${ddf-branding}.catalog.transform.InputTransformer. +
+`public class SampleInputTransformer implements ${ddf-branding}.catalog.transform.InputTransformer`
 . Implement the transform methods. +
 `public Metacard transform(InputStream input) throws IOException, CatalogTransformerException` +
 `public Metacard transform(InputStream input, String id) throws IOException, CatalogTransformerException`
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.transform`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.transform`
 . Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in the Working with OSGi section). Export the service to the OSGi Registry and declare service properties.
 
 .Blueprint descriptor example
 [source,xml,linenums]
 ----
 ...
-<service ref="[[SampleInputTransformer]]" interface="ddf.catalog.transform.InputTransformer">
+<service ref="[[SampleInputTransformer]]" interface="${ddf-branding}.catalog.transform.InputTransformer">
     <service-properties>
         <entry key="shortname" value="[[sampletransform]]" />
         <entry key="title" value="[[Sample Input Transformer]]" />
@@ -3921,7 +3919,7 @@ When using *to* `catalog:inputtransformer?id=text/xml`, an Input Transformer wit
 
 |Response (returned after called via `<to>` in the route)
 |body
-|`ddf.catalog.data.Metacard`
+|`${ddf-branding}.catalog.data.Metacard`
 
 |===
 
@@ -3962,7 +3960,7 @@ This will ensure that the value is taken exactly as is, and is especially useful
 |Defines start of an Apache Camel route.
 
 |4
-|Defines the endpoint/consumer for the route. In this case it is the {branding} custom catalog component that is an InputTransformer registered with an id of text/xml;id=vehicle meaning it can transform an InputStream of vehicle data into a metacard.
+|Defines the endpoint/consumer for the route. In this case it is the ${branding} custom catalog component that is an InputTransformer registered with an id of text/xml;id=vehicle meaning it can transform an InputStream of vehicle data into a metacard.
 
 *Note that the specified XSL stylesheet must be on the classpath of the bundle that this blueprint file is packaged in.*
 
@@ -3970,12 +3968,12 @@ This will ensure that the value is taken exactly as is, and is especially useful
 |Defines the XSLT to be used to transform the vehicle input into GeoJSON format using the Apache Camel provided XSLT component.
 
 |6
-Defines the route node that accepts GeoJSON formatted input and transforms it into a Mmtacard, using the {branding} custom catalog component that is an InputTransformer registered with an id of application/json;id=geojson.
+Defines the route node that accepts GeoJSON formatted input and transforms it into a Mmtacard, using the ${branding} custom catalog component that is an InputTransformer registered with an id of application/json;id=geojson.
 |===
 
 [NOTE]
 ====
-An example of using an Apache Camel route to define an `InputTransformer` in a blueprint file and deploying it as a bundle to an OSGi container can be found in the {branding} SDK examples at `ddf/sdk/sample-transformers/xslt-identity-input-transformer`
+An example of using an Apache Camel route to define an `InputTransformer` in a blueprint file and deploying it as a bundle to an OSGi container can be found in the ${branding} SDK examples at `${ddf-branding}/sdk/sample-transformers/xslt-identity-input-transformer`
 ====
 
 ==== Included Metacard InputTransformers
@@ -4011,7 +4009,7 @@ html metacard.png
 |Service Property
 |Value
 
-1.3+^|`ddf.catalog.transform.MetacardTransformer`
+1.3+^|`${ddf-branding}.catalog.transform.MetacardTransformer`
 |title
 |View as html...
 |description
@@ -4126,7 +4124,7 @@ http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transfor
         "metadata-content-type":"myType",
         "metadata":"<xml>text<\/xml>",
         "modified":"2012-08-31T23:55:19.518+0000",
-        "metacard-type": "ddf.metacard"
+        "metacard-type": "${ddf-branding}.metacard"
     },
     "type":"Feature",
     "geometry":{
@@ -4157,7 +4155,7 @@ http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transfor
 |Service Property
 |Value
 
-1.3+^|`ddf.catalog.transform.MetacardTransformer`
+1.3+^|`${ddf-branding}.catalog.transform.MetacardTransformer`
 |mime-type
 |application/json
 
@@ -4193,7 +4191,7 @@ Endpoints or other components can retrieve an instance of the Thumbnail Metacard
 .Sample Blueprint Reference Snippet
 [source,xml,linenums]
 ----
-<reference id="metacardTransformer" interface="ddf.catalog.transform.MetacardTransformer" filter="(id=thumbnail)"/>
+<reference id="metacardTransformer" interface="${ddf-branding}.catalog.transform.MetacardTransformer" filter="(id=thumbnail)"/>
 ----
 
 The Thumbnail Metacard Transformer returns a `BinaryContent` object of the `Metacard.THUMBNAIL` bytes and a MIME Type of `image/jpeg`.
@@ -4251,7 +4249,7 @@ http://localhost:8181/services/catalog/0123456789abcdef0123456789abcdef?transfor
 |Service Property
 |Value
 
-1.3+^|`ddf.catalog.transform.MetacardTransformer`
+1.3+^|`${ddf-branding}.catalog.transform.MetacardTransformer`
 
 |mime-type
 |`text/xml`
@@ -4287,7 +4285,7 @@ Endpoints or other components can retrieve an instance of the Resource Metacard 
 .Sample Blueprint Reference Snippet
 [source,xml]
 ----
-<reference id="metacardTransformer" interface="ddf.catalog.transform.MetacardTransformer" filter="(id=resource)"/>
+<reference id="metacardTransformer" interface="${ddf-branding}.catalog.transform.MetacardTransformer" filter="(id=resource)"/>
 ----
 
 ===== Implementation Details
@@ -4321,19 +4319,19 @@ Programmatically, a `MetacardTransformer` transforms a `Metacard` into a `Binary
 Metacard transformers can be used through the Catalog Framework `transform` convenience method or requested from the OSGi Service Registry by endpoints or other bundles.
 
 ===== Create a New Metacard Transformer
-. Create a new Java class that implements `ddf.catalog.transform.MetacardTransformer`. +
-`public class SampleMetacardTransformer implements ddf.catalog.transform.MetacardTransformer`
+. Create a new Java class that implements `${ddf-branding}.catalog.transform.MetacardTransformer`. +
+`public class SampleMetacardTransformer implements ${ddf-branding}.catalog.transform.MetacardTransformer`
 . Implement the transform method. +
 `public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments) throws CatalogTransformerException`
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog,ddf.catalog.transform`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog,${ddf-branding}.catalog.transform`
 . Create an OSGi descriptor file to communicate with the OSGi Service registry (described in the Working with OSGi section). Export the service to the OSGi registry and declare service properties.
 
 .Blueprint descriptor example
 [source,xml,linenums]
 ----
 ...
-<service ref="[[SampleMetacardTransformer]]" interface="ddf.catalog.transform.MetacardTransformer">
+<service ref="[[SampleMetacardTransformer]]" interface="${ddf-branding}.catalog.transform.MetacardTransformer">
     <service-properties>
         <entry key="shortname" value="[[sampletransform]]" />
         <entry key="title" value="[[Sample Metacard Transformer]]" />
@@ -4395,7 +4393,7 @@ The client can query with the format option set to the shortname, atom.
 
 .Sample OpenSearch query with Atom specified as return format
 ----
-http://localhost:8181/services/catalog/query?q=ddf?format=atom
+http://localhost:8181/services/catalog/query?q=${ddf-branding}?format=atom
 ----
 
 Developers could use this transformer to programmatically transform `QueryResponse` objects on the fly.
@@ -4413,19 +4411,19 @@ Developers could use this transformer to programmatically transform `QueryRespon
     <author>
         <name>Lockheed Martin</name>
     </author>
-    <generator version="2.1.0.20130129-1341">ddf123</generator>
+    <generator version="2.1.0.20130129-1341">${ddf-branding}123</generator>
     <os:totalResults>1</os:totalResults>
     <os:itemsPerPage>10</os:itemsPerPage>
     <os:startIndex>1</os:startIndex>
     <entry xmlns:relevance="http://a9.com/-/opensearch/extensions/relevance/1.0/" xmlns:fs="http://a9.com/-/opensearch/extensions/federation/1.0/"
         xmlns:georss="http://www.georss.org/georss">
-        <fs:resultSource fs:sourceId="ddf123" />
+        <fs:resultSource fs:sourceId="${ddf-branding}123" />
         <relevance:score>0.19</relevance:score>
         <id>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</id>
         <title type="text">F-15 lands in Libya; Crew Picked Up</title>
         <updated>2013-01-31T23:22:31.648Z</updated>
         <published>2013-01-31T23:22:31.648Z</published>
-        <link href="http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09" rel="alternate" title="View Complete Metacard" />
+        <link href="http://123.45.67.123:8181/services/catalog/${ddf-branding}123/ee7a161e01754b9db1872bfe39d1ea09" rel="alternate" title="View Complete Metacard" />
         <category term="Resource" />
         <georss:where xmlns:gml="http://www.opengis.net/gml">
             <gml:Point>
@@ -4435,8 +4433,8 @@ Developers could use this transformer to programmatically transform `QueryRespon
         <content type="application/xml">
             <ns3:metacard xmlns:ns3="urn:catalog:metacard" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns1="http://www.opengis.net/gml"
                 xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns1:id="4535c53fc8bc4404a1d32a5ce7a29585">
-                <ns3:type>ddf.metacard</ns3:type>
-                <ns3:source>ddf.distribution</ns3:source>
+                <ns3:type>${ddf-branding}.metacard</ns3:type>
+                <ns3:source>${ddf-branding}.distribution</ns3:source>
                 <ns3:geometry name="location">
                     <ns3:value>
                         <ns1:Point>
@@ -4535,7 +4533,7 @@ Developers could use this transformer to programmatically transform `QueryRespon
 |GeoRSS GML of every Metacard attribute with format `AttributeFormat.GEOMETRY`
 
 |`/feed/entry/content`
-|Metacard XML generated by `ddf.catalog.transform.MetacardTransformer` with `shortname=xml`.
+|Metacard XML generated by `${ddf-branding}.catalog.transform.MetacardTransformer` with `shortname=xml`.
 If no transformer found, `/feed/entry/content/@type` will be text and `Metacard.ID` is displayed
 
 .Sample Content with no Metacard Transformation
@@ -4573,7 +4571,7 @@ http://localhost:8181/services/catalog/query?q=input?format=xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns3:metacards xmlns:ns1="http://www.opengis.net/gml" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns3="urn:catalog:metacard" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language">
     <ns3:metacard ns1:id="000ba4dd7d974e258845a84966d766eb">
-        <ns3:type>ddf.metacard</ns3:type>
+        <ns3:type>${ddf-branding}.metacard</ns3:type>
         <ns3:source>southwestCatalog1</ns3:source>
         <ns3:dateTime name="created">
           <ns3:value>2013-04-10T15:30:05.702-07:00</ns3:value>
@@ -4583,7 +4581,7 @@ http://localhost:8181/services/catalog/query?q=input?format=xml
         </ns3:string>
     </ns3:metacard>
     <ns3:metacard ns1:id="00c0eb4ba9b74f8b988ef7060e18a6a7">
-        <ns3:type>ddf.metacard</ns3:type>
+        <ns3:type>${ddf-branding}.metacard</ns3:type>
         <ns3:source>southwestCatalog1</ns3:source>
         <ns3:dateTime name="created">
           <ns3:value>2013-04-10T15:30:05.702-07:00</ns3:value>
@@ -4603,7 +4601,7 @@ http://localhost:8181/services/catalog/query?q=input?format=xml
 |Service Property
 |Value
 
-1.3+^|`ddf.catalog.transform.QueryResponseTransformer`
+1.3+^|`${ddf-branding}.catalog.transform.QueryResponseTransformer`
 
 |`shortname`
 |xml
@@ -4746,19 +4744,19 @@ Query Response Transformers can be used through the Catalog `transform` convenie
 
 ==== Create a New Query Response Transformer
 
-. Create a new Java class that implements `ddf.catalog.transform.QueryResponseTransformer`. +
-`public class SampleResponseTransformer implements ddf.catalog.transform.QueryResponseTransformer`
+. Create a new Java class that implements `${ddf-branding}.catalog.transform.QueryResponseTransformer`. +
+`public class SampleResponseTransformer implements ${ddf-branding}.catalog.transform.QueryResponseTransformer`
 . Implement the transform method. +
 `public BinaryContent transform(SourceResponse upstreamResponse, Map<String, Serializable> arguments) throws CatalogTransformerException`
-. Import the {branding} interface packages to the bundle manifest (in addition to any other required packages). +
-`Import-Package: ddf.catalog, ddf.catalog.transform`
+. Import the ${branding} interface packages to the bundle manifest (in addition to any other required packages). +
+`Import-Package: ${ddf-branding}.catalog, ${ddf-branding}.catalog.transform`
 . Create an OSGi descriptor file to communicate with the OSGi Service Registry (described in the Working with OSGi section). Export the service to the OSGi registry and declare service properties.
 
 .Blueprint descriptor example
 [source,xml,linenums]
 ----
 ...
-<service ref="[[SampleResponseTransformer]]" interface="ddf.catalog.transform.QueryResponseTransformer">
+<service ref="[[SampleResponseTransformer]]" interface="${ddf-branding}.catalog.transform.QueryResponseTransformer">
     <service-properties>
         <entry key="shortname" value="[[sampletransform]]" />
         <entry key="title" value="[[Sample Response Transformer]]" />
@@ -4800,7 +4798,7 @@ Query Response Transformers can be used through the Catalog `transform` convenie
 
 The XSLT Transformer Framework allows developers to create light-weight Query Response Transformers and Metacard Transformers using only a bundle header and XSLT files.
 The XSLT Transformer Framework registers bundles, following the XSLT Transformer Framework bundle pattern, as new transformer services.
-The `service-xslt-transformer` feature is part of the {branding} core.
+The `service-xslt-transformer` feature is part of the ${branding} core.
 
 ===== Examples
 
@@ -4810,7 +4808,7 @@ Examples of XSLT Transformers using the XSLT Transformer Framework include `serv
 
 The XSLT Transformer Framework allows developers to create light-weight Query Response Transformers using only a bundle header and XSLT files.
 The XSLT Transformer Framework registers bundles, following the XSLT Transformer Framework bundle pattern, as new transformer services.
-The `service-xslt-transformer` feature is part of the {branding} core.
+The `service-xslt-transformer` feature is part of the ${branding} core.
 
 ===== Examples
 
@@ -4826,7 +4824,7 @@ Examples of XSLT Transformers using the XSLT Transformer Framework include `serv
 ===== Bundle POM Configuration
 
 Configure the Maven project to create an OSGi bundle using the `maven-bundle-plugin`.
-Change the {branding}-Mime-Type to match the MIME type of the transformer output.
+Change the ${branding}-Mime-Type to match the MIME type of the transformer output.
 
 .Example POM file
 [source,xml,linenums]
@@ -4865,14 +4863,14 @@ The name of the XSLT file will be used as the transformer's shortname.
 // Metacard Transformer
 <bundle root>
     /OSGI-INF
-        /ddf
+        /${ddf-branding}
             /xslt-metacard-transformer
                 /<transformer shortname>.[xsl|xslt]
 
 // Query Response Transformer
 <bundle root>
     /OSGI-INF
-        /ddf
+        /${ddf-branding}
             /xslt-response-queue-transformer
                 /<transformer shortname>.[xsl|xslt]
 ----
@@ -4925,10 +4923,10 @@ The `Map<String, Serializable>` arguments from the transform method parameters i
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>services</artifactId>
-    <groupId>ddf</groupId>
+    <groupId>${ddf-branding}</groupId>
     <version>[[DDF release version]]</version>
   </parent>
-  <groupId>ddf.services</groupId>
+  <groupId>${ddf-branding}.services</groupId>
   <artifactId>service-rss-transformer</artifactId>
 
   <build>
@@ -4964,7 +4962,7 @@ The `Map<String, Serializable>` arguments from the transform method parameters i
 
 |===
 
-. Add `service-rss-transformer/src/main/resources/OSGI-INF/ddf/xslt-response-queue-transformer/rss.xsl`.
+. Add `service-rss-transformer/src/main/resources/OSGI-INF/${ddf-branding}/xslt-response-queue-transformer/rss.xsl`.
 The transformer will be a Query Response Transformer with the shortname `rss` based on the XSL filename and path.
 . Add the following XSL to the new file.
 
@@ -5050,7 +5048,7 @@ The transformer will be a Query Response Transformer with the shortname `rss` ba
 
 === Extending Federation
 
-Federation provides the capability to extend the {branding} enterprise to include Remote Sources, which may include other instances of {branding}. 
+Federation provides the capability to extend the ${branding} enterprise to include Remote Sources, which may include other instances of ${branding}. 
 The Catalog handles all aspects of federated queries as they are sent to the Catalog Provider and Remote Sources, processed, and the query results are returned.
 Queries can be scoped to include only the local Catalog Provider (and any Connected Sources), only specific Federated Sources, or the
 entire enterprise (which includes all local and Remote Sources).
@@ -5173,9 +5171,9 @@ The Catalog Federation Strategy configuration can be found in the admin console 
 
 |`maxStartIndex`
 |Integer
-|The maximum query offset number (any number from 1 to unlimited). Setting the number too high would allow offset queries that could result in an out of memory error because the {branding} will cycle through all records in memory. Things to consider when setting this value are:
+|The maximum query offset number (any number from 1 to unlimited). Setting the number too high would allow offset queries that could result in an out of memory error because the ${branding} will cycle through all records in memory. Things to consider when setting this value are:
 
-* How much memory is allocated to the {branding} Server
+* How much memory is allocated to the ${branding} Server
 * How many sites are being federated with.
 
 |50000
@@ -5211,7 +5209,7 @@ The Catalog Federation Strategy configuration can be found in the admin console 
 |===
 
 |Managed Service PID
-|`ddf.catalog.federation.impl.CachingFederationStrategy`
+|`${ddf-branding}.catalog.federation.impl.CachingFederationStrategy`
 
 |Managed Service Factory PID
 |N/A
@@ -5226,17 +5224,17 @@ Notably, the Catalog allows event evaluation on both the previous value (if avai
 To better understand why this would be useful, suppose that there has been increased pirating activity off the coast of Somalia. 
 Because of these events, a group of intelligence analysts is interested in determining the reason for the heightened activity and discovering its cause.
 To do this, analysts need to monitor interesting events occurring in that area. 
-Without {branding} Eventing, the analysts would need to repeatedly query for any records of events or intelligence gathered in that area. 
+Without ${branding} Eventing, the analysts would need to repeatedly query for any records of events or intelligence gathered in that area. 
 Analysts would have to monitor changes or anything of interest. 
-However, with {branding} Eventing, the analysts can create a subscription indicating criteria for the types of intelligence of interest. 
+However, with ${branding} Eventing, the analysts can create a subscription indicating criteria for the types of intelligence of interest. 
 In this scenario, analysts could specify interest in metacards added, updated, or deleted that describe data obtained around the coast of Somalia. 
-Through this subscription, {branding} will send event notifications back to the team of analysts containing metadata of interest. 
+Through this subscription, ${branding} will send event notifications back to the team of analysts containing metadata of interest. 
 Furthermore, they could filter the records not only spatially, but by any other criteria that would zero in on the most interesting records. 
 For example, a fishing company that has operated ships peacefully in the same region for a long time may not be interesting. 
 To exclude metadata about that company, analysts may add contextual criteria indicating to return only records containing the keyword "pirate." 
 With the subscription in place, analysts will only be notified of metadata related to the pirating activity, giving them better situational awareness.
 
-The key components of {branding} Eventing include:
+The key components of ${branding} Eventing include:
 
 * Subscription
 * Delivery Method
@@ -5349,7 +5347,7 @@ The Delivery Method's operations subsequently invoke the corresponding operation
 ===== Standard Event Processor
 
 The Standard Event Processor is an implementation of the Event Processor and provides the ability to create/delete subscriptions.
-Events are generated by the {branding} Catalog Framework as metacards are created/updated/deleted and the Standard Event Processor is called since it is also a Post-Ingest Plugin.
+Events are generated by the ${ddf-catalog}Framework as metacards are created/updated/deleted and the Standard Event Processor is called since it is also a Post-Ingest Plugin.
 The Standard Event Processor checks each event against each subscription's criteria.
 
 When an event matches a subscription's criteria the Standard Event Processor:
@@ -5369,7 +5367,7 @@ It should only broadcast events that were generated locally, all other events sh
 
 ==== Fanout Event Processor
 
-The Fanout Event Processor is used when {branding} is configured as a fanout proxy.
+The Fanout Event Processor is used when ${branding} is configured as a fanout proxy.
 The only difference between the Fanout Event Processor and the Standard Event Processor is that the source ID in the metacard of each event is overridden with the fanout's source ID.
 This is done to hide the source names of the Remote Sources in the fanout's enterprise.
 Otherwise, the Fanout Event Processor functions exactly like the Standard Event Processor. 
@@ -5386,13 +5384,13 @@ None
 
 ===== Creating a Subscription
 
-====== Using {branding} Implementation
+====== Using ${branding} Implementation
 
-If applicable, the implementation of `Subscription` that comes with {branding} should be used.
-It is available at `ddf.catalog.event.impl.SubscriptionImpl` and offers a constructor that takes in all of the necessary objects.
+If applicable, the implementation of `Subscription` that comes with ${branding} should be used.
+It is available at `${ddf-branding}.catalog.event.impl.SubscriptionImpl` and offers a constructor that takes in all of the necessary objects.
 Specifically, all that is needed is a `Filter`, `DeliveryMethod`, `Set<String>` of source IDs, and a `boolean` for enterprise.
 
-The following is an example code stub showing how to create a new instance of Subscription using the {branding} implementation. 
+The following is an example code stub showing how to create a new instance of Subscription using the ${branding} implementation. 
 
 [source,java,linenums]
 ----
@@ -5415,14 +5413,14 @@ Subscription subscription = new SubscriptionImpl(filter, deliveryMethod, sourceI
 
 ====== Creating a Custom Implementation
 
-To create a subscription in {branding} the developer needs to implement the `ddf.catalog.event.Subscription` interface. 
+To create a subscription in ${branding} the developer needs to implement the `${ddf-branding}.catalog.event.Subscription` interface. 
 This interface extends `org.opengis.filter.Filter` in order to represent the subscription's filter criteria. 
 Furthermore, the `Subscription` interface contains a `DeliveryMethod` implementation.  
 
 When implementing `Subscription`, the developer will need to override the methods `accept` and `evaluate` from the `Filter`. 
 The `accept` method allows the visitor pattern to be applied to the `Subscription`. 
 A `FilterVisitor` can be passed into this method in order to process the `Subscription's Filter`.
-In {branding}, this method is used to convert the `Subscription's Filter` into a predicate format that is understood by the Event Processor. 
+In ${branding}, this method is used to convert the `Subscription's Filter` into a predicate format that is understood by the Event Processor. 
 The second method inherited from `Filter` is `evaluate`. 
 This method is used to evaluate an object against the `Filter`'s criteria in order to determine if it matches the criteria. 
 
@@ -5436,7 +5434,7 @@ This class is called when the an event occurs that matches the filter of the sub
 
 The other two methods required because `Subscription` implements `Federatable` are `isEnterprise` and `getSourceIds`, which indicate that the subscription should watch for events occurring on all sources in the enterprise or on specified sources. 
 
-The following is an implementation stub of `Subscription` that comes with {branding} and is available at `ddf.catalog.event.impl.SubscriptionImpl`.
+The following is an implementation stub of `Subscription` that comes with ${branding} and is available at `${ddf-branding}.catalog.event.impl.SubscriptionImpl`.
 
 .SubscriptionImpl
 [source,java,linenums]
@@ -5487,7 +5485,7 @@ public class SubscriptionImpl implements Subscription {
 
 ==== Registering a Subscription
 
-Once a `Subscription` is created, it needs to be registered in the OSGi Service Registry as a `ddf.catalog.event.Subscription` service. 
+Once a `Subscription` is created, it needs to be registered in the OSGi Service Registry as a `${ddf-branding}.catalog.event.Subscription` service. 
 This is necessary for the `Subscription` to be discovered by the Event Processor. 
 Typically, this is done in code after the `Subscription` is instantiated. 
 When the `Subscription` is registered, a unique ID will need to be specified using the key `subscription-id`.
@@ -5511,14 +5509,14 @@ properties.put("subscription-id", subscriptionId);
 
 // Service registration requires an instance of the OSGi bundle context
 // Register subscription and keep track of the service registration
-ServiceRegistration<Subscription> serviceRegistration = context.registerService(ddf.catalog.event.Subscription.class, subscription, properties );
+ServiceRegistration<Subscription> serviceRegistration = context.registerService(${ddf-branding}.catalog.event.Subscription.class, subscription, properties );
 subscriptions.put(subscriptionId, serviceRegistration);
 ----
 
 ==== Creating a Delivery Method
 
 The Event Processor obtains the subscription's `DeliveryMethod` and invokes one of its four methods when an event occurs. 
-The `DeliveryMethod` then handles that invocation and communicates an event to a specified consumer service outside of {branding}.
+The `DeliveryMethod` then handles that invocation and communicates an event to a specified consumer service outside of ${branding}.
 
 The Event Processor calls the `DeliveryMethod`'s`created` method when a new metacard matching the filter criteria is added to the Catalog. 
 It calls the `deleted` method when a metacard that matched the filter criteria is removed from the Catalog. 
@@ -5561,7 +5559,7 @@ public class DeliveryMethodImpl implements DeliveryMethod {
 
 ==== Deleting a Subscription
 
-To remove a subscription from {branding}, the subscription ID is required.
+To remove a subscription from ${branding}, the subscription ID is required.
 Once this is provided, the `ServiceRegistration` for the indicated `Subscription` should be obtained from the `Subscriptions` Map.
 Then the `Subscription` can be removed by unregistering the service.
 The following code demonstrates how this is done:
@@ -5597,7 +5595,7 @@ Examples of resources include:
 * Audio recording
 * Document
 
-A resource object in {branding} contains an `InputStream` with the binary data of the resource. 
+A resource object in ${branding} contains an `InputStream` with the binary data of the resource. 
 It describes that resource with a name, which could be a file name, URI, or another identifier. 
 It also contains a mime type or content type that a client can use to interpret the binary data.  
 
@@ -5632,11 +5630,11 @@ Each resource reader must know how to interpret the resource's URI and how to in
 There can be multiple resource readers in a Catalog instance.
 The `Catalog Framework` selects the appropriate resource reader based on the scheme of the resource's URI. 
 
-In order to make a resource reader available to the Catalog Framework, it must be exported to the OSGi Service Registry as a `ddf.catalog.resource.ResourceReader`. 
+In order to make a resource reader available to the Catalog Framework, it must be exported to the OSGi Service Registry as a `${ddf-branding}.catalog.resource.ResourceReader`. 
 
 ===== URL Resource Reader
 
-The `URLResourceReader` is an implementation of `ResourceReader` which is included in the {branding} Catalog. 
+The `URLResourceReader` is an implementation of `ResourceReader` which is included in the ${branding} Catalog. 
 It obtains a resource given an http, https, or file-based URL. 
 The `URLResourceReader` will connect to the provided Resource URL and read the resource's bytes into an `InputStream`.  
 
@@ -5649,7 +5647,7 @@ For example, if path `/my/valid/path` is configured in the `URLResourceReader`&#
 
 ===== Installing and Uninstalling
 
-`URLResourceReader` is installed by default with the {branding} Catalog.
+`URLResourceReader` is installed by default with the ${branding} Catalog.
 
 ===== Configuring
 
@@ -5669,7 +5667,7 @@ _URL Resource Reader_
 |`rootResourceDirectories`
 |String array
 |Specifies the only directories the `URLResourceReader` has access to when attempting to download resources linked using file-based URLs (i.e. the metacard attribute resource-uri uses the file URI scheme). This property is used to restrict the `URLResourceReader`&#8217;s access to the file system. The `URLResourceReader` can be given full access to the file system by setting the `rootResourceDirectories` property to the root directory (e.g. `/`), but this configuration is not recommended.
-|<ddf.home>/data/products
+|<${ddf-branding}.home>/data/products
 |yes
 
 |===
@@ -5684,7 +5682,7 @@ For example, requesting a resource with the following URL will make the Catalog
 .Example
 [source,http]
 ----
-file:///home/users/ddf_user/data/example.txt
+file:///home/users/${ddf-branding}_user/data/example.txt
 ----
 
 If a resource was requested with the URL `udp://123.45.67.89:80/SampleResourceStream`, the `URLResourceReader` would _not_ be invoked.
@@ -5699,7 +5697,7 @@ Supported Schemes:
 
 [NOTE]
 ====
-If a file-based URL is passed to the `URLResourceReader`, that file path needs to be accessible by the {branding} instance.
+If a file-based URL is passed to the `URLResourceReader`, that file path needs to be accessible by the ${branding} instance.
 ====
 
 ===== Known Issues
@@ -5708,23 +5706,23 @@ None
 
 ==== Developing a Resource Reader
 
-A `ResourceReader` is a class that retrieves a resource or product from a native/external source and returns it to {branding}.
+A `ResourceReader` is a class that retrieves a resource or product from a native/external source and returns it to ${branding}.
 A simple example is that of a File `ResourceReader`.
-It takes a file from the local file system and passes it back to {branding}.
+It takes a file from the local file system and passes it back to ${branding}.
 New implementations can be created in order to support obtaining Resources from various Resource data stores. 
 
 ===== Create a New ResourceReader
 
 Complete the following procedure to create a `ResourceReader`.
 
-. Create a Java class that implements the `ddf.catalog.resource.ResourceReader` interface.
-. Deploy the OSGi bundled packaged service to the {branding} run-time.
+. Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceReader` interface.
+. Deploy the OSGi bundled packaged service to the ${branding} run-time.
 
 ===== Implementing the ResourceReader Interface
 
 [source,java,linenums]
 ----
-public class TestResourceReader implements ddf.catalog.resource.ResourceReader
+public class TestResourceReader implements ${ddf-branding}.catalog.resource.ResourceReader
 ----
 
 `ResourceReader` has a couple of key methods where most of the work is performed.
@@ -5754,7 +5752,7 @@ Invocation of the `ResourceReaders` stops once one of them returns a `Resource`
 Arguments are also passed in.
 These can be used by the `ResourceReader` to perform additional operations on the resource.
 
-An example of how `URLResourceReader` (located in the source code at `/trunk/ddf/catalog/resource/URLResourceReader.java`) implements the `getResource` method.
+An example of how `URLResourceReader` (located in the source code at `/trunk/${ddf-branding}/catalog/resource/URLResourceReader.java`) implements the `getResource` method.
 This `ResourceReader` simply reads a file from a URI.
 
 [NOTE]
@@ -5792,9 +5790,9 @@ InputStream is = conn.getInputStream();
 
 [NOTE]
 ====
-The `Resource` needs to be accessible from the {branding} installation (see the rootResourceDirectories property of the `URLResourceReader`). 
+The `Resource` needs to be accessible from the ${branding} installation (see the rootResourceDirectories property of the `URLResourceReader`). 
 This includes being able to find a file locally or reach out to a remote URI. 
-This may require Internet access, and {branding} may need to be configured to use a proxy (`http.proxyHost` and `http.proxyPort` can be added to the system properties on the command line script).
+This may require Internet access, and ${branding} may need to be configured to use a proxy (`http.proxyHost` and `http.proxyPort` can be added to the system properties on the command line script).
 ====
 
 . Return `Resource` in `ResourceResponse`.
@@ -5828,7 +5826,7 @@ Additionally, there are other methods that are used to uniquely describe a `Reso
 
 ===== Export to OSGi Service Registry
 
-In order for the `ResourceReader` to be used by the `CatalogFramework`, it should be exported to the OSGi Service Registry as a `ddf.catalog.resource.ResourceReader`.
+In order for the `ResourceReader` to be used by the `CatalogFramework`, it should be exported to the OSGi Service Registry as a `${ddf-branding}.catalog.resource.ResourceReader`.
 
 See the XML below for an example:
 
@@ -5836,7 +5834,7 @@ See the XML below for an example:
 [source,xml,linenums]
 ----
 <bean id="[[customResourceReaderId]]" class="[[example.resource.reader.impl.CustomResourceReader]]" />
-<service ref="[[customResourceReaderId]]" interface="ddf.catalog.source.ResourceReader" />
+<service ref="[[customResourceReaderId]]" interface="${ddf-branding}.catalog.source.ResourceReader" />
 ----
 
 ==== Resource Writers
@@ -5864,7 +5862,7 @@ A `ResourceWriter` is an object used to store or delete a `Resource`. 
 
 Complete the following procedure to create a `ResourceWriter`.
 
-. Create a Java class that implements the `ddf.catalog.resource.ResourceWriter` interface.
+. Create a Java class that implements the `${ddf-branding}.catalog.resource.ResourceWriter` interface.
 
 .ResourceWriter Implementation Skeleton
 [source,java,linenums]
@@ -5872,10 +5870,10 @@ Complete the following procedure to create a `ResourceWriter`.
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.ResourceWriter;
+import ${ddf-branding}.catalog.resource.Resource;
+import ${ddf-branding}.catalog.resource.ResourceNotFoundException;
+import ${ddf-branding}.catalog.resource.ResourceNotSupportedException;
+import ${ddf-branding}.catalog.resource.ResourceWriter;
 
 public class SampleResourceWriter implements ResourceWriter {
 
@@ -5904,16 +5902,16 @@ public class SampleResourceWriter implements ResourceWriter {
 [source,xml,linenums]
 ----
 ...
-<service ref="[[ResourceWriterReference]]" interface="ddf.catalog.resource.ResourceWriter" />
+<service ref="[[ResourceWriterReference]]" interface="${ddf-branding}.catalog.resource.ResourceWriter" />
 ...
 ----
 
-. Deploy the OSGi bundled packaged service to the {branding} run-time (Refer to the Working with OSGi - Bundles section.)
+. Deploy the OSGi bundled packaged service to the ${branding} run-time (Refer to the Working with OSGi - Bundles section.)
 
 [TIP]
 ====
 *ResourceWriter Javadoc* +
-Refer to the {branding} Catalog API Javadoc for more information about the methods required for implementing the interface. 
+Refer to the ${ddf-catalog} API Javadoc for more information about the methods required for implementing the interface. 
 ====
 
 ==== Developing a Registry Client
@@ -5942,19 +5940,19 @@ The properties necessary for creating a Configuration are different for every `
 
 Metacards are used to describe a resource through metadata. 
 This metadata includes the time the resource was created, the location where the resource was created, etc. 
-A {branding} `Metacard` contains the `getResourceUri` method, which is used to locate and retrieve its corresponding resource.
+A ${branding} `Metacard` contains the `getResourceUri` method, which is used to locate and retrieve its corresponding resource.
 
 ===== Retrieve Resource
 
 When a client attempts to retrieve a resource, it must provide a metacard ID or URI corresponding to a unique resource. 
 As mentioned above, the resource URI is obtained from a `Metacard`'s `getResourceUri` method. 
 The `CatalogFramework` has three methods that can be used by clients to obtain a resource: `getEnterpriseResource`, `getResource`, and `getLocalResource`.
-The `getEnterpriseResource` method invokes the `retrieveResource` method on a local `ResourceReader` as well as all the `Federated` and `Connected` Sources inthe {branding} enterprise. 
+The `getEnterpriseResource` method invokes the `retrieveResource` method on a local `ResourceReader` as well as all the `Federated` and `Connected` Sources inthe ${branding} enterprise. 
 The second method, `getResource`, takes in a source ID as a parameter and only invokes `retrieveResource` on the specified `Source`. 
 The third method invokes `retrieveResource` on a local `ResourceReader`. 
 
 The parameter for each of these methods in the `CatalogFramework` is a 	`ResourceRequest`. 
-{branding} includes two implementations of `ResourceRequest`: `ResourceRequestById` and `ResourceRequestByProductUri`. 
+${branding} includes two implementations of `ResourceRequest`: `ResourceRequestById` and `ResourceRequestByProductUri`. 
 Since these implementations extend `OperationImpl`, they can pass a `Map` of generic properties through the `CatalogFramework` to customize how the resource request is carried out. 
 One example of this is explained in the Options section below. 
 The following is a basic example of how to create a `ResourceRequest` and invoke the `CatalogFramework` resource retrieval methods to process the request.   
@@ -5971,7 +5969,7 @@ resourceResponse = catalogFramework.getResource(resourceRequest, sourceName); //
 Resource resource = resourceResponse.getResource(); //actual Resource object containing InputStream, mime type, and Resource name
 ----
 
-`ddf.catalog.resource.ResourceReader` instances can be discovered via the OSGi Service Registry.
+`${ddf-branding}.catalog.resource.ResourceReader` instances can be discovered via the OSGi Service Registry.
 The system can contain multiple `ResourceReaders`. 
 The `CatalogFramework` determines which one to call based on the scheme of the resource's URI and what schemes the `ResourceReader` supports. 
 The supported schemes are obtained by a `ResourceReader`'s `getSupportedSchemes` method. 
@@ -6006,7 +6004,7 @@ Since the option is passed through the catalog framework as a property, the `Re
 ===== Store Resource
 
 Resources are saved using a `ResourceWriter`. 
-`ddf.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.
+`${ddf-branding}.catalog.resource.ResourceWriter` instances can be discovered via the OSGi Service Registry.
 Once retrieved, the `ResourceWriter` instance provides clients a way to store resources and get a corresponding URI that can be used to subsequently retrieve the resource via a `ResourceReader`. 
 Simply invoke either of the `storeResource` methods with a resource and any potential arguments.
  
@@ -6028,10 +6026,10 @@ resourceUri = writer.storeResource(resource, optionalArguments); //Null can be p
 
 ===== BinaryContent
 
-`BinaryContent` is an object used as a container to store translated or transformed {branding} components. 
+`BinaryContent` is an object used as a container to store translated or transformed ${branding} components. 
 `Resource` extends `BinaryContent` andincludes a `getName` method.  `
 BinaryContent` has methods to get the `InputStream`, `byte` array, MIME type, and size of the represented binary data.
-An implementation of `BinaryContent` (`BinaryContentImpl`) can be found in the Catalog API in the `ddf.catalog.data` package.
+An implementation of `BinaryContent` (`BinaryContentImpl`) can be found in the Catalog API in the `${ddf-branding}.catalog.data` package.
 
 ====== Additional Information
 

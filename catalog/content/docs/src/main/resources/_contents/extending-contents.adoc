@@ -1,0 +1,22 @@
+
+This section supports developers creating extensions of the existing framework. 
+There are currently no ${ddf-content} development details beyond those covered in the ${branding} Developer's Guide.
+
+=== Whitelist
+
+The following packages have been exported by the ${ddf-content} Application and are approved for use by third parties:
+
+* `${ddf-branding-lowercase}.camel.component.content`
+* `${ddf-branding-lowercase}.content`
+* `${ddf-branding-lowercase}.content.core.directorymonitor`
+* `${ddf-branding-lowercase}.content.data`
+* `${ddf-branding-lowercase}.content.data.impl`
+* `${ddf-branding-lowercase}.content.impl`
+* `${ddf-branding-lowercase}.content.operation`
+* `${ddf-branding-lowercase}.content.operation.impl`
+* `${ddf-branding-lowercase}.content.plugin`
+* `${ddf-branding-lowercase}.content.plugin.cataloger`
+* `${ddf-branding-lowercase}.content.provider.filesystem`
+* `${ddf-branding-lowercase}.content.storage`
+* `${ddf-branding-lowercase}.content.util`
+* `${ddf-branding-lowercase}.content.util.impl`

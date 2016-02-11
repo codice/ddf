@@ -1,7 +1,6 @@
 Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
 :toc: left
-:branding: DDF
 :icons: font
 :data-uri:
 :sectlinks:

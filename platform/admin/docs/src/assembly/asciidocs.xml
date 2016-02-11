@@ -26,11 +26,11 @@
         <fileSet>
              <fileMode>0644</fileMode>
              <directoryMode>0755</directoryMode>
-             <directory>src/main/resources</directory>
+             <directory>src/main/resources/_contents</directory>
              <includes>
                    <include>**</include>
             </includes>
-            <outputDirectory>/</outputDirectory>
+            <outputDirectory>/adoc</outputDirectory>
         </fileSet>
      </fileSets>
 </assembly>

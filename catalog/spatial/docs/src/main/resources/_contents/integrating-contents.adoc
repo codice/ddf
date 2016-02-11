@@ -1,9 +1,9 @@
 
-The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
 This guide supports integration of this application with external frameworks.
 
-=== Integrating {branding} with CSW
+=== Integrating ${branding} with CSW
 Catalog Services for Web (_CSW_) is an Open Geospatial Consortium (OGC) standard.
 
 ==== CSW v2.0.2 Endpoint
@@ -13,7 +13,7 @@ The CSW endpoint implements version 2.0.2 of the http://www.opengeospatial.org/s
 
 ===== Using the CSW Endpoint
 
-Once installed, the CSW endpoint is accessible from \http://<DDF_HOST>:<DDF_PORT>/services/csw.
+Once installed, the CSW endpoint is accessible from \http://<${branding}_HOST>:<${branding}_PORT>/services/csw.
 
 ===== `GetCapabilities` Operation
 
@@ -23,18 +23,18 @@ The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the `GetC
 The response to either request will always be a `csw:Capabilities` XML document.
 This XML document is defined by the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd[CSW-Discovery XML Schema].
 
-===== GetCapabilities `HTTP GET`
+===== `GetCapabilities` `HTTP GET`
 ￼￼￼
 The `HTTP GET` form of `GetCapabilities` uses query parameters via the following URL:
 
 .`GetCapabilities` KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
+http://<${branding}_HOST>:<${branding}_PORT>/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
 ----
 
 ===== `GetCapabilities` `HTTP POST`
 
-The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\http://<DDF_HOST>:<DDF_PORT>/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd [CSW-Discovery XML Schema].
+The `HTTP POST` form of `GetCapabilities` operates on the root CSW endpoint URL (\http://<${branding}_HOST>:<${branding}_PORT>/services/csw) with an XML message body that is defined by the `GetCapabilities` element of the http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd [CSW-Discovery XML Schema].
 
 .`GetCapabilities` XML Request
 [source,xml,linenums]
@@ -68,12 +68,12 @@ The following is an example of an `application/xml` response to the `GetCapabili
     xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-discovery.xsd">
     <ows:ServiceIdentification>
         <ows:Title>Catalog Service for the Web</ows:Title>
-        <ows:Abstract>DDF CSW Endpoint</ows:Abstract>
+        <ows:Abstract>${branding} CSW Endpoint</ows:Abstract>
         <ows:ServiceType>CSW</ows:ServiceType>
         <ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
     </ows:ServiceIdentification>
     <ows:ServiceProvider>
-        <ows:ProviderName>DDF</ows:ProviderName>
+        <ows:ProviderName>${branding}</ows:ProviderName>
         <ows:ProviderSite/>
         <ows:ServiceContact/>
     </ows:ServiceProvider>
@@ -263,7 +263,7 @@ In this way, it behaves exactly as the post request that uses a list of QName(s)
 
 .`DescribeRecord` KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&schemaLanguage=http://www.w3.org/XML/Schema
+http://<${branding}_HOST>:<${branding}_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&schemaLanguage=http://www.w3.org/XML/Schema
 ----
 
 ===== `DescribeRecord` HTTP POST
@@ -406,7 +406,7 @@ In this way, it behaves exactly as the post request that uses a list of QName(s)
 
 .`GetRecords` KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecords&o
+http://<${branding}_HOST>:<${branding}_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecords&o
 utputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=
 xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&
 ElementSetName=brief&ConstraintLanguage=CQL_TEXT&constraint=AnyText Like '%25'
@@ -573,7 +573,7 @@ The following is an example of a `HTTP GET` request:
 
 .`GetRecords` KVP Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
+http://<${branding}_HOST>:<${branding}_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
 ----
 
 ===== `GetRecordById` `HTTP POST`
@@ -622,7 +622,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <dct:dateCopyrighted>2014-02-19T15:22:51.563-05:00</dct:dateCopyrighted>
       <dct:dateSubmitted>2014-02-19T15:22:51.563-05:00</dct:dateSubmitted>
       <dct:issued>2014-02-19T15:22:51.563-05:00</dct:issued>
-      <dc:source>ddf.distribution</dc:source>
+      <dc:source>${ddf-branding-lowercase}.distribution</dc:source>
       <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
          <ows:LowerCorner>20.0 10.0</ows:LowerCorner>
          <ows:UpperCorner>20.0 10.0</ows:UpperCorner>
@@ -641,7 +641,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <dct:dateCopyrighted>2014-02-19T15:22:51.563-05:00</dct:dateCopyrighted>
       <dct:dateSubmitted>2014-02-19T15:22:51.563-05:00</dct:dateSubmitted>
       <dct:issued>2014-02-19T15:22:51.563-05:00</dct:issued>
-      <dc:source>ddf.distribution</dc:source>
+      <dc:source>${ddf-branding-lowercase}.distribution</dc:source>
       <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
          <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
          <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
@@ -1473,7 +1473,7 @@ Use the CSW source if querying a CSW version 2.0.2 compliant service.
 
 ==== Installing and Uninstalling
 
-The CSW source can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The CSW source can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ==== Configuring
 
@@ -1641,13 +1641,13 @@ Note that the same CSW Record field cannot be used more than once in these date 
 * Nearest neighbor spatial searches are not supported.
 * Fuzzy contextual searches are not supported.
 
-=== Integrating {branding} with KML
+=== Integrating ${branding} with KML
 
 Keyhole Markup Language (_KML_) is an XML notation for describing geographic annotation and visualization for 2- and 3- dimensional maps.
 
 === KML Network Link Endpoint
 
-The KML Network Link endpoint allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and {branding}.
+The KML Network Link endpoint allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and ${branding}.
 The root network link will create a network link for each configured source, including the local catalog.
 The individual source network links will perform a query against the OpenSearch Endpoint periodically based on the current view in the KML client.
 The query parameters for this query are obtained by a bounding box generated by Google Earth.
@@ -1659,7 +1659,7 @@ As a user changes their current view, the query will be re-executed with the bou
 
 Once installed, the KML Network Link endpoint can be accessed at:
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml
+http://<${branding}_HOST>:<${branding}_PORT>/services/catalog/kml
 ----
 
 After the above request is sent, a KML Network Link document is returned as a response to download or open.
@@ -1673,7 +1673,7 @@ This KML Network Link can then be opened in Google Earth.
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:ns2="http://www.google.com/kml/ext/2.2"
   xmlns:ns3="http://www.w3.org/2005/Atom" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
   <NetworkLink>
-    <name>DDF</name>
+    <name>${branding}</name>
     <open xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:boolean">true</open>
     <Snippet maxLines="0"/>
     <Link>
@@ -1692,17 +1692,17 @@ When configured to do so, the KML endpoint can serve up a KML style document.
 The request below will return the configured KML style document.
 
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/style
+http://<${branding}_HOST>:<${branding}_PORT>/services/catalog/kml/style
 ----
 
 The KML endpoint can also serve up Icons to be used in conjunction with the KML style document.
 The request below shows the format to return an icon.
 
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/icons?<icon-name>
+http://<${branding}_HOST>:<${branding}_PORT>/services/catalog/kml/icons?<icon-name>
 #NOTE: <icon-name> must be the name of an icon contained in the directory being served
 up like:
-http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/icons?sample-icon.png
+http://<${branding}_HOST>:<${branding}_PORT>/services/catalog/kml/icons?sample-icon.png
 ----
 
 ==== Installing and Uninstalling
@@ -1841,13 +1841,13 @@ width: 100% }
   &lt;/head&gt;
   &lt;body&gt;
         &lt;div class="thumbnailDiv"&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f
+href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
 48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
 src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Source:&lt;/td&gt;
-        &lt;td&gt;ddf.distribution&lt;/td&gt;
+        &lt;td&gt;${ddf-branding-lowercase}.distribution&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Created:&lt;/td&gt;
@@ -1861,10 +1861,10 @@ src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table class="linkTable"&gt;
       &lt;tr&gt;
         &lt;td&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f
+href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
 48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
         &lt;td&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f
+href="http://localhost:8181/services/catalog/sources/${branding-lowercase}.distribution/0103c77e66d9428d8f
 48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
@@ -1970,11 +1970,11 @@ width: 100% }
     &lt;/style&gt;
   &lt;/head&gt;
   &lt;body&gt;
-        &lt;div class="thumbnailDiv"&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail" src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
+        &lt;div class="thumbnailDiv"&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail" src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Source:&lt;/td&gt;
-        &lt;td&gt;ddf.distribution&lt;/td&gt;
+        &lt;td&gt;${ddf-branding-lowercase}.distribution&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Created:&lt;/td&gt;
@@ -1987,8 +1987,8 @@ width: 100% }
     &lt;/table&gt;
     &lt;table class="linkTable"&gt;
       &lt;tr&gt;
-        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
-        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
   &lt;/body&gt;
@@ -2171,12 +2171,12 @@ width: 100% }
   &lt;/head&gt;
   &lt;body&gt;
         &lt;div class="thumbnailDiv"&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
+href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
 src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Source:&lt;/td&gt;
-        &lt;td&gt;ddf.distribution&lt;/td&gt;
+        &lt;td&gt;${ddf-branding-lowercase}.distribution&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr&gt;
         &lt;td class="label"&gt;Created:&lt;/td&gt;
@@ -2190,8 +2190,8 @@ src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
     &lt;table class="linkTable"&gt;
       &lt;tr&gt;
         &lt;td&gt;&lt;a
-href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
-        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/${ddf-branding-lowercase}.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
   &lt;/body&gt;
@@ -2248,22 +2248,22 @@ The KML Style Mapper is included in the `spatial-kml-transformer` feature and is
 
 None.
 
-=== Integrating {branding} with WFS
+=== Integrating ${branding} with WFS
 
 The Web Feature Service (WFS) is an Open Geospatial Consortium (OGC) Specification.
-{branding} supports the ability to integrate WFS 1.0 and WFS 2.0 Web Services.
+${branding} supports the ability to integrate WFS 1.0 and WFS 2.0 Web Services.
 
 [NOTE]
 ====
-{branding} does not include a supported WFS Web Service (Endpoint) implementation.
-Therefore, federation for 2 {branding} instances is not possible via WFS.
+${branding} does not include a supported WFS Web Service (Endpoint) implementation.
+Therefore, federation for 2 ${branding} instances is not possible via WFS.
 ====
 
 === Working with WFS Sources
 
-A Web Feature Service (WFS) source is an implementation of the FederatedSource interface provided by the {branding} Framework.
+A Web Feature Service (WFS) source is an implementation of the FederatedSource interface provided by the ${branding} Framework.
 A WFS source provides capabilities for querying an Open Geospatial Consortium (OGC) WFS 1.0.0-compliant server.
-The results are made available to {branding} clients.
+The results are made available to ${branding} clients.
 
 ==== WFS Features
 
@@ -2276,7 +2276,7 @@ See the WFS v1.0.0 Source for more information about how to configure a WFS sour
 
 ===== Convert a WFS Feature
 
-In order to expose WFS features to {branding} clients, the WFS feature must be converted into the common data format of the {branding}, a metacard.
+In order to expose WFS features to ${branding} clients, the WFS feature must be converted into the common data format of the ${branding}, a metacard.
 The OGC package contains a `GenericFeatureConverter` that attempts to populate mandatory metacard fields with properties from the WFS feature XML.
 All properties will be mapped directly to new attributes in the metacard.
 However, the `GenericFeatureConverter` may not be able to populate the default metacard fields with properties from the feature XML.
@@ -2348,7 +2348,7 @@ Use the WFS Source if querying a WFS version 1.0.0 compliant service.
 
 ==== Installing and Uninstalling
 
-The WFS Source can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The WFS Source can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ==== Configuring
 
@@ -2472,7 +2472,7 @@ Use the WFS Source if querying a WFS version 2.0.0 compliant service. Also see W
 
 ==== Installing and Uninstalling
 
-The WFS Source can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The WFS Source can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ==== Configuring
 
@@ -2608,18 +2608,18 @@ A feature is relatively equivalent to a metacard. The `MetacardMapper` was added
 ==== Using
 
 Use the WFS `MetacardMapper` to configure which feature properties map to which metacard attributes when querying a WFS version 2.0.0 compliant service.
-When feature collection responses are returned from WFS sources, a default mapping occurs which places the feature properties into metacard attributes, which are then presented to the user via {branding}.
+When feature collection responses are returned from WFS sources, a default mapping occurs which places the feature properties into metacard attributes, which are then presented to the user via ${branding}.
 There can be situations where this automatic mapping is not optimal for your solution.
 Custom mappings of feature property responses to metacard attributes can be achieved through the `MetacardMapper`.
 The `MetacardMapper` is set by creating a feature file configuration which specifies the appropriate mapping. The mappings are specific to a given feature type.
 
 ==== Installing and Uninstalling
 
-The WFS `MetacardMapper` can be installed and uninstalled using the normal processes described in the Configuring {branding} section.
+The WFS `MetacardMapper` can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
 
 ==== Configuring
 
-This component can be configured using the normal processes described in the Configuring {branding} section.
+This component can be configured using the normal processes described in the Configuring ${branding} section.
 
 The configurable properties for the WFS MetacardMapper are accessed from the Metacard to WFS Feature Map Configuration in the Admin Console.
 
@@ -2688,9 +2688,9 @@ More mappings can be added to the `featurePropToMetacardAttrMap` line through th
 ----
 <feature name="geoserver-states" version="${project.version}"
     description="WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states">
-    <config name="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states">
+    <config name="org.codice.${ddf-branding-lowercase}.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states">
         featureType = {http://www.openplans.org/topp}states
-        service.factoryPid = org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper
+        service.factoryPid = org.codice.${ddf-branding-lowercase}.spatial.ogc.wfs.catalog.mapper.MetacardMapper
         featurePropToMetacardAttrMap = states.STATE_NAME=title
     </config>
 </feature>

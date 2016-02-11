@@ -1,10 +1,10 @@
 
-The ${ddf-branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
 This page describes:
 
 * which applications must be installed prior to installing this application.
-* how to install the ${ddf-branding} Spatial Application.
+* how to install the ${ddf-spatial} Application.
 * how to verify if the application was successfully installed.
 * how to uninstall the application.
 * how to upgrade the application.
@@ -13,10 +13,10 @@ This page describes:
 
 === Prerequisites
 
-Before the ${ddf-branding} Spatial Application can be installed:
+Before the ${ddf-spatial} Application can be installed:
 
-* the ${ddf-branding} Platform Application and
-* the ${ddf-branding} Catalog Application must be installed
+* the ${ddf-platform} Application and
+* the ${ddf-catalog} Application must be installed
 
 === Installing
 . Before installing a ${branding} application, verify that its prerequisites have been met.
@@ -28,7 +28,7 @@ These Installation steps are the same whether ${branding} was installed from a d
 ====
 
 ==== Verifying
-. Verify the appropriate features for the ${branding} application have been installed using the `feature:list` command to view the KAR file's features.
+. Verify the appropriate features for the ${branding} application have been installed using the `features:list` command to view the KAR file's features.
 . Verify that the bundles within the installed features are in an active state.
 
 ==== Uninstalling
@@ -39,7 +39,7 @@ It is very important to save the KAR file or the feature repository URL for the 
 
 If the ${branding} application is deployed on the ${branding} Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
 
-Otherwise, if the ${branding} application is running as part of the ${branding} distribution zip, it is uninstalled the first time and only the first time using the `feature:repo-remove` command:
+Otherwise, if the ${branding} application is running as part of the ${branding} distribution zip, it is uninstalled the first time and only the first time using the `features:removeurl` command:
 
 .Uninstall ${branding} application from ${branding} distribution
 ----
@@ -71,8 +71,8 @@ feature:install <Application's main feature>
 
 .Example
 ----
-ddf@local>feature:repo-add mvn:ddf.catalog/catalog-app/${ddf.version}/xml/features
-ddf@local>feature:install catalog-app
+${branding-lowercase}${at-symbol}local>feature:repo-add mvn:ddf.catalog/catalog-app/${ddf.version}/xml/features
+${branding-lowercase}${at-symbol}local>feature:install catalog-app
 ----
 
 ==== Upgrading
