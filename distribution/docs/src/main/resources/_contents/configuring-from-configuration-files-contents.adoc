@@ -334,7 +334,7 @@ whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics"
 ====== Editing HTTP Ports for Multiple Local ${branding} Nodes
 
 Edit the port numbers in the files in the ${branding} install folder.
-g
+
 [cols="4" options="header"]
 |===
 

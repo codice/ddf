@@ -5,7 +5,7 @@ Troubleshooting
 ////
 
 .General Troubleshooting
-// Do any of these still exist?
+
 [cols="3a,7a" options="header"]
 |===
 
@@ -59,31 +59,6 @@ ${branding} will not start when calling the start script defined during installa
 . This should return:
 +
 `/bin/bash`
-
-a|${branding} Is Unresponsive to Incoming Requests
-
-An example of the log file when this problem is encountered:
-
-----
-Feb 7, 2013 10:51:33 AM org.apache.karaf.main.SimpleFileLock lock
-INFO: locking
-Feb 7, 2013 10:51:33 AM org.apache.karaf.main.Main doLock
-INFO: Waiting for the lock ...
-Feb 7, 2013 10:51:33 AM org.apache.karaf.main.SimpleFileLock lock
-INFO: locking
-Feb 7, 2013 10:51:33 AM org.apache.karaf.main.Main doLock
-INFO: Waiting for the lock ...
-Feb 7, 2013 10:51:34 AM org.apache.karaf.main.SimpleFileLock lock
-INFO: locking
-Feb 7, 2013 10:51:34 AM org.apache.karaf.main.SimpleFileLock lock
-INFO: locking
-Feb 7, 2013 10:51:35 AM org.apache.karaf.main.SimpleFileLock lock
-INFO: locking
-Feb 7, 2013 10:51:35 AM org.apache.karaf.main.SimpleFileLock lock
-INFO: locking
-----
-
-|
 
 |Multiple `java.exe` processes running, indicating more than one ${branding} instance is running.
 

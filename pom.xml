@@ -86,16 +86,29 @@
         <pax.web.version>4.2.4</pax.web.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
-        <!--Documentation Replacements-->
+        <!--Documentation Properties-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
+        <branding-expanded>Distributed Data Framework</branding-expanded>
         <ddf-branding>DDF</ddf-branding>
         <ddf-branding-lowercase>ddf</ddf-branding-lowercase>
         <ddf-branding-expanded>Distributed Data Framework</ddf-branding-expanded>
-        <!--Needed for proper formatting in documentation-->
+        <ddf-version>${project.version}</ddf-version>
+        <!--Needed for documentation formatting-->
         <at-symbol>@</at-symbol>
         <variable-prefix>${</variable-prefix>
-        <image-width>500</image-width>
+        <!--Individual application names-->
+        <ddf-admin>DDF Admin</ddf-admin>
+        <admin-console>Admin Console</admin-console>
+        <command-console>Command Console</command-console>
+        <ddf-catalog>DDF Catalog</ddf-catalog>
+        <ddf-content>DDF Content</ddf-content>
+        <ddf-platform>DDF Platform</ddf-platform>
+        <ddf-security>DDF Security</ddf-security>
+        <ddf-solr>DDF Solr</ddf-solr>
+        <ddf-spatial>DDF Spatial</ddf-spatial>
+        <ddf-ui>DDF Search UI</ddf-ui>
+        <ddf-version>${project.version}</ddf-version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined

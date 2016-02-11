@@ -1,12 +1,12 @@
 
-This section supports integrating {branding} with existing applications or frameworks.
+This section supports integrating ${branding} with existing applications or frameworks.
 
 === Understanding Metadata and Metacards
 
 Metadata is information about a resource, organized into a schema to make it possible to search against.
-The {branding} Catalog stores this metadata and allows access to it. If desired, the {branding} Content application can be installed to store the resources themselves.
+The ${ddf-catalog} stores this metadata and allows access to it. If desired, the ${ddf-content} application can be installed to store the resources themselves.
 Metacards are single instances of metadata, representing a single record, in the Metadata Catalog (MDC).
-Metacards follow one of several schemas to ensure reliable, accurate, and complee metadata.
+Metacards follow one of several schemas to ensure reliable, accurate, and complete metadata.
 Essentially, Metacards function as containers of metadata.
 
 === Populating Metacards (during ingest)
@@ -16,28 +16,32 @@ Exactly how this is accomplished depends on the origin of the data, but most fie
 
 === Searching Metadata
 
-{branding} provides the capability to search the Metadata Catalog (MDC) for metadata.
+${branding} provides the capability to search the Metadata Catalog (MDC) for metadata.
 There are a number of different types of searches that can be performed on the MDC, and these searches are accessed using one of several interfaces.
-This section provides are very high level overview of introductory concepts of searching with {branding}.
+This section provides a very high level overview of introductory concepts of searching with ${branding}.
 These concepts are expanded upon in later sections.
 
 ==== Search Types
+
 There are four basic types of metadata search.
 Additionally, any of the types can be combined to create a compound search.
 
 ===== Contextual Search
+
 A contextual search is used when searching for textual information.
 It is similar to a Google search over the metadata contained in the MDC.
 Contextual searches may use wildcards, logical operators, and approximate matches.
 
 ===== Spatial Search
+
 A spatial search is used for Area of Interest (AOI) searches.
 Polygon and point radius searches are supported.
-Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in WGS 84 decimal degrees.
+Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in *WGS 84* decimal degrees.
 
 ===== Temporal Search
+
 A temporal search finds information from a specific time range.
-Two types of temporal searches are supported, relative and absolute.
+Two types of temporal searches are supported: _relative_ and _absolute_.
 Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp.
 Temporal searches can look at the effective date attribute or the modified date.
 
@@ -48,23 +52,26 @@ Metadata that matches any of the datatypes (and associated versions if specified
 If a version is not specified, then all metadata records for the specified datatype(s) regardless of version will be returned.
 
 ===== Compound Search
+
 These search types may be combined to create Compound searches.
 For example, a Contextual and Spatial search could be combined into one Compound search to search for certain text in metadata in a particular region of the world.
 
 ==== Search Interfaces
 
-===== {branding} Search UI Application
-The {branding} Search UI application provides a graphic interface to return results in HTML format and locate them on an interactive globe or map.
-For more details on using this application, go to {branding} Search UI User's Guide.
+===== ${ddf-ui} Application
+
+The ${branding} Search UI application provides a graphic interface to return results and locate them on an interactive globe or map.
 
 ===== SSH
-Additionally, it is possible to use a client script to remotely access {branding} via SSH and send console commands to search and ingest data.
+
+Additionally, it is possible to use a client script to remotely access ${branding} via SSH and send console commands to search and ingest data.
 
 === Catalog Search Result Objects
+
 Data is returned from searches as Catalog Search Result objects.
 This is a subtype of Catalog Entry that also contains additional data based on what type of sort policy was applied to the search.
 Because it is a subtype of Catalog Entry, a Catalog Search Result has all Catalog Entry’s fields such as metadata, effective time, and modified time.
-It also contains some of the following fields, depending on type of search, that are populated by {branding} when the search occurs:
+It also contains some of the following fields, depending on type of search, that are populated by ${branding} when the search occurs:
 
 * Distance: Populated when a point radius spatial search occurs.
 Numerical value that indicates the result’s distance from the center point of the search.
@@ -74,6 +81,7 @@ Indicates the units (kilometer, mile, etc.) for the distance field.
 Numerical value that indicates how relevant the text in the result is to the text originally searched for.
 
 ==== Search Programmatic Flow
+
 Searching the catalog involves three basic steps:
 
 . Define the search criteria (contextual, spatial, temporal, or compound – a combination of two or more types of searches).
@@ -86,13 +94,11 @@ Words such as “baghdad”, “BAGHDAD”,  and “baghDad” will not be retur
 . Issue a search
 . Examine the results
 
-These steps are performed in the same basic order but using different classes depending on whether the Web services or Search UI interfaces are used.
-
 ===== Sort Policies
 
 Searches can also be sorted according to various built-in policies.
 A sort policy is applied to the search criteria after its creation but before the search is issued.
-The policy specifies to the {branding} the order the MDC search results should be in when they are returned to the requesting client.
+The policy specifies to the ${branding} the order the MDC search results should be in when they are returned to the requesting client.
 Only one sort policy may be defined per search.
 
 There are three policies available.
