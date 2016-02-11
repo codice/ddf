@@ -25,7 +25,7 @@
 
     <groupId>ddf.platform.solr</groupId>
     <artifactId>solr-banana-provisioner</artifactId>
-    <name>DDF :: Platform :: Solr :: Banana :: Ingester</name>
+    <name>DDF :: Platform :: Solr :: Banana :: Provisioner</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -53,6 +53,10 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
@@ -104,6 +108,8 @@
                             noggit
                         </Embed-Dependency>
                         <Import-Package>
+                            !org.eclipse.jetty.server.bio,
+                            !org.eclipse.jetty.server.ssl,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,
@@ -128,21 +134,21 @@
                             javax.xml.transform.stream,
                             javax.xml.xpath,
                             org.apache.commons.codec.binary,
-                            org.apache.commons.logging; version="[1.1.0,2.0.0)",
+                            org.apache.commons.logging,
                             org.apache.felix.gogo.commands,
                             org.apache.karaf.shell.console,
                             org.codice.ddf.configuration,
-                            org.eclipse.jetty.*,
+                            org.eclipse.jetty.*;version="[9.2,10)",
                             org.fusesource.jansi,
-                            org.osgi.framework;version="[1.5,2)",
-                            org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
+                            org.osgi.framework,
+                            org.osgi.service.blueprint,
                             org.osgi.service.cm,
-                            org.slf4j;version="[1.6,2)",
+                            org.slf4j,
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.ext,
-                            com.google.common.base; version="[18.0.0,19.0.0)",
-                            com.google.common.util.concurrent;version="[18.0.0,19.0.0)"
+                            com.google.common.base,
+                            com.google.common.util.concurrent
                         </Import-Package>
                     </instructions>
                 </configuration>

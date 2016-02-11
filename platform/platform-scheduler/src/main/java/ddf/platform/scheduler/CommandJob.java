@@ -23,6 +23,8 @@ import java.util.concurrent.Callable;
 import org.apache.felix.gogo.runtime.CommandNotFoundException;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
+import org.apache.karaf.shell.security.impl.SecuredCommandProcessorImpl;
+import org.osgi.framework.FrameworkUtil;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -120,20 +122,14 @@ public class CommandJob implements Job {
 
     private CommandProcessor getCommandProcessor() {
 
-        if (this.commandProcessor != null) {
-            return this.commandProcessor;
+        if (this.commandProcessor == null) {
+            this.commandProcessor = createCommandProcessor();
         }
+        return this.commandProcessor;
+    }
 
-        String key = CommandProcessor.class.getSimpleName();
-
-        Object commandProcessorObject = ServiceStore.getInstance().getObject(key);
-
-        if (commandProcessorObject != null) {
-            this.commandProcessor = (CommandProcessor) commandProcessorObject;
-            return this.commandProcessor;
-        }
-
-        return null;
+    protected CommandProcessor createCommandProcessor() {
+        return new SecuredCommandProcessorImpl(FrameworkUtil.getBundle(this.getClass()).getBundleContext());
     }
 
     private String checkInput(JobExecutionContext context) throws CommandException {

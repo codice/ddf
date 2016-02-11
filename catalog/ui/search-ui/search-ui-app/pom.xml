@@ -70,7 +70,7 @@
                 <executions>
                     <execution>
                         <id>attach-artifacts</id>
-                        <phase>package</phase>
+                        <phase>prepare-package</phase>
                         <inherited>false</inherited>
                         <goals>
                             <goal>attach-artifact</goal>

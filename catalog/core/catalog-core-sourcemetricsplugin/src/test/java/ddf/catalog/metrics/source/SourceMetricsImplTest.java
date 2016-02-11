@@ -222,26 +222,26 @@ public class SourceMetricsImplTest {
 
     @Test
     public void testGetRrdFilenameDashesNumbers() throws Exception {
-        String sourceId = "dib30rhel-58";
+        String sourceId = "fedSrc30rhel-58";
         String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 
         sourceMetrics = configureSourceMetrics(sourceId);
 
         String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
 
-        assertThat(rrdFilename, equalTo("sourceDib30rhel58QueriesTotalResults"));
+        assertThat(rrdFilename, equalTo("sourceFedSrc30rhel58QueriesTotalResults"));
     }
 
     @Test
     public void testGetRrdFilenameNonAlphanumerics() throws Exception {
-        String sourceId = "dib30rh%^&*()$e#@!l-58";
+        String sourceId = "fedSrc30rh%^&*()$e#@!l-58";
         String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 
         sourceMetrics = configureSourceMetrics(sourceId);
 
         String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
 
-        assertThat(rrdFilename, equalTo("sourceDib30rhEL58QueriesTotalResults"));
+        assertThat(rrdFilename, equalTo("sourceFedSrc30rhEL58QueriesTotalResults"));
     }
 
     /************************************************************************************/

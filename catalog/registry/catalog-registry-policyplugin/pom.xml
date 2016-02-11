@@ -55,6 +55,10 @@
             <artifactId>catalog-registry-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -68,7 +72,8 @@
                             catalog-registry-common,
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
-                            platform-util-unavailableurls
+                            platform-util-unavailableurls,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             ddf.catalog,
