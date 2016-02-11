@@ -81,6 +81,8 @@ public class MetacardAttributeDescriptor implements AttributeDescriptor, Attribu
      */
     @Override
     public AttributeFormat getAttributeFormat() {
+        return propertyDescriptor.getFormat();
+/*
         AttributeFormat attributeFormat;
         Class<?> classType = propertyDescriptor.getType();
         switch (classType.getSimpleName()) {
@@ -118,5 +120,6 @@ public class MetacardAttributeDescriptor implements AttributeDescriptor, Attribu
             attributeFormat = AttributeFormat.OBJECT;
         }
         return attributeFormat;
+*/
     }
 }

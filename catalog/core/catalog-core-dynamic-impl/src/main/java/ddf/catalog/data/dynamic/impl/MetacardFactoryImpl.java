@@ -106,6 +106,10 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
     @Override
     public DynamicMetacard newInstance(List<String> names) {
         LOGGER.debug("Creating a new metacard with the following types: {}", names);
+        if (names == null || names.size() == 0) {
+            return newInstance();
+        }
+
         DynamicMetacard metacard = null;
         for (String name : names) {
             if (metacard == null) {
