@@ -20,7 +20,7 @@
                 description="Enable the Backup Ingest plugin which will write each result to a directory"
                 name="Enable Backup Plugin" id="enableBackupPlugin"
                 required="false" type="Boolean" default="true"/>
-        
+
         <AD
                 description="Root backup directory for Metacards. A relative path is relative to ddf.home."
                 name="Root backup directory path" id="rootBackupDir" required="true" type="String"
