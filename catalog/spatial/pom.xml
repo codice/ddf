@@ -171,6 +171,7 @@
         <module>kml</module>
         <module>ogc</module>
         <module>wfs</module>
+        <module>stanag4559</module>
         <module>wcs</module>
         <module>csw</module>
         <module>geocoding</module>
