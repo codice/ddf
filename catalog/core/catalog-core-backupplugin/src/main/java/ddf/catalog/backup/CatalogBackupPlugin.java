@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -85,45 +84,44 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            List<String> errors = new ArrayList<>();
-
             ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(() -> {
+                startExecution(input.getCreatedMetacards());
+            });
 
-            executor.submit(() -> startExecution(input.getCreatedMetacards(), errors));
             //Stop accepting new tasks
             executor.shutdown();
 
-            //Block until tasks have completed
-            try {
-                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                throw new PluginExecutionException(e);
-            }
-
-            if (!errors.isEmpty()) {
-                throwPluginExceptionWith(errors);
-            }
         }
+
+        //Return while the cards are backed up in another thread.
         return input;
     }
 
-    private CreateResponse throwPluginExceptionWith(List<String> errors)
-            throws PluginExecutionException {
-        throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
+    private PluginExecutionException pluginExceptionWith(List<String> errors) {
+        return new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
                 null,
                 errors,
                 OPERATION.CREATE));
     }
 
-    private void startExecution(List<Metacard> metacards, List<String> errors) {
-        metacards.parallelStream()
-                .forEach(metacard -> {
-                    try {
-                        backupMetacard(metacard);
-                    } catch (IOException e) {
-                        errors.add(metacard.getId());
-                    }
-                });
+    void startExecution(List<Metacard> metacards) {
+
+        List<String> errors = new ArrayList<>();
+        for (Metacard metacard : metacards) {
+            try {
+                backupMetacard(metacard);
+            } catch (IOException e) {
+                errors.add(metacard.getId());
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            {
+                LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                        pluginExceptionWith(errors));
+            }
+        }
     }
 
     /**
