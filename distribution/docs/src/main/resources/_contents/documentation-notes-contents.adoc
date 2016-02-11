@@ -1,5 +1,5 @@
 
-=== Documentation Outline
+==== Documentation Outline
 
 The documentation is divided by user needs, with users categorized as Users, Administrators, Integrators, and Developers. 
 

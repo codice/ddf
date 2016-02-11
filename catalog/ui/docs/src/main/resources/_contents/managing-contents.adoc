@@ -1,0 +1,275 @@
+
+The Standard Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
+
+This section describes:
+
+* Which applications must be installed prior to installing this application.
+* How to install the ${ddf-ui}.
+* How to verify if the ${ddf-ui} was successfully installed.
+* How to uninstall the ${ddf-ui}.
+* How to upgrade the ${ddf-ui}.
+
+=== Prerequisites
+
+Before the ${ddf-ui} application can be installed:
+
+* the ${ddf-platform} Application and
+* the ${ddf-catalog} Application must be installed.
+
+=== Installing ${ddf-ui}
+
+The Search UI application is installed by default.
+
+=== Configuring ${ddf-ui}
+
+Configure individual features within the application with the
+Admin Console.
+
+==== Configurable Properties
+
+===== Configurations
+
+[cols="1,2m,2" options="header"]
+|===
+|Configuration
+|ID
+|Description
+
+|Search UI Endpoint
+|org.codice.ddf.ui.search.standard.endpoint
+|Setting for cache and normalization of Search UI endpoint
+
+|Search UI Redirect
+|org.codice.ddf.ui.searchui.filter.RedirectServlet
+|URI to use with Search UI redir
+
+|Simple Search UI
+|org.codice.ddf.ui.search.simple.properties
+|Basic Display options for using Simple Search UI
+
+|Standard Search UI
+|org.codice.ddf.ui.search.standard.properties
+|Display options for using Standard Search UI
+ 
+|===
+
+.Search UI Endpoint
+[cols="1,1m,1,4,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Required
+
+|Disable Cache
+|cacheDisabled
+|Boolean
+|Disables use of cache.
+|no
+
+|Disable Normalization
+|normalizationDisabled
+|Boolean
+|Disables relevance and distance normalization.
+|no
+
+|===
+
+.Search UI Redirect
+[cols="1,1m,1,4,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Required
+
+|Redirect URI
+|defaultUri
+|String
+|Specifies the redirect URI to use when accessing the /search URI.
+|Yes
+
+|===
+
+.Simple Search UI
+[cols="1,1m,1,4,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Required
+
+|Header
+|header
+|String
+|Specifies the header text to be rendered on the generated Query Page
+|Yes
+
+|Footer
+|footer
+|String
+|Specifies the footer text to be rendered on the generated Query Page
+|Yes
+
+|Text Color
+|color
+|Specifies the Text Color of the Header and Footer. Use html css colors or \#rrggbb.
+|String
+|Yes
+
+|Background Color
+|background
+|String
+|Specifies the Background Color of the Header and Footer.  Use html css colors or \#rrggbb.
+|Yes
+
+|===
+
+.Standard Search UI
+[cols="1,1m,1,4,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Required
+
+|Header
+|header
+|String
+|The header text to be rendered on the Search UI.
+|no
+
+|Footer
+|footer
+|String
+|The footer text to be rendered on the Search UI.
+|no
+
+|Style
+|style
+|String
+|The style name (background color) of the Header and Footer.
+|yes
+
+|Text Color
+|textColor
+|String
+|The text color of the Heater and Footer.
+|yes
+
+|Result count
+|resultCount
+|Integer
+|The max number of results to display.
+|yes
+
+|Imagery Providers
+|imageryProviders
+|String
+|List of imagery providers to use. Valid types are: +
+ -OSM (OpenStreetMap), +
+ -AGM (ArcGisMap), +
+ -BM (BingMap),+
+ -WMS (WebMapService), +
+ -WMT (WebMapTile), +
+ -TMS (TileMapService), +
+ -GE (GoogleEarth).
+ -
+ -Example: TYPE={url=
+ -{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}}
+|no
+
+|Terrain Providers
+|terrainProvider
+|String
+|Terrain provider to use for height data. Valid types are: +
+ -CT (CesiumTerrain), +
+ -AGS (ArcGisImageServer), +
+ -VRW (VRTheWorld).
+ -
+ -Example: +
+ -{"type" "CT" "url" "http://example.com"}
+|no
+
+|Map Projection
+|projection
+|String
+|Projection of imagery providers
+|no
+
+|Connection timeout
+|timeout
+|Integer
+|The WMS connection timeout.
+|yes
+
+|Show sign in
+|signIn
+|Boolean
+|Whether or not to authenticate users.
+|no
+
+|Show tasks
+|task
+|Boolean
+|Whether or not to display progress of background tasks.
+|no
+
+|Show Gazetteer
+|gazetteer
+|Boolean
+|Whether or not to show gazetteer for searching place names.
+|no
+
+|Show Uploader
+|ingest
+|Boolean
+|Whether or not to show upload menu for adding new metadata.
+|no
+
+|Type Name Mapping
+|typeNameMapping
+|String[]
+|The mapping of content types to displayed names.
+|no
+
+|===
+
+==== Upgrading
+
+Upgrading to a newer version of the app can be performed by the Admin Console.
+
+=== Troubleshooting ${ddf-ui}
+
+==== Deleted Records Are Being Displayed In The Standard Search UI's Search Results
+
+When queries are issued by the Standard Search UI, the query results that are returned are also cached in an internal Solr database for faster retrieval when the same query may be issued in the future.
+As records are deleted from the catalog provider, this Solr cache is kept in sync by also deleting the same records from the cache if they exist.
+
+Sometimes the cache may get out of sync with the catalog provider such that records that should have been deleted are not.
+When this occurs, users of the Standard Search UI may see stale results since these records that should have been deleted are being returned from the cache.
+Records in the cache can be manually deleted using the URL commands listed below from a browser.
+In these command URLs, `metacard_cache` is the name of the Solr query cache.
+
+* To delete all of the records in the Solr cache:
+
+.Deletion of all records in Solr query cache
+----
+http://localhost:8181/solr/metacard_cache/update?stream.body=<delete><query>*:*</query></delete>&commit=true
+----
+* To delete a specific record in the Solr cache by ID (specified by the original_id_txt field):
+
+.Deletion of record in Solr query cache by ID
+----
+http://localhost:8181/solr/metacard_cache/update?stream.body=<delete><query>original_id_txt:50ffd32b21254c8a90c15fccfb98f139</query></delete>&commit=true
+----
+* To delete record(s) in the Solr cache using a query on a field in the record(s) - in this example, the `title_txt` field is being used with wildcards to search for any records with word remote in the title:
+
+.Deletion of records in Solr query cache using search criteria
+----
+http://localhost:8181/solr/metacard_cache/update?stream.body=<delete><query>title_txt:*remote*</query></delete>&commit=true
+----

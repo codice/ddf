@@ -1,16 +1,16 @@
 
-The {branding} Admin Application contains components that are responsible for the installation and configuration of {branding} and other {branding} applications.
+The ${ddf-admin} Application contains components that are responsible for the installation and configuration ${branding} applications.
 
-It contains various services and interfaces that allow administrators more control over their systems and enhances administrative capabilities when installing and managing {branding}.
+It contains various services and interfaces that allow administrators more control over their systems and enhances administrative capabilities when installing and managing ${branding}.
 
 The Admin application contains an application service that handles all operations that are performed on applications.
 This includes adding, removing, starting, stopping, and showing status.
 
-=== Installing {branding} Admin
+=== Installing ${ddf-admin}
 
-The {branding} Admin application is installed by default with a standard installation.
+The ${ddf-admin} application is installed by default with a standard installation.
 
-=== Configuring {branding} Admin
+=== Configuring ${ddf-admin}
 
 [cols="1,1,3" options="header"]
 |===
@@ -19,9 +19,9 @@ The {branding} Admin application is installed by default with a standard install
 |ID
 |Description
 
-|Admin Console Configuration
+|${admin-console} Configuration
 |`org.codice.admin.ui.configuration`
-|Customization options for Admin Console elements.
+|Customization options for ${admin-console} elements.
 
 |===
 
@@ -29,11 +29,11 @@ The {branding} Admin application is installed by default with a standard install
 
 The platform settings can be configured by the `<INSTALL_HOME>/etc/system.properties` file.
 
-The settings in this file can be changed at any time during the {branding} lifecycle (before installation, after, or during run-time) and will take effect after a system restart.
+The settings in this file can be changed at any time during the ${branding} lifecycle (before installation, after, or during run-time) and will take effect after a system restart.
 
 === Console Commands
 
-The application service comes with various console commands that can be executed on the {branding} system console.
+The application service comes with various console commands that can be executed on the ${command-console}.
 
 ==== Application Service Interfaces
 
@@ -51,18 +51,18 @@ None.
 
 === Administrative User Interface
 
-The Admin Console is the centralized location for administering the system.
-The Admin Console allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
-The default address for the Admin Console is \https://localhost:8993/admin.
+The ${admin-console} is the centralized location for administering the system.
+The ${admin-console} allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties.
+The default address for the ${admin-console} is \https://localhost:8993/admin.
 
 ==== Modules
 
-The Admin Console is a modular system that can be expanded with additional modules as necessary.
-{branding} comes with the Configurations module and the Installation modules.
-However, new modules can be added, and each module is presented in its own tab of the Admin Console.
+The ${admin-console} is a modular system that can be expanded with additional modules as necessary.
+${branding} comes with the Configurations module and the Installation modules.
+However, new modules can be added, and each module is presented in its own tab of the ${admin-console}.
 
 Modules are single components that implement the `org.codice.ddf.ui.admin.api.module.AdminModule` interface.
-Once they implement and expose themselves as a service, they are added in to the Admin Console as a new tab.
+Once they implement and expose themselves as a service, they are added in to the ${admin-console} as a new tab.
 
 ==== Included Modules
 
@@ -176,7 +176,7 @@ The configuration module allows administrators to change bundle and service conf
 . Install the module if it is not pre-installed.
 `feature:install admin-modules-configuration`
 
-. Open a web browser and navigate to the Admin Console page.
+. Open a web browser and navigate to the ${admin-console} page.
 
 `http://DDF_HOST:DDF_PORT/admin`
 
@@ -184,20 +184,20 @@ The configuration module allows administrators to change bundle and service conf
 
 ===== Configurations Tab
 
-=== Admin Console Access Control
+=== ${admin-console} Access Control
 
-If you have integrated {branding} with your existing security infrastructure, then you may want to limit access to parts of the {branding} based on user roles/groups.
+If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
 
-==== Restricting {branding} Access
+==== Restricting ${branding} Access
 
 . See the documentation for your specific security infrastructure to configure users, roles, and groups.
 
 . On the `/system/console/configMgr`, select the Web Context Policy Manager.
 (IMG)
 
-.. A dialogue will pop up that allows you to edit {branding} access restrictions.
+.. A dialogue will pop up that allows you to edit ${branding} access restrictions.
 
-.. Once you have configured your realms in your security infrastructure, you can associate them with {branding} contexts.
+.. Once you have configured your realms in your security infrastructure, you can associate them with ${branding} contexts.
 
 .. If your infrastructure supports multiple authentication methods, they may be specified on a per-context basis.
 
@@ -227,35 +227,10 @@ A system restart is required for the changes to `users.properties` to take effec
 
 ==== Update the web context policy to point to the new admin role
 
-. Open {branding} Security in the Admin Console
+. Open ${ddf-security} in the ${admin-console}
 . Select the Configuration tab and open Web Context Policy Manager
 . Update the entries under 'Required Attributes' to set the new admin role
 
 *Web Context Policy Manager*
 
 image::web_context_policy_manager.png[Web Context Policy Manager,${image.width}]
-
-=== Exporting Configurations
-
-You can export the current system configurations using the Admin UI.  This is useful for migrating from one running instance to another.
-
-To do so, follow these instructions:
-
-. Select the `System` tab (next to the Applications tab) image:exporting_configuration_step1.png[Exporting Step 1,${image.width}]
-. Click the `Export` button image:exporting_configuration_step2.png[Exporting Step 2,${image.width}]
-. Fill out the form, specifying the destination for the export.  A relative path will be relative to {branding} home. image:exporting_configuration_step3.png[Exporting Step 3,${image.width}]
-. Click the `Start Export` button
-. If there are no warnings or errors, the form will automatically close upon finishing the export
-
-==== Troubleshooting Common Warnings or Failures
-
-===== Insufficient Write Permissions
-
-In the following case, the directory the user tried to export to had permissions set to read only.
-image:exporting_configuration_error.png[Exporting Error,${image.width}]
-
-===== Properties Set to Absolute File Paths
-
-In the following case, the user had a property set to an absolute file path.  This is not allowed, and can be fixed by updating the property to a value that is relative to {branding} home.  However, notice that the export did not completely fail.  It is simply informing the user that they did not include a specific file.  
-image:exporting_configuration_warning.png[Exporting Warning,${image.width}]
-

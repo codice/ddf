@@ -12,7 +12,7 @@ It is meant to be used only with the Standalone Solr Server (`catalog-solr-se
 
 ===== Prerequisites
 
-Before the {branding} Solr Catalog Application can be installed,
+Before the ${ddf-solr} Application can be installed,
 
 * the {branding} Kernel must be running,
 * the {branding} Platform Application must be installed, and
@@ -20,7 +20,7 @@ Before the {branding} Solr Catalog Application can be installed,
 
 ===== Installing
 
-By default, the {branding} Solr Catalog application installs the External Solr Provider.
+By default, the ${ddf-solr} application installs the External Solr Provider.
 
 
 ===== Configuring
@@ -78,7 +78,7 @@ It is a local instance that is a lightweight Catalog provider solution. However,
 
 ===== Prerequisites
 
-Before the {branding} Solr Catalog Application can be installed:
+Before the ${ddf-solr} Application can be installed:
 
 * the {branding} Kernel must be running,
 * the {branding} Platform Application must be installed, and
@@ -86,7 +86,7 @@ Before the {branding} Solr Catalog Application can be installed:
 
 ===== Installing
 
-. Navigate to the {branding} Solr Catalog application in the Admin console.
+. Navigate to the ${ddf-solr} application in the Admin console.
 . Under the *Features* tab, uninstall the `catalog-solr-external-provider` feature.
 . Install the `catalog-solr-embedded-provider`
 
@@ -202,7 +202,7 @@ The Solr Catalog Provider acts as a client to the Solr Server.
 
 ===== Prerequisites
 
-Before the {branding} Solr Catalog Application can be installed for configuration as the Standalone Solr Server, the {branding} Kernel must be running.
+Before the ${ddf-solr} Application can be installed for configuration as the Standalone Solr Server, the {branding} Kernel must be running.
 
 In production environments, it is recommended that Standalone Solr Server be run in isolation on a separate machine in order to maximize the Solr Server performance and use of resources such as RAM and CPU cores.
 The Standalone Solr Server, as its name suggests, does not require or depend on other apps, such as the Catalog API, nor does it require their dependencies, such as Camel, CXF, etc.
@@ -296,7 +296,7 @@ The backup files acquired from the previous section will be used to restore data
 . At this point, one more backup may be executed to save the corrupted data just in case it needs to be revisited.
 . Shut down the Solr server. The catalog cannot be restored while the server is running.
 . Locate the index that contains all of the Solr data. This index is found at 
-`$DDF_INSTALL/solr/collection1/data/index`
+`${ddf-branding}_INSTALL/solr/collection1/data/index`
 . All files within the index directory should be deleted.
 . Copy the files from the chosen backup directory into the index directory.
 . Restart the Solr server. The data should now be restored.

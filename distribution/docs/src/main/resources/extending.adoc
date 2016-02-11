@@ -1,6 +1,10 @@
-= Extending {branding}
+= Extending ${branding}
 include::./_contents/config.adoc[]
 
 == Overview
+
+=== Building ${branding}
 include::./_contents/building-ddf-contents.adoc[]
+
+=== Developing for ${branding}
 include::./_contents/extending-contents.adoc[]

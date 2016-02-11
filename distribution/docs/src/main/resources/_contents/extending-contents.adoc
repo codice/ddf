@@ -2,14 +2,14 @@
 This section discusses the several extension points and components permitted by the ${branding} APIs.
 Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and extend various ${branding} components.
 
-=== ${branding} Development Prerequisites
+=== ${branding} Development Guidelines
 
 [NOTE]
 ====
-Development requires full knowledge of the ${ddf-catalog}.
+Development requires full knowledge of the ${branding} Catalog.
 ====
 
-${branding} is written in Java and requires a moderate amount of experience with the Java programming language, along with Java terminology, such as _packages_, _methods_, _classes_, and _interfaces_.
+${branding} is written in Java and requires a moderate amount of experience with the Java programming language, along with Java terminology, such as packages, methods, classes, and interfaces.
 ${branding} uses a small OSGi runtime to deploy components and applications.
 Before developing for ${branding}, it is necessary that developers have general knowledge on OSGi and the concepts used within.
 This includes, but is not limited to, Catalog Commands and the following topics:
@@ -29,6 +29,9 @@ Helpful literature for beginners includes _OSGi and Apache Felix 3.0 Beginner's 
 Because of its modular nature, ${branding} may require a few or many system resources, depending on which bundles and features are deployed.
 In general, ${branding} will take advantage of available memory and processors.
 A 64-bit JVM is required, and a typical installation is performed on a single machine with 16GB of memory and eight processor cores.
+
+The ${branding} source code is not tied to any particular IDE.
+However, if a developer is interested in setting up the Eclipse IDE, they can view the http://books.sonatype.com/m2eclipse-book/reference/[Sonatype guide] on developing with Eclipse.
 
 ==== Getting Set Up
 
@@ -91,7 +94,7 @@ In the toolbar, select *Code → Reformat Code* or use the keyboard shortcut `Ct
 
 ==== ${branding} Software Versioning
 
-${branding} follows the Semantic Versioning White Paper for bundle versioning (see Software Versioning).
+${branding} follows the https://www.osgi.org/wp-content/uploads/SemanticVersioning.pdf[Semantic Versioning White Paper] for bundle versioning.
 
 ==== Ensuring Compatibility
 
@@ -149,8 +152,6 @@ Detailed documentation of the Catalog API can be found in the Catalog API Javado
 |===
 
 ==== OGC Filter
-
-===== OGC Filter
 
 An OGC Filter is a Open Geospatial Consortium (OGC) standard that describes a query expression in terms of XML and Key-Value Pairs (KVP).
 
@@ -225,9 +226,6 @@ if (LOGGER.isTraceEnabled()) {
 LOGGER.trace("Executing search: {}", search);
 ----
 
-=== Building ${ddf-branding}
-include::building-ddf-contents.adoc[]
-
 === "White Box" ${branding} Architecture
 
 .Architecture Diagram
@@ -240,11 +238,11 @@ include::building-ddf-contents.adoc[]
 |                        \----------------------/  \-------------------/ \----------------------/  \-------------------/|
 |                      /-=------------------------------------------------------------------------\                     |
 |                      | /----------------------\  /-------------------\ /----------------------\ |/-------------------\|
-|   ${ddf-branding} Applications   | |cDEF  ${ddf-branding} Catalog     |  |cDEF${ddf-branding} Security   | |cDEF  ${ddf-branding} Content     | ||  New Application  ||
+|   DDF Applications   | |cDEF  DDF Catalog     |  |cDEFDDF Security   | |cDEF  DDF Content     | ||  New Application  ||
 |                      | |                      |  |                   | |                      | |\-------------------/|
 |                      | \----------------------/  \-------------------/ \----------------------/ \-------------------\ |
 | /--------------------/ /------------------------------------------------------------------------------------------\ | |
-| |       ${ddf-branding}            |cDEF                              ${ddf-branding} Framework                                           | | |
+| |       DDF            |cDEF                              DDF Framework                                           | | |
 | \--------------------\ |                                                                                          | | |
 |                      | |                        includes Apache Karaf, Apache CXF,                                | | |
 |                      | |                           Eclipse Equinox OSGi Container                                 | | |
@@ -265,9 +263,9 @@ include::building-ddf-contents.adoc[]
 As depicted in the architectural diagram above, ${branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
 The items within the dotted line represent the ${branding} out-of-the-box.
 
-${branding} is a customized and branded distribution of Apache Karaf.
+${branding} is a customized and branded distribution of http://karaf.apache.org/[Apache Karaf].
 ${branding} could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.
-Similar to its peers, ${branding} incorporates <<additional upstream dependencies>>.
+Similar to its peers, ${branding} incorporates additional upstream dependencies (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies).
 
 ${branding} as a framework hosts ${branding} applications, which are extensible by adding components via OSGi.
 The best example of this is the ${branding} Catalog (API), which offers extensibility via several types of Catalog Components.
@@ -282,7 +280,7 @@ Capability:: A general term used to refer to an ability of the system
 Application:: One or more features that together form a cohesive collection of capabilities
 Component:: Represents a portion of an Application that can be extended
 Bundle:: Java Archives (JARs) with special OSGi manifest entries.
-Feature:: One or more bundles that form an installable unit; Defined by Apache Karaf but portable to other OSGi containers.
+Feature:: One or more bundles that form an installable unit;  Defined by Apache Karaf but portable to other OSGi containers.
 
 ==== OSGi Core
 
@@ -294,7 +292,7 @@ ${branding} makes use of OSGi v4.2 to provide several capabilities:
 Bundles are modules that can be deployed into the OSGi container (Eclipse Equinox OSGi Framework by default).
 * Bundles provide flexibility allowing integrators to choose the bundles that meet their mission needs.
 * Bundles provide reusable modules that can be dropped in any container.
-* Provides modularity, module-based security, and low-level services, such as Hypertext Transfer Protocol (HTTP), logging, events (basic publish/subscribe), and dependency injection.
+* Provides modularity, module-based security, and low-level services, such as  Hypertext Transfer Protocol (HTTP), logging, events (basic publish/subscribe), and dependency injection.
 * Implements a dynamic component model that allows application updates without downtime.
 Components can be added or updated in a running system.
 * Standardized Application Configuration (ConfigurationAdmin and MetaType)
@@ -308,14 +306,14 @@ More information on OSGi is available at http://www.osgi.org/.
 Apache Karaf is a FOSS product that includes an OSGi framework and adds extra functionality, including:
 
 ${admin-console}:: Useful for configuring applications, installing/uninstalling features, and viewing services such as metrics.
-${command-console}:: Provides command line administration of the OSGi container. All functionality in the {admin-console} can also be performed via this command line console.
+${command-console}:: Provides command line administration of the OSGi container. All functionality in the ${command-console} can also be performed via this command line console.
 Logging:: Provides centralized logging to `data/log/${branding-lowercase}.log`. Security logging is provided at `data/log/security.log`. Ingest error logging can be viewed in `data/log/ingest_error.log`.
 Provisioning:: Of libraries or applications.
 Security:: Provides a security framework based on Java Authentication and Authorization Service (JAAS).
-Deployer:: Provides hot deployment of new bundles dropped into the `<INSTALL_DIR>/deploy` directory.
+Deployer:: Provides hot deployment of new bundles by dropping them into the `<INSTALL_DIR>/deploy` directory.
 Blueprint:: Provides an implementation of the OSGi Blueprint Container specification that defines a dependency injection framework for dealing with dynamic configuration of OSGi services.
 ** ${branding} uses the Apache Aries implementation of Blueprint.
-More information can be found at http://aries.apache.org/modules/blueprint.htm[Apache Aries].
+More information can be found at http://aries.apache.org/modules/blueprint.htm[Blueprint].
 Spring DM:: An alternative dependency injection framework.
 ${branding} is not dependent on specific dependency injection framework, but Blueprint is recommended.
 
@@ -325,11 +323,11 @@ ${branding} is a customized distribution of Apache Karaf, and therefore includes
 ${branding} also includes additional FOSS components to provide a richer set of capabilities.
 Integrated components include their own dependencies, but at the platform level, ${branding} includes the following upstream dependencies:
 
-Apache CXF:: Apache CXF is an open source services framework. CXF helps build and develop services using front end programming APIs, such as JAX-WS and JAX-RS. More information can be found at http://cxf.apache.org[CXF].
-Apache Commons:: Provides a set of reusable Java components that extends functionality beyond that provided by the standard JDK  (More info available at http://commons.apache.org[Apache Commons]).
-OSGeo GeoTools:: Provides spatial object model and fundamental geometric functions, which are used by ${branding} spatial criteria searches. More information can be found at http://geotools.org/[GeoTools].
+Apache CXF:: Apache CXF is an open source services framework. CXF helps build and develop services using front end programming APIs, such as JAX-WS and JAX-RS. More information can be found at http://cxf.apache.org.
+Apache Commons:: Provides a set of reusable Java components that extends functionality beyond that provided by the standard JDK  (More info available at http://commons.apache.org)
+OSGeo GeoTools:: Provides spatial object model and fundamental geometric functions, which are used by ${branding} spatial criteria searches. More information can be found at http://geotools.org/.
 Joda Time:: Provides an enhanced, easier to use version of Java date and time classes.
-More information can be found at http://joda-time.sourceforge.net[Joda Time].
+More information can be found at http://joda-time.sourceforge.net.
 
 For a full list of dependencies, refer to the Software Version Description Document (SVDD).
 
@@ -341,9 +339,9 @@ An API Bundle:: The API, written as Java interfaces, defines the contract of the
 These classes being in the `java.\*` packages.
 These exceptions to the `java.*` rule can be made:
 
-** Extra interfaces can be declared by the API and used as input parameters and return values from API methods.
+* Extra interfaces can be declared by the API and used as input parameters and return values from API methods.
 
-** Because of their complexity and relative permanence, generated JAXB classes can be exported from an API bundle for use by its consumers.
+* Because of their complexity and relative permanence, generated JAXB classes can be exported from an API bundle for use by its consumers.
 
 At least one implementation bundle:: As the intent of loosely coupled services is to allow a variety of implementations to be deployed into the container, it is common for there to be more than one concrete implementation of a service. However, that is not a requirement. A single implementation can suffice. It should include a `blueprint.xml` associating the implementation class(es) with interface(s), providing any other wiring of beans, services, and metadata necessary, and registering with the container.
 
@@ -352,18 +350,13 @@ At least one implementation bundle:: As the intent of loosely coupled services i
 ${branding} uses resource injection to retrieve and register services to the OSGi registry.
 There are many resource injection frameworks that are used to complete these operations.
 Blueprint and Spring DM are both used by ${branding}.
-There are many tutorials and guides available on the Internet for both of these frameworks.
-
-It is highly recommended to use a dependency injection framework for non-advanced OSGi tasks.
-Dependency injection frameworks allow for more modularity in code, keep the code's business logic clean of OSGi implementation details, and take the complexity out of the dynamic nature of OSGi.
-In OSGi, services can be added and removed at any time, and dependency injection frameworks are better suited to handle these types of situations.
-Allowing the code to be clean of OSGi packages also makes code easier to reuse outside of OSGi.
-These frameworks provide code conveniences of service registration, service tracking, configuration property management, and other OSGi core principles.
 
 [NOTE]
 ====
 It is recommended to use Blueprint over Spring DM wherever possible.
 ====
+
+There are many tutorials and guides available on the Internet for both of these frameworks.
 
 ==== Blueprint - Retrieving a Service Instance
 
@@ -412,7 +405,7 @@ It is recommended to use Blueprint over Spring DM wherever possible.
 </beans>
 ----
 
-[cols="1,7" options="header"]
+[cols="1,9" options="header"]
 |===
 
 |Line #
@@ -456,8 +449,11 @@ It is recommended to use Blueprint over Spring DM wherever possible.
 
 ==== Packaging Capabilities as Bundles
 
+Services and code are physically deployed to ${branding} using bundles.
+The bundles within ${branding} are created using the maven bundle plug-in. Bundles are Java JAR files that have additional metadata in the `MANIFEST.MF` that is relevant to an OSGi container.
+
 The best resource for learning about the structure and headers in the manifest definition is in section 3.6 of the https://osgi.org/download/r5/osgi.core-5.0.0.pdf[OSGi Core Specification].
-The bundles within {branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in], which uses the http://bnd.bndtools.org/[BND tool].
+The bundles within ${branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in], which uses the http://bnd.bndtools.org/[BND tool].
 Bundles are Java JAR files that have additional metadata in the `MANIFEST.MF` file that is relevant to an OSGi container.
 
 .Alternative Bundle Creation Methods
@@ -553,31 +549,11 @@ The example below shows how to verify if a Client is deployed and running.
 
 .Verifying with grep
 ----
-${ddf-branding-lowercase}@local>list | grep -i example
+${ddf-branding-lowercase}${at-symbol}local>list | grep -i example
 [ 162] [Active    ] [       ] [  ] [ 80] ${ddf-branding} :: Registry :: example Client (2.0.0)
 ----
 
 The state is `Active`, indicating that the bundle is ready for program execution.
-
-===== Best Practices
-
-* Always use a version number when exporting a package.
-* In the following example, the `<PROJECT/ARTIFACTID>` represents the `project` and `artifactId` of the package being exported.
-* The `<VERSION>` represents the version of the project.
-
-.Export Example
-[source,xml,linenums]
-----
-<Export-Package>
-  <PROJECT/ARTIFACTID>*;version=<VERSION>
-</Export-Package>
-----
-
-* Try to avoid deploying multiple versions of a bundle.
-Although OSGi is designed to support multiple versions, other developers may not include the versions of the packages that are being imported.
-If the bundle is versioned and designed appropriately, typically, having multiple versions of the bundle will not be an issue.
-However, if each bundle is competing for a specific resource, race conditions may occur.
-Third party and utility bundles (often denoted by commons in the bundle name) are the general exception to this rule, as these bundles will likely function as expected with multiple versions deployed.
 
 ==== Additional Bundling Resources
 
@@ -689,7 +665,6 @@ The following example demonstrates configuring features to be auto-started. The 
     <feature>catalog-transformer-thumbnail</feature>
 </feature>
 ----
-
 
 === Developing ${branding} Applications
 
@@ -852,7 +827,7 @@ The Security Framework is the set of APIs that define the integration with the $
 
 ==== Security Framework
 
-The ${branding} Security Framework uses http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
+The ${branding} Security Framework utilizes http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
 The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by ${branding}.
 
 ===== Subject
@@ -947,8 +922,7 @@ Authorizing Realms are used to perform authorization on the current Subject.
 These are used when performing both Service AuthZ and Filtering.
 They are passed in the `AuthorizationInfo` of the Subject along with the Permissions of the object wanting to be accessed. The response from these realms is a true (if the Subject has permission to access) or false (if the Subject does not).
 
-====== Other implementations of the Security API that come with ${branding}:
-
+.Other implementations of the Security API within ${branding}
 [cols="1m,2" options="header"]
 |===
 
@@ -977,7 +951,7 @@ If they exist, they are retrieved and passed to the `LoginFilter` for exchange.
 |Handler for PKI based authentication.
 X509 chain will be extracted from the HTTP request and converted to a `BinarySecurityToken`.
 
-|org.codice.${ddf-branding-lowercase}.security.handler.anonymous.AnonymousHandler
+|org.codice.${ddf-branding-lowercase}.security.handler.guest.GuestHandler
 |Handler that allows guest user access via a guest user account.
 The guest account credentials are configured via the org.codice.${ddf-branding-lowercase}.security.claims.guest.GuestClaimsHandler.
 The `GuestHandler` also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
@@ -999,7 +973,7 @@ The `GuestHandler` also checks for the existence of basic auth credentials or PK
 
 |${ddf-branding-lowercase}.security.pdp.realm.AuthZRealm
 |This realm performs the authorization decision and may or may not delegate out to the external XACML processing engine. It uses the incoming permissions to create a decision.
-However, it is possible to extend this realm using the `${ddf-branding-lowercase}.security.policy.extension.PolicyExtension` interface.
+However, it is possible to extend this realm using the ${ddf-branding-lowercase}.security.policy.extension.PolicyExtension interface.
 This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies.
 This approach is often easier to configure for those that are not familiar with XACML.
 Note that no `PolicyExtension` implementations are provided out of the box.
@@ -1524,7 +1498,7 @@ This XML file is found inside of the STS bundle and is named `ws-trust-1.4-servi
 
 ==== Example Request and Responses for a SAML Assertion
 
-A client performs a `RequestSecurityToken` operation against the STS to receive a SAML assertion.
+A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion.
 The ${branding} STS offers several different ways to request a SAML assertion.
 For help in understanding the various request and response formats, samples have been provided.
 The samples are divided out into different request token types.
@@ -1757,6 +1731,7 @@ The client doesn't have to prove it can own that SAML assertion.
 It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer.
 
 ====== Request
+
 *Explanation*
 
 * WS-Addressing header with Action, To, and Message ID
@@ -2364,4 +2339,3 @@ If calling endpoint from a non-secure client, at the point the of the initial ca
 First, the interceptor reads the configured policy, builds a security header, and gets an anonymous SAML assertion.
 Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm.
 Upon success, the STS realm returns the subject and the call is made to the endpoint.
-

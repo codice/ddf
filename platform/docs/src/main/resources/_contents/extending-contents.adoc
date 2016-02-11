@@ -3,33 +3,33 @@ This section supports developers creating extensions of the existing framework.
 
 === Whitelist
 
-The following packages have been exported by the {branding} Platform application and are approved for use by third parties:
+The following packages have been exported by the ${ddf-platform} application and are approved for use by third parties:
 
-* `ddf.security`
-* `ddf.security.assertion`
-* `ddf.security.common.audit`
-* `ddf.security.http`
-* `ddf.security.permission`
-* `ddf.security.policy.extension`
-* `ddf.security.principal`
-* `ddf.security.samlp`
-* `ddf.security.service`
-* `ddf.security.settings`
-* `ddf.security.sts.client.configuration`
-* `ddf.security.ws.policy`
-* `ddf.security.ws.proxy`
-* `org.codice.ddf.branding`
-* `org.codice.ddf.configuration`
-* `org.codice.ddf.configuration.admin`
-* `org.codice.ddf.configuration.migration`
-* `org.codice.ddf.configuration.persistence`
-* `org.codice.ddf.configuration.persistence.felix`
-* `org.codice.ddf.configuration.status`
-* `org.codice.ddf.notifications.store`
-* `org.codice.ddf.parser`
-* `org.codice.ddf.parser.xml`
-* `org.codice.ddf.platform.error.handler`
-* `org.codice.ddf.platform.util`
+* `${ddf-branding-lowercase}.security`
+* `${ddf-branding-lowercase}.security.assertion`
+* `${ddf-branding-lowercase}.security.common.audit`
+* `${ddf-branding-lowercase}.security.http`
+* `${ddf-branding-lowercase}.security.permission`
+* `${ddf-branding-lowercase}.security.policy.extension`
+* `${ddf-branding-lowercase}.security.principal`
+* `${ddf-branding-lowercase}.security.samlp`
+* `${ddf-branding-lowercase}.security.service`
+* `${ddf-branding-lowercase}.security.settings`
+* `${ddf-branding-lowercase}.security.sts.client.configuration`
+* `${ddf-branding-lowercase}.security.ws.policy`
+* `${ddf-branding-lowercase}.security.ws.proxy`
+* `org.codice.${ddf-branding-lowercase}.branding`
+* `org.codice.${ddf-branding-lowercase}.configuration`
+* `org.codice.${ddf-branding-lowercase}.configuration.admin`
+* `org.codice.${ddf-branding-lowercase}.configuration.migration`
+* `org.codice.${ddf-branding-lowercase}.configuration.persistence`
+* `org.codice.${ddf-branding-lowercase}.configuration.persistence.felix`
+* `org.codice.${ddf-branding-lowercase}.configuration.status`
+* `org.codice.${ddf-branding-lowercase}.notifications.store`
+* `org.codice.${ddf-branding-lowercase}.parser`
+* `org.codice.${ddf-branding-lowercase}.parser.xml`
+* `org.codice.${ddf-branding-lowercase}.platform.error.handler`
+* `org.codice.${ddf-branding-lowercase}.platform.util`
 
 [WARNING]
 ====
@@ -47,8 +47,8 @@ This does two things: it allows the feature to be independent of implementations
 
 The Action Framework consists of two major Java interfaces in its API:
 
-. `ddf.action.Action`
-. `ddf.action.ActionProvider`
+. `${ddf-branding-lowercase}.action.Action`
+. `${ddf-branding-lowercase}.action.ActionProvider`
 
 ==== Usage
 
@@ -58,7 +58,7 @@ For instance, if a REST endpoint ActionProvider was given a metacard, it could p
 An Action Provider performs an action when given a subject that it understands.
 If it does not understand the subject or does not know how to handle the given input, it will return `null`.
 An Action Provider is required to have an ActionProvider id.
-The Action Provider must register itself in the OSGi Service Registry with the `ddf.action.ActionProvider` interface and must also have a service property value for `id`. 
+The Action Provider must register itself in the OSGi Service Registry with the `${ddf-branding-lowercase}.action.ActionProvider` interface and must also have a service property value for `id`. 
 An action is a URL that, when invoked, provides a resource or executes intended business logic. 
 
 ==== Naming Convention
@@ -115,25 +115,25 @@ The following is a sample taxonomy: 
 
 === Developing Migratables
 
-The `Migratable` API provides a mechanism for bundles to handle exporting data required to clone a {branding} system.
-The migration process is meant to be flexible, so an implementation of `org.codice.ddf.migration.Migratable` can handle
+The `Migratable` API provides a mechanism for bundles to handle exporting data required to clone a ${branding} system.
+The migration process is meant to be flexible, so an implementation of `org.codice.${ddf-branding-lowercase}.migration.Migratable` can handle
 exporting data for a single bundle or groups of bundles such as applications. For example, the
-`org.codice.ddf.platform.migratable.impl.PlatformMigratable` handles exporting core system files for the {branding} Platform Application.
+`org.codice.${ddf-branding-lowercase}.platform.migratable.impl.PlatformMigratable` handles exporting core system files for the ${ddf-platform} Application.
 Exporting configurations stored in `org.osgi.service.cm.ConfigurationAdmin` does not need to be handled by implementations of
-`org.codice.ddf.migration.Migratable` as all `ConfigurationAdmin` configurations are exported by
-`org.codice.ddf.configuration.admin.ConfigurationAminMigration`.
+`org.codice.${ddf-branding-lowercase}.migration.Migratable` as all `ConfigurationAdmin` configurations are exported by
+`org.codice.${ddf-branding-lowercase}.configuration.admin.ConfigurationAminMigration`.
 
 The Migratable API includes:
 
-. `org.codice.ddf.migration.Migratable`
-. `org.codice.ddf.migration.AbstractMigratable`
-. `org.codice.ddf.migration.MigrationException`
-. `org.codice.ddf.migration.MigrationMetadata`
-. `org.codice.ddf.migration.MigrationWarning`
+. `org.codice.${ddf-branding-lowercase}.migration.Migratable`
+. `org.codice.${ddf-branding-lowercase}.migration.AbstractMigratable`
+. `org.codice.${ddf-branding-lowercase}.migration.MigrationException`
+. `org.codice.${ddf-branding-lowercase}.migration.MigrationMetadata`
+. `org.codice.${ddf-branding-lowercase}.migration.MigrationWarning`
 
 ==== Usage
 
-The `org.codice.ddf.migration.Migratable` interface defines these methods:
+The `org.codice.${ddf-branding-lowercase}.migration.Migratable` interface defines these methods:
 
 .`MigrationMetadata export(Path exportPath) throws MigrationException`
 .`String getDescription()`
@@ -146,17 +146,17 @@ must namespace the files. The `getDescription()` operation returns a short descr
 The `isOptional()` operation returns whether the exported data for the `Migratable` is optional or required. The description and optional flag are
 for display purposes in the Admin Console.
 
-A `org.codice.ddf.migration.MigrationException` should be thrown when an unrecoverable exception occurs that prevents required data from exporting.
+A `org.codice.${ddf-branding-lowercase}.migration.MigrationException` should be thrown when an unrecoverable exception occurs that prevents required data from exporting.
 The exception message is displayed to the admin.
 
-A `org.codice.ddf.migration.MigrationWarning` should be used when a `Migratable` wants to warn an admin that certain aspects of the export may
+A `org.codice.${ddf-branding-lowercase}.migration.MigrationWarning` should be used when a `Migratable` wants to warn an admin that certain aspects of the export may
 cause problems upon import. For example, if an absolute path is encountered, that path may not exist on the target system and cause
 the installation to fail. All migration warnings are displayed to the admin.
 
-In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented
-and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGI service in
-the OSGI service registry. Creating an OSGI service allows for the `org.codice.ddf.configuration.migration.ConfigurationMigrationManager`
-to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export.
+In order to create a `Migratable` for a module of the system, the `org.codice.${ddf-branding-lowercase}.migration.Migratable` interface must be implemented
+and the implementation must be registered under the `org.codice.${ddf-branding-lowercase}.migration.Migratable` interface as an OSGI service in
+the OSGI service registry. Creating an OSGI service allows for the `org.codice.${ddf-branding-lowercase}.configuration.migration.ConfigurationMigrationManager`
+to lookup all implementations of `org.codice.${ddf-branding-lowercase}.migration.Migratable` and command them to export.
 
-The abstract base class `org.codice.ddf.migration.AbstractMigratable` in the `platform-migratable-api` implements common boilerplate code required
-when implementing `org.codice.ddf.migration.Migratable` and should be extended when creating a `org.codice.ddf.migration.Migratable`.
+The abstract base class `org.codice.${ddf-branding-lowercase}.migration.AbstractMigratable` in the `platform-migratable-api` implements common boilerplate code required
+when implementing `org.codice.${ddf-branding-lowercase}.migration.Migratable` and should be extended when creating a `org.codice.${ddf-branding-lowercase}.migration.Migratable`.

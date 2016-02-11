@@ -1,5 +1,5 @@
-= Managing {branding} Standard Search UI
+= Managing ${ddf-ui}
 include::./_contents/config.adoc[]
 
 == Overview
-include::./_contents/mancontents.adoc[]
+include::./_contents/managing-contents.adoc[]

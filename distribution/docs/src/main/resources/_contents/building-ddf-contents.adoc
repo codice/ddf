@@ -1,3 +1,4 @@
+Follow these procedures to build ${branding} from source code.
 
 ==== Prerequisites
 
@@ -32,6 +33,20 @@ See this http://maven.apache.org/guides/mini/guide-encryption.html[Maven guide] 
 
 ===== Clone the ${ddf-branding} Repository
 
+.Using HTTPS
+----
+https://github.com/codice/ddf.git
+----
+
+.Using SSH
+----
+git@github.com:codice/ddf.git
+----
+
+[NOTE]
+====
+Generally, SSH is faster than HTTPS, but requires setting an SSH git and passphrase with http://github.com[Github]. Additionally, there may be restrictions on the use of SSH on some networks.
+====
 
 ===== Run the Build
 
@@ -48,7 +63,7 @@ mvn clean install
 
 [NOTE]
 ====
-[The zip distribution of ${branding} is contained in the ${branding} app in the distribution/ddf/target directory after the ${branding} app is built.
+The zip distribution of ${branding} is contained in the ${branding} app in the distribution/ddf/target directory after the ${branding} app is built.
 ====
 
 [NOTE]
@@ -59,12 +74,13 @@ Build times may vary based on network speed and machine specifications.
 
 [WARNING]
 ====
-In certain circumstances, the build may fail due to a 'java.lang.OutOfMemory: Java heap space' error.
+In certain circumstances, the build may fail due to a ``java.lang.OutOfMemory: Java heap space` error.
 This error is due to the large number of sub-modules in the ${branding} build, which causes the heap space to run out in the main Maven JVM.
 To fix this issue, set the system variable `MAVEN_OPTS` with the value `-Xmx2048m` before running the build.
 Example on Linux system with the bash shell: `export MAVEN_OPTS='-Xmx2048m'`
 ====
-==== Troubleshoot Build Errors on ddf-admin and ddf-ui on a Windows Platform
+
+==== Troubleshooting Build Errors on ddf-admin and ddf-ui on a Windows Platform
 
 Currently, the developers are using the following tools:
 

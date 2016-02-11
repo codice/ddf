@@ -1,7 +1,6 @@
 Version ${project.version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
 :toc: left
-:branding: DDF
 :icons: font
 :data-uri:
 :title-logo: logo_ddf.png

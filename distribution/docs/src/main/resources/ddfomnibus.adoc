@@ -33,51 +33,51 @@ include::./_contents/troubleshooting-contents.adoc[]
 
 <<<
 
-== Managing ${branding} Admin
+== Managing ${ddf-admin}
 
-include::${project.build.directory}/apps/admin/_contents/mancontents.adoc[]
-
-<<<
-
-== Managing ${branding} Catalog
-
-include::${project.build.directory}/apps/catalog/_contents/mancontents.adoc[]
+include::${project.build.directory}/adoc/admin/_contents/managing-contents.adoc[]
 
 <<<
 
-== Managing ${branding} Content
+== Managing ${ddf-catalog}
 
-include::${project.build.directory}/apps/content/_contents/mancontents.adoc[]
-
-<<<
-
-== Managing ${branding} Platform
-
-include::${project.build.directory}/apps/platform/_contents/mancontents.adoc[]
+include::${project.build.directory}/adoc/catalog/_contents/managing-contents.adoc[]
 
 <<<
 
-== Managing ${branding} Security
+== Managing ${ddf-content}
 
-include::${project.build.directory}/apps/security/_contents/mancontents.adoc[]
-
-<<<
-
-== Managing ${branding} Solr
-
-include::${project.build.directory}/apps/solr/_contents/mancontents.adoc[]
+include::${project.build.directory}/adoc/content/_contents/managing-contents.adoc[]
 
 <<<
 
-== Managing ${branding} Spatial
+== Managing ${ddf-platform}
 
-include::${project.build.directory}/apps/spatial/_contents/mancontents.adoc[]
+include::${project.build.directory}/adoc/platform/_contents/managing-contents.adoc[]
 
 <<<
 
-== Managing ${branding} UI
+== Managing ${ddf-security}
 
-include::${project.build.directory}/apps/ui/_contents/mancontents.adoc[]
+include::${project.build.directory}/adoc/security/_contents/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-solr}
+
+include::${project.build.directory}/adoc/solr/_contents/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-spatial}
+
+include::${project.build.directory}/adoc/spatial/_contents/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-ui}
+
+include::${project.build.directory}/adoc/ui/_contents/managing-contents.adoc[]
 
 <<<
 
@@ -87,103 +87,107 @@ include::./_contents/integrating-contents.adoc[]
 
 <<<
 
-== Integrating ${branding} Admin
+== Integrating ${ddf-admin}
 
-include::${project.build.directory}/apps/admin/_contents/intcontents.adoc[]
+include::${project.build.directory}/adoc/admin/_contents/integrating-contents.adoc[]
 
 <<<
 
 == Integrating ${branding} Catalog
 
-include::${project.build.directory}/apps/catalog/_contents/intcontents.adoc[]
+include::${project.build.directory}/adoc/catalog/_contents/integrating-contents.adoc[]
 
 <<<
 
-== Integrating ${branding} Content
+== Integrating ${ddf-content}
 
-include::${project.build.directory}/apps/content/_contents/intcontents.adoc[]
-
-<<<
-
-== Integrating ${branding} Platform
-
-include::${project.build.directory}/apps/platform/_contents/intcontents.adoc[]
+include::${project.build.directory}/adoc/content/_contents/integrating-contents.adoc[]
 
 <<<
 
-== Integrating ${branding} Security
+== Integrating ${ddf-platform}
 
-include::${project.build.directory}/apps/security/_contents/intcontents.adoc[]
-
-<<<
-
-== Integrating ${branding} Solr
-
-include::${project.build.directory}/apps/solr/_contents/intcontents.adoc[]
+include::${project.build.directory}/adoc/platform/_contents/integrating-contents.adoc[]
 
 <<<
 
-== Integrating ${branding} Spatial
+== Integrating ${ddf-security}
 
-include::${project.build.directory}/apps/spatial/_contents/intcontents.adoc[]
+include::${project.build.directory}/adoc/security/_contents/integrating-contents.adoc[]
 
 <<<
 
-== Integrating ${branding} UI
+== Integrating ${ddf-solr}
 
-include::${project.build.directory}/apps/ui/_contents/intcontents.adoc[]
+include::${project.build.directory}/adoc/solr/_contents/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-spatial}
+
+include::${project.build.directory}/adoc/spatial/_contents/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-ui}
+
+include::${project.build.directory}/adoc/ui/_contents/integrating-contents.adoc[]
 
 <<<
 
 == Extending ${branding}
 
+=== Building ${branding}
 include::./_contents/building-ddf-contents.adoc[]
+
+=== Developing for ${branding}
 include::./_contents/extending-contents.adoc[]
 
 <<<
 
-== Extending ${branding} Admin
+== Extending ${ddf-admin}
 
-include::${project.build.directory}/apps/admin/_contents/extcontents.adoc[]
-
-<<<
-
-== Extending ${branding} Catalog
-
-include::${project.build.directory}/apps/catalog/_contents/extcontents.adoc[]
+include::${project.build.directory}/adoc/admin/_contents/extending-contents.adoc[]
 
 <<<
 
-== Extending ${branding} Content
 
-include::${project.build.directory}/apps/content/_contents/extcontents.adoc[]
+== Extending ${ddf-catalog}
 
-<<<
-
-== Extending ${branding} Platform
-
-include::${project.build.directory}/apps/platform/_contents/extcontents.adoc[]
+include::${project.build.directory}/adoc/catalog/_contents/extending-contents.adoc[]
 
 <<<
 
-== Extending ${branding} Security
+== Extending ${ddf-content}
 
-include::${project.build.directory}/apps/security/_contents/extcontents.adoc[]
-
-<<<
-
-== Extending ${branding} Solr
-
-include::${project.build.directory}/apps/solr/_contents/extcontents.adoc[]
+include::${project.build.directory}/adoc/content/_contents/extending-contents.adoc[]
 
 <<<
 
-== Extending ${branding} Spatial
+== Extending ${ddf-platform}
 
-include::${project.build.directory}/apps/spatial/_contents/extcontents.adoc[]
+include::${project.build.directory}/adoc/platform/_contents/extending-contents.adoc[]
 
 <<<
 
-== Extending ${branding} UI
+== Extending ${ddf-security}
 
-include::${project.build.directory}/apps/ui/_contents/extcontents.adoc[]
+include::${project.build.directory}/adoc/security/_contents/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-solr}
+
+include::${project.build.directory}/adoc/solr/_contents/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-spatial}
+
+include::${project.build.directory}/adoc/spatial/_contents/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-ui}
+
+include::${project.build.directory}/adoc/ui/_contents/extending-contents.adoc[]

@@ -349,7 +349,7 @@ During ${branding} installation, the major directories and files shown in the ta
 |Template `.config` files for use in configuring ${branding} sources, settings, etc., by copying to the etc directory.
 
 |`lib`
-2+|The system's bootstrap libraries. Includes the ${branding-lowercase}-branding.jar file which is used to brand the system console with the ${branding} logo.
+2+|The system's bootstrap libraries. Includes the `${branding-lowercase}-branding.jar` file which is used to brand the system console with the ${branding} logo.
 
 |`licenses`
 2+|Licensing information related to the system.
@@ -359,3 +359,4 @@ During ${branding} installation, the major directories and files shown in the ta
 
 |===
 
+After successfully completing these steps, the ${branding} is ready to be configured.

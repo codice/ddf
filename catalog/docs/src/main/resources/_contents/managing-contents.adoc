@@ -1,5 +1,5 @@
 
-The {branding} Catalog provides a framework for storing, searching, processing, and transforming information.
+The ${branding} Catalog provides a framework for storing, searching, processing, and transforming information.
 Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.
 At the core of the Catalog functionality is the `Catalog Framework`, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 
@@ -34,7 +34,7 @@ At the core of the Catalog functionality is the `Catalog Framework`, which rout
                           |
                           v                         Legend
                   +---------------+                /---------------------\
-                  |{s}            |                |cDEF DDF Component   |
+                  |{s}            |                |cDEF ${ddf-branding} Component   |
                   |  Data Store   |                \---------------------/
                   |               |                /---------------------\
                   +------------=--+                | External Component  |
@@ -42,19 +42,19 @@ At the core of the Catalog functionality is the `Catalog Framework`, which rout
 
 ....
 
-=== Installing {branding} Catalog
+=== Installing ${ddf-catalog}
 
 ==== Prerequisites
 
-Before the {branding} Catalog application can be installed:
+Before the ${ddf-catalog} application can be installed:
 
-* the {branding} Kernel must be running
+* the ${branding} Kernel must be running
 
-* the {branding} Platform application must be installed
+* the ${branding} Platform application must be installed
 
 ==== Installing
 
-The {branding} Catalog is preinstalled with a standard installation.
+The ${ddf-catalog} is preinstalled with a standard installation.
 
 ==== Configuring
 
@@ -69,7 +69,7 @@ The {branding} Catalog is preinstalled with a standard installation.
 |Enable and configure Backup Plugin
 
 |Catalog Federation Strategy
-|`ddf.catalog.federation.impl.CachingFederationStrategy`
+|`${ddf-branding-lowercase}.catalog.federation.impl.CachingFederationStrategy`
 |Configuration options for federation caching
 
 |Catalog OpenSearch Federated Source
@@ -77,28 +77,28 @@ The {branding} Catalog is preinstalled with a standard installation.
 |Settings for OpenSearch Source
 
 |Catalog Standard Framework
-|`ddf.catalog.CatalogFrameworkImpl`
+|`${ddf-branding-lowercase}.catalog.CatalogFrameworkImpl`
 |Settings for product retrieval through Catalog Standard Framework
 
 |Ingest Security Plugin
-|`ddf.catalog.security.ingest.IngestPlugin`
+|`${ddf-branding-lowercase}.catalog.security.ingest.IngestPlugin`
 |Configure roles/attributes required to ingest
 
 |URL Resource Reader
-|`ddf.catalog.resource.impl.URLResourceReader`
+|`${ddf-branding-lowercase}.catalog.resource.impl.URLResourceReader`
 |Configure directories for product downloads
 
 |Xml Query Transformer
-|`ddf.catalog.transformer.xml.XmlResponseQueueTransformer`
+|`${ddf-branding-lowercase}.catalog.transformer.xml.XmlResponseQueueTransformer`
 |Set threshold for running marshalling in parallel
 
 |===
 
 === Federation UI
 
-The federation user interface is a convenient way to manage federated data sources for the {branding}.
+The federation user interface is a convenient way to manage federated data sources for the ${branding}.
 
-Federation enables including remote sources, including other {branding} installations in queries.
+Federation enables including remote sources, including other ${branding} installations in queries.
 
 ==== Installing
 
@@ -112,7 +112,7 @@ No configuration is required.
 
 . Go to the admin ui at `http://localhost:8181/admin/index.html`.
 
-. Open DDF-Catalog Application
+. Open ${ddf-catalog} Application
 
 ==== Adding a Source
 

@@ -60,7 +60,7 @@ Some notable features of the Solr Catalog Provider include:
 
 ==== When to Use
 
-Use the local, embedded Solr Catalog Provider when only one {branding} instance is necessary and scalability is not an issue.
+Use the local, embedded Solr Catalog Provider when only one ${branding} instance is necessary and scalability is not an issue.
 The local, embedded Solr Catalog Provider requires no installation and little to no configuration.
 It is great for demonstrations, training exercises, or for sparse querying and ingesting.
 
