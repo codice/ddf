@@ -41,7 +41,7 @@ public class TestBanana extends AbstractIntegrationTest {
         getServiceManager().waitForAllBundles();
         // Start the services needed for testing.
         // We need to start the Search UI to test that it redirects properly
-        getServiceManager().startFeature(true, "banana-ingester");
+        getServiceManager().startFeature(true, "banana-provisioner");
     }
 
     @Test

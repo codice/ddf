@@ -763,9 +763,9 @@
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
     </feature>
 
-    <feature name="banana-ingester" install="manual" version="${project.version}"
-             description="Adds banana ingester">
-        <bundle>mvn:ddf.platform.solr/solr-banana-ingester/${project.version}</bundle>
+    <feature name="banana-provisioner" install="manual" version="${project.version}"
+             description="Adds banana provisioner">
+        <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
         <feature>common-libraries</feature>
     </feature>
 
@@ -1002,7 +1002,7 @@
         <feature>landing-page</feature>
         <feature>platform-migratable</feature>
         <feature>banana</feature>
-        <feature>banana-ingester</feature>
+        <feature>banana-provisioner</feature>
 
         <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
         <!-- for slf4j-ext -->
