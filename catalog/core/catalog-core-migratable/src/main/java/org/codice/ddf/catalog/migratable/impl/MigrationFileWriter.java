@@ -58,7 +58,7 @@ public class MigrationFileWriter {
             if (!exportDir.mkdir()) {
                 throw new MigrationException("Could not create catalog directory at export location");
             } else {
-                LOGGER.info("Created export directory: 'catalog'");
+                LOGGER.debug("Created export directory: 'catalog'");
             }
         }
     }
@@ -74,9 +74,11 @@ public class MigrationFileWriter {
             exportFile.createNewFile();
         }
 
-        FileOutputStream fileStream = createFileStream(exportFile);
-        try (BufferedOutputStream bufferedStream = createBufferedStream(fileStream)) {
-            ObjectOutputStream objectStream = createObjectStream(bufferedStream);
+        try (
+                FileOutputStream fileStream = createFileStream(exportFile);
+                BufferedOutputStream bufferedStream = createBufferedStream(fileStream);
+                ObjectOutputStream objectStream = createObjectStream(bufferedStream);
+        ) {
             for (final Result result : results) {
                 Metacard metacard = new MetacardImpl(result.getMetacard());
                 objectStream.writeObject(metacard);

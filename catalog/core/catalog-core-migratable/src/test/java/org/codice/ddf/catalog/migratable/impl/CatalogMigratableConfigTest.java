@@ -35,10 +35,10 @@ public class CatalogMigratableConfigTest {
     public void testPropertyMaximaMinimaBounds() throws Exception {
         assertThat(CatalogMigratableConfig.MAX_CARDS_PER_FILE
                 <= CatalogMigratableConfig.MAX_QUERY_PAGE_SIZE / 2, Matchers.is(true));
-        assertThat(CatalogMigratableConfig.MIN_QUERY_PAGE_SIZE > 99, Matchers.is(true));
+        assertThat(CatalogMigratableConfig.MIN_QUERY_PAGE_SIZE > 0, Matchers.is(true));
         assertThat(CatalogMigratableConfig.MAX_QUERY_PAGE_SIZE < 1000000, Matchers.is(true));
         assertThat(CatalogMigratableConfig.MAX_THREADS > 1, Matchers.is(true));
-        assertThat(CatalogMigratableConfig.MAX_THREADS < 51, Matchers.is(true));
+        assertThat(CatalogMigratableConfig.MAX_THREADS < 200, Matchers.is(true));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class CatalogMigratableConfigTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testExportQueryPageSizeTooSmall() throws Exception {
-        config.setExportQueryPageSize(500);
+        config.setExportQueryPageSize(0);
     }
 
     @Test

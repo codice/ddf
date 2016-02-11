@@ -56,6 +56,8 @@ public class CatalogMigratableImpl extends AbstractMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMigratableImpl.class);
 
+    private static final String CATALOG_EXPORT_DIRECTORY = "org.codice.ddf.catalog";
+
     private final CatalogProvider provider;
 
     private final FilterBuilder filterBuilder;
@@ -90,12 +92,13 @@ public class CatalogMigratableImpl extends AbstractMigratable {
     }
 
     /**
-     * Exports all the metacards currently stored in the catalog provider.
+     * Exports all the metacards currently stored in the catalog provider and works off the
+     * assumption that the catalog API does not return null values for valid work.
      * <p>
      * {@inheritDoc}
      */
     public MigrationMetadata export(Path exportPath) throws MigrationException {
-        config.setExportPath(exportPath.resolve("catalog"));
+        config.setExportPath(exportPath.resolve(CATALOG_EXPORT_DIRECTORY));
         MigrationTaskManager taskManager = createTaskManager(config, createExecutorService(config));
 
         Collection<MigrationWarning> warnings = new ArrayList<>();
@@ -131,9 +134,6 @@ public class CatalogMigratableImpl extends AbstractMigratable {
                     exportGroupCount++;
                 }
             } while (results.size() >= config.getExportQueryPageSize());
-
-        } catch (MigrationException e) {
-            throw e;
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Query {} was invalid due to: {}", exportGroupCount, e.getMessage(), e);
             throw new ExportMigrationException("Catalog could not export metacards", e);
@@ -143,8 +143,6 @@ public class CatalogMigratableImpl extends AbstractMigratable {
         } finally {
             try {
                 taskManager.exportFinish();
-            } catch (MigrationException e) {
-                throw e;
             } catch (RuntimeException e) {
                 throw new ExportMigrationException(e);
             }

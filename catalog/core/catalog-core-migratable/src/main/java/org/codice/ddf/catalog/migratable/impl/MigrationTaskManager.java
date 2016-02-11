@@ -33,7 +33,16 @@ import ddf.catalog.data.Result;
 
 /**
  * Encapsulates all threading state for the catalog migration process and allows inspection of
- * its progress through a public API to make testing easier.
+ * its progress through a public API and the Guava asynchronous call-backs.
+ *
+ * When using this task manager, always call exportSetup() first to ensure the target directory
+ * for metacards has been created. Failure to do so may cause a {@link MigrationException}.
+ *
+ * Repeat calls to exportMetacardQuery({@link List<Result>} results, {@link Long} exportGroupCount)
+ * as needed to add file write tasks to the {@link java.util.concurrent.BlockingQueue} of the
+ * {@link ExecutorService}. When finished, a call to exportFinish() is required to guarantee that
+ * no errors occurred and that the executor will be shutdown properly.
+ *
  */
 class MigrationTaskManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationTaskManager.class);
@@ -61,12 +70,8 @@ class MigrationTaskManager {
         this.fileWriter = fileWriter;
     }
 
-    AtomicReference<Throwable> createAtomicReference() {
-        return new AtomicReference<>(null);
-    }
-
     /**
-     * Must be called prior to exportFinish and exportMetacardQuery to initilize the
+     * Must be called prior to exportFinish and exportMetacardQuery to initialize the
      * export directory.
      *
      * @throws MigrationException thrown if the setup fails
@@ -86,7 +91,7 @@ class MigrationTaskManager {
      * @throws MigrationException thrown if some of the some of the metacards couldn't be exported
      */
     public void exportFinish() throws MigrationException {
-        LOGGER.info("Attempting to shutdown catalog export");
+        LOGGER.debug("Attempting to shutdown catalog export");
         taskExecutor.shutdown();
         boolean isGracefulTermination = false;
         try {
@@ -134,25 +139,16 @@ class MigrationTaskManager {
         }
 
         checkForFailures();
+    }
 
-        //        List<Future<Void>> finishedTasks = new ArrayList<>();
-        //
-        //        for (Future<Void> possibleFinishedTask : taskData) {
-        //            if (possibleFinishedTask.isDone()) {
-        //                finishedTasks.add(possibleFinishedTask);
-        //            }
-        //        }
-        //
-        //        for (Future<Void> finishedTask : finishedTasks) {
-        //            try {
-        //                finishedTask.get();
-        //            } catch (ExecutionException | InterruptedException | RuntimeException e) {
-        //                LOGGER.error("Task in manager encountered an error: {}", e.getMessage(), e);
-        //                throw new MigrationException("Catalog could not export metacards", e);
-        //            } finally {
-        //                taskData.remove(finishedTask);
-        //            }
-        //        }
+    /**
+     * ===========================================================
+     * The following are package private for unit testing purposes
+     * ===========================================================
+     */
+
+    AtomicReference<Throwable> createAtomicReference() {
+        return new AtomicReference<>(null);
     }
 
     AtomicReference<Throwable> getAtomicReference() {
@@ -186,6 +182,7 @@ class MigrationTaskManager {
                 fileNumber);
     }
 
+    // Explicitly hidden - subtask for this class only and must access thread-safe data
     private void checkForFailures() {
         if (taskFailure.get() != null) {
             throw new MigrationException("Catalog could not export metacards", taskFailure.get());

@@ -62,6 +62,8 @@ public class CatalogMigratableImplTest {
 
     private static final Path EXPORT_PATH = Paths.get("etc", "exported");
 
+    private static final String EXPORT_DIR_NAME = "org.codice.ddf.catalog";
+
     private CatalogMigratableConfig config;
 
     @Mock
@@ -102,7 +104,8 @@ public class CatalogMigratableImplTest {
 
     @Before
     public void setup() throws Exception {
-        config = new CatalogMigratableConfig(2);
+        config = new CatalogMigratableConfig();
+        config.setExportQueryPageSize(2);
 
         when(filterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
@@ -151,7 +154,7 @@ public class CatalogMigratableImplTest {
 
         migratable.export(EXPORT_PATH);
 
-        assertThat(config.getExportPath(), is(EXPORT_PATH.resolve("catalog")));
+        assertThat(config.getExportPath(), is(EXPORT_PATH.resolve(EXPORT_DIR_NAME)));
     }
 
     @Test

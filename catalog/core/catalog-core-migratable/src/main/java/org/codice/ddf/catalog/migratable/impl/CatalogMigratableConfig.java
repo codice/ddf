@@ -22,15 +22,16 @@ import org.slf4j.LoggerFactory;
 
 public class CatalogMigratableConfig {
 
-    //  Pkg pvt bounds on the property values - to ensure relationships are preserved in test
+    //  Packge private bounds on the property values to ensure
+    //  relationships are preserved in test
 
     static final int MAX_CARDS_PER_FILE = 50000;
 
     static final int MAX_QUERY_PAGE_SIZE = 100000;
 
-    static final int MIN_QUERY_PAGE_SIZE = 1000;
+    static final int MIN_QUERY_PAGE_SIZE = 1;
 
-    static final int MAX_THREADS = 20;
+    static final int MAX_THREADS = 128;
 
     private static final Pattern RULE_FILE_NAME = Pattern.compile("[a-zA-Z]+");
 
@@ -46,14 +47,8 @@ public class CatalogMigratableConfig {
 
     private int exportThreadCount;
 
-    // Needed to bypass setter restrictions when unit testing
-    CatalogMigratableConfig(int queryPageSize) {
-        this();
-        this.exportQueryPageSize = queryPageSize;
-    }
-
     public CatalogMigratableConfig() {
-        exportPath = Paths.get("migration");
+        exportPath = null;
         this.exportFilePrefix = "catalogExport";
         this.exportCardsPerFile = 1;
         this.exportQueryPageSize = 5000;
@@ -77,18 +72,23 @@ public class CatalogMigratableConfig {
             if (exportCardsPerFile <= this.exportQueryPageSize) {
                 this.exportCardsPerFile = exportCardsPerFile;
             } else {
-                LOGGER.error("Cards per file must be less than or equal to query page size");
-                throw new IllegalArgumentException(
-                        "Cards per file must be less than or equal to query page size");
+                String errorMsgLessThanQuery = String.format(
+                        "%d cards per file is not less than or equal to query page size of %d",
+                        exportCardsPerFile,
+                        this.exportQueryPageSize);
+
+                LOGGER.error(errorMsgLessThanQuery);
+                throw new IllegalArgumentException(errorMsgLessThanQuery);
             }
         } else {
-            LOGGER.error("Cards per file is invalid; must be between {} and {}",
+            String errorMsgBounds = String.format(
+                    "%d cards per file is invalid; must be between %d and %d",
+                    exportCardsPerFile,
                     1,
                     MAX_CARDS_PER_FILE);
-            throw new IllegalArgumentException(String.format(
-                    "Cards per file is invalid; must be between %d and %d",
-                    1,
-                    MAX_CARDS_PER_FILE));
+
+            LOGGER.error(errorMsgBounds);
+            throw new IllegalArgumentException(errorMsgBounds);
         }
     }
 
@@ -101,13 +101,14 @@ public class CatalogMigratableConfig {
                 && exportQueryPageSize <= MAX_QUERY_PAGE_SIZE) {
             this.exportQueryPageSize = exportQueryPageSize;
         } else {
-            LOGGER.error("Query page size is invalid; must be between {} and {}",
+            String errorMsgBounds = String.format(
+                    "A query page size of %d is invalid; must be between %d and %d",
+                    exportQueryPageSize,
                     MIN_QUERY_PAGE_SIZE,
                     MAX_QUERY_PAGE_SIZE);
-            throw new IllegalArgumentException(String.format(
-                    "Query page size is invalid; must be between %d and %d",
-                    MIN_QUERY_PAGE_SIZE,
-                    MAX_QUERY_PAGE_SIZE));
+
+            LOGGER.error(errorMsgBounds);
+            throw new IllegalArgumentException(errorMsgBounds);
         }
     }
 
@@ -119,10 +120,14 @@ public class CatalogMigratableConfig {
         if (exportThreadCount >= 1 && exportThreadCount <= MAX_THREADS) {
             this.exportThreadCount = exportThreadCount;
         } else {
-            LOGGER.error("Thread count is invalid; must be between 1 and {}", MAX_THREADS);
-            throw new IllegalArgumentException(String.format(
-                    "Thread count is invalid; must be between 1 and %s",
-                    MAX_THREADS));
+            String errorMsgBounds = String.format(
+                    "A thread count of %d is invalid; must be between %d and %d",
+                    exportThreadCount,
+                    1,
+                    MAX_THREADS);
+
+            LOGGER.error(errorMsgBounds);
+            throw new IllegalArgumentException(errorMsgBounds);
         }
     }
 
@@ -135,11 +140,13 @@ public class CatalogMigratableConfig {
                 .matches()) {
             this.exportFilePrefix = prefix;
         } else {
-            LOGGER.error("File prefix is invalid - must be of the form: {}",
+            String errorMsgFormat = String.format(
+                    "File prefix '%s' is invalid - must be of the regex form: %s",
+                    prefix,
                     RULE_FILE_NAME.toString());
-            throw new IllegalArgumentException(String.format(
-                    "File prefix is invalid - must be of the form: %s",
-                    RULE_FILE_NAME.toString()));
+
+            LOGGER.error(errorMsgFormat);
+            throw new IllegalArgumentException(errorMsgFormat);
         }
     }
 }

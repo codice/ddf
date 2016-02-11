@@ -40,23 +40,31 @@ class CatalogWriterCallable implements Callable<Void> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CatalogWriterCallable that = (CatalogWriterCallable) o;
+
+        if (!exportFile.equals(that.exportFile)) {
+            return false;
+        }
+        if (!fileResults.equals(that.fileResults)) {
+            return false;
+        }
+        return fileWriter.equals(that.fileWriter);
+
+    }
+
+    @Override
     public int hashCode() {
         int result = exportFile.hashCode();
         result = 31 * result + fileResults.hashCode();
         result = 31 * result + fileWriter.hashCode();
         return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof CatalogWriterCallable) {
-            CatalogWriterCallable comparer = (CatalogWriterCallable) obj;
-            if (this.exportFile.equals(comparer.exportFile) &&
-                    this.fileWriter.equals(comparer.fileWriter) &&
-                    this.fileResults.equals(comparer.fileResults)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
