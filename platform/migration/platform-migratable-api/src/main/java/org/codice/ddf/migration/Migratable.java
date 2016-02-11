@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 /**
  * This interface provides the mechanism for implementers to define how their data shall be
  * exported for later import into a new system.
- * 
+ * <p/>
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
@@ -29,29 +29,30 @@ import javax.validation.constraints.NotNull;
 public interface Migratable {
 
     /**
-    * Export all migratable data to the specified directory
-    *
-    * @param exportPath Path where {@link Migratable} specific data must be exported. 
-    *                   exportPath will never be null.              
-    *       
-    * @return Metadata describing the results of the migration
-    */
-    @NotNull 
-    public MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
-    
+     * Exports all migratable data to the specified directory
+     *
+     * @param exportPath path where {@link Migratable} specific data must be exported.
+     *                   Will never be {@code null}.
+     * @return metadata describing the results of the migration
+     */
+    @NotNull
+    MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
+
     /**
-    * Get a description of the migratable data. This description will be
-    * used for display purposes by consumers of {@link Migratable} services.
-    * @return A short description of the migratable data
-    */
-    @NotNull 
-    public String getDescription();
-    
+     * Gets a description of the migratable data. This description will be
+     * used for display purposes by consumers of {@link Migratable} services.
+     *
+     * @return short description of the migratable data
+     */
+    @NotNull
+    String getDescription();
+
     /**
-    * Determines if the exported data from this {@link Migratable} is optional or required. 
-    * This can be used by consumers of {@link Migratable} services to determine if the data
-    * of this export is necessary when importing into a new system.
-    * @return Status of whether or not the export is optional
-    */
-    public boolean isOptional();
+     * Determines if the exported data from this {@link Migratable} is optional or required.
+     * This can be used by consumers of {@link Migratable} services to determine if the data
+     * of this export is necessary when importing into a new system.
+     *
+     * @return status of whether or not the export is optional
+     */
+    boolean isOptional();
 }

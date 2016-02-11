@@ -57,6 +57,7 @@ public abstract class CatalogCommands extends SubjectCommands {
 
     protected static final String WILDCARD = "*";
 
+    //  NOTE: "ser" defaults to java.object.serialization and is not a real metacard transformer
     protected static final String DEFAULT_TRANSFORMER_ID = "ser";
 
     // DDF-535: remove "-provider" alias in DDF 3.0

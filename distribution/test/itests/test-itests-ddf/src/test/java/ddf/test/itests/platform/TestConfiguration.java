@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static com.jayway.restassured.RestAssured.when;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
 
@@ -32,8 +33,10 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +57,10 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.path.xml.element.NodeChildren;
+import com.jayway.restassured.response.Response;
 
 import ddf.common.test.BeforeExam;
 import ddf.common.test.KarafConsole;
@@ -77,6 +84,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static final String EXPORT_COMMAND = "migration:export";
 
     private static final String STATUS_COMMAND = "migration:status";
+
+    private static final String CATALOG_REMOVE_ALL_COMMAND = "catalog:removeall --force";
+
+    private static final String CATALOG_INGEST_COMMAND = "catalog:ingest";
 
     private static final String SUCCESSFUL_IMPORT_MESSAGE =
             "All config files imported successfully.";
@@ -160,7 +171,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
         getAdminConfig().setLogLevels();
         getServiceManager().waitForAllBundles();
         console = new KarafConsole(bundleCtx);
-        basePort = getBasePort();
         symbolicLink = Paths.get(ddfHome)
                 .resolve("link");
         enableCrlInEncyptionPropertiesFile();
@@ -194,6 +204,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         System.setProperty(KEYSTORE_PROPERTY,
                 "etc" + File.separator + "keystores" + File.separator + "serverKeystore.jks");
+
+        console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
     }
 
     /**
@@ -621,6 +633,40 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 is(true));
     }
 
+    @Test
+    public void testExportCatalog() throws Exception {
+        resetInitialState();
+        List<String> metacardIds = ingestMetacardsForExport();
+
+        console.runCommand(EXPORT_COMMAND);
+        assertExportCatalog(getDefaultExportDirectory().resolve("catalog"));
+
+        console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
+
+        console.runCommand(String.format("%s %s",
+                CATALOG_INGEST_COMMAND,
+                getDefaultExportDirectory().resolve("catalog")), new RolePrincipal("admin"));
+        assertMetacardsIngested(metacardIds.size());
+    }
+
+    private void assertMetacardsIngested(int expectedumberOfMetacards) throws Exception {
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=local";
+        Response response = when().get(queryUrl);
+        String bodyXml = response.body()
+                .asString();
+        NodeChildren metacards = new XmlPath(bodyXml).get("metacards.metacard");
+        assertThat(metacards.size(), is(expectedumberOfMetacards));
+    }
+
+    private List<String> ingestMetacardsForExport() {
+        List<String> metacardIds = new ArrayList<>(2);
+        String metacardId1 = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        metacardIds.add(metacardId1);
+        String metacardId2 = TestCatalog.ingest(Library.getSimpleXml(), "text/xml");
+        metacardIds.add(metacardId2);
+        return metacardIds;
+    }
+
     private Path getPathToConfigDirectory() {
         return Paths.get(ddfHome)
                 .resolve("etc");
@@ -668,7 +714,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 .exists(), is(true));
         assertThat(getExportSubDirectory(exportDirectory, "users.properties").toFile()
                 .exists(), is(true));
-        assertThat(getExportSubDirectory(exportDirectory, "org.codice.ddf.admin.applicationlist.properties").toFile()
+        assertThat(getExportSubDirectory(exportDirectory,
+                "org.codice.ddf.admin.applicationlist.properties").toFile()
                 .exists(), is(true));
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "keystores"),
                 "serverKeystore.jks",
@@ -685,6 +732,13 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security", "server"),
                 "encryption.properties",
                 "signature.properties");
+    }
+
+    private void assertExportCatalog(Path exportPath) {
+        String[] metacards = exportPath.toFile()
+                .list();
+        assertThat("Exported files should not be null.", metacards, is(notNullValue()));
+        assertThat(metacards.length, is(2));
     }
 
     private void addConfigurationFile(String fileName, InputStream inputStream) throws IOException {
