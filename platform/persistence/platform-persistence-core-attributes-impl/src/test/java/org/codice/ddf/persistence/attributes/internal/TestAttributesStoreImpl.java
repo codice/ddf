@@ -15,7 +15,11 @@ package org.codice.ddf.persistence.attributes.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -24,9 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.persistence.PersistenceException;
+import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class TestAttributesStoreImpl {
 
@@ -38,6 +45,13 @@ public class TestAttributesStoreImpl {
 
     private static final String USER = "user";
 
+    private static final String CQL = String.format("%s = '%s'",
+            AttributesStoreImpl.USER_KEY,
+            USER);
+
+    private static final String DATA_USAGE_LONG =
+            AttributesStore.DATA_USAGE_KEY + PersistentItem.LONG_SUFFIX;
+
     @Before
     public void setup() {
         attributesStore = new AttributesStoreImpl(persistentStore);
@@ -47,7 +61,7 @@ public class TestAttributesStoreImpl {
     public void testGetDataUsage() throws PersistenceException {
         attributesList = new ArrayList<>();
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("data_usage_lng", 100L);
+        attributes.put(DATA_USAGE_LONG, 100L);
         attributesList.add(attributes);
         when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
 
@@ -58,24 +72,61 @@ public class TestAttributesStoreImpl {
 
     @Test
     public void testUpdateDataUsage() throws PersistenceException {
+        ArgumentCaptor<String> keyArg1 = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyArg2 = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> cqlArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
+
         attributesList = new ArrayList<>();
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("data_usage_lng", 100L);
+        attributes.put(DATA_USAGE_LONG, 100L);
         attributesList.add(attributes);
         when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
 
         attributesStore.updateUserDataUsage(USER, 500L);
+
+        verify(persistentStore).get(keyArg1.capture(), cqlArg.capture());
+        verify(persistentStore).add(keyArg2.capture(), itemArg.capture());
+
+        assertEquals(PersistentStore.USER_ATTRIBUTE_TYPE, keyArg1.getValue());
+        assertEquals(PersistentStore.USER_ATTRIBUTE_TYPE, keyArg2.getValue());
+
+        assertEquals(600L,
+                (long) itemArg.getValue()
+                        .getLongProperty(AttributesStore.DATA_USAGE_KEY));
+
+        assertEquals(CQL, cqlArg.getValue());
     }
 
     @Test
     public void testSetDataUsage() throws PersistenceException {
-        attributesList = new ArrayList<>();
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("data_usage_lng", 100L);
-        attributesList.add(attributes);
-        when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
 
-        attributesStore.setDataUsage(USER, 500L);
+        long dataUsage = 500L;
+        ArgumentCaptor<String> keyArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
+        attributesStore.setDataUsage(USER, dataUsage);
+        verify(persistentStore).add(keyArg.capture(), itemArg.capture());
+        assertEquals(PersistentStore.USER_ATTRIBUTE_TYPE, keyArg.getValue());
+        assertEquals(dataUsage,
+                (long) itemArg.getValue()
+                        .getLongProperty(AttributesStore.DATA_USAGE_KEY));
+
+    }
+
+    @Test
+    public void testSetDataUsageSizeLessThanZero() throws PersistenceException {
+
+        long dataUsage = -1L;
+        attributesStore.setDataUsage(USER, dataUsage);
+        verify(persistentStore, never()).add(anyString(), anyMap());
+    }
+
+    @Test
+    public void testUpdateDataUsageSizeLessThanZero() throws PersistenceException {
+
+        long dataUsage = -1L;
+        attributesStore.updateUserDataUsage(USER, dataUsage);
+        verify(persistentStore, never()).add(anyString(), anyMap());
     }
 
     @Test(expected = PersistenceException.class)
@@ -102,7 +153,6 @@ public class TestAttributesStoreImpl {
         when(persistentStore.get(any(String.class), any(String.class))).thenReturn(null);
 
         assertEquals(0L, attributesStore.getCurrentDataUsageByUser(USER));
-        attributesStore.updateUserDataUsage(USER, 500L);
     }
 
     @Test

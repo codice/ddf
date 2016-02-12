@@ -41,7 +41,6 @@ public class ResourceUsagePlugin implements PreResourcePlugin {
     @Override
     public ResourceRequest process(ResourceRequest input)
             throws PluginExecutionException, StopProcessingException {
-        String username = null;
         long resourceSize = 0L;
 
         if (input != null) {
@@ -59,7 +58,7 @@ public class ResourceUsagePlugin implements PreResourcePlugin {
                 if (resourceSize > 0) {
                     LOGGER.debug("Resource request for {}:{}.", input.getAttributeName(), input.getAttributeValue());
 
-                    username = getUsernameFromSubject(input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT));
+                    String username = getUsernameFromSubject(input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT));
 
                     if (StringUtils.isNotEmpty(username)) {
 

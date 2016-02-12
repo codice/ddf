@@ -62,7 +62,7 @@ public class AttributesStoreImpl implements AttributesStore {
     }
 
     @Override
-    public void updateUserDataUsage(final String username, long newDataUsage)
+    public void updateUserDataUsage(final String username, final long newDataUsage)
             throws PersistenceException {
         if (StringUtils.isEmpty(username)) {
             throw new PersistenceException(EMPTY_USERNAME_ERROR);
@@ -92,27 +92,29 @@ public class AttributesStoreImpl implements AttributesStore {
     }
 
     @Override
-    public void setDataUsage(final String username, long dataUsage) throws PersistenceException {
+    public void setDataUsage(final String username, final long dataUsage) throws PersistenceException {
 
         if (StringUtils.isEmpty(username)) {
             throw new PersistenceException(EMPTY_USERNAME_ERROR);
         }
-        try {
-            readWriteLock.writeLock()
-                    .lock();
+        if (dataUsage > 0) {
+            try {
+                readWriteLock.writeLock()
+                        .lock();
 
-            // add to usage and store
-            PersistentItem item = new PersistentItem();
-            item.addIdProperty(username);
-            item.addProperty(USER_KEY, username);
-            item.addProperty(DATA_USAGE_KEY, dataUsage);
+                // add to usage and store
+                PersistentItem item = new PersistentItem();
+                item.addIdProperty(username);
+                item.addProperty(USER_KEY, username);
+                item.addProperty(DATA_USAGE_KEY, dataUsage);
 
-            LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
-            persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, item);
-        } finally {
-            readWriteLock.writeLock()
-                    .unlock();
+                LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, item);
+            } finally {
+                readWriteLock.writeLock()
+                        .unlock();
 
+            }
         }
     }
 
