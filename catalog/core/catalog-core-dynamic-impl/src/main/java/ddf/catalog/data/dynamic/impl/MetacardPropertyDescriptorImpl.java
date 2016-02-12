@@ -38,20 +38,20 @@ public class MetacardPropertyDescriptorImpl extends DynaProperty implements Meta
      * Mapping between the logical attribute formats for metacard attributes and the underlying
      * classes used to represent them.
      */
-    private static final HashMap<AttributeFormat, Class<?>> typeMap = new HashMap<>();
+    private static final HashMap<AttributeFormat, Class<?>> TYPE_MAP = new HashMap<>();
     static {
-        typeMap.put(AttributeFormat.BINARY, Byte[].class);
-        typeMap.put(AttributeFormat.BOOLEAN, Boolean.class);
-        typeMap.put(AttributeFormat.DATE, Date.class);
-        typeMap.put(AttributeFormat.DOUBLE, Double.class);
-        typeMap.put(AttributeFormat.FLOAT, Float.class);
-        typeMap.put(AttributeFormat.GEOMETRY, String.class);
-        typeMap.put(AttributeFormat.INTEGER, Integer.class);
-        typeMap.put(AttributeFormat.LONG, Long.class);
-        typeMap.put(AttributeFormat.OBJECT, Object.class);
-        typeMap.put(AttributeFormat.SHORT, Short.class);
-        typeMap.put(AttributeFormat.STRING, String.class);
-        typeMap.put(AttributeFormat.XML, String.class);
+        TYPE_MAP.put(AttributeFormat.BINARY, Byte[].class);
+        TYPE_MAP.put(AttributeFormat.BOOLEAN, Boolean.class);
+        TYPE_MAP.put(AttributeFormat.DATE, Date.class);
+        TYPE_MAP.put(AttributeFormat.DOUBLE, Double.class);
+        TYPE_MAP.put(AttributeFormat.FLOAT, Float.class);
+        TYPE_MAP.put(AttributeFormat.GEOMETRY, String.class);
+        TYPE_MAP.put(AttributeFormat.INTEGER, Integer.class);
+        TYPE_MAP.put(AttributeFormat.LONG, Long.class);
+        TYPE_MAP.put(AttributeFormat.OBJECT, Object.class);
+        TYPE_MAP.put(AttributeFormat.SHORT, Short.class);
+        TYPE_MAP.put(AttributeFormat.STRING, String.class);
+        TYPE_MAP.put(AttributeFormat.XML, String.class);
     }
 
     /**
@@ -170,7 +170,7 @@ public class MetacardPropertyDescriptorImpl extends DynaProperty implements Meta
             boolean indexedBySource, boolean stored, boolean tokenized) {
         MetacardPropertyDescriptor propertyDescriptor = null;
 
-        Class<?> type = MetacardPropertyDescriptorImpl.typeMap.get(format);
+        Class<?> type = MetacardPropertyDescriptorImpl.TYPE_MAP.get(format);
 
         propertyDescriptor = new MetacardPropertyDescriptorImpl(name, type, indexedBySource, stored, tokenized);
         propertyDescriptor.setFormat(format);
@@ -266,6 +266,6 @@ public class MetacardPropertyDescriptorImpl extends DynaProperty implements Meta
             attributeFormat = AttributeFormat.OBJECT;
         }
 
-    return attributeFormat;
+        return attributeFormat;
     }
 }

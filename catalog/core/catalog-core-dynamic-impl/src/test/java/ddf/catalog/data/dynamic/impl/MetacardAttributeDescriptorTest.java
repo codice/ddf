@@ -1,16 +1,3 @@
-package ddf.catalog.data.dynamic.impl;
-
-import java.util.Date;
-
-import org.apache.commons.beanutils.DynaProperty;
-import org.junit.Test;
-
-import junit.framework.TestCase;
-import junit.framework.TestResult;
-
-import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
-
 /**
  * Copyright (c) Codice Foundation
  * <p/>
@@ -24,6 +11,18 @@ import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+package ddf.catalog.data.dynamic.impl;
+
+import java.util.Date;
+
+import org.apache.commons.beanutils.DynaProperty;
+import org.junit.Test;
+
+import junit.framework.TestCase;
+
+import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
+
 public class MetacardAttributeDescriptorTest extends TestCase {
 
     @Test

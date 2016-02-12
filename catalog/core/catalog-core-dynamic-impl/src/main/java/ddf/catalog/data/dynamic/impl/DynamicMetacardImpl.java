@@ -92,6 +92,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      */
     public DynamicMetacardImpl(LazyDynaBean dynaBean) {
         attributesBean = dynaBean;
+        metacardTypes.add(getName());
     }
 
     /**
@@ -262,7 +263,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      */
     @Override
     public String getSourceId() {
-        return getPropertyAsString(ddf.catalog.data.dynamic.api.DynamicMetacard.SOURCE_ID);
+        return getPropertyAsString(Metacard.SOURCE_ID);
     }
 
     /**
@@ -353,7 +354,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
      */
     @Override
     public String getContentTypeVersion() {
-        return getPropertyAsString(ddf.catalog.data.dynamic.api.DynamicMetacard.CONTENT_TYPE_VERSION);
+        return getPropertyAsString(Metacard.CONTENT_TYPE_VERSION);
     }
 
     /**
@@ -525,9 +526,16 @@ public class DynamicMetacardImpl implements DynamicMetacard {
                 attributesBean.set(name, 0, value);
             } else {
                 if (dynaProperty.isIndexed()) {
-                    attributesBean.set(name, attributesBean.size(name), value);
+                    if (value instanceof Collection) {
+                        // add all attributes individually
+                        for (Object o : (Collection) value) {
+                            attributesBean.set(name, attributesBean.size(name), o);
+                        }
+                    } else {
+                        attributesBean.set(name, attributesBean.size(name), value);
+                    }
                 } else {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "Can't add another value to a simple attribute {} - replacing value.",
                             name);
                     attributesBean.set(name, value);
@@ -555,7 +563,8 @@ public class DynamicMetacardImpl implements DynamicMetacard {
 
     /**
      * Sets the value of the given attribute. If the attribute is a multi-valued
-     * attribute, it adds the given value to the current collection.
+     * attribute, it adds the given value to the current collection. If the value
+     * is multi-valued, it replaces the values of the named attribute.
      *
      * @param name  name of the attribute to set
      * @param value the value to be set
@@ -582,24 +591,26 @@ public class DynamicMetacardImpl implements DynamicMetacard {
             if (dynaProperty == null) {
                 attributesBean.set(name, value);
             } else {
-                if (dynaProperty.isIndexed()) {
-                    LOGGER.warn(
-                            "Trying to set multivalue attribute {} with a single value - adding it to the list.",
-                            name);
-                    attributesBean.set(name, attributesBean.size(name), value);
-                } else {
+                if ((dynaProperty.getType() == Byte[].class) || !dynaProperty.isIndexed()) {
                     attributesBean.set(name, value);
+                } else {
+                    if (value instanceof Collection<?>) {
+                        LOGGER.debug("Replacing current value of attribute {} with provided collection", name);
+                        attributesBean.set(name, value);
+                    } else {
+                        LOGGER.debug("Adding provided value to attribute {}", name);
+                        attributesBean.set(name, attributesBean.size(name), value);
+                    }
                 }
             }
         } catch (ConversionException e) {
             if (value != null && dynaProperty != null) {
+                String classname = dynaProperty.getContentType() == null ?
+                        dynaProperty.getType().getSimpleName() :
+                        dynaProperty.getContentType().getSimpleName();
                 LOGGER.warn(
                         "Unable to to convert provided value of class {} to attribute {} value of class {} - no action taken.",
-                        value.getClass()
-                                .getSimpleName(),
-                        name,
-                        dynaProperty.getContentType()
-                                .getSimpleName());
+                        value.getClass().getSimpleName(), name, classname);
             }
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Attribute {} has different than expected cardinality - no action taken",
@@ -614,6 +625,14 @@ public class DynamicMetacardImpl implements DynamicMetacard {
                     name);
         }
     }
+
+/*
+    public void addMetacardType(String name) {
+        if (!metacardTypes.contains(name)) {
+            metacardTypes.add(name);
+        }
+    }
+*/
 
     @Override
     public List<String> getMetacardTypes() {

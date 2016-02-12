@@ -26,10 +26,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.dynamic.api.DynamicMetacard;
 import ddf.catalog.data.dynamic.api.MetacardFactory;
 import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
@@ -71,7 +68,7 @@ public class MetacardFactoryImplTest {
     @Test
     public void testNewInstance() throws Exception {
         DynamicMetacard mc = factory.newInstance();
-        assertEquals(DynamicMetacard.DYNAMIC,mc.getMetacardType().getName());
+        assertEquals(DynamicMetacard.DYNAMIC, mc.getMetacardType().getName());
         Set<AttributeDescriptor> descriptorSet = mc.getAttributeDescriptors();
         assertTrue(descriptorSet.size() >= factory.getBaseMetacardPropertyDescriptors().length);
     }

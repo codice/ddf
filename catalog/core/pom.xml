@@ -91,6 +91,9 @@
     <modules>
         <module>catalog-core-api</module>
         <module>catalog-core-api-impl</module>
+        <module>catalog-core-dynamic-api</module>
+        <module>catalog-core-dynamic-impl</module>
+        <module>catalog-core-dynamic-registry</module>
         <module>catalog-core-commons</module>
         <module>catalog-core-commands</module>
         <module>catalog-core-urlresourcereader</module>
