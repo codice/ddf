@@ -311,7 +311,7 @@ public class ClaimsHandlerManager {
     }
 
     public void setPassword(String password) {
-        LOGGER.trace("Setting password: {}", password);
+        LOGGER.trace("Setting password: [HIDDEN]");
         ldapProperties.put(PASSWORD, password);
     }
 

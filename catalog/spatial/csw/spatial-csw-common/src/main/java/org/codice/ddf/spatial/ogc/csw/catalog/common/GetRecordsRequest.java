@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -26,6 +25,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ import net.opengis.filter.v_1_1_0.SortPropertyType;
 /**
  * JAX-RS Parameter Bean Class for the GetRecords request. The member variables will be
  * automatically injected by the JAX-RS annotations.
- *
+ * 
  */
 public class GetRecordsRequest extends CswRequest {
 
@@ -379,11 +380,17 @@ public class GetRecordsRequest extends CswRequest {
                 queryConstraint.setCqlText(getConstraint());
             } else if (getConstraintLanguage().equalsIgnoreCase(CswConstants.CONSTRAINT_LANGUAGE_FILTER)) {
                 try {
+                    XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
+                    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                            false);
+                    xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+                    XMLStreamReader xmlStreamReader =
+                            xmlInputFactory.createXMLStreamReader(new StringReader(constraint));
+
                     Unmarshaller unmarshaller = JAX_BCONTEXT.createUnmarshaller();
-                    Reader reader = new StringReader(getConstraint());
                     @SuppressWarnings("unchecked")
                     JAXBElement<FilterType> jaxbFilter =
-                            (JAXBElement<FilterType>) unmarshaller.unmarshal(reader);
+                            (JAXBElement<FilterType>) unmarshaller.unmarshal(xmlStreamReader);
                     queryConstraint.setFilter(jaxbFilter.getValue());
                 } catch (JAXBException e) {
                     throw new CswException("JAXBException parsing OGC Filter:" + getConstraint(),

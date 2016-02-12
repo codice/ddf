@@ -211,7 +211,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         for (String sysProxyConfig : sysProxyConfigs) {
             String prop = System.getProperty(sysProxyConfig);
             if (StringUtils.isNotBlank(prop)) {
-                LOGGER.debug("Property: {} = {}", sysProxyConfig, prop);
+                LOGGER.debug("Enabling Proxy Property: {}", sysProxyConfig);
                 camelContext.getProperties()
                         .put(sysProxyConfig, prop);
             }
