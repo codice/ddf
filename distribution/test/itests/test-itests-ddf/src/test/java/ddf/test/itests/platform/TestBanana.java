@@ -14,6 +14,7 @@
 
 package ddf.test.itests.platform;
 
+import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.junit.Test;
@@ -37,11 +38,17 @@ public class TestBanana extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeTest() throws Exception {
-        basePort = getBasePort();
-        getServiceManager().waitForAllBundles();
-        // Start the services needed for testing.
-        // We need to start the Search UI to test that it redirects properly
-        getServiceManager().startFeature(true, "banana");
+        try {
+            basePort = getBasePort();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            // Start the services needed for testing.
+            // We need to start the Search UI to test that it redirects properly
+            getServiceManager().startFeature(true, "banana");
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     @Test

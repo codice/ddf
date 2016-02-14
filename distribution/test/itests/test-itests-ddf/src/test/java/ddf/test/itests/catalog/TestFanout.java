@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
@@ -40,15 +41,21 @@ public class TestFanout extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        getCatalogBundle().setFanout(true);
-        getCatalogBundle().waitForCatalogProvider();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query?_wadl");
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().setFanout(true);
+            getCatalogBundle().waitForCatalogProvider();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT.getUrl() + "/catalog/query?_wadl");
 
-        LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
-                .prettyPrint());
+            LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
+                    .prettyPrint());
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     private void startCswSource() throws Exception {

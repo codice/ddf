@@ -13,6 +13,7 @@
  */
 package ddf.test.itests;
 
+import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -48,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.junit.Rule;
@@ -87,7 +89,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String DEFAULT_LOG_LEVEL = AdminConfig.DEFAULT_LOG_LEVEL;
 
-    protected static final String KARAF_VERSION = "2.4.3";
+    protected static final String KARAF_VERSION = "4.0.4";
 
     protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
@@ -100,6 +102,9 @@ public abstract class AbstractIntegrationTest {
     protected static final String DDF_HOME_PROPERTY = "ddf.home";
 
     protected static String ddfHome;
+
+    protected static final String[] DEFAULT_REQUIRED_APPS =
+            {"catalog-app", "solr-app", "spatial-app", "sdk-app"};
 
     /**
      * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
@@ -253,6 +258,12 @@ public abstract class AbstractIntegrationTest {
     @Inject
     protected MetaTypeService metatype;
 
+    /**
+     * To make sure the tests run only when the boot features are fully installed
+     */
+    @Inject
+    BootFinished bootFinished;
+
     private AdminConfig adminConfig;
 
     private ServiceManager serviceManager;
@@ -281,9 +292,15 @@ public abstract class AbstractIntegrationTest {
     @org.ops4j.pax.exam.Configuration
     public Option[] config() throws URISyntaxException, IOException {
         basePort = findPortNumber(20000);
-        return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
-                configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
-                configureSystemSettings(), configureVmOptions(), configureStartScript());
+        return combineOptions(configureCustom(),
+                configureDistribution(),
+                configureAdditionalBundles(),
+                configureConfigurationPorts(),
+                configureMavenRepos(),
+                configureSystemSettings(),
+                configureVmOptions(),
+                configureStartScript(),
+                configurePaxExam());
     }
 
     private static Integer findPortNumber(Integer portToTry) {
@@ -351,7 +368,8 @@ public abstract class AbstractIntegrationTest {
         return options(logLevel(LogLevelOption.LogLevel.INFO), useOwnExamBundlesStartLevel(100),
                 // increase timeout for CI environment
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)),
-                when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()));
+                when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
+                cleanCaches(true));
     }
 
     protected Option[] configureAdditionalBundles() {
@@ -470,8 +488,9 @@ public abstract class AbstractIntegrationTest {
         String featuresUrl = maven("ddf.distribution", "sdk-app").classifier("features").type("xml")
                 .versionAsInProject().getURL();
         return options(
+                // Need to add catalog-app since there are imports in the itests from catalog-app.
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
-                        "catalog-app,solr-app,spatial-app,sdk-app"),
+                        "catalog-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories", featuresUrl));
     }

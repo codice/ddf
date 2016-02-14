@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
@@ -270,11 +271,17 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeTest() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        configurePDP();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            configurePDP();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     public void configurePDP() throws Exception {

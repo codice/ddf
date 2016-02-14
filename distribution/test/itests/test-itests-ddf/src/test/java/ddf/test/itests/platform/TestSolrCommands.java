@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -53,12 +54,18 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        getCatalogBundle().waitForCatalogProvider();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-        console = new KarafConsole(bundleCtx, features, sessionFactory);
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            console = new KarafConsole(bundleCtx, features, sessionFactory);
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     @Test

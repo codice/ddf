@@ -40,7 +40,7 @@
         <bundle>mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}</bundle>
     </feature>
 
-    <feature name="sdk-app" version="${project.version}" description="SDK app.">
+    <feature name="sdk-app" version="${project.version}" description="SDK app." install="auto">
         <feature prerequisite="true">security-services-app</feature>
         <feature prerequisite="true">catalog-app</feature>
         <feature>security-expansion</feature>

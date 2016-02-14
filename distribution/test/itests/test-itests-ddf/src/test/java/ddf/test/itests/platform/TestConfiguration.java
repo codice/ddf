@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
@@ -152,14 +153,20 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        console = new KarafConsole(bundleCtx, features, sessionFactory);
-        basePort = getBasePort();
-        symbolicLink = Paths.get(ddfHome)
-                .resolve("link");
-        enableCrlInEncyptionPropertiesFile();
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            console = new KarafConsole(bundleCtx, features, sessionFactory);
+            basePort = getBasePort();
+            symbolicLink = Paths.get(ddfHome)
+                    .resolve("link");
+            enableCrlInEncyptionPropertiesFile();
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     private void enableCrlInEncyptionPropertiesFile() throws IOException {

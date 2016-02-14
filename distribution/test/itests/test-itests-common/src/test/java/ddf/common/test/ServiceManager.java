@@ -13,6 +13,8 @@
  **/
 package ddf.common.test;
 
+import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
+import static org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState.ACTIVE;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 
@@ -21,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +37,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.bundle.core.BundleState;
+import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
+import org.codice.ddf.admin.application.service.Application;
+import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -198,11 +206,11 @@ public class ServiceManager {
     }
 
     public void startFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
-                FeaturesService.class);
-        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
         for (String featureName : featureNames) {
-            featuresService.installFeature(featureName);
+            FeatureState state = getFeaturesService().getState(featureName);
+            if (FeatureState.Installed != state) {
+                getFeaturesService().installFeature(featureName, EnumSet.of(NoAutoRefreshBundles));
+            }
         }
         if (wait) {
             waitForAllBundles();
@@ -210,15 +218,26 @@ public class ServiceManager {
     }
 
     public void stopFeature(boolean wait, String... featureNames) throws Exception {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
-                FeaturesService.class);
-        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
         for (String featureName : featureNames) {
-            featuresService.uninstallFeature(featureName);
+            getFeaturesService().uninstallFeature(featureName, EnumSet.of(NoAutoRefreshBundles));
         }
         if (wait) {
             waitForAllBundles();
         }
+    }
+
+    // TODO - we should really make this a bundle and inject this.
+    private FeaturesService getFeaturesService() {
+        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
+                FeaturesService.class);
+        return bundleCtx.getService(featuresServiceRef);
+    }
+
+    // TODO - we should really make this a bundle and inject this.
+    private ApplicationService getApplicationService() {
+        ServiceReference<ApplicationService> applicationServiceRef = bundleCtx.getServiceReference(
+                ApplicationService.class);
+        return bundleCtx.getService(applicationServiceRef);
     }
 
     /**
@@ -271,6 +290,29 @@ public class ServiceManager {
         for (Bundle bundle : bundleCtx.getBundles()) {
             if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
                 bundle.start();
+            }
+        }
+    }
+
+    public void waitForRequiredApps(String... appNames) throws InterruptedException {
+        ApplicationService appService = getApplicationService();
+        if (appNames.length > 0) {
+            for (String appName : appNames) {
+                try {
+                    Application app = appService.getApplication(appName);
+                    if (app != null) {
+                        ApplicationStatus status = appService.getApplicationStatus(app);
+                        if (ACTIVE != status.getState()) {
+                            appService.startApplication(appName);
+                        }
+                    } else {
+                        throw new ApplicationServiceException(
+                                "Unable to determine Application for [" + appName + "].");
+                    }
+                } catch (ApplicationServiceException e) {
+                    fail("Failed to start boot feature: " + e.getMessage());
+                }
+                waitForAllBundles();
             }
         }
     }
