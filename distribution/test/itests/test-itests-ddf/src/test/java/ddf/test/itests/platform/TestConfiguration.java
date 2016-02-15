@@ -156,7 +156,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         try {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             console = new KarafConsole(bundleCtx, features, sessionFactory);
             basePort = getBasePort();

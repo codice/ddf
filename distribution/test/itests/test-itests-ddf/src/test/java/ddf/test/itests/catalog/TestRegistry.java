@@ -37,7 +37,7 @@ public class TestRegistry extends AbstractIntegrationTest {
         try {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
         } catch (Exception e) {

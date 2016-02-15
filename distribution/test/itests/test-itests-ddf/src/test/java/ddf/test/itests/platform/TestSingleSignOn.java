@@ -115,7 +115,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         try {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
             getServiceManager().waitForAllBundles();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");

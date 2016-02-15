@@ -106,6 +106,10 @@ public abstract class AbstractIntegrationTest {
     protected static final String[] DEFAULT_REQUIRED_APPS =
             {"catalog-app", "solr-app", "spatial-app", "sdk-app"};
 
+    protected static String[] getDefaultRequiredApps() {
+        return Arrays.copyOf(DEFAULT_REQUIRED_APPS, DEFAULT_REQUIRED_APPS.length);
+    }
+
     /**
      * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow parallel itests
      * and dynamic allocation of ports to prevent conflicts on hard coded port numbers.
