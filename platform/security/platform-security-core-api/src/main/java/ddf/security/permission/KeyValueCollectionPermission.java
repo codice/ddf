@@ -13,11 +13,12 @@
  */
 package ddf.security.permission;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * An extension of ColectionPermission that exclusively holds KeyValuePermission objects.
@@ -97,10 +98,11 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      *            created collection
      */
     public void addAll(Map<String, ? extends Collection<String>> map) {
-        for (Map.Entry<String, ? extends Collection<String>> entry : map.entrySet()) {
-            permissionList.add(new KeyValuePermission(entry.getKey(),
-                    new ArrayList<>(entry.getValue())));
-        }
+        permissionList.addAll(map.entrySet()
+                .stream()
+                .map(entry -> new KeyValuePermission(entry.getKey(),
+                        new HashSet<>(entry.getValue())))
+                .collect(Collectors.toList()));
     }
 
 }

@@ -78,6 +78,7 @@ import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -640,10 +641,14 @@ public class RESTEndpoint implements RESTService {
             String exceptionMessage = "Unable to update Metacard with provided metadata: ";
             LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-        } catch (IngestException e) {
+        } catch (InternalIngestException e) {
             String exceptionMessage = "Error cataloging updated metadata: ";
             LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (IngestException e) {
+            String exceptionMessage = "Error cataloging updated metadata: ";
+            LOGGER.warn(exceptionMessage, e);
+            throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
         }
         return response;
     }
@@ -701,11 +706,16 @@ public class RESTEndpoint implements RESTService {
             LOGGER.warn(exceptionMessage, e.getCause());
             // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-        } catch (IngestException e) {
+        } catch (InternalIngestException e) {
             String exceptionMessage = "Error while storing entry in catalog: " + e.getMessage();
             LOGGER.warn(exceptionMessage, e.getCause());
             // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (IngestException e) {
+            String exceptionMessage = "Error while storing entry in catalog: " + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            // Catalog framework logs these exceptions to the ingest logger so we don't have to.
+            throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
         } catch (MetacardCreationException e) {
             String exceptionMessage =
                     "Unable to create Metacard from provided metadata: " + e.getMessage();
@@ -749,10 +759,14 @@ public class RESTEndpoint implements RESTService {
                     "Could not delete entry from catalog since the source is unavailable: ";
             LOGGER.warn(exceptionMessage, ce);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
-        } catch (IngestException e) {
+        } catch (InternalIngestException e) {
             String exceptionMessage = "Error deleting entry from catalog: ";
             LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
+        } catch (IngestException e) {
+            String exceptionMessage = "Error deleting entry from catalog: ";
+            LOGGER.warn(exceptionMessage, e);
+            throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
         }
         return response;
     }

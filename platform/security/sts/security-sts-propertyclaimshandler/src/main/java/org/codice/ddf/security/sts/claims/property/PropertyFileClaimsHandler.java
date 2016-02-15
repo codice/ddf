@@ -52,7 +52,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
     @Override
     public List<URI> getSupportedClaimTypes() {
-        List<URI> uriList = new ArrayList<URI>();
+        List<URI> uriList = new ArrayList<>();
         try {
             uriList.add(new URI(roleClaimType));
         } catch (URISyntaxException e) {

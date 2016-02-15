@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.CollectionUtils;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.expansion.Expansion;
+import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 
 /**
@@ -47,8 +49,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAuthorizingRealm.class);
 
-    private static final String SAML_ROLE =
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+    private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private List<Expansion> expansionServiceList;
 
@@ -86,16 +87,19 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         }
 
         for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
-            permissions.add(new KeyValuePermission(entry.getKey(),
-                    new ArrayList(entry.getValue())));
-            LOGGER.debug("Adding permission: {} : {}",
-                    entry.getKey(),
-                    StringUtils.join(entry.getValue(), ","));
+            permissions.add(new KeyValuePermission(entry.getKey(), entry.getValue()));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Adding permission: {} : {}", entry.getKey(),
+                        StringUtils.join(entry.getValue(), ","));
+            }
         }
 
         if (permissionsMap.containsKey(SAML_ROLE)) {
             roles.addAll(permissionsMap.get(SAML_ROLE));
-            LOGGER.debug("Adding roles to authorization info: {}", StringUtils.join(roles, ","));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Adding roles to authorization info: {}",
+                        StringUtils.join(roles, ","));
+            }
         }
 
         info.setObjectPermissions(permissions);
@@ -132,7 +136,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      * @return a set of potentially expanded values
      */
     private Set<String> expandAttributes(Attribute attribute) {
-        Set<String> attributeSet = new HashSet<String>();
+        Set<String> attributeSet = new HashSet<>();
         String attributeName = attribute.getName();
         for (XMLObject curValue : attribute.getAttributeValues()) {
             if (curValue instanceof XSString) {
@@ -145,14 +149,47 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         }
         if (expansionServiceList != null) {
             for (Expansion expansionService : expansionServiceList) {
-                LOGGER.debug("Expanding attributes for {} - original values: {}",
-                        attributeName,
+                LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName,
                         attributeSet);
                 attributeSet = expansionService.expand(attributeName, attributeSet);
             }
         }
         LOGGER.debug("Expanded attributes for {} - values: {}", attributeName, attributeSet);
         return attributeSet;
+    }
+
+    protected List<Permission> expandPermissions(List<Permission> permissions) {
+        if (CollectionUtils.isEmpty(expansionServiceList)) {
+            return permissions;
+        }
+        List<Permission> expandedPermissions = new ArrayList<>(permissions.size());
+        for (Permission permission : permissions) {
+            if (permission instanceof KeyValuePermission) {
+                for (Expansion expansionService : expansionServiceList) {
+                    Set<String> expandedSet = expansionService.expand(
+                            ((KeyValuePermission) permission).getKey(),
+                            new HashSet<>(((KeyValuePermission) permission).getValues()));
+                    expandedPermissions.add(
+                            new KeyValuePermission(((KeyValuePermission) permission).getKey(),
+                                    expandedSet));
+                }
+            } else if (permission instanceof KeyValueCollectionPermission) {
+                List<Permission> keyValuePermissionList = ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
+                List<Permission> expandedCollection = expandPermissions(keyValuePermissionList);
+                //we know that everything in a key value collection is a key value permission so just do the unchecked cast
+                List<KeyValuePermission> castedList = castToKeyValueList(expandedCollection);
+                expandedPermissions.add(new KeyValueCollectionPermission(
+                        ((KeyValueCollectionPermission) permission).getAction(), castedList));
+            } else {
+                expandedPermissions.add(permission);
+            }
+        }
+
+        return expandedPermissions;
+    }
+
+    private <T> List<T> castToKeyValueList(List<Permission> permissionList) {
+        return (List<T>) permissionList;
     }
 
     public void setExpansionServiceList(List<Expansion> expansionServiceList) {
