@@ -36,7 +36,6 @@ import junit.framework.Assert;
  */
 public class PolicyManagerTest {
 
-
     private static final String REALMS = "realms";
 
     private static final String DEFAULT_REALM_CONTEXT_VALUE = "karaf";
@@ -45,68 +44,70 @@ public class PolicyManagerTest {
 
     private static final String REQ_ATTRS = "requiredAttributes";
 
-    private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList(new String[] {"SAML", "GUEST"});
+    private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList(new String[] {"SAML",
+            "GUEST"});
+
     private PolicyManager manager;
 
     private PolicyManager rollBackTestManager;
 
-    private String[] rollBackRealmValues = {
-            "/=" + DEFAULT_REALM_CONTEXT_VALUE,
-            "/A=a",
-            "/A/B/C/testContext4=abcTestContext4",
-            "/testContext5=karaf",
-            "/1/2/3/testContext6=" + DEFAULT_REALM_CONTEXT_VALUE,
-            "/A/B/C/testContext7=" + DEFAULT_REALM_CONTEXT_VALUE, };
+    private String[] rollBackRealmValues =
+            {"/=" + DEFAULT_REALM_CONTEXT_VALUE, "/A=a", "/A/B/C/testContext4=abcTestContext4",
+                    "/testContext5=karaf", "/1/2/3/testContext6=" + DEFAULT_REALM_CONTEXT_VALUE,
+                    "/A/B/C/testContext7=" + DEFAULT_REALM_CONTEXT_VALUE};
 
-    private String[] rollBackAuthTypesValues = {
-            "/=SAML|GUEST",
-            "/A=a",
-            "/A/B/C/testContext4=abcTestContext4" };
+    private String[] rollBackAuthTypesValues =
+            {"/=SAML|GUEST", "/A=a", "/A/B/C/testContext4=abcTestContext4"};
 
-    private String[] rollBackReqAttrValues = {
-            "/=",
-            "/A={A=a}",
-            "/testContext=",
-            "/1/2/3/testContext2=",
-            "/A/B/C/testContext3=",
-            "/A/B/C/testContext4=",
-            "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}" };
+    private String[] rollBackReqAttrValues =
+            {"/=", "/A={A=a}", "/testContext=", "/1/2/3/testContext2=", "/A/B/C/testContext3=",
+                    "/A/B/C/testContext4=",
+                    "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}"};
 
-    private final Map<String, String> expectedRollBackRealms = new ImmutableMap.Builder<String, String>()
-            .put("/testContext", DEFAULT_REALM_CONTEXT_VALUE)
-            .put("/1/2/3/testContext2", DEFAULT_REALM_CONTEXT_VALUE)
-            .put("/A/B/C/testContext3", "a")
-            .put("/A/B/C/testContext4", "abcTestContext4").build();
+    private final Map<String, String> expectedRollBackRealms =
+            new ImmutableMap.Builder<String, String>().put("/testContext",
+                    DEFAULT_REALM_CONTEXT_VALUE)
+                    .put("/1/2/3/testContext2", DEFAULT_REALM_CONTEXT_VALUE)
+                    .put("/A/B/C/testContext3", "a")
+                    .put("/A/B/C/testContext4", "abcTestContext4")
+                    .build();
 
-    private final Map<String, List<String>> expectedRollBackAuthTypes = new ImmutableMap.Builder<String, List<String>>()
-            .put("/testContext", DEFAULT_AUTH_TYPES)
-            .put("/1/2/3/testContext2", Arrays.asList("SAML", "GUEST"))
-            .put("/A/B/C/testContext3", Arrays.asList("a"))
-            .put("/A/B/C/testContext4", Arrays.asList("abcTestContext4"))
-            .build();
+    private final Map<String, List<String>> expectedRollBackAuthTypes =
+            new ImmutableMap.Builder<String, List<String>>().put("/testContext", DEFAULT_AUTH_TYPES)
+                    .put("/1/2/3/testContext2", Arrays.asList("SAML", "GUEST"))
+                    .put("/A/B/C/testContext3", Arrays.asList("a"))
+                    .put("/A/B/C/testContext4", Arrays.asList("abcTestContext4"))
+                    .build();
 
-    private  final Map<String, List<String>> expectedRollBackReqAttrs = new ImmutableMap.Builder<String, List<String>>()
-            .put("/testContext5", Arrays.asList(new String[] {}))
-            .put("/1/2/3/testContext6", Arrays.asList(new String[] {}))
-            .put("/A/B/C/testContext7", Arrays.asList("A"))
-            .put("/A/B/C/testContext8", Arrays.asList("AbcTestContext8"))
-            .build();
-
-
+    private final Map<String, List<String>> expectedRollBackReqAttrs =
+            new ImmutableMap.Builder<String, List<String>>().put("/testContext5",
+                    Arrays.asList(new String[] {}))
+                    .put("/1/2/3/testContext6", Arrays.asList(new String[] {}))
+                    .put("/A/B/C/testContext7", Arrays.asList("A"))
+                    .put("/A/B/C/testContext8", Arrays.asList("AbcTestContext8"))
+                    .build();
 
     @Before
     public void setup() {
         manager = new PolicyManager();
         manager.setContextPolicy("/", new Policy("/", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/search", new Policy("/search", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/admin", new Policy("/admin", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/search/standard", new Policy("/search/standard", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/cometd", new Policy("/cometd", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/search/simple", new Policy("/search/simple", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/search",
+                new Policy("/search", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/admin",
+                new Policy("/admin", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/search/standard",
+                new Policy("/search/standard", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/cometd",
+                new Policy("/cometd", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/search/simple",
+                new Policy("/search/simple", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/aaaaaa",
+                new Policy("/aaaaaa", null, new ArrayList<String>(), null));
         manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, new ArrayList<String>(), null));
-        manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/aaa/aaa",
+                new Policy("/aaa/aaa", null, new ArrayList<String>(), null));
+        manager.setContextPolicy("/foo/bar",
+                new Policy("/foo/bar", null, new ArrayList<String>(), null));
         manager.setWhiteListContexts(Arrays.asList("/foo"));
 
         Map<String, Object> contextPolicies = new HashMap<>();
@@ -129,7 +130,8 @@ public class PolicyManagerTest {
     public void testContextRealmRollBack() {
         for (String contextPath : expectedRollBackRealms.keySet()) {
             Assert.assertEquals(expectedRollBackRealms.get(contextPath),
-                    rollBackTestManager.getContextPolicy(contextPath).getRealm());
+                    rollBackTestManager.getContextPolicy(contextPath)
+                            .getRealm());
         }
 
     }
@@ -146,7 +148,8 @@ public class PolicyManagerTest {
         for (String contextPath : expectedRollBackAuthTypes.keySet()) {
             for (String authType : rollBackTestManager.getContextPolicy(contextPath)
                     .getAuthenticationMethods()) {
-                Assert.assertTrue(expectedRollBackAuthTypes.get(contextPath).contains(authType));
+                Assert.assertTrue(expectedRollBackAuthTypes.get(contextPath)
+                        .contains(authType));
             }
         }
     }
@@ -163,16 +166,20 @@ public class PolicyManagerTest {
         for (String contextPath : expectedRollBackReqAttrs.keySet()) {
             for (String authType : rollBackTestManager.getContextPolicy(contextPath)
                     .getAllowedAttributeNames()) {
-                Assert.assertTrue(expectedRollBackReqAttrs.get(contextPath).contains(authType));
+                Assert.assertTrue(expectedRollBackReqAttrs.get(contextPath)
+                        .contains(authType));
             }
         }
     }
 
     @Test
     public void testInvalidEntry() {
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getRealm(), PolicyManager.DEFAULT_REALM_CONTEXT_VALUE);
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getAllowedAttributeNames(), Arrays.asList(new String[]{}));
-        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry").getAuthenticationMethods(), DEFAULT_AUTH_TYPES);
+        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
+                .getRealm(), PolicyManager.DEFAULT_REALM_CONTEXT_VALUE);
+        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
+                .getAllowedAttributeNames(), Arrays.asList(new String[] {}));
+        Assert.assertEquals(rollBackTestManager.getContextPolicy("invalidContextPathEntry")
+                .getAuthenticationMethods(), DEFAULT_AUTH_TYPES);
     }
 
     @Test
@@ -230,29 +237,31 @@ public class PolicyManagerTest {
     public void testConfiguration() {
         Map<String, Object> properties = new HashMap<>();
 
-        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|GUEST", "/admin=SAML|BASIC", "/foo=BASIC",
-                "/blah=GUEST", "/bleh=GUEST", "/unprotected=", "/unprotected2="};
-        String[] requiredAttributes = new String[] {"/={}", "/blah=", "/search={role=user;control=foo;control=bar}",
-                "/admin={role=admin}"};
+        String[] authTypes =
+                new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|GUEST", "/admin=SAML|BASIC",
+                        "/foo=BASIC", "/blah=GUEST", "/bleh=GUEST", "/unprotected=",
+                        "/unprotected2="};
+        String[] requiredAttributes =
+                new String[] {"/={}", "/blah=", "/search={role=user;control=foo;control=bar}",
+                        "/admin={role=admin}"};
 
-        properties.put("authenticationTypes",
-                authTypes);
-        properties.put("requiredAttributes",
-                requiredAttributes);
+        properties.put("authenticationTypes", authTypes);
+        properties.put("requiredAttributes", requiredAttributes);
         manager.setPolicies(properties);
         testAllPolicies();
     }
 
     @Test
     public void testSetPropertiesIgnoresNullMap() {
-        String[] authTypes = new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|GUEST", "/admin=SAML|BASIC",
-                "/foo=BASIC", "/blah=GUEST", "/unprotected=", "/unprotected2=", "/bleh=GUEST"};
-        String[] requiredAttributes = new String[] {"/={}", "/search={role=user;control=foo;control=bar}",
-                "/admin={role=admin|supervisor}"};
-        manager.setAuthenticationTypes(
-                Arrays.asList(authTypes));
-        manager.setRequiredAttributes(
-                Arrays.asList(requiredAttributes));
+        String[] authTypes =
+                new String[] {"/=SAML|BASIC", "/search=SAML|BASIC|GUEST", "/admin=SAML|BASIC",
+                        "/foo=BASIC", "/blah=GUEST", "/unprotected=", "/unprotected2=",
+                        "/bleh=GUEST"};
+        String[] requiredAttributes =
+                new String[] {"/={}", "/search={role=user;control=foo;control=bar}",
+                        "/admin={role=admin|supervisor}"};
+        manager.setAuthenticationTypes(Arrays.asList(authTypes));
+        manager.setRequiredAttributes(Arrays.asList(requiredAttributes));
         manager.configure();
         manager.setPolicies(null);
         testAllPolicies();
@@ -261,15 +270,18 @@ public class PolicyManagerTest {
     @Test
     public void testWhiteListWithProperties() {
         System.setProperty("org.codice.security.policy.context.test.bar", "/baz");
-        manager.setWhiteListContexts(Arrays.asList("/foo", "${org.codice.security.policy.context.test.bar}"));
-        Assert.assertTrue(manager.getWhiteListContexts().contains("/baz"));
+        manager.setWhiteListContexts(Arrays.asList("/foo",
+                "${org.codice.security.policy.context.test.bar}"));
+        Assert.assertTrue(manager.getWhiteListContexts()
+                .contains("/baz"));
     }
 
     private void testAllPolicies() {
         //check search policy
         ContextPolicy policy = manager.getContextPolicy("/search");
         Assert.assertEquals("/search", policy.getContextPath());
-        Iterator<String> authIter = policy.getAuthenticationMethods().iterator();
+        Iterator<String> authIter = policy.getAuthenticationMethods()
+                .iterator();
         int i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
@@ -285,14 +297,21 @@ public class PolicyManagerTest {
 
         List<Permission> permissionList = policy.getAllowedAttributePermissions()
                 .getPermissionList();
-        Assert.assertEquals("role : user", permissionList.get(0).toString());
-        Assert.assertEquals("control : foo", permissionList.get(1).toString());
-        Assert.assertEquals("control : bar", permissionList.get(2).toString());
+        Assert.assertEquals("role : user",
+                permissionList.get(0)
+                        .toString());
+        Assert.assertEquals("control : foo",
+                permissionList.get(1)
+                        .toString());
+        Assert.assertEquals("control : bar",
+                permissionList.get(2)
+                        .toString());
 
         //check admin policy
         policy = manager.getContextPolicy("/admin");
         Assert.assertEquals("/admin", policy.getContextPath());
-        authIter = policy.getAuthenticationMethods().iterator();
+        authIter = policy.getAuthenticationMethods()
+                .iterator();
         i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
@@ -307,7 +326,8 @@ public class PolicyManagerTest {
         //check foo policy
         policy = manager.getContextPolicy("/foo");
         Assert.assertEquals("/foo", policy.getContextPath());
-        authIter = policy.getAuthenticationMethods().iterator();
+        authIter = policy.getAuthenticationMethods()
+                .iterator();
         i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
@@ -320,7 +340,8 @@ public class PolicyManagerTest {
         //make sure some random context points to /
         policy = manager.getContextPolicy("/random");
         Assert.assertEquals("/", policy.getContextPath());
-        authIter = policy.getAuthenticationMethods().iterator();
+        authIter = policy.getAuthenticationMethods()
+                .iterator();
         i = 0;
         while (authIter.hasNext()) {
             if (i == 0) {
@@ -335,12 +356,14 @@ public class PolicyManagerTest {
         //check unprotected contexts
         policy = manager.getContextPolicy("/unprotected");
         Assert.assertEquals("/unprotected", policy.getContextPath());
-        authIter = policy.getAuthenticationMethods().iterator();
+        authIter = policy.getAuthenticationMethods()
+                .iterator();
         Assert.assertEquals(false, authIter.hasNext());
 
         policy = manager.getContextPolicy("/unprotected2");
         Assert.assertEquals("/unprotected2", policy.getContextPath());
-        authIter = policy.getAuthenticationMethods().iterator();
+        authIter = policy.getAuthenticationMethods()
+                .iterator();
         Assert.assertEquals(false, authIter.hasNext());
     }
 }

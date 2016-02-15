@@ -19,10 +19,10 @@ import java.util.Map;
 /**
  * Interface for the System Properties Admin MBean. Allows exposing the system
  * properties out via a JMX MBean interface.
- *
  */
 public interface SystemPropertiesAdminMBean {
-    public static final String OBJECT_NAME = "org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean";
+    public static final String OBJECT_NAME =
+            "org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean";
 
     /**
      * Reads and returns system properties

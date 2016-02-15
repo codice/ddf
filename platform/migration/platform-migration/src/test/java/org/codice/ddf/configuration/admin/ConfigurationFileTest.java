@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -72,23 +72,29 @@ public class ConfigurationFileTest {
     @Test
     public void constructor() {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
-                properties, configAdmin, persistenceStrategy);
+                properties,
+                configAdmin,
+                persistenceStrategy);
         assertThat(configurationFile.getConfigFilePath(), sameInstance(path));
     }
 
     @Test
     public void testExportConfig() throws IOException {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
-                properties, configAdmin, persistenceStrategy);
+                properties,
+                configAdmin,
+                persistenceStrategy);
         configurationFile.exportConfig("");
-        verify(persistenceStrategy, atLeastOnce())
-                .write(any(FileOutputStream.class), same(properties));
+        verify(persistenceStrategy, atLeastOnce()).write(any(FileOutputStream.class),
+                same(properties));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testExportWithNullDestination() throws IOException {
         ConfigurationFileUnderTest configurationFile = new ConfigurationFileUnderTest(path,
-                properties, configAdmin, persistenceStrategy);
+                properties,
+                configAdmin,
+                persistenceStrategy);
         configurationFile.exportConfig(null);
     }
 }

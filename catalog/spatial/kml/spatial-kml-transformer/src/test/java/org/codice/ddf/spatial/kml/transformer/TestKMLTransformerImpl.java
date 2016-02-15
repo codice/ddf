@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
@@ -64,7 +63,8 @@ public class TestKMLTransformerImpl {
 
     private static final String MULTILINESTRING_WKT = "MULTILINESTRING ((1 1, 2 1), (1 2, 0 0))";
 
-    private static final String MULTIPOLYGON_WKT = "MULTIPOLYGON (((1 1,2 1,2 2,1 2,1 1)), ((0 0,1 1,2 0,0 0)))";
+    private static final String MULTIPOLYGON_WKT =
+            "MULTIPOLYGON (((1 1,2 1,2 2,1 2,1 1)), ((0 0,1 1,2 0,0 0)))";
 
     private static final String GEOMETRYCOLLECTION_WKT =
             "GEOMETRYCOLLECTION (" + POINT_WKT + ", " + LINESTRING_WKT + ", " + POLYGON_WKT + ")";
@@ -94,8 +94,10 @@ public class TestKMLTransformerImpl {
         mockAction = mock(Action.class);
         when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
-        kmlTransformer = new KMLTransformerImpl(mockContext, DEFAULT_STYLE_LOCATION,
-                new KmlStyleMap(), mockActionProvider);
+        kmlTransformer = new KMLTransformerImpl(mockContext,
+                DEFAULT_STYLE_LOCATION,
+                new KmlStyleMap(),
+                mockActionProvider);
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -111,7 +113,8 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getStyleSelector().isEmpty(), is(true));
+        assertThat(placemark.getStyleSelector()
+                .isEmpty(), is(true));
         assertThat(placemark.getStyleUrl(), nullValue());
         assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
@@ -120,8 +123,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationLineStringLocation() throws
-            CatalogTransformerException {
+    public void testPerformDefaultTransformationLineStringLocation()
+            throws CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(LINESTRING_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -132,14 +135,17 @@ public class TestKMLTransformerImpl {
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
         assertThat(placemark.getGeometry(), is(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
-        assertThat(multiGeo.getGeometry().size(), is(2));
-        assertThat(multiGeo.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo.getGeometry().get(1), is(LineString.class));
+        assertThat(multiGeo.getGeometry()
+                .size(), is(2));
+        assertThat(multiGeo.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .get(1), is(LineString.class));
     }
 
     @Test
-    public void testPerformDefaultTransformationPolygonLocation() throws
-            CatalogTransformerException {
+    public void testPerformDefaultTransformationPolygonLocation()
+            throws CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(POLYGON_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -150,14 +156,17 @@ public class TestKMLTransformerImpl {
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
         assertThat(placemark.getGeometry(), is(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
-        assertThat(multiGeo.getGeometry().size(), is(2));
-        assertThat(multiGeo.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo.getGeometry().get(1), is(Polygon.class));
+        assertThat(multiGeo.getGeometry()
+                .size(), is(2));
+        assertThat(multiGeo.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .get(1), is(Polygon.class));
     }
 
     @Test
-    public void testPerformDefaultTransformationMultiPointLocation() throws
-            CatalogTransformerException {
+    public void testPerformDefaultTransformationMultiPointLocation()
+            throws CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(MULTIPOINT_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -168,19 +177,27 @@ public class TestKMLTransformerImpl {
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
         assertThat(placemark.getGeometry(), is(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
-        assertThat(multiGeo.getGeometry().size(), is(2));
-        assertThat(multiGeo.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo.getGeometry().get(1), is(MultiGeometry.class));
-        MultiGeometry multiPoint = (MultiGeometry) multiGeo.getGeometry().get(1);
-        assertThat(multiPoint.getGeometry().size(), is(3));
-        assertThat(multiPoint.getGeometry().get(0), is(Point.class));
-        assertThat(multiPoint.getGeometry().get(1), is(Point.class));
-        assertThat(multiPoint.getGeometry().get(2), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .size(), is(2));
+        assertThat(multiGeo.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .get(1), is(MultiGeometry.class));
+        MultiGeometry multiPoint = (MultiGeometry) multiGeo.getGeometry()
+                .get(1);
+        assertThat(multiPoint.getGeometry()
+                .size(), is(3));
+        assertThat(multiPoint.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiPoint.getGeometry()
+                .get(1), is(Point.class));
+        assertThat(multiPoint.getGeometry()
+                .get(2), is(Point.class));
     }
 
     @Test
-    public void testPerformDefaultTransformationMultiLineStringLocation() throws
-            CatalogTransformerException {
+    public void testPerformDefaultTransformationMultiLineStringLocation()
+            throws CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(MULTILINESTRING_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -191,18 +208,25 @@ public class TestKMLTransformerImpl {
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
         assertThat(placemark.getGeometry(), is(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
-        assertThat(multiGeo.getGeometry().size(), is(2));
-        assertThat(multiGeo.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo.getGeometry().get(1), is(MultiGeometry.class));
-        MultiGeometry multiLineString = (MultiGeometry) multiGeo.getGeometry().get(1);
-        assertThat(multiLineString.getGeometry().size(), is(2));
-        assertThat(multiLineString.getGeometry().get(0), is(LineString.class));
-        assertThat(multiLineString.getGeometry().get(1), is(LineString.class));
+        assertThat(multiGeo.getGeometry()
+                .size(), is(2));
+        assertThat(multiGeo.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .get(1), is(MultiGeometry.class));
+        MultiGeometry multiLineString = (MultiGeometry) multiGeo.getGeometry()
+                .get(1);
+        assertThat(multiLineString.getGeometry()
+                .size(), is(2));
+        assertThat(multiLineString.getGeometry()
+                .get(0), is(LineString.class));
+        assertThat(multiLineString.getGeometry()
+                .get(1), is(LineString.class));
     }
 
     @Test
-    public void testPerformDefaultTransformationMultiPolygonLocation() throws
-            CatalogTransformerException {
+    public void testPerformDefaultTransformationMultiPolygonLocation()
+            throws CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(MULTIPOLYGON_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -213,18 +237,25 @@ public class TestKMLTransformerImpl {
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
         assertThat(placemark.getGeometry(), is(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
-        assertThat(multiGeo.getGeometry().size(), is(2));
-        assertThat(multiGeo.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo.getGeometry().get(1), is(MultiGeometry.class));
-        MultiGeometry multiPolygon = (MultiGeometry) multiGeo.getGeometry().get(1);
-        assertThat(multiPolygon.getGeometry().size(), is(2));
-        assertThat(multiPolygon.getGeometry().get(0), is(Polygon.class));
-        assertThat(multiPolygon.getGeometry().get(1), is(Polygon.class));
+        assertThat(multiGeo.getGeometry()
+                .size(), is(2));
+        assertThat(multiGeo.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .get(1), is(MultiGeometry.class));
+        MultiGeometry multiPolygon = (MultiGeometry) multiGeo.getGeometry()
+                .get(1);
+        assertThat(multiPolygon.getGeometry()
+                .size(), is(2));
+        assertThat(multiPolygon.getGeometry()
+                .get(0), is(Polygon.class));
+        assertThat(multiPolygon.getGeometry()
+                .get(1), is(Polygon.class));
     }
 
     @Test
-    public void testPerformDefaultTransformationGeometryCollectionLocation() throws
-            CatalogTransformerException {
+    public void testPerformDefaultTransformationGeometryCollectionLocation()
+            throws CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(GEOMETRYCOLLECTION_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -235,19 +266,27 @@ public class TestKMLTransformerImpl {
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
         assertThat(placemark.getGeometry(), is(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
-        assertThat(multiGeo.getGeometry().size(), is(2));
-        assertThat(multiGeo.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo.getGeometry().get(1), is(MultiGeometry.class));
-        MultiGeometry multiGeo2 = (MultiGeometry) multiGeo.getGeometry().get(1);
-        assertThat(multiGeo2.getGeometry().size(), is(3));
-        assertThat(multiGeo2.getGeometry().get(0), is(Point.class));
-        assertThat(multiGeo2.getGeometry().get(1), is(LineString.class));
-        assertThat(multiGeo2.getGeometry().get(2), is(Polygon.class));
+        assertThat(multiGeo.getGeometry()
+                .size(), is(2));
+        assertThat(multiGeo.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo.getGeometry()
+                .get(1), is(MultiGeometry.class));
+        MultiGeometry multiGeo2 = (MultiGeometry) multiGeo.getGeometry()
+                .get(1);
+        assertThat(multiGeo2.getGeometry()
+                .size(), is(3));
+        assertThat(multiGeo2.getGeometry()
+                .get(0), is(Point.class));
+        assertThat(multiGeo2.getGeometry()
+                .get(1), is(LineString.class));
+        assertThat(multiGeo2.getGeometry()
+                .get(2), is(Polygon.class));
     }
 
     @Test
-    public void testTransformMetacardGetsDefaultStyle() throws CatalogTransformerException,
-            IOException {
+    public void testTransformMetacardGetsDefaultStyle()
+            throws CatalogTransformerException, IOException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(POINT_WKT);
         BinaryContent content = kmlTransformer.transform(metacard, null);
@@ -260,13 +299,17 @@ public class TestKMLTransformerImpl {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setContentTypeName("myContentType");
         metacard.setContentTypeVersion("myVersion");
-        metacard.setCreatedDate(Calendar.getInstance().getTime());
-        metacard.setEffectiveDate(Calendar.getInstance().getTime());
-        metacard.setExpirationDate(Calendar.getInstance().getTime());
+        metacard.setCreatedDate(Calendar.getInstance()
+                .getTime());
+        metacard.setEffectiveDate(Calendar.getInstance()
+                .getTime());
+        metacard.setExpirationDate(Calendar.getInstance()
+                .getTime());
         metacard.setId("1234567890");
         // metacard.setLocation(wkt);
         metacard.setMetadata("<xml>Metadata</xml>");
-        metacard.setModifiedDate(Calendar.getInstance().getTime());
+        metacard.setModifiedDate(Calendar.getInstance()
+                .getTime());
         // metacard.setResourceSize("10MB");
         // metacard.setResourceURI(uri)
         metacard.setSourceId("sourceID");

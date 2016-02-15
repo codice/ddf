@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,13 +25,18 @@ public class ServerErrorException extends WebApplicationException {
     private static final long serialVersionUID = 1L;
 
     public ServerErrorException(String message, Status status) {
-        super(Response.status(status).entity("<pre>" + message + "</pre>").type(MediaType.TEXT_HTML)
+        super(Response.status(status)
+                .entity("<pre>" + message + "</pre>")
+                .type(MediaType.TEXT_HTML)
                 .build());
 
     }
 
     public ServerErrorException(Throwable t, Status status) {
-        super(t, Response.status(status).entity("<pre>" + t.getMessage() + "</pre>")
-                .type(MediaType.TEXT_HTML).build());
+        super(t,
+                Response.status(status)
+                        .entity("<pre>" + t.getMessage() + "</pre>")
+                        .type(MediaType.TEXT_HTML)
+                        .build());
     }
 }

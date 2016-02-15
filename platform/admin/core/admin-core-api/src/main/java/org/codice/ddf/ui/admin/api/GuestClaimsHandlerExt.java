@@ -101,7 +101,7 @@ public class GuestClaimsHandlerExt {
         Map<String, String> propertyMap = new HashMap<>();
         if (propFile != null && propFile.exists()) {
             Properties properties = PropertiesLoader.loadProperties(propFile.getAbsolutePath());
-            propertyMap  = PropertiesLoader.toMap(properties);
+            propertyMap = PropertiesLoader.toMap(properties);
         }
         return propertyMap;
     }

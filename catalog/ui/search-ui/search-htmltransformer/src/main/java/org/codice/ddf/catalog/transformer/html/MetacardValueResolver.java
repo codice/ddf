@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.catalog.transformer.html;
 
@@ -40,7 +39,10 @@ public class MetacardValueResolver implements ValueResolver {
     @Override
     public Object resolve(Object context, String name) {
 
-        LOGGER.debug("Resolving {} for {}", context.getClass().getName(), name);
+        LOGGER.debug("Resolving {} for {}",
+                context.getClass()
+                        .getName(),
+                name);
         if (context instanceof Metacard) {
             if (GEOMETRY.equals(name)) {
                 return ((Metacard) context).getLocation();
@@ -60,9 +62,11 @@ public class MetacardValueResolver implements ValueResolver {
             } else if (Metacard.SOURCE_ID.equals(name)) {
                 return metacard.getSourceId();
             } else if (TYPE.equals(name)) {
-                return metacard.getMetacardType().getName();
+                return metacard.getMetacardType()
+                        .getName();
             } else if (metacard.getAttribute(name) != null) {
-                return metacard.getAttribute(name).getValue();
+                return metacard.getAttribute(name)
+                        .getValue();
             }
         }
 

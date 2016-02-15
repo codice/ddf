@@ -38,7 +38,6 @@ import ddf.catalog.transform.InputTransformer;
 
 /**
  * Tests the {@link IngestCommand} output.
- *
  */
 public class TestIngestCommand extends AbstractCommandTest {
 
@@ -70,9 +69,8 @@ public class TestIngestCommand extends AbstractCommandTest {
             public BundleContext getBundleContext() {
                 BundleContext bundleContext = mock(BundleContext.class);
                 try {
-                    when(bundleContext.getServiceReferences(anyString(),
-                            anyString())).thenReturn(
-                            new ServiceReference[]{mock(ServiceReference.class)});
+                    when(bundleContext.getServiceReferences(anyString(), anyString())).thenReturn(
+                            new ServiceReference[] {mock(ServiceReference.class)});
                     InputTransformer inputTransformer = mock(InputTransformer.class);
                     when(bundleContext.getService(anyObject())).thenReturn(inputTransformer);
                 } catch (InvalidSyntaxException e) {
@@ -81,7 +79,8 @@ public class TestIngestCommand extends AbstractCommandTest {
                 return bundleContext;
             }
         };
-        command.filePath = testFolder.getRoot().getAbsolutePath();
+        command.filePath = testFolder.getRoot()
+                .getAbsolutePath();
     }
 
     /**
@@ -204,7 +203,8 @@ public class TestIngestCommand extends AbstractCommandTest {
             String expectedFailed = "1 file(s) failed";
             assertThat(consoleOutput.getOutput(), containsString(expectedIngested));
             assertThat(consoleOutput.getOutput(), containsString(expectedFailed));
-            assertFalse(consoleOutput.getOutput().contains("ignored"));
+            assertFalse(consoleOutput.getOutput()
+                    .contains("ignored"));
 
         } finally {
             consoleOutput.closeBuffer();

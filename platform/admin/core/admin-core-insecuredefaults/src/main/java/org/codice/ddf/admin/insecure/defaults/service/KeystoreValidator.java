@@ -39,20 +39,26 @@ import ddf.security.SecurityConstants;
 
 public class KeystoreValidator implements Validator {
 
-    static final String GENERIC_INSECURE_DEFAULTS_MSG = "Unable to determine if keystore [%s] is using insecure defaults. ";
+    static final String GENERIC_INSECURE_DEFAULTS_MSG =
+            "Unable to determine if keystore [%s] is using insecure defaults. ";
 
-    static final String DEFAULT_KEY_PASSWORD_USED_MSG = "The key for alias [%s] in [%s] is using the default password of [%s].";
+    static final String DEFAULT_KEY_PASSWORD_USED_MSG =
+            "The key for alias [%s] in [%s] is using the default password of [%s].";
 
-    static final String DEFAULT_KEYSTORE_PASSWORD_USED_MSG = "The keystore password for [%s] is the default password of [%s].";
+    static final String DEFAULT_KEYSTORE_PASSWORD_USED_MSG =
+            "The keystore password for [%s] is the default password of [%s].";
 
-    static final String INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG = "Unable to determine if keystore [%s] contains insecure default certificates. Error retrieving certificates from Blacklist keystore [%s]. %s.";
+    static final String INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG =
+            "Unable to determine if keystore [%s] contains insecure default certificates. Error retrieving certificates from Blacklist keystore [%s]. %s.";
 
     static final String BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG =
             GENERIC_INSECURE_DEFAULTS_MSG + "Cannot read Blacklist keystore [%s].";
 
-    static final String CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG = "The certificate chain for alias [%s] in [%s] contains a blacklisted certificate with alias [%s].";
+    static final String CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG =
+            "The certificate chain for alias [%s] in [%s] contains a blacklisted certificate with alias [%s].";
 
-    static final String CERT_IS_BLACKLISTED_MSG = "The certificate for alias [%s] in [%s] is a blacklisted certificate with alias [%s].";
+    static final String CERT_IS_BLACKLISTED_MSG =
+            "The certificate for alias [%s] in [%s] is a blacklisted certificate with alias [%s].";
 
     static final String KEYSTORE_DOES_NOT_EXIST_MSG =
             GENERIC_INSECURE_DEFAULTS_MSG + "Cannot read keystore.";
@@ -114,7 +120,8 @@ public class KeystoreValidator implements Validator {
                 if (!blacklistedCertificates.isEmpty()) {
                     List<Certificate[]> keystoreCertificateChains = getKeystoreCertificatesChains(
                             keystore);
-                    validateKeystoreCertificates(keystore, keystoreCertificateChains,
+                    validateKeystoreCertificates(keystore,
+                            keystoreCertificateChains,
                             blacklistedCertificates);
                 }
             }
@@ -130,15 +137,15 @@ public class KeystoreValidator implements Validator {
     private boolean isInitialized() {
         int errors = 0;
 
-        if (keystorePath == null || (keystorePath != null && StringUtils
-                .isBlank(keystorePath.toString()))) {
+        if (keystorePath == null || (keystorePath != null
+                && StringUtils.isBlank(keystorePath.toString()))) {
             alerts.add(new Alert(Level.WARN,
                     "Unable to determine if keystore is using insecure defaults. No keystore path provided."));
             return false;
         }
 
-        if (blacklistKeystorePath == null || (blacklistKeystorePath != null && StringUtils
-                .isBlank(blacklistKeystorePath.toString()))) {
+        if (blacklistKeystorePath == null || (blacklistKeystorePath != null && StringUtils.isBlank(
+                blacklistKeystorePath.toString()))) {
             alerts.add(new Alert(Level.WARN,
                     String.format(GENERIC_INSECURE_DEFAULTS_MSG, keystorePath)
                             + "No Blacklist keystore path provided."));
@@ -190,7 +197,8 @@ public class KeystoreValidator implements Validator {
                 if (StringUtils.equals(keystorePassword, defaultKeystorePassword)) {
                     alerts.add(new Alert(Level.WARN,
                             String.format(DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
-                                    keystorePath.toString(), defaultKeystorePassword)));
+                                    keystorePath.toString(),
+                                    defaultKeystorePassword)));
                 }
             }
         } catch (NoSuchAlgorithmException | CertificateException | IOException e) {
@@ -209,8 +217,8 @@ public class KeystoreValidator implements Validator {
             Enumeration<String> aliases = keystore.aliases();
             while (aliases.hasMoreElements()) {
                 String alias = (String) aliases.nextElement();
-                if (keystore.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class) || keystore
-                        .entryInstanceOf(alias, KeyStore.SecretKeyEntry.class)) {
+                if (keystore.entryInstanceOf(alias, KeyStore.PrivateKeyEntry.class)
+                        || keystore.entryInstanceOf(alias, KeyStore.SecretKeyEntry.class)) {
                     if (StringUtils.isNotBlank(defaultKeyPassword)) {
                         // See if we can access the key using the default key password. If we
                         // cannot, we
@@ -218,8 +226,10 @@ public class KeystoreValidator implements Validator {
                         Key key = keystore.getKey(alias, defaultKeyPassword.toCharArray());
                         if (key != null) {
                             alerts.add(new Alert(Level.WARN,
-                                    String.format(DEFAULT_KEY_PASSWORD_USED_MSG, alias,
-                                            keystorePath, defaultKeyPassword)));
+                                    String.format(DEFAULT_KEY_PASSWORD_USED_MSG,
+                                            alias,
+                                            keystorePath,
+                                            defaultKeyPassword)));
                         }
                     } else {
                         alerts.add(new Alert(Level.WARN,
@@ -243,14 +253,15 @@ public class KeystoreValidator implements Validator {
 
         if (!new File(blacklistKeystorePath.toString()).canRead()) {
             alerts.add(new Alert(Level.WARN,
-                    String.format(BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG, keystorePath,
+                    String.format(BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG,
+                            keystorePath,
                             blacklistKeystorePath)));
             return blacklistedCertificates;
         }
 
         try (FileInputStream fis = new FileInputStream(blacklistKeystorePath.toString())) {
-            blacklistKeystore = KeyStore
-                    .getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
+            blacklistKeystore =
+                    KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
             blacklistKeystore.load(fis, blacklistKeystorePassword.toCharArray());
 
             Enumeration<String> aliases = blacklistKeystore.aliases();
@@ -260,8 +271,10 @@ public class KeystoreValidator implements Validator {
                 blacklistedCertificates.add(certificate);
             }
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-            String msg = String.format(INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG, keystorePath,
-                    blacklistKeystorePath, e.getMessage());
+            String msg = String.format(INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG,
+                    keystorePath,
+                    blacklistKeystorePath,
+                    e.getMessage());
             LOGGER.warn(msg, e);
             alerts.add(new Alert(Level.WARN, msg));
         }
@@ -305,8 +318,11 @@ public class KeystoreValidator implements Validator {
         Certificate headCertificate = certificateChain[0];
         for (Certificate certificate : certificateChain) {
             // validate each certificate in the certificate chain against the blacklist
-            validateAgainstBlacklist(headCertificate, certificate, blacklistedCertificates,
-                    keystore, certificateChain.length);
+            validateAgainstBlacklist(headCertificate,
+                    certificate,
+                    blacklistedCertificates,
+                    keystore,
+                    certificateChain.length);
         }
     }
 
@@ -318,11 +334,13 @@ public class KeystoreValidator implements Validator {
                     String msg = null;
                     if (certChainLength > 1) {
                         msg = String.format(CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG,
-                                keystore.getCertificateAlias(headCertificate), keystorePath,
+                                keystore.getCertificateAlias(headCertificate),
+                                keystorePath,
                                 blacklistKeystore.getCertificateAlias(blackListedCertificate));
                     } else {
                         msg = String.format(CERT_IS_BLACKLISTED_MSG,
-                                keystore.getCertificateAlias(headCertificate), keystorePath,
+                                keystore.getCertificateAlias(headCertificate),
+                                keystorePath,
                                 blacklistKeystore.getCertificateAlias(blackListedCertificate));
                     }
                     alerts.add(new Alert(Level.WARN, msg));
@@ -331,8 +349,8 @@ public class KeystoreValidator implements Validator {
             } catch (CertificateEncodingException | KeyStoreException e) {
                 LOGGER.warn(String.format(GENERIC_INSECURE_DEFAULTS_MSG, keystorePath), e);
                 alerts.add(new Alert(Level.WARN,
-                        String.format(GENERIC_INSECURE_DEFAULTS_MSG, keystorePath) + e
-                                .getMessage()));
+                        String.format(GENERIC_INSECURE_DEFAULTS_MSG, keystorePath)
+                                + e.getMessage()));
             }
         }
     }

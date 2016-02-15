@@ -45,8 +45,7 @@ public class StartApplicationCommandTest {
         startApplicationCommand.appName = APP_NAME;
         startApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         startApplicationCommand.doExecute();

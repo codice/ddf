@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -56,8 +55,10 @@ public class BoundingBoxReader {
 
         // reader should initially be positioned at <ows:BoundingBox> element
         LOGGER.debug("Initial node name = {}", reader.getNodeName());
-        if (!reader.getNodeName().contains("BoundingBox")) {
-            throw new CswException("BoundingBoxReader.getWkt(): supplied reader does not contain a BoundingBox.");
+        if (!reader.getNodeName()
+                .contains("BoundingBox")) {
+            throw new CswException(
+                    "BoundingBoxReader.getWkt(): supplied reader does not contain a BoundingBox.");
         }
 
         String crs = reader.getAttribute("crs");
@@ -73,7 +74,8 @@ public class BoundingBoxReader {
 
         // Parse LowerCorner position from bounding box
         String[] lowerCornerPosition = null;
-        if (reader.getNodeName().contains("LowerCorner")) {
+        if (reader.getNodeName()
+                .contains("LowerCorner")) {
             String value = reader.getValue();
             lowerCornerPosition = getCoordinates(value, this.cswAxisOrder);
         }
@@ -87,7 +89,8 @@ public class BoundingBoxReader {
 
         // Parse UpperCorner position from bounding box
         String[] upperCornerPosition = null;
-        if (reader.getNodeName().contains("UpperCorner")) {
+        if (reader.getNodeName()
+                .contains("UpperCorner")) {
             String value = reader.getValue();
             upperCornerPosition = getCoordinates(value, this.cswAxisOrder);
         }
@@ -104,7 +107,8 @@ public class BoundingBoxReader {
              */
             wkt = createWkt(lowerCornerPosition, upperCornerPosition);
         } else {
-            throw new CswException("BoundingBoxReader.getWkt(): could not find either LowerCorner or UpperCorner tags.");
+            throw new CswException(
+                    "BoundingBoxReader.getWkt(): could not find either LowerCorner or UpperCorner tags.");
         }
 
         // Move position back up to the parent <BoundingBox> tag, where we
@@ -124,8 +128,8 @@ public class BoundingBoxReader {
      */
     private String createWkt(String[] lowerCornerPosition, String[] upperCornerPosition) {
         LOGGER.debug("Creating WKT in LON/LAT coordinate order.");
-        if (upperCornerPosition[0].equals(lowerCornerPosition[0]) && upperCornerPosition[1]
-                .equals(lowerCornerPosition[1])) {
+        if (upperCornerPosition[0].equals(lowerCornerPosition[0]) && upperCornerPosition[1].equals(
+                lowerCornerPosition[1])) {
             return "POINT(" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] + ")";
         }
         return "POLYGON((" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] + ", "
@@ -150,7 +154,8 @@ public class BoundingBoxReader {
              * We want to create WKT in LON/LAT order. Since the response has the coords in LAT/LON
              * order, we need to reverse them.
              */
-            return StringUtils.reverseDelimited(coords, SPACE.charAt(0)).split(SPACE);
+            return StringUtils.reverseDelimited(coords, SPACE.charAt(0))
+                    .split(SPACE);
         }
         default: {
             /**

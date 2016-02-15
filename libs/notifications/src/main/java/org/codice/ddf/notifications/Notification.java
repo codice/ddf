@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,8 +46,7 @@ public class Notification extends HashMap<String, String> {
     public static final String NOTIFICATION_TOPIC_DOWNLOADS =
             NOTIFICATION_TOPIC_ROOT + "/catalog/downloads";
 
-    public static final String NOTIFICATION_TOPIC_PUBLISH =
-            NOTIFICATION_TOPIC_ROOT + "/publish";
+    public static final String NOTIFICATION_TOPIC_PUBLISH = NOTIFICATION_TOPIC_ROOT + "/publish";
 
     private static final long serialVersionUID = -2531844838114289515L;
 
@@ -296,7 +295,9 @@ public class Notification extends HashMap<String, String> {
      *         {@code Notification} occurred.
      */
     public Date getTimestamp() {
-        return ISODateTimeFormat.dateTime().parseDateTime(getTimestampString()).toDate();
+        return ISODateTimeFormat.dateTime()
+                .parseDateTime(getTimestampString())
+                .toDate();
     }
 
     /**
@@ -334,7 +335,8 @@ public class Notification extends HashMap<String, String> {
      *            {@code Notification} occurred.
      */
     public void setTimestamp(Date timestamp) {
-        setTimestamp(ISODateTimeFormat.dateTime().print(timestamp.getTime()));
+        setTimestamp(ISODateTimeFormat.dateTime()
+                .print(timestamp.getTime()));
     }
 
     /**

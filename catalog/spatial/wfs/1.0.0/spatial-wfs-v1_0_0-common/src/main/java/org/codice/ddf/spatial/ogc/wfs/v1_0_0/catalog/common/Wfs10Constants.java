@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common;
 
@@ -74,8 +73,15 @@ public class Wfs10Constants extends WfsConstants {
     public static final QName MULTI_POLYGON = new QName(GML_3_2_NAMESPACE, "MultiPolygon");
 
     public static List<QName> wktOperandsAsList() {
-        return Arrays.asList(LINEAR_RING, POLYGON, ENVELOPE, LINESTRING, POINT, MULTI_POINT,
-                MULTI_LINESTRING, MULTI_POLYGON, GEOMETRY_COLLECTION);
+        return Arrays.asList(LINEAR_RING,
+                POLYGON,
+                ENVELOPE,
+                LINESTRING,
+                POINT,
+                MULTI_POINT,
+                MULTI_LINESTRING,
+                MULTI_POLYGON,
+                GEOMETRY_COLLECTION);
     }
 
     public static enum SPATIAL_OPERATORS {

@@ -67,8 +67,8 @@ public class TestPepInterceptorInvalidSubject {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithInvalidSecurityAssertion))
-                .thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithInvalidSecurityAssertion)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,8 +52,8 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
 
     public static final String ID = "geojson";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(GeoJsonQueryResponseTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GeoJsonQueryResponseTransformer.class);
 
     protected static final MimeType DEFAULT_MIME_TYPE = new MimeType();
 
@@ -66,12 +66,14 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
             throw new ExceptionInInitializerError(e);
         }
     }
+
     public static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
         addNonNullObject(rootObject, "distance", result.getDistanceInMeters());
         addNonNullObject(rootObject, "relevance", result.getRelevanceScore());
-        addNonNullObject(rootObject, "metacard",
+        addNonNullObject(rootObject,
+                "metacard",
                 GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
 
         return rootObject;
@@ -113,14 +115,13 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
 
         String jsonText = JSONValue.toJSONString(rootObject);
 
-        return new BinaryContentImpl(
-                new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
+        return new BinaryContentImpl(new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
                 DEFAULT_MIME_TYPE);
     }
 
     @Override
     public String toString() {
-        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName() + ", id="
-                + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
+        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass()
+                .getName() + ", id=" + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
     }
 }

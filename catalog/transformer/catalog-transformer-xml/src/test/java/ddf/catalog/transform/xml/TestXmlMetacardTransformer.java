@@ -94,7 +94,8 @@ public class TestXmlMetacardTransformer {
         m.put("m", "urn:catalog:metacard");
         NamespaceContext ctx = new SimpleNamespaceContext(m);
         XMLUnit.setXpathNamespaceContext(ctx);
-        assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME, "/m:metacard/m:type",
+        assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                "/m:metacard/m:type",
                 outputXml);
     }
 
@@ -120,7 +121,8 @@ public class TestXmlMetacardTransformer {
         m.put("m", "urn:catalog:metacard");
         NamespaceContext ctx = new SimpleNamespaceContext(m);
         XMLUnit.setXpathNamespaceContext(ctx);
-        assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME, "/m:metacard/m:type",
+        assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                "/m:metacard/m:type",
                 outputXml);
     }
 
@@ -133,12 +135,12 @@ public class TestXmlMetacardTransformer {
         mc.setSourceId("FooBarSource");
         mc.setTitle("Title!");
         mc.setExpirationDate(new Date());
-        mc.setLocation(
-                "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))");
+        mc.setLocation("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))");
         mc.setMetadata(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><foo><bar/></foo>");
-        byte[] bytes = {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
-                0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
+        byte[] bytes =
+                {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
+                        1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
         mc.setThumbnail(bytes);
 
         Metacard mci = (Metacard) mc;
@@ -175,10 +177,11 @@ public class TestXmlMetacardTransformer {
         final String testSource = "FooBarSource";
         final String testTitle = "Title!";
         final Date testDate = new Date();
-        final String testLocation = "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
-        final byte[] testThumbnail = {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
-                1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
-                1};
+        final String testLocation =
+                "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
+        final byte[] testThumbnail =
+                {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
+                        1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
 
         mc.setId(testId);
         mc.setSourceId(testSource);
@@ -188,13 +191,15 @@ public class TestXmlMetacardTransformer {
         mc.setThumbnail(testThumbnail);
 
         String metadata = null;
-        FileInputStream stream = new FileInputStream(
-                new File("src/test/resources/extensibleMetacard.xml"));
+        FileInputStream stream = new FileInputStream(new File(
+                "src/test/resources/extensibleMetacard.xml"));
         try {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             /* Instead of using default, pass in a decoder. */
-            metadata = Charset.defaultCharset().decode(bb).toString();
+            metadata = Charset.defaultCharset()
+                    .decode(bb)
+                    .toString();
         } finally {
             stream.close();
         }

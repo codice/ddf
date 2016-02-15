@@ -93,16 +93,18 @@ public class TestXmlResponseQueueTransformer {
 
     private static final String DEFAULT_TITLE = "myTitle";
 
-    private static final String DEFAULT_GEO = "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
+    private static final String DEFAULT_GEO =
+            "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
 
-    private static final String DEFAULT_METADATA = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><foo><bar/></foo>";
+    private static final String DEFAULT_METADATA =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><foo><bar/></foo>";
 
     private static final byte[] DEFAULT_BYTES = new byte[] {0, 0, 1};
 
     private static final String DEFAULT_BASE64 = "AAAB";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestXmlResponseQueueTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TestXmlResponseQueueTransformer.class);
 
     private static final String DEFAULT_SOURCE_ID = "mySourceId";
 
@@ -133,8 +135,11 @@ public class TestXmlResponseQueueTransformer {
         MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser,
                 printWriterProvider);
         mimeType = getMimeType();
-        transformer = new XmlResponseQueueTransformer(parser, FJP, printWriterProvider,
-                metacardMarshaller, mimeType);
+        transformer = new XmlResponseQueueTransformer(parser,
+                FJP,
+                printWriterProvider,
+                metacardMarshaller,
+                mimeType);
     }
 
     /**
@@ -334,7 +339,8 @@ public class TestXmlResponseQueueTransformer {
         transformer.setThreshold(2);
 
         SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"),
-                new MetacardStub("source2", "id2"), new MetacardStub("source3", "id3"));
+                new MetacardStub("source2", "id2"),
+                new MetacardStub("source3", "id3"));
 
         // when
         BinaryContent binaryContent = transformer.transform(response, null);
@@ -371,18 +377,25 @@ public class TestXmlResponseQueueTransformer {
     public void testCompareSerialToFork()
             throws IOException, CatalogTransformerException, MimeTypeParseException {
         SourceResponse response = givenSourceResponse(new MetacardStub("source1", "id1"),
-                new MetacardStub("source2", "id2"), new MetacardStub("source3", "id3"),
+                new MetacardStub("source2", "id2"),
+                new MetacardStub("source3", "id3"),
                 new MetacardStub("source4", "id4"));
 
         PrintWriterProvider pwp = new PrintWriterProviderImpl();
         MetacardMarshaller mcm = new MetacardMarshallerImpl(parser, pwp);
 
-        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(parser, FJP, pwp,
-                mcm, getMimeType());
+        XmlResponseQueueTransformer serialXform = new XmlResponseQueueTransformer(parser,
+                FJP,
+                pwp,
+                mcm,
+                getMimeType());
         serialXform.setThreshold(2);
 
-        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(parser, FJP, pwp,
-                mcm, getMimeType());
+        XmlResponseQueueTransformer forkXForm = new XmlResponseQueueTransformer(parser,
+                FJP,
+                pwp,
+                mcm,
+                getMimeType());
         forkXForm.setThreshold(10);
 
         BinaryContent serialBc = serialXform.transform(response, null);
@@ -406,10 +419,11 @@ public class TestXmlResponseQueueTransformer {
         final String testSource = "FooBarSource";
         final String testTitle = "Title!";
         final Date testDate = new Date();
-        final String testLocation = "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
-        final byte[] testThumbnail = {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
-                1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
-                1};
+        final String testLocation =
+                "POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10),(20 30, 35 35, 30 20, 20 30))";
+        final byte[] testThumbnail =
+                {0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1,
+                        1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
 
         mc.setId(testId);
         mc.setSourceId(testSource);
@@ -419,12 +433,14 @@ public class TestXmlResponseQueueTransformer {
         mc.setThumbnail(testThumbnail);
 
         String metadata;
-        try (FileInputStream stream = new FileInputStream(
-                new File("src/test/resources/extensibleMetacard.xml"))) {
+        try (FileInputStream stream = new FileInputStream(new File(
+                "src/test/resources/extensibleMetacard.xml"))) {
             FileChannel fc = stream.getChannel();
             MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
             /* Instead of using default, pass in a decoder. */
-            metadata = Charset.defaultCharset().decode(bb).toString();
+            metadata = Charset.defaultCharset()
+                    .decode(bb)
+                    .toString();
         }
 
         mc.setMetadata(metadata);
@@ -448,7 +464,8 @@ public class TestXmlResponseQueueTransformer {
         assertXpathEvaluatesTo(testId, "/mc:metacards/mc:metacard/@gml:id", outputXml);
         assertXpathEvaluatesTo(testSource, "/mc:metacards/mc:metacard/mc:source", outputXml);
         assertXpathEvaluatesTo(testTitle,
-                "/mc:metacards/mc:metacard/mc:string[@name='title']/mc:value", outputXml);
+                "/mc:metacards/mc:metacard/mc:string[@name='title']/mc:value",
+                outputXml);
 
         // TODO convert GML representation?
         // outputXml);
@@ -475,10 +492,14 @@ public class TestXmlResponseQueueTransformer {
 
         MimeType mockMimeType = mock(MimeType.class);
 
-        doThrow(new MimeTypeParseException("")).when(mockMimeType).setSubType(anyString());
+        doThrow(new MimeTypeParseException("")).when(mockMimeType)
+                .setSubType(anyString());
 
-        XmlResponseQueueTransformer xrqt = new XmlResponseQueueTransformer(parser, FJP, pwp,
-                mockMetacardMarshaller, mockMimeType);
+        XmlResponseQueueTransformer xrqt = new XmlResponseQueueTransformer(parser,
+                FJP,
+                pwp,
+                mockMetacardMarshaller,
+                mockMimeType);
         xrqt.setThreshold(2);
 
         BinaryContent bc = xrqt.transform(response, null);
@@ -495,11 +516,14 @@ public class TestXmlResponseQueueTransformer {
         PrintWriterProvider pwp = new PrintWriterProviderImpl();
         MetacardMarshaller mockMetacardMarshaller = mock(MetacardMarshaller.class);
 
-        when(mockMetacardMarshaller.marshal(any(Metacard.class), any(Map.class)))
-                .thenThrow(new XmlPullParserException(""));
+        when(mockMetacardMarshaller.marshal(any(Metacard.class),
+                any(Map.class))).thenThrow(new XmlPullParserException(""));
 
-        XmlResponseQueueTransformer xrqt = new XmlResponseQueueTransformer(parser, FJP, pwp,
-                mockMetacardMarshaller, getMimeType());
+        XmlResponseQueueTransformer xrqt = new XmlResponseQueueTransformer(parser,
+                FJP,
+                pwp,
+                mockMetacardMarshaller,
+                getMimeType());
         xrqt.setThreshold(2);
 
         BinaryContent bc = xrqt.transform(response, null);
@@ -531,7 +555,8 @@ public class TestXmlResponseQueueTransformer {
     private void verifyDefaults(String index, String output)
             throws IOException, SAXException, XpathException {
         assertXpathEvaluatesTo(DEFAULT_TYPE_NAME,
-                "/mc:metacards/mc:metacard[" + index + "]/mc:type", output);
+                "/mc:metacards/mc:metacard[" + index + "]/mc:type",
+                output);
         assertXpathExists("/mc:metacards/mc:metacard[" + index
                 + "]/mc:geometry[@name='location']//gml:Polygon", output);
         assertXpathExists(
@@ -541,8 +566,10 @@ public class TestXmlResponseQueueTransformer {
         assertXpathEvaluatesTo(DEFAULT_TITLE,
                 "/mc:metacards/mc:metacard[" + index + "]/mc:string[@name='title']/mc:value",
                 output);
-        assertXpathEvaluatesTo(DEFAULT_BASE64, "/mc:metacards/mc:metacard[" + index
-                + "]/mc:base64Binary[@name='thumbnail']/mc:value", output);
+        assertXpathEvaluatesTo(DEFAULT_BASE64,
+                "/mc:metacards/mc:metacard[" + index
+                        + "]/mc:base64Binary[@name='thumbnail']/mc:value",
+                output);
     }
 
     /**

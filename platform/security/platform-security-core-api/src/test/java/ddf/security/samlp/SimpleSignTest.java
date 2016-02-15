@@ -153,9 +153,9 @@ public class SimpleSignTest {
         simpleSign = new SimpleSign(systemCrypto);
         String deflatedSamlResponse = deflateAndBase64Encode(cannedResponse);
 
-        String queryParams = String.format("SAMLResponse=%s&RelayState=%s", URLEncoder.encode(
-                deflatedSamlResponse,
-                "UTF-8"), URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
+        String queryParams = String.format("SAMLResponse=%s&RelayState=%s",
+                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
         String idpRequest = SINGLE_SIGN_ON_LOCATION + "?" + queryParams;
         UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
         simpleSign.signUriString(queryParams, idpUri);
@@ -169,8 +169,7 @@ public class SimpleSignTest {
 
         String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
                 SAML_RESPONSE,
-                URLEncoder.encode(deflatedSamlResponse,
-                        "UTF-8"),
+                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
                 RELAY_STATE,
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
                 SIG_ALG,
@@ -190,9 +189,9 @@ public class SimpleSignTest {
 
         String deflatedSamlResponse = deflateAndBase64Encode(cannedResponse);
 
-        String queryParams = String.format("SAMLResponse=%s&RelayState=%s", URLEncoder.encode(
-                deflatedSamlResponse,
-                "UTF-8"), URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
+        String queryParams = String.format("SAMLResponse=%s&RelayState=%s",
+                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
+                URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"));
         String idpRequest = SINGLE_SIGN_ON_LOCATION + "?" + queryParams;
         UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
         simpleSign.signUriString(queryParams, idpUri);
@@ -207,8 +206,7 @@ public class SimpleSignTest {
 
         String signedMessage = String.format("%s=%s&%s=%s&%s=%s",
                 SAML_RESPONSE,
-                URLEncoder.encode(deflatedSamlResponse,
-                        "UTF-8"),
+                URLEncoder.encode(deflatedSamlResponse, "UTF-8"),
                 RELAY_STATE,
                 URLEncoder.encode(RELAY_STATE_VAL, "UTF-8"),
                 SIG_ALG,
@@ -231,7 +229,8 @@ public class SimpleSignTest {
             tokenStream.write(value.getBytes(StandardCharsets.UTF_8));
             tokenStream.close();
 
-            return Base64.getEncoder().encodeToString(valueBytes.toByteArray());
+            return Base64.getEncoder()
+                    .encodeToString(valueBytes.toByteArray());
         }
     }
 

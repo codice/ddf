@@ -53,8 +53,8 @@ public class WssPKIHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
-        when(request.getAttribute(("javax.servlet.request.X509Certificate")))
-                .thenReturn(getTestCerts());
+        when(request.getAttribute(("javax.servlet.request.X509Certificate"))).thenReturn(
+                getTestCerts());
 
         /**
          * Note that the getNormalizedToken() method for PKI handlers do not
@@ -93,8 +93,8 @@ public class WssPKIHandlerTest {
     private X509Certificate[] getTestCerts() throws CertificateException {
         String certificateString = getTestCertString();
 
-        InputStream stream = new ByteArrayInputStream(
-                Base64.getMimeDecoder().decode(certificateString.getBytes()));
+        InputStream stream = new ByteArrayInputStream(Base64.getMimeDecoder()
+                .decode(certificateString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[1];

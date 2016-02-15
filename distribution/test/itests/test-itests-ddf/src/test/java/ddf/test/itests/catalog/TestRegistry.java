@@ -49,8 +49,15 @@ public class TestRegistry extends AbstractIntegrationTest {
     @Test
     public void testCswRegistryIngest() throws Exception {
         getServiceManager().startFeature(true, CATALOG_REGISTRY);
-        given().body(Library.getCswRegistryInsert()).header("Content-Type", "text/xml").expect()
-                .log().all().statusCode(200).when().post(CSW_PATH.getUrl()).getHeader("id");
+        given().body(Library.getCswRegistryInsert())
+                .header("Content-Type", "text/xml")
+                .expect()
+                .log()
+                .all()
+                .statusCode(200)
+                .when()
+                .post(CSW_PATH.getUrl())
+                .getHeader("id");
 
     }
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -85,7 +85,8 @@ public class URLResourceReader implements ResourceReader {
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
     private static final Set<String> QUALIFIER_SET = ImmutableSet.of(URL_HTTP_SCHEME,
-            URL_HTTPS_SCHEME, URL_FILE_SCHEME);
+            URL_HTTPS_SCHEME,
+            URL_FILE_SCHEME);
 
     /**
      * Mapper for file extensions-to-mime types (and vice versa)
@@ -106,7 +107,8 @@ public class URLResourceReader implements ResourceReader {
         }
         this.mimeTypeMapper = mimeTypeMapper;
 
-        LOGGER.debug("Supported Schemes for {}: {}", URLResourceReader.class.getSimpleName(),
+        LOGGER.debug("Supported Schemes for {}: {}",
+                URLResourceReader.class.getSimpleName(),
                 QUALIFIER_SET.toString());
     }
 
@@ -160,7 +162,7 @@ public class URLResourceReader implements ResourceReader {
     /**
      * Sets the directories that the {@link URLResourceReader} has permission to access when attempting to
      * download a resource linked by a file URL.
-     * 
+     *
      * @param rootResourceDirectoryPaths
      *            a set of absolute paths specifying which directories the {@link URLResourceReader} has
      *            permission to access when attempting to download resources linked by a file URL. A
@@ -172,16 +174,20 @@ public class URLResourceReader implements ResourceReader {
         this.rootResourceDirectories.clear();
         if (rootResourceDirectoryPaths != null) {
             LOGGER.debug("Attempting to set Root Resource Directories to {} for {}",
-                    rootResourceDirectoryPaths.toString(), URLResourceReader.class.getSimpleName());
+                    rootResourceDirectoryPaths.toString(),
+                    URLResourceReader.class.getSimpleName());
 
             for (String rootResourceDirectoryPath : rootResourceDirectoryPaths) {
                 String path = null;
                 try {
-                    path = Paths.get(rootResourceDirectoryPath).toAbsolutePath().normalize()
+                    path = Paths.get(rootResourceDirectoryPath)
+                            .toAbsolutePath()
+                            .normalize()
                             .toString();
                     this.rootResourceDirectories.add(path);
                     LOGGER.debug("Added [{}] to the list of Root Resource Directories for {}",
-                            path, URLResourceReader.class.getSimpleName());
+                            path,
+                            URLResourceReader.class.getSimpleName());
                 } catch (InvalidPathException e) {
                     LOGGER.error("{} is an invalid path.", rootResourceDirectoryPath, e);
                 }
@@ -189,7 +195,8 @@ public class URLResourceReader implements ResourceReader {
         }
 
         LOGGER.debug("Root Resource Directories for {} are {}",
-                URLResourceReader.class.getSimpleName(), this.rootResourceDirectories.toString());
+                URLResourceReader.class.getSimpleName(),
+                this.rootResourceDirectories.toString());
     }
 
     public Set<String> getRootResourceDirectories() {
@@ -214,7 +221,7 @@ public class URLResourceReader implements ResourceReader {
      */
     @Override
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
-        throws IOException, ResourceNotFoundException {
+            throws IOException, ResourceNotFoundException {
         String bytesToSkip = null;
 
         if (resourceURI == null) {
@@ -223,17 +230,21 @@ public class URLResourceReader implements ResourceReader {
         }
 
         if (properties.containsKey(BYTES_TO_SKIP)) {
-            bytesToSkip = properties.get(BYTES_TO_SKIP).toString();
+            bytesToSkip = properties.get(BYTES_TO_SKIP)
+                    .toString();
             LOGGER.debug("bytesToSkip: {}", bytesToSkip);
         }
 
-        if (resourceURI.getScheme().equals(URL_HTTP_SCHEME)
-                || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
+        if (resourceURI.getScheme()
+                .equals(URL_HTTP_SCHEME) || resourceURI.getScheme()
+                .equals(URL_HTTPS_SCHEME)) {
             LOGGER.debug("Resource URI is HTTP or HTTPS");
-            String fileAddress = resourceURI.toURL().getFile();
+            String fileAddress = resourceURI.toURL()
+                    .getFile();
             LOGGER.debug("resource name: {}", fileAddress);
             return retrieveHttpProduct(resourceURI, fileAddress, bytesToSkip, properties);
-        } else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
+        } else if (resourceURI.getScheme()
+                .equals(URL_FILE_SCHEME)) {
             LOGGER.debug("Resource URI is a File");
             File filePathName = new File(resourceURI);
             if (validateFilePath(filePathName)) {
@@ -241,17 +252,18 @@ public class URLResourceReader implements ResourceReader {
                 LOGGER.debug("resource name: {}", fileName);
                 return retrieveFileProduct(resourceURI, fileName, bytesToSkip);
             } else {
-                throw new ResourceNotFoundException("Error retrieving resource ["
-                        + resourceURI.toString() + "]. Invalid Resource URI of ["
-                        + resourceURI.toString()
-                        + "]. Resources  must be in one of the following directories: "
-                        + this.rootResourceDirectories.toString());
+                throw new ResourceNotFoundException(
+                        "Error retrieving resource [" + resourceURI.toString()
+                                + "]. Invalid Resource URI of [" + resourceURI.toString()
+                                + "]. Resources  must be in one of the following directories: "
+                                + this.rootResourceDirectories.toString());
             }
         } else {
-            ResourceNotFoundException ce = new ResourceNotFoundException("Resource qualifier ( "
-                    + resourceURI.getScheme() + " ) not valid. " + URLResourceReader.TITLE
-                    + " requires a qualifier of " + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME
-                    + " or " + URL_FILE_SCHEME);
+            ResourceNotFoundException ce = new ResourceNotFoundException(
+                    "Resource qualifier ( " + resourceURI.getScheme() + " ) not valid. "
+                            + URLResourceReader.TITLE + " requires a qualifier of "
+                            + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME + " or "
+                            + URL_FILE_SCHEME);
             throw ce;
         }
     }
@@ -261,10 +273,12 @@ public class URLResourceReader implements ResourceReader {
         URLConnection connection = null;
         try {
             LOGGER.debug("Opening connection to: {}", resourceURI.toString());
-            connection = resourceURI.toURL().openConnection();
+            connection = resourceURI.toURL()
+                    .openConnection();
 
-            productName = StringUtils.defaultIfBlank(handleContentDispositionHeader(connection
-                    .getHeaderField(HttpHeaders.CONTENT_DISPOSITION)), productName);
+            productName =
+                    StringUtils.defaultIfBlank(handleContentDispositionHeader(connection.getHeaderField(
+                            HttpHeaders.CONTENT_DISPOSITION)), productName);
 
             String mimeType = getMimeType(resourceURI, productName);
 
@@ -272,18 +286,19 @@ public class URLResourceReader implements ResourceReader {
 
             skipBytes(is, bytesToSkip);
 
-            return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is), mimeType,
+            return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),
+                    mimeType,
                     FilenameUtils.getName(productName)));
         } catch (MimeTypeResolutionException | IOException e) {
             LOGGER.error("Error retrieving resource", e);
-            throw new ResourceNotFoundException("Unable to retrieve resource at: "
-                    + resourceURI.toString(), e);
+            throw new ResourceNotFoundException(
+                    "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
     }
 
     private ResourceResponse retrieveHttpProduct(URI resourceURI, String productName,
             String bytesToSkip, Map<String, Serializable> properties)
-        throws ResourceNotFoundException {
+            throws ResourceNotFoundException {
 
         try {
             LOGGER.debug("Opening connection to: {}", resourceURI.toString());
@@ -303,8 +318,8 @@ public class URLResourceReader implements ResourceReader {
             List<Object> cdHeaders = headers.get(HttpHeaders.CONTENT_DISPOSITION);
             if (cdHeaders != null && !cdHeaders.isEmpty()) {
                 String contentHeader = (String) cdHeaders.get(0);
-                productName = StringUtils.defaultIfBlank(
-                        handleContentDispositionHeader(contentHeader), productName);
+                productName = StringUtils.defaultIfBlank(handleContentDispositionHeader(
+                        contentHeader), productName);
             }
             String mimeType = getMimeType(resourceURI, productName);
 
@@ -321,7 +336,8 @@ public class URLResourceReader implements ResourceReader {
                             error = IOUtils.toString(is);
                         }
                     } catch (IOException ioe) {
-                        LOGGER.debug("Could not convert error message to a string for output.", ioe);
+                        LOGGER.debug("Could not convert error message to a string for output.",
+                                ioe);
                     }
                     String errorMsg = "Received error code while retrieving resource (status "
                             + clientResponse.getStatus() + "): " + error;
@@ -335,17 +351,18 @@ public class URLResourceReader implements ResourceReader {
 
             skipBytes(is, bytesToSkip);
 
-            return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is), mimeType,
+            return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),
+                    mimeType,
                     FilenameUtils.getName(productName)));
         } catch (MimeTypeResolutionException | IOException | WebApplicationException e) {
             LOGGER.error("Error retrieving resource", e);
-            throw new ResourceNotFoundException("Unable to retrieve resource at: "
-                    + resourceURI.toString(), e);
+            throw new ResourceNotFoundException(
+                    "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
     }
 
     private String getMimeType(URI resourceURI, String productName)
-        throws MimeTypeResolutionException, IOException {
+            throws MimeTypeResolutionException, IOException {
         // Determine the mime type in a hierarchical fashion. The hierarchy is based on the
         // most accurate mime type resolution being used and lesser accurate approaches being
         // used
@@ -398,7 +415,8 @@ public class URLResourceReader implements ResourceReader {
     /* Check Connection headers for filename */
     private String handleContentDispositionHeader(String contentDispositionHeader) {
         if (StringUtils.isNotBlank(contentDispositionHeader)) {
-            ContentDisposition contentDisposition = new ContentDisposition(contentDispositionHeader);
+            ContentDisposition contentDisposition =
+                    new ContentDisposition(contentDispositionHeader);
             String filename = contentDisposition.getParameter("filename");
             if (StringUtils.isNotBlank(filename)) {
                 LOGGER.debug("Found content disposition header, changing resource name to {}",
@@ -423,37 +441,42 @@ public class URLResourceReader implements ResourceReader {
     private boolean validateFilePath(File resourceFilePath) throws IOException {
         String resourceCanonicalPath = resourceFilePath.getCanonicalPath();
         LOGGER.debug("Converted resource path [{}] to its canonical path of [{}]",
-                resourceFilePath.toString(), resourceCanonicalPath);
+                resourceFilePath.toString(),
+                resourceCanonicalPath);
         if (this.rootResourceDirectories != null) {
             for (String rootResourceDirectory : this.rootResourceDirectories) {
-                String rootResouceDirectoryCanonicalPath = new File(rootResourceDirectory)
-                        .getCanonicalPath();
-                LOGGER.debug(
-                        "Converted root resource directory [{}] to its canonical path of [{}]",
-                        rootResourceDirectory, rootResouceDirectoryCanonicalPath);
+                String rootResouceDirectoryCanonicalPath =
+                        new File(rootResourceDirectory).getCanonicalPath();
+                LOGGER.debug("Converted root resource directory [{}] to its canonical path of [{}]",
+                        rootResourceDirectory,
+                        rootResouceDirectoryCanonicalPath);
                 LOGGER.debug(
                         "Determining if resource path [{}] starts with configured root resource directory [{}].",
-                        resourceCanonicalPath, rootResouceDirectoryCanonicalPath);
-                if (StringUtils
-                        .startsWith(resourceCanonicalPath, rootResouceDirectoryCanonicalPath)) {
+                        resourceCanonicalPath,
+                        rootResouceDirectoryCanonicalPath);
+                if (StringUtils.startsWith(resourceCanonicalPath,
+                        rootResouceDirectoryCanonicalPath)) {
                     LOGGER.debug(
                             "Resource path [{}] starts with configured root resource directory [{}]. Resource is in a valid location for download by the {}",
-                            resourceCanonicalPath, rootResouceDirectoryCanonicalPath,
+                            resourceCanonicalPath,
+                            rootResouceDirectoryCanonicalPath,
                             URLResourceReader.class.getSimpleName());
-                    return true;                   
+                    return true;
                 } else {
                     LOGGER.debug(
                             "Resource path [{}] does not start with configured root resource directory [{}].",
-                            resourceCanonicalPath, rootResouceDirectoryCanonicalPath);                    
+                            resourceCanonicalPath,
+                            rootResouceDirectoryCanonicalPath);
                 }
             }
 
             LOGGER.debug(
                     "Unable to find a root resource directory in the {}'s configuration for resource path [{}]. Unable to download resource.",
-                    URLResourceReader.class.getSimpleName(), resourceCanonicalPath);
+                    URLResourceReader.class.getSimpleName(),
+                    resourceCanonicalPath);
             return false;
         }
-        
+
         return false;
     }
 

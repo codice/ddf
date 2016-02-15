@@ -31,96 +31,129 @@ import ddf.catalog.validation.ValidationException;
 public class SchematronValidationServiceTest {
 
     @Test
-    public void testSingleSchematron() throws ValidationException, IOException, SchematronInitializationException {
+    public void testSingleSchematron()
+            throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService("dog_legs.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_3paw.xml");
         service.validate(metacard);
     }
 
     @Test(expected = ValidationException.class)
-    public void testMultipleSchematron() throws ValidationException, IOException, SchematronInitializationException {
+    public void testMultipleSchematron()
+            throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService("dog_legs.sch", "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_3paw.xml");
         service.validate(metacard);
     }
 
     @Test(expected = ValidationException.class)
-    public void testWithWarnings() throws ValidationException, IOException, SchematronInitializationException {
+    public void testWithWarnings()
+            throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService("dog_legs.sch", "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_3paw.xml");
         service.validate(metacard);
     }
 
     @Test(expected = ValidationException.class)
-    public void testWithErrors() throws ValidationException, IOException, SchematronInitializationException {
+    public void testWithErrors()
+            throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService("dog_legs.sch", "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_3leg_3paw.xml");
         service.validate(metacard);
     }
 
     @Test
-    public void testWithWarningsAndSupressWarnings() throws ValidationException, IOException, SchematronInitializationException {
-        SchematronValidationService service = getService(true, null, true, "dog_legs.sch", "dog_paws.sch");
+    public void testWithWarningsAndSupressWarnings()
+            throws ValidationException, IOException, SchematronInitializationException {
+        SchematronValidationService service = getService(true,
+                null,
+                true,
+                "dog_legs.sch",
+                "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_3paw.xml");
         service.validate(metacard);
     }
 
     @Test(expected = ValidationException.class)
-    public void testWithErrorsAndSuppressWarnings() throws ValidationException, IOException, SchematronInitializationException {
-        SchematronValidationService service = getService(true, null, true, "dog_legs.sch", "dog_paws.sch");
+    public void testWithErrorsAndSuppressWarnings()
+            throws ValidationException, IOException, SchematronInitializationException {
+        SchematronValidationService service = getService(true,
+                null,
+                true,
+                "dog_legs.sch",
+                "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_3leg_3paw.xml");
         service.validate(metacard);
     }
 
     @Test
-    public void testWithCorrectNamespace() throws ValidationException, IOException, SchematronInitializationException {
-        SchematronValidationService service = getService(false, "doggy-namespace", true, "dog_legs.sch", "dog_paws.sch");
+    public void testWithCorrectNamespace()
+            throws ValidationException, IOException, SchematronInitializationException {
+        SchematronValidationService service = getService(false,
+                "doggy-namespace",
+                true,
+                "dog_legs.sch",
+                "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_4paw_namespace.xml");
         service.validate(metacard);
         assertThat(service.getSchematronReport(), is(notNullValue()));
     }
 
     @Test
-    public void testWithWrongNamespace() throws ValidationException, IOException, SchematronInitializationException {
-        SchematronValidationService service = getService(false, "this-is-the-wrong-namespace", true, "dog_legs.sch", "dog_paws.sch");
+    public void testWithWrongNamespace()
+            throws ValidationException, IOException, SchematronInitializationException {
+        SchematronValidationService service = getService(false,
+                "this-is-the-wrong-namespace",
+                true,
+                "dog_legs.sch",
+                "dog_paws.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_4paw_namespace.xml");
         service.validate(metacard);
         assertThat(service.getSchematronReport(), is(nullValue()));
     }
 
     @Test(expected = SchematronInitializationException.class)
-    public void testSchematronFileNotFound() throws ValidationException, IOException, SchematronInitializationException {
-        SchematronValidationService service = getService(false, null, false, "definitely_does_not_exist.sch");
+    public void testSchematronFileNotFound()
+            throws ValidationException, IOException, SchematronInitializationException {
+        SchematronValidationService service = getService(false,
+                null,
+                false,
+                "definitely_does_not_exist.sch");
         MetacardImpl metacard = getMetacard("dog_4leg_4paw.xml");
         service.validate(metacard);
     }
 
     @Test
-    public void testWithValidNameReferencingXmlList() throws ValidationException, IOException, SchematronInitializationException {
+    public void testWithValidNameReferencingXmlList()
+            throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService("dog_name.sch");
         MetacardImpl metacard = getMetacard("dog_valid_name.xml");
         service.validate(metacard);
     }
 
     @Test(expected = SchematronValidationException.class)
-    public void testWithInvalidNameReferencingXmlList() throws ValidationException, IOException, SchematronInitializationException {
+    public void testWithInvalidNameReferencingXmlList()
+            throws ValidationException, IOException, SchematronInitializationException {
         SchematronValidationService service = getService("dog_name.sch");
         MetacardImpl metacard = getMetacard("dog_invalid_name.xml");
         service.validate(metacard);
     }
 
     private MetacardImpl getMetacard(String filename) throws IOException {
-        String metadata = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(filename));
+        String metadata = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream(filename));
         MetacardImpl metacard = new MetacardImpl();
         metacard.setMetadata(metadata);
         return metacard;
     }
 
-    private SchematronValidationService getService(String... schematronFiles) throws SchematronInitializationException {
+    private SchematronValidationService getService(String... schematronFiles)
+            throws SchematronInitializationException {
         return getService(false, null, true, schematronFiles);
     }
 
-    private SchematronValidationService getService(boolean suppressWarnings, String namespace, boolean useClassLoader, String... schematronFiles)
+    private SchematronValidationService getService(boolean suppressWarnings, String namespace,
+            boolean useClassLoader, String... schematronFiles)
             throws SchematronInitializationException {
         SchematronValidationService service = new SchematronValidationService();
         service.setSuppressWarnings(suppressWarnings);
@@ -129,7 +162,9 @@ public class SchematronValidationServiceTest {
         ArrayList<String> schemaFiles = new ArrayList<>();
         for (String schematronFile : schematronFiles) {
             if (useClassLoader) {
-                schemaFiles.add(SchematronValidationServiceTest.class.getClassLoader().getResource(schematronFile).getPath());
+                schemaFiles.add(SchematronValidationServiceTest.class.getClassLoader()
+                        .getResource(schematronFile)
+                        .getPath());
             } else {
                 schemaFiles.add(schematronFile);
             }

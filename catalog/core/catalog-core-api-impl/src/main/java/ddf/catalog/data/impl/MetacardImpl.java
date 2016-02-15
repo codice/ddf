@@ -39,15 +39,15 @@ import ddf.catalog.data.MetacardType;
 
 /**
  * Implements the {@link Metacard}'s required attributes. <br/>
- *
+ * <p>
  * <p>
  * <b>Serialization Note</b><br/>
- *
+ * <p>
  * <p>
  * This class is {@link Serializable} and care should be taken with compatibility if changes are
  * made.
  * </p>
- *
+ * <p>
  * For backward and forward compatibility, {@link ObjectOutputStream#defaultWriteObject()} is
  * invoked when this object is serialized because it provides "enhanced flexibility" (Joshua Block
  * <u>Effective Java</u>, Second Edition <i>Item 75</i>). Invoking
@@ -56,7 +56,7 @@ import ddf.catalog.data.MetacardType;
  * fields, those fields will be ignored and the deserialization will still take place. In addition,
  * {@link ObjectInputStream#defaultReadObject()} is necessary to facilitate any of the written
  * fields. </p>
- *
+ * <p>
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
  * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
@@ -100,8 +100,7 @@ public class MetacardImpl implements Metacard {
      * Creates a {@link Metacard} with the provided {@link MetacardType} and empty {@link Attribute}
      * s.
      *
-     * @param type
-     *            the {@link MetacardType}
+     * @param type the {@link MetacardType}
      */
     public MetacardImpl(MetacardType type) {
         /*
@@ -122,8 +121,7 @@ public class MetacardImpl implements Metacard {
     /**
      * Creates a {@link Metacard} with the provided {@link Metacard}.
      *
-     * @param metacard
-     *            the {@link Metacard} to create this new {@code Metacard} from
+     * @param metacard the {@link Metacard} to create this new {@code Metacard} from
      */
     public MetacardImpl(Metacard metacard) {
         /*
@@ -153,9 +151,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#CREATED}, created))
      * </code>
      *
-     * @param created
-     *            {@link Date} when this {@link Metacard} was created.
-     *
+     * @param created {@link Date} when this {@link Metacard} was created.
      * @see Metacard#CREATED
      */
     public void setCreatedDate(Date created) {
@@ -173,9 +169,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#MODIFIED}, modified))
      * </code>
      *
-     * @param modified
-     *            {@link Date} when this {@link Metacard} was last modified.
-     *
+     * @param modified {@link Date} when this {@link Metacard} was last modified.
      * @see Metacard#MODIFIED
      */
     public void setModifiedDate(Date modified) {
@@ -193,10 +187,8 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#EXPIRATION}, expiration))
      * </code>
      *
-     * @param expiration
-     *            {@link Date} when the {@link Metacard} expires and should be removed from any
-     *            stores.
-     *
+     * @param expiration {@link Date} when the {@link Metacard} expires and should be removed from any
+     *                   stores.
      * @see Metacard#EXPIRATION
      */
     public void setExpirationDate(Date expiration) {
@@ -214,10 +206,8 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#EFFECTIVE}, effective))
      * </code>
      *
-     * @param effective
-     *            {@link Date} when the information represented by the {@link Metacard} was last
-     *            known to be valid.
-     *
+     * @param effective {@link Date} when the information represented by the {@link Metacard} was last
+     *                  known to be valid.
      * @see Metacard#EFFECTIVE
      */
     public void setEffectiveDate(Date effective) {
@@ -235,9 +225,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#ID}, id))
      * </code>
      *
-     * @param id
-     *            unique identifier of the Metacard.
-     *
+     * @param id unique identifier of the Metacard.
      * @see Metacard#ID
      */
     public void setId(String id) {
@@ -255,9 +243,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#GEOGRAPHY}, wkt))
      * </code>
      *
-     * @param wkt
-     *            WKT-defined geospatial {@link String}, returns null if not applicable
-     *
+     * @param wkt WKT-defined geospatial {@link String}, returns null if not applicable
      * @see Metacard#GEOGRAPHY
      */
     public void setLocation(String wkt) {
@@ -288,9 +274,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#THUMBNAIL}, bytes))
      * </code>
      *
-     * @param bytes
-     *            thumbnail for the {@link Metacard}.
-     *
+     * @param bytes thumbnail for the {@link Metacard}.
      * @see Metacard#THUMBNAIL
      */
     public void setThumbnail(byte[] bytes) {
@@ -308,9 +292,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#TITLE}, id))
      * </code>
      *
-     * @param title
-     *            Title of the {@link Metacard}
-     *
+     * @param title Title of the {@link Metacard}
      * @see Metacard#TITLE
      */
     public void setTitle(String title) {
@@ -328,9 +310,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#METADATA}, metadata))
      * </code>
      *
-     * @param metadata
-     *            Associated metadata of the {@link Metacard}
-     *
+     * @param metadata Associated metadata of the {@link Metacard}
      * @see Metacard#METADATA
      */
     public void setMetadata(String metadata) {
@@ -345,9 +325,7 @@ public class MetacardImpl implements Metacard {
     /**
      * Sets the {@link MetacardType} of the {@link Metacard}.
      *
-     * @param type
-     *            {@link MetacardType} of the {@link Metacard}
-     *
+     * @param type {@link MetacardType} of the {@link Metacard}
      * @see MetacardType
      */
     public void setType(MetacardType type) {
@@ -371,9 +349,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#TARGET_NAMESPACE}, targetNamespace))
      * </code>
      *
-     * @param targetNamespace
-     *            {@link URI} of the sub-type, null if unused
-     *
+     * @param targetNamespace {@link URI} of the sub-type, null if unused
      * @see Metacard#TARGET_NAMESPACE
      */
     public void setTargetNamespace(URI targetNamespace) {
@@ -391,9 +367,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#CONTENT_TYPE}, contentType))
      * </code>
      *
-     * @param contentType
-     *            name of content type of the {@link Metacard}
-     *
+     * @param contentType name of content type of the {@link Metacard}
      * @see Metacard#CONTENT_TYPE
      */
     public void setContentTypeName(String contentType) {
@@ -415,9 +389,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#POINT_OF_CONTACT}, pointOfContact))
      * </code>
      *
-     * @param pointOfContact
-     *            the point of contact for the {@link Metacard}
-     *
+     * @param pointOfContact the point of contact for the {@link Metacard}
      * @see Metacard#POINT_OF_CONTACT
      */
     public void setPointOfContact(String pointOfContact) {
@@ -439,9 +411,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#DESCRIPTION}, description))
      * </code>
      *
-     * @param description
-     *            the description of the {@link Metacard}
-     *
+     * @param description the description of the {@link Metacard}
      * @see Metacard#DESCRIPTION
      */
     public void setDescription(String description) {
@@ -459,9 +429,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#CONTENT_TYPE_VERSION}, contentTypeVersion))
      * </code>
      *
-     * @param contentTypeVersion
-     *            version of content type of the {@link Metacard}
-     *
+     * @param contentTypeVersion version of content type of the {@link Metacard}
      * @see Metacard#CONTENT_TYPE_VERSION
      */
     public void setContentTypeVersion(String contentTypeVersion) {
@@ -489,11 +457,9 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#RESOURCE_URI}, uri))
      * </code>
      *
-     * @param uri
-     *            a {@link URI} representation of the {@link Metacard}'s
+     * @param uri a {@link URI} representation of the {@link Metacard}'s
      *            {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
      *            {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
-     *
      * @see Metacard#RESOURCE_URI
      */
     public void setResourceURI(URI uri) {
@@ -514,9 +480,7 @@ public class MetacardImpl implements Metacard {
      * {@link #setAttribute setAttribute}(new {@link AttributeImpl}({@link Metacard#RESOURCE_SIZE}, dadSize))
      * </code>
      *
-     * @param dadSize
-     *            {@link String} representation of the size
-     *
+     * @param dadSize {@link String} representation of the size
      * @see Metacard#RESOURCE_SIZE
      */
     public void setResourceSize(String dadSize) {
@@ -547,12 +511,9 @@ public class MetacardImpl implements Metacard {
     /**
      * The brains of the operation -- does the interaction with the map or the wrapped metacard.
      *
-     * @param <T>
-     *            the type of the Attribute value expected
-     * @param attributeName
-     *            the name of the {@link Attribute} to retrieve
-     * @param returnType
-     *            the class that the value of the {@link ddf.catalog.data.AttributeType} is expected to be bound to
+     * @param <T>           the type of the Attribute value expected
+     * @param attributeName the name of the {@link Attribute} to retrieve
+     * @param returnType    the class that the value of the {@link ddf.catalog.data.AttributeType} is expected to be bound to
      * @return the value of the requested {@link Attribute} name
      */
     protected <T> T requestData(String attributeName, Class<T> returnType) {
@@ -572,8 +533,8 @@ public class MetacardImpl implements Metacard {
             return returnType.cast(data);
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(data.getClass().toString() + " can not be assigned to " + returnType
-                        .toString());
+                LOGGER.debug(data.getClass()
+                        .toString() + " can not be assigned to " + returnType.toString());
             }
         }
 
@@ -586,10 +547,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, Date.class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected Date requestDate(String key) {
@@ -602,10 +561,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, Double.class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected Double requestDouble(String key) {
@@ -618,10 +575,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, BinaryContent.class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected InputStream requestInputStream(String key) {
@@ -638,10 +593,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, Integer.class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected Integer requestInteger(String key) {
@@ -654,10 +607,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, Long.class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected Long requestLong(String key) {
@@ -670,10 +621,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, String.class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected String requestString(String key) {
@@ -686,10 +635,8 @@ public class MetacardImpl implements Metacard {
      * {@link #requestData requestData}(key, byte[].class))
      * </code>
      *
-     * @param key
-     *            the name of the {@link Attribute} to retrieve
+     * @param key the name of the {@link Attribute} to retrieve
      * @return the value of the requested {@link Attribute} name
-     *
      * @see MetacardImpl#requestData(String, Class)
      */
     protected byte[] requestBytes(String key) {
@@ -704,10 +651,8 @@ public class MetacardImpl implements Metacard {
     /**
      * Set an attribute via a name/value pair.
      *
-     * @param name
-     *            the name of the {@link Attribute}
-     * @param value
-     *            the value of the {@link Attribute}
+     * @param name  the name of the {@link Attribute}
+     * @param value the value of the {@link Attribute}
      */
     public void setAttribute(String name, Serializable value) {
         setAttribute(new AttributeImpl(name, value));
@@ -738,23 +683,21 @@ public class MetacardImpl implements Metacard {
     /**
      * Serializes this {@link MetacardImpl} instance.
      *
-     * @serialData First, all non-transient fields are written out by the default Java serialization
-     *             implementation ( {@link ObjectOutputStream#defaultWriteObject()}) . Next, the
-     *             {@link MetacardType} is written out as a {@link MetacardTypeImpl}. Then the
-     *             <i>number</i> of {@code Attribute} objects is written as an {@code int}. After
-     *             the number of objects, each {@code Attribute} object is written out.
-     *
-     *             <p>
-     *             The MetacardType object is written out as a {@link MetacardTypeImpl} object
-     *             because {@link MetacardTypeImpl} is a class that is part of the DDF API and is
-     *             guaranteed to be on the classpath when this object is deserialized. Secondly, the
-     *             {@link MetacardTypeImpl} has a trusted serialization implementation where the
-     *             object's logical representation is serialized.
-     *             </p>
-     *
-     * @param stream
-     *            the {@link ObjectOutputStream} that contains the object to be serialized
+     * @param stream the {@link ObjectOutputStream} that contains the object to be serialized
      * @throws IOException
+     * @serialData First, all non-transient fields are written out by the default Java serialization
+     * implementation ( {@link ObjectOutputStream#defaultWriteObject()}) . Next, the
+     * {@link MetacardType} is written out as a {@link MetacardTypeImpl}. Then the
+     * <i>number</i> of {@code Attribute} objects is written as an {@code int}. After
+     * the number of objects, each {@code Attribute} object is written out.
+     * <p>
+     * <p>
+     * The MetacardType object is written out as a {@link MetacardTypeImpl} object
+     * because {@link MetacardTypeImpl} is a class that is part of the DDF API and is
+     * guaranteed to be on the classpath when this object is deserialized. Secondly, the
+     * {@link MetacardTypeImpl} has a trusted serialization implementation where the
+     * object's logical representation is serialized.
+     * </p>
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
 
@@ -822,8 +765,7 @@ public class MetacardImpl implements Metacard {
     /**
      * Deserializes this {@link MetacardImpl}'s instance.
      *
-     * @param stream
-     *            the {@link ObjectInputStream} that contains the bytes of the object
+     * @param stream the {@link ObjectInputStream} that contains the bytes of the object
      * @throws IOException
      * @throws ClassNotFoundException
      */
@@ -854,12 +796,14 @@ public class MetacardImpl implements Metacard {
 
             if (attribute != null) {
 
-                AttributeDescriptor attributeDescriptor = getMetacardType()
-                        .getAttributeDescriptor(attribute.getName());
+                AttributeDescriptor attributeDescriptor = getMetacardType().getAttributeDescriptor(
+                        attribute.getName());
 
                 if (attributeDescriptor != null && attribute.getValue() != null) {
-                    attributeDescriptor.getType().getAttributeFormat();
-                    attributeDescriptor.getType().getClass();
+                    attributeDescriptor.getType()
+                            .getAttributeFormat();
+                    attributeDescriptor.getType()
+                            .getClass();
                 }
 
             }
@@ -873,10 +817,13 @@ public class MetacardImpl implements Metacard {
 
         //TODO: add remaining fields for hashCode
         return new HashCodeBuilder(17, 37).
-                append(this.getId()).
-                append(this.getMetacardType()).
-                append(this.getMetadata()).
-                toHashCode();
+                append(this.getId())
+                .
+                        append(this.getMetacardType())
+                .
+                        append(this.getMetadata())
+                .
+                        toHashCode();
     }
 
     //TODO: is an equals() method needed?

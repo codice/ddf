@@ -168,14 +168,14 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
                 geoEntry.getLatitude(),
                 Field.Store.YES));
         document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
-                        geoEntry.getLongitude(),
-                        Field.Store.YES));
+                geoEntry.getLongitude(),
+                Field.Store.YES));
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
                 geoEntry.getFeatureCode(),
                 Field.Store.YES));
         document.add(new LongField(GeoNamesLuceneConstants.POPULATION_FIELD,
-                        geoEntry.getPopulation(),
-                        Field.Store.YES));
+                geoEntry.getPopulation(),
+                Field.Store.YES));
         document.add(new NumericDocValuesField(GeoNamesLuceneConstants.POPULATION_DOCVALUES_FIELD,
                 geoEntry.getPopulation()));
 

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
@@ -130,7 +129,8 @@ public class FeatureTypeSchemaCache {
     public QName getQnamefromLocalPart(String localPart) {
         QName foundQname = null;
         for (QName key : contentTypeSchemas.keySet()) {
-            if (key.getLocalPart().equals(localPart)) {
+            if (key.getLocalPart()
+                    .equals(localPart)) {
                 if (null == foundQname) {
                     foundQname = key;
                 } else {
@@ -151,7 +151,8 @@ public class FeatureTypeSchemaCache {
         List<String> metacardTypes = new ArrayList<String>();
         for (Entry<MetacardType, Map<String, Object>> entry : services.entrySet()) {
             // Get the Content Types this MetacardType supports
-            Object propertyValue = entry.getValue().get(Metacard.CONTENT_TYPE);
+            Object propertyValue = entry.getValue()
+                    .get(Metacard.CONTENT_TYPE);
             if (propertyValue instanceof String[]) {
                 MetacardType metacardType = entry.getKey();
                 final String metacardTypeName = metacardType.getName();
@@ -181,7 +182,8 @@ public class FeatureTypeSchemaCache {
     private void createSchemaByLocalName(final String typeName) {
         boolean found = false;
         for (QName qname : contentTypeSchemas.keySet()) {
-            if (qname.getLocalPart().equals(typeName)) {
+            if (qname.getLocalPart()
+                    .equals(typeName)) {
                 found = true;
             }
         }
@@ -190,8 +192,8 @@ public class FeatureTypeSchemaCache {
         // BASIC_METACARD and add it to the map
         if (!found) {
             LOGGER.debug("Creating a new schema from BASIC_METACARD for: {}", typeName);
-            QName newQname = WfsQnameBuilder
-                    .buildQName(BasicTypes.BASIC_METACARD.getName(), typeName);
+            QName newQname = WfsQnameBuilder.buildQName(BasicTypes.BASIC_METACARD.getName(),
+                    typeName);
             XmlSchema schema = buildSchemaFromMetacardType(BasicTypes.BASIC_METACARD, newQname);
             contentTypeSchemas.put(newQname, schema);
         }
@@ -201,7 +203,8 @@ public class FeatureTypeSchemaCache {
         Set<QName> qnames = contentTypeSchemas.keySet();
         Set<QName> missingTypes = new HashSet<QName>();
         for (QName qname : qnames) {
-            if (!qname.getPrefix().startsWith(BasicTypes.BASIC_METACARD.getName())) {
+            if (!qname.getPrefix()
+                    .startsWith(BasicTypes.BASIC_METACARD.getName())) {
                 if (!validNames.contains(qname.getPrefix())) {
                     missingTypes.add(qname);
                 }
@@ -230,7 +233,8 @@ public class FeatureTypeSchemaCache {
         XmlSchemaImport gmlSchemaImport = new XmlSchemaImport(schema);
         gmlSchemaImport.setNamespace(Wfs10Constants.GML_NAMESPACE);
         gmlSchemaImport.setSchemaLocation(Wfs10Constants.GML_SCHEMA_LOCATION);
-        schema.getExternals().add(gmlSchemaImport);
+        schema.getExternals()
+                .add(gmlSchemaImport);
 
         // Add the metacardType name as the root Element name
         XmlSchemaElement rootElement = new XmlSchemaElement(schema, true);
@@ -258,7 +262,8 @@ public class FeatureTypeSchemaCache {
         rootElement.setSubstitutionGroup(GML_FEATURE);
 
         // Add the Element to the Schema
-        schema.getElements().put(rootElement.getQName(), rootElement);
+        schema.getElements()
+                .put(rootElement.getQName(), rootElement);
 
         return schema;
     }
@@ -266,15 +271,15 @@ public class FeatureTypeSchemaCache {
     private List<XmlSchemaSequenceMember> translateAttributeDescriptors(
             Set<AttributeDescriptor> attributeDescriptors, XmlSchema parent) {
         // Sort the AttributeDescriptors
-        SortedSet<AttributeDescriptor> sortedADs = new TreeSet<AttributeDescriptor>(
-                new AttributeDescriptorComparator());
+        SortedSet<AttributeDescriptor> sortedADs =
+                new TreeSet<AttributeDescriptor>(new AttributeDescriptorComparator());
         sortedADs.addAll(attributeDescriptors);
         List<XmlSchemaSequenceMember> members = new ArrayList<XmlSchemaSequenceMember>();
 
         for (AttributeDescriptor descriptor : sortedADs) {
             if (null != descriptor && descriptor.isStored()) {
-                QName xsdType = getXsdTypeFromAttributeFormat(
-                        descriptor.getType().getAttributeFormat());
+                QName xsdType = getXsdTypeFromAttributeFormat(descriptor.getType()
+                        .getAttributeFormat());
                 if (null != xsdType) {
                     XmlSchemaElement simpleElement = new XmlSchemaElement(parent, false);
                     simpleElement.setName(descriptor.getName());
@@ -369,7 +374,8 @@ public class FeatureTypeSchemaCache {
         if (!missingTypes.isEmpty()) {
             LOGGER.debug("Removing the following from the schema cache: {}",
                     Arrays.toString(missingTypes.toArray()));
-            contentTypeSchemas.keySet().removeAll(missingTypes);
+            contentTypeSchemas.keySet()
+                    .removeAll(missingTypes);
         }
     }
 }

@@ -43,9 +43,9 @@ public class Gml3ToWkt {
 
     public Gml3ToWkt(Parser parser) {
         this.parser = parser;
-        this.configurator = parser.configureParser(
-                Collections.singletonList(AbstractGeometryType.class.getPackage().getName()),
-                Gml3ToWkt.class.getClassLoader());
+        this.configurator =
+                parser.configureParser(Collections.singletonList(AbstractGeometryType.class.getPackage()
+                        .getName()), Gml3ToWkt.class.getClassLoader());
     }
 
     public String convert(String xml) {
@@ -56,12 +56,13 @@ public class Gml3ToWkt {
     public String convert(InputStream xml) {
         AbstractGeometryType geometry = null;
         try {
-            JAXBElement<AbstractGeometryType> jaxbElement = parser
-                    .unmarshal(configurator, JAXBElement.class, xml);
+            JAXBElement<AbstractGeometryType> jaxbElement = parser.unmarshal(configurator,
+                    JAXBElement.class,
+                    xml);
             geometry = jaxbElement.getValue();
             GML311ToJTSGeometryConverter geometryConverter = new GML311ToJTSGeometryConverter();
-            Geometry jtsGeo = geometryConverter
-                    .createGeometry(new DefaultRootObjectLocator(jaxbElement), geometry);
+            Geometry jtsGeo = geometryConverter.createGeometry(new DefaultRootObjectLocator(
+                    jaxbElement), geometry);
             WKTWriter wktWriter = new WKTWriter();
             return wktWriter.write(jtsGeo);
         } catch (ParserException e) {

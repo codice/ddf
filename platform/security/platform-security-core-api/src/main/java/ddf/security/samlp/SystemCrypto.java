@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -60,8 +60,7 @@ public class SystemCrypto {
     }
 
     private String getAlias(Crypto crypto, Properties cryptoProperties) {
-        String user = cryptoProperties
-                .getProperty(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS);
+        String user = cryptoProperties.getProperty(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS);
 
         if (user == null) {
             try {
@@ -77,9 +76,9 @@ public class SystemCrypto {
     private Crypto createCrypto(Properties cryptoProperties) {
         Crypto crypto = null;
         try {
-            crypto = CryptoFactory
-                    .getInstance(cryptoProperties, SystemCrypto.class.getClassLoader(),
-                            passwordEncryption);
+            crypto = CryptoFactory.getInstance(cryptoProperties,
+                    SystemCrypto.class.getClassLoader(),
+                    passwordEncryption);
         } catch (WSSecurityException e) {
             LOGGER.debug("Error in loading the Crypto object: ", e);
         }
@@ -87,12 +86,12 @@ public class SystemCrypto {
     }
 
     private String getPassword(Properties cryptoProperties) {
-        String password = cryptoProperties
-                .getProperty(Merlin.PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
+        String password = cryptoProperties.getProperty(
+                Merlin.PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
 
         if (password == null) {
-            password = cryptoProperties
-                    .getProperty(Merlin.OLD_PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
+            password = cryptoProperties.getProperty(
+                    Merlin.OLD_PREFIX + Merlin.KEYSTORE_PRIVATE_PASSWORD);
         }
 
         if (password != null) {
@@ -103,11 +102,11 @@ public class SystemCrypto {
     }
 
     private String decryptPassword(String password) {
-        if (password.startsWith(Merlin.ENCRYPTED_PASSWORD_PREFIX) && password
-                .endsWith(Merlin.ENCRYPTED_PASSWORD_SUFFIX)) {
-            return passwordEncryption.decrypt(StringUtils
-                    .substringBetween(password, Merlin.ENCRYPTED_PASSWORD_PREFIX,
-                            Merlin.ENCRYPTED_PASSWORD_SUFFIX));
+        if (password.startsWith(Merlin.ENCRYPTED_PASSWORD_PREFIX)
+                && password.endsWith(Merlin.ENCRYPTED_PASSWORD_SUFFIX)) {
+            return passwordEncryption.decrypt(StringUtils.substringBetween(password,
+                    Merlin.ENCRYPTED_PASSWORD_PREFIX,
+                    Merlin.ENCRYPTED_PASSWORD_SUFFIX));
         }
 
         return password;

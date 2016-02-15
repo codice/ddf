@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,7 +45,8 @@ public class DeliveryProcessor {
         LOGGER.debug("ENTERING: {}", methodName);
 
         Metacard entry = (Metacard) event.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
-        String operation = event.getProperty(PubSubConstants.HEADER_OPERATION_KEY).toString();
+        String operation = event.getProperty(PubSubConstants.HEADER_OPERATION_KEY)
+                .toString();
 
         LOGGER.debug("Delivering catalog entry.");
         if (subscription != null) {
@@ -56,12 +57,14 @@ public class DeliveryProcessor {
                             LOGGER.debug("Processing 'created' entry with preDelivery plugin");
                             entry = plugin.processCreate(entry);
                         }
-                        subscription.getDeliveryMethod().created(entry);
+                        subscription.getDeliveryMethod()
+                                .created(entry);
                     } catch (PluginExecutionException e) {
                         LOGGER.debug(
                                 "Plugin had exception during execution - still delivering the entry",
                                 e);
-                        subscription.getDeliveryMethod().created(entry);
+                        subscription.getDeliveryMethod()
+                                .created(entry);
                     } catch (StopProcessingException e) {
                         LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
@@ -70,16 +73,18 @@ public class DeliveryProcessor {
                     try {
                         for (PreDeliveryPlugin plugin : preDelivery) {
                             LOGGER.debug("Processing 'updated' entry with preDelivery plugin");
-                            Update updatedEntry = plugin
-                                    .processUpdateHit(new UpdateImpl(entry, null));
+                            Update updatedEntry = plugin.processUpdateHit(new UpdateImpl(entry,
+                                    null));
                             entry = updatedEntry.getNewMetacard();
                         }
-                        subscription.getDeliveryMethod().updatedHit(entry, entry);
+                        subscription.getDeliveryMethod()
+                                .updatedHit(entry, entry);
                     } catch (PluginExecutionException e) {
                         LOGGER.debug(
                                 "Plugin had exception during execution - still delivering the entry",
                                 e);
-                        subscription.getDeliveryMethod().updatedHit(entry, entry);
+                        subscription.getDeliveryMethod()
+                                .updatedHit(entry, entry);
                     } catch (StopProcessingException e) {
                         LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
                     }
@@ -90,12 +95,14 @@ public class DeliveryProcessor {
                             LOGGER.debug("Processing 'deleted' entry with preDelivery plugin");
                             entry = plugin.processCreate(entry);
                         }
-                        subscription.getDeliveryMethod().deleted(entry);
+                        subscription.getDeliveryMethod()
+                                .deleted(entry);
                     } catch (PluginExecutionException e) {
                         LOGGER.debug(
                                 "Plugin had exception during execution - still delivering the entry",
                                 e);
-                        subscription.getDeliveryMethod().deleted(entry);
+                        subscription.getDeliveryMethod()
+                                .deleted(entry);
                     } catch (StopProcessingException e) {
                         LOGGER.error("Pre-delivery plugin determined entry cannot be delivered", e);
                     }

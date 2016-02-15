@@ -244,8 +244,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
             Set<WeakReference<HttpSession>> sessions =
                     this.sessions.remove(oldClusterId); //get the list of sessions with same id from other contexts
             if (sessions != null) {
-                for (Iterator<WeakReference<HttpSession>> iter = sessions.iterator(); iter
-                        .hasNext();) {
+                for (Iterator<WeakReference<HttpSession>> iter = sessions.iterator(); iter.hasNext();) {
                     WeakReference<HttpSession> ref = iter.next();
                     HttpSession s = ref.get();
                     if (s == null) {

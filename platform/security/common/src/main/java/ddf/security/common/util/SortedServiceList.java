@@ -36,14 +36,14 @@ import org.slf4j.ext.XLogger;
  * service ids. This was copied over from the catalog core utilities and should be refactored to
  * a common class in the future.
  * <p>
- *
+ * <p>
  * <p>
  * It is an implementation of {@link java.util.List} but is backed by a sorted {@link java.util.TreeMap} of
  * <@link ServiceReference, T> where the {@link org.osgi.framework.ServiceReference} objects are what is used to maintain the
  * list order but the objects passed by this {@link java.util.List} to clients are the actual service objects
  * and not the service references.
  * </p>
- *
+ * <p>
  * <p>
  * For instance if this was a SortedServiceList<@link AuthenticationHandler> object, then in the internal
  * TreeMap the {@link org.osgi.framework.ServiceReference} objects would be maintained as keys but
@@ -72,7 +72,6 @@ public class SortedServiceList<T> implements List<T> {
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
      * ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's blueprint
      * upon framework construction.
-     *
      */
     public SortedServiceList() {
     }
@@ -82,8 +81,7 @@ public class SortedServiceList<T> implements List<T> {
      * sorted serviceMap. This method is invoked when a plugin is bound (created/installed). This
      * includes preingest, postingest, prequery, postquery, preresource, postresource plugins.
      *
-     * @param ref
-     *            the OSGi service reference
+     * @param ref the OSGi service reference
      */
     public void bindPlugin(ServiceReference ref) {
 
@@ -114,8 +112,7 @@ public class SortedServiceList<T> implements List<T> {
      * and sorted serviceMap. This method is invoked when a plugin is unbound (removed/uninstalled).
      * This includes preingest, postingest, prequery, postquery, preresource, postresource plugins.
      *
-     * @param ref
-     *            the OSGi service reference
+     * @param ref the OSGi service reference
      */
     public void unbindPlugin(ServiceReference ref) {
 

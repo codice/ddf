@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -76,9 +76,14 @@ public class LandingPage extends HttpServlet {
 
     private static final String NO_DATE = "No date specified";
 
-    private static final List<String> ACCEPTED_PATHS = Arrays
-            .asList("/index.html", "/index.htm", "home.html", "home.htm", "landing.html",
-                    "landing.htm", "/", "");
+    private static final List<String> ACCEPTED_PATHS = Arrays.asList("/index.html",
+            "/index.htm",
+            "home.html",
+            "home.htm",
+            "landing.html",
+            "landing.htm",
+            "/",
+            "");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LandingPage.class);
 
@@ -132,7 +137,8 @@ public class LandingPage extends HttpServlet {
             // we want to remove the "version" from the general title.
             String[] productNameParts = version.split(" ");
             productNameParts[productNameParts.length - 1] = "";
-            title = StringUtils.join(productNameParts, " ").trim();
+            title = StringUtils.join(productNameParts, " ")
+                    .trim();
         } else {
             title = "DDF";
         }
@@ -149,7 +155,8 @@ public class LandingPage extends HttpServlet {
     private String getBase64(String productImage) throws IOException {
         byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
         if (resourceAsBytes.length > 0) {
-            return Base64.getEncoder().encodeToString(resourceAsBytes);
+            return Base64.getEncoder()
+                    .encodeToString(resourceAsBytes);
         }
         return "";
     }
@@ -230,7 +237,8 @@ public class LandingPage extends HttpServlet {
             throws ServletException, IOException {
         resp.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML);
         if (ACCEPTED_PATHS.contains(req.getRequestURI())) {
-            resp.getWriter().write(compileTemplateWithProperties());
+            resp.getWriter()
+                    .write(compileTemplateWithProperties());
         }
     }
 
@@ -240,7 +248,8 @@ public class LandingPage extends HttpServlet {
         // FieldValueResolver so this class' fields can be accessed in the template.
         // MapValueResolver so we can access {{@index}} in the #each helper in the template.
         final Context context = Context.newBuilder(this)
-                .resolver(FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE).build();
+                .resolver(FieldValueResolver.INSTANCE, MapValueResolver.INSTANCE)
+                .build();
         // The template is "index.handlebars".
         final TemplateLoader templateLoader = new ClassPathTemplateLoader("/", ".handlebars");
         final Handlebars handlebars = new Handlebars(templateLoader);
@@ -252,7 +261,8 @@ public class LandingPage extends HttpServlet {
             landingPageHtml = template.apply(context);
         } catch (IOException e) {
             LOGGER.info("Unable to compile template.", e);
-            landingPageHtml = "<p>We are experiencing some issues. Please contact an administrator.</p>";
+            landingPageHtml =
+                    "<p>We are experiencing some issues. Please contact an administrator.</p>";
         }
         return landingPageHtml;
     }
@@ -287,8 +297,7 @@ public class LandingPage extends HttpServlet {
     public String extractAnnouncement(String announcement) {
         // Try and grab the date from the beginning of the announcement.
         final String date = extractDate(announcement, false);
-        if (!date
-                .equals(NO_DATE)) { // There is a valid date, so we need to exclude it from what we display (it's not
+        if (!date.equals(NO_DATE)) { // There is a valid date, so we need to exclude it from what we display (it's not
             try {                    // part of the announcement).
                 // Ignore the date part of the announcement.
                 announcement = announcement.substring(announcement.indexOf(date) + date.length());

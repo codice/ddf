@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -63,8 +63,10 @@ public class ManagedServiceConfigurationFileTest {
     public void testCreateConfig() throws Exception {
         // Setup
         when(mockConfigAdmin.getConfiguration(PID, null)).thenReturn(mockConfiguration);
-        ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath, properties,
-                mockConfigAdmin, mockPersistenceStrategy);
+        ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath,
+                properties,
+                mockConfigAdmin,
+                mockPersistenceStrategy);
 
         // Perform Test
         configFile.createConfig();
@@ -77,8 +79,10 @@ public class ManagedServiceConfigurationFileTest {
     public void testCreateConfigGetConfigurationFails() throws Exception {
         // Setup
         when(mockConfigAdmin.getConfiguration(PID, null)).thenThrow(new IOException());
-        ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath, properties,
-                mockConfigAdmin, mockPersistenceStrategy);
+        ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath,
+                properties,
+                mockConfigAdmin,
+                mockPersistenceStrategy);
 
         // Perform Test
         configFile.createConfig();
@@ -87,10 +91,13 @@ public class ManagedServiceConfigurationFileTest {
     @Test(expected = ConfigurationFileException.class)
     public void testCreateConfigConfigurationUpdateFails() throws Exception {
         // Setup
-        doThrow(IOException.class).when(mockConfiguration).update(properties);
+        doThrow(IOException.class).when(mockConfiguration)
+                .update(properties);
         when(mockConfigAdmin.getConfiguration(PID, null)).thenReturn(mockConfiguration);
-        ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath, properties,
-                mockConfigAdmin, mockPersistenceStrategy);
+        ConfigurationFile configFile = new ManagedServiceConfigurationFile(mockPath,
+                properties,
+                mockConfigAdmin,
+                mockPersistenceStrategy);
 
         // Perform Test
         configFile.createConfig();

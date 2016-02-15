@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,7 +61,8 @@ public class FilterAdapterTest {
 
     private static final String FOO_LITERAL_VALUE = "foo";
 
-    private static final String MULTIPOLYGON_WKT = "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20)))";
+    private static final String MULTIPOLYGON_WKT =
+            "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20)))";
 
     private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
 
@@ -73,8 +74,8 @@ public class FilterAdapterTest {
 
     private static final Literal FOO_LITERAL = FF.literal(FOO_LITERAL_VALUE);
 
-    private static final GeometryBuilder GEO_BUILDER = new GeometryBuilder(
-            DefaultGeographicCRS.WGS84);
+    private static final GeometryBuilder GEO_BUILDER =
+            new GeometryBuilder(DefaultGeographicCRS.WGS84);
 
     private static final WKTParser WKT_PARSER = new WKTParser(GEO_BUILDER);
 
@@ -84,14 +85,14 @@ public class FilterAdapterTest {
 
     private static final Instant EPOCH_INSTANT = new DefaultInstant(new DefaultPosition(EPOCH));
 
-    private static final Instant EPOCH_PLUS_DAY_INSTANT = new DefaultInstant(
-            new DefaultPosition(EPOCH_PLUS_DAY));
+    private static final Instant EPOCH_PLUS_DAY_INSTANT = new DefaultInstant(new DefaultPosition(
+            EPOCH_PLUS_DAY));
 
     private static final Period EPOCH_DAY_PERIOD = new DefaultPeriod(EPOCH_INSTANT,
             EPOCH_PLUS_DAY_INSTANT);
 
-    private static final PeriodDuration DAY_DURATION = new DefaultPeriodDuration(
-            DAY_IN_MILLISECONDS);
+    private static final PeriodDuration DAY_DURATION =
+            new DefaultPeriodDuration(DAY_IN_MILLISECONDS);
 
     @Test
     public void includeFilter() {
@@ -295,12 +296,14 @@ public class FilterAdapterTest {
         assertFilterEquals(EPOCH.toString() + "<=Test<=" + EPOCH_PLUS_DAY.toString(),
                 FF.between(TEST_PROPERTY, FF.literal(EPOCH), FF.literal(EPOCH_PLUS_DAY)));
         assertFilterEquals(EPOCH.toString() + "<=Test<=" + EPOCH_PLUS_DAY.toString(),
-                FF.between(TEST_PROPERTY, FF.literal(EPOCH_INSTANT),
+                FF.between(TEST_PROPERTY,
+                        FF.literal(EPOCH_INSTANT),
                         FF.literal(EPOCH_PLUS_DAY_INSTANT)));
         assertFilterEquals("1i<=Test<=5i",
                 FF.between(TEST_PROPERTY, FF.literal(new Integer(1)), FF.literal(new Integer(5))));
         assertFilterEquals("1s<=Test<=5s",
-                FF.between(TEST_PROPERTY, FF.literal(new Short((short) 1)),
+                FF.between(TEST_PROPERTY,
+                        FF.literal(new Short((short) 1)),
                         FF.literal(new Short((short) 5))));
         assertFilterEquals("1l<=Test<=5l",
                 FF.between(TEST_PROPERTY, FF.literal(new Long(1)), FF.literal(new Long(5))));
@@ -310,14 +313,19 @@ public class FilterAdapterTest {
                 FF.between(TEST_PROPERTY, FF.literal(new Float(1)), FF.literal(new Float(5))));
         // test Object case
         assertFilterEquals("[1, 2, 3]o<=Test<=[2, 3, 4]o",
-                FF.between(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3)),
+                FF.between(TEST_PROPERTY,
+                        FF.literal(Arrays.asList(1, 2, 3)),
                         FF.literal(Arrays.asList(2, 3, 4))));
     }
 
     @Test(expected = UnsupportedQueryException.class)
     public void bbox() throws UnsupportedQueryException {
-        new GeotoolsFilterAdapterImpl()
-                .adapt(FF.bbox(TEST_PROPERTY.toString(), 1.0, 1.0, 2.0, 2.0, null), null);
+        new GeotoolsFilterAdapterImpl().adapt(FF.bbox(TEST_PROPERTY.toString(),
+                1.0,
+                1.0,
+                2.0,
+                2.0,
+                null), null);
     }
 
     @Test(expected = UnsupportedQueryException.class)
@@ -406,11 +414,15 @@ public class FilterAdapterTest {
         Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
         // meters
         assertFilterEquals("beyond(Test,wkt(" + POLYGON_WKT + "),10.0)",
-                FF.beyond(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10,
+                FF.beyond(TEST_PROPERTY_VALUE,
+                        polygonGeometry,
+                        DISTANCE_10,
                         UomOgcMapping.METRE.name()));
         // feet
         assertFilterEquals("beyond(Test,wkt(" + POLYGON_WKT + "),3.048006096012192)",
-                FF.beyond(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10,
+                FF.beyond(TEST_PROPERTY_VALUE,
+                        polygonGeometry,
+                        DISTANCE_10,
                         UomOgcMapping.FOOT.name()));
 
         // nearest neighbor
@@ -430,11 +442,15 @@ public class FilterAdapterTest {
         Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
         // as meters
         assertFilterEquals("dwithin(Test,wkt(" + POLYGON_WKT + "),10.0)",
-                FF.dwithin(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10,
+                FF.dwithin(TEST_PROPERTY_VALUE,
+                        polygonGeometry,
+                        DISTANCE_10,
                         UomOgcMapping.METRE.name()));
         // as feet
         assertFilterEquals("dwithin(Test,wkt(" + POLYGON_WKT + "),3.048006096012192)",
-                FF.dwithin(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10,
+                FF.dwithin(TEST_PROPERTY_VALUE,
+                        polygonGeometry,
+                        DISTANCE_10,
                         UomOgcMapping.FOOT.name()));
     }
 

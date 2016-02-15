@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -122,16 +122,20 @@ public class ApplicationFileInstaller {
             return details;
         } catch (ZipException e) {
             throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.", e);
+                    "Could not get application details of the provided zipfile.",
+                    e);
         } catch (IOException e) {
             throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.", e);
+                    "Could not get application details of the provided zipfile.",
+                    e);
         } catch (ParserConfigurationException e) {
             throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.", e);
+                    "Could not get application details of the provided zipfile.",
+                    e);
         } catch (SAXException e) {
             throw new ApplicationServiceException(
-                    "Could not get application details of the provided zipfile.", e);
+                    "Could not get application details of the provided zipfile.",
+                    e);
         } finally {
             IOUtils.closeQuietly(appZip);
         }
@@ -173,13 +177,16 @@ public class ApplicationFileInstaller {
         Enumeration<?> entries = appZip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry curEntry = (ZipEntry) entries.nextElement();
-            if (!curEntry.isDirectory() && !curEntry.getName().startsWith("META-INF")) {
+            if (!curEntry.isDirectory() && !curEntry.getName()
+                    .startsWith("META-INF")) {
                 try {
                     InputStream is = appZip.getInputStream(curEntry);
-                    String outputName = curEntry.getName().substring("repository/".length());
+                    String outputName = curEntry.getName()
+                            .substring("repository/".length());
                     LOGGER.info("Writing out {}", curEntry.getName());
-                    org.apache.aries.util.io.IOUtils
-                            .writeOut(new File(REPO_LOCATION), outputName, is);
+                    org.apache.aries.util.io.IOUtils.writeOut(new File(REPO_LOCATION),
+                            outputName,
+                            is);
                     if (isFeatureFile(curEntry)) {
                         featureLocation = outputName;
                     }
@@ -201,7 +208,8 @@ public class ApplicationFileInstaller {
         Enumeration<?> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry curEntry = (ZipEntry) entries.nextElement();
-            if (!curEntry.isDirectory() && !curEntry.getName().startsWith("META-INF")) {
+            if (!curEntry.isDirectory() && !curEntry.getName()
+                    .startsWith("META-INF")) {
                 if (isFeatureFile(curEntry)) {
                     return curEntry;
                 }
@@ -218,7 +226,8 @@ public class ApplicationFileInstaller {
      * @return <code>true</code> if the zip entry matches the features.xml file naming scheme.
      */
     private static boolean isFeatureFile(ZipEntry entry) {
-        return entry.getName().endsWith("-features.xml");
+        return entry.getName()
+                .endsWith("-features.xml");
     }
 
     /**
@@ -254,14 +263,16 @@ public class ApplicationFileInstaller {
 
         for (int i = 0; i < featureNodes.getLength(); i++) {
             Node curNode = featureNodes.item(i);
-            if (curNode.getAttributes() != null
-                    && curNode.getAttributes().getNamedItem(INSTALL_ATTRIBUTE_NAME) != null
-                    && Feature.DEFAULT_INSTALL_MODE
-                    .equals(curNode.getAttributes().getNamedItem(INSTALL_ATTRIBUTE_NAME)
-                            .getTextContent())) {
-                String name = curNode.getAttributes().getNamedItem(NAME_ATTRIBUTE_NAME)
+            if (curNode.getAttributes() != null && curNode.getAttributes()
+                    .getNamedItem(INSTALL_ATTRIBUTE_NAME) != null
+                    && Feature.DEFAULT_INSTALL_MODE.equals(curNode.getAttributes()
+                    .getNamedItem(INSTALL_ATTRIBUTE_NAME)
+                    .getTextContent())) {
+                String name = curNode.getAttributes()
+                        .getNamedItem(NAME_ATTRIBUTE_NAME)
                         .getTextContent();
-                String version = curNode.getAttributes().getNamedItem(VERSION_ATTRIBUTE_NAME)
+                String version = curNode.getAttributes()
+                        .getNamedItem(VERSION_ATTRIBUTE_NAME)
                         .getTextContent();
 
                 return new ZipFileApplicationDetails(name, version);

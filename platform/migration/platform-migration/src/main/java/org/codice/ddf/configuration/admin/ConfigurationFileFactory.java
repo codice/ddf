@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,8 +79,8 @@ public class ConfigurationFileFactory {
             throws ConfigurationFileException {
         notNull(configurationFile, "configurationFile cannot be null");
 
-        return getConfigurationFileBuilder(read(configurationFile))
-                .configFilePath(configurationFile).build();
+        return getConfigurationFileBuilder(read(configurationFile)).configFilePath(configurationFile)
+                .build();
     }
 
     /**
@@ -101,15 +101,18 @@ public class ConfigurationFileFactory {
             Dictionary<String, Object> properties) throws ConfigurationFileException {
         ConfigurationFileBuilder configurationFileBuilder;
         if (isManagedServiceFactoryConfiguration(properties)) {
-            configurationFileBuilder = new ManagedServiceFactoryConfigurationFileBuilder(
-                    configAdmin, persistenceStrategy);
+            configurationFileBuilder =
+                    new ManagedServiceFactoryConfigurationFileBuilder(configAdmin,
+                            persistenceStrategy);
         } else if (isManagedServiceConfiguration(properties)) {
             configurationFileBuilder = new ManagedServiceConfigurationFileBuilder(configAdmin,
                     persistenceStrategy);
         } else {
             String message = String.format("Unable to determine type of configuration. "
                             + "Unable to find property [%s] or property [%s] that contained [%s].",
-                    Constants.SERVICE_PID, ConfigurationAdmin.SERVICE_FACTORYPID, properties);
+                    Constants.SERVICE_PID,
+                    ConfigurationAdmin.SERVICE_FACTORYPID,
+                    properties);
             LOGGER.error(message);
             throw new ConfigurationFileException(message);
         }

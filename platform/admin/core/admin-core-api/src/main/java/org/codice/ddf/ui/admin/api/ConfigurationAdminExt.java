@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -110,8 +110,8 @@ public class ConfigurationAdminExt {
         }
     };
 
-    private final XLogger logger = new XLogger(
-            LoggerFactory.getLogger(ConfigurationAdminExt.class));
+    private final XLogger logger =
+            new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
 
     private final ConfigurationAdmin configurationAdmin;
 
@@ -186,7 +186,8 @@ public class ConfigurationAdminExt {
 
         final Bundle bundles[] = getBundleContext().getBundles();
         for (int i = 0; bundles != null && i < bundles.length; i++) {
-            if (bundles[i].getLocation().equals(location)) {
+            if (bundles[i].getLocation()
+                    .equals(location)) {
                 return bundles[i];
             }
         }
@@ -204,15 +205,18 @@ public class ConfigurationAdminExt {
 
             // Get ManagedService Metatypes
             List<Map<String, Object>> metatypeList = addMetaTypeNamesToMap(getPidObjectClasses(),
-                    serviceFilter, Constants.SERVICE_PID);
+                    serviceFilter,
+                    Constants.SERVICE_PID);
 
             // Get ManagedServiceFactory instances
-            serviceFactoryList = getServices(ManagedServiceFactory.class.getName(), serviceFilter,
+            serviceFactoryList = getServices(ManagedServiceFactory.class.getName(),
+                    serviceFilter,
                     true);
 
             // Get ManagedServiceFactory Metatypes
             metatypeList.addAll(addMetaTypeNamesToMap(getFactoryPidObjectClasses(),
-                    serviceFactoryFilter, ConfigurationAdmin.SERVICE_FACTORYPID));
+                    serviceFactoryFilter,
+                    ConfigurationAdmin.SERVICE_FACTORYPID));
 
             for (Map<String, Object> service : serviceFactoryList) {
 
@@ -220,7 +224,8 @@ public class ConfigurationAdminExt {
 
                 for (Map<String, Object> metatype : metatypeList) {
                     if (metatype.get(MAP_ENTRY_ID) != null && service.get(MAP_ENTRY_ID) != null
-                            && metatype.get(MAP_ENTRY_ID).equals(service.get(MAP_ENTRY_ID))) {
+                            && metatype.get(MAP_ENTRY_ID)
+                            .equals(service.get(MAP_ENTRY_ID))) {
                         service.putAll(metatype);
                     }
                 }
@@ -240,7 +245,8 @@ public class ConfigurationAdminExt {
 
                 for (Map<String, Object> metatype : metatypeList) {
                     if (metatype.get(MAP_ENTRY_ID) != null && service.get(MAP_ENTRY_ID) != null
-                            && metatype.get(MAP_ENTRY_ID).equals(service.get(MAP_ENTRY_ID))) {
+                            && metatype.get(MAP_ENTRY_ID)
+                            .equals(service.get(MAP_ENTRY_ID))) {
                         service.putAll(metatype);
                     }
                 }
@@ -312,9 +318,9 @@ public class ConfigurationAdminExt {
 
             configData.put(MAP_ENTRY_PROPERTIES, propertiesTable);
 
-            Map<String, Object> pluginDataMap = getConfigurationPluginData(
-                    configData.get(MAP_ENTRY_ID).toString(),
-                    Collections.unmodifiableMap(configData));
+            Map<String, Object> pluginDataMap = getConfigurationPluginData(configData.get(
+                    MAP_ENTRY_ID)
+                    .toString(), Collections.unmodifiableMap(configData));
             if (pluginDataMap != null && !pluginDataMap.isEmpty()) {
                 configData.putAll(pluginDataMap);
             }
@@ -343,8 +349,9 @@ public class ConfigurationAdminExt {
         Map<String, Object> allPluginMap = new HashMap<String, Object>();
         if (configurationAdminPluginList != null) {
             for (ConfigurationAdminPlugin plugin : configurationAdminPluginList) {
-                Map<String, Object> pluginDataMap = plugin
-                        .getConfigurationData(servicePid, dataMap, getBundleContext());
+                Map<String, Object> pluginDataMap = plugin.getConfigurationData(servicePid,
+                        dataMap,
+                        getBundleContext());
                 allPluginMap.putAll(pluginDataMap);
             }
         }
@@ -368,7 +375,8 @@ public class ConfigurationAdminExt {
     public String getName(Bundle bundle) {
         Locale locale = Locale.getDefault();
         final String loc = locale == null ? null : locale.toString();
-        String name = bundle.getHeaders(loc).get(Constants.BUNDLE_NAME);
+        String name = bundle.getHeaders(loc)
+                .get(Constants.BUNDLE_NAME);
         if (name == null || name.length() == 0) {
             name = bundle.getSymbolicName();
             if (name == null) {
@@ -427,7 +435,8 @@ public class ConfigurationAdminExt {
         final Map objectClassesDefinitions = new HashMap();
         final MetaTypeService mts = this.getMetaTypeService();
         if (mts != null) {
-            final Bundle[] bundles = this.getBundleContext().getBundles();
+            final Bundle[] bundles = this.getBundleContext()
+                    .getBundles();
             for (int i = 0; i < bundles.length; i++) {
                 final MetaTypeInformation mti = mts.getMetaTypeInformation(bundles[i]);
                 if (mti != null) {
@@ -530,7 +539,8 @@ public class ConfigurationAdminExt {
     }
 
     ObjectClassDefinition getObjectClassDefinition(String pid) {
-        Bundle[] bundles = this.getBundleContext().getBundles();
+        Bundle[] bundles = this.getBundleContext()
+                .getBundles();
         for (int i = 0; i < bundles.length; i++) {
             try {
                 ObjectClassDefinition ocd = this.getObjectClassDefinition(bundles[i], pid);
@@ -601,7 +611,8 @@ public class ConfigurationAdminExt {
         }
 
         List<Map<String, Object>> metatypeList = new ArrayList<Map<String, Object>>();
-        Iterator ei = ocdCollection.entrySet().iterator();
+        Iterator ei = ocdCollection.entrySet()
+                .iterator();
         while (ei.hasNext()) {
             Entry ociEntry = (Entry) ei.next();
             final String pid = (String) ociEntry.getKey();
@@ -620,8 +631,8 @@ public class ConfigurationAdminExt {
                     Map<String, Object> metatype = new HashMap<String, Object>();
                     metatype.put(MAP_ENTRY_ID, pid);
                     metatype.put(MAP_ENTRY_NAME, ocd.getName());
-                    AttributeDefinition[] defs = ocd
-                            .getAttributeDefinitions(ObjectClassDefinition.ALL);
+                    AttributeDefinition[] defs =
+                            ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
                     metatype.put(MAP_ENTRY_METATYPE, createMetatypeMap(defs));
                     metatypeList.add(metatype);
                 }

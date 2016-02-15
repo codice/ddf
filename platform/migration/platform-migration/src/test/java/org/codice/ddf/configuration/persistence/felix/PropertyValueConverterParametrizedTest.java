@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -77,7 +77,8 @@ public class PropertyValueConverterParametrizedTest {
         @Override
         protected void convertSingleValue(String value, StringBuilder output) {
             // Output the value with a "c" in front of it to indicate that this method was called.
-            output.append('c').append(value);
+            output.append('c')
+                    .append(value);
         }
     }
 
@@ -85,7 +86,8 @@ public class PropertyValueConverterParametrizedTest {
     public void convert() {
         StringBuilder output = new StringBuilder();
 
-        PropertyValueConverterUnderTest propertyValueConverter = new PropertyValueConverterUnderTest();
+        PropertyValueConverterUnderTest propertyValueConverter =
+                new PropertyValueConverterUnderTest();
         propertyValueConverter.convert(propertyValue, output);
 
         assertThat(output.toString(), equalTo(convertedValue));

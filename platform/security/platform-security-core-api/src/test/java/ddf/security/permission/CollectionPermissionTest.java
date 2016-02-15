@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -76,7 +76,8 @@ public class CollectionPermissionTest {
         assertTrue(userPermission.implies(new KeyValuePermission("key1", Arrays.asList("val1"))));
 
         // user cannot delete
-        assertFalse(userPermission.implies(new KeyValuePermission("key2", Arrays.asList("somevalue"))));
+        assertFalse(userPermission.implies(new KeyValuePermission("key2",
+                Arrays.asList("somevalue"))));
 
         // user can create and query
         CollectionPermission task1Permission = new CollectionPermission("",
@@ -106,10 +107,12 @@ public class CollectionPermissionTest {
         CollectionPermission collection = new CollectionPermission("", permissionList);
 
         // String outputs the correct collection permissions.
-        assertTrue(collection.toString().indexOf("key2") != -1);
+        assertTrue(collection.toString()
+                .indexOf("key2") != -1);
 
         // String does not output extra permissions
-        assertFalse(collection.toString().indexOf("key3") != -1);
+        assertFalse(collection.toString()
+                .indexOf("key3") != -1);
     }
 
     /**
@@ -135,7 +138,8 @@ public class CollectionPermissionTest {
         permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
         CollectionPermission collection = new CollectionPermission("", permissionList);
 
-        collection.getPermissionList().clear();
+        collection.getPermissionList()
+                .clear();
         fail("Returned list should not be able to modify.");
     }
 
@@ -149,7 +153,8 @@ public class CollectionPermissionTest {
         permissionList.add(new KeyValuePermission("key2", Arrays.asList("val2")));
         CollectionPermission collection = new CollectionPermission("", permissionList);
         collection.clear();
-        assertTrue(collection.getPermissionList().isEmpty());
+        assertTrue(collection.getPermissionList()
+                .isEmpty());
     }
 
     /**
@@ -159,7 +164,8 @@ public class CollectionPermissionTest {
     public void testAddAllCollection() {
         CollectionPermission collection = new CollectionPermission();
 
-        assertTrue(collection.getPermissionList().isEmpty());
+        assertTrue(collection.getPermissionList()
+                .isEmpty());
 
         ArrayList<KeyValuePermission> permissionList = new ArrayList<KeyValuePermission>();
         permissionList.add(new KeyValuePermission("key1", Arrays.asList("val1")));
@@ -167,7 +173,10 @@ public class CollectionPermissionTest {
 
         collection.addAll(permissionList);
 
-        assertFalse(collection.getPermissionList().isEmpty());
-        assertEquals(permissionList.size(), collection.getPermissionList().size());
+        assertFalse(collection.getPermissionList()
+                .isEmpty());
+        assertEquals(permissionList.size(),
+                collection.getPermissionList()
+                        .size());
     }
 }

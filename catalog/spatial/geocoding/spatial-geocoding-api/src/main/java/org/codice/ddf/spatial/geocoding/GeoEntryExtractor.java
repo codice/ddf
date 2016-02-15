@@ -24,6 +24,7 @@ public interface GeoEntryExtractor {
 
     /**
      * Sets the url
+     *
      * @param url
      */
     void setUrl(String url);
@@ -36,7 +37,7 @@ public interface GeoEntryExtractor {
      * @param progressCallback the callback to receive updates about the extraction progress, may
      *                         be null if you don't want any updates
      * @return the list of {@code GeoEntry} objects corresponding to the GeoNames entries in the
-     *         resource
+     * resource
      * @throws GeoEntryExtractionException     if an error occurs while extracting GeoNames entries
      *                                         from the resource
      * @throws GeoNamesRemoteDownloadException if an error occurs while downloading from the resource

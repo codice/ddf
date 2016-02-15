@@ -114,9 +114,7 @@ public class LogoutRequestServiceTest {
         session = mock(HttpSession.class);
         securityTokenHolder = mock(SecurityTokenHolder.class);
 
-        logoutRequestService = new MockLogoutRequestService(simpleSign,
-                idpMetadata,
-                relayStates);
+        logoutRequestService = new MockLogoutRequestService(simpleSign, idpMetadata, relayStates);
         logoutRequestService.setEncryptionService(encryptionService);
         logoutRequestService.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
         logoutRequestService.setLogoutMessage(logoutMessage);
@@ -372,9 +370,7 @@ public class LogoutRequestServiceTest {
         when(logoutMessage.extractSamlLogoutRequest(eq("deflatedSamlRequest"))).thenReturn(
                 logoutRequest);
 
-        LogoutRequestService lrs = new LogoutRequestService(simpleSign,
-                idpMetadata,
-                relayStates);
+        LogoutRequestService lrs = new LogoutRequestService(simpleSign, idpMetadata, relayStates);
 
         lrs.setEncryptionService(encryptionService);
         lrs.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);
@@ -451,9 +447,7 @@ public class LogoutRequestServiceTest {
         LogoutResponse logoutResponse = mock(LogoutResponse.class);
         when(logoutMessage.extractSamlLogoutResponse(eq("deflatedSamlResponse"))).thenReturn(
                 logoutResponse);
-        LogoutRequestService lrs = new LogoutRequestService(simpleSign,
-                idpMetadata,
-                relayStates);
+        LogoutRequestService lrs = new LogoutRequestService(simpleSign, idpMetadata, relayStates);
 
         lrs.setEncryptionService(encryptionService);
         lrs.setLogOutPageTimeOut(LOGOUT_PAGE_TIMEOUT);

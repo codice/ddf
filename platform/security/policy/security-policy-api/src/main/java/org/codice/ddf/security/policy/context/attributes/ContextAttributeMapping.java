@@ -17,7 +17,7 @@ import ddf.security.permission.KeyValuePermission;
 
 /**
  * Mapping between an attribute name and the String permission value for that attribute.
- * <p/>
+ * <p>
  * It is up to the implementer to determine how to parse the String value into valid Shiro
  * permission objects.
  */

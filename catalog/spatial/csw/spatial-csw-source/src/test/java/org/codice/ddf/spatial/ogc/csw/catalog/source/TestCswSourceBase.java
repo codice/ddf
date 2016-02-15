@@ -101,7 +101,7 @@ public class TestCswSourceBase {
     /**
      * ISO 8601 date time format with milliseconds and colon between hours/minutes in time zone,
      * e.g., 2013-05-22T16:28:38.345-07:00
-     * <p/>
+     * <p>
      * The ZZ gives the colon in the time zone.
      */
     protected static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";

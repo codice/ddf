@@ -76,11 +76,12 @@ public final class SolrServerFactory {
 
     public static final String DEFAULT_CORE_NAME = "core1";
 
-    public static final List<String> DEFAULT_PROTOCOLS =
-            Collections.unmodifiableList(Arrays.asList(StringUtils.split(System.getProperty("https.protocols"), ",")));
+    public static final List<String> DEFAULT_PROTOCOLS = Collections.unmodifiableList(Arrays.asList(
+            StringUtils.split(System.getProperty("https.protocols"), ",")));
 
     public static final List<String> DEFAULT_CIPHER_SUITES =
-            Collections.unmodifiableList(Arrays.asList(StringUtils.split(System.getProperty("https.cipherSuites"), ",")));
+            Collections.unmodifiableList(Arrays.asList(StringUtils.split(System.getProperty(
+                    "https.cipherSuites"), ",")));
 
     public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 

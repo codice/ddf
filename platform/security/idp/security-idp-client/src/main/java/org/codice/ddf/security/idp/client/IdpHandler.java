@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -108,8 +108,8 @@ public class IdpHandler implements AuthenticationHandler {
 
     private SessionFactory sessionFactory;
 
-    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata,
-            RelayStates<String> relayStates) throws IOException {
+    public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, RelayStates<String> relayStates)
+            throws IOException {
         LOGGER.debug("Creating IdP handler.");
 
         this.simpleSign = simpleSign;
@@ -189,8 +189,9 @@ public class IdpHandler implements AuthenticationHandler {
         String idpRequest = null;
         String relayState = createRelayState(request);
         try {
-            String queryParams = String.format("SAMLRequest=%s&RelayState=%s", createAuthnRequest(
-                    false), URLEncoder.encode(relayState, "UTF-8"));
+            String queryParams = String.format("SAMLRequest=%s&RelayState=%s",
+                    createAuthnRequest(false),
+                    URLEncoder.encode(relayState, "UTF-8"));
             idpRequest = idpMetadata.getSingleSignOnLocation() + "?" + queryParams;
             UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
 
@@ -305,7 +306,8 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     private String encodePostRequest(String request) throws WSSecurityException, IOException {
-        return Base64.getEncoder().encodeToString(request.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder()
+                .encodeToString(request.getBytes(StandardCharsets.UTF_8));
     }
 
     private String recreateFullRequestUrl(HttpServletRequest request) {

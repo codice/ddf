@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,6 +79,7 @@ public class TestSolrHttpCatalogProvider {
             System.clearProperty("https.protocols");
         }
     }
+
     @Test
     public void testId() {
         CatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
@@ -228,7 +229,8 @@ public class TestSolrHttpCatalogProvider {
 
         provider.setForceAutoCommit(true);
 
-        assertThat(ConfigurationStore.getInstance().isForceAutoCommit(), is(true));
+        assertThat(ConfigurationStore.getInstance()
+                .isForceAutoCommit(), is(true));
 
     }
 

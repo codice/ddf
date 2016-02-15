@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,8 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
                 return qmt;
             }
         }
-        LOGGER.debug("No registered MetacardType with namespace: {} and name: {}", namespace,
+        LOGGER.debug("No registered MetacardType with namespace: {} and name: {}",
+                namespace,
                 metacardTypeName);
         return null;
     }
@@ -100,8 +101,8 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     @Override
     public Set<QualifiedMetacardType> getRegisteredTypes() {
-        return Collections
-                .unmodifiableSet(new HashSet<QualifiedMetacardType>(registeredMetacardTypes));
+        return Collections.unmodifiableSet(new HashSet<QualifiedMetacardType>(
+                registeredMetacardTypes));
     }
 
     private void validateInput(QualifiedMetacardType qmt) {

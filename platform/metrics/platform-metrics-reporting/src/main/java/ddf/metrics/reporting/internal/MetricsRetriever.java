@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -254,7 +254,7 @@ public interface MetricsRetriever {
      * Returns a PPT (PowerPoint) formatted stream over the specified time range that contains one
      * slide for each metric. Refer to the createPptData() method for a description of what each
      * slide would contain.
-     * 
+     *
      * @param metricNames
      *            names of the metrics to retrieve data for
      * @param metricsDir

@@ -44,10 +44,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigStatusCommandTest {
 
-    private static final String ERROR_RED = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED)
+    private static final String ERROR_RED = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.RED)
             .toString();
 
-    private static final String SUCCESS_GREEN = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN)
+    private static final String SUCCESS_GREEN = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.GREEN)
             .toString();
 
     private static final Path FAILED_CONFIG_FILE1 = Paths.get("/path/to/configFile1.config");
@@ -55,6 +59,7 @@ public class ConfigStatusCommandTest {
     private static final Path FAILED_CONFIG_FILE2 = Paths.get("/path/to/configFile2.config");
 
     private static final Collection<MigrationWarning> CONFIG_STATUS_MSGS;
+
     static {
         Collection<MigrationWarning> configStatus = new ArrayList<>(2);
         MigrationWarning cs1 = new MigrationWarning(FAILED_CONFIG_FILE1.toString());
@@ -79,9 +84,9 @@ public class ConfigStatusCommandTest {
     @Test
     public void testDoExecuteReportFailedImports() throws Exception {
         // Setup
-        when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(
-                CONFIG_STATUS_MSGS);
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
+        when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(CONFIG_STATUS_MSGS);
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
+                mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -96,13 +101,11 @@ public class ConfigStatusCommandTest {
         verify(mockConsole, times(4)).print(argument.capture());
         List<String> values = argument.getAllValues();
         assertThat(values.get(0), is(ERROR_RED));
-        assertThat(
-                values.get(1),
+        assertThat(values.get(1),
                 is(String.format(MigrationStatusCommand.FAILED_IMPORT_MESSAGE,
                         FAILED_CONFIG_FILE1.toString())));
         assertThat(values.get(0), is(ERROR_RED));
-        assertThat(
-                values.get(3),
+        assertThat(values.get(3),
                 is(String.format(MigrationStatusCommand.FAILED_IMPORT_MESSAGE,
                         FAILED_CONFIG_FILE2.toString())));
     }
@@ -111,7 +114,8 @@ public class ConfigStatusCommandTest {
     public void testDoExecuteNoFailedImports() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(new ArrayList<>(0));
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
+                mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -132,8 +136,10 @@ public class ConfigStatusCommandTest {
     @Test
     public void testDoExecuteRuntimeExceptionWhileReadingFailedDirectory() throws Exception {
         // Setup
-        doThrow(new RuntimeException()).when(mockConfigStatusService).getFailedConfigurationFiles();
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
+        doThrow(new RuntimeException()).when(mockConfigStatusService)
+                .getFailedConfigurationFiles();
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
+                mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;
@@ -156,7 +162,8 @@ public class ConfigStatusCommandTest {
     public void testDoExecuteNullConfigurationStatus() throws Exception {
         // Setup
         when(mockConfigStatusService.getFailedConfigurationFiles()).thenReturn(null);
-        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(mockConfigStatusService) {
+        MigrationStatusCommand migrationStatusCommand = new MigrationStatusCommand(
+                mockConfigStatusService) {
             @Override
             PrintStream getConsole() {
                 return mockConsole;

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -121,25 +121,31 @@ public class FrameworkProducer extends DefaultProducer {
         try {
             LOGGER.debug("Entering process method");
 
-            final Object operationValueObj = exchange.getIn().getHeader(OPERATION_HEADER_KEY);
+            final Object operationValueObj = exchange.getIn()
+                    .getHeader(OPERATION_HEADER_KEY);
             String operation = null;
 
             if (operationValueObj == null) {
-                exchange.getIn().setBody(new ArrayList<Metacard>());
+                exchange.getIn()
+                        .setBody(new ArrayList<Metacard>());
 
                 throw new FrameworkProducerException("Missing expected header!");
             }
 
             operation = operationValueObj.toString();
 
-            if (operation.trim().equalsIgnoreCase(CREATE_OPERATION)) {
+            if (operation.trim()
+                    .equalsIgnoreCase(CREATE_OPERATION)) {
                 create(exchange);
-            } else if (operation.trim().equalsIgnoreCase(UPDATE_OPERATION)) {
+            } else if (operation.trim()
+                    .equalsIgnoreCase(UPDATE_OPERATION)) {
                 update(exchange);
-            } else if (operation.trim().equalsIgnoreCase(DELETE_OPERATION)) {
+            } else if (operation.trim()
+                    .equalsIgnoreCase(DELETE_OPERATION)) {
                 delete(exchange);
             } else {
-                exchange.getIn().setBody(new ArrayList<Metacard>());
+                exchange.getIn()
+                        .setBody(new ArrayList<Metacard>());
                 LOGGER.debug(
                         "Missing expected header \"operation:<CREATE|UPDATE|DELETE>\" but received {}",
                         operation);
@@ -147,13 +153,16 @@ public class FrameworkProducer extends DefaultProducer {
 
             LOGGER.debug("Exiting process method");
         } catch (ClassCastException cce) {
-            exchange.getIn().setBody(new ArrayList<Metacard>());
+            exchange.getIn()
+                    .setBody(new ArrayList<Metacard>());
             LOGGER.debug("Received a non-String as the operation type");
         } catch (SourceUnavailableException sue) {
-            exchange.getIn().setBody(new ArrayList<Metacard>());
+            exchange.getIn()
+                    .setBody(new ArrayList<Metacard>());
             LOGGER.debug("Exception cataloging metacards", sue);
         } catch (IngestException ie) {
-            exchange.getIn().setBody(new ArrayList<Metacard>());
+            exchange.getIn()
+                    .setBody(new ArrayList<Metacard>());
             LOGGER.debug("Exception cataloging metacards", ie);
         }
     }
@@ -212,7 +221,8 @@ public class FrameworkProducer extends DefaultProducer {
         final int numberOfCreatedMetacards = createdMetacards.size();
         if (numberOfCreatedMetacards != expectedNumberOfCreatedMetacards) {
             LOGGER.debug("Expected {} metacards created but only {} were successfully created",
-                    expectedNumberOfCreatedMetacards, numberOfCreatedMetacards);
+                    expectedNumberOfCreatedMetacards,
+                    numberOfCreatedMetacards);
             processCatalogResponse(createResponse, exchange);
             return;
         }
@@ -249,7 +259,8 @@ public class FrameworkProducer extends DefaultProducer {
 
         final String[] metacardIds = new String[metacardsToBeUpdated.size()];
         for (int i = 0; i < metacardsToBeUpdated.size(); i++) {
-            metacardIds[i] = metacardsToBeUpdated.get(i).getId();
+            metacardIds[i] = metacardsToBeUpdated.get(i)
+                    .getId();
         }
 
         final UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds,
@@ -282,7 +293,8 @@ public class FrameworkProducer extends DefaultProducer {
         final int numberOfUpdatedMetacards = updatedMetacards.size();
         if (numberOfUpdatedMetacards != expectedNumberOfUpdatedMetacards) {
             LOGGER.debug("Expected {} metacards updated but only {} were successfully updated",
-                    expectedNumberOfUpdatedMetacards, numberOfUpdatedMetacards);
+                    expectedNumberOfUpdatedMetacards,
+                    numberOfUpdatedMetacards);
             processCatalogResponse(updateResponse, exchange);
             return;
         }
@@ -320,8 +332,8 @@ public class FrameworkProducer extends DefaultProducer {
         LOGGER.debug("Validation of Metacard id list passed...");
 
         final String[] metacardIdsToBeDeletedArray = new String[metacardIdsToBeDeleted.size()];
-        final DeleteRequest deleteRequest = new DeleteRequestImpl(
-                metacardIdsToBeDeleted.toArray(metacardIdsToBeDeletedArray));
+        final DeleteRequest deleteRequest = new DeleteRequestImpl(metacardIdsToBeDeleted.toArray(
+                metacardIdsToBeDeletedArray));
         final int expectedNumberOfDeletedMetacards = metacardIdsToBeDeleted.size();
 
         if (expectedNumberOfDeletedMetacards < 1) {
@@ -351,7 +363,8 @@ public class FrameworkProducer extends DefaultProducer {
 
         if (numberOfDeletedMetacards != expectedNumberOfDeletedMetacards) {
             LOGGER.debug("Expected {} metacards deleted but only {} were successfully deleted",
-                    expectedNumberOfDeletedMetacards, numberOfDeletedMetacards);
+                    expectedNumberOfDeletedMetacards,
+                    numberOfDeletedMetacards);
             processCatalogResponse(deleteResponse, exchange);
             return;
         }
@@ -398,17 +411,20 @@ public class FrameworkProducer extends DefaultProducer {
     private void processCatalogResponse(final CreateResponse response, final Exchange exchange) {
         if (response == null) {
             LOGGER.debug("Catalog response object is null");
-            exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+            exchange.getIn()
+                    .setBody((List) (new ArrayList<Metacard>()));
             return;
         }
 
         if (response.getCreatedMetacards() == null) {
             LOGGER.debug("No Metacards created by catalog framework");
-            exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+            exchange.getIn()
+                    .setBody((List) (new ArrayList<Metacard>()));
             return;
         }
 
-        exchange.getIn().setBody(response.getCreatedMetacards());
+        exchange.getIn()
+                .setBody(response.getCreatedMetacards());
     }
 
     /**
@@ -422,17 +438,20 @@ public class FrameworkProducer extends DefaultProducer {
     private void processCatalogResponse(final UpdateResponse response, final Exchange exchange) {
         if (response == null) {
             LOGGER.debug("Catalog response object is null");
-            exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+            exchange.getIn()
+                    .setBody((List) (new ArrayList<Metacard>()));
             return;
         }
 
         if (response.getUpdatedMetacards() == null) {
             LOGGER.debug("No Metacards updated by catalog framework");
-            exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+            exchange.getIn()
+                    .setBody((List) (new ArrayList<Metacard>()));
             return;
         }
 
-        exchange.getIn().setBody(response.getUpdatedMetacards());
+        exchange.getIn()
+                .setBody(response.getUpdatedMetacards());
     }
 
     /**
@@ -446,17 +465,20 @@ public class FrameworkProducer extends DefaultProducer {
     private void processCatalogResponse(final DeleteResponse response, final Exchange exchange) {
         if (response == null) {
             LOGGER.debug("Catalog response object is null");
-            exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+            exchange.getIn()
+                    .setBody((List) (new ArrayList<Metacard>()));
             return;
         }
 
         if (response.getDeletedMetacards() == null) {
             LOGGER.debug("No Metacards deleted by catalog framework");
-            exchange.getIn().setBody((List) (new ArrayList<Metacard>()));
+            exchange.getIn()
+                    .setBody((List) (new ArrayList<Metacard>()));
             return;
         }
 
-        exchange.getIn().setBody(response.getDeletedMetacards());
+        exchange.getIn()
+                .setBody(response.getDeletedMetacards());
     }
 
     /**
@@ -470,14 +492,16 @@ public class FrameworkProducer extends DefaultProducer {
         List<String> metacardIdsToBeProcessed = new ArrayList<String>();
 
         try {
-            if (exchange.getIn().getBody() == null) {
+            if (exchange.getIn()
+                    .getBody() == null) {
                 LOGGER.debug("Body is null");
                 return metacardIdsToBeProcessed;
             }
 
             // first see if we have a have List<String>
             LOGGER.debug("Reading in body data as List<?>...");
-            metacardIdsToBeProcessed = exchange.getIn().getBody(List.class);
+            metacardIdsToBeProcessed = exchange.getIn()
+                    .getBody(List.class);
             if (metacardIdsToBeProcessed != null) {
                 LOGGER.debug("Successfully read in body data as List<?>");
                 return metacardIdsToBeProcessed;
@@ -487,7 +511,8 @@ public class FrameworkProducer extends DefaultProducer {
             LOGGER.debug("Reading in body data as String...");
 
             // if we get here, see if we have a single ID as a String
-            final String metacardIdToBeProcessed = exchange.getIn().getBody(String.class);
+            final String metacardIdToBeProcessed = exchange.getIn()
+                    .getBody(String.class);
 
             if (metacardIdToBeProcessed != null) {
                 metacardIdsToBeProcessed = new ArrayList<String>();
@@ -517,14 +542,16 @@ public class FrameworkProducer extends DefaultProducer {
         List<Metacard> metacardsToProcess = new ArrayList<Metacard>();
 
         try {
-            if (exchange.getIn().getBody() == null) {
+            if (exchange.getIn()
+                    .getBody() == null) {
                 LOGGER.debug("Body is null");
                 return metacardsToProcess;
             }
 
             // first try to read in a single Metacard
             LOGGER.debug("Reading in body data as Metacard...");
-            final Metacard metacardToProcess = exchange.getIn().getBody(Metacard.class);
+            final Metacard metacardToProcess = exchange.getIn()
+                    .getBody(Metacard.class);
 
             if (metacardToProcess != null) {
                 metacardsToProcess.add(metacardToProcess);
@@ -536,7 +563,8 @@ public class FrameworkProducer extends DefaultProducer {
 
             // if we get here, then we possibly have List<Metacard>
             LOGGER.debug("Reading in body data as List<Metacard>...");
-            metacardsToProcess = exchange.getIn().getBody(List.class);
+            metacardsToProcess = exchange.getIn()
+                    .getBody(List.class);
             if (metacardsToProcess == null) {
                 LOGGER.debug("Problem reading in body data as List<?>");
                 metacardsToProcess = new ArrayList<Metacard>();

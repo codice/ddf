@@ -192,7 +192,8 @@ public class CatalogPolicy implements PolicyPlugin {
      *
      * @param permStrings String array of permissions to parse
      */
-    private void parsePermissionsFromString(String[] permStrings, Map<String, Set<String>> permissions) {
+    private void parsePermissionsFromString(String[] permStrings,
+            Map<String, Set<String>> permissions) {
         permissions.clear();
         if (permStrings != null) {
             for (String perm : permStrings) {
@@ -201,8 +202,7 @@ public class CatalogPolicy implements PolicyPlugin {
                     String attributeName = parts[0];
                     String attributeValue = parts[1];
                     String[] attributeValues = attributeValue.split(",");
-                    permissions.put(attributeName,
-                            new HashSet<>(Arrays.asList(attributeValues)));
+                    permissions.put(attributeName, new HashSet<>(Arrays.asList(attributeValues)));
                 }
             }
         }

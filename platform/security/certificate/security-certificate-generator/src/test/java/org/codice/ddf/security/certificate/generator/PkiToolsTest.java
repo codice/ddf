@@ -89,17 +89,21 @@ public class PkiToolsTest {
     }
 
     private String getPathTo(String path) {
-        return getClass().getClassLoader().getResource(path).getPath();
+        return getClass().getClassLoader()
+                .getResource(path)
+                .getPath();
     }
 
     @Test
     public void testFormatPassword() throws Exception {
         Assert.assertThat("formatPassword() failed to return empty character array",
-                PkiTools.formatPassword(null), instanceOf(char[].class));
+                PkiTools.formatPassword(null),
+                instanceOf(char[].class));
 
         char[] pw = "password".toCharArray();
         Assert.assertThat("formatPassword() should not modify the password",
-                new String(PkiTools.formatPassword(pw)), equalTo("password"));
+                new String(PkiTools.formatPassword(pw)),
+                equalTo("password"));
     }
 
     //Null path to keyStore file.
@@ -125,7 +129,8 @@ public class PkiToolsTest {
     public void realFile() throws IOException {
         assertThat(
                 "Should have returned a new File object. Is the file in the test resources directory?",
-                PkiTools.createFileObject(getPathTo("not_keystore.jks")), instanceOf(File.class));
+                PkiTools.createFileObject(getPathTo("not_keystore.jks")),
+                instanceOf(File.class));
     }
 
     @Test(expected = CertificateGeneratorException.class)

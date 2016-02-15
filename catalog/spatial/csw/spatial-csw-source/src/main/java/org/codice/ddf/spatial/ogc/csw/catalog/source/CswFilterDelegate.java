@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -134,8 +134,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, literal, isCaseSensitive);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    literal,
+                    isCaseSensitive);
         } else {
             return new FilterType();
         }
@@ -146,9 +147,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, convertDateToIso8601Format(literal),
-                            false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    convertDateToIso8601Format(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -159,8 +160,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, Integer.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    Integer.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -171,8 +173,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, Short.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    Short.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -183,8 +186,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, Long.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    Long.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -195,8 +199,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, new Float(literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    new Float(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -207,8 +212,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, new Double(literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    new Double(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -219,8 +225,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsEqualToFilter(propertyName, Boolean.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName,
+                    Boolean.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -232,8 +239,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, literal, isCaseSensitive);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    literal,
+                    isCaseSensitive);
         } else {
             return new FilterType();
         }
@@ -245,7 +253,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
             return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
-                    this.convertDateToIso8601Format(literal), false);
+                    this.convertDateToIso8601Format(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -256,8 +265,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, Integer.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Integer.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -268,8 +278,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, Short.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Short.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -280,8 +291,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, Long.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Long.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -292,8 +304,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, new Float(literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    new Float(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -304,8 +317,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, new Double(literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    new Double(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -316,8 +330,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.NOT_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsNotEqualToFilter(propertyName, Boolean.valueOf(literal), false);
+            return cswFilterFactory.buildPropertyIsNotEqualToFilter(propertyName,
+                    Boolean.valueOf(literal),
+                    false);
         } else {
             return new FilterType();
         }
@@ -351,8 +366,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanFilter(propertyName, Integer.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName,
+                    Integer.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -363,8 +378,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanFilter(propertyName, Short.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName,
+                    Short.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -375,8 +390,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanFilter(propertyName, Long.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName,
+                    Long.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -387,8 +402,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanFilter(propertyName, new Float(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName,
+                    new Float(literal));
         } else {
             return new FilterType();
         }
@@ -399,8 +414,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanFilter(propertyName, new Double(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName,
+                    new Double(literal));
         } else {
             return new FilterType();
         }
@@ -411,8 +426,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanOrEqualToFilter(propertyName, literal);
+            return cswFilterFactory.buildPropertyIsGreaterThanOrEqualToFilter(propertyName,
+                    literal);
         } else {
             return new FilterType();
         }
@@ -459,8 +474,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanOrEqualToFilter(propertyName, Long.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanOrEqualToFilter(propertyName,
+                    Long.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -471,8 +486,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanOrEqualToFilter(propertyName, new Float(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanOrEqualToFilter(propertyName,
+                    new Float(literal));
         } else {
             return new FilterType();
         }
@@ -483,8 +498,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsGreaterThanOrEqualToFilter(propertyName, new Double(literal));
+            return cswFilterFactory.buildPropertyIsGreaterThanOrEqualToFilter(propertyName,
+                    new Double(literal));
         } else {
             return new FilterType();
         }
@@ -518,8 +533,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanFilter(propertyName, Integer.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsLessThanFilter(propertyName,
+                    Integer.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -530,8 +545,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanFilter(propertyName, Short.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsLessThanFilter(propertyName,
+                    Short.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -542,8 +557,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanFilter(propertyName, Long.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsLessThanFilter(propertyName,
+                    Long.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -565,8 +580,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanFilter(propertyName, new Double(literal));
+            return cswFilterFactory.buildPropertyIsLessThanFilter(propertyName,
+                    new Double(literal));
         } else {
             return new FilterType();
         }
@@ -600,8 +615,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanOrEqualToFilter(propertyName, Integer.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsLessThanOrEqualToFilter(propertyName,
+                    Integer.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -612,8 +627,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanOrEqualToFilter(propertyName, Short.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsLessThanOrEqualToFilter(propertyName,
+                    Short.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -624,8 +639,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanOrEqualToFilter(propertyName, Long.valueOf(literal));
+            return cswFilterFactory.buildPropertyIsLessThanOrEqualToFilter(propertyName,
+                    Long.valueOf(literal));
         } else {
             return new FilterType();
         }
@@ -636,8 +651,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanOrEqualToFilter(propertyName, new Float(literal));
+            return cswFilterFactory.buildPropertyIsLessThanOrEqualToFilter(propertyName,
+                    new Float(literal));
         } else {
             return new FilterType();
         }
@@ -648,8 +663,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LESS_THAN_EQUAL_TO);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsLessThanOrEqualToFilter(propertyName, new Double(literal));
+            return cswFilterFactory.buildPropertyIsLessThanOrEqualToFilter(propertyName,
+                    new Double(literal));
         } else {
             return new FilterType();
         }
@@ -661,8 +676,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.BETWEEN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsBetweenFilter(propertyName, lowerBoundary, upperBoundary);
+            return cswFilterFactory.buildPropertyIsBetweenFilter(propertyName,
+                    lowerBoundary,
+                    upperBoundary);
         } else {
             return new FilterType();
         }
@@ -687,9 +703,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.BETWEEN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsBetweenFilter(propertyName, Integer.valueOf(lowerBoundary),
-                            Integer.valueOf(upperBoundary));
+            return cswFilterFactory.buildPropertyIsBetweenFilter(propertyName,
+                    Integer.valueOf(lowerBoundary),
+                    Integer.valueOf(upperBoundary));
         } else {
             return new FilterType();
         }
@@ -701,9 +717,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.BETWEEN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsBetweenFilter(propertyName, Short.valueOf(lowerBoundary),
-                            Short.valueOf(upperBoundary));
+            return cswFilterFactory.buildPropertyIsBetweenFilter(propertyName,
+                    Short.valueOf(lowerBoundary),
+                    Short.valueOf(upperBoundary));
         } else {
             return new FilterType();
         }
@@ -715,9 +731,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.BETWEEN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsBetweenFilter(propertyName, Long.valueOf(lowerBoundary),
-                            Long.valueOf(upperBoundary));
+            return cswFilterFactory.buildPropertyIsBetweenFilter(propertyName,
+                    Long.valueOf(lowerBoundary),
+                    Long.valueOf(upperBoundary));
         } else {
             return new FilterType();
         }
@@ -729,9 +745,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.BETWEEN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsBetweenFilter(propertyName, new Float(lowerBoundary),
-                            new Float(upperBoundary));
+            return cswFilterFactory.buildPropertyIsBetweenFilter(propertyName,
+                    new Float(lowerBoundary),
+                    new Float(upperBoundary));
         } else {
             return new FilterType();
         }
@@ -743,9 +759,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.BETWEEN);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory
-                    .buildPropertyIsBetweenFilter(propertyName, new Double(lowerBoundary),
-                            new Double(upperBoundary));
+            return cswFilterFactory.buildPropertyIsBetweenFilter(propertyName,
+                    new Double(lowerBoundary),
+                    new Double(upperBoundary));
         } else {
             return new FilterType();
         }
@@ -785,7 +801,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.BEYOND)) {
             BinarySpatialOperand beyondBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.BEYOND, wkt);
+                    SpatialOperatorNameType.BEYOND,
+                    wkt);
             if (beyondBinarySpatialOperand == BinarySpatialOperand.GEOMETRY) {
                 return cswFilterFactory.buildBeyondGeospatialFilter(propertyName, wkt, distance);
             }
@@ -794,7 +811,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         // If beyond is not supported, fallback to not(dwithin())
         if (isSpatialOperationSupported(SpatialOperatorNameType.D_WITHIN)) {
             BinarySpatialOperand dwithinBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.D_WITHIN, wkt);
+                    SpatialOperatorNameType.D_WITHIN,
+                    wkt);
             if (dwithinBinarySpatialOperand == BinarySpatialOperand.GEOMETRY) {
                 return not(dwithin(propertyName, wkt, distance));
             }
@@ -818,16 +836,19 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.CONTAINS)) {
             BinarySpatialOperand containsBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.CONTAINS, wkt);
+                    SpatialOperatorNameType.CONTAINS,
+                    wkt);
             if (containsBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory.buildContainsGeospatialFilter(propertyName, wkt,
+                return cswFilterFactory.buildContainsGeospatialFilter(propertyName,
+                        wkt,
                         containsBinarySpatialOperand);
             }
         }
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.WITHIN)) {
             BinarySpatialOperand withinBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.WITHIN, wkt);
+                    SpatialOperatorNameType.WITHIN,
+                    wkt);
             if (withinBinarySpatialOperand != BinarySpatialOperand.NONE) {
                 return not(within(propertyName, wkt));
             }
@@ -852,16 +873,19 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.DISJOINT)) {
             BinarySpatialOperand disjointBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.DISJOINT, wkt);
+                    SpatialOperatorNameType.DISJOINT,
+                    wkt);
             if (disjointBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory.buildDisjointGeospatialFilter(propertyName, wkt,
+                return cswFilterFactory.buildDisjointGeospatialFilter(propertyName,
+                        wkt,
                         disjointBinarySpatialOperand);
             }
         }
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.BBOX)) {
             BinarySpatialOperand bboxBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.BBOX, wkt);
+                    SpatialOperatorNameType.BBOX,
+                    wkt);
             // BBOX only supports Envelope
             if (bboxBinarySpatialOperand == BinarySpatialOperand.ENVELOPE) {
                 return not(cswFilterFactory.buildBBoxGeospatialFilter(propertyName, wkt));
@@ -870,7 +894,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.INTERSECTS)) {
             BinarySpatialOperand intersectsBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.INTERSECTS, wkt);
+                    SpatialOperatorNameType.INTERSECTS,
+                    wkt);
             if (intersectsBinarySpatialOperand != BinarySpatialOperand.NONE) {
                 return not(intersects(propertyName, wkt));
             }
@@ -894,10 +919,12 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.CROSSES)) {
             BinarySpatialOperand binarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.CROSSES, wkt);
+                    SpatialOperatorNameType.CROSSES,
+                    wkt);
             if (binarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory
-                        .buildCrossesGeospatialFilter(propertyName, wkt, binarySpatialOperand);
+                return cswFilterFactory.buildCrossesGeospatialFilter(propertyName,
+                        wkt,
+                        binarySpatialOperand);
             }
         }
 
@@ -920,28 +947,33 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.D_WITHIN)) {
             BinarySpatialOperand dwithinBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.D_WITHIN, wkt);
+                    SpatialOperatorNameType.D_WITHIN,
+                    wkt);
             if (dwithinBinarySpatialOperand == BinarySpatialOperand.GEOMETRY) {
                 return cswFilterFactory.buildDWithinGeospatialFilter(propertyName, wkt, distance);
             }
         }
 
         LOGGER.debug("Unable to construct {} spatial filter. Attempting to fall back to NOT {}.",
-                SpatialOperatorNameType.D_WITHIN.name(), SpatialOperatorNameType.BEYOND.name());
+                SpatialOperatorNameType.D_WITHIN.name(),
+                SpatialOperatorNameType.BEYOND.name());
         if (isSpatialOperationSupported(SpatialOperatorNameType.BEYOND)) {
             BinarySpatialOperand beyondBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.BEYOND, wkt);
+                    SpatialOperatorNameType.BEYOND,
+                    wkt);
             if (beyondBinarySpatialOperand == BinarySpatialOperand.GEOMETRY) {
                 return not(beyond(propertyName, wkt, distance));
             }
         }
 
         LOGGER.debug("Unable to construct NOT {} spatial filter. Attempting to fall back to {}.",
-                SpatialOperatorNameType.BEYOND.name(), SpatialOperatorNameType.INTERSECTS.name());
+                SpatialOperatorNameType.BEYOND.name(),
+                SpatialOperatorNameType.INTERSECTS.name());
         if (isSpatialOperationSupported(SpatialOperatorNameType.INTERSECTS)) {
             String bufferedWkt = bufferGeometry(wkt, distance);
             BinarySpatialOperand intersectsBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.INTERSECTS, bufferedWkt);
+                    SpatialOperatorNameType.INTERSECTS,
+                    bufferedWkt);
             if (intersectsBinarySpatialOperand != BinarySpatialOperand.NONE) {
                 return intersects(propertyName, bufferedWkt);
             }
@@ -973,18 +1005,21 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             LOGGER.debug("Building INTERSECTS filter");
 
             BinarySpatialOperand intersectsBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.INTERSECTS, wkt);
+                    SpatialOperatorNameType.INTERSECTS,
+                    wkt);
             LOGGER.debug("BinarySpatialOperand: {}", intersectsBinarySpatialOperand);
 
             if (intersectsBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory.buildIntersectsGeospatialFilter(propertyName, wkt,
+                return cswFilterFactory.buildIntersectsGeospatialFilter(propertyName,
+                        wkt,
                         intersectsBinarySpatialOperand);
             }
         }
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.BBOX)) {
             BinarySpatialOperand bboxBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.BBOX, wkt);
+                    SpatialOperatorNameType.BBOX,
+                    wkt);
             // BBOX only supports Envelope
             if (bboxBinarySpatialOperand == BinarySpatialOperand.ENVELOPE) {
                 LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.BBOX.name());
@@ -994,7 +1029,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.DISJOINT)) {
             BinarySpatialOperand disjointBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.DISJOINT, wkt);
+                    SpatialOperatorNameType.DISJOINT,
+                    wkt);
             if (disjointBinarySpatialOperand != BinarySpatialOperand.NONE) {
                 LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.DISJOINT.name());
                 return not(disjoint(propertyName, wkt));
@@ -1022,9 +1058,11 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.OVERLAPS)) {
             BinarySpatialOperand overlapsBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.OVERLAPS, wkt);
+                    SpatialOperatorNameType.OVERLAPS,
+                    wkt);
             if (overlapsBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory.buildOverlapsGeospatialFilter(propertyName, wkt,
+                return cswFilterFactory.buildOverlapsGeospatialFilter(propertyName,
+                        wkt,
                         overlapsBinarySpatialOperand);
             }
         }
@@ -1046,9 +1084,11 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.TOUCHES)) {
             BinarySpatialOperand touchesBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.TOUCHES, wkt);
+                    SpatialOperatorNameType.TOUCHES,
+                    wkt);
             if (touchesBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory.buildTouchesGeospatialFilter(propertyName, wkt,
+                return cswFilterFactory.buildTouchesGeospatialFilter(propertyName,
+                        wkt,
                         touchesBinarySpatialOperand);
             }
         }
@@ -1070,17 +1110,20 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.WITHIN)) {
             BinarySpatialOperand withinBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.WITHIN, wkt);
+                    SpatialOperatorNameType.WITHIN,
+                    wkt);
             if (withinBinarySpatialOperand != BinarySpatialOperand.NONE) {
-                return cswFilterFactory
-                        .buildWithinGeospatialFilter(propertyName, wkt, withinBinarySpatialOperand);
+                return cswFilterFactory.buildWithinGeospatialFilter(propertyName,
+                        wkt,
+                        withinBinarySpatialOperand);
             }
         }
 
         if (isSpatialOperationSupported(SpatialOperatorNameType.CONTAINS)) {
             LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.CONTAINS.name());
             BinarySpatialOperand containsBinarySpatialOperand = useGeometryOrEnvelope(
-                    SpatialOperatorNameType.CONTAINS, wkt);
+                    SpatialOperatorNameType.CONTAINS,
+                    wkt);
             if (containsBinarySpatialOperand != BinarySpatialOperand.NONE) {
                 return contains(propertyName, wkt);
             }
@@ -1094,7 +1137,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     @Override
     public FilterType during(String propertyName, Date startDate, Date endDate) {
         return cswFilterFactory.buildPropertyIsBetweenFilter(mapPropertyName(propertyName),
-                convertDateToIso8601Format(startDate), convertDateToIso8601Format(endDate));
+                convertDateToIso8601Format(startDate),
+                convertDateToIso8601Format(endDate));
     }
 
     @Override
@@ -1198,7 +1242,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
         LOGGER.debug(
                 "Attempting to determine if geometry operand [{}] is supported for spatial operator [{}].",
-                wktGeometryOperand, spatialOperatorName.toString());
+                wktGeometryOperand,
+                spatialOperatorName.toString());
 
         /**
          * Check if the geometry operand is supported for the specific spatial operation. For
@@ -1210,7 +1255,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             LOGGER.debug("Geometry operand from Get Capabilities Response: {}", localPart);
             if (wktGeometryOperand.equalsIgnoreCase(localPart)) {
                 isGeometrySupported = true;
-            } else if (BinarySpatialOperand.ENVELOPE.toString().equalsIgnoreCase(localPart)) {
+            } else if (BinarySpatialOperand.ENVELOPE.toString()
+                    .equalsIgnoreCase(localPart)) {
                 isEnvelopeSupported = true;
             }
         }
@@ -1227,7 +1273,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
                         localPart);
                 if (wktGeometryOperand.equalsIgnoreCase(localPart)) {
                     isGeometrySupported = true;
-                } else if (BinarySpatialOperand.ENVELOPE.toString().equalsIgnoreCase(localPart)) {
+                } else if (BinarySpatialOperand.ENVELOPE.toString()
+                        .equalsIgnoreCase(localPart)) {
                     isEnvelopeSupported = true;
                 }
             }
@@ -1275,7 +1322,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         LOGGER.debug("Buffering WKT {} by distance {} meter(s).", wkt, distance);
         Geometry geometry = getGeometryFromWkt(wkt);
         double bufferInDegrees = metersToDegrees(distance);
-        LOGGER.debug("Buffering {} by {} degree(s).", geometry.getClass().getSimpleName(),
+        LOGGER.debug("Buffering {} by {} degree(s).",
+                geometry.getClass()
+                        .getSimpleName(),
                 bufferInDegrees);
         Geometry bufferedGeometry = geometry.buffer(bufferInDegrees);
         String bufferedWkt = new WKTWriter().write(bufferedGeometry);
@@ -1320,13 +1369,12 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
      *            The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
      */
     private final void updateAllowedOperations(FilterCapabilities filterCapabilities) {
-        comparisonOps = Collections.newSetFromMap(
-                new ConcurrentHashMap<ComparisonOperatorType, Boolean>(
-                        new EnumMap<ComparisonOperatorType, Boolean>(
-                                ComparisonOperatorType.class)));
+        comparisonOps =
+                Collections.newSetFromMap(new ConcurrentHashMap<ComparisonOperatorType, Boolean>(new EnumMap<ComparisonOperatorType, Boolean>(
+                        ComparisonOperatorType.class)));
 
-        spatialOps = new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(
-                new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
+        spatialOps =
+                new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
                         SpatialOperatorNameType.class));
         logicalOps = true;
         if (null == filterCapabilities) {
@@ -1337,8 +1385,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         ScalarCapabilitiesType scalarCapabilities = filterCapabilities.getScalarCapabilities();
 
         if (null != scalarCapabilities) {
-            ComparisonOperatorsType comparisonOperators = scalarCapabilities
-                    .getComparisonOperators();
+            ComparisonOperatorsType comparisonOperators =
+                    scalarCapabilities.getComparisonOperators();
             if (null != comparisonOperators) { // filter out nulls
                 for (ComparisonOperatorType comp : comparisonOperators.getComparisonOperator()) {
                     if (null != comp) {
@@ -1367,8 +1415,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     protected boolean isPropertyQueryable(String propertyName) {
         if (propertyName != null && (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT) || (
-                metacardType.getAttributeDescriptor(propertyName) != null && metacardType
-                        .getAttributeDescriptor(propertyName).isIndexed()))) {
+                metacardType.getAttributeDescriptor(propertyName) != null
+                        && metacardType.getAttributeDescriptor(propertyName)
+                        .isIndexed()))) {
             LOGGER.debug("Property [{}] is queryable.", propertyName);
             return true;
         }
@@ -1386,8 +1435,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     public void setSpatialOps(SpatialOperatorsType spatialOperators) {
-        spatialOps = new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(
-                new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
+        spatialOps =
+                new ConcurrentHashMap<SpatialOperatorNameType, SpatialOperatorType>(new EnumMap<SpatialOperatorNameType, SpatialOperatorType>(
                         SpatialOperatorNameType.class));
 
         for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {

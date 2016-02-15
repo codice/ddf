@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -68,7 +68,8 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
         Principal principal = parameters.getPrincipal();
         boolean needsRoleClaim = false;
         for (Claim claim : claims) {
-            if (roleClaimType.equals(claim.getClaimType().toString())) {
+            if (roleClaimType.equals(claim.getClaimType()
+                    .toString())) {
                 needsRoleClaim = true;
             } else {
                 LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
@@ -123,7 +124,8 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
                 // loc
                 // state
                 // country
-                String[] strArr = st.nextToken().split("=");
+                String[] strArr = st.nextToken()
+                        .split("=");
                 if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
                     user = strArr[1];
                     break;
@@ -151,10 +153,10 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {
-        if (propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation
-                .equals(this.propertyFileLocation)) {
-            userMapping = PropertiesLoader
-                    .toMap(PropertiesLoader.loadProperties(propertyFileLocation));
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
+                && !propertyFileLocation.equals(this.propertyFileLocation)) {
+            userMapping = PropertiesLoader.toMap(PropertiesLoader.loadProperties(
+                    propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }

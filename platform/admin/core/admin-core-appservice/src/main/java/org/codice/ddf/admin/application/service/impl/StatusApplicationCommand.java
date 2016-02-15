@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -40,7 +40,8 @@ public class StatusApplicationCommand extends AbstractApplicationCommand {
         if (application != null) {
             ApplicationStatus appStatus = applicationService.getApplicationStatus(application);
             console.println(application.getName());
-            console.println("\nCurrent State is: " + appStatus.getState().toString());
+            console.println("\nCurrent State is: " + appStatus.getState()
+                    .toString());
 
             console.println("\nFeatures Located within this Application:");
             for (Feature curFeature : application.getFeatures()) {
@@ -48,29 +49,47 @@ public class StatusApplicationCommand extends AbstractApplicationCommand {
             }
 
             console.println("\nRequired Features Not Started");
-            if (appStatus.getErrorFeatures().isEmpty()) {
-                console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+            if (appStatus.getErrorFeatures()
+                    .isEmpty()) {
+                console.print(Ansi.ansi()
+                        .fg(Ansi.Color.GREEN)
+                        .toString());
                 console.println("\tNONE");
-                console.print(Ansi.ansi().reset().toString());
+                console.print(Ansi.ansi()
+                        .reset()
+                        .toString());
             } else {
                 for (Feature curFeature : appStatus.getErrorFeatures()) {
-                    console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
+                    console.print(Ansi.ansi()
+                            .fg(Ansi.Color.RED)
+                            .toString());
                     console.println("\t" + curFeature.getName());
-                    console.print(Ansi.ansi().reset().toString());
+                    console.print(Ansi.ansi()
+                            .reset()
+                            .toString());
                 }
             }
 
             console.println("\nRequired Bundles Not Started");
-            if (appStatus.getErrorBundles().isEmpty()) {
-                console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+            if (appStatus.getErrorBundles()
+                    .isEmpty()) {
+                console.print(Ansi.ansi()
+                        .fg(Ansi.Color.GREEN)
+                        .toString());
                 console.println("\tNONE");
-                console.print(Ansi.ansi().reset().toString());
+                console.print(Ansi.ansi()
+                        .reset()
+                        .toString());
             } else {
                 for (Bundle curBundle : appStatus.getErrorBundles()) {
-                    console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
+                    console.print(Ansi.ansi()
+                            .fg(Ansi.Color.RED)
+                            .toString());
                     console.println(
                             "\t[" + curBundle.getBundleId() + "]\t" + curBundle.getSymbolicName());
-                    console.print(Ansi.ansi().reset().toString());
+                    console.print(Ansi.ansi()
+                            .reset()
+                            .toString());
                 }
             }
         } else {

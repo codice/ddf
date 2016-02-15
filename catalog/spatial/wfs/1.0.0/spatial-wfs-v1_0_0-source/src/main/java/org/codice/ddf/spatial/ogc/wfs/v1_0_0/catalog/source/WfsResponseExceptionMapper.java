@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
@@ -52,20 +51,23 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
                 }
                 if (msg != null) {
                     try {
-                        JAXBElementProvider<ServiceExceptionReport> provider = new JAXBElementProvider<ServiceExceptionReport>();
+                        JAXBElementProvider<ServiceExceptionReport> provider =
+                                new JAXBElementProvider<ServiceExceptionReport>();
                         Unmarshaller um = provider.getJAXBContext(ServiceExceptionReport.class,
-                                ServiceExceptionReport.class).createUnmarshaller();
-                        ServiceExceptionReport report = (ServiceExceptionReport) um
-                                .unmarshal(new StringReader(msg));
+                                ServiceExceptionReport.class)
+                                .createUnmarshaller();
+                        ServiceExceptionReport report =
+                                (ServiceExceptionReport) um.unmarshal(new StringReader(msg));
                         wfsEx = convertToWfsException(report);
                     } catch (JAXBException e) {
                         wfsEx = new WfsException("Error parsing Response: " + msg, e);
                     }
                 }
             } else {
-                wfsEx = new WfsException(
-                        "Error reading response, entity type not understood: " + response
-                                .getEntity().getClass().getName());
+                wfsEx = new WfsException("Error reading response, entity type not understood: "
+                        + response.getEntity()
+                        .getClass()
+                        .getName());
             }
             if (wfsEx != null) {
                 wfsEx.setHttpStatus(response.getStatus());
@@ -79,8 +81,8 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
     private WfsException convertToWfsException(ServiceExceptionReport report) {
 
         WfsException wfsException = null;
-        List<ServiceExceptionType> list = new ArrayList<ServiceExceptionType>(
-                report.getServiceException());
+        List<ServiceExceptionType> list =
+                new ArrayList<ServiceExceptionType>(report.getServiceException());
 
         if (list.size() > 0) {
             Collections.reverse(list);

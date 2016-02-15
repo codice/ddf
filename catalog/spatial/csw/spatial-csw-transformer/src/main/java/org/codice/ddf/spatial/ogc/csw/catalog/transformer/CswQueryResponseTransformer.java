@@ -170,7 +170,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         }
 
         for (Map.Entry<String, String> entry : DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getPrefixToUriMapping().entrySet()) {
+                .getPrefixToUriMapping()
+                .entrySet()) {
             writer.addAttribute(XML_PREFIX + entry.getKey(), entry.getValue());
         }
 
@@ -187,7 +188,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
             writer.startNode(SEARCH_STATUS_QNAME);
             writer.addAttribute(TIMESTAMP_ATTRIBUTE,
-                    ISODateTimeFormat.dateTime().print(new DateTime()));
+                    ISODateTimeFormat.dateTime()
+                            .print(new DateTime()));
             writer.endNode();
 
             writer.startNode(SEARCH_RESULTS_QNAME);
@@ -202,13 +204,14 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             }
 
-
             writer.addAttribute(RECORD_SCHEMA_ATTRIBUTE, cswRecordCollection.getOutputSchema());
 
-            if (cswRecordCollection.getElementSetType() != null && StringUtils
-                    .isNotBlank(cswRecordCollection.getElementSetType().value())) {
+            if (cswRecordCollection.getElementSetType() != null && StringUtils.isNotBlank(
+                    cswRecordCollection.getElementSetType()
+                            .value())) {
                 writer.addAttribute(ELEMENT_SET_ATTRIBUTE,
-                        cswRecordCollection.getElementSetType().value());
+                        cswRecordCollection.getElementSetType()
+                                .value());
             }
         }
 
@@ -216,7 +219,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             arguments.put(CswConstants.OMIT_XML_DECLARATION, Boolean.TRUE);
 
             String metacardsString = multiThreadedMarshal(results,
-                    cswRecordCollection.getOutputSchema(), arguments);
+                    cswRecordCollection.getOutputSchema(),
+                    arguments);
             writer.setRawValue(metacardsString);
         }
 
@@ -246,8 +250,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             for (Result result : results) {
                 final Metacard mc = result.getMetacard();
 
-                final MetacardTransformer transformer = metacardTransformerManager
-                        .getTransformerBySchema(recordSchema);
+                final MetacardTransformer transformer =
+                        metacardTransformerManager.getTransformerBySchema(recordSchema);
 
                 if (transformer == null) {
                     throw new CatalogTransformerException(
@@ -297,14 +301,15 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             throw new IllegalArgumentException("Null argument map.");
         } else if (null == sourceResponse.getResults()) {
             throw new IllegalArgumentException("Null results list.");
-        } else if (!isByIdQuery(arguments) && null == arguments
-                .get(CswConstants.RESULT_TYPE_PARAMETER)) {
+        } else if (!isByIdQuery(arguments)
+                && null == arguments.get(CswConstants.RESULT_TYPE_PARAMETER)) {
             // An exception is thrown only if the query isn't by ID (i.e. it's not a GetRecordById
             // request) because GetRecordById does not use the ResultType attribute.
             throw new IllegalArgumentException("Null result type argument.");
         } else if (null == sourceResponse.getRequest()) {
             throw new IllegalArgumentException("Null source response query request.");
-        } else if (null == sourceResponse.getRequest().getQuery()) {
+        } else if (null == sourceResponse.getRequest()
+                .getQuery()) {
             throw new IllegalArgumentException("Null source response query.");
         }
 
@@ -316,8 +321,11 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         CswRecordCollection recordCollection = new CswRecordCollection();
 
         recordCollection.setNumberOfRecordsMatched(sourceResponse.getHits());
-        recordCollection.setNumberOfRecordsReturned(sourceResponse.getResults().size());
-        recordCollection.setStartPosition(sourceResponse.getRequest().getQuery().getStartIndex());
+        recordCollection.setNumberOfRecordsReturned(sourceResponse.getResults()
+                .size());
+        recordCollection.setStartPosition(sourceResponse.getRequest()
+                .getQuery()
+                .getStartIndex());
 
         Object elementSetTypeArg = arguments.get(CswConstants.ELEMENT_SET_TYPE);
         if (elementSetTypeArg instanceof ElementSetType) {
@@ -388,8 +396,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 LOGGER.warn("Failed to set timestamp on Acknowledgement, Exception {}", e);
             }
 
-            JAXBElement<AcknowledgementType> jaxBAck = new ObjectFactory()
-                    .createAcknowledgement(ack);
+            JAXBElement<AcknowledgementType> jaxBAck =
+                    new ObjectFactory().createAcknowledgement(ack);
             marshaller.marshal(jaxBAck, byteArrayOutputStream);
             return byteArrayOutputStream;
         } catch (JAXBException e) {
@@ -398,7 +406,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
     }
 
     public void init() {
-        int numThreads = Runtime.getRuntime().availableProcessors();
+        int numThreads = Runtime.getRuntime()
+                .availableProcessors();
         LOGGER.debug(QUERY_POOL_NAME + " size: {}", numThreads);
 
         /*
@@ -411,8 +420,12 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
               but *can* lead to artificially low throughput.
             - todo: externalize config to support runtime tuning.
         */
-        queryExecutor = new ThreadPoolExecutor(numThreads, numThreads, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingDeque<Runnable>(BLOCKING_Q_INITIAL_SIZE), new CswThreadFactory(),
+        queryExecutor = new ThreadPoolExecutor(numThreads,
+                numThreads,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingDeque<Runnable>(BLOCKING_Q_INITIAL_SIZE),
+                new CswThreadFactory(),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
         queryExecutor.prestartAllCoreThreads();

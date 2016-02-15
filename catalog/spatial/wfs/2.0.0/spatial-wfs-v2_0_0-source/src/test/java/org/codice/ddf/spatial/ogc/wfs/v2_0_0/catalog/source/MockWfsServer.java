@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
@@ -58,7 +57,8 @@ public class MockWfsServer {
             value.setValue("TRUE");
             domain.setDefaultValue(value);
             domain.setName(constraint.toString());
-            conformance.getConstraint().add(domain);
+            conformance.getConstraint()
+                    .add(domain);
         }
         capabilities.setConformance(conformance);
 
@@ -68,7 +68,9 @@ public class MockWfsServer {
         for (COMPARISON_OPERATORS compOp : COMPARISON_OPERATORS.values()) {
             ComparisonOperatorType operator = new ComparisonOperatorType();
             operator.setName(compOp.toString());
-            scalar.getComparisonOperators().getComparisonOperator().add(operator);
+            scalar.getComparisonOperators()
+                    .getComparisonOperator()
+                    .add(operator);
         }
         capabilities.setScalarCapabilities(scalar);
 
@@ -77,18 +79,22 @@ public class MockWfsServer {
         for (SPATIAL_OPERATORS spatialOp : SPATIAL_OPERATORS.values()) {
             SpatialOperatorType operator = new SpatialOperatorType();
             operator.setName(spatialOp.toString());
-            spatial.getSpatialOperators().getSpatialOperator().add(operator);
+            spatial.getSpatialOperators()
+                    .getSpatialOperator()
+                    .add(operator);
         }
 
         GeometryOperandsType geometryOperands = new GeometryOperandsType();
 
-        List<QName> qnames = Arrays
-                .asList(Wfs20Constants.POINT, Wfs20Constants.ENVELOPE, Wfs20Constants.POLYGON,
-                        Wfs20Constants.LINESTRING);
+        List<QName> qnames = Arrays.asList(Wfs20Constants.POINT,
+                Wfs20Constants.ENVELOPE,
+                Wfs20Constants.POLYGON,
+                Wfs20Constants.LINESTRING);
         for (QName qName : qnames) {
             GeometryOperand operand = new GeometryOperand();
             operand.setName(qName);
-            geometryOperands.getGeometryOperand().add(operand);
+            geometryOperands.getGeometryOperand()
+                    .add(operand);
         }
         spatial.setGeometryOperands(geometryOperands);
         capabilities.setSpatialCapabilities(spatial);
@@ -98,16 +104,18 @@ public class MockWfsServer {
         for (TEMPORAL_OPERATORS temporalOp : TEMPORAL_OPERATORS.values()) {
             TemporalOperatorType operator = new TemporalOperatorType();
             operator.setName(temporalOp.toString());
-            temporal.getTemporalOperators().getTemporalOperator().add(operator);
+            temporal.getTemporalOperators()
+                    .getTemporalOperator()
+                    .add(operator);
         }
         TemporalOperandsType temporalOperands = new TemporalOperandsType();
-        List<QName> timeQNames = Arrays
-                .asList(new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimePeriod"),
-                        new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
+        List<QName> timeQNames = Arrays.asList(new QName(Wfs20Constants.GML_3_2_NAMESPACE,
+                "TimePeriod"), new QName(Wfs20Constants.GML_3_2_NAMESPACE, "TimeInstant"));
         for (QName qName : timeQNames) {
             TemporalOperand operand = new TemporalOperand();
             operand.setName(qName);
-            temporalOperands.getTemporalOperand().add(operand);
+            temporalOperands.getTemporalOperand()
+                    .add(operand);
         }
         temporal.setTemporalOperands(temporalOperands);
         capabilities.setTemporalCapabilities(temporal);

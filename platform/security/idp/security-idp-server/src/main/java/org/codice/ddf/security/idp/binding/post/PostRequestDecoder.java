@@ -39,8 +39,10 @@ public class PostRequestDecoder implements RequestDecoder {
         if (StringUtils.isEmpty(samlRequest)) {
             throw new IllegalArgumentException("Missing SAMLRequest on IdP request.");
         }
-        String decodedRequest = new String(Base64.getMimeDecoder().decode(samlRequest), StandardCharsets.UTF_8);
-        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes(StandardCharsets.UTF_8));
+        String decodedRequest = new String(Base64.getMimeDecoder()
+                .decode(samlRequest), StandardCharsets.UTF_8);
+        ByteArrayInputStream tokenStream = new ByteArrayInputStream(decodedRequest.getBytes(
+                StandardCharsets.UTF_8));
         Document authnDoc;
         try {
             authnDoc = StaxUtils.read(new InputStreamReader(tokenStream, "UTF-8"));

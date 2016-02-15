@@ -24,10 +24,12 @@ public class ResponseWrapper {
     }
 
     public int getStatusCode() {
-        return response.getStatusLine().getStatusCode();
+        return response.getStatusLine()
+                .getStatusCode();
     }
 
     public String getStatusPhrase() {
-        return response.getStatusLine().getReasonPhrase();
+        return response.getStatusLine()
+                .getReasonPhrase();
     }
 }

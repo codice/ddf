@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -86,7 +86,8 @@ public class TransformerManager {
             Object propertyObject = serviceRef.getProperty(property);
             if (propertyObject != null && propertyObject instanceof String) {
                 if (value.equals((String) propertyObject)) {
-                    LOGGER.trace("Found transformer for property: {} == value: {}", property,
+                    LOGGER.trace("Found transformer for property: {} == value: {}",
+                            property,
                             value);
                     T serviceObject = (T) getBundleContext().getService(serviceRef);
                     LOGGER.trace("Transformer is {}", serviceObject);
@@ -99,6 +100,7 @@ public class TransformerManager {
     }
 
     protected BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+        return FrameworkUtil.getBundle(this.getClass())
+                .getBundleContext();
     }
 }

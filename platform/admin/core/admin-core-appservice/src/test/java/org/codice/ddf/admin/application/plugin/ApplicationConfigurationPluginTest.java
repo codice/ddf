@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,8 +46,8 @@ public class ApplicationConfigurationPluginTest {
     private static final String TEST_ASSOCATION_2 = "Test2";
 
     /** static for the assocations test.*/
-    private static final List<String> ORIGINAL_APP_ASSOCIATIONS = new LinkedList<String>(
-            Arrays.asList(TEST_ASSOCATION_1, TEST_ASSOCATION_2));
+    private static final List<String> ORIGINAL_APP_ASSOCIATIONS =
+            new LinkedList<String>(Arrays.asList(TEST_ASSOCATION_1, TEST_ASSOCATION_2));
 
     /**
      * Will test the abstractconfigurationplugin by creating a new class that extends it, setting values to it
@@ -59,13 +59,17 @@ public class ApplicationConfigurationPluginTest {
         TestPlugin plugin2 = new TestPlugin();
 
         assertEquals(plugin.getDisplayName(), DISPLAY_NAME_TEST);
-        assertFalse(0 == plugin.getID().compareTo(plugin2.getID()));
-        assertEquals(plugin.getIframeLocation().toString(), IFRAME_LOCATION_TEST);
+        assertFalse(0 == plugin.getID()
+                .compareTo(plugin2.getID()));
+        assertEquals(plugin.getIframeLocation()
+                .toString(), IFRAME_LOCATION_TEST);
         assertEquals(plugin.getAssocations(), ORIGINAL_APP_ASSOCIATIONS);
 
         Map<String, Object> constructedJSON = new HashMap<String, Object>();
         constructedJSON.put(ApplicationPlugin.DISPLAY_NAME_KEY, plugin.getDisplayName());
-        constructedJSON.put(ApplicationPlugin.ID_KEY, plugin.getID().toString());
+        constructedJSON.put(ApplicationPlugin.ID_KEY,
+                plugin.getID()
+                        .toString());
         constructedJSON.put(ApplicationPlugin.IFRAME_LOCATION_KEY, plugin.getIframeLocation());
         constructedJSON.put(ApplicationPlugin.APPLICATION_ASSOCIATION_KEY, plugin.getAssocations());
 

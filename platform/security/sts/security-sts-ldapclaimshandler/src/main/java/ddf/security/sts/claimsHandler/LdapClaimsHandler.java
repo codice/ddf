@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -68,10 +68,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {
-        if (propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation
-                .equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(
-                    AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
+                && !propertyFileLocation.equals(this.propertyFileLocation)) {
+            setClaimsLdapAttributeMapping(AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -100,9 +99,10 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             List<String> searchAttributeList = new ArrayList<String>();
             for (Claim claim : claims) {
                 if (getClaimsLdapAttributeMapping().keySet()
-                        .contains(claim.getClaimType().toString())) {
-                    searchAttributeList.add(getClaimsLdapAttributeMapping()
-                            .get(claim.getClaimType().toString()));
+                        .contains(claim.getClaimType()
+                                .toString())) {
+                    searchAttributeList.add(getClaimsLdapAttributeMapping().get(claim.getClaimType()
+                            .toString()));
                 } else {
                     LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
                 }
@@ -112,23 +112,26 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             searchAttributes = searchAttributeList.toArray(new String[searchAttributeList.size()]);
 
             LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
-                    this.getUserBaseDN(), filter.toString());
+                    this.getUserBaseDN(),
+                    filter.toString());
             connection = connectionFactory.getConnection();
             if (connection != null) {
-                BindResult bindResult = connection
-                        .bind(bindUserDN, bindUserCredentials.toCharArray());
+                BindResult bindResult = connection.bind(bindUserDN,
+                        bindUserCredentials.toCharArray());
                 if (bindResult.isSuccess()) {
-                    ConnectionEntryReader entryReader = connection
-                            .search((this.getUserBaseDN() == null) ? "" : this.getUserBaseDN(),
-                                    SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
+                    ConnectionEntryReader entryReader = connection.search((this.getUserBaseDN()
+                                    == null) ? "" : this.getUserBaseDN(),
+                            SearchScope.WHOLE_SUBTREE,
+                            filter.toString(),
+                            searchAttributes);
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
                         entry = entryReader.readEntry();
                         for (Claim claim : claims) {
                             URI claimType = claim.getClaimType();
-                            String ldapAttribute = getClaimsLdapAttributeMapping()
-                                    .get(claimType.toString());
+                            String ldapAttribute =
+                                    getClaimsLdapAttributeMapping().get(claimType.toString());
                             Attribute attr = entry.getAttribute(ldapAttribute);
                             if (attr == null) {
                                 LOGGER.trace("Claim '{}' is null", claim.getClaimType());

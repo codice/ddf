@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -100,18 +100,31 @@ public class TestXmlParserConfigurator {
     @Test
     public void testProperties() {
         assertNotNull(pc.getProperties());
-        assertEquals(0, pc.getProperties().size());
+        assertEquals(0,
+                pc.getProperties()
+                        .size());
 
         pc.addProperty("aaa", 123);
-        assertEquals(1, pc.getProperties().size());
-        assertEquals(123, pc.getProperties().get("aaa"));
+        assertEquals(1,
+                pc.getProperties()
+                        .size());
+        assertEquals(123,
+                pc.getProperties()
+                        .get("aaa"));
         pc.addProperty(null, "This will not add");
-        assertEquals(1, pc.getProperties().size());
+        assertEquals(1,
+                pc.getProperties()
+                        .size());
 
         pc.addProperties(ImmutableMap.<String, Object>of("bbb", 2, "ccc", 3));
-        assertEquals(3, pc.getProperties().size());
-        assertTrue(pc.getProperties().containsKey("aaa"));
-        assertTrue(pc.getProperties().containsKey("bbb"));
-        assertTrue(pc.getProperties().containsKey("ccc"));
+        assertEquals(3,
+                pc.getProperties()
+                        .size());
+        assertTrue(pc.getProperties()
+                .containsKey("aaa"));
+        assertTrue(pc.getProperties()
+                .containsKey("bbb"));
+        assertTrue(pc.getProperties()
+                .containsKey("ccc"));
     }
 }

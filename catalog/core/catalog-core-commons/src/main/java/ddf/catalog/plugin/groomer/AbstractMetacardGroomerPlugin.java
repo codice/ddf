@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,14 +37,15 @@ import ddf.catalog.plugin.StopProcessingException;
  */
 public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractMetacardGroomerPlugin.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AbstractMetacardGroomerPlugin.class);
 
     @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
 
-        if (input == null || input.getMetacards() == null || input.getMetacards().isEmpty()) {
+        if (input == null || input.getMetacards() == null || input.getMetacards()
+                .isEmpty()) {
             return input;
         }
 
@@ -63,7 +64,8 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
 
-        if (input == null || input.getUpdates() == null || input.getUpdates().isEmpty()) {
+        if (input == null || input.getUpdates() == null || input.getUpdates()
+                .isEmpty()) {
             return input;
         }
 

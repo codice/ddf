@@ -58,11 +58,12 @@ public class NotActiveApplicationsCompleterTest {
         when(testStatus.getState()).thenReturn(testState);
         when(testApp.getName()).thenReturn("TestApp");
 
-        NotActiveApplicationsCompleter activeApplicationsCompleter = new NotActiveApplicationsCompleter(
-                testAppService);
+        NotActiveApplicationsCompleter activeApplicationsCompleter =
+                new NotActiveApplicationsCompleter(testAppService);
 
         assertThat("If the return value is -1, then the expected match was not found.",
-                activeApplicationsCompleter.complete("Tes", 2, new ArrayList()), is(not(-1)));
+                activeApplicationsCompleter.complete("Tes", 2, new ArrayList()),
+                is(not(-1)));
     }
 
     /**
@@ -71,8 +72,8 @@ public class NotActiveApplicationsCompleterTest {
      */
     @Test
     public void testNotActiveApplicationsCompleterNullAppService() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -80,16 +81,16 @@ public class NotActiveApplicationsCompleterTest {
 
         ApplicationService testAppService = null;
 
-        NotActiveApplicationsCompleter notActiveApplicationsCompleter = new NotActiveApplicationsCompleter(
-                testAppService);
+        NotActiveApplicationsCompleter notActiveApplicationsCompleter =
+                new NotActiveApplicationsCompleter(testAppService);
 
         notActiveApplicationsCompleter.complete("Tes", 2, new ArrayList());
-
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(NO_APP_SERV);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(NO_APP_SERV);
             }
         }));
     }

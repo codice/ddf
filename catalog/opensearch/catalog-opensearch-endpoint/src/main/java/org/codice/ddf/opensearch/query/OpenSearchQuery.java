@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -64,8 +64,8 @@ public class OpenSearchQuery implements Query {
     // TODO remove this and only use filterbuilder
     public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(OpenSearchQuery.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(OpenSearchQuery.class));
 
     private final FilterBuilder filterBuilder;
 
@@ -158,8 +158,8 @@ public class OpenSearchQuery implements Query {
         KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
         // translate the search terms into an abstract syntax tree
-        ParsingResult<ASTNode> result = new RecoveringParseRunner(parser.inputPhrase())
-                .run(searchTerm);
+        ParsingResult<ASTNode> result = new RecoveringParseRunner(parser.inputPhrase()).run(
+                searchTerm);
 
         // make sure it's a good result before using it
         if (result.matched && !result.hasErrors()) {
@@ -190,19 +190,22 @@ public class OpenSearchQuery implements Query {
             int originalEndIndex = inputBuffer.getOriginalIndex(parseError.getEndIndex()) - 1;
             int originalStartIndex = inputBuffer.getOriginalIndex(parseError.getStartIndex()) - 1;
 
-            if (parseError.getClass().isAssignableFrom(InvalidInputError.class)) {
+            if (parseError.getClass()
+                    .isAssignableFrom(InvalidInputError.class)) {
                 // Combine all InvalidInputError's
                 if (invalidInputLineBuilder == null) {
                     invalidInputLineBuilder = getCaratLineStringBuilder(parsedLine);
                 }
 
-                addCaretsToStringBuilder(invalidInputLineBuilder, originalEndIndex,
+                addCaretsToStringBuilder(invalidInputLineBuilder,
+                        originalEndIndex,
                         originalStartIndex);
             } else {
                 // output other types of errors separately
                 parsingErrorBuilder.append("\nError found in: \n");
 
-                addCaretsToStringBuilder(otherErrorLineBuilder, originalEndIndex,
+                addCaretsToStringBuilder(otherErrorLineBuilder,
+                        originalEndIndex,
                         originalStartIndex);
 
                 parsingErrorBuilder.append("\n\t");
@@ -215,10 +218,9 @@ public class OpenSearchQuery implements Query {
         if (invalidInputLineBuilder != null) {
             // if the first and last occurrence of CARET aren't the same, there are more than one in
             // the string
-            parsingErrorBuilder
-                    .append("\nInvalid character" + ((invalidInputLineBuilder.indexOf(CARET)
-                            != invalidInputLineBuilder.lastIndexOf(CARET)) ? "s" : "")
-                            + " found in: \n");
+            parsingErrorBuilder.append("\nInvalid character" + ((invalidInputLineBuilder.indexOf(
+                    CARET) != invalidInputLineBuilder.lastIndexOf(CARET)) ? "s" : "")
+                    + " found in: \n");
             parsingErrorBuilder.append("\n\t");
             parsingErrorBuilder.append(parsedLine);
             parsingErrorBuilder.append("\n\t");
@@ -237,11 +239,12 @@ public class OpenSearchQuery implements Query {
                 // generate a filter for each selector
                 for (String selector : selectors.split(",")) {
                     if (filter == null) {
-                        filter = keywordFilterGenerator
-                                .getFilterFromASTNode(result.resultValue, selector);
+                        filter = keywordFilterGenerator.getFilterFromASTNode(result.resultValue,
+                                selector);
                     } else {
-                        filter = filterBuilder.anyOf(filter, keywordFilterGenerator
-                                .getFilterFromASTNode(result.resultValue, selector));
+                        filter = filterBuilder.anyOf(filter,
+                                keywordFilterGenerator.getFilterFromASTNode(result.resultValue,
+                                        selector));
                     }
                 }
             } else {
@@ -257,8 +260,7 @@ public class OpenSearchQuery implements Query {
 
     private void addCaretsToStringBuilder(StringBuilder stringBuilder, int endIndex,
             int startIndex) {
-        for (int insertCaretIndex = startIndex + 1;
-                insertCaretIndex <= endIndex; insertCaretIndex++) {
+        for (int insertCaretIndex = startIndex + 1; insertCaretIndex <= endIndex; insertCaretIndex++) {
             stringBuilder.replace(insertCaretIndex, insertCaretIndex + 1, CARET);
         }
     }
@@ -279,10 +281,12 @@ public class OpenSearchQuery implements Query {
 
         // If either start date OR end date is specified and non-empty, then
         // a temporal filter can be created
-        if ((dateStart != null && !dateStart.trim().isEmpty()) || (dateEnd != null && !dateEnd
-                .trim().isEmpty())) {
+        if ((dateStart != null && !dateStart.trim()
+                .isEmpty()) || (dateEnd != null && !dateEnd.trim()
+                .isEmpty())) {
             temporalFilter = new TemporalFilter(dateStart, dateEnd);
-        } else if (dateOffset != null && !dateOffset.trim().isEmpty()) {
+        } else if (dateOffset != null && !dateOffset.trim()
+                .isEmpty()) {
             temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
         }
 
@@ -297,10 +301,10 @@ public class OpenSearchQuery implements Query {
 
         if (temporalFilter != null) {
             // t1.start < timeType instance < t1.end
-            Instant startInstant = new DefaultInstant(
-                    new DefaultPosition(temporalFilter.getStartDate()));
-            Instant endInstant = new DefaultInstant(
-                    new DefaultPosition(temporalFilter.getEndDate()));
+            Instant startInstant =
+                    new DefaultInstant(new DefaultPosition(temporalFilter.getStartDate()));
+            Instant endInstant =
+                    new DefaultInstant(new DefaultPosition(temporalFilter.getEndDate()));
             Period period = new DefaultPeriod(startInstant, endInstant);
 
             Filter filter = FILTER_FACTORY.during(FILTER_FACTORY.property(Metacard.MODIFIED),
@@ -333,9 +337,10 @@ public class OpenSearchQuery implements Query {
         Geometry geometry = distanceFilter.getGeometry();
 
         if (geometry != null) {
-            Filter filter = FILTER_FACTORY
-                    .dwithin(Metacard.ANY_GEO, geometry, Double.parseDouble(radius),
-                            UomOgcMapping.METRE.name());
+            Filter filter = FILTER_FACTORY.dwithin(Metacard.ANY_GEO,
+                    geometry,
+                    Double.parseDouble(radius),
+                    UomOgcMapping.METRE.name());
             LOGGER.debug("Adding spatial filter");
             filters.add(filter);
         }
@@ -370,11 +375,12 @@ public class OpenSearchQuery implements Query {
             for (String version : typeVersions) {
                 Filter versionFilter = null;
                 if (version.contains("*")) {
-                    versionFilter = FILTER_FACTORY
-                            .like(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION), version);
+                    versionFilter =
+                            FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
+                                    version);
                 } else {
-                    versionFilter = FILTER_FACTORY
-                            .equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
+                    versionFilter =
+                            FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
                                     FILTER_FACTORY.literal(version));
                 }
                 typeVersionPairsFilters.add(FILTER_FACTORY.and(typeFilter, versionFilter));

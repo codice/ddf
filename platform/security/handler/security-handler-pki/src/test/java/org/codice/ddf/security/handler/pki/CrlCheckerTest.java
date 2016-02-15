@@ -129,7 +129,8 @@ public class CrlCheckerTest {
             crlChecker.setCrlLocation(crlPropertyValue);
         } else {
             String crlRelativePath = "/" + prop.getProperty(crlChecker.CRL_PROPERTY_KEY);
-            String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath).getPath();
+            String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath)
+                    .getPath();
             crlChecker.setCrlLocation(crlAbsolutePath);
         }
 
@@ -144,7 +145,8 @@ public class CrlCheckerTest {
      */
     private X509Certificate[] extractX509CertsFromString(String certString)
             throws CertificateException {
-        InputStream stream = new ByteArrayInputStream(Base64.getMimeDecoder().decode(certString.getBytes()));
+        InputStream stream = new ByteArrayInputStream(Base64.getMimeDecoder()
+                .decode(certString.getBytes()));
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         X509Certificate cert = (X509Certificate) factory.generateCertificate(stream);
         X509Certificate[] certs = new X509Certificate[1];

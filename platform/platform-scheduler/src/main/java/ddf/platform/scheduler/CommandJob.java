@@ -82,7 +82,9 @@ public class CommandJob implements Job {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         CommandSession commandSession = null;
 
-        try (PrintStream output = new PrintStream(byteArrayOutputStream, false, StandardCharsets.UTF_8.name())) {
+        try (PrintStream output = new PrintStream(byteArrayOutputStream,
+                false,
+                StandardCharsets.UTF_8.name())) {
             commandSession = getCommandProcessor().createSession(null, output, output);
 
             if (commandInput != null) {
@@ -129,7 +131,8 @@ public class CommandJob implements Job {
     }
 
     protected CommandProcessor createCommandProcessor() {
-        return new SecuredCommandProcessorImpl(FrameworkUtil.getBundle(this.getClass()).getBundleContext());
+        return new SecuredCommandProcessorImpl(FrameworkUtil.getBundle(this.getClass())
+                .getBundleContext());
     }
 
     private String checkInput(JobExecutionContext context) throws CommandException {

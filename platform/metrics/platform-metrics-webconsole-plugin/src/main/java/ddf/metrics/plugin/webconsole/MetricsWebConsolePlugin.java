@@ -194,8 +194,9 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
             // String3 = display text for hyperlink, e.g., PNG
             // String4 = hyperlink for metric data in specific format, e.g.,
             // http://host:port/.../catalogQueries.png?dateOffset=900
-            Map<String, Map<String, Map<String, String>>> json = new TreeMap(
-                    (Map<String, Map<String, Map<String, String>>>) parser.parse(metricsList,
+            Map<String, Map<String, Map<String, String>>> json =
+                    new TreeMap((Map<String, Map<String, Map<String, String>>>) parser.parse(
+                            metricsList,
                             containerFactory));
             Iterator iter = json.entrySet()
                     .iterator();
@@ -351,8 +352,8 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 TrustManager[] tm = trustFactory.getTrustManagers();
                 params.setTrustManagers(tm);
 
-                KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(
-                        KeyManagerFactory.getDefaultAlgorithm());
+                KeyManagerFactory keyFactory =
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 keyFactory.init(keyStore, keyStorePassword.toCharArray());
                 KeyManager[] km = keyFactory.getKeyManagers();
                 params.setKeyManagers(km);
@@ -440,14 +441,16 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 DateMidnight startOfLastMonth = new DateMidnight(input.minusMonths(i)
                         .withDayOfMonth(1));
                 String startDate = urlEncodeDate(startOfLastMonth);
-                LOGGER.debug("Previous Month (start):  {}   (ms = {})", startDate,
+                LOGGER.debug("Previous Month (start):  {}   (ms = {})",
+                        startDate,
                         startOfLastMonth.getMillis());
 
                 DateTime endOfLastMonth = startOfLastMonth.plusMonths(1)
                         .toDateTime()
                         .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastMonth);
-                LOGGER.debug("Previous Month (end):  {}   (ms = {})", endOfLastMonth,
+                LOGGER.debug("Previous Month (end):  {}   (ms = {})",
+                        endOfLastMonth,
                         endOfLastMonth.getMillis());
 
                 startTableRow(pw, i);
@@ -470,14 +473,16 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin {
                 DateMidnight startOfLastYear = new DateMidnight(input.minusYears(1)
                         .withDayOfYear(1));
                 String startDate = urlEncodeDate(startOfLastYear);
-                LOGGER.debug("Previous Year (start):  {}   (ms = {})", startOfLastYear,
+                LOGGER.debug("Previous Year (start):  {}   (ms = {})",
+                        startOfLastYear,
                         startOfLastYear.getMillis());
 
                 DateTime endOfLastYear = startOfLastYear.plusYears(1)
                         .toDateTime()
                         .minus(1 /* millisecond */);
                 String endDate = urlEncodeDate(endOfLastYear);
-                LOGGER.debug("Previous Year (end):  {},   (ms = {})", endOfLastYear,
+                LOGGER.debug("Previous Year (end):  {},   (ms = {})",
+                        endOfLastYear,
                         endOfLastYear.getMillis());
 
                 String urlText = startOfLastYear.toString("yyyy");

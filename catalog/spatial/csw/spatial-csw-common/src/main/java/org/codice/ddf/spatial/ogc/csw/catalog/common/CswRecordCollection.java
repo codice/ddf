@@ -30,7 +30,6 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
  * CSW records returned in a GetRecords request.
  *
  * @author rodgersh
- *
  */
 public class CswRecordCollection {
 

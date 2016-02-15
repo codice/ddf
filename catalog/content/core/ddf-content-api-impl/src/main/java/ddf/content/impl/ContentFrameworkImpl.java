@@ -1,9 +1,9 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
  * version 3 of the License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
@@ -48,8 +48,8 @@ import ddf.content.storage.StorageProvider;
  * for content stored in the DDF Content Repository.
  */
 public class ContentFrameworkImpl implements ContentFramework {
-    private static final XLogger logger = new XLogger(
-            LoggerFactory.getLogger(ContentFrameworkImpl.class));
+    private static final XLogger logger =
+            new XLogger(LoggerFactory.getLogger(ContentFrameworkImpl.class));
 
     /**
      * The {@link List} of content plugins to execute on the ingest response after
@@ -101,11 +101,14 @@ public class ContentFrameworkImpl implements ContentFramework {
 
         // Recreate content item so can add GUID to request
         ContentItem incomingContentItem = createRequest.getContentItem();
-        String id = UUID.randomUUID().toString().replaceAll("-", "");
+        String id = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
         logger.debug("Created GUID: " + id);
         try {
             ContentItem contentItem = new IncomingContentItem(id,
-                    incomingContentItem.getInputStream(), incomingContentItem.getMimeTypeRawData());
+                    incomingContentItem.getInputStream(),
+                    incomingContentItem.getMimeTypeRawData());
             contentItem.setUri(incomingContentItem.getUri());
             createRequest = new CreateRequestImpl(contentItem, createRequest.getProperties());
         } catch (IOException e1) {
@@ -202,13 +205,14 @@ public class ContentFrameworkImpl implements ContentFramework {
         if (directive == Directive.STORE || directive == Directive.STORE_AND_PROCESS) {
             // Verify content item exists in content repository before trying to update it
             try {
-                ReadRequest readRequest = new ReadRequestImpl(
-                        updateRequest.getContentItem().getId(), null);
+                ReadRequest readRequest = new ReadRequestImpl(updateRequest.getContentItem()
+                        .getId(), null);
                 this.provider.read(readRequest);
             } catch (StorageException e) {
                 logger.info("File does not exist, cannot update, doing a create: ", e);
                 throw new ContentFrameworkException(
-                        "File does not exist, cannot update, doing a create: ", e);
+                        "File does not exist, cannot update, doing a create: ",
+                        e);
             } catch (Exception e) {
                 logger.warn("Content Provider error during update", e);
                 throw new ContentFrameworkException(
@@ -303,7 +307,8 @@ public class ContentFrameworkImpl implements ContentFramework {
                 // in it.
                 if (deleteResponse == null) {
                     deleteResponse = new DeleteResponseImpl(deleteRequest,
-                            deleteRequest.getContentItem(), false);
+                            deleteRequest.getContentItem(),
+                            false);
                 }
             }
 

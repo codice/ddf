@@ -70,7 +70,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     public CswRecordConverter() {
         xstream = new XStream(new Xpp3Driver());
-        xstream.setClassLoader(this.getClass().getClassLoader());
+        xstream.setClassLoader(this.getClass()
+                .getClassLoader());
         xstream.registerConverter(this);
         xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
         xstream.alias(CswConstants.CSW_RECORD, Metacard.class);
@@ -107,22 +108,24 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             CswMarshallHelper.writeAllFields(writer, context, metacard);
         }
 
-        if ((fieldsToWrite == null || fieldsToWrite
-                .contains(CswRecordMetacardType.CSW_TEMPORAL_QNAME))
+        if ((fieldsToWrite == null
+                || fieldsToWrite.contains(CswRecordMetacardType.CSW_TEMPORAL_QNAME))
                 && metacard.getEffectiveDate() != null && metacard.getExpirationDate() != null) {
             CswMarshallHelper.writeTemporalData(writer, context, metacard);
         }
 
-        if ((fieldsToWrite == null || fieldsToWrite
-                .contains(CswRecordMetacardType.CSW_SOURCE_QNAME))
+        if ((fieldsToWrite == null
+                || fieldsToWrite.contains(CswRecordMetacardType.CSW_SOURCE_QNAME))
                 && metacard.getSourceId() != null) {
-            CswMarshallHelper
-                    .writeValue(writer, context, null, CswRecordMetacardType.CSW_PUBLISHER_QNAME,
-                            metacard.getSourceId());
+            CswMarshallHelper.writeValue(writer,
+                    context,
+                    null,
+                    CswRecordMetacardType.CSW_PUBLISHER_QNAME,
+                    metacard.getSourceId());
         }
 
-        if (fieldsToWrite == null || fieldsToWrite
-                .contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
+        if (fieldsToWrite == null
+                || fieldsToWrite.contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
             CswMarshallHelper.writeBoundingBox(writer, context, metacard);
         }
 
@@ -131,8 +134,9 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Map<String, String> cswAttrMap = new CaseInsensitiveMap(
-                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        Map<String, String> cswAttrMap =
+                new CaseInsensitiveMap(DefaultCswRecordMap.getDefaultCswRecordMap()
+                        .getCswToMetacardAttributeNames());
         Object mappingObj = context.get(CswConstants.CSW_MAPPING);
 
         if (mappingObj instanceof Map<?, ?>) {
@@ -151,7 +155,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         CswAxisOrder cswAxisOrder = CswAxisOrder.LON_LAT;
         Object cswAxisOrderObject = context.get(CswConstants.AXIS_ORDER_PROPERTY);
 
-        if (cswAxisOrderObject != null && cswAxisOrderObject.getClass().isEnum()) {
+        if (cswAxisOrderObject != null && cswAxisOrderObject.getClass()
+                .isEnum()) {
             Enum value = (Enum) cswAxisOrderObject;
             cswAxisOrder = CswAxisOrder.valueOf(value.name());
         }
@@ -163,8 +168,12 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             namespaceMap = (Map<String, String>) namespaceObj;
         }
 
-        Metacard metacard = CswUnmarshallHelper.createMetacardFromCswRecord(reader, cswAttrMap,
-                resourceUriMapping, thumbnailMapping, cswAxisOrder, namespaceMap);
+        Metacard metacard = CswUnmarshallHelper.createMetacardFromCswRecord(reader,
+                cswAttrMap,
+                resourceUriMapping,
+                thumbnailMapping,
+                cswAxisOrder,
+                namespaceMap);
 
         Object sourceIdObj = context.get(Metacard.SOURCE_ID);
 
@@ -178,7 +187,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     private boolean isString(Object object) {
         return object instanceof String;
     }
-
 
     @Override
     public Metacard transform(InputStream inputStream)
@@ -198,15 +206,14 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                 metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
             }
         } catch (XStreamException e) {
-            throw new CatalogTransformerException(
-                    "Unable to transform from CSW Record to Metacard.", e);
+            throw new CatalogTransformerException("Unable to transform from CSW Record to Metacard.",
+                    e);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
 
         if (metacard == null) {
-            throw new CatalogTransformerException(
-                    "Unable to transform from CSW Record to Metacard.");
+            throw new CatalogTransformerException("Unable to transform from CSW Record to Metacard.");
         }
 
         return metacard;
@@ -231,8 +238,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
         BinaryContent transformedContent = null;
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString().getBytes(
-                StandardCharsets.UTF_8));
+        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
+                .getBytes(StandardCharsets.UTF_8));
         transformedContent = new BinaryContentImpl(bais, new MimeType());
         return transformedContent;
     }
@@ -255,12 +262,12 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * strings, whereas MetacardImpl expresses them as java.util.Date types.
      *
      * @param attributeFormat the format of the attribute to be converted
-     * @param value the value to be converted
+     * @param value           the value to be converted
      * @return the value that was extracted from {@code reader} and is of the type described by
-     *         {@code attributeFormat}
+     * {@code attributeFormat}
      */
-    public static Serializable convertStringValueToMetacardValue(AttributeType.AttributeFormat attributeFormat,
-            String value) {
+    public static Serializable convertStringValueToMetacardValue(
+            AttributeType.AttributeFormat attributeFormat, String value) {
         return CswUnmarshallHelper.convertStringValueToMetacardValue(attributeFormat, value);
     }
 
@@ -268,17 +275,19 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * Converts the CSW record property {@code reader} is currently at to the specified Metacard
      * attribute format.
      *
-     * @param attributeFormat  the {@link AttributeType.AttributeFormat} corresponding to the type that the value
-     *                         in {@code reader} should be converted to
-     * @param reader  the reader at the element whose value you want to convert
-     * @param cswAxisOrder  the order of the coordinates in the XML being read by {@code reader}
+     * @param attributeFormat the {@link AttributeType.AttributeFormat} corresponding to the type that the value
+     *                        in {@code reader} should be converted to
+     * @param reader          the reader at the element whose value you want to convert
+     * @param cswAxisOrder    the order of the coordinates in the XML being read by {@code reader}
      * @return the value that was extracted from {@code reader} and is of the type described by
-     *         {@code attributeFormat}
+     * {@code attributeFormat}
      */
     public static Serializable convertRecordPropertyToMetacardAttribute(
             AttributeType.AttributeFormat attributeFormat, HierarchicalStreamReader reader,
             CswAxisOrder cswAxisOrder) {
-        return CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(attributeFormat, reader, cswAxisOrder);
+        return CswUnmarshallHelper.convertRecordPropertyToMetacardAttribute(attributeFormat,
+                reader,
+                cswAxisOrder);
     }
 
     /**
@@ -286,23 +295,25 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * {@code cswAttributeValue} converted to the type of the attribute
      * {@code metacardAttributeName} in a {@link Metacard}.
      *
-     * @param cswAttributeName  the name of the CSW attribute
-     * @param cswAttributeValue  the value of the CSW attribute
-     * @param metacardAttributeName  the name of the {@code Metacard} attribute whose type
-     *                               {@code cswAttributeValue} will be converted to
+     * @param cswAttributeName      the name of the CSW attribute
+     * @param cswAttributeValue     the value of the CSW attribute
+     * @param metacardAttributeName the name of the {@code Metacard} attribute whose type
+     *                              {@code cswAttributeValue} will be converted to
      * @return an {@code Attribute} with the name {@code metacardAttributeName} and the value
-     *         {@code cswAttributeValue} converted to the type of the attribute
-     *         {@code metacardAttributeName} in a {@code Metacard}.
+     * {@code cswAttributeValue} converted to the type of the attribute
+     * {@code metacardAttributeName} in a {@code Metacard}.
      */
     public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
             Serializable cswAttributeValue, String metacardAttributeName) {
-        return CswUnmarshallHelper.getMetacardAttributeFromCswAttribute(cswAttributeName, cswAttributeValue, metacardAttributeName);
+        return CswUnmarshallHelper.getMetacardAttributeFromCswAttribute(cswAttributeName,
+                cswAttributeValue,
+                metacardAttributeName);
     }
 
     /**
      * Converts an attribute name to the csw:Record attribute it corresponds to.
      *
-     * @param attributeName  the name of the attribute
+     * @param attributeName the name of the attribute
      * @return the name of the csw:Record attribute that this attribute name corresponds to
      */
     public static String getCswAttributeFromAttributeName(String attributeName) {

@@ -35,17 +35,19 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
 
     static final String TITLE_PREFIX = "Export as ";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            MetacardTransformerActionProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(MetacardTransformerActionProvider.class);
 
     private String metacardTransformerId;
 
     /**
      * Constructor to instantiate this Metacard {@link ActionProvider}
-     *  @param actionProviderId
+     *
+     * @param actionProviderId
      * @param metacardTransformerId
      */
-    public MetacardTransformerActionProvider(String actionProviderId, String metacardTransformerId) {
+    public MetacardTransformerActionProvider(String actionProviderId,
+            String metacardTransformerId) {
         super();
         this.actionProviderId = actionProviderId;
         this.metacardTransformerId = metacardTransformerId;
@@ -70,8 +72,10 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
             return null;
         }
 
-        return new ActionImpl(getId(), TITLE_PREFIX + metacardTransformerId,
-                DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX, url);
+        return new ActionImpl(getId(),
+                TITLE_PREFIX + metacardTransformerId,
+                DESCRIPTION_PREFIX + metacardTransformerId + DESCRIPTION_SUFFIX,
+                url);
 
     }
 

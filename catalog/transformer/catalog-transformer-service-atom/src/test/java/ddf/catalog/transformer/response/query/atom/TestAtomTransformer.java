@@ -214,7 +214,8 @@ public class TestAtomTransformer {
 
         /* used to visualize */
             IOUtils.write(bytes,
-                    new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
+                    new FileOutputStream(new File(
+                            TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
             String output = new String(bytes);
 
@@ -222,7 +223,8 @@ public class TestAtomTransformer {
             assertEntryCompliant(output);
             validateAgainstAtomSchema(bytes);
             assertXpathNotExists("/atom:feed/atom:generator", output);
-            assertXpathEvaluatesTo(AtomTransformer.DEFAULT_AUTHOR, "/atom:feed/atom:author/atom:name",
+            assertXpathEvaluatesTo(AtomTransformer.DEFAULT_AUTHOR,
+                    "/atom:feed/atom:author/atom:name",
                     output);
 
         } finally {
@@ -277,7 +279,8 @@ public class TestAtomTransformer {
         assertEntryCompliant(output);
         validateAgainstAtomSchema(bytes);
         assertXpathEvaluatesTo(AtomTransformer.DEFAULT_SOURCE_ID,
-                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId", output);
+                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId",
+                output);
 
     }
 
@@ -313,8 +316,8 @@ public class TestAtomTransformer {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
-                .thenThrow(CatalogTransformerException.class);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenThrow(
+                CatalogTransformerException.class);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 
@@ -348,8 +351,8 @@ public class TestAtomTransformer {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
-                .thenThrow(RuntimeException.class);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenThrow(
+                RuntimeException.class);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 
@@ -381,8 +384,8 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenReturn(null);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
-                .thenReturn(metacardTransformation);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
+                metacardTransformation);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 
@@ -414,8 +417,8 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenReturn(new byte[0]);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
-                .thenReturn(metacardTransformation);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
+                metacardTransformation);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 
@@ -447,8 +450,8 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenThrow(IOException.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
-                .thenReturn(metacardTransformation);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
+                metacardTransformation);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 
@@ -477,8 +480,8 @@ public class TestAtomTransformer {
             throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
-                .thenReturn(null);
+        when(metacardTransformer.transform(isA(Metacard.class),
+                isNull(Map.class))).thenReturn(null);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer, true);
 
@@ -515,7 +518,8 @@ public class TestAtomTransformer {
 
         when(response.getHits()).thenReturn(new Long(-1));
 
-        QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA).text("you"));
+        QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA)
+                .text("you"));
         query.setPageSize(1);
         query.setStartIndex(2);
         query.setRequestsTotalResultsCount(true);
@@ -562,7 +566,8 @@ public class TestAtomTransformer {
 
         when(response.getHits()).thenReturn(new Long(1));
 
-        QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA).text("you"));
+        QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA)
+                .text("you"));
         query.setPageSize(-1);
         query.setStartIndex(2);
         query.setRequestsTotalResultsCount(true);
@@ -689,54 +694,53 @@ public class TestAtomTransformer {
      * defined by http://tools.ietf.org/html/rfc4287#section-4.1.2 <br/>
      * "The following child elements are defined by this specification (note that the presence of
      * some of these elements is required):
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain one or more atom:author elements, unless the atom:entry
      * contains an atom:source element that contains an atom:author element or, in an Atom Feed
      * Document, the atom:feed element contains an atom:author element itself.
-     *
+     * <p>
      * <li/>atom:entry elements MAY contain any number of atom:category elements.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:content element.
-     *
+     * <p>
      * <li/>atom:entry elements MAY contain any number of atom:contributor elements.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain exactly one atom:id element.
-     *
+     * <p>
      * <li/>atom:entry elements that contain no child atom:content element MUST contain at least one
      * atom:link element with a rel attribute value of "alternate".
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:link element with a rel
      * attribute value of "alternate" that has the same combination of type and hreflang attribute
      * values.
-     *
+     * <p>
      * <li/>atom:entry elements MAY contain additional atom:link elements beyond those described
      * above.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:published element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:rights element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:source element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain an atom:summary element in either of the following
      * cases:
-     *
+     * <p>
      * <ul>
      * the atom:entry contains an atom:content that has a "src" attribute (and is thus empty).
      * </ul>
-     *
+     * <p>
      * <ul>
      * the atom:entry contains content that is encoded in Base64; i.e., the "type" attribute of
      * atom:content is a MIME media type [MIMEREG], but is not an XML media type [RFC3023], does not
      * begin with "text/", and does not end with "/xml" or "+xml".
      * </ul>
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:summary element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain exactly one atom:title element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain exactly one atom:updated element."
-     *
      *
      * @throws CatalogTransformerException
      * @throws IOException
@@ -786,11 +790,14 @@ public class TestAtomTransformer {
         assertEntryCompliant(output);
         validateAgainstAtomSchema(bytes);
         assertXpathEvaluatesTo(SAMPLE_SOURCE_ID,
-                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId", output);
+                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId",
+                output);
         assertXpathEvaluatesTo("", "/atom:feed/atom:entry/fs:resultSource", output);
         assertXpathEvaluatesTo(AtomTransformer.URN_CATALOG_ID + SAMPLE_ID,
-                "/atom:feed/atom:entry/atom:id", output);
-        assertXpathEvaluatesTo(MetacardStub.DEFAULT_TITLE, "/atom:feed/atom:entry/atom:title",
+                "/atom:feed/atom:entry/atom:id",
+                output);
+        assertXpathEvaluatesTo(MetacardStub.DEFAULT_TITLE,
+                "/atom:feed/atom:entry/atom:title",
                 output);
         assertXpathExists("/atom:feed/atom:entry/atom:updated", output);
         assertXpathExists("/atom:feed/atom:entry/atom:content", output);
@@ -843,54 +850,53 @@ public class TestAtomTransformer {
      * defined by http://tools.ietf.org/html/rfc4287#section-4.1.2 <br/>
      * "The following child elements are defined by this specification (note that the presence of
      * some of these elements is required):
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain one or more atom:author elements, unless the atom:entry
      * contains an atom:source element that contains an atom:author element or, in an Atom Feed
      * Document, the atom:feed element contains an atom:author element itself.
-     *
+     * <p>
      * <li/>atom:entry elements MAY contain any number of atom:category elements.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:content element.
-     *
+     * <p>
      * <li/>atom:entry elements MAY contain any number of atom:contributor elements.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain exactly one atom:id element.
-     *
+     * <p>
      * <li/>atom:entry elements that contain no child atom:content element MUST contain at least one
      * atom:link element with a rel attribute value of "alternate".
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:link element with a rel
      * attribute value of "alternate" that has the same combination of type and hreflang attribute
      * values.
-     *
+     * <p>
      * <li/>atom:entry elements MAY contain additional atom:link elements beyond those described
      * above.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:published element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:rights element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:source element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain an atom:summary element in either of the following
      * cases:
-     *
+     * <p>
      * <ul>
      * the atom:entry contains an atom:content that has a "src" attribute (and is thus empty).
      * </ul>
-     *
+     * <p>
      * <ul>
      * the atom:entry contains content that is encoded in Base64; i.e., the "type" attribute of
      * atom:content is a MIME media type [MIMEREG], but is not an XML media type [RFC3023], does not
      * begin with "text/", and does not end with "/xml" or "+xml".
      * </ul>
-     *
+     * <p>
      * <li/>atom:entry elements MUST NOT contain more than one atom:summary element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain exactly one atom:title element.
-     *
+     * <p>
      * <li/>atom:entry elements MUST contain exactly one atom:updated element."
-     *
      *
      * @throws CatalogTransformerException
      * @throws IOException
@@ -1007,23 +1013,31 @@ public class TestAtomTransformer {
 
         /* entry */
         assertXpathEvaluatesTo(SAMPLE_SOURCE_ID,
-                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId", output);
+                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId",
+                output);
         assertXpathEvaluatesTo("", "/atom:feed/atom:entry/fs:resultSource", output);
         assertXpathEvaluatesTo(AtomTransformer.URN_CATALOG_ID + SAMPLE_ID,
-                "/atom:feed/atom:entry/atom:id", output);
-        assertXpathEvaluatesTo(MetacardStub.DEFAULT_TITLE, "/atom:feed/atom:entry/atom:title",
+                "/atom:feed/atom:entry/atom:id",
+                output);
+        assertXpathEvaluatesTo(MetacardStub.DEFAULT_TITLE,
+                "/atom:feed/atom:entry/atom:title",
                 output);
         assertXpathEvaluatesTo(Double.toString(relevanceScore),
-                "/atom:feed/atom:entry/relevance:score", output);
+                "/atom:feed/atom:entry/relevance:score",
+                output);
         assertXpathExists("/atom:feed/atom:entry/atom:content", output);
         assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
-                "/atom:feed/atom:entry/atom:published", output);
+                "/atom:feed/atom:entry/atom:published",
+                output);
         assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
-                "/atom:feed/atom:entry/atom:updated", output);
-        assertXpathEvaluatesTo("application/xml", "/atom:feed/atom:entry/atom:content/@type",
+                "/atom:feed/atom:entry/atom:updated",
+                output);
+        assertXpathEvaluatesTo("application/xml",
+                "/atom:feed/atom:entry/atom:content/@type",
                 output);
         assertXpathEvaluatesTo(MetacardStub.DEFAULT_TYPE,
-                "/atom:feed/atom:entry/atom:category/@term", output);
+                "/atom:feed/atom:entry/atom:category/@term",
+                output);
         assertXpathEvaluatesTo("1", "count(/atom:feed/atom:entry/georss:where)", output);
         assertXpathEvaluatesTo("1", "count(/atom:feed/atom:entry/georss:where/gml:Point)", output);
         assertXpathEvaluatesTo("56.3 13.3", "/atom:feed/atom:entry/georss:where/gml:Point", output);
@@ -1031,7 +1045,8 @@ public class TestAtomTransformer {
         assertXpathExists("/atom:feed/atom:entry/atom:link[@rel='alternate']", output);
         assertXpathNotExists("/atom:feed/atom:entry/atom:link[@rel='related']", output);
         assertXpathEvaluatesTo("http://host:80/" + SAMPLE_ID,
-                "/atom:feed/atom:entry/atom:link/@href", output);
+                "/atom:feed/atom:entry/atom:link/@href",
+                output);
 
     }
 
@@ -1110,23 +1125,31 @@ public class TestAtomTransformer {
 
         /* entry */
         assertXpathEvaluatesTo(SAMPLE_SOURCE_ID,
-                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId", output);
+                "/atom:feed/atom:entry/fs:resultSource/@fs:sourceId",
+                output);
         assertXpathEvaluatesTo("", "/atom:feed/atom:entry/fs:resultSource", output);
         assertXpathEvaluatesTo(AtomTransformer.URN_CATALOG_ID + SAMPLE_ID,
-                "/atom:feed/atom:entry/atom:id", output);
-        assertXpathEvaluatesTo(MetacardStub.DEFAULT_TITLE, "/atom:feed/atom:entry/atom:title",
+                "/atom:feed/atom:entry/atom:id",
+                output);
+        assertXpathEvaluatesTo(MetacardStub.DEFAULT_TITLE,
+                "/atom:feed/atom:entry/atom:title",
                 output);
         assertXpathEvaluatesTo(Double.toString(relevanceScore),
-                "/atom:feed/atom:entry/relevance:score", output);
+                "/atom:feed/atom:entry/relevance:score",
+                output);
         assertXpathExists("/atom:feed/atom:entry/atom:content", output);
         assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
-                "/atom:feed/atom:entry/atom:published", output);
+                "/atom:feed/atom:entry/atom:published",
+                output);
         assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
-                "/atom:feed/atom:entry/atom:updated", output);
-        assertXpathEvaluatesTo("application/xml", "/atom:feed/atom:entry/atom:content/@type",
+                "/atom:feed/atom:entry/atom:updated",
+                output);
+        assertXpathEvaluatesTo("application/xml",
+                "/atom:feed/atom:entry/atom:content/@type",
                 output);
         assertXpathEvaluatesTo(MetacardStub.DEFAULT_TYPE,
-                "/atom:feed/atom:entry/atom:category/@term", output);
+                "/atom:feed/atom:entry/atom:category/@term",
+                output);
         assertXpathEvaluatesTo("1", "count(/atom:feed/atom:entry/georss:where)", output);
         assertXpathEvaluatesTo("1", "count(/atom:feed/atom:entry/georss:where/gml:Point)", output);
         assertXpathEvaluatesTo("56.3 13.3", "/atom:feed/atom:entry/georss:where/gml:Point", output);
@@ -1134,7 +1157,8 @@ public class TestAtomTransformer {
         assertXpathExists("/atom:feed/atom:entry/atom:link[@rel='alternate']", output);
         assertXpathExists("/atom:feed/atom:entry/atom:link[@rel='related']", output);
         assertXpathEvaluatesTo("http://host:80/" + SAMPLE_ID,
-                "/atom:feed/atom:entry/atom:link/@href", output);
+                "/atom:feed/atom:entry/atom:link/@href",
+                output);
 
     }
 
@@ -1159,7 +1183,8 @@ public class TestAtomTransformer {
         SourceResponse response = getSourceResponseStub(SAMPLE_ID,
                 "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))");
 
-        byte[] bytes = atomTransformer.transform(response, null).getByteArray();
+        byte[] bytes = atomTransformer.transform(response, null)
+                .getByteArray();
 
         String output = new String(bytes);
 
@@ -1172,7 +1197,6 @@ public class TestAtomTransformer {
     }
 
     /**
-     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws XpathException
@@ -1190,7 +1214,8 @@ public class TestAtomTransformer {
 
         SourceResponse response = getSourceResponseStub(SAMPLE_ID, null);
 
-        byte[] bytes = atomTransformer.transform(response, null).getByteArray();
+        byte[] bytes = atomTransformer.transform(response, null)
+                .getByteArray();
 
         String output = new String(bytes);
 
@@ -1214,7 +1239,8 @@ public class TestAtomTransformer {
 
         SourceResponse response = getSourceResponseStub(SAMPLE_ID, BAD_WKT);
 
-        byte[] bytes = atomTransformer.transform(response, null).getByteArray();
+        byte[] bytes = atomTransformer.transform(response, null)
+                .getByteArray();
 
         String output = new String(bytes);
 
@@ -1260,16 +1286,20 @@ public class TestAtomTransformer {
 
         // check if the urn prefix has been added
         assertXpathEvaluatesTo(TRUE,
-                "starts-with(/atom:feed/atom:id,'" + AtomTransformer.URN_UUID + "')", output);
+                "starts-with(/atom:feed/atom:id,'" + AtomTransformer.URN_UUID + "')",
+                output);
 
         // check the valid length of a uuid
-        assertXpathEvaluatesTo("36", "string-length( substring( /atom:feed/atom:id, " + (
-                AtomTransformer.URN_UUID.length() + 1) + " ) )", output);
+        assertXpathEvaluatesTo("36",
+                "string-length( substring( /atom:feed/atom:id, " + (
+                        AtomTransformer.URN_UUID.length() + 1) + " ) )",
+                output);
 
         assertXpathEvaluatesTo(Link.REL_SELF, "/atom:feed/atom:link/@rel", output);
         assertXpathExists("/atom:feed/atom:link/@href", output);
 
-        assertXpathEvaluatesTo(DEFAULT_TEST_ORGANIZATION, "/atom:feed/atom:author/atom:name",
+        assertXpathEvaluatesTo(DEFAULT_TEST_ORGANIZATION,
+                "/atom:feed/atom:author/atom:name",
                 output);
         assertXpathEvaluatesTo(DEFAULT_TEST_VERSION, "/atom:feed/atom:generator/@version", output);
         assertXpathEvaluatesTo(DEFAULT_TEST_SITE, "/atom:feed/atom:generator", output);
@@ -1303,41 +1333,41 @@ public class TestAtomTransformer {
     /**
      * The following rules must be followed in order to be compliant with the Atom specification as
      * defined by http://tools.ietf.org/html/rfc4287#section-4.1.1
-     *
+     * <p>
      * "The following child elements are defined by this specification (note that the presence of
      * some of these elements is required):
-     *
+     * <p>
      * <li/>atom:feed elements MUST contain one or more atom:author elements, unless all of the
      * atom:feed element's child atom:entry elements contain at least one atom:author element.
-     *
+     * <p>
      * <li/>atom:feed elements MAY contain any number of atom:category elements.
-     *
+     * <p>
      * <li/>atom:feed elements MAY contain any number of atom:contributor elements.
-     *
+     * <p>
      * <li/>atom:feed elements MUST NOT contain more than one atom:generator element.
-     *
+     * <p>
      * <li/>atom:feed elements MUST NOT contain more than one atom:icon element.
-     *
+     * <p>
      * <li/>atom:feed elements MUST NOT contain more than one atom:logo element.
-     *
+     * <p>
      * <li/>atom:feed elements MUST contain exactly one atom:id element.
-     *
+     * <p>
      * <li/>atom:feed elements SHOULD contain one atom:link element with a rel attribute value of
      * "self". This is the preferred URI for retrieving Atom Feed Documents representing this Atom
      * feed.
-     *
+     * <p>
      * <li/>atom:feed elements MUST NOT contain more than one atom:link element with a rel attribute
      * value of "alternate" that has the same combination of type and hreflang attribute values.
-     *
+     * <p>
      * <li/>atom:feed elements MAY contain additional atom:link elements beyond those described
      * above.
-     *
+     * <p>
      * <li/>atom:feed elements MUST NOT contain more than one atom:rights element.
-     *
+     * <p>
      * <li/>atom:feed elements MUST NOT contain more than one atom:subtitle element.
-     *
+     * <p>
      * <li/>atom:feed elements MUST contain exactly one atom:title element.
-     *
+     * <p>
      * <li/>atom:feed elements MUST contain exactly one atom:updated element."
      *
      * @throws IOException
@@ -1425,10 +1455,9 @@ public class TestAtomTransformer {
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenReturn(
-                "<sample:note xmlns:sample=\"http://www.lockheedmartin.com/schema/sample\"><to>me</to><from>you</from></sample:note>"
-                        .getBytes());
-        when(metacardTransformer.transform(isA(Metacard.class), isA(Map.class)))
-                .thenReturn(metacardTransformation);
+                "<sample:note xmlns:sample=\"http://www.lockheedmartin.com/schema/sample\"><to>me</to><from>you</from></sample:note>".getBytes());
+        when(metacardTransformer.transform(isA(Metacard.class), isA(Map.class))).thenReturn(
+                metacardTransformation);
         return metacardTransformer;
     }
 
@@ -1440,12 +1469,14 @@ public class TestAtomTransformer {
 
     private String getMethodName() {
 
-        return Thread.currentThread().getStackTrace()[2].getMethodName();
+        return Thread.currentThread()
+                .getStackTrace()[2].getMethodName();
     }
 
     private QueryRequest getStubRequest() {
 
-        QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA).text("you"));
+        QueryImpl query = new QueryImpl(FILTER_BUILDER.attribute(Metacard.METADATA)
+                .text("you"));
         query.setPageSize(25);
         query.setStartIndex(2);
         query.setRequestsTotalResultsCount(true);

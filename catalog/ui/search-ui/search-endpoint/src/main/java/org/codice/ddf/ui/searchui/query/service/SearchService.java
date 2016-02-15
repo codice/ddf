@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
@@ -215,11 +214,12 @@ public class SearchService {
         Set<String> sourceIds;
         if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
             LOGGER.debug("Received local query");
-            sourceIds = new HashSet<String>(Arrays.asList(searchController.getFramework().getId()));
+            sourceIds = new HashSet<String>(Arrays.asList(searchController.getFramework()
+                    .getId()));
         } else if (!(StringUtils.isEmpty(sources))) {
             LOGGER.debug("Received source names from client: {}", sources);
-            sourceIds = new HashSet<String>(
-                    Arrays.asList(StringUtils.stripAll(sources.split(","))));
+            sourceIds =
+                    new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
         } else {
             LOGGER.debug("Received enterprise query");
             SourceInfoResponse sourceInfo = null;
@@ -228,7 +228,7 @@ public class SearchService {
                         .getSourceInfo(new SourceInfoRequestEnterprise(true));
             } catch (SourceUnavailableException e) {
                 LOGGER.debug("Exception while getting source status. Defaulting to all sources. "
-                                + "This could include unavailable sources.", e);
+                        + "This could include unavailable sources.", e);
             }
 
             if (sourceInfo != null) {
@@ -239,7 +239,8 @@ public class SearchService {
                     }
                 }
             } else {
-                sourceIds = searchController.getFramework().getSourceIds();
+                sourceIds = searchController.getFramework()
+                        .getSourceIds();
             }
         }
         return sourceIds;
@@ -292,14 +293,21 @@ public class SearchService {
                     "Incorrect sort order received, must be 'asc' or 'desc'");
         }
 
-        LOGGER.debug("Retrieved query settings: \n sortField: {} \nsortOrder: {}", sortField,
+        LOGGER.debug("Retrieved query settings: \n sortField: {} \nsortOrder: {}",
+                sortField,
                 sortOrder);
         if (filter == null) {
             LOGGER.debug("Received an empty filter. Using a wildcard contextual filter instead.");
-            filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like()
+            filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                    .is()
+                    .like()
                     .text(FilterDelegate.WILDCARD_CHAR);
         }
-        return new QueryImpl(filter, startIndex.intValue(), count.intValue(), sort, true,
+        return new QueryImpl(filter,
+                startIndex.intValue(),
+                count.intValue(),
+                sort,
+                true,
                 maxTimeout);
     }
 }

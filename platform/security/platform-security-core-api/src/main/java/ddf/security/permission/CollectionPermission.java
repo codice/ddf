@@ -58,8 +58,7 @@ public class CollectionPermission implements Permission {
     }
 
     /**
-     *  @param action
-     *            Action associated with this collection of permissions
+     * @param action Action associated with this collection of permissions
      */
     public CollectionPermission(String action) {
         this.action = action;
@@ -68,10 +67,8 @@ public class CollectionPermission implements Permission {
     /**
      * Creates a new collection of permissions and adds the provided permissions to the collection.
      *
-     *  @param action
-     *            Action associated with this collection of permissions
-     * @param permissions
-     *            permission objects to be added to the newly created collection
+     * @param action      Action associated with this collection of permissions
+     * @param permissions permission objects to be added to the newly created collection
      */
     public CollectionPermission(String action, Permission... permissions) {
         this.action = action;
@@ -84,10 +81,8 @@ public class CollectionPermission implements Permission {
      * Creates a new collection of permissions from an existing collection of permissions. All
      * permissions in the provided collection are added to the newly created collection.
      *
-     *  @param action
-     *            Action associated with this collection of permissions
-     * @param permissions
-     *            existing collection of permission objects
+     * @param action      Action associated with this collection of permissions
+     * @param permissions existing collection of permission objects
      */
     public CollectionPermission(String action, Collection<? extends Permission> permissions) {
         this.action = action;
@@ -98,22 +93,21 @@ public class CollectionPermission implements Permission {
      * Returns {@code true} if this current instance <em>implies</em> all the functionality and/or
      * resource access described by the specified {@code Permission} argument, {@code false}
      * otherwise.
-     * <p/>
+     * <p>
      * <p>
      * That is, this current instance must be exactly equal to or a <em>superset</em> of the
      * functionalty and/or resource access described by the given {@code Permission} argument. Yet
      * another way of saying this would be:
-     * <p/>
+     * <p>
      * <p>
      * If &quot;permission1 implies permission2&quot;, i.e.
      * <code>permission1.implies(permission2)</code> , then any Subject granted {@code permission1}
      * would have ability greater than or equal to that defined by {@code permission2}.
      *
-     * @param p
-     *            the permission to check for behavior/functionality comparison.
+     * @param p the permission to check for behavior/functionality comparison.
      * @return {@code true} if this current instance <em>implies</em> all the functionality and/or
-     *         resource access described by the specified {@code Permission} argument, {@code false}
-     *         otherwise.
+     * resource access described by the specified {@code Permission} argument, {@code false}
+     * otherwise.
      */
     @Override
     public boolean implies(Permission p) {
@@ -135,8 +129,8 @@ public class CollectionPermission implements Permission {
                 }
                 if (!result) {
                     SecurityLogger.logDebug(
-                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p
-                                    .toString() + PERMISSION_END_MSG);
+                            PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
+                                    + p.toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }
@@ -171,6 +165,7 @@ public class CollectionPermission implements Permission {
 
     /**
      * Returns true if the internal permissions list is empty otherwise returns false
+     *
      * @return
      */
     public boolean isEmpty() {
@@ -203,8 +198,7 @@ public class CollectionPermission implements Permission {
     /**
      * Adds all of the incoming permissions to this collection.
      *
-     * @param permissions
-     *            The permissions that should be added.
+     * @param permissions The permissions that should be added.
      */
     public void addAll(Collection<? extends Permission> permissions) {
         permissionList.addAll(permissions);
@@ -212,6 +206,7 @@ public class CollectionPermission implements Permission {
 
     /**
      * Returns the action associated with this collection of permissions
+     *
      * @return
      */
     public String getAction() {
@@ -220,6 +215,7 @@ public class CollectionPermission implements Permission {
 
     /**
      * Sets the action for this collection of permissions
+     *
      * @param action
      */
     public void setAction(String action) {

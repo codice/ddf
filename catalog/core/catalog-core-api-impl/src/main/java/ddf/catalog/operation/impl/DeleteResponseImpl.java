@@ -36,12 +36,9 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
     /**
      * Instantiates a new DeleteResponseImpl.
      *
-     * @param request
-     *            the original request
-     * @param properties
-     *            the properties associated with the operation
-     * @param deletedMetacards
-     *            the deleted {@link Metacard}(s)
+     * @param request          the original request
+     * @param properties       the properties associated with the operation
+     * @param deletedMetacards the deleted {@link Metacard}(s)
      */
     public DeleteResponseImpl(DeleteRequest request, Map<String, Serializable> properties,
             List<Metacard> deletedMetacards) {
@@ -51,14 +48,10 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
     /**
      * Instantiates a new DeleteResponseImpl.
      *
-     * @param request
-     *            the original request
-     * @param properties
-     *            the properties associated with the operation
-     * @param deletedMetacards
-     *            the deleted {@link Metacard}(s)
-     * @param errors
-     *            the processing errors
+     * @param request          the original request
+     * @param properties       the properties associated with the operation
+     * @param deletedMetacards the deleted {@link Metacard}(s)
+     * @param errors           the processing errors
      */
     public DeleteResponseImpl(DeleteRequest request, Map<String, Serializable> properties,
             List<Metacard> deletedMetacards, Set<ProcessingDetails> errors) {

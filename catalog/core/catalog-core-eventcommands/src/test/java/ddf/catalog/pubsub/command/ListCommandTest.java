@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,9 +38,11 @@ import org.osgi.framework.ServiceReference;
 public class ListCommandTest {
     private static final String SUBSCRIPTION_ID_PROPERTY_KEY = "subscription-id";
 
-    private static final String MY_SUBSCRIPTION_ID = "my.contextual.id|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL";
+    private static final String MY_SUBSCRIPTION_ID =
+            "my.contextual.id|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL";
 
-    private static final String YOUR_SUBSCRIPTION_ID = "your.contextual.id|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL";
+    private static final String YOUR_SUBSCRIPTION_ID =
+            "your.contextual.id|http://172.18.14.169:8088/mockCatalogEventConsumerBinding?WSDL";
 
     /**
      * Test subscriptions:list command with no args. Should return all registered subscriptions.
@@ -55,19 +57,19 @@ public class ListCommandTest {
         listCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys())
-                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getPropertyKeys()).thenReturn(new String[] {
+                SUBSCRIPTION_ID_PROPERTY_KEY});
         when(mySubscription.getProperty("subscription-id")).thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys())
-                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
-                .thenReturn(YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys()).thenReturn(new String[] {
+                SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
+                YOUR_SUBSCRIPTION_ID);
 
         ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
-        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
-                .thenReturn(refs);
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+                anyString())).thenReturn(refs);
 
         PrintStream realSystemOut = System.out;
 
@@ -84,9 +86,11 @@ public class ListCommandTest {
         // then
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(4));
-        assertThat(linesWithText, hasItems("Total subscriptions found: 2",
+        assertThat(linesWithText,
+                hasItems("Total subscriptions found: 2",
                         ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                                + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID,
+                                + ListCommand.DEFAULT_CONSOLE_COLOR,
+                        MY_SUBSCRIPTION_ID,
                         YOUR_SUBSCRIPTION_ID));
 
         buffer.close();
@@ -103,8 +107,8 @@ public class ListCommandTest {
 
         BundleContext bundleContext = mock(BundleContext.class);
         listCommand.setBundleContext(bundleContext);
-        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
-                .thenReturn(new ServiceReference[] {});
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+                anyString())).thenReturn(new ServiceReference[] {});
 
         PrintStream realSystemOut = System.out;
 
@@ -119,8 +123,8 @@ public class ListCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(
-                ListCommand.RED_CONSOLE_COLOR + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG
+        assertThat(buffer.toString(),
+                startsWith(ListCommand.RED_CONSOLE_COLOR + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG
                         + ListCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
@@ -143,8 +147,8 @@ public class ListCommandTest {
         BundleContext bundleContext = mock(BundleContext.class);
         listCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
-                .thenReturn(new ServiceReference[] {});
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+                anyString())).thenReturn(new ServiceReference[] {});
 
         PrintStream realSystemOut = System.out;
 
@@ -160,8 +164,8 @@ public class ListCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(
-                ListCommand.RED_CONSOLE_COLOR + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG
+        assertThat(buffer.toString(),
+                startsWith(ListCommand.RED_CONSOLE_COLOR + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG
                         + ListCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
@@ -192,19 +196,18 @@ public class ListCommandTest {
         listCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys())
-                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
-                .thenReturn(MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys()).thenReturn(new String[] {
+                SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys())
-                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
-                .thenReturn(YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys()).thenReturn(new String[] {
+                SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
+                YOUR_SUBSCRIPTION_ID);
 
-        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
-                .thenReturn(new ServiceReference[] {mySubscription});
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+                anyString())).thenReturn(new ServiceReference[] {mySubscription});
 
         PrintStream realSystemOut = System.out;
 
@@ -222,9 +225,11 @@ public class ListCommandTest {
         // then
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(3));
-        assertThat(linesWithText, hasItems("Total subscriptions found: 1",
+        assertThat(linesWithText,
+                hasItems("Total subscriptions found: 1",
                         ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                                + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID));
+                                + ListCommand.DEFAULT_CONSOLE_COLOR,
+                        MY_SUBSCRIPTION_ID));
 
         buffer.close();
 
@@ -254,12 +259,11 @@ public class ListCommandTest {
         listCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys())
-                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
-                .thenReturn(MY_SUBSCRIPTION_ID);
-        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
-                .thenReturn(new ServiceReference[] {mySubscription});
+        when(mySubscription.getPropertyKeys()).thenReturn(new String[] {
+                SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(MY_SUBSCRIPTION_ID);
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+                anyString())).thenReturn(new ServiceReference[] {mySubscription});
 
         String ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=my*)";
 
@@ -280,9 +284,11 @@ public class ListCommandTest {
         // then
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(3));
-        assertThat(linesWithText, hasItems("Total subscriptions found: 1",
+        assertThat(linesWithText,
+                hasItems("Total subscriptions found: 1",
                         ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                                + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID));
+                                + ListCommand.DEFAULT_CONSOLE_COLOR,
+                        MY_SUBSCRIPTION_ID));
 
         buffer.close();
 
@@ -295,7 +301,8 @@ public class ListCommandTest {
     private List<String> getConsoleOutputText(ByteArrayOutputStream buffer) {
         // Get console output as individual lines that are not whitespace or only new lines
         List<String> linesWithText = new ArrayList<String>();
-        String[] lines = buffer.toString().split("\n");
+        String[] lines = buffer.toString()
+                .split("\n");
         if (lines != null) {
             for (String line : lines) {
                 String text = StringUtils.chomp(line);

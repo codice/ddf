@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,14 +48,16 @@ public class TestHttpProxy {
     @Test
     public void testStartingAndStoppingProxyWithDifferentConfigurations() throws Exception {
         HttpProxyServiceImpl httpProxyService = mock(HttpProxyServiceImpl.class);
-        when(httpProxyService
-                .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), anyObject()))
-                .thenReturn("endpointName");
+        when(httpProxyService.start(eq("0.0.0.0:8181"),
+                anyString(),
+                eq(120000),
+                eq(true),
+                anyObject())).thenReturn("endpointName");
         HttpProxy httpProxy = new HttpProxy(httpProxyService) {
             public Properties getProperties() {
                 Properties properties = new Properties();
-                InputStream propertiesStream = HttpProxy.class
-                        .getResourceAsStream("/etc/org.ops4j.pax.web.cfg");
+                InputStream propertiesStream = HttpProxy.class.getResourceAsStream(
+                        "/etc/org.ops4j.pax.web.cfg");
                 try {
                     properties.load(propertiesStream);
                 } catch (IOException e) {
@@ -67,8 +69,11 @@ public class TestHttpProxy {
             }
         };
         httpProxy.startProxy();
-        verify(httpProxyService, times(1))
-                .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), anyObject());
+        verify(httpProxyService, times(1)).start(eq("0.0.0.0:8181"),
+                anyString(),
+                eq(120000),
+                eq(true),
+                anyObject());
 
         httpProxy.stopProxy();
         verify(httpProxyService, times(1)).stop("endpointName");
@@ -76,9 +81,11 @@ public class TestHttpProxy {
         httpProxy.setHostname("blah");
 
         httpProxy.startProxy();
-        verify(httpProxyService, times(1))
-                .start(eq("0.0.0.0:8181"), eq("https://blah:8993"), eq(120000), eq(true),
-                        anyObject());
+        verify(httpProxyService, times(1)).start(eq("0.0.0.0:8181"),
+                eq("https://blah:8993"),
+                eq(120000),
+                eq(true),
+                anyObject());
 
         httpProxy.startProxy();
         verify(httpProxyService, times(3)).stop("endpointName");
@@ -86,8 +93,8 @@ public class TestHttpProxy {
         httpProxy = new HttpProxy(httpProxyService) {
             public Properties getProperties() {
                 Properties properties = new Properties();
-                InputStream propertiesStream = HttpProxy.class
-                        .getResourceAsStream("/etc/org.ops4j.pax.web.cfg");
+                InputStream propertiesStream = HttpProxy.class.getResourceAsStream(
+                        "/etc/org.ops4j.pax.web.cfg");
                 try {
                     properties.load(propertiesStream);
                 } catch (IOException e) {
@@ -100,23 +107,32 @@ public class TestHttpProxy {
             }
         };
         httpProxy.startProxy();
-        verify(httpProxyService, times(3))
-                .start(eq("0.0.0.0:8181"), anyString(), eq(120000), eq(true), anyObject());
+        verify(httpProxyService, times(3)).start(eq("0.0.0.0:8181"),
+                anyString(),
+                eq(120000),
+                eq(true),
+                anyObject());
     }
 
     @Test
     public void testStartingWithNoProperties() throws Exception {
         HttpProxyServiceImpl httpProxyService = mock(HttpProxyServiceImpl.class);
-        when(httpProxyService.start(anyString(), anyString(), anyInt(), anyBoolean(), anyObject()))
-                .thenReturn("endpointName");
+        when(httpProxyService.start(anyString(),
+                anyString(),
+                anyInt(),
+                anyBoolean(),
+                anyObject())).thenReturn("endpointName");
         HttpProxy httpProxy = new HttpProxy(httpProxyService) {
             public Properties getProperties() {
                 return new Properties();
             }
         };
         httpProxy.startProxy();
-        verify(httpProxyService, times(0))
-                .start(anyString(), anyString(), anyInt(), anyBoolean(), anyObject());
+        verify(httpProxyService, times(0)).start(anyString(),
+                anyString(),
+                anyInt(),
+                anyBoolean(),
+                anyObject());
     }
 
     @Test
@@ -124,36 +140,46 @@ public class TestHttpProxy {
         HttpProxyService httpProxyService = mock(HttpProxyService.class);
         HttpProxy httpProxy = new HttpProxy(httpProxyService);
         Properties properties = httpProxy.getProperties();
-        assertThat(0, is(properties.stringPropertyNames().size()));
+        assertThat(0,
+                is(properties.stringPropertyNames()
+                        .size()));
     }
 
     @Test
     public void testPolicyRemoveBean() throws IOException {
         InputStream inpuStream = TestHttpProxy.class.getResourceAsStream("/test.wsdl");
         String wsdl = IOUtils.toString(inpuStream);
-        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181", "8993",
-                "localhost", "/services");
+        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181",
+                "8993",
+                "localhost",
+                "/services");
         Exchange exchange = mock(Exchange.class);
         HttpMessage httpMessage = mock(HttpMessage.class);
         when(exchange.getIn()).thenReturn(httpMessage);
         when(exchange.getOut()).thenReturn(httpMessage);
         when(httpMessage.getHeader("CamelHttpQuery")).thenReturn("wsdl");
         when(httpMessage.getBody()).thenReturn(inpuStream);
-        doCallRealMethod().when(httpMessage).setBody(any());
-        doCallRealMethod().when(httpMessage).getBody();
+        doCallRealMethod().when(httpMessage)
+                .setBody(any());
+        doCallRealMethod().when(httpMessage)
+                .getBody();
         httpMessage.setBody(wsdl);
 
         policyRemoveBean.rewrite(exchange);
 
-        assertFalse(httpMessage.getBody().toString().contains("https:"));
+        assertFalse(httpMessage.getBody()
+                .toString()
+                .contains("https:"));
     }
 
     @Test
     public void testPolicyRemoveBeanGzipEncoding() throws IOException {
         InputStream inpuStream = TestHttpProxy.class.getResourceAsStream("/test.wsdl");
         String wsdl = IOUtils.toString(inpuStream);
-        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181", "8993",
-                "localhost", "/services");
+        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181",
+                "8993",
+                "localhost",
+                "/services");
         Exchange exchange = mock(Exchange.class);
         HttpMessage httpMessage = mock(HttpMessage.class);
         when(exchange.getIn()).thenReturn(httpMessage);
@@ -161,21 +187,27 @@ public class TestHttpProxy {
         when(httpMessage.getHeader("CamelHttpQuery")).thenReturn("wsdl");
         when(httpMessage.getBody()).thenReturn(inpuStream);
         when(httpMessage.getHeader(Exchange.CONTENT_ENCODING)).thenReturn("gzip");
-        doCallRealMethod().when(httpMessage).setBody(any());
-        doCallRealMethod().when(httpMessage).getBody();
+        doCallRealMethod().when(httpMessage)
+                .setBody(any());
+        doCallRealMethod().when(httpMessage)
+                .getBody();
         httpMessage.setBody(wsdl);
 
         policyRemoveBean.rewrite(exchange);
 
-        assertTrue(httpMessage.getBody().toString().contains("https:"));
+        assertTrue(httpMessage.getBody()
+                .toString()
+                .contains("https:"));
     }
 
     @Test
     public void testPolicyRemoveBeanNulls() throws IOException {
         InputStream inpuStream = TestHttpProxy.class.getResourceAsStream("/test.wsdl");
         String wsdl = IOUtils.toString(inpuStream);
-        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181", "8993",
-                "localhost", "/services");
+        HttpProxy.PolicyRemoveBean policyRemoveBean = new HttpProxy.PolicyRemoveBean("8181",
+                "8993",
+                "localhost",
+                "/services");
         Exchange exchange = mock(Exchange.class);
         HttpMessage httpMessage = mock(HttpMessage.class);
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
@@ -193,12 +225,16 @@ public class TestHttpProxy {
         policyRemoveBean.rewrite(exchange);
 
         when(exchange.getOut()).thenReturn(httpMessage);
-        doCallRealMethod().when(httpMessage).setBody(any());
-        doCallRealMethod().when(httpMessage).getBody();
+        doCallRealMethod().when(httpMessage)
+                .setBody(any());
+        doCallRealMethod().when(httpMessage)
+                .getBody();
         httpMessage.setBody(wsdl);
 
         policyRemoveBean.rewrite(exchange);
 
-        assertFalse(httpMessage.getBody().toString().contains("https:"));
+        assertFalse(httpMessage.getBody()
+                .toString()
+                .contains("https:"));
     }
 }

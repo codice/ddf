@@ -39,8 +39,8 @@ public class UnavailableUrls {
     // NOTE: every instance of UnavailableUrls will get the same scheduler and it's single
     // threaded, so pings are queued up and happen in serial. However, if this class gets loaded
     // from multiple class loaders, there would be a scheduler/thread for each class loader.
-    private static final ScheduledExecutorService SCHEDULER = Executors
-            .newSingleThreadScheduledExecutor();
+    private static final ScheduledExecutorService SCHEDULER =
+            Executors.newSingleThreadScheduledExecutor();
 
     // time to give the ping request before we stop trying
     private static final long PING_TIMEOUT_SECONDS = 10;
@@ -140,9 +140,9 @@ public class UnavailableUrls {
                     return;
                 }
             } catch (Exception e) {
-                LOGGER.debug(
-                        "Exception occurred while trying to ping URL {}. {}",
-                        url, e.getMessage());
+                LOGGER.debug("Exception occurred while trying to ping URL {}. {}",
+                        url,
+                        e.getMessage());
             }
 
             LOGGER.debug("Couldn't find URL. Checking again in {} seconds.", timeout);

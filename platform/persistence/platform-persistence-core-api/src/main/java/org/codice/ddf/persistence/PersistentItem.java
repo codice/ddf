@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,8 +35,8 @@ public class PersistentItem extends HashMap<String, Object> {
 
     public static final String DATE_SUFFIX = "_tdt";
 
-    private static final String[] SUFFIXES = new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX,
-            LONG_SUFFIX, DATE_SUFFIX};
+    private static final String[] SUFFIXES =
+            new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX, LONG_SUFFIX, DATE_SUFFIX};
 
     private static final long serialVersionUID = 6030726429622527480L;
 
@@ -45,7 +45,8 @@ public class PersistentItem extends HashMap<String, Object> {
         for (Map.Entry<String, Object> entry : inMap.entrySet()) {
             int index = StringUtils.lastIndexOfAny(entry.getKey(), SUFFIXES);
             if (index > 0) {
-                String newKey = entry.getKey().substring(0, index);
+                String newKey = entry.getKey()
+                        .substring(0, index);
                 outMap.put(newKey, entry.getValue());
             } else {  // should this ever be executed?
                 outMap.put(entry.getKey(), entry.getValue());

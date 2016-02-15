@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -98,7 +98,10 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
             if (StringUtils.isNotEmpty(queryString)) {
 
                 MultivaluedMap<String, String> allQueryParams = JAXRSUtils.getStructuredParams(
-                        queryString, QUERY_PARAM_DELIMITER, false, false);
+                        queryString,
+                        QUERY_PARAM_DELIMITER,
+                        false,
+                        false);
                 // Loop through the keys and do a case insensitive check
                 for (Entry<String, List<String>> queryParam : allQueryParams.entrySet()) {
                     if ((REQUEST_PARAM.equalsIgnoreCase(queryParam.getKey()))

@@ -134,8 +134,8 @@ public class ServiceManager {
      */
     public void stopManagedService(String servicePid) throws IOException {
         Configuration sourceConfig = adminConfig.getConfiguration(servicePid, null);
-        ServiceConfigurationListener listener = new ServiceConfigurationListener(
-                sourceConfig.getPid());
+        ServiceConfigurationListener listener =
+                new ServiceConfigurationListener(sourceConfig.getPid());
 
         adminConfig.getDdfConfigAdmin()
                 .delete(sourceConfig.getPid());
@@ -143,8 +143,8 @@ public class ServiceManager {
 
     private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
             throws IOException {
-        ServiceConfigurationListener listener = new ServiceConfigurationListener(
-                sourceConfig.getPid());
+        ServiceConfigurationListener listener =
+                new ServiceConfigurationListener(sourceConfig.getPid());
 
         bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
 
@@ -186,10 +186,10 @@ public class ServiceManager {
             }
 
             if (waitForService >= MANAGED_SERVICE_TIMEOUT) {
-                throw new RuntimeException(
-                        String.format("Service %s not initialized within %d minute timeout",
-                                sourceConfig.getPid(),
-                                TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
+                throw new RuntimeException(String.format(
+                        "Service %s not initialized within %d minute timeout",
+                        sourceConfig.getPid(),
+                        TimeUnit.MILLISECONDS.toMinutes(MANAGED_SERVICE_TIMEOUT)));
             }
 
             servicesList = adminConfig.getDdfConfigAdmin()
@@ -333,12 +333,14 @@ public class ServiceManager {
 
             ready = true;
             for (Bundle bundle : bundles) {
-                if (bundle.getSymbolicName().startsWith(symbolicNamePrefix)) {
-                    String bundleName = bundle.getHeaders().get(Constants.BUNDLE_NAME);
+                if (bundle.getSymbolicName()
+                        .startsWith(symbolicNamePrefix)) {
+                    String bundleName = bundle.getHeaders()
+                            .get(Constants.BUNDLE_NAME);
                     BundleInfo bundleInfo = bundleService.getInfo(bundle);
                     BundleState bundleState = bundleInfo.getState();
                     if (bundleInfo.isFragment()) {
-                        if (!BundleState.Resolved.equals(bundleState)){
+                        if (!BundleState.Resolved.equals(bundleState)) {
                             LOGGER.info("{} bundle not ready yet", bundleName);
                             ready = false;
                         }
@@ -346,7 +348,8 @@ public class ServiceManager {
                         if (BundleState.Failure.equals(bundleState)) {
                             fail("The bundle " + bundleName + " failed.");
                         } else if (!BundleState.Active.equals(bundleState)) {
-                            LOGGER.info("{} bundle not ready with state {}", bundleName,
+                            LOGGER.info("{} bundle not ready with state {}",
+                                    bundleName,
                                     bundleState);
                             ready = false;
                         }
@@ -379,7 +382,8 @@ public class ServiceManager {
                     .length() > 0;
             if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail(String.format("%s did not start within %d minutes.", path,
+                    fail(String.format("%s did not start within %d minutes.",
+                            path,
                             TimeUnit.MILLISECONDS.toMinutes(HTTP_ENDPOINT_TIMEOUT)));
                 }
                 Thread.sleep(100);
@@ -433,8 +437,8 @@ public class ServiceManager {
         Map<String, Object> properties = new HashMap<>();
         ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
         if (bundleMetatype != null) {
-            for (AttributeDefinition attributeDef : bundleMetatype
-                    .getAttributeDefinitions(ObjectClassDefinition.ALL)) {
+            for (AttributeDefinition attributeDef : bundleMetatype.getAttributeDefinitions(
+                    ObjectClassDefinition.ALL)) {
                 if (attributeDef.getID() != null) {
                     if (attributeDef.getDefaultValue() != null) {
                         if (attributeDef.getCardinality() == 0) {
@@ -525,8 +529,11 @@ public class ServiceManager {
                 }
 
                 headerString.append(" ]");
-                LOGGER.info("{} | {} | {} | {}", bundle.getSymbolicName(), bundle.getVersion()
-                                .toString(), OsgiStringUtils.bundleStateAsString(bundle),
+                LOGGER.info("{} | {} | {} | {}",
+                        bundle.getSymbolicName(),
+                        bundle.getVersion()
+                                .toString(),
+                        OsgiStringUtils.bundleStateAsString(bundle),
                         headerString.toString());
             }
         }

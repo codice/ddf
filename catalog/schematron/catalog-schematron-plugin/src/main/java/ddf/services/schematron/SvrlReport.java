@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -93,7 +93,8 @@ public class SvrlReport implements SchematronReport {
      */
     public SvrlReport(DOMResult result) {
         this.report = result;
-        this.root = (Element) report.getNode().getFirstChild();
+        this.root = (Element) report.getNode()
+                .getFirstChild();
     }
 
     /**
@@ -153,7 +154,8 @@ public class SvrlReport implements SchematronReport {
             Node assertion = assertFailures.item(i);
             NamedNodeMap attributes = assertion.getAttributes();
             Node flagNode = attributes.getNamedItem(FLAG_ATTR);
-            if (flagNode != null && flagNode.getNodeValue().equals(type)) {
+            if (flagNode != null && flagNode.getNodeValue()
+                    .equals(type)) {
                 assertions.add(assertion);
             }
         }
@@ -186,7 +188,8 @@ public class SvrlReport implements SchematronReport {
             Node report = reportFailures.item(i);
             NamedNodeMap attributes = report.getAttributes();
             Node flagNode = attributes.getNamedItem(FLAG_ATTR);
-            if (flagNode != null && flagNode.getNodeValue().equals(type)) {
+            if (flagNode != null && flagNode.getNodeValue()
+                    .equals(type)) {
                 reports.add(report);
             }
         }
@@ -205,12 +208,14 @@ public class SvrlReport implements SchematronReport {
 
         List<Node> errorAssertions = getAllAssertMessages(ERROR_FLAG_ATTR_TEXT);
         for (Node error : errorAssertions) {
-            errors.add(error.getFirstChild().getTextContent());
+            errors.add(error.getFirstChild()
+                    .getTextContent());
         }
 
         List<Node> errorReports = getAllReportMessages(ERROR_FLAG_ATTR_TEXT);
         for (Node error : errorReports) {
-            errors.add(error.getFirstChild().getTextContent());
+            errors.add(error.getFirstChild()
+                    .getTextContent());
         }
 
         return errors;
@@ -227,14 +232,18 @@ public class SvrlReport implements SchematronReport {
 
         List<Node> warningAssertions = getAllAssertMessages(WARNING_FLAG_ATTR_TEXT);
         for (Node warning : warningAssertions) {
-            LOGGER.debug("warning(from assertions) = " + warning.getFirstChild().getTextContent());
-            warnings.add(warning.getFirstChild().getTextContent());
+            LOGGER.debug("warning(from assertions) = " + warning.getFirstChild()
+                    .getTextContent());
+            warnings.add(warning.getFirstChild()
+                    .getTextContent());
         }
 
         List<Node> warningReports = getAllReportMessages(WARNING_FLAG_ATTR_TEXT);
         for (Node warning : warningReports) {
-            LOGGER.debug("warning(from reports) = " + warning.getFirstChild().getTextContent());
-            warnings.add(warning.getFirstChild().getTextContent());
+            LOGGER.debug("warning(from reports) = " + warning.getFirstChild()
+                    .getTextContent());
+            warnings.add(warning.getFirstChild()
+                    .getTextContent());
         }
 
         return warnings;

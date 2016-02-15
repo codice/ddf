@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
@@ -107,44 +106,63 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GmlGeometryConverter());
 
         xstream.alias(FEATURE_TYPE, MetacardImpl.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/video_data_set.xml");
+        InputStream is =
+                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertEquals("video_data_set.2", mc.getId());
         assertEquals(FEATURE_TYPE, mc.getContentTypeName());
-        assertEquals(metacardType.getName(), mc.getMetacardType().getName());
+        assertEquals(metacardType.getName(),
+                mc.getMetacardType()
+                        .getName());
         assertEquals(SOURCE_ID, mc.getSourceId());
         assertEquals("video_data_set.2", mc.getTitle());
 
-        assertEquals(2L, mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT).getValue());
+        assertEquals(2L,
+                mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT)
+                        .getValue());
         assertEquals(Long.valueOf(1L),
-                mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT).getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983").getTime(),
-                mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT)
+                        .getValue());
+        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983")
+                        .getTime(),
+                mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT)
+                        .getValue());
         assertEquals("/data/test_suite/video/video/videoFile.mpg",
-                mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT).getValue());
-        assertEquals(720L, mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT)
+                        .getValue());
+        assertEquals(720L,
+                mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT)
+                        .getValue());
         assertEquals("a8a55092f0afae881099637ef7746cd8d7066270d9af4cf0f52c41dab53c4005",
-                mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT)
+                        .getValue());
         assertEquals(getOtherTagsXml(),
-                mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT).getValue());
-        assertEquals(26L, mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT).getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000").getTime(),
-                mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT).getValue());
-        assertEquals(1280L, mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT)
+                        .getValue());
+        assertEquals(26L,
+                mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT)
+                        .getValue());
+        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000")
+                        .getTime(),
+                mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT)
+                        .getValue());
+        assertEquals(1280L,
+                mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT)
+                        .getValue());
 
         assertEquals(getLocation(), mc.getLocation());
         assertEquals(mc.getLocation(),
-                mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT)
+                        .getValue());
 
         assertNotNull(mc.getCreatedDate());
         assertNotNull(mc.getEffectiveDate());
         assertNotNull(mc.getModifiedDate());
 
         assertNotNull(mc.getContentTypeNamespace());
-        assertEquals(mc.getContentTypeNamespace().toString(),
-                Wfs20Constants.NAMESPACE_URN_ROOT + metacardType.getName());
+        assertEquals(mc.getContentTypeNamespace()
+                .toString(), Wfs20Constants.NAMESPACE_URN_ROOT + metacardType.getName());
     }
 
     @Test
@@ -165,11 +183,14 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(converter);
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/video_data_set_collection.xml");
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/video_data_set_collection.xml");
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
-        assertEquals(4, wfc.getMembers().size());
-        Metacard mc = wfc.getMembers().get(0);
+        assertEquals(4,
+                wfc.getMembers()
+                        .size());
+        Metacard mc = wfc.getMembers()
+                .get(0);
         assertEquals(mc.getId(), "video_data_set.1");
 
     }
@@ -192,18 +213,22 @@ public class TestGenericFeatureConverter {
         converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/geoserver_sample.xml");
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/geoserver_sample.xml");
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
-        assertEquals(7, wfc.getMembers().size());
-        Metacard mc = wfc.getMembers().get(0);
+        assertEquals(7,
+                wfc.getMembers()
+                        .size());
+        Metacard mc = wfc.getMembers()
+                .get(0);
 
         assertEquals(mc.getId(), "states.10");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location        
-        assertTrue(mc.getLocation().startsWith(
-                "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
+        assertTrue(mc.getLocation()
+                .startsWith(
+                        "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
     }
 
     @Test
@@ -224,18 +249,22 @@ public class TestGenericFeatureConverter {
         converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/geoserver_sample_polygon.xml");
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/geoserver_sample_polygon.xml");
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
-        assertEquals(1, wfc.getMembers().size());
-        Metacard mc = wfc.getMembers().get(0);
+        assertEquals(1,
+                wfc.getMembers()
+                        .size());
+        Metacard mc = wfc.getMembers()
+                .get(0);
 
         assertEquals(mc.getId(), "states.10");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location
-        assertTrue(mc.getLocation().startsWith(
-                "MULTIPOLYGON (((-89.1 36.1, -89.1 37.1, -88.1 37.1, -88.1 36.1, -89.1 36.1"));
+        assertTrue(mc.getLocation()
+                .startsWith(
+                        "MULTIPOLYGON (((-89.1 36.1, -89.1 37.1, -88.1 37.1, -88.1 36.1, -89.1 36.1"));
     }
 
     @Test
@@ -256,17 +285,21 @@ public class TestGenericFeatureConverter {
         converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/geoserver_sample_point.xml");
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/geoserver_sample_point.xml");
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
-        assertEquals(1, wfc.getMembers().size());
-        Metacard mc = wfc.getMembers().get(0);
+        assertEquals(1,
+                wfc.getMembers()
+                        .size());
+        Metacard mc = wfc.getMembers()
+                .get(0);
 
         assertEquals(mc.getId(), "states.10");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location
-        assertTrue(mc.getLocation().startsWith("POINT (-123.26 49.41)"));
+        assertTrue(mc.getLocation()
+                .startsWith("POINT (-123.26 49.41)"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -275,8 +308,8 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GenericFeatureConverterWfs20());
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias(FEATURE_TYPE, Metacard.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/video_data_set.xml");
+        InputStream is =
+                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
         try {
             Wfs20FeatureCollection wfs = (Wfs20FeatureCollection) xstream.fromXML(is);
         } catch (Exception e) {
@@ -299,7 +332,8 @@ public class TestGenericFeatureConverter {
 
         Metacard mc = new SampleMetacard().getMetacard();
         Wfs20FeatureCollection wfc = new Wfs20FeatureCollection();
-        wfc.getMembers().add(mc);
+        wfc.getMembers()
+                .add(mc);
         MetacardImpl mc2 = new SampleMetacard().getMetacard();
         // Ignore the hack stuff, this was just to imitate having two different
         // "MetacardTypes"
@@ -320,7 +354,8 @@ public class TestGenericFeatureConverter {
                 return BasicTypes.BASIC_METACARD.getAttributeDescriptor(arg0);
             }
         });
-        wfc.getMembers().add(mc2);
+        wfc.getMembers()
+                .add(mc2);
 
         String xml = xstream.toXML(wfc);
     }
@@ -363,25 +398,32 @@ public class TestGenericFeatureConverter {
         converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
         xstream.registerConverter(converter);
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/geoserver_sample.xml");
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/geoserver_sample.xml");
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
-        assertEquals(7, wfc.getMembers().size());
-        Metacard mc = wfc.getMembers().get(0);
+        assertEquals(7,
+                wfc.getMembers()
+                        .size());
+        Metacard mc = wfc.getMembers()
+                .get(0);
         assertEquals(mc.getTitle(), "Missouri");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location        
-        assertTrue(mc.getLocation().startsWith(
-                "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
+        assertTrue(mc.getLocation()
+                .startsWith(
+                        "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
     }
 
     private MetacardType buildMetacardType() {
 
         XmlSchema schema = new XmlSchema();
-        schema.getElements().putAll(buildElementMap(schema));
+        schema.getElements()
+                .putAll(buildElementMap(schema));
 
-        return new FeatureMetacardType(schema, new QName(FEATURE_TYPE), new ArrayList<String>(),
+        return new FeatureMetacardType(schema,
+                new QName(FEATURE_TYPE),
+                new ArrayList<String>(),
                 Wfs20Constants.GML_3_2_NAMESPACE);
 
     }
@@ -423,10 +465,13 @@ public class TestGenericFeatureConverter {
     private MetacardType buildStatesMetacardType() {
 
         XmlSchema schema = new XmlSchema();
-        schema.getElements().putAll(buildStatesElementMap(schema));
+        schema.getElements()
+                .putAll(buildStatesElementMap(schema));
 
-        return new FeatureMetacardType(schema, new QName(STATES_FEATURE_TYPE),
-                new ArrayList<String>(), Wfs20Constants.GML_3_2_NAMESPACE);
+        return new FeatureMetacardType(schema,
+                new QName(STATES_FEATURE_TYPE),
+                new ArrayList<String>(),
+                Wfs20Constants.GML_3_2_NAMESPACE);
 
     }
 

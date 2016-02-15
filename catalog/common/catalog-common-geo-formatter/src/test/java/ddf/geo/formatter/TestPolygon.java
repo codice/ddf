@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,8 +27,8 @@ public class TestPolygon extends AbstractTestCompositeGeometry {
     @Test
     public void testGeoRssConversion() throws ParseException, IOException, SAXException {
 
-        String entryXmlText = getSampleAtomEntry(
-                new Polygon(reader.read("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))")));
+        String entryXmlText = getSampleAtomEntry(new Polygon(reader.read(
+                "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))")));
 
         String control =
                 "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:georss=\"http://www.georss.org/georss\">\r\n"
@@ -36,8 +36,9 @@ public class TestPolygon extends AbstractTestCompositeGeometry {
                         + "        <gml:Polygon>\r\n" + "            <gml:exterior>\r\n"
                         + "                <gml:LinearRing>\r\n"
                         + "                    <gml:posList>10.0 30.0 20.0 10.0 40.0 20.0 40.0 40.0 10.0 30.0</gml:posList>\r\n"
-                        + "                </gml:LinearRing>\r\n" + "            </gml:exterior>\r\n"
-                        + "        </gml:Polygon>\r\n" + "    </georss:where>\r\n" + "</entry>";
+                        + "                </gml:LinearRing>\r\n"
+                        + "            </gml:exterior>\r\n" + "        </gml:Polygon>\r\n"
+                        + "    </georss:where>\r\n" + "</entry>";
 
         assertXMLEqual(control, entryXmlText);
 

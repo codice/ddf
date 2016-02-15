@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,8 +66,8 @@ public class TestGeoJsonMetacardTransformer {
 
     public static final String DEFAULT_SOURCE_ID = "ddfChild";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestGeoJsonMetacardTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TestGeoJsonMetacardTransformer.class);
 
     private static final JSONParser PARSER = new JSONParser();
 
@@ -126,7 +126,8 @@ public class TestGeoJsonMetacardTransformer {
 
         MetacardImpl metacard = new MetacardImpl();
 
-        String badWktMissingComma = "MULTILINESTRING ((10 10, 20 20, 10 40)(40 40, 30 30, 40 20, 30 10))";
+        String badWktMissingComma =
+                "MULTILINESTRING ((10 10, 20 20, 10 40)(40 40, 30 30, 40 20, 30 10))";
         metacard.setLocation(badWktMissingComma);
         setupBasicMetacard(now, metacard);
 
@@ -167,7 +168,8 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(Point.TYPE));
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(Point.TYPE));
         List<Double> coords = (List<Double>) geometryMap.get(CompositeGeometry.COORDINATES_KEY);
         assertThat(coords.size(), is(2));
         assertThat(coords.get(0), equalTo(1.0));
@@ -210,19 +212,26 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(LineString.TYPE));
-        List<List<Double>> coordsList = (List<List<Double>>) geometryMap
-                .get(CompositeGeometry.COORDINATES_KEY);
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(LineString.TYPE));
+        List<List<Double>> coordsList =
+                (List<List<Double>>) geometryMap.get(CompositeGeometry.COORDINATES_KEY);
         assertThat(coordsList.size(), is(3));
         for (List list : coordsList) {
             assertEquals(list.size(), 2);
         }
-        assertThat(coordsList.get(0).get(0), equalTo(30.0));
-        assertThat(coordsList.get(0).get(1), equalTo(10.0));
-        assertThat(coordsList.get(1).get(0), equalTo(10.0));
-        assertThat(coordsList.get(1).get(1), equalTo(30.0));
-        assertThat(coordsList.get(2).get(0), equalTo(40.0));
-        assertThat(coordsList.get(2).get(1), equalTo(40.0));
+        assertThat(coordsList.get(0)
+                .get(0), equalTo(30.0));
+        assertThat(coordsList.get(0)
+                .get(1), equalTo(10.0));
+        assertThat(coordsList.get(1)
+                .get(0), equalTo(10.0));
+        assertThat(coordsList.get(1)
+                .get(1), equalTo(30.0));
+        assertThat(coordsList.get(2)
+                .get(0), equalTo(40.0));
+        assertThat(coordsList.get(2)
+                .get(1), equalTo(40.0));
 
         verifyBasicMetacardJson(now, obj2);
 
@@ -253,19 +262,26 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(MultiPoint.TYPE));
-        List<List<Double>> coordsList = (List<List<Double>>) geometryMap
-                .get(CompositeGeometry.COORDINATES_KEY);
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(MultiPoint.TYPE));
+        List<List<Double>> coordsList =
+                (List<List<Double>>) geometryMap.get(CompositeGeometry.COORDINATES_KEY);
         assertThat(coordsList.size(), is(3));
         for (List list : coordsList) {
             assertEquals(list.size(), 2);
         }
-        assertThat(coordsList.get(0).get(0), equalTo(30.0));
-        assertThat(coordsList.get(0).get(1), equalTo(10.0));
-        assertThat(coordsList.get(1).get(0), equalTo(10.0));
-        assertThat(coordsList.get(1).get(1), equalTo(30.0));
-        assertThat(coordsList.get(2).get(0), equalTo(40.0));
-        assertThat(coordsList.get(2).get(1), equalTo(40.0));
+        assertThat(coordsList.get(0)
+                .get(0), equalTo(30.0));
+        assertThat(coordsList.get(0)
+                .get(1), equalTo(10.0));
+        assertThat(coordsList.get(1)
+                .get(0), equalTo(10.0));
+        assertThat(coordsList.get(1)
+                .get(1), equalTo(30.0));
+        assertThat(coordsList.get(2)
+                .get(0), equalTo(40.0));
+        assertThat(coordsList.get(2)
+                .get(1), equalTo(40.0));
 
         verifyBasicMetacardJson(now, obj2);
 
@@ -279,8 +295,7 @@ public class TestGeoJsonMetacardTransformer {
 
         MetacardImpl metacard = new MetacardImpl();
 
-        metacard.setLocation(
-                "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
+        metacard.setLocation("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
         setupBasicMetacard(now, metacard);
 
         GeoJsonMetacardTransformer transformer = new GeoJsonMetacardTransformer();
@@ -297,28 +312,42 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(),
-                is(MultiLineString.TYPE));
-        List<List<List<Double>>> coordsList = (List<List<List<Double>>>) geometryMap
-                .get(CompositeGeometry.COORDINATES_KEY);
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(MultiLineString.TYPE));
+        List<List<List<Double>>> coordsList = (List<List<List<Double>>>) geometryMap.get(
+                CompositeGeometry.COORDINATES_KEY);
         assertThat(coordsList.size(), is(2));
         List<List<Double>> list1 = coordsList.get(0);
         List<List<Double>> list2 = coordsList.get(1);
-        assertThat(list1.get(0).get(0), equalTo(10.0));
-        assertThat(list1.get(0).get(1), equalTo(10.0));
-        assertThat(list1.get(1).get(0), equalTo(20.0));
-        assertThat(list1.get(1).get(1), equalTo(20.0));
-        assertThat(list1.get(2).get(0), equalTo(10.0));
-        assertThat(list1.get(2).get(1), equalTo(40.0));
+        assertThat(list1.get(0)
+                .get(0), equalTo(10.0));
+        assertThat(list1.get(0)
+                .get(1), equalTo(10.0));
+        assertThat(list1.get(1)
+                .get(0), equalTo(20.0));
+        assertThat(list1.get(1)
+                .get(1), equalTo(20.0));
+        assertThat(list1.get(2)
+                .get(0), equalTo(10.0));
+        assertThat(list1.get(2)
+                .get(1), equalTo(40.0));
 
-        assertThat(list2.get(0).get(0), equalTo(40.0));
-        assertThat(list2.get(0).get(1), equalTo(40.0));
-        assertThat(list2.get(1).get(0), equalTo(30.0));
-        assertThat(list2.get(1).get(1), equalTo(30.0));
-        assertThat(list2.get(2).get(0), equalTo(40.0));
-        assertThat(list2.get(2).get(1), equalTo(20.0));
-        assertThat(list2.get(3).get(0), equalTo(30.0));
-        assertThat(list2.get(3).get(1), equalTo(10.0));
+        assertThat(list2.get(0)
+                .get(0), equalTo(40.0));
+        assertThat(list2.get(0)
+                .get(1), equalTo(40.0));
+        assertThat(list2.get(1)
+                .get(0), equalTo(30.0));
+        assertThat(list2.get(1)
+                .get(1), equalTo(30.0));
+        assertThat(list2.get(2)
+                .get(0), equalTo(40.0));
+        assertThat(list2.get(2)
+                .get(1), equalTo(20.0));
+        assertThat(list2.get(3)
+                .get(0), equalTo(30.0));
+        assertThat(list2.get(3)
+                .get(1), equalTo(10.0));
 
         verifyBasicMetacardJson(now, obj2);
 
@@ -350,7 +379,8 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(Polygon.TYPE));
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(Polygon.TYPE));
         List<List> listOfRings = (List<List>) geometryMap.get(CompositeGeometry.COORDINATES_KEY);
         assertThat(listOfRings.size(), is(1));
 
@@ -389,7 +419,8 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(Polygon.TYPE));
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(Polygon.TYPE));
         List<List> listOfRings = (List<List>) geometryMap.get(CompositeGeometry.COORDINATES_KEY);
         assertThat(listOfRings.size(), is(2));
 
@@ -443,7 +474,8 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(MultiPolygon.TYPE));
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(MultiPolygon.TYPE));
 
         List<List> listOfPolygons = (List<List>) geometryMap.get(CompositeGeometry.COORDINATES_KEY);
         assertThat(listOfPolygons.size(), is(2));
@@ -488,8 +520,8 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(),
-                is(GeometryCollection.TYPE));
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY)
+                .toString(), is(GeometryCollection.TYPE));
 
         assertThat(geometryMap.get(CompositeGeometry.GEOMETRIES_KEY), notNullValue());
 
@@ -558,7 +590,8 @@ public class TestGeoJsonMetacardTransformer {
 
     private void verifyBasicMetacardJson(Date now, JSONObject obj2) {
         assertThat(obj2.size(), is(3)); // no extra members
-        assertThat(obj2.get("type").toString(), equalTo("Feature"));
+        assertThat(obj2.get("type")
+                .toString(), equalTo("Feature"));
         assertThat(obj2.get("properties"), notNullValue());
         Map properties = ((Map) obj2.get("properties"));
         assertThat(properties.size(), is(10)); // no extra
@@ -566,8 +599,8 @@ public class TestGeoJsonMetacardTransformer {
         assertThat(toString(properties.get(Metacard.TITLE)), is(DEFAULT_TITLE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE)), is(DEFAULT_TYPE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE_VERSION)), is(DEFAULT_VERSION));
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
+        SimpleDateFormat dateFormat =
+                new SimpleDateFormat(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());

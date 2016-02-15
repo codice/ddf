@@ -67,7 +67,8 @@ public class ConfigurationWatcherImpl {
      * {@link SystemBaseUrl#PROTOCOL} property name
      */
     public String getSchemeFromProtocol() {
-        return SystemBaseUrl.getProtocol().split(":")[0];
+        return SystemBaseUrl.getProtocol()
+                .split(":")[0];
     }
 
     /**

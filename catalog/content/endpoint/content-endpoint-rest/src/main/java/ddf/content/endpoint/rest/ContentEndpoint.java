@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -86,8 +86,8 @@ public class ContentEndpoint {
      * Basic mime types that will be attempted to refine to a more accurate mime type
      * based on the file extension of the filename specified in the create request.
      */
-    static final List<String> REFINEABLE_MIME_TYPES = Arrays
-            .asList(DEFAULT_MIME_TYPE, "text/plain");
+    static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE,
+            "text/plain");
 
     static final String DEFAULT_FILE_NAME = "file";
 
@@ -152,8 +152,8 @@ public class ContentEndpoint {
             throws ContentEndpointException {
         LOGGER.trace("ENTERING: create");
 
-        String directive = multipartBody
-                .getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID, String.class);
+        String directive = multipartBody.getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID,
+                String.class);
         LOGGER.debug("directive = {}", directive);
 
         String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
@@ -178,7 +178,11 @@ public class ContentEndpoint {
             LOGGER.debug("No file contents attachment found");
         }
 
-        Response response = doCreate(stream, contentType, directive, filename, contentUri,
+        Response response = doCreate(stream,
+                contentType,
+                directive,
+                filename,
+                contentUri,
                 requestUriInfo);
 
         LOGGER.trace("EXITING: create");
@@ -197,7 +201,8 @@ public class ContentEndpoint {
         // Get the file contents as an InputStream and ensure the stream is positioned
         // at the beginning
         try {
-            stream = contentPart.getDataHandler().getInputStream();
+            stream = contentPart.getDataHandler()
+                    .getInputStream();
             if (stream != null && stream.available() == 0) {
                 stream.reset();
             }
@@ -209,7 +214,8 @@ public class ContentEndpoint {
         // Example Content-Type header:
         // Content-Type: application/json;id=geojson
         if (contentPart.getContentType() != null) {
-            contentType = contentPart.getContentType().toString();
+            contentType = contentPart.getContentType()
+                    .toString();
         }
 
         if (contentPart.getContentDisposition() != null) {
@@ -243,7 +249,8 @@ public class ContentEndpoint {
             if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
                 String fileExtension = FilenameUtils.getExtension(filename);
                 LOGGER.debug("fileExtension = {}, contentType before refinement = {}",
-                        fileExtension, contentType);
+                        fileExtension,
+                        contentType);
                 if (fileExtension.equals("xml")) {
                     // FBOS reads file into byte array in memory up to this threshold, then it transitions
                     // to writing to a file.
@@ -251,13 +258,15 @@ public class ContentEndpoint {
                     try {
                         IOUtils.copy(stream, fbos);
                         // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
-                        contentType = mimeTypeMapper
-                                .guessMimeType(fbos.asByteSource().openStream(), fileExtension);
-                        createInfo.setStream(fbos.asByteSource().openStream());
+                        contentType = mimeTypeMapper.guessMimeType(fbos.asByteSource()
+                                .openStream(), fileExtension);
+                        createInfo.setStream(fbos.asByteSource()
+                                .openStream());
                     } catch (IOException | MimeTypeResolutionException e) {
                         LOGGER.debug(
                                 "Unable to refine contentType {} based on filename extension {}",
-                                contentType, fileExtension);
+                                contentType,
+                                fileExtension);
                     }
                 } else {
                     try {
@@ -265,7 +274,8 @@ public class ContentEndpoint {
                     } catch (MimeTypeResolutionException e) {
                         LOGGER.debug(
                                 "Unable to refine contentType {} based on filename extension {}",
-                                contentType, fileExtension);
+                                contentType,
+                                fileExtension);
                     }
                 }
                 LOGGER.debug("Refined contentType = {}", contentType);
@@ -316,8 +326,11 @@ public class ContentEndpoint {
         LOGGER.trace("ENTERING: update");
         LOGGER.debug("contentUri = {}", contentUri);
 
-        Response response = doUpdate(stream, null, contentType,
-                Request.Directive.PROCESS.toString(), contentUri);
+        Response response = doUpdate(stream,
+                null,
+                contentType,
+                Request.Directive.PROCESS.toString(),
+                contentUri);
 
         LOGGER.trace("EXITING: update");
 
@@ -375,7 +388,8 @@ public class ContentEndpoint {
             // Ensure directive has no extraneous whitespace or newlines - this tends to occur
             // on the values assigned in multipart/form-data.
             // (Was seeing this when testing with Google Chrome Advanced REST Client)
-            directive = directive.trim().replace(SystemUtils.LINE_SEPARATOR, "");
+            directive = directive.trim()
+                    .replace(SystemUtils.LINE_SEPARATOR, "");
         }
 
         Request.Directive requestDirective = Request.Directive.valueOf(directive);
@@ -386,14 +400,15 @@ public class ContentEndpoint {
         try {
             LOGGER.debug("Preparing content item for contentType = {}", contentType);
 
-            ContentItem newItem = new IncomingContentItem(stream, contentType,
+            ContentItem newItem = new IncomingContentItem(stream,
+                    contentType,
                     filename); // DDF-1856
             newItem.setUri(contentUri);
             LOGGER.debug("Creating content item.");
 
             CreateRequest createRequest = new CreateRequestImpl(newItem, null);
-            CreateResponse createResponse = contentFramework
-                    .create(createRequest, requestDirective);
+            CreateResponse createResponse = contentFramework.create(createRequest,
+                    requestDirective);
             if (createResponse != null) {
                 ContentItem contentItem = createResponse.getCreatedContentItem();
 
@@ -405,8 +420,8 @@ public class ContentEndpoint {
                 if (createResponse.getCreatedMetadata() != null) {
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
                             createResponse.getCreatedMetadata());
-                    responseBuilder = Response
-                            .ok(byteArrayInputStream, createResponse.getCreatedMetadataMimeType());
+                    responseBuilder = Response.ok(byteArrayInputStream,
+                            createResponse.getCreatedMetadataMimeType());
                 } else {
                     responseBuilder = Response.ok("{}");
                 }
@@ -535,16 +550,16 @@ public class ContentEndpoint {
         ContentItem updatedItem = null;
         try {
             UpdateRequest updateRequest = new UpdateRequestImpl(itemToUpdate, null);
-            UpdateResponse updateResponse = contentFramework
-                    .update(updateRequest, requestDirective);
+            UpdateResponse updateResponse = contentFramework.update(updateRequest,
+                    requestDirective);
             if (updateResponse != null) {
                 updatedItem = updateResponse.getUpdatedContentItem();
                 Response.ResponseBuilder responseBuilder;
                 if (updateResponse.getUpdatedMetadata() != null) {
                     ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
                             updateResponse.getUpdatedMetadata());
-                    responseBuilder = Response
-                            .ok(byteArrayInputStream, updateResponse.getUpdatedMetadataMimeType());
+                    responseBuilder = Response.ok(byteArrayInputStream,
+                            updateResponse.getUpdatedMetadataMimeType());
                 } else {
                     responseBuilder = Response.ok();
                 }
@@ -589,8 +604,8 @@ public class ContentEndpoint {
 
         try {
             DeleteRequest deleteRequest = new DeleteRequestImpl(itemToDelete, null);
-            DeleteResponse deleteResponse = contentFramework
-                    .delete(deleteRequest, requestDirective);
+            DeleteResponse deleteResponse = contentFramework.delete(deleteRequest,
+                    requestDirective);
 
             if (requestDirective == Request.Directive.PROCESS) {
                 LOGGER.debug("Deleted content item with URI = {}", contentUri);
@@ -601,13 +616,14 @@ public class ContentEndpoint {
             if (deleteResponse != null && deleteResponse.isFileDeleted()) {
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder.status(Response.Status.NO_CONTENT);
-                responseBuilder
-                        .header(CONTENT_ID_HTTP_HEADER, deleteResponse.getContentItem().getId());
+                responseBuilder.header(CONTENT_ID_HTTP_HEADER,
+                        deleteResponse.getContentItem()
+                                .getId());
                 addHttpHeaders(deleteResponse, responseBuilder);
                 response = responseBuilder.build();
             } else {
-                Response.ResponseBuilder responseBuilder = Response
-                        .ok("Content Item " + id + " not deleted");
+                Response.ResponseBuilder responseBuilder = Response.ok(
+                        "Content Item " + id + " not deleted");
                 responseBuilder.status(Response.Status.NOT_FOUND);
                 response = responseBuilder.build();
             }

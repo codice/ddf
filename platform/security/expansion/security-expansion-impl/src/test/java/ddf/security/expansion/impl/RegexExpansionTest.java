@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -59,9 +59,11 @@ public class RegexExpansionTest {
     private void assertMapsAreEqual(Map<String, List<String[]>> m1,
             Map<String, List<String[]>> m2) {
         assert (m1.size() == m2.size());
-        assert (m1.keySet().equals(m2.keySet()));
+        assert (m1.keySet()
+                .equals(m2.keySet()));
         for (String k : m1.keySet()) {
-            assert (m1.get(k).equals(m2.get(k)));
+            assert (m1.get(k)
+                    .equals(m2.get(k)));
         }
     }
 

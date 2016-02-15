@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -68,8 +68,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static final String SERVICE_FACTORYPID = "service.factoryPid";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(ConfigurationAdmin.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(ConfigurationAdmin.class));
 
     private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -167,8 +167,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     public List<Map<String, Object>> listServices() {
-        return configurationAdminExt
-                .listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+        return configurationAdminExt.listServices(getDefaultFactoryLdapFilter(),
+                getDefaultLdapFilter());
     }
 
     public Map<String, Object> getService(String filter) {
@@ -199,7 +199,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
 
         if (modules.size() > 0) {
-            modules.get(0).put("active", true);
+            modules.get(0)
+                    .put("active", true);
         }
         return modules;
     }
@@ -425,7 +426,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         final List<Map<String, Object>> metatype = findMetatypeForConfig(config);
         List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
 
-        CollectionUtils.addAll(configEntries, configurationTable.entrySet().iterator());
+        CollectionUtils.addAll(configEntries,
+                configurationTable.entrySet()
+                        .iterator());
 
         if (metatype == null) {
             throw loggedException("Could not find metatype for " + pid);
@@ -446,11 +449,12 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         List<Map<String, Object>> tempMetatype = null;
         for (Map<String, Object> service : services) {
             String id = String.valueOf(service.get(ConfigurationAdminExt.MAP_ENTRY_ID));
-            if (id.equals(config.getPid()) || ((id.equals(config.getFactoryPid()) || (id + "_disabled").equals(config.getFactoryPid())) && Boolean
-                    .valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
+            if (id.equals(config.getPid()) || ((id.equals(config.getFactoryPid()) || (id
+                    + "_disabled").equals(config.getFactoryPid()))
+                    && Boolean.valueOf(String.valueOf(service.get(ConfigurationAdminExt.MAP_FACTORY))))) {
                 @SuppressWarnings("unchecked")
-                List<Map<String, Object>> mapList = (List<Map<String, Object>>) service
-                        .get(ConfigurationAdminExt.MAP_ENTRY_METATYPE);
+                List<Map<String, Object>> mapList = (List<Map<String, Object>>) service.get(
+                        ConfigurationAdminExt.MAP_ENTRY_METATYPE);
                 tempMetatype = mapList;
                 break;
             }
@@ -480,8 +484,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
 
         Dictionary<String, Object> properties = originalConfig.getProperties();
-        String originalFactoryPid = (String) properties
-                .get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
+        String originalFactoryPid =
+                (String) properties.get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
         if (StringUtils.endsWith(originalFactoryPid, DISABLED)) {
             throw new IOException("Source is already disabled.");
         }
@@ -491,8 +495,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         String disabledServiceFactoryPid = originalFactoryPid + DISABLED;
         properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
                 disabledServiceFactoryPid);
-        Configuration disabledConfig = configurationAdmin
-                .createFactoryConfiguration(disabledServiceFactoryPid, null);
+        Configuration disabledConfig = configurationAdmin.createFactoryConfiguration(
+                disabledServiceFactoryPid,
+                null);
         disabledConfig.update(properties);
 
         // remove original configuration
@@ -530,17 +535,18 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
 
         Dictionary<String, Object> properties = disabledConfig.getProperties();
-        String disabledFactoryPid = (String) properties
-                .get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
+        String disabledFactoryPid =
+                (String) properties.get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
         if (!StringUtils.endsWith(disabledFactoryPid, DISABLED)) {
             throw new IOException("Source is already enabled.");
         }
 
         String enabledFactoryPid = StringUtils.removeEnd(disabledFactoryPid, DISABLED);
-        properties
-                .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
-        Configuration enabledConfiguration = configurationAdmin
-                .createFactoryConfiguration(enabledFactoryPid, null);
+        properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
+                enabledFactoryPid);
+        Configuration enabledConfiguration = configurationAdmin.createFactoryConfiguration(
+                enabledFactoryPid,
+                null);
         enabledConfiguration.update(properties);
 
         disabledConfig.delete();
@@ -586,8 +592,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             Integer type = null;
             for (Map<String, Object> property : metatype) {
                 if (attrId.equals(property.get(ConfigurationAdminExt.MAP_ENTRY_ID))) {
-                    cardinality = Integer.valueOf(String.valueOf(
-                            property.get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY)));
+                    cardinality =
+                            Integer.valueOf(String.valueOf(property.get(ConfigurationAdminExt.MAP_ENTRY_CARDINALITY)));
                     type = (Integer) property.get(ConfigurationAdminExt.MAP_ENTRY_TYPE);
                 }
             }
@@ -603,7 +609,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 value = "";
             }
             // negative cardinality means a vector, 0 is a string, and positive is an array
-            CardinalityEnforcer cardinalityEnforcer = TYPE.forType(type).getCardinalityEnforcer();
+            CardinalityEnforcer cardinalityEnforcer = TYPE.forType(type)
+                    .getCardinalityEnforcer();
             if (value instanceof String && cardinality != 0) {
                 try {
                     value = new JSONParser().parse(String.valueOf(value));
@@ -639,8 +646,10 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
 
         public Vector<T> negativeCardinality(Object value) {
-            if (!(value.getClass().isArray() || value instanceof Collection)) {
-                if (String.valueOf(value).isEmpty()) {
+            if (!(value.getClass()
+                    .isArray() || value instanceof Collection)) {
+                if (String.valueOf(value)
+                        .isEmpty()) {
                     value = new Object[] {};
                 } else {
                     value = new Object[] {value};
@@ -655,7 +664,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         }
 
         public T zerothCardinality(Object value) {
-            if (value.getClass().isArray() || value instanceof Collection) {
+            if (value.getClass()
+                    .isArray() || value instanceof Collection) {
                 if (CollectionUtils.size(value) != 1) {
                     throw loggedException(
                             "Attempt on 0-cardinality property to set multiple values:" + value);
@@ -663,7 +673,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
                 value = CollectionUtils.get(value, 0);
             }
             if (!clazz.isInstance(value)) {
-                value = TypeParser.newBuilder().build().parse(String.valueOf(value), clazz);
+                value = TypeParser.newBuilder()
+                        .build()
+                        .parse(String.valueOf(value), clazz);
             }
             if (clazz.isInstance(value)) {
                 return clazz.cast(value);

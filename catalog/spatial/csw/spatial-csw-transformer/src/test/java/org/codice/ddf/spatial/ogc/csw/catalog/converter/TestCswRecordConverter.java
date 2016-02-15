@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
@@ -89,8 +88,8 @@ import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 
 public class TestCswRecordConverter {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(TestCswRecordConverter.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(TestCswRecordConverter.class);
 
     private static final String THUMBNAIL_URL = "THUMBNAIL_URL";
 
@@ -127,9 +126,12 @@ public class TestCswRecordConverter {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        modified = XSD_FACTORY.newXMLGregorianCalendar(MODIFIED_DATE).toXMLFormat();
-        effective = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE).toXMLFormat();
-        created = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE).toXMLFormat();
+        modified = XSD_FACTORY.newXMLGregorianCalendar(MODIFIED_DATE)
+                .toXMLFormat();
+        effective = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE)
+                .toXMLFormat();
+        created = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE)
+                .toXMLFormat();
 
         converter = new CswRecordConverter();
     }
@@ -145,12 +147,13 @@ public class TestCswRecordConverter {
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertThat(mc, not(nullValue()));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("urn:uuid:e933"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_SUBJECT).getValue(),
-                equalTo("Land titles"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), startsWith("urn:uuid:e933"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_SUBJECT)
+                .getValue(), equalTo("Land titles"));
 
-        Date returned = (Date) mc.getAttribute(CswRecordMetacardType.CSW_DATE).getValue();
+        Date returned = (Date) mc.getAttribute(CswRecordMetacardType.CSW_DATE)
+                .getValue();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.clear();
         cal.set(2003, 4, 9);
@@ -183,8 +186,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalWriteNamespaces() throws IOException, SAXException,
-            XmlPullParserException {
+    public void testUnmarshalWriteNamespaces()
+            throws IOException, SAXException, XmlPullParserException {
         XStream xstream = new XStream(new XppDriver());
 
         xstream.registerConverter(converter);
@@ -194,7 +197,8 @@ public class TestCswRecordConverter {
         InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
 
         HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is),
-                XmlPullParserFactory.newInstance().newPullParser());
+                XmlPullParserFactory.newInstance()
+                        .newPullParser());
         DataHolder args = xstream.newDataHolder();
         Map<String, String> namespaces = new HashMap<>();
         namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
@@ -223,8 +227,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat() throws
-            ParserConfigurationException, IOException, SAXException {
+    public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat()
+            throws ParserConfigurationException, IOException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         Map<String, String> metacardAttributeMappings = getMetacardAttributeMappings();
@@ -235,7 +239,8 @@ public class TestCswRecordConverter {
         xstream.alias("csw:Record", MetacardImpl.class);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml").getPath());
+        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml")
+                .getPath());
         HierarchicalStreamReader reader = new DomReader(doc);
         DataHolder holder = xstream.newDataHolder();
         holder.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
@@ -253,8 +258,8 @@ public class TestCswRecordConverter {
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
-        InputStream is = TestCswRecordConverter.class
-                .getResourceAsStream("/Csw_Record_with_Geometry.xml");
+        InputStream is = TestCswRecordConverter.class.getResourceAsStream(
+                "/Csw_Record_with_Geometry.xml");
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertThat(mc, not(nullValue()));
@@ -272,18 +277,23 @@ public class TestCswRecordConverter {
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
-        InputStream is = TestCswRecordConverter.class
-                .getResourceAsStream("/Csw_Record_MultiValueFields.xml");
+        InputStream is = TestCswRecordConverter.class.getResourceAsStream(
+                "/Csw_Record_MultiValueFields.xml");
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertThat(mc, not(nullValue()));
-        LOGGER.debug("Metacard title = {}", (String) mc.getAttribute(Metacard.TITLE).getValue());
+        LOGGER.debug("Metacard title = {}",
+                (String) mc.getAttribute(Metacard.TITLE)
+                        .getValue());
         LOGGER.debug("CSW title = {}",
-                (String) mc.getAttribute(CswRecordMetacardType.CSW_TITLE).getValue());
+                (String) mc.getAttribute(CswRecordMetacardType.CSW_TITLE)
+                        .getValue());
         assertThat(mc.getTitle(), equalTo("First title"));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_TITLE,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_TITLE,
                 new String[] {"First title", "Second title"});
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_SUBJECT,
+        assertListStringAttribute(mc,
+                CswRecordMetacardType.CSW_SUBJECT,
                 new String[] {"Subject 1", "Subject 2"});
     }
 
@@ -294,10 +304,11 @@ public class TestCswRecordConverter {
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
-        InputStream is = TestCswRecordConverter.class
-                .getResourceAsStream("/Csw_Record_MultiValueFields.xml");
+        InputStream is = TestCswRecordConverter.class.getResourceAsStream(
+                "/Csw_Record_MultiValueFields.xml");
         Metacard mc = (Metacard) xstream.fromXML(is);
-        assertThat(mc.getResourceURI().toString(), equalTo("http://example.com/product.pdf"));
+        assertThat(mc.getResourceURI()
+                .toString(), equalTo("http://example.com/product.pdf"));
     }
 
     // This test exercises all of the attributes shared between a basic metacard
@@ -315,34 +326,36 @@ public class TestCswRecordConverter {
 
         assertThat(mc, not(nullValue()));
 
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("08976079-9c53-465f-b921-97d0717262f5"));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
-                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), startsWith("08976079-9c53-465f-b921-97d0717262f5"));
+        assertThat((String) mc.getAttribute(Metacard.ID)
+                        .getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                        .getValue()));
 
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE).getValue(),
-                equalTo("IMAGE-PRODUCT"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
+                .getValue(), equalTo("IMAGE-PRODUCT"));
 
         // Verify extensible CSW attributes in metacard were populated
         // created
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
-                equalTo("2003-01-28T07:09:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo("2003-01-28T07:09:16Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
 
         // effective
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
-                equalTo("2013-07-12T16:16:16Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED).getValue(),
-                equalTo("2013-07-12T16:16:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED)
+                .getValue(), equalTo("2013-07-12T16:16:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED)
+                .getValue(), equalTo("2013-07-12T16:16:16Z"));
 
         assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_DATE_ACCEPTED, mc);
 
         // modified
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo("2013-05-15T19:15:15Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
-                equalTo("2003-05-14T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo("2013-05-15T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED)
+                .getValue(), equalTo("2003-05-14T19:15:15Z"));
 
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
 
@@ -353,16 +366,18 @@ public class TestCswRecordConverter {
         Metacard mc = buildMetacardFromCSW("/Csw_Record_without_ModifiedDate.xml");
         assertThat(mc, not(nullValue()));
 
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("08976079-9c53-465f-d921-97d0717262f5"));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
-                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), startsWith("08976079-9c53-465f-d921-97d0717262f5"));
+        assertThat((String) mc.getAttribute(Metacard.ID)
+                        .getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                        .getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
-                equalTo("2003-01-28T07:09:16Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
-                equalTo("2003-05-14T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo("2003-01-28T07:09:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED)
+                .getValue(), equalTo("2003-05-14T19:15:15Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_DATE_SUBMITTED, mc);
@@ -373,16 +388,18 @@ public class TestCswRecordConverter {
         Metacard mc = buildMetacardFromCSW("/Csw_Record_without_DateSubmitted.xml");
         assertThat(mc, not(nullValue()));
 
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("08976079-9c53-465f-c921-97d0717262f5"));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
-                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), startsWith("08976079-9c53-465f-c921-97d0717262f5"));
+        assertThat((String) mc.getAttribute(Metacard.ID)
+                        .getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                        .getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
-                equalTo("2003-01-28T07:09:16Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo("2013-05-15T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo("2003-01-28T07:09:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo("2013-05-15T19:15:15Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
@@ -398,7 +415,8 @@ public class TestCswRecordConverter {
         InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
 
         HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is),
-                XmlPullParserFactory.newInstance().newPullParser());
+                XmlPullParserFactory.newInstance()
+                        .newPullParser());
         DataHolder args = xstream.newDataHolder();
         Map<String, String> dateMappings = new HashMap<>();
         dateMappings.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Metacard.EFFECTIVE);
@@ -410,31 +428,33 @@ public class TestCswRecordConverter {
 
         assertThat(mc, not(nullValue()));
 
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                is(equalTo("08976079-9c53-465f-b921-97d0717262f5")));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
-                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), is(equalTo("08976079-9c53-465f-b921-97d0717262f5")));
+        assertThat((String) mc.getAttribute(Metacard.ID)
+                        .getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                        .getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
         // created
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
-                equalTo("2003-01-28T07:09:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo("2003-01-28T07:09:16Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
 
         // effective
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
-                equalTo("2013-07-12T16:16:16Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED).getValue(),
-                equalTo("2013-07-12T16:16:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED)
+                .getValue(), equalTo("2013-07-12T16:16:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED)
+                .getValue(), equalTo("2013-07-12T16:16:16Z"));
 
         assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_DATE_SUBMITTED, mc);
 
         // modified
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo("2013-05-15T19:15:15Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
-                equalTo("2003-05-14T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo("2013-05-15T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED)
+                .getValue(), equalTo("2003-05-14T19:15:15Z"));
 
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
     }
@@ -451,8 +471,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordWithCustomDateMappings() throws ParserConfigurationException,
-            IOException, SAXException {
+    public void testUnmarshalCswRecordWithCustomDateMappings()
+            throws ParserConfigurationException, IOException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         // Custom date mappings
@@ -466,7 +486,8 @@ public class TestCswRecordConverter {
         xstream.alias("csw:Record", MetacardImpl.class);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml").getPath());
+        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml")
+                .getPath());
         HierarchicalStreamReader reader = new DomReader(doc);
         DataHolder holder = xstream.newDataHolder();
         holder.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
@@ -476,12 +497,12 @@ public class TestCswRecordConverter {
         assertThat(mc, not(nullValue()));
 
         // Verify extensible CSW attributes in metacard were populated
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
-                equalTo("2003-01-28T07:09:16Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
-                equalTo("2003-05-14T19:15:15Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo("2013-05-15T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED)
+                .getValue(), equalTo("2003-01-28T07:09:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED)
+                .getValue(), equalTo("2003-05-14T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED)
+                .getValue(), equalTo("2013-05-15T19:15:15Z"));
 
         assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_MODIFIED, mc);
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
@@ -489,8 +510,9 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordWithProductAndThumbnail() throws URISyntaxException,
-            IOException, JAXBException, ParserConfigurationException, SAXException {
+    public void testUnmarshalCswRecordWithProductAndThumbnail()
+            throws URISyntaxException, IOException, JAXBException, ParserConfigurationException,
+            SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         xstream.registerConverter(converter);
@@ -523,13 +545,13 @@ public class TestCswRecordConverter {
 
         // Verify resource URI populated
         String productUrl = "http://example.com/product.pdf";
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_SOURCE).getValue(),
-                equalTo(productUrl));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_SOURCE)
+                .getValue(), equalTo(productUrl));
         assertThat(mc.getResourceURI(), equalTo(new URI(productUrl)));
 
         // Verify the thumbnail is populated
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_REFERENCES).getValue(),
-                equalTo(thumbnail.toString()));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_REFERENCES)
+                .getValue(), equalTo(thumbnail.toString()));
         assertThat(mc.getThumbnail(), equalTo(getThumbnailByteArray(thumbnail)));
     }
 
@@ -539,8 +561,9 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertISODateMetacardAttribute() {
         String dateStr = "2013-05-03T17:25:04Z";
-        Serializable ser = CswUnmarshallHelper
-                .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
+        Serializable ser =
+                CswUnmarshallHelper.convertStringValueToMetacardValue(AttributeFormat.DATE,
+                        dateStr);
         assertThat(ser, not(nullValue()));
         assertThat(Date.class.isAssignableFrom(ser.getClass()), is(true));
         Date date = (Date) ser;
@@ -558,8 +581,9 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidTimeZoneInDateMetacardAttribute() {
         String dateStr = "2013-05-13T10:56:39EDT";
-        Serializable ser = CswUnmarshallHelper
-                .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
+        Serializable ser =
+                CswUnmarshallHelper.convertStringValueToMetacardValue(AttributeFormat.DATE,
+                        dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
     }
@@ -570,8 +594,9 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidDateMetacardAttribute() {
         String dateStr = "26021000ZFEB11";
-        Serializable ser = CswUnmarshallHelper
-                .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
+        Serializable ser =
+                CswUnmarshallHelper.convertStringValueToMetacardValue(AttributeFormat.DATE,
+                        dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
     }
@@ -580,12 +605,13 @@ public class TestCswRecordConverter {
      * Test to verify that a metacard's content type is set to the CSW Record's type field.
      */
     @Test
-    public void testSetMetacardContentTypeToCswRecordType() throws ParserConfigurationException,
-            SAXException, IOException {
+    public void testSetMetacardContentTypeToCswRecordType()
+            throws ParserConfigurationException, SAXException, IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml").getPath());
+        Document doc = docBuilder.parse(TestCswRecordConverter.class.getResource("/Csw_Record.xml")
+                .getPath());
         HierarchicalStreamReader reader = new DomReader(doc);
 
         Map<String, String> metacardAttributeMappings = this.getMetacardAttributeMappings();
@@ -603,8 +629,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMarshalRecord() throws IOException, JAXBException, SAXException,
-            XpathException {
+    public void testMarshalRecord()
+            throws IOException, JAXBException, SAXException, XpathException {
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -619,8 +645,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMarshalBriefRecord() throws IOException, JAXBException, SAXException,
-            XpathException {
+    public void testMarshalBriefRecord()
+            throws IOException, JAXBException, SAXException, XpathException {
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -636,8 +662,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMarshalSummaryRecord() throws IOException, JAXBException, SAXException,
-            XpathException {
+    public void testMarshalSummaryRecord()
+            throws IOException, JAXBException, SAXException, XpathException {
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -653,8 +679,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMarshalRecordWithNamespaces() throws IOException, JAXBException, SAXException,
-            XpathException {
+    public void testMarshalRecordWithNamespaces()
+            throws IOException, JAXBException, SAXException, XpathException {
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -670,8 +696,9 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMetacardTransform() throws IOException, JAXBException, SAXException,
-            XpathException, CatalogTransformerException {
+    public void testMetacardTransform()
+            throws IOException, JAXBException, SAXException, XpathException,
+            CatalogTransformerException {
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
@@ -687,8 +714,9 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMetacardTransformOmitXmlDeclaration() throws IOException, JAXBException,
-            SAXException, XpathException, CatalogTransformerException {
+    public void testMetacardTransformOmitXmlDeclaration()
+            throws IOException, JAXBException, SAXException, XpathException,
+            CatalogTransformerException {
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
@@ -698,15 +726,16 @@ public class TestCswRecordConverter {
         BinaryContent content = converter.transform(metacard, args);
 
         String xml = IOUtils.toString(content.getInputStream());
-        assertThat(xml, not(containsString(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")));
+        assertThat(xml,
+                not(containsString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")));
         XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(getControlRecord(), xml);
     }
 
     @Test
-    public void testMetacardTransformOmitNamespaces() throws IOException, JAXBException,
-            SAXException, XpathException, CatalogTransformerException {
+    public void testMetacardTransformOmitNamespaces()
+            throws IOException, JAXBException, SAXException, XpathException,
+            CatalogTransformerException {
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
@@ -719,8 +748,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testInputTransformWithNoNamespaceDeclaration() throws IOException,
-            CatalogTransformerException {
+    public void testInputTransformWithNoNamespaceDeclaration()
+            throws IOException, CatalogTransformerException {
         InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
         Metacard mc = converter.transform(is);
 
@@ -742,8 +771,8 @@ public class TestCswRecordConverter {
         Metacard mc = converter.transform(is);
 
         assertThat(mc, not(nullValue()));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("08976079-9c53-465f-b921-97d0717262f5"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER)
+                .getValue(), startsWith("08976079-9c53-465f-b921-97d0717262f5"));
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -773,7 +802,8 @@ public class TestCswRecordConverter {
     }
 
     private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
-        List<?> values = (List<?>) mc.getAttribute(attrName).getValues();
+        List<?> values = (List<?>) mc.getAttribute(attrName)
+                .getValues();
         assertThat(values, not(nullValue()));
         assertThat(values.size(), equalTo(expectedValues.length));
 
@@ -784,9 +814,12 @@ public class TestCswRecordConverter {
     }
 
     private void assertDates(String metacardAttribute, String cswAttribute, Metacard mc) {
-        Date date = (Date) mc.getAttribute(metacardAttribute).getValue();
-        String expectedDateStr = (String) mc.getAttribute(cswAttribute).getValue();
-        Date expectedDate = dateFormatter.parseDateTime(expectedDateStr).toDate();
+        Date date = (Date) mc.getAttribute(metacardAttribute)
+                .getValue();
+        String expectedDateStr = (String) mc.getAttribute(cswAttribute)
+                .getValue();
+        Date expectedDate = dateFormatter.parseDateTime(expectedDateStr)
+                .toDate();
         assertThat(date.getTime(), equalTo(expectedDate.getTime()));
     }
 
@@ -859,10 +892,12 @@ public class TestCswRecordConverter {
     private void assertRecordXml(String xml, Metacard metacard, ElementSetType elemntSetType) {
         switch (elemntSetType) {
         case FULL:
-            assertThat(xml, containsString("<dct:bibliographicCitation>" + metacard.getId()
-                    + "</dct:bibliographicCitation>"));
-            assertThat(xml, containsString(
-                    "<dct:alternative>" + metacard.getTitle() + "</dct:alternative>"));
+            assertThat(xml,
+                    containsString("<dct:bibliographicCitation>" + metacard.getId()
+                            + "</dct:bibliographicCitation>"));
+            assertThat(xml,
+                    containsString(
+                            "<dct:alternative>" + metacard.getTitle() + "</dct:alternative>"));
             assertThat(xml, containsString("<dc:date>" + modified + "</dc:date>"));
             assertThat(xml, containsString("<dct:modified>" + modified + "</dct:modified>"));
             assertThat(xml, containsString("<dct:created>" + created + "</dct:created>"));

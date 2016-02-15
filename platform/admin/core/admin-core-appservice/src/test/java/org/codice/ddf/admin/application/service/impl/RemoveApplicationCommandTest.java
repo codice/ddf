@@ -28,6 +28,7 @@ public class RemoveApplicationCommandTest {
     private Logger logger = LoggerFactory.getLogger(RemoveApplicationCommand.class);
 
     private static final String APP_NAME = "TestApp";
+
     /**
      * Tests the {@link RemoveApplicationCommand} class
      *
@@ -44,8 +45,7 @@ public class RemoveApplicationCommandTest {
         removeApplicationCommand.appName = APP_NAME;
         removeApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         removeApplicationCommand.doExecute();

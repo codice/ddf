@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -91,12 +91,14 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
         rootObject.put("type", "Feature");
         JSONObject properties = new JSONObject();
 
-        for (AttributeDescriptor ad : metacard.getMetacardType().getAttributeDescriptors()) {
+        for (AttributeDescriptor ad : metacard.getMetacardType()
+                .getAttributeDescriptors()) {
 
             Attribute attribute = metacard.getAttribute(ad.getName());
 
             if (attribute != null) {
-                switch (ad.getType().getAttributeFormat()) {
+                switch (ad.getType()
+                        .getAttributeFormat()) {
                 case BOOLEAN:
                     properties.put(attribute.getName(), (Boolean) attribute.getValue());
                     break;
@@ -130,16 +132,19 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
                 case XML:
                     if (attribute.getValue() != null) {
                         // xml is automatically escaped by json library
-                        properties.put(attribute.getName(), attribute.getValue().toString());
+                        properties.put(attribute.getName(),
+                                attribute.getValue()
+                                        .toString());
                     }
                     break;
                 case GEOMETRY:
                     if (attribute.getValue() != null) {
                         WKTReader reader = new WKTReader();
                         try {
-                            Geometry geometry = reader.read(attribute.getValue().toString());
-                            CompositeGeometry geoJsonGeometry = CompositeGeometry
-                                    .getCompositeGeometry(geometry);
+                            Geometry geometry = reader.read(attribute.getValue()
+                                    .toString());
+                            CompositeGeometry geoJsonGeometry =
+                                    CompositeGeometry.getCompositeGeometry(geometry);
                             if (geoJsonGeometry == null) {
                                 throw new CatalogTransformerException(
                                         "Could not perform transform: unsupported geometry ["
@@ -150,7 +155,8 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
                         } catch (ParseException e) {
                             LOGGER.warn("Parse exception during reading of geometry", e);
                             throw new CatalogTransformerException(
-                                    "Could not perform transform: could not parse geometry.", e);
+                                    "Could not perform transform: could not parse geometry.",
+                                    e);
                         }
 
                     }
@@ -168,7 +174,9 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
             rootObject.put(CompositeGeometry.GEOMETRY_KEY, null);
         }
 
-        properties.put(METACARD_TYPE_PROPERTY_KEY, metacard.getMetacardType().getName());
+        properties.put(METACARD_TYPE_PROPERTY_KEY,
+                metacard.getMetacardType()
+                        .getName());
 
         if (metacard.getSourceId() != null && !"".equals(metacard.getSourceId())) {
             properties.put(SOURCE_ID_PROPERTY, metacard.getSourceId());
@@ -186,15 +194,14 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
         String jsonText = JSONValue.toJSONString(rootObject);
 
-        return new BinaryContentImpl(
-                new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
+        return new BinaryContentImpl(new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
                 DEFAULT_MIME_TYPE);
     }
 
     @Override
     public String toString() {
-        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName() + ", id="
-                + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
+        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass()
+                .getName() + ", id=" + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
     }
 
 }

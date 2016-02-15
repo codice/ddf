@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 package ddf.sdk.plugin.presubscription;
 
@@ -38,6 +37,7 @@ public class DummyPreSubscriptionPlugin implements PreSubscriptionPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummyPreSubscriptionPlugin.class);
 
     private static final String ENTERING = "ENTERING {}";
+
     private static final String EXITING = "EXITING {}";
 
     private FilterAdapter filterAdapter;
@@ -64,16 +64,18 @@ public class DummyPreSubscriptionPlugin implements PreSubscriptionPlugin {
                 Filter copiedFilter = filterAdapter.adapt(input, delegate);
 
                 // Define the extra query clause(s) to add to the copied filter
-                Filter extraFilter = filterBuilder
-                        .attribute(Metacard.ANY_TEXT).like()
+                Filter extraFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                        .like()
                         .text("CAN");
 
                 // AND the extra query clause(s) to the copied filter
                 Filter modifiedFilter = filterBuilder.allOf(copiedFilter, extraFilter);
 
                 // Create a new subscription with the modified filter
-                newSubscription = new SubscriptionImpl(modifiedFilter, input.getDeliveryMethod(),
-                        input.getSourceIds(), input.isEnterprise());
+                newSubscription = new SubscriptionImpl(modifiedFilter,
+                        input.getDeliveryMethod(),
+                        input.getSourceIds(),
+                        input.isEnterprise());
             } catch (UnsupportedQueryException e) {
                 throw new PluginExecutionException(e);
             }

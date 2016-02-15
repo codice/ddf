@@ -162,16 +162,20 @@ public class XMLUtils {
     protected static synchronized void initializeXMLInputFactory() {
         if (xmlInputFactory == null) {
             xmlInputFactory = XMLInputFactory.newInstance();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
+                    Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
+                    Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
         }
     }
 
     private static void transformation(Source sourceXml, TransformerProperties transformProperties,
             Result result) {
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(XMLUtils.class.getClassLoader());
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
+        Thread.currentThread()
+                .setContextClassLoader(XMLUtils.class.getClassLoader());
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
             Transformer transformer = transFactory.newTransformer();
@@ -186,7 +190,8 @@ public class XMLUtils {
         } catch (TransformerException e) {
             LOGGER.warn("Unable to transform XML.", e);
         } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            Thread.currentThread()
+                    .setContextClassLoader(tccl);
         }
     }
 }

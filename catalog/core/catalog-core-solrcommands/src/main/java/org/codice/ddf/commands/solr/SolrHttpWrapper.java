@@ -50,12 +50,17 @@ public class SolrHttpWrapper implements HttpWrapper {
     public SolrHttpWrapper() {
 
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                getSslContext(), getProtocols(), getCipherSuites(),
+                getSslContext(),
+                getProtocols(),
+                getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 
-        solrClient = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
-                .setDefaultCookieStore(new BasicCookieStore()).setMaxConnTotal(128)
-                .setMaxConnPerRoute(32).build();
+        solrClient = HttpClients.custom()
+                .setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(new BasicCookieStore())
+                .setMaxConnTotal(128)
+                .setMaxConnPerRoute(32)
+                .build();
     }
 
     private static KeyStore getKeyStore(String location, String password) {
@@ -94,7 +99,8 @@ public class SolrHttpWrapper implements HttpWrapper {
             LOGGER.debug("Error during request. Returning null response.");
         }
         BasicHttpResponse response = new BasicHttpResponse(null,
-                HttpStatus.SC_INTERNAL_SERVER_ERROR, "Error during request.");
+                HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                "Error during request.");
         return new ResponseWrapper(response);
     }
 
@@ -117,15 +123,19 @@ public class SolrHttpWrapper implements HttpWrapper {
         try {
             sslContext = SSLContexts.custom()
                     .loadKeyMaterial(keyStore, keystorePassword.toCharArray())
-                    .loadTrustMaterial(trustStore).useTLS().build();
+                    .loadTrustMaterial(trustStore)
+                    .useTLS()
+                    .build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
             LOGGER.error("Unable to create secure HttpClient", e);
             return null;
         }
 
-        sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
-        sslContext.getDefaultSSLParameters().setWantClientAuth(true);
+        sslContext.getDefaultSSLParameters()
+                .setNeedClientAuth(true);
+        sslContext.getDefaultSSLParameters()
+                .setWantClientAuth(true);
 
         return sslContext;
     }

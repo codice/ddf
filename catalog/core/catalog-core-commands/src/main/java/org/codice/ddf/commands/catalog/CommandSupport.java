@@ -51,13 +51,19 @@ public abstract class CommandSupport extends OsgiCommandSupport {
     protected void printColor(Ansi.Color color, String message) {
         String colorString;
         if (color == null || color.equals(Ansi.Color.DEFAULT)) {
-            colorString = Ansi.ansi().reset().toString();
+            colorString = Ansi.ansi()
+                    .reset()
+                    .toString();
         } else {
-            colorString = Ansi.ansi().fg(color).toString();
+            colorString = Ansi.ansi()
+                    .fg(color)
+                    .toString();
         }
         console.print(colorString);
         console.print(message);
-        console.println(Ansi.ansi().reset().toString());
+        console.println(Ansi.ansi()
+                .reset()
+                .toString());
     }
 
     protected void printErrorMessage(String message) {
@@ -90,8 +96,10 @@ public abstract class CommandSupport extends OsgiCommandSupport {
         // /r is required, it allows for the update in place
         String progressBarFormat = "%1$4s%% [=%2$-50s] %3$5s records/sec\t\r";
 
-        return String.format(progressBarFormat, progressPercentage,
-                StringUtils.repeat("=", notches) + progressArrow, rate);
+        return String.format(progressBarFormat,
+                progressPercentage,
+                StringUtils.repeat("=", notches) + progressArrow,
+                rate);
     }
 
     private int calculateNotches(long currentCount, long totalPossible) {
@@ -105,7 +113,6 @@ public abstract class CommandSupport extends OsgiCommandSupport {
     }
 
     protected int calculateRecordsPerSecond(long currentCount, long start, long end) {
-        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start)
-                / MS_PER_SECOND));
+        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start) / MS_PER_SECOND));
     }
 }

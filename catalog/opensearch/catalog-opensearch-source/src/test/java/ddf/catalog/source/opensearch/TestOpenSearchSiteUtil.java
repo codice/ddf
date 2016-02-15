@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -57,10 +57,13 @@ public class TestOpenSearchSiteUtil {
         String searchPhrase = "TestQuery123";
         assertTrue(url.indexOf(OpenSearchSiteUtil.SEARCH_TERMS) != -1);
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateContextual(webClient, searchPhrase, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateContextual(webClient,
+                searchPhrase,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         assertTrue(urlStr.indexOf(searchPhrase) != -1);
         assertTrue(urlStr.indexOf("?" + OpenSearchSiteUtil.SEARCH_TERMS) != -1);
         try {
@@ -77,10 +80,13 @@ public class TestOpenSearchSiteUtil {
     @Test
     public void populateNullContextual() {
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateContextual(webClient, null, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateContextual(webClient,
+                null,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         assertTrue(urlStr.indexOf("?" + OpenSearchSiteUtil.SEARCH_TERMS) == -1);
     }
 
@@ -94,10 +100,13 @@ public class TestOpenSearchSiteUtil {
         TemporalFilter temporal = new TemporalFilter(start, end);
 
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateTemporal(webClient, temporal, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateTemporal(webClient,
+                temporal,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         String startT = fmt.print(start.getTime());
         try {
             assertTrue(urlStr.indexOf(URLEncoder.encode(startT, "UTF-8")) != -1);
@@ -128,10 +137,13 @@ public class TestOpenSearchSiteUtil {
     public void populateNullTemporal() {
         StringBuilder resultStr = new StringBuilder(url);
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateTemporal(webClient, null, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateTemporal(webClient,
+                null,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.TIME_START) == -1);
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.TIME_END) == -1);
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.TIME_NAME) == -1);
@@ -149,10 +161,14 @@ public class TestOpenSearchSiteUtil {
 
         WebClient webClient = WebClient.create(url.toString());
 
-        OpenSearchSiteUtil.populateSearchOptions(webClient, query, null, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateSearchOptions(webClient,
+                query,
+                null,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         assertTrue(urlStr.indexOf(maxResults) != -1);
         assertTrue(urlStr.indexOf(timeout) != -1);
         assertThat(urlStr, containsString(sort));
@@ -174,10 +190,14 @@ public class TestOpenSearchSiteUtil {
     @Test
     public void populateNullSearchOptions() {
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateSearchOptions(webClient, null, null, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateSearchOptions(webClient,
+                null,
+                null,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.COUNT) == -1);
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.MAX_RESULTS) == -1);
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.SRC) == -1);
@@ -239,10 +259,14 @@ public class TestOpenSearchSiteUtil {
 
         SpatialFilter spatial = new SpatialFilter(wktPolygon);
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateGeospatial(webClient, spatial, false, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateGeospatial(webClient,
+                spatial,
+                false,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
 
         assertTrue(urlStr.indexOf(expectedStr) != -1);
         assertTrue(urlStr.indexOf(OpenSearchSiteUtil.GEO_POLY) != -1);
@@ -257,10 +281,14 @@ public class TestOpenSearchSiteUtil {
 
         SpatialDistanceFilter spatial = new SpatialDistanceFilter(wktPoint, radius);
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateGeospatial(webClient, spatial, false, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
-        String urlStr = webClient.getCurrentURI().toString();
+        OpenSearchSiteUtil.populateGeospatial(webClient,
+                spatial,
+                false,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
+        String urlStr = webClient.getCurrentURI()
+                .toString();
         assertTrue(urlStr.indexOf(lat) != -1);
         assertTrue(urlStr.indexOf(lon) != -1);
         assertTrue(urlStr.indexOf(radius) != -1);
@@ -283,13 +311,19 @@ public class TestOpenSearchSiteUtil {
     public void populateNullGeospatial() throws Exception {
         SpatialDistanceFilter spatial = null;
         WebClient webClient = WebClient.create(url.toString());
-        OpenSearchSiteUtil.populateGeospatial(webClient, spatial, true, Arrays.asList(
-                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-                        .split(",")));
+        OpenSearchSiteUtil.populateGeospatial(webClient,
+                spatial,
+                true,
+                Arrays.asList(
+                        "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort".split(
+                                ",")));
         URI urlStr = webClient.getCurrentURI();
-        assertTrue(urlStr.toString().indexOf(OpenSearchSiteUtil.GEO_LAT) == -1);
-        assertTrue(urlStr.toString().indexOf(OpenSearchSiteUtil.GEO_LON) == -1);
-        assertTrue(urlStr.toString().indexOf(OpenSearchSiteUtil.GEO_RADIUS) == -1);
+        assertTrue(urlStr.toString()
+                .indexOf(OpenSearchSiteUtil.GEO_LAT) == -1);
+        assertTrue(urlStr.toString()
+                .indexOf(OpenSearchSiteUtil.GEO_LON) == -1);
+        assertTrue(urlStr.toString()
+                .indexOf(OpenSearchSiteUtil.GEO_RADIUS) == -1);
 
     }
 

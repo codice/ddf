@@ -21,7 +21,8 @@ package org.codice.ddf.spatial.geocoding;
 public class GeoEntryIndexingException extends Exception {
     /**
      * Instantiates a new exception with the provided message.
-     * @param message  the message
+     *
+     * @param message the message
      */
     public GeoEntryIndexingException(final String message) {
         super(message);
@@ -29,8 +30,9 @@ public class GeoEntryIndexingException extends Exception {
 
     /**
      * Instantiates a new exception with the provided message and {@link Throwable}.
-     * @param message  the message
-     * @param throwable  the throwable
+     *
+     * @param message   the message
+     * @param throwable the throwable
      */
     public GeoEntryIndexingException(final String message, final Throwable throwable) {
         super(message, throwable);

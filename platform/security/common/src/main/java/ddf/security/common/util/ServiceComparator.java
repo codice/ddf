@@ -20,14 +20,13 @@ import org.osgi.framework.ServiceReference;
 
 /**
  * Comparator for OSGi {@link ServiceReference} objects.
- *
  */
 public class ServiceComparator implements Comparator<ServiceReference>, Serializable {
 
     /**
      * Compares this ServiceReference with the specified ServiceReference for order using the OSGi
      * {@link ServiceReference} compare method.
-     *
+     * <p>
      * If this ServiceReference and the specified ServiceReference have the same service id they are
      * equal. This ServiceReference is less than the specified ServiceReference if it has a lower
      * service ranking and greater if it has a higher service ranking. Otherwise, if this

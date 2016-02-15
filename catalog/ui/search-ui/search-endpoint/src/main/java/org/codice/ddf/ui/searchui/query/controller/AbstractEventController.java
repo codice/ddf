@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -66,8 +65,8 @@ public abstract class AbstractEventController implements EventHandler {
     // ((30 users / .75 loadFactor) + 1) = 41 = initialCapacity.
     // TODO: Should the initial size be larger? How many clients are we
     // anticipating per DDF instance.
-    protected Map<String, ServerSession> userSessionMap = Collections
-            .synchronizedMap(new HashMap<String, ServerSession>(41));
+    protected Map<String, ServerSession> userSessionMap =
+            Collections.synchronizedMap(new HashMap<String, ServerSession>(41));
 
     protected PersistentStore persistentStore;
 
@@ -168,8 +167,8 @@ public abstract class AbstractEventController implements EventHandler {
      * @throws IllegalArgumentException when the received {@code ServerSession} or the {@code ServerSession}'s id is
      *                                  null.
      */
-    public void registerUserSession(final ServerSession serverSession,
-            ServerMessage serverMessage) throws IllegalArgumentException {
+    public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
+            throws IllegalArgumentException {
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
 
@@ -213,12 +212,12 @@ public abstract class AbstractEventController implements EventHandler {
                         }
                         attempts++;
                         LOGGER.trace("Attempt {} of {} to send notifications back to client.",
-                                attempts, maxAttempts);
+                                attempts,
+                                maxAttempts);
                     }
 
                     LOGGER.trace("Sending notifications back to client.");
-                    serverSession
-                            .deliver(controllerServerSession, topic, propMap);
+                    serverSession.deliver(controllerServerSession, topic, propMap);
                 }
             });
         }

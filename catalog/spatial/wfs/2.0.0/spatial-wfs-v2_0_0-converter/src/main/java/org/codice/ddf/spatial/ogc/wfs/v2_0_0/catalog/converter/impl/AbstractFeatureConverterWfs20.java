@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
@@ -58,10 +57,11 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
 public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConverter
         implements FeatureConverter {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AbstractFeatureConverterWfs20.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AbstractFeatureConverterWfs20.class);
 
-    private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
+    private static final String XML_PARSE_FAILURE =
+            "Failed to parse GML based XML into a Document.";
 
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
 
@@ -121,7 +121,8 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             break;
         case BINARY:
             try {
-                ser = reader.getValue().getBytes(UTF8_ENCODING);
+                ser = reader.getValue()
+                        .getBytes(UTF8_ENCODING);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.warn("Error encoding the binary value into the metacard.", e);
             }
@@ -156,7 +157,9 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         }
 
         if (null != doc) {
-            String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
+            String[] namePrefix = doc.getDocumentElement()
+                    .getNodeName()
+                    .split(":");
             String prefix = "";
             if (namePrefix.length < 2) {
                 LOGGER.debug("Incoming XML has no GML prefix");
@@ -164,12 +167,14 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
                 prefix = ":" + namePrefix[0];
             }
 
-            String xmlNs = doc.getDocumentElement().getAttribute("xmlns" + prefix);
+            String xmlNs = doc.getDocumentElement()
+                    .getAttribute("xmlns" + prefix);
             if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)) {
                 LOGGER.warn("Namespace already exists.");
             } else {
                 doc.createElementNS(Wfs20Constants.GML_3_2_NAMESPACE,
-                        doc.getDocumentElement().getNodeName());
+                        doc.getDocumentElement()
+                                .getNodeName());
 
             }
             //Convert DOM to InputStream
@@ -177,7 +182,8 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             Source xmlSource = new DOMSource(doc);
             Result outputTarget = new StreamResult(outputStream);
             try {
-                TransformerFactory.newInstance().newTransformer()
+                TransformerFactory.newInstance()
+                        .newTransformer()
                         .transform(xmlSource, outputTarget);
             } catch (TransformerException | TransformerFactoryConfigurationError e) {
                 LOGGER.error(CREATE_TRANSFORMER_FAILURE);

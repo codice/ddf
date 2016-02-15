@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -101,11 +101,14 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
                 Update update = updates.get(i);
 
-                if (request != null && request.getUpdates() != null
-                        && request.getUpdates().get(i) != null
-                        && request.getUpdates().get(i).getKey() != null) {
+                if (request != null && request.getUpdates() != null && request.getUpdates()
+                        .get(i) != null && request.getUpdates()
+                        .get(i)
+                        .getKey() != null) {
 
-                    updateClient.path(request.getUpdates().get(i).getKey());
+                    updateClient.path(request.getUpdates()
+                            .get(i)
+                            .getKey());
 
                     Metacard newMetacard = update.getNewMetacard();
 
@@ -136,9 +139,11 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
                 return input;
             }
 
-            for (int i = 0; i < input.getDeletedMetacards().size(); i++) {
+            for (int i = 0; i < input.getDeletedMetacards()
+                    .size(); i++) {
 
-                Metacard metacard = input.getDeletedMetacards().get(i);
+                Metacard metacard = input.getDeletedMetacards()
+                        .get(i);
 
                 if (metacard != null && metacard.getId() != null) {
 
@@ -167,7 +172,8 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
             client = null;
 
-        } else if (this.parentAddress == null || !endpointAddress.equals(this.parentAddress.getResolvedString())) {
+        } else if (this.parentAddress == null
+                || !endpointAddress.equals(this.parentAddress.getResolvedString())) {
 
             PropertyResolver previous = this.parentAddress;
 
@@ -175,7 +181,8 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
             client = WebClient.create(this.parentAddress.getResolvedString(), true);
 
-            LOGGER.debug("Changed the parent address property from [{}] to [{}]", previous,
+            LOGGER.debug("Changed the parent address property from [{}] to [{}]",
+                    previous,
                     this.parentAddress);
         }
 

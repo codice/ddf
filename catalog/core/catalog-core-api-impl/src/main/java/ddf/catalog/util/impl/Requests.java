@@ -53,6 +53,7 @@ public class Requests {
      * Returns true if this request will be run on the local catalog. This does not mean that
      * this same request will not be run on a remote catalog. Implementation requires
      * the catalog framework to set the needed properties for this method to work.
+     *
      * @param props Property map of a request
      * @return Returns true if the properties contains the local catalog id in its store ids otherwise returns false
      */

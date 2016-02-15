@@ -75,8 +75,8 @@ public class TestBackupCommand {
     @Test
     public void testNoArgBackup() throws Exception {
 
-        when(mockHttpWrapper.execute(any(URI.class)))
-                .thenReturn(mockResponse(HttpStatus.SC_OK, ""));
+        when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK,
+                ""));
 
         BackupCommand backupCommand = new BackupCommand() {
             @Override
@@ -86,7 +86,8 @@ public class TestBackupCommand {
         };
         backupCommand.doExecute();
 
-        assertThat(consoleOutput.getOutput(), containsString(String.format("Backup of [%s] complete.", DEFAULT_CORE_NAME)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Backup of [%s] complete.", DEFAULT_CORE_NAME)));
 
     }
 
@@ -94,8 +95,8 @@ public class TestBackupCommand {
     public void testBackupSpecificCore() throws Exception {
         final String coreName = "core";
 
-        when(mockHttpWrapper.execute(any(URI.class)))
-                .thenReturn(mockResponse(HttpStatus.SC_OK, ""));
+        when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_OK,
+                ""));
 
         BackupCommand backupCommand = new BackupCommand() {
             @Override
@@ -107,7 +108,8 @@ public class TestBackupCommand {
         backupCommand.coreName = coreName;
         backupCommand.doExecute();
 
-        assertThat(consoleOutput.getOutput(), containsString(String.format("Backup of [%s] complete.", coreName)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Backup of [%s] complete.", coreName)));
 
     }
 
@@ -115,8 +117,8 @@ public class TestBackupCommand {
     public void testBackupInvalidCore() throws Exception {
         final String coreName = "badCoreName";
 
-        when(mockHttpWrapper.execute(any(URI.class)))
-                .thenReturn(mockResponse(HttpStatus.SC_NOT_FOUND, ""));
+        when(mockHttpWrapper.execute(any(URI.class))).thenReturn(mockResponse(HttpStatus.SC_NOT_FOUND,
+                ""));
 
         BackupCommand backupCommand = new BackupCommand() {
             @Override
@@ -128,23 +130,27 @@ public class TestBackupCommand {
         backupCommand.coreName = coreName;
         backupCommand.doExecute();
 
-        assertThat(consoleOutput.getOutput(), containsString(String.format("Backup command failed due to: %d", HttpStatus.SC_NOT_FOUND)));
+        assertThat(consoleOutput.getOutput(),
+                containsString(String.format("Backup command failed due to: %d",
+                        HttpStatus.SC_NOT_FOUND)));
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSystemPropertiesNotSet() throws Exception {
 
         BackupCommand backupCommand = new BackupCommand();
         backupCommand.doExecute();
     }
 
-
     private ResponseWrapper mockResponse(int statusCode, String responseBody) {
         return new ResponseWrapper(prepareResponse(statusCode, responseBody));
     }
 
     private HttpResponse prepareResponse(int statusCode, String responseBody) {
-        HttpResponse httpResponse = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), statusCode, ""));
+        HttpResponse httpResponse = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion(
+                "HTTP",
+                1,
+                1), statusCode, ""));
         httpResponse.setStatusCode(statusCode);
         try {
             httpResponse.setEntity(new StringEntity(responseBody));

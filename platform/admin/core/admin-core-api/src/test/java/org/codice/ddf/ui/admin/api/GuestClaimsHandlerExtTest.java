@@ -94,8 +94,10 @@ public class GuestClaimsHandlerExtTest {
         ache.setProfileDir(profileDirPath);
         ache.setImmutableClaims("testClaim1,testClaim2");
         ache.init();
-        assertThat(ache.getClaims().size(), equalTo(2));
-        assertThat(ache.getClaimsProfiles().size(), equalTo(2));
+        assertThat(ache.getClaims()
+                .size(), equalTo(2));
+        assertThat(ache.getClaimsProfiles()
+                .size(), equalTo(2));
     }
 
     @Test
@@ -105,8 +107,10 @@ public class GuestClaimsHandlerExtTest {
         ache.setProfileDir(profileDirPath);
         ache.setImmutableClaims("testClaim1,testClaim2");
         ache.init();
-        assertThat(ache.getClaims().size(), equalTo(2));
-        assertThat(ache.getClaimsProfiles().size(), equalTo(2));
+        assertThat(ache.getClaims()
+                .size(), equalTo(2));
+        assertThat(ache.getClaimsProfiles()
+                .size(), equalTo(2));
     }
 
     @Test
@@ -116,8 +120,10 @@ public class GuestClaimsHandlerExtTest {
         ache.setProfileDir("/this/path/is/bad/12321231");
         ache.setImmutableClaims("testClaim1,testClaim2");
         ache.init();
-        assertThat(ache.getClaims().size(), equalTo(2));
-        assertThat(ache.getClaimsProfiles().size(), equalTo(2));
+        assertThat(ache.getClaims()
+                .size(), equalTo(2));
+        assertThat(ache.getClaimsProfiles()
+                .size(), equalTo(2));
     }
 
     @Test

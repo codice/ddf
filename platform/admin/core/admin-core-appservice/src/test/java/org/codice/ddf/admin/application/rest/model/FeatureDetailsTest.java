@@ -55,7 +55,8 @@ public class FeatureDetailsTest {
         when(testFeature.getDetails()).thenReturn(TEST_FEATURE_DETAILS);
         when(testFeature.getResolver()).thenReturn(TEST_FEATURE_RESOLVER);
 
-        FeatureDetails testDetails = new FeatureDetails(testFeature, TEST_FEATURE_STATUS,
+        FeatureDetails testDetails = new FeatureDetails(testFeature,
+                TEST_FEATURE_STATUS,
                 TEST_FEATURE_REPO);
 
         assertEquals(TEST_FEATURE_NAME, testDetails.getName());

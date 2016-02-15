@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -52,9 +52,10 @@ public class SchemaFieldResolver {
 
     public static final String BINARY_SUFFIX = "_bin";
 
-    private static final String[] FORMAT_SUFFIXES = new String[] {OBJECT_SUFFIX, LONG_SUFFIX,
-            INTEGER_SUFFIX, SHORT_SUFFIX, FLOAT_SUFFIX, DOUBLE_SUFFIX, BOOLEAN_SUFFIX, GEO_SUFFIX,
-            TEXT_SUFFIX, XML_SUFFIX, DATE_SUFFIX, BINARY_SUFFIX};
+    private static final String[] FORMAT_SUFFIXES =
+            new String[] {OBJECT_SUFFIX, LONG_SUFFIX, INTEGER_SUFFIX, SHORT_SUFFIX, FLOAT_SUFFIX,
+                    DOUBLE_SUFFIX, BOOLEAN_SUFFIX, GEO_SUFFIX, TEXT_SUFFIX, XML_SUFFIX, DATE_SUFFIX,
+                    BINARY_SUFFIX};
 
     public static final String TOKENIZED = "_tokenized";
 
@@ -70,9 +71,11 @@ public class SchemaFieldResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaFieldResolver.class);
 
-    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
+    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP =
+            new HashMap<String, AttributeFormat>();
 
-    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<AttributeFormat, String>();
+    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP =
+            new HashMap<AttributeFormat, String>();
 
     static {
         SUFFIX_TO_FORMAT_MAP.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);
@@ -132,11 +135,14 @@ public class SchemaFieldResolver {
                     // See if any fieldName startsWith(propertyName)
                     // if it does, then see if remainder of fieldName matches any expected suffix
                     // if suffix matches, then get type of field and cache it
-                    if (entry.getKey().startsWith(propertyName) && StringUtils
-                            .endsWithAny(entry.getKey(), FORMAT_SUFFIXES)) {
-                        String fieldType = entry.getValue().getType();
+                    if (entry.getKey()
+                            .startsWith(propertyName) && StringUtils.endsWithAny(entry.getKey(),
+                            FORMAT_SUFFIXES)) {
+                        String fieldType = entry.getValue()
+                                .getType();
                         int index = StringUtils.lastIndexOfAny(entry.getKey(), FORMAT_SUFFIXES);
-                        String suffix = entry.getKey().substring(index);
+                        String suffix = entry.getKey()
+                                .substring(index);
                         if (!isSearchedAsExactValue) {
                             suffix = getSpecialIndexSuffix(suffix);
                             fieldType += suffix;

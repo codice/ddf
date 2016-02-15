@@ -78,7 +78,8 @@ public class SystemBaseUrlTest {
 
     @Test
     public void testConstructUrl() throws Exception {
-        assertThat(SystemBaseUrl.constructUrl("/some/path"), equalTo("https://localhost:8993/some/path"));
+        assertThat(SystemBaseUrl.constructUrl("/some/path"),
+                equalTo("https://localhost:8993/some/path"));
         assertThat(SystemBaseUrl.constructUrl(null, "/some/path"),
                 equalTo("https://localhost:8993/some/path"));
         assertThat(SystemBaseUrl.constructUrl(null, "some/path"),

@@ -33,10 +33,11 @@ public class EncryptionServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        ddfHome = Files.createTempDirectory("encrypt").toFile();
+        ddfHome = Files.createTempDirectory("encrypt")
+                .toFile();
         System.setProperty("ddf.home", ddfHome.getAbsolutePath());
-        String path = new File(System.getProperty("ddf.home").concat("/etc/certs"))
-                .getCanonicalPath();
+        String path = new File(System.getProperty("ddf.home")
+                .concat("/etc/certs")).getCanonicalPath();
         new File(path).mkdirs();
     }
 
@@ -86,8 +87,9 @@ public class EncryptionServiceImplTest {
         final String expectedDecryptedValue = "test";
         final EncryptionServiceImpl encryptionService = new EncryptionServiceImpl();
 
-        final String wrappedEncryptedValue = "ENC("
-                .concat(encryptionService.encrypt(expectedDecryptedValue)).concat(")");
+        final String wrappedEncryptedValue = "ENC(".concat(encryptionService.encrypt(
+                expectedDecryptedValue))
+                .concat(")");
 
         LOGGER.debug("Original wrapped encrypted value is: {}", wrappedEncryptedValue);
 

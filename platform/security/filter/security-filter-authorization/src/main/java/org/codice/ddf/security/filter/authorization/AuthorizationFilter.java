@@ -82,8 +82,8 @@ public class AuthorizationFilter implements Filter {
 
             String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
                     httpRequest.getContextPath() :
-                    httpRequest.getServletPath() + StringUtils
-                            .defaultString(httpRequest.getPathInfo());
+                    httpRequest.getServletPath()
+                            + StringUtils.defaultString(httpRequest.getPathInfo());
             if (StringUtils.isEmpty(path)) {
                 path = httpRequest.getRequestURI();
             }

@@ -89,7 +89,7 @@ public final class SystemBaseUrl {
     /**
      * Construct a url for the given context
      *
-     * @param context The context path to be appened to the end of the base url
+     * @param context            The context path to be appened to the end of the base url
      * @param includeRootContext Flag to indicated whether the rootcontext should be
      *                           included in the url.
      * @return
@@ -113,9 +113,9 @@ public final class SystemBaseUrl {
     /**
      * Construct a url based on the protocol and context
      *
-     * @param proto   Protocol to use during url construction. A null value will
-     *                cause the system default protocol to be used
-     * @param context The context path to be appened to the end of the base url
+     * @param proto              Protocol to use during url construction. A null value will
+     *                           cause the system default protocol to be used
+     * @param context            The context path to be appened to the end of the base url
      * @param includeRootContext Flag to indicated whether the rootcontext should be
      *                           included in the url.
      * @return
@@ -128,7 +128,8 @@ public final class SystemBaseUrl {
         }
         sb.append(protocol);
 
-        if (!sb.toString().endsWith("://")) {
+        if (!sb.toString()
+                .endsWith("://")) {
             sb.append("://");
         }
         sb.append(getHost());

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,8 +27,8 @@ public class CustomMimeTypeResolverTest {
     public void testGetCustomFileExtensionsToMimeTypesMap() {
         CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
 
-        Map<String, String> fileExtensionsToMimeTypes = resolver
-                .getCustomFileExtensionsToMimeTypesMap();
+        Map<String, String> fileExtensionsToMimeTypes =
+                resolver.getCustomFileExtensionsToMimeTypesMap();
         assertTrue(fileExtensionsToMimeTypes.size() == 0);
     }
 
@@ -36,8 +36,8 @@ public class CustomMimeTypeResolverTest {
     public void testGetCustomMimeTypesToFileExtensionsMap() {
         CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
 
-        Map<String, List<String>> mimeTypesToFileExtensions = resolver
-                .getCustomMimeTypesToFileExtensionsMap();
+        Map<String, List<String>> mimeTypesToFileExtensions =
+                resolver.getCustomMimeTypesToFileExtensionsMap();
         assertTrue(mimeTypesToFileExtensions.size() == 0);
     }
 
@@ -46,14 +46,14 @@ public class CustomMimeTypeResolverTest {
         CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
         resolver.setCustomMimeTypes(new String[] {"nitf=image/nitf"});
 
-        Map<String, List<String>> mimeTypesToFileExtensions = resolver
-                .getCustomMimeTypesToFileExtensionsMap();
+        Map<String, List<String>> mimeTypesToFileExtensions =
+                resolver.getCustomMimeTypesToFileExtensionsMap();
         assertTrue(mimeTypesToFileExtensions.containsKey("image/nitf"));
         List<String> fileExtensions = mimeTypesToFileExtensions.get("image/nitf");
         assertTrue(fileExtensions.contains("nitf"));
 
-        Map<String, String> fileExtensionsMimeTypes = resolver
-                .getCustomFileExtensionsToMimeTypesMap();
+        Map<String, String> fileExtensionsMimeTypes =
+                resolver.getCustomFileExtensionsToMimeTypesMap();
         assertTrue(fileExtensionsMimeTypes.containsKey("nitf"));
         assertEquals("image/nitf", fileExtensionsMimeTypes.get("nitf"));
     }
@@ -64,15 +64,15 @@ public class CustomMimeTypeResolverTest {
 
         resolver.setCustomMimeTypes(new String[] {"nitf=image/nitf", "ntf=image/nitf"});
 
-        Map<String, List<String>> mimeTypesToFileExtensions = resolver
-                .getCustomMimeTypesToFileExtensionsMap();
+        Map<String, List<String>> mimeTypesToFileExtensions =
+                resolver.getCustomMimeTypesToFileExtensionsMap();
         assertTrue(mimeTypesToFileExtensions.containsKey("image/nitf"));
         List<String> fileExtensions = mimeTypesToFileExtensions.get("image/nitf");
         assertTrue(fileExtensions.contains("nitf"));
         assertTrue(fileExtensions.contains("ntf"));
 
-        Map<String, String> fileExtensionsMimeTypes = resolver
-                .getCustomFileExtensionsToMimeTypesMap();
+        Map<String, String> fileExtensionsMimeTypes =
+                resolver.getCustomFileExtensionsToMimeTypesMap();
         assertTrue(fileExtensionsMimeTypes.containsKey("nitf"));
         assertEquals("image/nitf", fileExtensionsMimeTypes.get("nitf"));
         assertTrue(fileExtensionsMimeTypes.containsKey("ntf"));
@@ -85,8 +85,8 @@ public class CustomMimeTypeResolverTest {
 
         resolver.setCustomMimeTypes(new String[] {"xml=text/xml", "xml=application/xml"});
 
-        Map<String, List<String>> mimeTypesToFileExtensions = resolver
-                .getCustomMimeTypesToFileExtensionsMap();
+        Map<String, List<String>> mimeTypesToFileExtensions =
+                resolver.getCustomMimeTypesToFileExtensionsMap();
         assertTrue(mimeTypesToFileExtensions.containsKey("text/xml"));
         assertTrue(mimeTypesToFileExtensions.containsKey("application/xml"));
         List<String> fileExtensions = mimeTypesToFileExtensions.get("text/xml");
@@ -94,8 +94,8 @@ public class CustomMimeTypeResolverTest {
         fileExtensions = mimeTypesToFileExtensions.get("application/xml");
         assertTrue(fileExtensions.contains("xml"));
 
-        Map<String, String> fileExtensionsMimeTypes = resolver
-                .getCustomFileExtensionsToMimeTypesMap();
+        Map<String, String> fileExtensionsMimeTypes =
+                resolver.getCustomFileExtensionsToMimeTypesMap();
         assertTrue(fileExtensionsMimeTypes.containsKey("xml"));
         // assertEquals( "text/xml", fileExtensionsMimeTypes.get( "xml" ) );
         assertEquals("application/xml", fileExtensionsMimeTypes.get("xml"));
@@ -107,15 +107,15 @@ public class CustomMimeTypeResolverTest {
 
         resolver.setCustomMimeTypes(new String[] {"json=application/json;id=geojson"});
 
-        Map<String, List<String>> mimeTypesToFileExtensions = resolver
-                .getCustomMimeTypesToFileExtensionsMap();
+        Map<String, List<String>> mimeTypesToFileExtensions =
+                resolver.getCustomMimeTypesToFileExtensionsMap();
         assertTrue(mimeTypesToFileExtensions.containsKey("application/json;id=geojson"));
         assertFalse(mimeTypesToFileExtensions.containsKey("application/json"));
         List<String> fileExtensions = mimeTypesToFileExtensions.get("application/json;id=geojson");
         assertTrue(fileExtensions.contains("json"));
 
-        Map<String, String> fileExtensionsMimeTypes = resolver
-                .getCustomFileExtensionsToMimeTypesMap();
+        Map<String, String> fileExtensionsMimeTypes =
+                resolver.getCustomFileExtensionsToMimeTypesMap();
         assertTrue(fileExtensionsMimeTypes.containsKey("json"));
         assertEquals("application/json;id=geojson", fileExtensionsMimeTypes.get("json"));
     }

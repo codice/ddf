@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,8 +55,8 @@ import ddf.content.storage.StorageProvider;
  * Repository.
  */
 public class ContentFrameworkImpl implements ContentFramework {
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(ContentFrameworkImpl.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(ContentFrameworkImpl.class));
 
     /**
      * The {@link List} of content plugins to execute on the ingest response after content has been
@@ -91,7 +91,8 @@ public class ContentFrameworkImpl implements ContentFramework {
      *                       operation.
      */
     public ContentFrameworkImpl(BundleContext context, StorageProvider provider,
-            List<ContentPlugin> contentPlugins, List<PreCreateStoragePlugin> preCreateStoragePlugins,
+            List<ContentPlugin> contentPlugins,
+            List<PreCreateStoragePlugin> preCreateStoragePlugins,
             List<PostCreateStoragePlugin> postCreateStoragePlugins) {
         LOGGER.trace("ENTERING: ContentFrameworkImpl constructor");
 
@@ -101,7 +102,6 @@ public class ContentFrameworkImpl implements ContentFramework {
         this.preCreateStoragePlugins = preCreateStoragePlugins;
         this.postCreateStoragePlugins = postCreateStoragePlugins;
         LOGGER.trace("EXITING: ContentFrameworkImpl constructor");
-
 
     }
 
@@ -125,11 +125,14 @@ public class ContentFrameworkImpl implements ContentFramework {
 
         // Recreate content item so can add GUID to request
         ContentItem incomingContentItem = createRequest.getContentItem();
-        String id = UUID.randomUUID().toString().replaceAll("-", "");
+        String id = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
         LOGGER.debug("Created GUID: " + id);
         try {
             ContentItem contentItem = new IncomingContentItem(id,
-                    incomingContentItem.getInputStream(), incomingContentItem.getMimeTypeRawData(),
+                    incomingContentItem.getInputStream(),
+                    incomingContentItem.getMimeTypeRawData(),
                     incomingContentItem.getFilename());
             contentItem.setUri(incomingContentItem.getUri());
             createRequest = new CreateRequestImpl(contentItem, createRequest.getProperties());
@@ -198,7 +201,8 @@ public class ContentFrameworkImpl implements ContentFramework {
                 // If a STORE_AND_PROCESS directive was being done, will need to delete the
                 // stored content item from the content repository (similar to a rollback)
                 if (directive == Directive.STORE_AND_PROCESS) {
-                    String contentId = createResponse.getCreatedContentItem().getId();
+                    String contentId = createResponse.getCreatedContentItem()
+                            .getId();
                     LOGGER.debug("Doing storage rollback - Deleting content item " + contentId);
 
                     ContentItem itemToDelete = new IncomingContentItem(contentId, null, null);
@@ -216,13 +220,15 @@ public class ContentFrameworkImpl implements ContentFramework {
                     // started this request)
                     throw new ContentFrameworkException(
                             "Content Plugin processing failed. Did not store item in content repository and did not create catalog entry.\n"
-                                    + e.getMessage(), e);
+                                    + e.getMessage(),
+                            e);
                 } else {
                     // Re-throw the exception (this will fail the Camel route that may have
                     // started this request)
                     throw new ContentFrameworkException(
-                            "Content Plugin processing failed. Did not create catalog entry.\n" + e
-                                    .getMessage(), e);
+                            "Content Plugin processing failed. Did not create catalog entry.\n"
+                                    + e.getMessage(),
+                            e);
                 }
             }
         }
@@ -275,13 +281,14 @@ public class ContentFrameworkImpl implements ContentFramework {
         if (directive == Directive.STORE || directive == Directive.STORE_AND_PROCESS) {
             // Verify content item exists in content repository before trying to update it
             try {
-                ReadRequest readRequest = new ReadRequestImpl(
-                        updateRequest.getContentItem().getId(), null);
+                ReadRequest readRequest = new ReadRequestImpl(updateRequest.getContentItem()
+                        .getId(), null);
                 this.provider.read(readRequest);
             } catch (StorageException e) {
                 LOGGER.info("File does not exist, cannot update, doing a create: ", e);
                 throw new ContentFrameworkException(
-                        "File does not exist, cannot update, doing a create: ", e);
+                        "File does not exist, cannot update, doing a create: ",
+                        e);
             } catch (Exception e) {
                 LOGGER.warn("Content Provider error during update", e);
                 throw new ContentFrameworkException(
@@ -378,7 +385,8 @@ public class ContentFrameworkImpl implements ContentFramework {
                 // in it.
                 if (deleteResponse == null) {
                     deleteResponse = new DeleteResponseImpl(deleteRequest,
-                            deleteRequest.getContentItem(), false);
+                            deleteRequest.getContentItem(),
+                            false);
                 }
             }
 

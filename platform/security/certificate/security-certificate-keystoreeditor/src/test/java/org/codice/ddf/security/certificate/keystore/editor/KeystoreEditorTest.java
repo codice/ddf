@@ -249,7 +249,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey("asdf",
                 password,
                 "",
-                Base64.getEncoder().encodeToString(keyBytes),
+                Base64.getEncoder()
+                        .encodeToString(keyBytes),
                 type,
                 keyFile.toString());
     }
@@ -262,7 +263,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey("asdf",
                 password,
                 "",
-                Base64.getEncoder().encodeToString(crtBytes),
+                Base64.getEncoder()
+                        .encodeToString(crtBytes),
                 KeystoreEditor.PEM_TYPE,
                 chainFile.toString());
     }
@@ -276,7 +278,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey("asdf",
                 password,
                 password,
-                Base64.getEncoder().encodeToString(keyBytes),
+                Base64.getEncoder()
+                        .encodeToString(keyBytes),
                 "",
                 jksFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
@@ -297,7 +300,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey("asdf",
                 password,
                 password,
-                Base64.getEncoder().encodeToString(keyBytes),
+                Base64.getEncoder()
+                        .encodeToString(keyBytes),
                 KeystoreEditor.PKCS12_TYPE,
                 pkcs12StoreFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
@@ -318,7 +322,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey("localhost",
                 password,
                 "",
-                Base64.getEncoder().encodeToString(crtBytes),
+                Base64.getEncoder()
+                        .encodeToString(crtBytes),
                 KeystoreEditor.PEM_TYPE,
                 localhostCrtFile.toString());
         List<Map<String, Object>> keystore = keystoreEditor.getKeystore();
@@ -334,7 +339,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey("localhost",
                 password,
                 "",
-                Base64.getEncoder().encodeToString(keyBytes),
+                Base64.getEncoder()
+                        .encodeToString(keyBytes),
                 "",
                 localhostKeyFile.toString());
         keystore = keystoreEditor.getKeystore();
@@ -359,9 +365,11 @@ public class KeystoreEditorTest {
                 FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile);
         ) {
             byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
-            byte[] keystoreEncodedBytes = Base64.getEncoder().encode(keystoreCrtBytes);
+            byte[] keystoreEncodedBytes = Base64.getEncoder()
+                    .encode(keystoreCrtBytes);
             byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
-            byte[] truststoreEncodedBytes = Base64.getEncoder().encode(truststoreCrtBytes);
+            byte[] truststoreEncodedBytes = Base64.getEncoder()
+                    .encode(truststoreCrtBytes);
             List<String> errors = keystoreEditor.replaceSystemStores("localhost",
                     password,
                     password,
@@ -407,9 +415,11 @@ public class KeystoreEditorTest {
                 FileInputStream truststoreInputStream = new FileInputStream(systemTruststoreFile)
         ) {
             byte[] keystoreCrtBytes = IOUtils.toByteArray(keystoreInputStream);
-            byte[] keystoreEncodedBytes = Base64.getEncoder().encode(keystoreCrtBytes);
+            byte[] keystoreEncodedBytes = Base64.getEncoder()
+                    .encode(keystoreCrtBytes);
             byte[] truststoreCrtBytes = IOUtils.toByteArray(truststoreInputStream);
-            byte[] truststoreEncodedBytes = Base64.getEncoder().encode(truststoreCrtBytes);
+            byte[] truststoreEncodedBytes = Base64.getEncoder()
+                    .encode(truststoreCrtBytes);
             List<String> errors = keystoreEditor.replaceSystemStores(fqdn,
                     password,
                     password,
@@ -478,7 +488,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addTrustedCertificate("asdf",
                 password,
                 "",
-                new String(Base64.getEncoder().encode(crtBytes)),
+                new String(Base64.getEncoder()
+                        .encode(crtBytes)),
                 KeystoreEditor.PEM_TYPE,
                 crtFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
@@ -511,7 +522,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addTrustedCertificate("asdf",
                 password,
                 "",
-                new String(Base64.getEncoder().encode(crtBytes)),
+                new String(Base64.getEncoder()
+                        .encode(crtBytes)),
                 KeystoreEditor.PEM_TYPE,
                 crtFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
@@ -552,7 +564,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addTrustedCertificate("asdf",
                 password,
                 "",
-                new String(Base64.getEncoder().encode(crtBytes)),
+                new String(Base64.getEncoder()
+                        .encode(crtBytes)),
                 KeystoreEditor.PEM_TYPE,
                 p7bFile.toString());
         List<Map<String, Object>> truststore = keystoreEditor.getTruststore();
@@ -615,7 +628,8 @@ public class KeystoreEditorTest {
         keystoreEditor.addPrivateKey(alias,
                 password,
                 "blah",
-                new String(Base64.getEncoder().encode(keyBytes)),
+                new String(Base64.getEncoder()
+                        .encode(keyBytes)),
                 "",
                 file.toString());
     }

@@ -44,7 +44,6 @@ import org.xml.sax.SAXException;
 
 /**
  * Tests the policy adding logic (loading policies and converting the WSDLs).
- *
  */
 public class PolicyTest {
 
@@ -73,7 +72,8 @@ public class PolicyTest {
             @Override
             public URL answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
-                return this.getClass().getResource((String) args[0]);
+                return this.getClass()
+                        .getResource((String) args[0]);
             }
         });
         when(mockContext.getBundle()).thenReturn(mockBundle);
@@ -120,8 +120,8 @@ public class PolicyTest {
             assertNotNull(wsdlDoc);
             assertNotNull(policyLoader.getPolicy());
 
-            Document doc = PolicyWSDLGetInterceptor
-                    .addPolicyToWSDL(wsdlDoc, policyLoader.getPolicy());
+            Document doc = PolicyWSDLGetInterceptor.addPolicyToWSDL(wsdlDoc,
+                    policyLoader.getPolicy());
             assertNotNull(doc);
             assertFalse(wsdlDoc.isEqualNode(policyLoader.getPolicy()));
             assertFalse(doc.isEqualNode(policyLoader.getPolicy()));

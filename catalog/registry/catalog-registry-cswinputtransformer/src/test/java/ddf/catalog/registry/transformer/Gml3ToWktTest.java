@@ -32,9 +32,10 @@ public class Gml3ToWktTest {
     }
 
     private String createGmlPoint(int x, int y) {
-        return String
-                .format("<gml:Point xmlns:gml=\"http://www.opengis.net/gml\"><gml:pos>%s %s</gml:pos></gml:Point>",
-                        x, y);
+        return String.format(
+                "<gml:Point xmlns:gml=\"http://www.opengis.net/gml\"><gml:pos>%s %s</gml:pos></gml:Point>",
+                x,
+                y);
     }
 
     @Before

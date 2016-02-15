@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -32,9 +32,13 @@ public class DeleteCommand extends OsgiCommandSupport {
 
     public static final String SERVICE_PID = "org.codice.ddf.persistence.PersistentStore";
 
-    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
+    static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
+            .reset()
+            .toString();
 
-    static final String CYAN_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.CYAN).toString();
+    static final String CYAN_CONSOLE_COLOR = Ansi.ansi()
+            .fg(Ansi.Color.CYAN)
+            .toString();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteCommand.class);
 
@@ -53,8 +57,8 @@ public class DeleteCommand extends OsgiCommandSupport {
 
         // Get Notification service
         @SuppressWarnings("rawtypes")
-        ServiceReference[] serviceReferences = bundleContext
-                .getServiceReferences(SERVICE_PID, null);
+        ServiceReference[] serviceReferences = bundleContext.getServiceReferences(SERVICE_PID,
+                null);
 
         int numDeleted = 0;
 
@@ -64,8 +68,8 @@ public class DeleteCommand extends OsgiCommandSupport {
             LOGGER.debug(
                     "Found " + serviceReferences.length + " service references for " + SERVICE_PID);
 
-            PersistentStore persistentStore = (PersistentStore) bundleContext
-                    .getService(serviceReferences[0]);
+            PersistentStore persistentStore = (PersistentStore) bundleContext.getService(
+                    serviceReferences[0]);
             if (persistentStore != null) {
                 if (StringUtils.isNotBlank(id)) {
                     try {
@@ -74,7 +78,8 @@ public class DeleteCommand extends OsgiCommandSupport {
                     } catch (PersistenceException e) {
                         LOGGER.info(
                                 "PersistenceException during deletion of notifications for ID {}",
-                                id, e);
+                                id,
+                                e);
                     }
                 } else if (StringUtils.isNotBlank(userId)) {
                     try {
@@ -83,7 +88,8 @@ public class DeleteCommand extends OsgiCommandSupport {
                     } catch (PersistenceException e) {
                         LOGGER.info(
                                 "PersistenceException during deletion of notifications for user {}",
-                                userId, e);
+                                userId,
+                                e);
                     }
                 }
             } else {

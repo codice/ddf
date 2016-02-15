@@ -120,8 +120,10 @@ public class SecurityTest {
     public void testJavaSubjectHasAdminRole() throws Exception {
         Set<Principal> principals = new HashSet<>();
         principals.add(new RolePrincipal("admin"));
-        javax.security.auth.Subject subject = new javax.security.auth.Subject(true, principals,
-                new HashSet(), new HashSet());
+        javax.security.auth.Subject subject = new javax.security.auth.Subject(true,
+                principals,
+                new HashSet(),
+                new HashSet());
 
         javax.security.auth.Subject.doAs(subject, new PrivilegedAction<Object>() {
             @Override
@@ -163,7 +165,9 @@ public class SecurityTest {
     public void setSystemProps() throws Exception {
         System.setProperty("javax.net.ssl.keyStoreType", "JKS");
         System.setProperty("javax.net.ssl.keyStore",
-                getClass().getResource("/secureKeystore.jks").toURI().getPath());
+                getClass().getResource("/secureKeystore.jks")
+                        .toURI()
+                        .getPath());
         System.setProperty("javax.net.ssl.keyStorePassword", "password");
         System.setProperty("ddf.home", "/ddf/home");
         System.setProperty("org.codice.ddf.system.hostname", "localhost");

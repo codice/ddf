@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -176,9 +176,10 @@ public class ConfigurationStore {
         config.put("externalAuthentication", isExternalAuthentication);
 
         String configJson = toJson(config);
-        BinaryContent content = new BinaryContentImpl(
-                new ByteArrayInputStream(configJson.getBytes(StandardCharsets.UTF_8)), jsonMimeType);
-        response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
+        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes(
+                StandardCharsets.UTF_8)), jsonMimeType);
+        response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
+                .build();
 
         return response;
     }
@@ -309,7 +310,9 @@ public class ConfigurationStore {
                 config = new HashMap<String, Object>((Map) value);
             } else {
                 LOGGER.warn("Expected a map for provider configuration but got {} instead: {}",
-                        value.getClass().getName(), provider);
+                        value.getClass()
+                                .getName(),
+                        provider);
                 return null;
             }
         } catch (EdnSyntaxException | EdnIOException e) {
@@ -318,7 +321,8 @@ public class ConfigurationStore {
         }
 
         if (config.containsKey(URL)) {
-            String url = config.get(URL).toString();
+            String url = config.get(URL)
+                    .toString();
 
             try {
                 String endpointName = ENDPOINT_NAME + incrementer;
@@ -398,7 +402,8 @@ public class ConfigurationStore {
                         String displayName = StringUtils.strip(nameAndType[0]);
                         String type = StringUtils.strip(nameAndType[1]);
                         if (StringUtils.isNotBlank(displayName) && StringUtils.isNotBlank(type)) {
-                            typeNameMapping.get(displayName).add(type);
+                            typeNameMapping.get(displayName)
+                                    .add(type);
                         }
                     } else {
                         LOGGER.info("Invalid type display name mapping format {}", mapping);
@@ -448,7 +453,11 @@ public class ConfigurationStore {
         this.helpUrl = helpUrl;
     }
 
-    public Boolean getExternalAuthentication() {return isExternalAuthentication; }
+    public Boolean getExternalAuthentication() {
+        return isExternalAuthentication;
+    }
 
-    public void setExternalAuthentication(Boolean isExternalAuthentication) { this.isExternalAuthentication = isExternalAuthentication; }
+    public void setExternalAuthentication(Boolean isExternalAuthentication) {
+        this.isExternalAuthentication = isExternalAuthentication;
+    }
 }

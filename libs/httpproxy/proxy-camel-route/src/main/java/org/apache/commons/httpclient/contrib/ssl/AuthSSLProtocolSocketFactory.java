@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -264,8 +264,8 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
             throw new IllegalArgumentException("Keystore may not be null");
         }
         LOG.debug("Initializing key manager");
-        KeyManagerFactory kmfactory = KeyManagerFactory
-                .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        KeyManagerFactory kmfactory =
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmfactory.init(keystore, password != null ? password.toCharArray() : null);
         return kmfactory.getKeyManagers();
     }
@@ -276,8 +276,8 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
             throw new IllegalArgumentException("Keystore may not be null");
         }
         LOG.debug("Initializing trust manager");
-        TrustManagerFactory tmfactory = TrustManagerFactory
-                .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        TrustManagerFactory tmfactory =
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmfactory.init(keystore);
         TrustManager[] trustmanagers = tmfactory.getTrustManagers();
         for (int i = 0; i < trustmanagers.length; i++) {
@@ -416,14 +416,16 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
      */
     public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort)
             throws IOException, UnknownHostException {
-        return getSSLContext().getSocketFactory().createSocket(host, port, clientHost, clientPort);
+        return getSSLContext().getSocketFactory()
+                .createSocket(host, port, clientHost, clientPort);
     }
 
     /**
      * @see SecureProtocolSocketFactory#createSocket(java.lang.String, int)
      */
     public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-        return getSSLContext().getSocketFactory().createSocket(host, port);
+        return getSSLContext().getSocketFactory()
+                .createSocket(host, port);
     }
 
     /**
@@ -431,6 +433,7 @@ public class AuthSSLProtocolSocketFactory implements SecureProtocolSocketFactory
      */
     public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
             throws IOException, UnknownHostException {
-        return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
+        return getSSLContext().getSocketFactory()
+                .createSocket(socket, host, port, autoClose);
     }
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,10 +48,12 @@ public class OsNamespaceContext implements NamespaceContext {
     public String getPrefix(String namespaceURI) {
         String prefix = null;
         if (namespaces.containsValue(namespaceURI)) {
-            Iterator<Entry<String, String>> curIter = namespaces.entrySet().iterator();
+            Iterator<Entry<String, String>> curIter = namespaces.entrySet()
+                    .iterator();
             while (curIter.hasNext()) {
                 Entry<String, String> curEntry = curIter.next();
-                if (curEntry.getValue().equals(namespaceURI)) {
+                if (curEntry.getValue()
+                        .equals(namespaceURI)) {
                     prefix = curEntry.getKey();
                 }
             }

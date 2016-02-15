@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,7 +45,10 @@ public class InspectCommand extends CatalogCommands {
 
         CatalogFacade catalog = getCatalog();
 
-        Filter filter = getFilterBuilder().attribute(Metacard.ID).is().equalTo().text(id);
+        Filter filter = getFilterBuilder().attribute(Metacard.ID)
+                .is()
+                .equalTo()
+                .text(id);
 
         QueryImpl query = new QueryImpl(filter);
 
@@ -55,20 +58,27 @@ public class InspectCommand extends CatalogCommands {
 
         String newLineFormatString = "%1$s%2$-30s%3$s  %4$-25s %n";
 
-        if (response.getResults() != null && response.getResults().size() > 0) {
+        if (response.getResults() != null && response.getResults()
+                .size() > 0) {
 
-            Metacard card = response.getResults().get(0).getMetacard();
+            Metacard card = response.getResults()
+                    .get(0)
+                    .getMetacard();
 
             MetacardType mType = card.getMetacardType();
 
-            String rClass = card.getClass().getName();
+            String rClass = card.getClass()
+                    .getName();
             String siteShortName = card.getSourceId();
 
             console.println("------------------------------");
 
             console.printf(formatString, color(rClass), "Class", color(rClass), rClass);
 
-            console.printf(formatString, color(siteShortName), "Sitename", color(siteShortName),
+            console.printf(formatString,
+                    color(siteShortName),
+                    "Sitename",
+                    color(siteShortName),
                     siteShortName);
 
             for (AttributeDescriptor ad : mType.getAttributeDescriptors()) {
@@ -83,7 +93,8 @@ public class InspectCommand extends CatalogCommands {
                 }
 
                 // indent items with new lines in the value
-                if (value != null && (value.toString().contains("\r\n") || value.toString()
+                if (value != null && (value.toString()
+                        .contains("\r\n") || value.toString()
                         .contains("\n"))) {
                     String valueString = value.toString();
 
@@ -93,7 +104,10 @@ public class InspectCommand extends CatalogCommands {
                         values = valueString.split("\n");
                     }
 
-                    console.printf(formatString, color(attribute), ad.getName(), color(attribute),
+                    console.printf(formatString,
+                            color(attribute),
+                            ad.getName(),
+                            color(attribute),
                             values[0]);
 
                     for (int i = 1; i < values.length; i++) {
@@ -101,7 +115,10 @@ public class InspectCommand extends CatalogCommands {
                     }
 
                 } else {
-                    console.printf(formatString, color(attribute), ad.getName(), color(attribute),
+                    console.printf(formatString,
+                            color(attribute),
+                            ad.getName(),
+                            color(attribute),
                             value);
                 }
 
@@ -139,11 +156,15 @@ public class InspectCommand extends CatalogCommands {
     }
 
     protected String defaultColor() {
-        return Ansi.ansi().reset().toString();
+        return Ansi.ansi()
+                .reset()
+                .toString();
     }
 
     protected String color() {
-        return Ansi.ansi().fg(Ansi.Color.CYAN).toString();
+        return Ansi.ansi()
+                .fg(Ansi.Color.CYAN)
+                .toString();
     }
 
 }

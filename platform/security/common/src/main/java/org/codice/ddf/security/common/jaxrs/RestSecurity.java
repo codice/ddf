@@ -145,12 +145,14 @@ public final class RestSecurity {
             tokenStream.write(value.getBytes(StandardCharsets.UTF_8));
             tokenStream.close();
 
-            return Base64.getEncoder().encodeToString(valueBytes.toByteArray());
+            return Base64.getEncoder()
+                    .encodeToString(valueBytes.toByteArray());
         }
     }
 
     public static String inflateBase64(String base64EncodedValue) throws IOException {
-        byte[] deflatedValue = Base64.getMimeDecoder().decode(base64EncodedValue);
+        byte[] deflatedValue = Base64.getMimeDecoder()
+                .decode(base64EncodedValue);
         InputStream is = new InflaterInputStream(new ByteArrayInputStream(deflatedValue),
                 new Inflater(GZIP_COMPATIBLE));
         return IOUtils.toString(is, StandardCharsets.UTF_8.name());

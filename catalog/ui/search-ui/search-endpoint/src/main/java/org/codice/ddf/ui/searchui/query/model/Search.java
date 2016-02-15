@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
@@ -87,8 +86,9 @@ public class Search {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
-    private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat
-            .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
+    private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat.forPattern(
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            .withZoneUTC();
 
     public static final String ATTRIBUTE_FORMAT = "format";
 
@@ -148,7 +148,8 @@ public class Search {
         failedResponse.setHits(0);
         failedResponse.getProcessingDetails()
                 .add(new ProcessingDetailsImpl(sourceId, new Exception()));
-        failedResponse.getProperties().put("elapsed", -1L);
+        failedResponse.getProperties()
+                .put("elapsed", -1L);
 
         updateStatus(sourceId, failedResponse);
     }
@@ -166,7 +167,8 @@ public class Search {
         status.setDetails(queryResponse.getProcessingDetails());
         status.setHits(queryResponse.getHits());
         hits += queryResponse.getHits();
-        status.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
+        status.setElapsed((Long) queryResponse.getProperties()
+                .get("elapsed"));
         status.setState((isSuccessful(queryResponse.getProcessingDetails()) ?
                 State.SUCCEEDED :
                 State.FAILED));
@@ -190,18 +192,21 @@ public class Search {
         }
 
         for (Result result : results) {
-            hitSourceCount.add(result.getMetacard().getSourceId());
+            hitSourceCount.add(result.getMetacard()
+                    .getSourceId());
         }
 
         for (Object sourceId : hitSourceCount.uniqueSet()) {
             if (queryStatus.containsKey(sourceId)) {
-                queryStatus.get(sourceId).setResultCount(hitSourceCount.getCount(sourceId));
+                queryStatus.get(sourceId)
+                        .setResultCount(hitSourceCount.getCount(sourceId));
             }
         }
     }
 
     public boolean isFinished() {
-        return responseNum >= searchRequest.getSourceIds().size();
+        return responseNum >= searchRequest.getSourceIds()
+                .size();
     }
 
     public SearchRequest getSearchRequest() {
@@ -246,8 +251,8 @@ public class Search {
         }
     }
 
-    public Map<String, Object> transform(String searchRequestId) throws
-            CatalogTransformerException {
+    public Map<String, Object> transform(String searchRequestId)
+            throws CatalogTransformerException {
 
         Map<String, Object> result = new HashMap<>();
 
@@ -298,22 +303,21 @@ public class Search {
         return resultsList;
     }
 
-    private Map<String, Object> getResultItem(Result result) throws
-            CatalogTransformerException {
+    private Map<String, Object> getResultItem(Result result) throws CatalogTransformerException {
         Map<String, Object> transformedResult = new HashMap<>();
 
         addObject(transformedResult, DISTANCE, result.getDistanceInMeters());
         addObject(transformedResult, RELEVANCE, result.getRelevanceScore());
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> metacard = (Map<String, Object>) GeoJsonMetacardTransformer
-                .convertToJSON(result.getMetacard());
+        Map<String, Object> metacard =
+                (Map<String, Object>) GeoJsonMetacardTransformer.convertToJSON(result.getMetacard());
         metacard.put(ACTIONS, getActions(result.getMetacard()));
 
-        Attribute cachedDate = result.getMetacard().getAttribute(CACHED);
+        Attribute cachedDate = result.getMetacard()
+                .getAttribute(CACHED);
         if (cachedDate != null && cachedDate.getValue() != null) {
-            metacard.put(CACHED,
-                    ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
+            metacard.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
         } else {
             metacard.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
         }
@@ -343,9 +347,10 @@ public class Search {
         Map<String, Object> typesObject = new HashMap<>();
 
         for (Result result : results) {
-            MetacardType type = result.getMetacard().getMetacardType();
-            if (type != null && !StringUtils.isBlank(type.getName()) && !typesObject
-                    .containsKey(type.getName())) {
+            MetacardType type = result.getMetacard()
+                    .getMetacardType();
+            if (type != null && !StringUtils.isBlank(type.getName()) && !typesObject.containsKey(
+                    type.getName())) {
                 Map<String, Object> typeObj = getType(type);
                 if (typeObj != null) {
                     typesObject.put(type.getName(), typeObj);
@@ -355,12 +360,16 @@ public class Search {
         return typesObject;
     }
 
-    private Map<String, Object> getType(MetacardType metacardType) throws CatalogTransformerException {
+    private Map<String, Object> getType(MetacardType metacardType)
+            throws CatalogTransformerException {
         Map<String, Object> fields = new HashMap<>();
 
         for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
             Map<String, Object> description = new HashMap<>();
-            description.put(ATTRIBUTE_FORMAT, descriptor.getType().getAttributeFormat().toString());
+            description.put(ATTRIBUTE_FORMAT,
+                    descriptor.getType()
+                            .getAttributeFormat()
+                            .toString());
             description.put(ATTRIBUTE_INDEXED, descriptor.isIndexed());
 
             fields.put(descriptor.getName(), description);

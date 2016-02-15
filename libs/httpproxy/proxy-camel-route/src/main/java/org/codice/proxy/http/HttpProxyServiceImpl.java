@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
  * Http Proxy service which creates a Camel based http proxy
  *
  * @author ddf
- *
  */
 public class HttpProxyServiceImpl implements HttpProxyService {
 
@@ -81,8 +80,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     private String routeEndpointType = SERVLET;
 
-    public HttpProxyServiceImpl(CamelContext camelContext,
-            String endpointType) throws Exception {
+    public HttpProxyServiceImpl(CamelContext camelContext, String endpointType) throws Exception {
         this(camelContext);
         this.routeEndpointType = endpointType;
         if (!this.routeEndpointType.equals(SERVLET)) {
@@ -90,8 +88,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         }
     }
 
-    public HttpProxyServiceImpl(CamelContext camelContext)
-            throws Exception {
+    public HttpProxyServiceImpl(CamelContext camelContext) throws Exception {
         this.camelContext = camelContext;
 
         // Add servlet to the Camel Context
@@ -131,8 +128,13 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         File certStore = new File(trustStore);
         try {
             authhttps = new Protocol("https",
-                    new AuthSSLProtocolSocketFactory(certStore.toURI().toURL(), trustStorePassword,
-                            certStore.toURI().toURL(), trustStorePassword), 443);
+                    new AuthSSLProtocolSocketFactory(certStore.toURI()
+                            .toURL(),
+                            trustStorePassword,
+                            certStore.toURI()
+                                    .toURL(),
+                            trustStorePassword),
+                    443);
         } catch (MalformedURLException e) {
             LOGGER.error(e.getMessage());
         }
@@ -151,10 +153,12 @@ public class HttpProxyServiceImpl implements HttpProxyService {
             routeBuilder = new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
-                    from(routeEndpointType + protocolDelimiter + endpointName + matchPrefix)
-                            .removeHeader("Authorization").removeHeader("Cookie").to(targetUri
-                            + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
-                            + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
+                    from(routeEndpointType + protocolDelimiter + endpointName
+                            + matchPrefix).removeHeader("Authorization")
+                            .removeHeader("Cookie")
+                            .to(targetUri
+                                    + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                                    + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
                             .routeId(endpointName);
                 }
             };
@@ -162,17 +166,21 @@ public class HttpProxyServiceImpl implements HttpProxyService {
             routeBuilder = new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
-                    from(routeEndpointType + protocolDelimiter + endpointName + matchPrefix)
-                            .removeHeader("Authorization").removeHeader("Cookie").to(targetUri
-                            + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
-                            + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
-                            .routeId(endpointName).bean(bean);
+                    from(routeEndpointType + protocolDelimiter + endpointName
+                            + matchPrefix).removeHeader("Authorization")
+                            .removeHeader("Cookie")
+                            .to(targetUri
+                                    + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                                    + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
+                            .routeId(endpointName)
+                            .bean(bean);
                 }
             };
         }
         camelContext.addRoutes(routeBuilder);
         camelContext.start();
-        LOGGER.debug("Started proxy route at servlet endpoint: {}, routing to: {}", endpointName,
+        LOGGER.debug("Started proxy route at servlet endpoint: {}, routing to: {}",
+                endpointName,
                 targetUri);
         return endpointName;
     }
@@ -204,7 +212,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
             String prop = System.getProperty(sysProxyConfig);
             if (StringUtils.isNotBlank(prop)) {
                 LOGGER.debug("Property: {} = {}", sysProxyConfig, prop);
-                camelContext.getProperties().put(sysProxyConfig, prop);
+                camelContext.getProperties()
+                        .put(sysProxyConfig, prop);
             }
         }
     }
@@ -212,8 +221,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     private void fetchTrustStoreLocation() {
 
         trustStore = System.getProperty("javax.net.ssl.trustStore", TRUSTSTORE_VALUE_DEFAULT);
-        trustStorePassword = System
-                .getProperty("javax.net.ssl.trustStorePassword", TRUSTSTORE_PASSWORD_VALUE);
+        trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword",
+                TRUSTSTORE_PASSWORD_VALUE);
         LOGGER.debug("Trust Store: {}", trustStore);
         LOGGER.debug("Trust Store Password not empty: {}",
                 StringUtils.isNotBlank(trustStorePassword));
@@ -221,10 +230,14 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public void stop(String endpointName) throws Exception {
         LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
-        LOGGER.debug("Route list before = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+        LOGGER.debug("Route list before = {}",
+                Arrays.toString(camelContext.getRoutes()
+                        .toArray()));
         camelContext.stopRoute(endpointName);
         camelContext.removeRoute(endpointName);
-        LOGGER.debug("Route list after = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+        LOGGER.debug("Route list after = {}",
+                Arrays.toString(camelContext.getRoutes()
+                        .toArray()));
 
     }
 

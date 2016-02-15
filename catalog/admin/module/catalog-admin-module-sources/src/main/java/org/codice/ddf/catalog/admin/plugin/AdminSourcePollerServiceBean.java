@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -50,8 +50,8 @@ import ddf.catalog.source.Source;
 public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBeanMBean {
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(AdminSourcePollerServiceBean.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AdminSourcePollerServiceBean.class);
 
     private static final String MAP_ENTRY_ID = "id";
 
@@ -91,7 +91,8 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
             objName = new ObjectName(AdminSourcePollerServiceBean.class.getName() + SERVICE_NAME);
         } catch (MalformedObjectNameException e) {
             LOGGER.error("Unable to create Admin Source Poller Service MBean with name [{}].",
-                    AdminSourcePollerServiceBean.class.getName() + SERVICE_NAME, e);
+                    AdminSourcePollerServiceBean.class.getName() + SERVICE_NAME,
+                    e);
         }
         objectName = objName;
     }
@@ -134,13 +135,15 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
                     ConfiguredService cs = (ConfiguredService) source;
                     try {
                         Configuration config = helper.getConfiguration(cs);
-                        if (config != null && config.getProperties().get("service.pid")
+                        if (config != null && config.getProperties()
+                                .get("service.pid")
                                 .equals(servicePID)) {
                             try {
                                 return source.isAvailable();
                             } catch (Exception e) {
                                 LOGGER.warn("Couldn't get availability on source {}: {}",
-                                        servicePID, e);
+                                        servicePID,
+                                        e);
                             }
                         }
                     } catch (IOException e) {
@@ -172,7 +175,8 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
                     for (Configuration config : configs) {
                         Map<String, Object> source = new HashMap<>();
 
-                        boolean disabled = config.getPid().contains(DISABLED);
+                        boolean disabled = config.getPid()
+                                .contains(DISABLED);
                         source.put(MAP_ENTRY_ID, config.getPid());
                         source.put(MAP_ENTRY_ENABLED, !disabled);
                         source.put(MAP_ENTRY_FPID, config.getFactoryPid());
@@ -229,10 +233,10 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
         protected List<Source> getSources() throws org.osgi.framework.InvalidSyntaxException {
             List<Source> sources = new ArrayList<>();
             List<ServiceReference<? extends Source>> refs = new ArrayList<>();
-            refs.addAll(
-                    helper.getBundleContext().getServiceReferences(FederatedSource.class, null));
-            refs.addAll(
-                    helper.getBundleContext().getServiceReferences(ConnectedSource.class, null));
+            refs.addAll(helper.getBundleContext()
+                    .getServiceReferences(FederatedSource.class, null));
+            refs.addAll(helper.getBundleContext()
+                    .getServiceReferences(ConnectedSource.class, null));
 
             for (ServiceReference<? extends Source> ref : refs) {
                 sources.add(getBundleContext().getService(ref));
@@ -260,12 +264,13 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
 
         protected String getBundleName(Configuration config) {
             ConfigurationAdminExt configAdminExt = new ConfigurationAdminExt(configurationAdmin);
-            return configAdminExt
-                    .getName(helper.getBundleContext().getBundle(config.getBundleLocation()));
+            return configAdminExt.getName(helper.getBundleContext()
+                    .getBundle(config.getBundleLocation()));
         }
 
         protected long getBundleId(Configuration config) {
-            return getBundleContext().getBundle(config.getBundleLocation()).getBundleId();
+            return getBundleContext().getBundle(config.getBundleLocation())
+                    .getBundleId();
         }
 
         protected String getName(Configuration config) {

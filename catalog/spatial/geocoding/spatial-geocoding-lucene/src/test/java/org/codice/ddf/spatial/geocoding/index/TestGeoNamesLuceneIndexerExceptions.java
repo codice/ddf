@@ -54,8 +54,13 @@ public class TestGeoNamesLuceneIndexerExceptions {
 
     private IndexWriter indexWriter;
 
-    private static final GeoEntry GEO_ENTRY = new GeoEntry.Builder().name("name").latitude(1)
-            .longitude(2).featureCode("code").population(3).alternateNames("").build();
+    private static final GeoEntry GEO_ENTRY = new GeoEntry.Builder().name("name")
+            .latitude(1)
+            .longitude(2)
+            .featureCode("code")
+            .population(3)
+            .alternateNames("")
+            .build();
 
     @After
     public void tearDown() {

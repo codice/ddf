@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -109,12 +109,18 @@ public class ReliableResourceDownloaderTest {
         downloaderConfig.setMaxRetryAttempts(retries);
 
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
-                new AtomicBoolean(), DOWNLOAD_ID, mockResponse, getMockRetriever());
+                new AtomicBoolean(),
+                DOWNLOAD_ID,
+                mockResponse,
+                getMockRetriever());
         downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
         downloader.run();
 
         verify(mockPublisher, times(retries)).postRetrievalStatus(any(ResourceResponse.class),
-                eq(ProductRetrievalStatus.RETRYING), any(Metacard.class), anyString(), anyLong(),
+                eq(ProductRetrievalStatus.RETRYING),
+                any(Metacard.class),
+                anyString(),
+                anyLong(),
                 eq(DOWNLOAD_ID));
 
     }
@@ -133,17 +139,24 @@ public class ReliableResourceDownloaderTest {
         ResourceResponse mockResponse = getMockResourceResponse(mis);
 
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
-                new AtomicBoolean(), "123", mockResponse, getMockRetriever());
+                new AtomicBoolean(),
+                "123",
+                mockResponse,
+                getMockRetriever());
         downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
 
         FileOutputStream mockFos = mock(FileOutputStream.class);
-        doThrow(new IOException()).when(mockFos).write(any(byte[].class), anyInt(), anyInt());
+        doThrow(new IOException()).when(mockFos)
+                .write(any(byte[].class), anyInt(), anyInt());
 
         downloader.setFileOutputStream(mockFos);
         downloader.run();
 
         verify(mockPublisher, times(1)).postRetrievalStatus(any(ResourceResponse.class),
-                eq(ProductRetrievalStatus.RETRYING), any(Metacard.class), anyString(), anyLong(),
+                eq(ProductRetrievalStatus.RETRYING),
+                any(Metacard.class),
+                anyString(),
+                anyLong(),
                 eq(DOWNLOAD_ID));
         verify(mockCache, times(1)).removePendingCacheEntry(anyString());
         assertThat(downloaderConfig.isCacheEnabled(), is(false));
@@ -166,7 +179,10 @@ public class ReliableResourceDownloaderTest {
         ResourceResponse mockResponse = getMockResourceResponse(mis);
 
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
-                new AtomicBoolean(), "123", mockResponse, getMockRetriever());
+                new AtomicBoolean(),
+                "123",
+                mockResponse,
+                getMockRetriever());
         downloader.setupDownload(mockMetacard, new DownloadStatusInfoImpl());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -178,7 +194,10 @@ public class ReliableResourceDownloaderTest {
         downloader.run();
 
         verify(mockPublisher, times(1)).postRetrievalStatus(any(ResourceResponse.class),
-                eq(ProductRetrievalStatus.CANCELLED), any(Metacard.class), anyString(), anyLong(),
+                eq(ProductRetrievalStatus.CANCELLED),
+                any(Metacard.class),
+                anyString(),
+                anyLong(),
                 eq(DOWNLOAD_ID));
         verify(mockCache, times(1)).removePendingCacheEntry(anyString());
         assertThat(downloaderConfig.isCacheEnabled(), is(false));

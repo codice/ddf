@@ -97,7 +97,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
             LOGGER.error("Unable to create Insecure Defaults Service MBean with name [{}].",
-                    MBEAN_NAME, e);
+                    MBEAN_NAME,
+                    e);
         }
     }
 
@@ -108,11 +109,13 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         LOGGER.debug("Found {} validator(s)", validators.size());
 
         for (Validator validator : validators) {
-            LOGGER.debug("{} is starting validation process.", validator.getClass()
-                    .getSimpleName());
+            LOGGER.debug("{} is starting validation process.",
+                    validator.getClass()
+                            .getSimpleName());
             alerts.addAll(validator.validate());
-            LOGGER.debug("{} finished the validation process.", validator.getClass()
-                    .getSimpleName());
+            LOGGER.debug("{} finished the validation process.",
+                    validator.getClass()
+                            .getSimpleName());
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -203,8 +206,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     private void addIssuerSignaturePropertiesFileValidator() {
         SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator =
                 new SignaturePropertiesFileValidator();
-        issuerSignatureEncryptionPropertiesFileValidator.setPath(
-                Paths.get(ISSUER_SIGNATURE_PROPERTIES_FILE));
+        issuerSignatureEncryptionPropertiesFileValidator.setPath(Paths.get(
+                ISSUER_SIGNATURE_PROPERTIES_FILE));
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(
                 DEFAULT_KEYSTORE_PASSWORD);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
@@ -226,8 +229,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     private void addServerSignaturePropertiesFileValidator() {
         SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator =
                 new SignaturePropertiesFileValidator();
-        issuerSignatureEncryptionPropertiesFileValidator.setPath(
-                Paths.get(SERVER_SIGNATURE_PROPERTIES_FILE));
+        issuerSignatureEncryptionPropertiesFileValidator.setPath(Paths.get(
+                SERVER_SIGNATURE_PROPERTIES_FILE));
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(
                 DEFAULT_KEYSTORE_PASSWORD);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,25 +43,36 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ExportCommandTest {
 
-    private static final String ERROR_RED = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.RED)
+    private static final String ERROR_RED = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.RED)
             .toString();
 
-    private static final String WARNING_YELLOW = Ansi.ansi().a(Attribute.RESET)
-            .fg(Ansi.Color.YELLOW).toString();
-
-    private static final String INFO_WHITE = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.WHITE)
+    private static final String WARNING_YELLOW = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.YELLOW)
             .toString();
 
-    private static final String SUCCESS_GREEN = Ansi.ansi().a(Attribute.RESET).fg(Ansi.Color.GREEN)
+    private static final String INFO_WHITE = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.WHITE)
+            .toString();
+
+    private static final String SUCCESS_GREEN = Ansi.ansi()
+            .a(Attribute.RESET)
+            .fg(Ansi.Color.GREEN)
             .toString();
 
     private static final String STARTING_EXPORT_MESSAGE = "Exporting current configurations to %s.";
 
-    private static final String SUCCESSFUL_EXPORT_MESSAGE = "Successfully exported all configurations.";
+    private static final String SUCCESSFUL_EXPORT_MESSAGE =
+            "Successfully exported all configurations.";
 
-    private static final String FAILED_EXPORT_MESSAGE = "Failed to export all configurations to %s.";
+    private static final String FAILED_EXPORT_MESSAGE =
+            "Failed to export all configurations to %s.";
 
-    private static final String ERROR_EXPORT_MESSAGE = "An error was encountered while executing this command. %s";
+    private static final String ERROR_EXPORT_MESSAGE =
+            "An error was encountered while executing this command. %s";
 
     private static final String MIGRATION_WARNING_MESSAGE = "Warning";
 
@@ -94,8 +105,7 @@ public class ExportCommandTest {
     @Test
     public void testDoExecuteReportWarnings() throws Exception {
         // Setup
-        when(mockConfigurationMigrationService.export(Matchers.any()))
-                .thenReturn(CONFIG_STATUS_MSGS);
+        when(mockConfigurationMigrationService.export(Matchers.any())).thenReturn(CONFIG_STATUS_MSGS);
         ExportCommand exportCommand = new ExportCommand(mockConfigurationMigrationService,
                 mockDefaultExportDirectory) {
             @Override
@@ -124,8 +134,7 @@ public class ExportCommandTest {
     @Test
     public void testDoExecuteNoWarnings() throws Exception {
         // Setup
-        when(mockConfigurationMigrationService.export(Matchers.any()))
-                .thenReturn(new ArrayList<>());
+        when(mockConfigurationMigrationService.export(Matchers.any())).thenReturn(new ArrayList<>());
         ExportCommand exportCommand = new ExportCommand(mockConfigurationMigrationService,
                 mockDefaultExportDirectory) {
             @Override
@@ -151,8 +160,8 @@ public class ExportCommandTest {
     @Test
     public void testDoExecuteErrorOccurred() throws Exception {
         // Setup
-        when(mockConfigurationMigrationService.export(Matchers.any()))
-                .thenThrow(new MigrationException(MIGRATION_EXCEPTION_MESSAGE));
+        when(mockConfigurationMigrationService.export(Matchers.any())).thenThrow(new MigrationException(
+                MIGRATION_EXCEPTION_MESSAGE));
         ExportCommand exportCommand = new ExportCommand(mockConfigurationMigrationService,
                 mockDefaultExportDirectory) {
             @Override

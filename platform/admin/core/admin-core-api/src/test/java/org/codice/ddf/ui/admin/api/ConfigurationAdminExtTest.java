@@ -61,7 +61,8 @@ public class ConfigurationAdminExtTest {
 
     private ConfigurationAdminExt configurationAdminExt;
 
-    private static final String LIST_CONFIG_STRING = "(|(service.factoryPid=TestPID)(service.factoryPid=TestPID_disabled))";
+    private static final String LIST_CONFIG_STRING =
+            "(|(service.factoryPid=TestPID)(service.factoryPid=TestPID_disabled))";
 
     private static final String TEST_PID = "TestPID";
 
@@ -141,8 +142,8 @@ public class ConfigurationAdminExtTest {
         when(bundleHeaders.get(Constants.BUNDLE_NAME)).thenReturn(TEST_BUNDLE_NAME);
 
         when(testOCD.getName()).thenReturn(TEST_OCD);
-        when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL))
-                .thenReturn(new AttributeDefinition[] {testAttDef});
+        when(testOCD.getAttributeDefinitions(ObjectClassDefinition.ALL)).thenReturn(new AttributeDefinition[] {
+                testAttDef});
 
         when(testMTI.getBundle()).thenReturn(testBundle);
         when(testMTI.getFactoryPids()).thenReturn(new String[] {TEST_FACTORY_PID});
@@ -153,14 +154,13 @@ public class ConfigurationAdminExtTest {
 
         when(testBundleContext.getBundles()).thenReturn(new Bundle[] {testBundle});
 
-        when(testConfigAdmin.listConfigurations(anyString()))
-                .thenReturn(new Configuration[] {testConfig});
+        when(testConfigAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
+                testConfig});
 
-        when(testBundleContext.getAllServiceReferences(ManagedService.class.getName(), TEST_FILTER))
-                .thenReturn(testServRefs);
-        when(testBundleContext
-                .getAllServiceReferences(ManagedServiceFactory.class.getName(), TEST_FILTER))
-                .thenReturn(testServRefs);
+        when(testBundleContext.getAllServiceReferences(ManagedService.class.getName(),
+                TEST_FILTER)).thenReturn(testServRefs);
+        when(testBundleContext.getAllServiceReferences(ManagedServiceFactory.class.getName(),
+                TEST_FILTER)).thenReturn(testServRefs);
     }
 
     /**
@@ -173,8 +173,8 @@ public class ConfigurationAdminExtTest {
         Configuration testConfig = mock(Configuration.class);
         Configuration[] configurations = new Configuration[] {testConfig};
 
-        when(testConfigAdmin.listConfigurations('(' + Constants.SERVICE_PID + '=' + TEST_PID + ')'))
-                .thenReturn(configurations);
+        when(testConfigAdmin.listConfigurations(
+                '(' + Constants.SERVICE_PID + '=' + TEST_PID + ')')).thenReturn(configurations);
         assertNotNull(configurationAdminExt.getConfiguration(TEST_PID));
     }
 
@@ -195,8 +195,9 @@ public class ConfigurationAdminExtTest {
         testPluginList.add(testPlugin);
         Map<String, Object> testConfigData = new HashMap<>();
         testConfigData.put(TEST_KEY, TEST_VALUE);
-        when(testPlugin.getConfigurationData(anyString(), any(Map.class), any(BundleContext.class)))
-                .thenReturn(testConfigData);
+        when(testPlugin.getConfigurationData(anyString(),
+                any(Map.class),
+                any(BundleContext.class))).thenReturn(testConfigData);
 
         when(testFilter.match(any(Hashtable.class))).thenReturn(true);
 
@@ -204,10 +205,12 @@ public class ConfigurationAdminExtTest {
 
         configurationAdminExt.setConfigurationAdminPluginList(testPluginList);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
 
         verify(testConfigAdmin, atLeastOnce()).listConfigurations(LIST_CONFIG_STRING);
@@ -226,10 +229,12 @@ public class ConfigurationAdminExtTest {
 
         when(testConfig.getBundleLocation()).thenReturn(null);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
 
         verify(testConfigAdmin, atLeastOnce()).listConfigurations(LIST_CONFIG_STRING);
@@ -249,10 +254,12 @@ public class ConfigurationAdminExtTest {
         when(testConfig.getBundleLocation()).thenReturn(null);
         when(testConfig.getFactoryPid()).thenReturn(null);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
 
         verify(testConfigAdmin, atLeastOnce()).listConfigurations(LIST_CONFIG_STRING);
@@ -271,10 +278,12 @@ public class ConfigurationAdminExtTest {
 
         when(testConfig.getFactoryPid()).thenReturn(null);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
 
         verify(testConfigAdmin, atLeastOnce()).listConfigurations(LIST_CONFIG_STRING);
@@ -293,10 +302,12 @@ public class ConfigurationAdminExtTest {
 
         when(testConfig.getPid()).thenReturn(null);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
 
         verify(testConfigAdmin, atLeastOnce()).listConfigurations(LIST_CONFIG_STRING);
@@ -315,10 +326,12 @@ public class ConfigurationAdminExtTest {
 
         when(bundleHeaders.get(Constants.BUNDLE_NAME)).thenReturn(null);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
     }
 
@@ -335,8 +348,8 @@ public class ConfigurationAdminExtTest {
 
         when(testRef1.getProperty(Constants.SERVICE_PID)).thenReturn(BAD_PID);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
         assertTrue("Should not return any services.", result.isEmpty());
     }
 
@@ -351,13 +364,16 @@ public class ConfigurationAdminExtTest {
         setUpListServices();
         setUpTestConfig();
 
-        doThrow(new IOException()).when(testConfigAdmin).listConfigurations(anyString());
+        doThrow(new IOException()).when(testConfigAdmin)
+                .listConfigurations(anyString());
 
         List<Map<String, Object>> result = configurationAdminExt.
                 listServices(TEST_FACT_FILTER, TEST_FILTER);
 
         assertThat("Should recover gracefully but not add to the given data.",
-                (String) result.get(0).get("name"), is(TEST_OCD));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_OCD));
         assertThat("Should only contain one map.", result.size(), is(1));
     }
 
@@ -379,7 +395,9 @@ public class ConfigurationAdminExtTest {
                 listServices(TEST_FACT_FILTER, TEST_FILTER);
 
         assertThat("Should recover gracefully but not add to the given data.",
-                (String) result.get(0).get("name"), is(TEST_OCD));
+                (String) result.get(0)
+                        .get("name"),
+                is(TEST_OCD));
         assertThat("Should only contain one map.", result.size(), is(1));
     }
 
@@ -395,16 +413,19 @@ public class ConfigurationAdminExtTest {
         setUpTestConfig();
         setUpListServices();
 
-        when(testBundle.getLocation()).thenReturn(TEST_BUNDLE_LOC).thenReturn(TEST_BUNDLE_LOC)
-        .thenReturn(null).thenReturn(TEST_BUNDLE_LOC);
+        when(testBundle.getLocation()).thenReturn(TEST_BUNDLE_LOC)
+                .thenReturn(TEST_BUNDLE_LOC)
+                .thenReturn(null)
+                .thenReturn(TEST_BUNDLE_LOC);
         when(testBundle.getSymbolicName()).thenReturn(null);
         when(bundleHeaders.get(Constants.BUNDLE_NAME)).thenReturn(null);
 
+        List<Map<String, Object>> result = configurationAdminExt.listServices(TEST_FACT_FILTER,
+                TEST_FILTER);
 
-        List<Map<String, Object>> result = configurationAdminExt
-                .listServices(TEST_FACT_FILTER, TEST_FILTER);
-
-        assertThat("Should return the correct services.", (String) result.get(0).get("id"),
+        assertThat("Should return the correct services.",
+                (String) result.get(0)
+                        .get("id"),
                 is(TEST_PID));
     }
 
@@ -421,7 +442,8 @@ public class ConfigurationAdminExtTest {
 
         Configuration result = configurationAdminExt.getConfiguration(TEST_PID);
 
-        assertThat("Should handle the exception gracefully and return null.", result,
+        assertThat("Should handle the exception gracefully and return null.",
+                result,
                 is(nullValue()));
     }
 
@@ -433,11 +455,13 @@ public class ConfigurationAdminExtTest {
      */
     @Test
     public void testGetConfigurationIOException() throws Exception {
-        doThrow(new IOException()).when(testConfigAdmin).listConfigurations(anyString());
+        doThrow(new IOException()).when(testConfigAdmin)
+                .listConfigurations(anyString());
 
         Configuration result = configurationAdminExt.getConfiguration(TEST_PID);
 
-        assertThat("Should handle the exception gracefully and return null.", result,
+        assertThat("Should handle the exception gracefully and return null.",
+                result,
                 is(nullValue()));
     }
 
@@ -449,7 +473,8 @@ public class ConfigurationAdminExtTest {
      */
     @Test
     public void testGetBundleNullStringParam() throws Exception {
-        assertThat("Should return null.", configurationAdminExt.getBundle(testBundleContext, null),
+        assertThat("Should return null.",
+                configurationAdminExt.getBundle(testBundleContext, null),
                 is(nullValue()));
     }
 

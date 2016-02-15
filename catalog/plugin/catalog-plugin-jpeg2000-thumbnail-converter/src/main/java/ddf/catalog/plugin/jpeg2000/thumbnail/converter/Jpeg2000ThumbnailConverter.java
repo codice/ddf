@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -47,7 +47,8 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
     public static final short START_OF_CODESTREAM_MARKER = (short) 0xff4f;
 
     public Jpeg2000ThumbnailConverter() {
-        IIORegistry.getDefaultInstance().registerServiceProvider(new J2KImageReaderSpi());
+        IIORegistry.getDefaultInstance()
+                .registerServiceProvider(new J2KImageReaderSpi());
     }
 
     @Override
@@ -64,8 +65,8 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
                     ByteArrayInputStream original = new ByteArrayInputStream(thumbnailBytes);
                     ByteArrayOutputStream converted = new ByteArrayOutputStream()
             ) {
-                IISRandomAccessIO in = new IISRandomAccessIO(
-                        ImageIO.createImageInputStream(original));
+                IISRandomAccessIO in =
+                        new IISRandomAccessIO(ImageIO.createImageInputStream(original));
 
                 if (in.length() == 0) {
                     continue;
@@ -77,7 +78,8 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
                         in.readInt() != OFFICIAL_JP2_SIGNATURE) { // Not a JP2 file
                     in.seek(0);
 
-                    if (in.readShort() != START_OF_CODESTREAM_MARKER) { //Standard syntax marker found
+                    if (in.readShort()
+                            != START_OF_CODESTREAM_MARKER) { //Standard syntax marker found
                         continue;
                     }
                 }
@@ -89,8 +91,8 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
                     continue;
                 }
                 ImageIO.write(thumbnail, "jpeg", converted);
-                metacard.setAttribute(
-                        new AttributeImpl(Metacard.THUMBNAIL, converted.toByteArray()));
+                metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL,
+                        converted.toByteArray()));
             } catch (IOException e) {
                 throw new PluginExecutionException(e);
             }

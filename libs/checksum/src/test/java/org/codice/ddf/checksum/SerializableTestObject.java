@@ -26,7 +26,7 @@ public class SerializableTestObject implements Serializable {
         this.name = name;
     }
 
-    public  String name;
+    public String name;
 
     public String getDescription() {
         return description;
@@ -36,5 +36,5 @@ public class SerializableTestObject implements Serializable {
         this.description = description;
     }
 
-    public  String description;
+    public String description;
 }

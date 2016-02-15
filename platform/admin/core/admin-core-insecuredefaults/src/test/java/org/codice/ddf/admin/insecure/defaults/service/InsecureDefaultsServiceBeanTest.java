@@ -48,7 +48,8 @@ public class InsecureDefaultsServiceBeanTest {
     @After
     public void after() throws Exception {
         if (isRegistered()) {
-            ManagementFactory.getPlatformMBeanServer().unregisterMBean(mbeanName);
+            ManagementFactory.getPlatformMBeanServer()
+                    .unregisterMBean(mbeanName);
         }
     }
 
@@ -63,8 +64,10 @@ public class InsecureDefaultsServiceBeanTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getLevel(), is(Level.WARN));
-        assertThat(alerts.get(0).getMessage(), is(BASE_ALERT_TEST_MESSAGE + 0));
+        assertThat(alerts.get(0)
+                .getLevel(), is(Level.WARN));
+        assertThat(alerts.get(0)
+                .getMessage(), is(BASE_ALERT_TEST_MESSAGE + 0));
     }
 
     // Verify alerts get cleared on each call to validate.
@@ -143,7 +146,8 @@ public class InsecureDefaultsServiceBeanTest {
     }
 
     private boolean isRegistered() throws MalformedObjectNameException {
-        return ManagementFactory.getPlatformMBeanServer().isRegistered(mbeanName);
+        return ManagementFactory.getPlatformMBeanServer()
+                .isRegistered(mbeanName);
     }
 
     private List<Validator> createMockValidators(int count) {

@@ -162,7 +162,8 @@ public class TestFederation extends AbstractIntegrationTest {
             }
             metacardsToDelete.clear();
         }
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
 
         if (resourcesToDelete != null) {
             for (String resource : resourcesToDelete) {
@@ -319,7 +320,9 @@ public class TestFederation extends AbstractIntegrationTest {
         metacardsToDelete.add(metacardId);
         String productDirectory = new File(fileName).getAbsoluteFile()
                 .getParent();
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
+                productDirectory);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
                 + "?transform=resource";
@@ -343,7 +346,8 @@ public class TestFederation extends AbstractIntegrationTest {
         String fileName = testName.getMethodName() + ".txt";
         String metacardId = ingestXmlWithProduct(fileName);
         metacardsToDelete.add(metacardId);
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
                 + "?transform=resource";
@@ -388,7 +392,9 @@ public class TestFederation extends AbstractIntegrationTest {
         metacardsToDelete.add(metacardId);
         String productDirectory = new File(fileName).getAbsoluteFile()
                 .getParent();
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
+                productDirectory);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
                 + "?transform=resource";
@@ -404,7 +410,9 @@ public class TestFederation extends AbstractIntegrationTest {
     public void testFederatedRetrieveExistingProductCsw() throws Exception {
         String productDirectory = new File(DEFAULT_SAMPLE_PRODUCT_FILE_NAME).getAbsoluteFile()
                 .getParent();
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
+                productDirectory);
 
         String restUrl = REST_PATH.getUrl() + "sources/" + CSW_SOURCE_ID + "/"
                 + metacardIds[XML_RECORD_INDEX] + "?transform=resource";
@@ -423,7 +431,8 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testFederatedRetrieveNoProduct() throws Exception {
         // Setup
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
         String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
 
@@ -669,7 +678,8 @@ public class TestFederation extends AbstractIntegrationTest {
     public void setupConnectedSources() throws IOException {
         CswConnectedSourceProperties connectedSourceProperties = new CswConnectedSourceProperties(
                 CONNECTED_SOURCE_ID);
-        getServiceManager().createManagedService(CswConnectedSourceProperties.FACTORY_PID, connectedSourceProperties);
+        getServiceManager().createManagedService(CswConnectedSourceProperties.FACTORY_PID,
+                connectedSourceProperties);
     }
 
     private String ingestXmlWithProduct(String fileName) throws IOException {

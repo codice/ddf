@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.geocoder.geonames;
 
@@ -57,8 +56,11 @@ public class GeoNamesWebService implements GeoCoder {
 
         location = getUrlEncodedLocation(location);
 
-        String urlStr = String.format("%s://%s/searchJSON?q=%s&username=%s", geoNamesProtocol,
-                geoNamesApiServer, location, username);
+        String urlStr = String.format("%s://%s/searchJSON?q=%s&username=%s",
+                geoNamesProtocol,
+                geoNamesApiServer,
+                location,
+                username);
 
         Object result = query(urlStr);
 
@@ -75,8 +77,11 @@ public class GeoNamesWebService implements GeoCoder {
                         Long population = (Long) firstResult.get("population");
                         String adminCode = (String) firstResult.get("fcode");
 
-                        return  GeoResultCreator
-                                .createGeoResult((String)firstResult.get("name"), lat, lon, adminCode, population);
+                        return GeoResultCreator.createGeoResult((String) firstResult.get("name"),
+                                lat,
+                                lon,
+                                adminCode,
+                                population);
                     }
                 }
             }
@@ -90,8 +95,9 @@ public class GeoNamesWebService implements GeoCoder {
 
         try {
             WebClient client = createWebClient(urlStr);
-            response = client.acceptEncoding(StandardCharsets.UTF_8.name()).accept("application/json").get(
-                    String.class);
+            response = client.acceptEncoding(StandardCharsets.UTF_8.name())
+                    .accept("application/json")
+                    .get(String.class);
         } catch (WebApplicationException e) {
             LOGGER.error("Error while making geonames request.", e);
             return null;
@@ -131,8 +137,13 @@ public class GeoNamesWebService implements GeoCoder {
 
         Point wktCenterPoint = createPointFromWkt(locationWkt);
 
-        String urlStr = String.format("%s://%s/findNearbyPlaceNameJSON?lat=%f&lng=%f&maxRows=1&username=%s",
-                geoNamesProtocol, geoNamesApiServer, wktCenterPoint.getY(), wktCenterPoint.getX(), username);
+        String urlStr = String.format(
+                "%s://%s/findNearbyPlaceNameJSON?lat=%f&lng=%f&maxRows=1&username=%s",
+                geoNamesProtocol,
+                geoNamesApiServer,
+                wktCenterPoint.getY(),
+                wktCenterPoint.getX(),
+                username);
 
         Object result = query(urlStr);
 

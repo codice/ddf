@@ -37,6 +37,7 @@ public class GuestPrincipal implements Principal, Serializable {
 
     /**
      * Returns the ip address associated with this guest principal
+     *
      * @return
      */
     public String getAddress() {
@@ -56,6 +57,7 @@ public class GuestPrincipal implements Principal, Serializable {
     /**
      * Parses the ip address out of a guest principal name that has the format
      * Guest@127.0.0.1
+     *
      * @param fullName
      * @return
      */

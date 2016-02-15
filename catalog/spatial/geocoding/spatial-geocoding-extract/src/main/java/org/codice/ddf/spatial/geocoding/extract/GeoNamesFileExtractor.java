@@ -165,13 +165,15 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             } else if (resource.matches("((?i)cities[0-9]+)")) {
                 resource = resource.toLowerCase();
                 // Support case insensitive country codes
-            } else if(!resource.equalsIgnoreCase("allCountries")){
+            } else if (!resource.equalsIgnoreCase("allCountries")) {
                 resource = resource.toUpperCase();
             }
 
             Response response = createConnection(resource);
             InputStream urlInputStream = getUrlInputStreamFromWebClient();
-            InputStream inputStream = getInputStreamFromUrl(resource, response, urlInputStream,
+            InputStream inputStream = getInputStreamFromUrl(resource,
+                    response,
+                    urlInputStream,
                     extractionCallback);
 
             return unZipInputStream(resource, inputStream);
@@ -218,7 +220,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
                     progressCallback.updateProgress((int) ((totalBytesRead / totalFileSize) * 50));
                 }
             }
-            
+
             if (progressCallback != null) {
                 progressCallback.updateProgress(50);
             }
@@ -294,7 +296,8 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 
                 // GeoNames <filename>.zip files will contain <filename>.txt and readme.txt
-                if (!zipEntry.getName().equals("readme.txt")) {
+                if (!zipEntry.getName()
+                        .equals("readme.txt")) {
 
                     byte data[] = new byte[BUFFER_SIZE];
                     int bytesRead;

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,12 +24,12 @@ import javax.validation.constraints.NotNull;
 public abstract class AbstractMigratable implements Migratable {
 
     protected final String description;
-    
+
     protected final boolean isOptional;
-    
+
     /**
      * Constructor
-     * 
+     *
      * @param description a short description of what this {@link org.codice.ddf.migration.Migratable} does.
      * @param isOptional is the exported data from this {@link org.codice.ddf.migration.Migratable} optional or required
      */
@@ -38,14 +38,14 @@ public abstract class AbstractMigratable implements Migratable {
         this.description = description;
         this.isOptional = isOptional;
     }
-    
+
     /**
      * @return a short description describing the purpose of this {@link org.codice.ddf.migration.Migratable}
      */
     public String getDescription() {
         return description;
     }
-    
+
     /**
      * @return is the exported data from this {@link org.codice.ddf.migration.Migratable} optional or required
      */

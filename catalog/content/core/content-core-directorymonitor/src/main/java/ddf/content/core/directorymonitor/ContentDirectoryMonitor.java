@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,7 +61,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     /**
      * This method will stop and remove any existing Camel routes in this context, and then
      * configure a new Camel route using the properties set in the setter methods.
-     * 
+     *
      * Invoked after all of the setter methods have been called (for initial route creation), and
      * also called whenever an existing route is updated.
      */
@@ -172,7 +172,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
                 from(inbox).setHeader(Request.OPERATION, constant("create"))
                         .setHeader(Request.DIRECTIVE, constant(directive))
-                        .setHeader(Request.CONTENT_URI, constant("")).to("content:framework");
+                        .setHeader(Request.CONTENT_URI, constant(""))
+                        .to("content:framework");
             }
         };
 
@@ -186,7 +187,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             // Save the routes created by RouteBuilder so that they can be
             // stopped and removed later if the route(s) are modified by the
             // administrator or this ContentDirectoryMonitor is deleted.
-            this.routeCollection = routeBuilder.getRouteCollection().getRoutes();
+            this.routeCollection = routeBuilder.getRouteCollection()
+                    .getRoutes();
 
             // Start route that was just added.
             // If the route was just added for the first time, i.e., this not a bundle
@@ -269,7 +271,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
         if (this.routeCollection != null) {
             for (RouteDefinition routeDef : this.routeCollection) {
-                if (routeDef.getId().equals(routeId)) {
+                if (routeDef.getId()
+                        .equals(routeId)) {
                     return true;
                 }
             }

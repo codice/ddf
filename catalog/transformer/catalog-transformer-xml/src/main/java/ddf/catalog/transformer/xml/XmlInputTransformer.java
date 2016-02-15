@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,7 +37,8 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlInputTransformer.class);
 
-    private static final String FAILED_TRANSFORMATION = "Failed Transformation.  Could not create Metacard from XML.";
+    private static final String FAILED_TRANSFORMATION =
+            "Failed Transformation.  Could not create Metacard from XML.";
 
     private List<MetacardType> metacardTypes;
 
@@ -58,9 +59,9 @@ public class XmlInputTransformer extends AbstractXmlTransformer implements Input
 
     private Metacard testXform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
-        ParserConfigurator parserConfigurator = getParserConfigurator()
-                .setAdapter(new MetacardTypeAdapter(metacardTypes))
-                .setHandler(new DefaultValidationEventHandler());
+        ParserConfigurator parserConfigurator =
+                getParserConfigurator().setAdapter(new MetacardTypeAdapter(metacardTypes))
+                        .setHandler(new DefaultValidationEventHandler());
 
         try {
             Metacard metacard = getParser().unmarshal(parserConfigurator, Metacard.class, input);

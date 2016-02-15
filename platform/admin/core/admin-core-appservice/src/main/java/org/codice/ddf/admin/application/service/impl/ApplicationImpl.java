@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation of the application interface. This class exposes a karaf-based
  * repository (identified inside of a feature) as a DDF application.
- *
  */
 public class ApplicationImpl implements Application, Comparable<Application> {
 
@@ -58,9 +57,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     /**
      * Creates a new instance of application.
      *
-     * @param repo
-     *            Creates the application from a Karaf Feature Repository
-     *            object.
+     * @param repo Creates the application from a Karaf Feature Repository
+     *             object.
      */
     public ApplicationImpl(Repository repo) {
         location = repo.getURI();
@@ -73,10 +71,12 @@ public class ApplicationImpl implements Application, Comparable<Application> {
         }
         List<Feature> autoFeatures = new ArrayList<>();
         if (features.size() == 1) {
-            autoFeatures.add(features.iterator().next());
+            autoFeatures.add(features.iterator()
+                    .next());
         } else {
             for (Feature curFeature : features) {
-                if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE, curFeature.getInstall())) {
+                if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE,
+                        curFeature.getInstall())) {
                     autoFeatures.add(curFeature);
                 }
             }

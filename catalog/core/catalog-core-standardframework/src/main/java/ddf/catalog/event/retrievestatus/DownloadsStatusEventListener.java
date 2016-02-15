@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -29,8 +29,8 @@ import ddf.catalog.operation.ResourceResponse;
 
 public class DownloadsStatusEventListener implements EventHandler {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(DownloadsStatusEventListener.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DownloadsStatusEventListener.class);
 
     private Map<String, InputStream> downloadMap = new HashMap<String, InputStream>();
 
@@ -42,12 +42,13 @@ public class DownloadsStatusEventListener implements EventHandler {
         String methodName = "handleEvent";
         LOGGER.debug("ENTERING: {}", methodName);
 
-        if (null != event && null != event.getTopic() && null != event
-                .getProperty(ActivityEvent.DOWNLOAD_ID_KEY)) {
+        if (null != event && null != event.getTopic()
+                && null != event.getProperty(ActivityEvent.DOWNLOAD_ID_KEY)) {
 
             // If cancel event, then cancel the download stream
             if (ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL.equals(event.getTopic())) {
-                String keyToCancel = event.getProperty(ActivityEvent.DOWNLOAD_ID_KEY).toString();
+                String keyToCancel = event.getProperty(ActivityEvent.DOWNLOAD_ID_KEY)
+                        .toString();
 
                 LOGGER.debug("downloadKey = {}", keyToCancel);
                 if (null != downloadMap) {
@@ -81,7 +82,8 @@ public class DownloadsStatusEventListener implements EventHandler {
 
         if (null != downloadIdentifier && null != resourceResponse) {
 
-            InputStream is = resourceResponse.getResource().getInputStream();
+            InputStream is = resourceResponse.getResource()
+                    .getInputStream();
             if (null != is) {
                 LOGGER.debug("added ==> {}:{} ", downloadIdentifier, is);
                 this.downloadMap.put(downloadIdentifier, is);
@@ -109,7 +111,8 @@ public class DownloadsStatusEventListener implements EventHandler {
                 for (Map.Entry<String, InputStream> item : downloadMap.entrySet()) {
                     if (StringUtils.equals(downloadIdentifier, item.getKey())) {
                         downloadMap.remove(downloadIdentifier);
-                        LOGGER.debug("Removed downloadIdentifier ==> {}:{} ", downloadIdentifier,
+                        LOGGER.debug("Removed downloadIdentifier ==> {}:{} ",
+                                downloadIdentifier,
                                 item.getValue());
                         break;
                     }
@@ -131,8 +134,10 @@ public class DownloadsStatusEventListener implements EventHandler {
     private String getProperty(ResourceResponse resourceResponse, String property) {
         String response = "";
 
-        if (resourceResponse.getRequest().containsPropertyName(property)) {
-            response = (String) resourceResponse.getRequest().getPropertyValue(property);
+        if (resourceResponse.getRequest()
+                .containsPropertyName(property)) {
+            response = (String) resourceResponse.getRequest()
+                    .getPropertyValue(property);
             LOGGER.debug("resourceResponse {} property: {}", property, response);
         }
 

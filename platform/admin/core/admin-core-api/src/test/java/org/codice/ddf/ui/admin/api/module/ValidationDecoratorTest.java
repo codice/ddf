@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,22 +35,26 @@ public class ValidationDecoratorTest {
 
     @Test
     public void testValidAdminModule() throws URISyntaxException {
-        doReturn(new URI("js/app.js")).when(module).getJSLocation();
+        doReturn(new URI("js/app.js")).when(module)
+                .getJSLocation();
         ValidationDecorator proxy = new ValidationDecorator(module);
         assertThat("relative paths are valid", proxy.isValid(), is(true));
     }
 
     @Test
     public void testInvalidAdminModule() throws URISyntaxException {
-        doReturn(new URI("http://test/js/app.js")).when(module).getJSLocation();
+        doReturn(new URI("http://test/js/app.js")).when(module)
+                .getJSLocation();
         ValidationDecorator proxy = new ValidationDecorator(module);
         assertThat("absolute paths are not valid", proxy.isValid(), is(false));
     }
 
     @Test
     public void testPartialInvalidAdminModule() throws URISyntaxException {
-        doReturn(new URI("js/app.js")).when(module).getJSLocation();
-        doReturn(new URI("/css/styles.css")).when(module).getCSSLocation();
+        doReturn(new URI("js/app.js")).when(module)
+                .getJSLocation();
+        doReturn(new URI("/css/styles.css")).when(module)
+                .getCSSLocation();
         ValidationDecorator proxy = new ValidationDecorator(module);
         assertThat("any absolute paths are not valid", proxy.isValid(), is(false));
     }

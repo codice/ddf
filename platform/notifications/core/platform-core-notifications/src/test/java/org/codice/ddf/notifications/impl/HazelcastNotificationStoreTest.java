@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,8 +41,8 @@ import com.hazelcast.core.HazelcastInstance;
 
 public class HazelcastNotificationStoreTest {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(HazelcastNotificationStoreTest.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+            HazelcastNotificationStoreTest.class);
 
     private static final String TEST_PATH = "/src/main/resources/";
 
@@ -68,10 +68,13 @@ public class HazelcastNotificationStoreTest {
                 xmlConfigFilename);
         HazelcastInstance instance = store.getHazelcastInstance();
 
-        MapConfig mapConfig = instance.getConfig().getMapConfig(PERSISTENT_CACHE_NAME);
+        MapConfig mapConfig = instance.getConfig()
+                .getMapConfig(PERSISTENT_CACHE_NAME);
         assertNotNull(mapConfig);
         assertEquals(0, mapConfig.getBackupCount());
-        assertEquals(Integer.MAX_VALUE, mapConfig.getMaxSizeConfig().getSize());
+        assertEquals(Integer.MAX_VALUE,
+                mapConfig.getMaxSizeConfig()
+                        .getSize());
         assertEquals(0, mapConfig.getTimeToLiveSeconds());
         assertEquals(EvictionPolicy.NONE, mapConfig.getEvictionPolicy());
         MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
@@ -82,7 +85,8 @@ public class HazelcastNotificationStoreTest {
             fail();
         }
 
-        instance.getMap(PERSISTENT_CACHE_NAME).destroy();
+        instance.getMap(PERSISTENT_CACHE_NAME)
+                .destroy();
         instance.shutdown();
     }
 
@@ -108,8 +112,11 @@ public class HazelcastNotificationStoreTest {
         File persistenceDir = null;
 
         try {
-            MockNotification notification = new MockNotification("app", "title", "message",
-                    new Date().getTime(), "user1");
+            MockNotification notification = new MockNotification("app",
+                    "title",
+                    "message",
+                    new Date().getTime(),
+                    "user1");
             store.putNotification(notification);
 
             FileSystemPersistenceProvider provider = new FileSystemPersistenceProvider(
@@ -120,8 +127,8 @@ public class HazelcastNotificationStoreTest {
             String[] persistedNotifications = mapStoreDir.list();
             assertTrue(persistedNotifications.length == 1);
 
-            MockNotification n = (MockNotification) provider
-                    .loadFromPersistence(notification.getId());
+            MockNotification n =
+                    (MockNotification) provider.loadFromPersistence(notification.getId());
             if (null != n) {
                 LOGGER.info("notification = {}", n);
                 assertEquals(n.getApplication(), "app");
@@ -133,7 +140,8 @@ public class HazelcastNotificationStoreTest {
             }
 
         } finally {
-            instance.getMap(PERSISTENT_CACHE_NAME).destroy();
+            instance.getMap(PERSISTENT_CACHE_NAME)
+                    .destroy();
             instance.shutdown();
             // Delete the serialized notification files - otherwise they will be read by any
             // subsequent unit tests
@@ -173,9 +181,11 @@ public class HazelcastNotificationStoreTest {
                 for (int j = 1; j <= numNotificationsPerUser; j++) {
                     String title = "title-" + j;
                     String message = "message-" + j;
-                    store.putNotification(
-                            new MockNotification(app, title, message, new Date().getTime(),
-                                    userIds[i]));
+                    store.putNotification(new MockNotification(app,
+                            title,
+                            message,
+                            new Date().getTime(),
+                            userIds[i]));
                 }
             }
 
@@ -197,8 +207,10 @@ public class HazelcastNotificationStoreTest {
             assertTrue(notifications.size() == numNotificationsPerUser);
             for (Map<String, String> n : notifications) {
                 LOGGER.info("notification = {}", n);
-                assertTrue(n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2"));
-                assertTrue(n.get(MockNotification.NOTIFICATION_KEY_APPLICATION).equals("app-2"));
+                assertTrue(n.get(MockNotification.NOTIFICATION_KEY_USER_ID)
+                        .equals("user2"));
+                assertTrue(n.get(MockNotification.NOTIFICATION_KEY_APPLICATION)
+                        .equals("app-2"));
             }
 
             // Get all notifications
@@ -215,20 +227,23 @@ public class HazelcastNotificationStoreTest {
             notifications = store.getNotifications();
             assertNotNull(notifications);
             for (Map<String, String> n : notifications) {
-                if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2")) {
+                if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID)
+                        .equals("user2")) {
                     store.removeNotification(n.get(MockNotification.NOTIFICATION_KEY_UUID),
                             "user2");
                 }
             }
             notifications = store.getNotifications();
             for (Map<String, String> n : notifications) {
-                if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID).equals("user2")) {
+                if (n.get(MockNotification.NOTIFICATION_KEY_USER_ID)
+                        .equals("user2")) {
                     fail("Notification was not removed.");
                 }
             }
 
         } finally {
-            instance.getMap(PERSISTENT_CACHE_NAME).destroy();
+            instance.getMap(PERSISTENT_CACHE_NAME)
+                    .destroy();
             instance.shutdown();
             // Delete the serialized notification files - otherwise they will be read by any
             // subsequent unit tests

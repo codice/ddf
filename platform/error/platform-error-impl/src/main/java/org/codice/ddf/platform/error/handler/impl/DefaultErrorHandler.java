@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -48,7 +48,8 @@ public class DefaultErrorHandler implements ErrorHandler {
             Bundle bundle = FrameworkUtil.getBundle(DefaultErrorHandler.class);
             if (null != bundle) {
                 try {
-                    indexHtml = IOUtils.toString(bundle.getEntry("/index.html").openStream());
+                    indexHtml = IOUtils.toString(bundle.getEntry("/index.html")
+                            .openStream());
                 } catch (Exception e) {
                     LOGGER.error("Unable to read/parse index.html.", e);
                 }
@@ -63,7 +64,6 @@ public class DefaultErrorHandler implements ErrorHandler {
             HttpServletRequest request, HttpServletResponse response) {
         initIndexHtml();
 
-
         String stack = ExceptionUtils.getFullStackTrace(throwable);
 
         Map<String, String> jsonMap = new HashMap<>();
@@ -73,7 +73,8 @@ public class DefaultErrorHandler implements ErrorHandler {
         jsonMap.put("throwable", stack);
         jsonMap.put("uri", uri);
         String data = toJson(jsonMap);
-        String encodedBytes = Base64.getEncoder().encodeToString(data.getBytes(StandardCharsets.UTF_8));
+        String encodedBytes = Base64.getEncoder()
+                .encodeToString(data.getBytes(StandardCharsets.UTF_8));
 
         String localIndexHtml = indexHtml.replace("WINDOW_DATA", "\"" + encodedBytes + "\"");
 

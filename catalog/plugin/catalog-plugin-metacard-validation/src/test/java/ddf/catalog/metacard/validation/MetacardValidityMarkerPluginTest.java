@@ -60,10 +60,12 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockPassingValidator());
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS),
-                is(nullValue(null)));
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS),
-                is(nullValue(null)));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS), is(nullValue(null)));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS), is(nullValue(null)));
     }
 
     @Test
@@ -74,12 +76,19 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockFailingValidatorWithErrors(ID));
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_ERRORS)
+                .getValues()
                 .contains(SAMPLE), is(true));
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_ERRORS)
+                .getValues()
                 .size(), is(1));
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS),
-                is(nullValue(null)));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS), is(nullValue(null)));
     }
 
     @Test
@@ -90,14 +99,19 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockFailingValidatorWithWarnings(ID));
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS),
-                is(nullValue(null)));
-        assertThat(
-                filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
-                        .contains(SAMPLE), is(true));
-        assertThat(
-                filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
-                        .size(), is(1));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_ERRORS), is(nullValue(null)));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS)
+                .getValues()
+                .contains(SAMPLE), is(true));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS)
+                .getValues()
+                .size(), is(1));
     }
 
     @Test
@@ -108,16 +122,26 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings(ID));
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_ERRORS)
+                .getValues()
                 .contains(SAMPLE), is(true));
-        assertThat(filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_ERRORS).getValues()
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_ERRORS)
+                .getValues()
                 .size(), is(1));
-        assertThat(
-                filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
-                        .contains(SAMPLE), is(true));
-        assertThat(
-                filteredRequest.getMetacards().get(0).getAttribute(VALIDATION_WARNINGS).getValues()
-                        .size(), is(1));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS)
+                .getValues()
+                .contains(SAMPLE), is(true));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getAttribute(VALIDATION_WARNINGS)
+                .getValues()
+                .size(), is(1));
     }
 
     @Test
@@ -149,7 +173,8 @@ public class MetacardValidityMarkerPluginTest {
         enforcedMetacardValidators.add(id);
         plugin.setEnforcedMetacardValidators(enforcedMetacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().isEmpty(), is(false));
+        assertThat(filteredRequest.getMetacards()
+                .isEmpty(), is(false));
     }
 
     @Test
@@ -164,7 +189,8 @@ public class MetacardValidityMarkerPluginTest {
         enforcedMetacardValidators.add(id);
         plugin.setEnforcedMetacardValidators(enforcedMetacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().isEmpty(), is(true));
+        assertThat(filteredRequest.getMetacards()
+                .isEmpty(), is(true));
     }
 
     @Test
@@ -175,7 +201,8 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockPassingValidatorNoDescribable());
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().isEmpty(), is(false));
+        assertThat(filteredRequest.getMetacards()
+                .isEmpty(), is(false));
     }
 
     @Test
@@ -186,7 +213,8 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockFailingValidatorNoDescribable());
         plugin.setMetacardValidators(metacardValidators);
         CreateRequest filteredRequest = plugin.process(getMockCreateRequest());
-        assertThat(filteredRequest.getMetacards().isEmpty(), is(false));
+        assertThat(filteredRequest.getMetacards()
+                .isEmpty(), is(false));
 
     }
 
@@ -214,7 +242,8 @@ public class MetacardValidityMarkerPluginTest {
         MetacardValidator metacardValidator = mock(MetacardValidator.class,
                 withSettings().extraInterfaces(Describable.class));
         when(((Describable) metacardValidator).getId()).thenReturn(id);
-        doThrow(validationException).when(metacardValidator).validate(any(Metacard.class));
+        doThrow(validationException).when(metacardValidator)
+                .validate(any(Metacard.class));
         return metacardValidator;
     }
 
@@ -225,7 +254,8 @@ public class MetacardValidityMarkerPluginTest {
         MetacardValidator metacardValidator = mock(MetacardValidator.class,
                 withSettings().extraInterfaces(Describable.class));
         when(((Describable) metacardValidator).getId()).thenReturn(id);
-        doThrow(validationException).when(metacardValidator).validate(any(Metacard.class));
+        doThrow(validationException).when(metacardValidator)
+                .validate(any(Metacard.class));
         return metacardValidator;
     }
 
@@ -237,7 +267,8 @@ public class MetacardValidityMarkerPluginTest {
         MetacardValidator metacardValidator = mock(MetacardValidator.class,
                 withSettings().extraInterfaces(Describable.class));
         when(((Describable) metacardValidator).getId()).thenReturn(id);
-        doThrow(validationException).when(metacardValidator).validate(any(Metacard.class));
+        doThrow(validationException).when(metacardValidator)
+                .validate(any(Metacard.class));
         return metacardValidator;
     }
 

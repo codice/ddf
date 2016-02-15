@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -40,7 +40,8 @@ public class SubjectImplTest {
 
     public static final String TEST_HOST = "hostName";
 
-    public static final Session TEST_SESSION = new SimpleSession(UUID.randomUUID().toString());
+    public static final Session TEST_SESSION = new SimpleSession(UUID.randomUUID()
+            .toString());
 
     public static final DefaultSecurityManager TEST_MANAGER = new DefaultSecurityManager();
 
@@ -50,33 +51,48 @@ public class SubjectImplTest {
      */
     @Test
     public void testSixParamConstructor() {
-        DelegatingSubject testSubject = new SubjectImpl(createTestCollection(), false, TEST_HOST,
-                TEST_SESSION, false, TEST_MANAGER);
+        DelegatingSubject testSubject = new SubjectImpl(createTestCollection(),
+                false,
+                TEST_HOST,
+                TEST_SESSION,
+                false,
+                TEST_MANAGER);
         assertEquals(createTestCollection(), testSubject.getPrincipals());
         assertFalse(testSubject.isAuthenticated());
         assertEquals(TEST_HOST, testSubject.getHost());
-        assertEquals(TEST_SESSION.getId(), testSubject.getSession().getId());
+        assertEquals(TEST_SESSION.getId(),
+                testSubject.getSession()
+                        .getId());
         assertEquals(TEST_MANAGER, testSubject.getSecurityManager());
     }
 
     @Test
     public void testFiveParamConstructor() {
-        DelegatingSubject testSubject = new SubjectImpl(createTestCollection(), false, TEST_HOST,
-                TEST_SESSION, TEST_MANAGER);
+        DelegatingSubject testSubject = new SubjectImpl(createTestCollection(),
+                false,
+                TEST_HOST,
+                TEST_SESSION,
+                TEST_MANAGER);
         assertEquals(createTestCollection(), testSubject.getPrincipals());
         assertFalse(testSubject.isAuthenticated());
         assertEquals(TEST_HOST, testSubject.getHost());
-        assertEquals(TEST_SESSION.getId(), testSubject.getSession().getId());
+        assertEquals(TEST_SESSION.getId(),
+                testSubject.getSession()
+                        .getId());
         assertEquals(TEST_MANAGER, testSubject.getSecurityManager());
     }
 
     @Test
     public void testFourParamConstructor() {
-        DelegatingSubject testSubject = new SubjectImpl(createTestCollection(), false, TEST_SESSION,
+        DelegatingSubject testSubject = new SubjectImpl(createTestCollection(),
+                false,
+                TEST_SESSION,
                 TEST_MANAGER);
         assertEquals(createTestCollection(), testSubject.getPrincipals());
         assertFalse(testSubject.isAuthenticated());
-        assertEquals(TEST_SESSION.getId(), testSubject.getSession().getId());
+        assertEquals(TEST_SESSION.getId(),
+                testSubject.getSession()
+                        .getId());
         assertEquals(TEST_MANAGER, testSubject.getSecurityManager());
     }
 

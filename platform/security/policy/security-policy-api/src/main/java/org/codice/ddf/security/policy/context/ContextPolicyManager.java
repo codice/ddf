@@ -23,6 +23,7 @@ public interface ContextPolicyManager {
     /**
      * Returns the policy associated with the given context path. The argument is assumed to be
      * the type of path returned from calling httpRequest.getContextPath();
+     *
      * @param path - context path
      * @return policy associated with the given path
      */
@@ -30,19 +31,22 @@ public interface ContextPolicyManager {
 
     /**
      * Returns a Collection of all {@link ContextPolicy} objects
+     *
      * @return collection of policies <strong>The returned collection should be unmodifiable</strong>
      */
     public Collection<ContextPolicy> getAllContextPolicies();
 
     /**
      * Sets a policy for a particular path
-     * @param path - context path
+     *
+     * @param path          - context path
      * @param contextPolicy - context policy
      */
     public void setContextPolicy(String path, ContextPolicy contextPolicy);
 
     /**
      * Returns true if the policy is white listed.
+     *
      * @param path - - context path
      * @return true if the policy is white listed
      */

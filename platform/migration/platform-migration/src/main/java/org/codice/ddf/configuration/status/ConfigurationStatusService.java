@@ -21,20 +21,19 @@ import org.codice.ddf.migration.MigrationWarning;
 /**
  * The {@link ConfigurationStatusService} interface provides a method that
  * returns a {@link Collection} of {@link MigrationWarning} objects.
- * <p/>
+ * <p>
  * Implementers of this interface provide status information about configuration files
- * that failed to import (i.e. configuration files that were move to the failed 
+ * that failed to import (i.e. configuration files that were move to the failed
  * directory).
  */
 public interface ConfigurationStatusService {
-    
+
     /**
      * Gets a collection of configuration files that failed to import.
-     * 
+     *
      * @return a {@link Collection} of {@ConfigurationStatus} objects
-     * 
      * @throws IOException when the failed directory cannot be read.
      */
     public Collection<MigrationWarning> getFailedConfigurationFiles() throws IOException;
-    
+
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,8 +46,8 @@ public class ReliableResourceDownloadManager {
 
     static final int ONE_SECOND_IN_MS = 1000;
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ReliableResourceDownloadManager.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ReliableResourceDownloadManager.class);
 
     private DownloadsStatusEventPublisher eventPublisher;
 
@@ -59,7 +59,8 @@ public class ReliableResourceDownloadManager {
 
     private ExecutorService executor;
 
-    private ReliableResourceDownloaderConfig downloaderConfig = new ReliableResourceDownloaderConfig();
+    private ReliableResourceDownloaderConfig downloaderConfig =
+            new ReliableResourceDownloaderConfig();
 
     /**
      * @param resourceCache
@@ -74,14 +75,15 @@ public class ReliableResourceDownloadManager {
     public ReliableResourceDownloadManager(ResourceCache resourceCache,
             DownloadsStatusEventPublisher eventPublisher,
             DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo,
-                                           ExecutorService executor) {
+            ExecutorService executor) {
         this.downloaderConfig.setResourceCache(resourceCache);
         this.eventPublisher = eventPublisher;
         this.downloaderConfig.setEventPublisher(this.eventPublisher);
         this.downloaderConfig.setEventListener(eventListener);
         this.downloadStatusInfo = downloadStatusInfo;
         this.executor = executor;
-        this.downloadIdentifier = UUID.randomUUID().toString();
+        this.downloadIdentifier = UUID.randomUUID()
+                .toString();
     }
 
     public void init() {
@@ -127,22 +129,30 @@ public class ReliableResourceDownloadManager {
             throw new DownloadException("Cannot download resource", e);
         }
 
-        resourceResponse.getProperties().put(Metacard.ID, metacard.getId());
+        resourceResponse.getProperties()
+                .put(Metacard.ID, metacard.getId());
         // Sources do not create ResourceResponses with the original ResourceRequest, hence
         // it is added here because it will be needed for caching
         resourceResponse = new ResourceResponseImpl(resourceRequest,
-                resourceResponse.getProperties(), resourceResponse.getResource());
+                resourceResponse.getProperties(),
+                resourceResponse.getResource());
 
         // TODO - this should be before retrieveResource() but eventPublisher requires a
         // resourceResponse and that resource response must have a resource request in it (to get
         // USER property)
-        eventPublisher
-                .postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
-                        null, 0L, downloadIdentifier);
+        eventPublisher.postRetrievalStatus(resourceResponse,
+                ProductRetrievalStatus.STARTED,
+                metacard,
+                null,
+                0L,
+                downloadIdentifier);
 
         AtomicBoolean downloadStarted = new AtomicBoolean(Boolean.FALSE);
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,
-                downloadStarted, downloadIdentifier, resourceResponse, retriever);
+                downloadStarted,
+                downloadIdentifier,
+                resourceResponse,
+                retriever);
         resourceResponse = downloader.setupDownload(metacard, downloadStatusInfo);
 
         // Start download in separate thread so can return ResourceResponse with

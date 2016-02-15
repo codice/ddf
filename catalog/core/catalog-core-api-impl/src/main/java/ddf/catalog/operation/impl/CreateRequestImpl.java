@@ -29,17 +29,20 @@ import ddf.catalog.operation.CreateRequest;
  */
 public class CreateRequestImpl extends OperationImpl implements CreateRequest {
 
-    /** The metacards to be created */
+    /**
+     * The metacards to be created
+     */
     protected List<Metacard> metacards;
 
-    /** The set of destination ids to send this request to **/
+    /**
+     * The set of destination ids to send this request to
+     **/
     protected Set<String> destinations = new HashSet<>();
 
     /**
      * Instantiates a new CreateRequestImpl with a single {@link Metacard}.
      *
-     * @param metacard
-     *            the metacard
+     * @param metacard the metacard
      */
     public CreateRequestImpl(Metacard metacard) {
         this(Arrays.asList(metacard), null);
@@ -48,8 +51,7 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
     /**
      * Instantiates a new CreateRequestImpl with a {@link List} of {@link Metacard}.
      *
-     * @param metacards
-     *            the metacards
+     * @param metacards the metacards
      */
     public CreateRequestImpl(List<Metacard> metacards) {
         this(metacards, null);
@@ -59,10 +61,8 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
      * Instantiates a new CreateRequestImpl with a {@link List} of {@link Metacard}. and a
      * {@link Map} of properties.
      *
-     * @param metacards
-     *            the metacards
-     * @param properties
-     *            the properties
+     * @param metacards  the metacards
+     * @param properties the properties
      */
     public CreateRequestImpl(List<Metacard> metacards, Map<String, Serializable> properties) {
         this(metacards, properties, new HashSet<>());

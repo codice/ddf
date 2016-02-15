@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.catalog.resource.impl;
 
@@ -99,8 +98,9 @@ public class TestResourceReader {
 
         OgcUrlResourceReader resourceReader = new OgcUrlResourceReader(urlResourceReader, mockTika);
 
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
         URI uri = new URI(httpUriStr);
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -110,8 +110,8 @@ public class TestResourceReader {
 
         // Verify
         StringWriter writer = new StringWriter();
-        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
-                MOCK_HTTP_SERVER_ENCODING);
+        IOUtils.copy(resourceResponse.getResource()
+                .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
         LOGGER.info("Response " + responseString);
@@ -128,8 +128,9 @@ public class TestResourceReader {
     @Test
     public void testRetrieveResourceNullResourceMimeType() throws Exception {
         // Setup
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
         URI uri = new URI(httpUriStr);
         Response mockResponse = getMockResponse();
         setupMockWebClient(mockResponse);
@@ -158,8 +159,9 @@ public class TestResourceReader {
     @Test
     public void testRetrieveResourceMimeTypeTextHtml() throws Exception {
         // Setup
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
         URI uri = new URI(httpUriStr);
         Response mockResponse = getMockResponse();
@@ -179,8 +181,8 @@ public class TestResourceReader {
 
         // Verify
         StringWriter writer = new StringWriter();
-        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
-                MOCK_HTTP_SERVER_ENCODING);
+        IOUtils.copy(resourceResponse.getResource()
+                .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
         LOGGER.info("Response " + responseString);
@@ -197,8 +199,9 @@ public class TestResourceReader {
     @Test
     public void testRetrieveResourceApplicationUnknownResourceMimeType() throws Exception {
         // Setup
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
         URI uri = new URI(httpUriStr);
         Response mockResponse = getMockResponse();
         setupMockWebClient(mockResponse);
@@ -217,8 +220,8 @@ public class TestResourceReader {
 
         // Verify
         StringWriter writer = new StringWriter();
-        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
-                MOCK_HTTP_SERVER_ENCODING);
+        IOUtils.copy(resourceResponse.getResource()
+                .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
         LOGGER.info("Response " + responseString);
@@ -235,8 +238,9 @@ public class TestResourceReader {
     @Test
     public void testRetrieveResourceApplicationOctetStreamResourceMimeType() throws Exception {
         // Setup
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
         URI uri = new URI(httpUriStr);
         Response mockResponse = getMockResponse();
@@ -256,8 +260,8 @@ public class TestResourceReader {
 
         // Verify
         StringWriter writer = new StringWriter();
-        IOUtils.copy(resourceResponse.getResource().getInputStream(), writer,
-                MOCK_HTTP_SERVER_ENCODING);
+        IOUtils.copy(resourceResponse.getResource()
+                .getInputStream(), writer, MOCK_HTTP_SERVER_ENCODING);
         String responseString = writer.toString();
 
         LOGGER.info("Response " + responseString);
@@ -274,8 +278,9 @@ public class TestResourceReader {
     @Test
     public void testRetrieveResourceCantDetectMimeType() throws Exception {
         // Setup
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
         URI uri = new URI(httpUriStr);
         ResourceResponse mockResourceResponse = getMockResourceResponse(null);
@@ -301,12 +306,12 @@ public class TestResourceReader {
     @Test
     public void testRetrieveResourceOriginalUrlResourceReaderResponseReturned() throws Exception {
         // Setup
-        String httpUriStr = HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":"
-                + MOCK_HTTP_SERVER_PORT + MOCK_HTTP_SERVER_PATH;
+        String httpUriStr =
+                HTTP_SCHEME_PLUS_SEP + MOCK_HTTP_SERVER_HOST + ":" + MOCK_HTTP_SERVER_PORT
+                        + MOCK_HTTP_SERVER_PATH;
 
         URI uri = new URI(httpUriStr);
-        ResourceResponse mockResourceResponse = getMockResourceResponse(new MimeType(
-                "image/jpeg"));
+        ResourceResponse mockResourceResponse = getMockResourceResponse(new MimeType("image/jpeg"));
         URLResourceReader mockUrlResourceReader = getMockUrlResourceReader(uri,
                 mockResourceResponse);
         setupMockTika(null);
@@ -375,7 +380,7 @@ public class TestResourceReader {
     }
 
     private URLResourceReader getMockUrlResourceReader(URI uri, ResourceResponse resourceResponse)
-        throws Exception {
+            throws Exception {
         URLResourceReader mockUrlResourceReader = mock(URLResourceReader.class);
         when(mockUrlResourceReader.retrieveResource(eq(uri), any(Map.class))).thenReturn(
                 resourceResponse);

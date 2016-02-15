@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,14 +43,16 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
     private static final MetricRegistry METRICS = new MetricRegistry();
 
     private static final JmxReporter REPORTER = JmxReporter.forRegistry(METRICS)
-            .inDomain(REGISTRY_NAME).build();
+            .inDomain(REGISTRY_NAME)
+            .build();
 
-    static final Histogram MESSAGE_LATENCY = METRICS.register(MetricRegistry.name(HISTOGRAM_NAME), new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
+    static final Histogram MESSAGE_LATENCY = METRICS.register(MetricRegistry.name(HISTOGRAM_NAME),
+            new Histogram(new SlidingTimeWindowReservoir(1, TimeUnit.MINUTES)));
 
     /**
      * Constructor to pass the phase to {@code AbstractPhaseInterceptor} and creates a new
      * histogram.
-     * 
+     *
      * @param phase
      */
     public AbstractMetricsInterceptor(String phase) {
