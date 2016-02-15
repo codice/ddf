@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
@@ -76,55 +75,54 @@ public class CometdEndpointTest {
 
         // Return a new mock of LocalSession each time newLocalSession is
         // called on the BayeuxServer
-        when(bayeuxServer.newLocalSession(Mockito.anyString()))
-                .thenAnswer(new Answer<LocalSession>() {
-                            public LocalSession answer(InvocationOnMock invocation) {
-                                LocalSession localSession = mock(LocalSession.class);
-                                when(localSession.getServerSession())
-                                        .thenReturn(mock(ServerSession.class));
-                                return localSession;
-                            }
-                        });
+        when(bayeuxServer.newLocalSession(Mockito.anyString())).thenAnswer(new Answer<LocalSession>() {
+            public LocalSession answer(InvocationOnMock invocation) {
+                LocalSession localSession = mock(LocalSession.class);
+                when(localSession.getServerSession()).thenReturn(mock(ServerSession.class));
+                return localSession;
+            }
+        });
 
         // Mock enough of the behavior of the createChannelIfAbsent method to
         // ensure proper processing of CometD Service annotations
-        when(bayeuxServer.createChannelIfAbsent(Mockito.anyString()))
-                .thenAnswer(new Answer<MarkedReference<ServerChannel>>() {
-                            public MarkedReference<ServerChannel> answer(
-                                    InvocationOnMock invokation) {
-                                String channelName = invokation.getArguments()[0].toString();
-                                LOGGER.debug("Channel Name: " + channelName);
+        when(bayeuxServer.createChannelIfAbsent(Mockito.anyString())).thenAnswer(new Answer<MarkedReference<ServerChannel>>() {
+            public MarkedReference<ServerChannel> answer(InvocationOnMock invokation) {
+                String channelName = invokation.getArguments()[0].toString();
+                LOGGER.debug("Channel Name: " + channelName);
 
-                                if (null == channelName) {
-                                    return null;
-                                }
+                if (null == channelName) {
+                    return null;
+                }
 
-                                ChannelId channelId = new ChannelId(channelName);
+                ChannelId channelId = new ChannelId(channelName);
 
-                                ServerChannel serverChannel = mock(ServerChannel.class);
-                                when(serverChannel.getChannelId()).thenReturn(channelId);
-                                when(serverChannel.getId()).thenReturn(channelName);
+                ServerChannel serverChannel = mock(ServerChannel.class);
+                when(serverChannel.getChannelId()).thenReturn(channelId);
+                when(serverChannel.getId()).thenReturn(channelName);
 
-                                @SuppressWarnings("unchecked")
-                                MarkedReference<ServerChannel> markedReference = (MarkedReference<ServerChannel>) mock(
-                                        MarkedReference.class);
-                                // Mark with value of true indicates that the serverChannel
-                                // did not previously exist. Implementation of test setup
-                                // needs to change if there is a later need to maintain
-                                // whether a channel has already been created
-                                when(markedReference.isMarked()).thenReturn(true);
+                @SuppressWarnings("unchecked")
+                MarkedReference<ServerChannel> markedReference =
+                        (MarkedReference<ServerChannel>) mock(MarkedReference.class);
+                // Mark with value of true indicates that the serverChannel
+                // did not previously exist. Implementation of test setup
+                // needs to change if there is a later need to maintain
+                // whether a channel has already been created
+                when(markedReference.isMarked()).thenReturn(true);
 
-                                when(markedReference.getReference()).thenReturn(serverChannel);
+                when(markedReference.getReference()).thenReturn(serverChannel);
 
-                                return markedReference;
-                            }
-                        });
+                return markedReference;
+            }
+        });
 
         // Call the actual BayeuxServer methods, rather than the mock methods, 
         // when setting/getting the security policy.
-        Mockito.doCallRealMethod().when(bayeuxServer)
+        Mockito.doCallRealMethod()
+                .when(bayeuxServer)
                 .setSecurityPolicy(Mockito.any(SecurityPolicy.class));
-        Mockito.doCallRealMethod().when(bayeuxServer).getSecurityPolicy();
+        Mockito.doCallRealMethod()
+                .when(bayeuxServer)
+                .getSecurityPolicy();
 
         // Associate the BayeuxServer with a CometdServlet
         CometDServlet cometdServlet = mock(CometDServlet.class);
@@ -133,10 +131,15 @@ public class CometdEndpointTest {
         when(servletContext.getAttribute(BayeuxServer.ATTRIBUTE)).thenReturn(bayeuxServer);
 
         // Create the CometdEndpoint, passing in the mocked CometdServlet
-        cometdEndpoint = new CometdEndpoint(cometdServlet, mock(CatalogFramework.class),
-                mock(FilterBuilder.class), mock(FilterAdapter.class), mock(PersistentStore.class),
-                mock(BundleContext.class), mock(EventAdmin.class),
-                new ActionRegistryImpl(Collections.EMPTY_LIST), Executors.newSingleThreadExecutor());
+        cometdEndpoint = new CometdEndpoint(cometdServlet,
+                mock(CatalogFramework.class),
+                mock(FilterBuilder.class),
+                mock(FilterAdapter.class),
+                mock(PersistentStore.class),
+                mock(BundleContext.class),
+                mock(EventAdmin.class),
+                new ActionRegistryImpl(Collections.EMPTY_LIST),
+                Executors.newSingleThreadExecutor());
     }
 
     /**

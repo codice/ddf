@@ -80,20 +80,20 @@ public abstract class DuplicateCommands extends CatalogCommands {
             "-e"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String endDate;
 
-    @Option(name = "--lastHours", required = false, aliases = {
-            "-h", "-hours"}, multiValued = false, description = "Option to replicate the last N hours.")
+    @Option(name = "--lastHours", required = false, aliases = {"-h",
+            "-hours"}, multiValued = false, description = "Option to replicate the last N hours.")
     int lastHours;
 
-    @Option(name = "--lastDays", required = false, aliases = {
-            "-d", "-days"}, multiValued = false, description = "Option to replicate the last N days.")
+    @Option(name = "--lastDays", required = false, aliases = {"-d",
+            "-days"}, multiValued = false, description = "Option to replicate the last N days.")
     int lastDays;
 
-    @Option(name = "--lastWeeks", required = false, aliases = {
-            "-w", "-weeks"}, multiValued = false, description = "Option to replicate the last N weeks.")
+    @Option(name = "--lastWeeks", required = false, aliases = {"-w",
+            "-weeks"}, multiValued = false, description = "Option to replicate the last N weeks.")
     int lastWeeks;
 
-    @Option(name = "--lastMonths", required = false, aliases = {
-            "-m", "-months"}, multiValued = false, description = "Option to replicate the last N month.")
+    @Option(name = "--lastMonths", required = false, aliases = {"-m",
+            "-months"}, multiValued = false, description = "Option to replicate the last N month.")
     int lastMonths;
 
     @Option(name = "--failedDir", required = false, aliases = {
@@ -108,12 +108,11 @@ public abstract class DuplicateCommands extends CatalogCommands {
                     + "\tComplex:   --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
-    @Option(name = "--maxMetacards", required = false, aliases = {
-            "-mm", "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to ingest.")
+    @Option(name = "--maxMetacards", required = false, aliases = {"-mm",
+            "-max"}, multiValued = false, description = "Option to specify a maximum amount of metacards to ingest.")
     int maxMetacards;
 
-    private List<Metacard> failedMetacards =
-            Collections.synchronizedList(new ArrayList<>());
+    private List<Metacard> failedMetacards = Collections.synchronizedList(new ArrayList<>());
 
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
 
@@ -135,11 +134,10 @@ public abstract class DuplicateCommands extends CatalogCommands {
         List<Metacard> queryMetacards;
         queryMetacards = query(queryFacade, startIndex, filter);
 
-
         if (queryMetacards == null || queryMetacards.isEmpty()) {
             return 0;
         }
-        
+
         List<Metacard> createdMetacards = ingestMetacards(ingestFacade, queryMetacards);
         int failed = queryMetacards.size() - createdMetacards.size();
         if (failed != 0) {

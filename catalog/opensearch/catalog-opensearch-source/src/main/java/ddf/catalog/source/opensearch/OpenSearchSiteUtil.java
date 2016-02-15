@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -149,7 +149,8 @@ public final class OpenSearchSiteUtil {
 
             if (subject != null && subject.getPrincipals() != null && !subject.getPrincipals()
                     .isEmpty()) {
-                List principals = subject.getPrincipals().asList();
+                List principals = subject.getPrincipals()
+                        .asList();
                 for (Object principal : principals) {
                     if (principal instanceof SecurityAssertion) {
                         SecurityAssertion assertion = (SecurityAssertion) principal;
@@ -180,7 +181,8 @@ public final class OpenSearchSiteUtil {
             return openSearchSortStr;
         }
 
-        if (ddfSort.getSortOrder().equals(SortOrder.ASCENDING)) {
+        if (ddfSort.getSortOrder()
+                .equals(SortOrder.ASCENDING)) {
             orderType = ORDER_ASCENDING;
         } else {
             orderType = ORDER_DESCENDING;
@@ -239,11 +241,13 @@ public final class OpenSearchSiteUtil {
         String name = "";
         if (temporal != null) {
             long startLng = (temporal.getStartDate() != null) ?
-                    temporal.getStartDate().getTime() :
+                    temporal.getStartDate()
+                            .getTime() :
                     0;
             start = fmt.print(startLng);
             long endLng = (temporal.getEndDate() != null) ?
-                    temporal.getEndDate().getTime() :
+                    temporal.getEndDate()
+                            .getTime() :
                     System.currentTimeMillis();
             end = fmt.print(endLng);
         }
@@ -277,7 +281,8 @@ public final class OpenSearchSiteUtil {
                 radiusStr = Double.toString(radius);
                 if (shouldConvertToBBox) {
                     double[] bboxCoords = createBBoxFromPointRadius(Double.parseDouble(lon),
-                            Double.parseDouble(lat), radius);
+                            Double.parseDouble(lat),
+                            radius);
                     for (int i = 0; i < MAX_BBOX_POINTS; i++) {
                         if (i > 0) {
                             bbox.append(",");

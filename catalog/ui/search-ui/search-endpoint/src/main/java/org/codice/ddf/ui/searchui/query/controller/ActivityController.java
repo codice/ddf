@@ -84,14 +84,18 @@ public class ActivityController extends AbstractEventController {
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
 
-        if (null == event.getProperty(ActivityEvent.ID_KEY) || event
-                .getProperty(ActivityEvent.ID_KEY).toString().isEmpty()) {
+        if (null == event.getProperty(ActivityEvent.ID_KEY)
+                || event.getProperty(ActivityEvent.ID_KEY)
+                .toString()
+                .isEmpty()) {
             throw new IllegalArgumentException(
                     "Activity Event \"" + ActivityEvent.ID_KEY + "\" property is null or empty");
         }
 
-        if (null == event.getProperty(ActivityEvent.MESSAGE_KEY) || event
-                .getProperty(ActivityEvent.MESSAGE_KEY).toString().isEmpty()) {
+        if (null == event.getProperty(ActivityEvent.MESSAGE_KEY)
+                || event.getProperty(ActivityEvent.MESSAGE_KEY)
+                .toString()
+                .isEmpty()) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.MESSAGE_KEY
                     + "\" property is null or empty");
         }
@@ -101,8 +105,10 @@ public class ActivityController extends AbstractEventController {
                     "Activity Event \"" + ActivityEvent.TIMESTAMP_KEY + "\" property is null");
         }
 
-        if (null == event.getProperty(ActivityEvent.STATUS_KEY) || event
-                .getProperty(ActivityEvent.STATUS_KEY).toString().isEmpty()) {
+        if (null == event.getProperty(ActivityEvent.STATUS_KEY)
+                || event.getProperty(ActivityEvent.STATUS_KEY)
+                .toString()
+                .isEmpty()) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.STATUS_KEY
                     + "\" property is null or empty");
         }
@@ -133,8 +139,9 @@ public class ActivityController extends AbstractEventController {
             Map<String, Object> propMap = new HashMap<>();
 
             for (String key : event.getPropertyNames()) {
-                if (!EventConstants.EVENT_TOPIC.equals(key) && !ActivityEvent.USER_ID_KEY
-                        .equals(key) && event.getProperty(key) != null) {
+                if (!EventConstants.EVENT_TOPIC.equals(key)
+                        && !ActivityEvent.USER_ID_KEY.equals(key)
+                        && event.getProperty(key) != null) {
                     propMap.put(key, event.getProperty(key));
                 }
             }
@@ -162,12 +169,16 @@ public class ActivityController extends AbstractEventController {
             Map<String, String> activityOperations = new HashMap<>();
             activity.put(ActivityEvent.OPERATIONS_KEY, activityOperations);
             for (Map.Entry<String, Object> entry : sanitizedResult.entrySet()) {
-                if (entry.getKey().contains(ActivityEvent.OPERATIONS_KEY + "_")) {
+                if (entry.getKey()
+                        .contains(ActivityEvent.OPERATIONS_KEY + "_")) {
                     activityOperations.put(entry.getKey()
                                     .substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
-                            entry.getValue().toString());
+                            entry.getValue()
+                                    .toString());
                 } else {
-                    activity.put(entry.getKey(), entry.getValue().toString());
+                    activity.put(entry.getKey(),
+                            entry.getValue()
+                                    .toString());
                 }
             }
             activities.add(activity);
@@ -238,8 +249,8 @@ public class ActivityController extends AbstractEventController {
                         //You can have a blank id for guest
                         if (id != null) {
                             try {
-                                this.persistentStore
-                                        .delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");
+                                this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE,
+                                        "id = '" + id + "'");
                             } catch (PersistenceException e) {
                                 throw new IllegalArgumentException(
                                         "Unable to delete activity with id = " + id);

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
@@ -51,31 +50,34 @@ public class TestEndpointOperationInfoResourceComparator {
 
     @Test
     public void testCompareRequestMatchesFirst() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + GET_CAPABILITIES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(-1, comparator.compare(getCapabilities, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareRequestMatchesSecond() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(1, comparator.compare(getCapabilities, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareRequestMatchesNeither() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
-        when(mockMessage.get(Message.QUERY_STRING))
-                .thenReturn(EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=getFeature");
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
+                EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=getFeature");
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(0, comparator.compare(getCapabilities, describeFeatureType, mockMessage));
     }
 
@@ -84,103 +86,111 @@ public class TestEndpointOperationInfoResourceComparator {
         when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn("WFS");
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + GET_CAPABILITIES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(0, comparator.compare(getCapabilities, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareUnknownRequestType() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
-        when(mockMessage.get(Message.QUERY_STRING))
-                .thenReturn(EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=badFunction");
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
+                EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=badFunction");
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(0, comparator.compare(getCapabilities, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareNullOper1() {
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(0, comparator.compare(null, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareNullOper2() {
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(0, comparator.compare(getCapabilities, null, mockMessage));
     }
 
     @Test
     public void testCompareNullMessage() {
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(0, comparator.compare(getCapabilities, describeFeatureType, null));
     }
 
     @Test
     public void testCompareUnknownServiceToMatchingOperationWhenNoServiceSet() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
-        when(mockMessage.get(Message.QUERY_STRING))
-                .thenReturn(EndpointOperationInfoResourceComparator.SERVICE_PARAM + "=noGood&" +
-                                EndpointOperationInfoResourceComparator.REQUEST_PARAM + "="
-                                + DESCRIBE_FEATURES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
+                EndpointOperationInfoResourceComparator.SERVICE_PARAM + "=noGood&" +
+                        EndpointOperationInfoResourceComparator.REQUEST_PARAM + "="
+                        + DESCRIBE_FEATURES);
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(1, comparator.compare(unknownService, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareUnknownServiceToMatchingOperationWhenServiceMatches() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
-        when(mockMessage.get(Message.QUERY_STRING))
-                .thenReturn(EndpointOperationInfoResourceComparator.SERVICE_PARAM + "=CSW&" +
-                                EndpointOperationInfoResourceComparator.REQUEST_PARAM + "="
-                                + DESCRIBE_FEATURES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator(
-                "CSW");
+        when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
+                EndpointOperationInfoResourceComparator.SERVICE_PARAM + "=CSW&" +
+                        EndpointOperationInfoResourceComparator.REQUEST_PARAM + "="
+                        + DESCRIBE_FEATURES);
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator("CSW");
         assertEquals(1, comparator.compare(unknownService, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareUnknownServiceToMatchingOperationWhenServiceDoesNotMatch() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
-        when(mockMessage.get(Message.QUERY_STRING))
-                .thenReturn(EndpointOperationInfoResourceComparator.SERVICE_PARAM + "=noGood&" +
-                                EndpointOperationInfoResourceComparator.REQUEST_PARAM + "="
-                                + DESCRIBE_FEATURES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator(
-                "CSW");
+        when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
+                EndpointOperationInfoResourceComparator.SERVICE_PARAM + "=noGood&" +
+                        EndpointOperationInfoResourceComparator.REQUEST_PARAM + "="
+                        + DESCRIBE_FEATURES);
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator("CSW");
         assertEquals(-1, comparator.compare(unknownService, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareUnknownOperationToMatchingOperation() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(1, comparator.compare(unknownOperation, describeFeatureType, mockMessage));
     }
 
     @Test
     public void testCompareUnknownOperationToUnMatchedOperation() {
-        when(mockMessage.get(Message.HTTP_REQUEST_METHOD))
-                .thenReturn(EndpointOperationInfoResourceComparator.HTTP_GET);
+        when(mockMessage.get(Message.HTTP_REQUEST_METHOD)).thenReturn(
+                EndpointOperationInfoResourceComparator.HTTP_GET);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
         when(mockMessage.get(Message.QUERY_STRING)).thenReturn(
                 EndpointOperationInfoResourceComparator.REQUEST_PARAM + "=" + DESCRIBE_FEATURES);
-        EndpointOperationInfoResourceComparator comparator = new EndpointOperationInfoResourceComparator();
+        EndpointOperationInfoResourceComparator comparator =
+                new EndpointOperationInfoResourceComparator();
         assertEquals(-1, comparator.compare(unknownOperation, getCapabilities, mockMessage));
     }
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -70,7 +70,8 @@ public class ContentProducer extends DefaultProducer {
             throws ContentComponentException, ContentFrameworkException {
         LOGGER.debug("ENTERING: process");
 
-        if (!exchange.getPattern().equals(ExchangePattern.InOnly)) {
+        if (!exchange.getPattern()
+                .equals(ExchangePattern.InOnly)) {
             return;
         }
 
@@ -124,7 +125,8 @@ public class ContentProducer extends DefaultProducer {
 
         String mimeType = null;
         if (fileExtension != null) {
-            MimeTypeMapper mimeTypeMapper = endpoint.getComponent().getMimeTypeMapper();
+            MimeTypeMapper mimeTypeMapper = endpoint.getComponent()
+                    .getMimeTypeMapper();
             if (mimeTypeMapper != null) {
                 try {
                     // XML files are mapped to multiple mime types, e.g., CSW, XML Metacard, etc.
@@ -142,8 +144,8 @@ public class ContentProducer extends DefaultProducer {
                                 DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
                         IOUtils.copy(fis, fbos);
                         // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
-                        mimeType = mimeTypeMapper
-                                .guessMimeType(fbos.asByteSource().openStream(), fileExtension);
+                        mimeType = mimeTypeMapper.guessMimeType(fbos.asByteSource()
+                                .openStream(), fileExtension);
                     } else {
                         mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                     }
@@ -157,8 +159,8 @@ public class ContentProducer extends DefaultProducer {
                 IOUtils.closeQuietly(fis);
                 LOGGER.error("Did not find a MimeTypeMapper service");
                 throw new ContentComponentException(
-                        "Unable to find a mime type for the ingested file " + ingestedFile
-                                .getName());
+                        "Unable to find a mime type for the ingested file "
+                                + ingestedFile.getName());
             }
         }
 
@@ -170,8 +172,8 @@ public class ContentProducer extends DefaultProducer {
                 // If the FileBackedOutputStream (FBOS) was used, then must be processing an XML file and need to
                 // get a fresh InputStream from the FBOS to use in the content item
                 if (fbos != null) {
-                    newItem = new IncomingContentItem(fbos.asByteSource().openStream(), mimeType,
-                            ingestedFile.getName());
+                    newItem = new IncomingContentItem(fbos.asByteSource()
+                            .openStream(), mimeType, ingestedFile.getName());
                 } else {
                     // Otherwise, the InputStream created from the ingested file has never been read,
                     // so can use it in the content item
@@ -182,7 +184,8 @@ public class ContentProducer extends DefaultProducer {
                 LOGGER.debug("Creating content item.");
 
                 CreateRequest createRequest = new CreateRequestImpl(newItem, null);
-                CreateResponse createResponse = endpoint.getComponent().getContentFramework()
+                CreateResponse createResponse = endpoint.getComponent()
+                        .getContentFramework()
                         .create(createRequest, requestDirective);
                 if (createResponse != null) {
                     ContentItem contentItem = createResponse.getCreatedContentItem();

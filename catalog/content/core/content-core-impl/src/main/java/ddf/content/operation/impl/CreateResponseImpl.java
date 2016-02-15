@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -40,8 +40,10 @@ public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements C
      * @param response the {@link CreateResponse} to instantiate a new {@link CreateResponse} from
      */
     public CreateResponseImpl(CreateResponse response) {
-        this(response.getRequest(), response.getCreatedContentItem(),
-                response.getResponseProperties(), response.getProperties());
+        this(response.getRequest(),
+                response.getCreatedContentItem(),
+                response.getResponseProperties(),
+                response.getProperties());
     }
 
     /**
@@ -89,14 +91,14 @@ public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements C
 
     @Override
     public byte[] getCreatedMetadata() {
-        if(metadata != null) {
+        if (metadata != null) {
             return Arrays.copyOf(metadata, metadata.length);
         }
         return null;
     }
 
     public void setCreatedMetadata(byte[] metadata) {
-        if(metadata != null) {
+        if (metadata != null) {
             this.metadata = Arrays.copyOf(metadata, metadata.length);
         }
     }

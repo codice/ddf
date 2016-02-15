@@ -138,13 +138,11 @@ public class FilterPluginTest {
         when(deleteRequest.getProperties()).thenReturn(properties);
         List<Metacard> deletedMetacards = new ArrayList<>();
         deletedMetacards.add(getExactRolesMetacard());
-        deleteResponse = new DeleteResponseImpl(deleteRequest, properties,
-                deletedMetacards);
+        deleteResponse = new DeleteResponseImpl(deleteRequest, properties, deletedMetacards);
 
         List<Metacard> badDeletedMetacards = new ArrayList<>();
         badDeletedMetacards.add(getMoreRolesMetacard());
-        badDeleteResponse = new DeleteResponseImpl(deleteRequest, properties,
-                badDeletedMetacards);
+        badDeleteResponse = new DeleteResponseImpl(deleteRequest, properties, badDeletedMetacards);
 
         createRequest = new CreateRequestImpl(getExactRolesMetacard());
         createRequest.setProperties(properties);
@@ -210,24 +208,28 @@ public class FilterPluginTest {
 
     @Test
     public void testPluginFilterResourceGood() throws StopProcessingException {
-        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
+        ResourceResponse response = plugin.processPostResource(resourceResponse,
+                getExactRolesMetacard());
     }
 
     @Test
     public void testPluginFilterResourceNoStrategiesGood() throws StopProcessingException {
         plugin = new FilterPlugin(new ArrayList<>());
-        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
+        ResourceResponse response = plugin.processPostResource(resourceResponse,
+                getExactRolesMetacard());
     }
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterResourceBad() throws StopProcessingException {
-        ResourceResponse response = plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
+        ResourceResponse response = plugin.processPostResource(resourceResponse,
+                getMoreRolesMetacard());
     }
 
     @Test
     public void testPluginFilterDeleteBad() throws StopProcessingException {
         DeleteResponse response = plugin.processPostDelete(badDeleteResponse);
-        assertThat(response.getDeletedMetacards().size(), is(0));
+        assertThat(response.getDeletedMetacards()
+                .size(), is(0));
     }
 
     @Test(expected = StopProcessingException.class)

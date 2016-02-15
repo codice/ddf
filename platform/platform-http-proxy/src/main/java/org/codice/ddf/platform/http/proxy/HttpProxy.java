@@ -87,14 +87,17 @@ public class HttpProxy {
             try {
                 host = StringUtils.isNotBlank(hostname) ?
                         hostname :
-                        InetAddress.getLocalHost().getHostName();
+                        InetAddress.getLocalHost()
+                                .getHostName();
             } catch (UnknownHostException e) {
                 LOGGER.warn("Unable to determine hostname, using localhost instead.", e);
                 host = "localhost";
             }
-            endpointName = ((HttpProxyServiceImpl) httpProxyService)
-                    .start("0.0.0.0:" + httpPort, "https://" + host + ":" + httpsPort, 120000, true,
-                            new PolicyRemoveBean(httpPort, httpsPort, host, cxfContext));
+            endpointName = ((HttpProxyServiceImpl) httpProxyService).start("0.0.0.0:" + httpPort,
+                    "https://" + host + ":" + httpsPort,
+                    120000,
+                    true,
+                    new PolicyRemoveBean(httpPort, httpsPort, host, cxfContext));
         }
     }
 
@@ -166,18 +169,20 @@ public class HttpProxy {
                                 bodyStr = body.toString();
                             }
 
-                            String queryString = (String) httpMessage
-                                    .getHeader(Exchange.HTTP_QUERY);
+                            String queryString =
+                                    (String) httpMessage.getHeader(Exchange.HTTP_QUERY);
                             String httpUri = (String) httpMessage.getHeader(Exchange.HTTP_URI);
-                            boolean isWsdlOrWadl = "wsdl".equalsIgnoreCase(queryString) || "_wadl"
-                                    .equalsIgnoreCase(queryString) || httpUri.equals(cxfContext);
+                            boolean isWsdlOrWadl = "wsdl".equalsIgnoreCase(queryString)
+                                    || "_wadl".equalsIgnoreCase(queryString) || httpUri.equals(
+                                    cxfContext);
 
-                            if (isWsdlOrWadl || (queryString != null && queryString
-                                    .endsWith(".xsd"))) {
+                            if (isWsdlOrWadl || (queryString != null
+                                    && queryString.endsWith(".xsd"))) {
                                 bodyStr = bodyStr.replaceAll("https://" + host + ":" + httpsPort,
                                         "http://" + host + ":" + httpPort);
                             }
-                            exchange.getIn().setBody(bodyStr);
+                            exchange.getIn()
+                                    .setBody(bodyStr);
                         }
                     }
                 }

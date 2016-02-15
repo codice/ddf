@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -59,19 +59,24 @@ public final class Distance {
 
         switch (unitOfMeasure) {
         case FOOT_U_S:
-            convertedDistance = NonSI.FOOT_SURVEY_US.getConverterTo(SI.METER).convert(distance);
+            convertedDistance = NonSI.FOOT_SURVEY_US.getConverterTo(SI.METER)
+                    .convert(distance);
             break;
         case YARD:
-            convertedDistance = NonSI.YARD.getConverterTo(SI.METER).convert(distance);
+            convertedDistance = NonSI.YARD.getConverterTo(SI.METER)
+                    .convert(distance);
             break;
         case MILE:
-            convertedDistance = NonSI.MILE.getConverterTo(SI.METER).convert(distance);
+            convertedDistance = NonSI.MILE.getConverterTo(SI.METER)
+                    .convert(distance);
             break;
         case NAUTICAL_MILE:
-            convertedDistance = NonSI.NAUTICAL_MILE.getConverterTo(SI.METER).convert(distance);
+            convertedDistance = NonSI.NAUTICAL_MILE.getConverterTo(SI.METER)
+                    .convert(distance);
             break;
         case KILOMETER:
-            convertedDistance = SI.KILOMETER.getConverterTo(SI.METER).convert(distance);
+            convertedDistance = SI.KILOMETER.getConverterTo(SI.METER)
+                    .convert(distance);
             break;
         case METER:
             convertedDistance = distance;
@@ -101,19 +106,24 @@ public final class Distance {
             result = distanceInMeters;
             break;
         case KILOMETER:
-            result = SI.METER.getConverterTo(SI.KILOMETER).convert(distanceInMeters);
+            result = SI.METER.getConverterTo(SI.KILOMETER)
+                    .convert(distanceInMeters);
             break;
         case FOOT_U_S:
-            result = SI.METER.getConverterTo(NonSI.FOOT_SURVEY_US).convert(distanceInMeters);
+            result = SI.METER.getConverterTo(NonSI.FOOT_SURVEY_US)
+                    .convert(distanceInMeters);
             break;
         case MILE:
-            result = SI.METER.getConverterTo(MILE).convert(distanceInMeters);
+            result = SI.METER.getConverterTo(MILE)
+                    .convert(distanceInMeters);
             break;
         case NAUTICAL_MILE:
-            result = SI.METER.getConverterTo(NonSI.NAUTICAL_MILE).convert(distanceInMeters);
+            result = SI.METER.getConverterTo(NonSI.NAUTICAL_MILE)
+                    .convert(distanceInMeters);
             break;
         case YARD:
-            result = SI.METER.getConverterTo(NonSI.YARD).convert(distanceInMeters);
+            result = SI.METER.getConverterTo(NonSI.YARD)
+                    .convert(distanceInMeters);
             break;
         default:
             LOGGER.warn("Could not convert distance units, assuming distance is in meters.");

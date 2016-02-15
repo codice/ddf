@@ -55,7 +55,7 @@ public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements C
      * @param request          - {@link CreateRequest} used in the create operation
      * @param properties       - the properties associated with the operation
      * @param createdMetacards - the created metacards
-     * @param errors          - the processing errors
+     * @param errors           - the processing errors
      */
     public CreateResponseImpl(CreateRequest request, Map<String, Serializable> properties,
             List<Metacard> createdMetacards, Set<ProcessingDetails> errors) {

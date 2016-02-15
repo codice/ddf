@@ -68,9 +68,11 @@ public class NotificationControllerTest {
 
     private static final long MOCK_TIMESTAMP = new Date().getTime();
 
-    private static final String MOCK_USER_ID = UUID.randomUUID().toString();
+    private static final String MOCK_USER_ID = UUID.randomUUID()
+            .toString();
 
-    private static final String EXPECTED_COMETD_NOTIFICATIONS_CHANNEL_PREFIX = "/ddf/notifications/";
+    private static final String EXPECTED_COMETD_NOTIFICATIONS_CHANNEL_PREFIX =
+            "/ddf/notifications/";
 
     private NotificationController notificationController;
 
@@ -86,7 +88,8 @@ public class NotificationControllerTest {
     @Before
     public void setUp() throws Exception {
         notificationController = new NotificationController(mock(PersistentStore.class),
-                mock(BundleContext.class), mock(EventAdmin.class));
+                mock(BundleContext.class),
+                mock(EventAdmin.class));
 
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
 
@@ -134,8 +137,10 @@ public class NotificationControllerTest {
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(NotificationController.class.getName()
                         + " did not return correctly store a user-id-based "
-                        + "reference to the ServerSession", MOCK_SESSION_ID,
-                notificationController.getSessionByUserId(MOCK_SESSION_ID).getId());
+                        + "reference to the ServerSession",
+                MOCK_SESSION_ID,
+                notificationController.getSessionByUserId(MOCK_SESSION_ID)
+                        .getId());
     }
 
     /**
@@ -153,7 +158,8 @@ public class NotificationControllerTest {
         assertNotNull("ServerSession ID is null", serverSessionId);
 
         assertEquals(NotificationController.class.getName() + " did not return the expected "
-                        + ServerSession.class.getName() + " object", serverSessionId,
+                        + ServerSession.class.getName() + " object",
+                serverSessionId,
                 mockServerSession.getId());
     }
 
@@ -205,8 +211,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyApplication() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, "");
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -218,8 +224,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyMessage() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_MESSAGE, "");
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -231,8 +237,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyTitle() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_TITLE, "");
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -244,8 +250,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUser() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, "");
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -257,8 +263,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullApplication() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, null);
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -270,8 +276,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullMessage() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_MESSAGE, null);
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -283,8 +289,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullTimestamp() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_TIMESTAMP, null);
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -296,8 +302,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullTitle() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_TITLE, null);
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -309,8 +315,8 @@ public class NotificationControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullUser() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, null);
-        notificationController.handleEvent(
-                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
+        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
+                testEventProperties));
     }
 
     /**
@@ -348,15 +354,17 @@ public class NotificationControllerTest {
         doReturn(notifications).when(spyNotificationController)
                 .getNotificationsForUser(anyString());
         // Don't want queuePersistedMessages to start up a new thread.
-        doNothing().when(spyNotificationController).queuePersistedMessages(any(ServerSession.class),
-                Matchers.<List<Map<String, Object>>>any(), anyString());
+        doNothing().when(spyNotificationController)
+                .queuePersistedMessages(any(ServerSession.class),
+                        Matchers.<List<Map<String, Object>>>any(),
+                        anyString());
 
         spyNotificationController.getPersistedNotifications(mockServerSession, message);
 
         if (notificationPublished) {
             ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
-            verify(spyNotificationController.eventAdmin, times(1))
-                    .postEvent(eventArgumentCaptor.capture());
+            verify(spyNotificationController.eventAdmin,
+                    times(1)).postEvent(eventArgumentCaptor.capture());
 
             Event event = eventArgumentCaptor.getValue();
 
@@ -364,7 +372,8 @@ public class NotificationControllerTest {
                     is(MOCK_APPLICATION));
             assertThat(event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE), is(MOCK_MESSAGE));
             assertThat(event.getProperty(Notification.NOTIFICATION_KEY_TIMESTAMP),
-                    is(ISODateTimeFormat.dateTime().print(MOCK_TIMESTAMP)));
+                    is(ISODateTimeFormat.dateTime()
+                            .print(MOCK_TIMESTAMP)));
             assertThat(event.getProperty(Notification.NOTIFICATION_KEY_TITLE), is(MOCK_TITLE));
             assertThat(event.getProperty(Notification.NOTIFICATION_KEY_SESSION_ID),
                     is(MOCK_SESSION_ID));
@@ -372,7 +381,8 @@ public class NotificationControllerTest {
                     is(MOCK_SESSION_ID));
         } else {
             verify(spyNotificationController, times(1)).
-                    queuePersistedMessages(eq(mockServerSession), eq(notifications),
+                    queuePersistedMessages(eq(mockServerSession),
+                            eq(notifications),
                             startsWith(EXPECTED_COMETD_NOTIFICATIONS_CHANNEL_PREFIX));
         }
     }

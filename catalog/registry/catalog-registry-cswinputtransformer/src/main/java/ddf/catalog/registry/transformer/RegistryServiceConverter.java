@@ -215,7 +215,8 @@ public class RegistryServiceConverter implements Converter {
         }
     }
 
-    private void readClassificationValue(HierarchicalStreamReader reader, MetacardImpl meta, String name) {
+    private void readClassificationValue(HierarchicalStreamReader reader, MetacardImpl meta,
+            String name) {
         String key = CLASSIFICATIONS.get(name);
         if (key != null) {
             if ("xs:dateTime".equals(reader.getAttribute("slotType"))) {

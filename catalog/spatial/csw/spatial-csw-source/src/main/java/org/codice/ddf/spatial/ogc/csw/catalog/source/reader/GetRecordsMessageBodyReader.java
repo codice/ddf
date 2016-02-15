@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
@@ -62,7 +61,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     public GetRecordsMessageBodyReader(Converter provider, CswSourceConfiguration configuration) {
         xstream = new XStream(new XppDriver());
-        xstream.setClassLoader(this.getClass().getClassLoader());
+        xstream.setClassLoader(this.getClass()
+                .getClassLoader());
         GetRecordsResponseConverter converter = new GetRecordsResponseConverter(provider);
         xstream.registerConverter(converter);
         xstream.alias(CswConstants.GET_RECORDS_RESPONSE, CswRecordCollection.class);
@@ -89,8 +89,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     @Override
     public CswRecordCollection readFrom(Class<CswRecordCollection> type, Type genericType,
             Annotation[] annotations, MediaType mediaType,
-            MultivaluedMap<String, String> httpHeaders, InputStream inStream) throws IOException,
-            WebApplicationException {
+            MultivaluedMap<String, String> httpHeaders, InputStream inStream)
+            throws IOException, WebApplicationException {
 
         // Save original input stream for any exception message that might need to be
         // created
@@ -106,7 +106,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         try {
             HierarchicalStreamReader reader = new XppReader(new InputStreamReader(inStream,
                     StandardCharsets.UTF_8),
-                    XmlPullParserFactory.newInstance().newPullParser());
+                    XmlPullParserFactory.newInstance()
+                            .newPullParser());
             cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
         } catch (XmlPullParserException e) {
             LOGGER.error("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
@@ -120,7 +121,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
             // (with the ExceptionReport) and rethrowing it as a WebApplicatioNException,
             // which CXF will wrap as a ClientException that the CswSource catches, converts
             // to a CswException, and logs.
-            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(
+                    StandardCharsets.UTF_8));
             ResponseBuilder responseBuilder = Response.ok(bis);
             responseBuilder.type("text/xml");
             Response response = responseBuilder.build();

@@ -53,11 +53,12 @@ public class AllApplicationsCompleterTest {
         when(testAppService.getApplications()).thenReturn(testAppSet);
         when(testApp.getName()).thenReturn("TestApp");
 
-        AllApplicationsCompleter applicationsCompleter = new AllApplicationsCompleter(
-                testAppService);
+        AllApplicationsCompleter applicationsCompleter =
+                new AllApplicationsCompleter(testAppService);
 
         assertThat("If the return value is -1, the expected match was not found.",
-                applicationsCompleter.complete("Tes", 2, new ArrayList()), is(not(-1)));
+                applicationsCompleter.complete("Tes", 2, new ArrayList()),
+                is(not(-1)));
     }
 
     /**
@@ -66,8 +67,8 @@ public class AllApplicationsCompleterTest {
      */
     @Test
     public void testAllApplicationsCompleterNullAppService() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -80,11 +81,11 @@ public class AllApplicationsCompleterTest {
 
         allApplicationsCompleter.complete("Tes", 2, new ArrayList());
 
-
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(NO_APP_SERV);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(NO_APP_SERV);
             }
         }));
     }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,8 +38,8 @@ import ddf.catalog.transform.QueryResponseTransformer;
 public class QueryResponseTransformerConsumer extends TransformerConsumer
         implements QueryResponseTransformer {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(QueryResponseTransformerConsumer.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+            QueryResponseTransformerConsumer.class);
 
     /**
      * Constructs the consumer for the custom Camel CatalogComponent. This
@@ -54,8 +54,8 @@ public class QueryResponseTransformerConsumer extends TransformerConsumer
         super(QueryResponseTransformer.class, endpoint, processor);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("INSIDE QueryResponseTransformerConsumer constructor for " + endpoint
-                    .getTransformerId());
+            LOGGER.debug("INSIDE QueryResponseTransformerConsumer constructor for "
+                    + endpoint.getTransformerId());
         }
     }
 

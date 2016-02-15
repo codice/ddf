@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -58,12 +58,13 @@ public class ReuterSolrImport implements Runnable {
 
         try {
 
-            this.solrServer = SolrServerFactory
-                    .getEmbeddedSolrServer("solrconfigSoft.xml", "schema.xml",
-                            new ConfigurationFileProxy(ConfigurationStore.getInstance()));
+            this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
+                    "schema.xml",
+                    new ConfigurationFileProxy(ConfigurationStore.getInstance()));
 
             this.solrProvider = new SolrCatalogProvider(this.solrServer,
-                    new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+                    new GeotoolsFilterAdapterImpl(),
+                    new SolrFilterDelegateFactoryImpl());
 
         } catch (Exception localException) {
             throw new RuntimeException("unable to connect to solr server: ", localException);
@@ -178,7 +179,8 @@ public class ReuterSolrImport implements Runnable {
             SAXException, ParseException {
         File[] allFiles = paramFile.listFiles(new FileFilter() {
             public boolean accept(File paramFile) {
-                return paramFile.getName().contains(".dat");
+                return paramFile.getName()
+                        .contains(".dat");
             }
         });
         if (allFiles.length == 0) {
@@ -193,7 +195,8 @@ public class ReuterSolrImport implements Runnable {
         try (FileInputStream fin = new FileInputStream(localFile);
                 ObjectInputStream ois = new ObjectInputStream(fin)) {
             mc = (MetacardImpl) ois.readObject();
-            if (mc.getLocation() != null && mc.getLocation().length() != 0) {
+            if (mc.getLocation() != null && mc.getLocation()
+                    .length() != 0) {
                 // solrProvider.create(new CreateRequestImpl(mc));
                 return mc;
             } else {

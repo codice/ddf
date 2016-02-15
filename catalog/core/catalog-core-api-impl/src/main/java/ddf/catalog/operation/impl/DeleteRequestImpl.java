@@ -29,20 +29,25 @@ import ddf.catalog.operation.DeleteRequest;
  */
 public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
 
-    /** The name of the attribute indicating id or URI */
+    /**
+     * The name of the attribute indicating id or URI
+     */
     protected String name;
 
-    /** Ids or URIs */
+    /**
+     * Ids or URIs
+     */
     protected List<Serializable> values;
 
-    /** Set of destination ids this request should be sent to */
+    /**
+     * Set of destination ids this request should be sent to
+     */
     protected Set<String> destinations = new HashSet<>();
 
     /**
      * Instantiates a new DeleteRequestImpl with a single {@link String} id to be deleted.
      *
-     * @param id
-     *            - the id to be used for the delete operation
+     * @param id - the id to be used for the delete operation
      */
     public DeleteRequestImpl(String id) {
         this(new String[] {id});
@@ -51,8 +56,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Instantiates a new DeleteRequestImpl with an array of {@link String} id to be deleted.
      *
-     * @param id1
-     *            - the id to be used for the delete operation
+     * @param id1 - the id to be used for the delete operation
      */
     public DeleteRequestImpl(String[] ids) {
         this(Arrays.asList((Serializable[]) ids), DeleteRequest.DELETE_BY_ID, null);
@@ -62,10 +66,8 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
      * Instantiates a new DeleteRequestImpl to be deleted with an array of {@link String} ids and a
      * {@link Map} of properties
      *
-     * @param ids
-     *            - {@link String} list of ids
-     * @param properties
-     *            - the properties associated with the operation
+     * @param ids        - {@link String} list of ids
+     * @param properties - the properties associated with the operation
      */
     public DeleteRequestImpl(String[] ids, Map<String, Serializable> properties) {
         this(Arrays.asList((Serializable[]) ids), DeleteRequest.DELETE_BY_ID, properties);
@@ -74,8 +76,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Instantiates a new DeleteRequestImpl with an single {@link URI}
      *
-     * @param uri
-     *            - the {@link URI} to be used for the delete operation
+     * @param uri - the {@link URI} to be used for the delete operation
      */
     public DeleteRequestImpl(URI uri) {
         this(new URI[] {uri});
@@ -84,8 +85,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Instantiates a new DeleteRequestImpl with a {@link URI} array
      *
-     * @param uris
-     *            - the list of {@link URI} to be used for the delete operation
+     * @param uris - the list of {@link URI} to be used for the delete operation
      */
     public DeleteRequestImpl(URI[] uris) {
         this(Arrays.asList((Serializable[]) uris), DeleteRequest.DELETE_BY_PRODUCT_URI, null);
@@ -95,10 +95,8 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
      * Instantiates a new DeleteRequestImpl with a {@link URI} array with a {@link Map} of
      * properties
      *
-     * @param uris
-     *            - the list of {@link URI} to be deleted
-     * @param properties
-     *            - the properties associated with the delete operation
+     * @param uris       - the list of {@link URI} to be deleted
+     * @param properties - the properties associated with the delete operation
      */
     public DeleteRequestImpl(URI[] uris, Map<String, Serializable> properties) {
         this(Arrays.asList((Serializable[]) uris), DeleteRequest.DELETE_BY_PRODUCT_URI, properties);
@@ -108,12 +106,9 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
      * Instantiates a new DeleteRequestImpl with a {@link List} of {@link Serializable} values. This
      * allows for custom delete operations aside from String id or URI.
      *
-     * @param values
-     *            - the values to be used in the delete operation
-     * @param attributeName
-     *            - the attribute name associated with the values
-     * @param properties
-     *            the properties
+     * @param values        - the values to be used in the delete operation
+     * @param attributeName - the attribute name associated with the values
+     * @param properties    the properties
      */
     public DeleteRequestImpl(List<Serializable> values, String attributeName,
             Map<String, Serializable> properties) {

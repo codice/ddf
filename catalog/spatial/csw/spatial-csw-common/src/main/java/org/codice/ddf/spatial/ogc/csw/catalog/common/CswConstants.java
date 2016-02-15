@@ -68,8 +68,7 @@ public interface CswConstants {
      *
      * TODO: If this proves to be a continuing problem amongst supported services, getRecordsRequest
      * may need to support typeName as well.
-     */
-    String TYPE_NAME_PARAMETER = "typeName";
+     */ String TYPE_NAME_PARAMETER = "typeName";
 
     String TYPE_NAMES_PARAMETER = "typeNames";
 
@@ -83,8 +82,8 @@ public interface CswConstants {
 
     String CONSTRAINT_LANGUAGE_CQL = "CQL_Text";
 
-    List<String> CONSTRAINT_LANGUAGES = Arrays
-            .asList(CONSTRAINT_LANGUAGE_FILTER, CONSTRAINT_LANGUAGE_CQL);
+    List<String> CONSTRAINT_LANGUAGES = Arrays.asList(CONSTRAINT_LANGUAGE_FILTER,
+            CONSTRAINT_LANGUAGE_CQL);
 
     String OWS_NAMESPACE = "http://www.opengis.net/ows";
 
@@ -227,9 +226,11 @@ public interface CswConstants {
     String SCHEMA_LANGUAGE_XML_SCHEMA = "http://www.w3.org/XML/Schema";
     String SCHEMA_LANGUAGE_XML_TR = "http://www.w3.org/TR/xmlschema-1/";
 
-    List<String> VALID_SCHEMA_LANGUAGES = new ArrayList<String>(
-            Arrays.asList(SCHEMA_LANGUAGE_X_SCHEMA, SCHEMA_LANGUAGE_XML_SCHEMA,
-                    SCHEMA_LANGUAGE_X_SCHEMA_2001, SCHEMA_LANGUAGE_XML_TR));
+    List<String> VALID_SCHEMA_LANGUAGES = new ArrayList<String>(Arrays.asList(
+            SCHEMA_LANGUAGE_X_SCHEMA,
+            SCHEMA_LANGUAGE_XML_SCHEMA,
+            SCHEMA_LANGUAGE_X_SCHEMA_2001,
+            SCHEMA_LANGUAGE_XML_TR));
     String ELEMENT_SET_TYPE = "ELEMENT_SET_TYPE";
     String ELEMENT_NAMES = "ELEMENT_NAMES";
     String IS_BY_ID_QUERY = "IS_BY_ID_QUERY";

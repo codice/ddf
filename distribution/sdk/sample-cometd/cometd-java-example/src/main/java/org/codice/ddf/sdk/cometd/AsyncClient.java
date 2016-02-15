@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.sdk.cometd;
 
@@ -48,22 +47,35 @@ public class AsyncClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncClient.class);
 
     private static final String ACTIVITIES_CHANNEL = "/ddf/activities";
+
     private static final String ALL_ACTIVITIES = ACTIVITIES_CHANNEL + "/**";
+
     private static final String NOTIFICATIONS_CHANNEL = "/ddf/notifications";
+
     private static final String ALL_NOTIFICATIONS = NOTIFICATIONS_CHANNEL + "/**";
+
     private static final String DOWNLOADS_CHANNEL = NOTIFICATIONS_CHANNEL + "/downloads";
+
     private static final String COMETD_CONTEXT = "/cometd";
+
     private static final String DOWNLOAD_CONTEXT = "/services/catalog/sources/";
+
     private static final String DOWNLOAD_TRANSFORM = "?transform=resource";
+
     private static final long DEFAULT_QUERY_TIMEOUT = 60000;
 
     private final String url;
+
     private final BayeuxClient client;
+
     private final Map<String, Object> emptyMessage = new HashMap<>();
+
     private final Map<String, Object> queryResponse = new HashMap<>();
 
     private String asyncClientId;
+
     private Map<String, Object> activities;
+
     private Map<String, Object> notifications;
 
     /**
@@ -94,14 +106,15 @@ public class AsyncClient {
         client.handshake(new MessageListener() {
             public void onMessage(ClientSessionChannel channel, Message message) {
                 if (message.isSuccessful()) {
-                    asyncClientId = channel.getSession().getId();
+                    asyncClientId = channel.getSession()
+                            .getId();
 
-                    client.getChannel(ALL_ACTIVITIES).addListener((MessageListener)
-                            (activitiesChannel, activitiesMessages) ->
+                    client.getChannel(ALL_ACTIVITIES)
+                            .addListener((MessageListener) (activitiesChannel, activitiesMessages) ->
                                     activities = activitiesMessages.getDataAsMap());
 
-                    client.getChannel(ALL_NOTIFICATIONS).addListener((MessageListener)
-                            (notificationsChannel, notificationsMessages) ->
+                    client.getChannel(ALL_NOTIFICATIONS)
+                            .addListener((MessageListener) (notificationsChannel, notificationsMessages) ->
                                     notifications = notificationsMessages.getDataAsMap());
                 }
             }
@@ -144,7 +157,8 @@ public class AsyncClient {
     public void checkAllNotifications() {
 
         LOGGER.debug("Checking all notifications");
-        client.getChannel(NOTIFICATIONS_CHANNEL).publish(emptyMessage);
+        client.getChannel(NOTIFICATIONS_CHANNEL)
+                .publish(emptyMessage);
     }
 
     /**
@@ -153,7 +167,8 @@ public class AsyncClient {
     public void checkDownloadNotifications() {
 
         LOGGER.debug("Checking all Downloads");
-        client.getChannel(DOWNLOADS_CHANNEL).publish(emptyMessage);
+        client.getChannel(DOWNLOADS_CHANNEL)
+                .publish(emptyMessage);
     }
 
     /**
@@ -163,7 +178,8 @@ public class AsyncClient {
     public void checkAllActivities() {
 
         LOGGER.debug("Checking all activities");
-        client.getChannel(ACTIVITIES_CHANNEL).publish(emptyMessage);
+        client.getChannel(ACTIVITIES_CHANNEL)
+                .publish(emptyMessage);
     }
 
     /**
@@ -182,28 +198,25 @@ public class AsyncClient {
     }
 
     // Trust All Certifications
-    private void doTrustAllCertificates() throws NoSuchAlgorithmException,
-            KeyManagementException {
-        TrustManager[] trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws
-                            CertificateException {
-                        return;
-                    }
+    private void doTrustAllCertificates() throws NoSuchAlgorithmException, KeyManagementException {
+        TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(X509Certificate[] x509Certificates, String s)
+                    throws CertificateException {
+                return;
+            }
 
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws
-                            CertificateException {
-                        return;
-                    }
+            @Override
+            public void checkServerTrusted(X509Certificate[] x509Certificates, String s)
+                    throws CertificateException {
+                return;
+            }
 
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                }
-        };
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        }};
 
         // Set HttpsURLConnection settings
         SSLContext sslContext = SSLContext.getInstance("SSL");

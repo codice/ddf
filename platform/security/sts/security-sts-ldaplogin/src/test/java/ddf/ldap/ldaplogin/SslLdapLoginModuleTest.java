@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -44,18 +44,18 @@ public class SslLdapLoginModuleTest {
 
     @Test
     public void testUnsuccessfulConnectionBind1() throws LoginException {
-        LDAPConnectionFactory mockedConnectionFactory = PowerMockito
-                .mock(LDAPConnectionFactory.class);
+        LDAPConnectionFactory mockedConnectionFactory =
+                PowerMockito.mock(LDAPConnectionFactory.class);
         BindResult mockedBindResult = mock(BindResult.class);
         when(mockedBindResult.isSuccess()).thenReturn(false);
         Connection mockedConnection = mock(Connection.class);
         SslLdapLoginModule testLoginModule = mock(SslLdapLoginModule.class);
         try {
             when(mockedConnectionFactory.getConnection()).thenReturn(mockedConnection);
-            when(mockedConnection.bind(anyString(), any(char[].class)))
-                    .thenReturn(mockedBindResult);
-            when(testLoginModule.createLdapConnectionFactory(any(String.class), any(Boolean.class)))
-                    .thenReturn(mockedConnectionFactory);
+            when(mockedConnection.bind(anyString(),
+                    any(char[].class))).thenReturn(mockedBindResult);
+            when(testLoginModule.createLdapConnectionFactory(any(String.class),
+                    any(Boolean.class))).thenReturn(mockedConnectionFactory);
         } catch (LdapException e) {
             LOGGER.debug("LDAP exception", e);
         }

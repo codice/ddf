@@ -260,7 +260,8 @@ public class BasicAuthenticationHandlerTest {
     public void testIllegalStateException() {
         BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
         UPAuthenticationToken result = (UPAuthenticationToken) handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+                "Basic " + Base64.getEncoder()
+                        .encodeToString(CREDENTIALS.getBytes()), "TestRealm");
         assertNotNull(result);
         assertEquals("admin", result.getUsername());
         assertEquals("password", result.getPassword());
@@ -268,6 +269,7 @@ public class BasicAuthenticationHandlerTest {
 
         WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler(null);
         BaseAuthenticationToken wssResult = wssHandler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+                "Basic " + Base64.getEncoder()
+                        .encodeToString(CREDENTIALS.getBytes()), "TestRealm");
     }
 }

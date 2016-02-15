@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -69,15 +69,19 @@ public class XpathQueryParser extends SolrQueryParser {
     private Query getLuceneQuery(final String queryText) {
         String xpath = queryText;
 
-        SolrIndexConfig solrIndexConfig = SolrIndexConfig
-                .registerIndexConfiguration(parser.getRequest().getCore());
-        LuxSearcher searcher = new LuxSearcher(parser.getRequest().getSearcher());
+        SolrIndexConfig solrIndexConfig =
+                SolrIndexConfig.registerIndexConfiguration(parser.getRequest()
+                        .getCore());
+        LuxSearcher searcher = new LuxSearcher(parser.getRequest()
+                .getSearcher());
         Compiler compiler = new Compiler(solrIndexConfig.getIndexConfig());
         Evaluator evaluator = new Evaluator(compiler, searcher, null);
 
         // get Lucene query for Lux indexes by overriding lux:search function
         LuceneSearch lsearch = new LuceneSearch();
-        evaluator.getCompiler().getProcessor().registerExtensionFunction(lsearch);
+        evaluator.getCompiler()
+                .getProcessor()
+                .registerExtensionFunction(lsearch);
 
         // Assume root is context node since evaluation does not have a context item
         if (StringUtils.startsWith(xpath, "./")) {
@@ -89,10 +93,12 @@ public class XpathQueryParser extends SolrQueryParser {
         XdmResultSet result = evaluator.evaluate(xpath);
 
         Query luxQuery = lsearch.getQuery();
-        if (luxQuery == null || result.getErrors().size() > 0) {
+        if (luxQuery == null || result.getErrors()
+                .size() > 0) {
             throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
-                    "Failed to rewrite XPath into Query: " + queryText + "\nErrors: " + result
-                            .getErrors().toString());
+                    "Failed to rewrite XPath into Query: " + queryText + "\nErrors: "
+                            + result.getErrors()
+                            .toString());
         }
 
         return luxQuery;

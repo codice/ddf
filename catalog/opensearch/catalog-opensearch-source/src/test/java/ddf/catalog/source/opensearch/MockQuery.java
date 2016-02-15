@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -124,14 +124,14 @@ public class MockQuery implements Query {
     public void addTemporalFilter(TemporalFilter temporalFilter) {
         if (temporalFilter != null) {
             // t1.start < timeType instance < t1.end
-            Instant startInstant = new DefaultInstant(
-                    new DefaultPosition(temporalFilter.getStartDate()));
-            Instant endInstant = new DefaultInstant(
-                    new DefaultPosition(temporalFilter.getEndDate()));
+            Instant startInstant =
+                    new DefaultInstant(new DefaultPosition(temporalFilter.getStartDate()));
+            Instant endInstant =
+                    new DefaultInstant(new DefaultPosition(temporalFilter.getEndDate()));
             Period period = new DefaultPeriod(startInstant, endInstant);
 
-            Filter filter = FILTER_FACTORY
-                    .during(FILTER_FACTORY.property(MODIFIED_DATE), FILTER_FACTORY.literal(period));
+            Filter filter = FILTER_FACTORY.during(FILTER_FACTORY.property(MODIFIED_DATE),
+                    FILTER_FACTORY.literal(period));
 
             filters.add(filter);
             this.filter = getFilter();
@@ -157,9 +157,10 @@ public class MockQuery implements Query {
         Geometry geometry = distanceFilter.getGeometry();
 
         if (geometry != null) {
-            Filter filter = FILTER_FACTORY
-                    .dwithin(Metacard.ANY_GEO, geometry, Double.parseDouble(radius),
-                            UomOgcMapping.METRE.getSEString());
+            Filter filter = FILTER_FACTORY.dwithin(Metacard.ANY_GEO,
+                    geometry,
+                    Double.parseDouble(radius),
+                    UomOgcMapping.METRE.getSEString());
 
             filters.add(filter);
             this.filter = getFilter();
@@ -174,12 +175,10 @@ public class MockQuery implements Query {
             List<Filter> typeVersionPairsFilters = new ArrayList<Filter>();
 
             for (String version : typeVersions) {
-                PropertyIsEqualTo typeFilter = FILTER_FACTORY
-                        .equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE),
-                                FILTER_FACTORY.literal(type));
-                PropertyIsEqualTo versionFilter = FILTER_FACTORY
-                        .equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
-                                FILTER_FACTORY.literal(version));
+                PropertyIsEqualTo typeFilter = FILTER_FACTORY.equals(FILTER_FACTORY.property(
+                        Metacard.CONTENT_TYPE), FILTER_FACTORY.literal(type));
+                PropertyIsEqualTo versionFilter = FILTER_FACTORY.equals(FILTER_FACTORY.property(
+                        Metacard.CONTENT_TYPE_VERSION), FILTER_FACTORY.literal(version));
                 typeVersionPairsFilters.add(FILTER_FACTORY.and(typeFilter, versionFilter));
             }
 

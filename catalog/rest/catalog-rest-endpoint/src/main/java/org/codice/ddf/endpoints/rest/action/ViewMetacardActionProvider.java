@@ -44,9 +44,8 @@ public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
         URL url = null;
         try {
 
-            URI uri = new URI(
-                    SystemBaseUrl.constructUrl(PATH + "/" + metacardSource + "/" + metacardId,
-                            true));
+            URI uri = new URI(SystemBaseUrl.constructUrl(
+                    PATH + "/" + metacardSource + "/" + metacardId, true));
             url = uri.toURL();
 
         } catch (MalformedURLException e) {

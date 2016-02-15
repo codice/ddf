@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -57,14 +57,15 @@ public class EXIOutInterceptor extends AbstractPhaseInterceptor<Message> {
             LOGGER.trace("Not performing any EXI compression for initial request.");
         } else {
             //server sending back response
-            Message request = message.getExchange().getInMessage();
-            Map<String, List<String>> requestHeaders = CastUtils
-                    .cast((Map<?, ?>) request.get(Message.PROTOCOL_HEADERS));
+            Message request = message.getExchange()
+                    .getInMessage();
+            Map<String, List<String>> requestHeaders = CastUtils.cast((Map<?, ?>) request.get(
+                    Message.PROTOCOL_HEADERS));
             if (requestHeaders != null) {
-                String acceptEncodingHeader = StringUtils
-                        .join(requestHeaders.get(HttpHeaders.ACCEPT_ENCODING), ",");
-                if (StringUtils.isNotBlank(acceptEncodingHeader) && acceptEncodingHeader
-                        .contains(EXI_ACCEPT_ENCODING)) {
+                String acceptEncodingHeader =
+                        StringUtils.join(requestHeaders.get(HttpHeaders.ACCEPT_ENCODING), ",");
+                if (StringUtils.isNotBlank(acceptEncodingHeader) && acceptEncodingHeader.contains(
+                        EXI_ACCEPT_ENCODING)) {
                     LOGGER.debug("Sending back response message using EXI-encoding.");
                     OutputStream os = message.getContent(OutputStream.class);
                     EXIOutputStream cached = new EXIOutputStream(os);

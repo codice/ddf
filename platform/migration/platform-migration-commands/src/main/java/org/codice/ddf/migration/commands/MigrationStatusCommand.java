@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,16 +24,18 @@ import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.configuration.status.ConfigurationStatusService;
 import org.codice.ddf.migration.MigrationWarning;
 
-@Command(scope = MigrationCommands.NAMESPACE, name = "status", description = "Lists import status of configuration files "
-        + "that were imported through the Migration Service. Files that failed to import correctly will be moved to the "
-        + "etc/failed directory. All successful imports will be moved to the etc/processed directory")
+@Command(scope = MigrationCommands.NAMESPACE, name = "status", description =
+        "Lists import status of configuration files "
+                + "that were imported through the Migration Service. Files that failed to import correctly will be moved to the "
+                + "etc/failed directory. All successful imports will be moved to the etc/processed directory")
 public class MigrationStatusCommand extends MigrationCommands {
 
     static final String SUCCESSFUL_IMPORT_MESSAGE = "All config files imported successfully.";
 
     static final String FAILED_IMPORT_MESSAGE = "Failed to import file [%s]. ";
 
-    static final String NO_CONFIG_STATUS_MESSAGE = "No Configuration Status returned from Configuration Status Service.";
+    static final String NO_CONFIG_STATUS_MESSAGE =
+            "No Configuration Status returned from Configuration Status Service.";
 
     private ConfigurationStatusService configStatusService;
 

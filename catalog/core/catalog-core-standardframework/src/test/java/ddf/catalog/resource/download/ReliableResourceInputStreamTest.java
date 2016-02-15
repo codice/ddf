@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,8 +45,8 @@ import ddf.catalog.operation.ResourceResponse;
 
 public class ReliableResourceInputStreamTest {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(ReliableResourceInputStreamTest.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+            ReliableResourceInputStreamTest.class);
 
     private static final int THRESHOLD = 1024; // 1 KB
 
@@ -69,11 +69,11 @@ public class ReliableResourceInputStreamTest {
         fbos = new FileBackedOutputStream(THRESHOLD);
         countingFbos = new CountingOutputStream(fbos);
         downloadState = mock(DownloadManagerState.class);
-        when(downloadState.getDownloadState())
-                .thenReturn(DownloadManagerState.DownloadState.COMPLETED);
+        when(downloadState.getDownloadState()).thenReturn(DownloadManagerState.DownloadState.COMPLETED);
         reliableResourceCallable = mock(ReliableResourceCallable.class);
         downloadFuture = mock(Future.class);
-        downloadIdentifier = UUID.randomUUID().toString();
+        downloadIdentifier = UUID.randomUUID()
+                .toString();
         resourceResponse = mock(ResourceResponse.class);
 
     }
@@ -84,8 +84,11 @@ public class ReliableResourceInputStreamTest {
      */
     @Test
     public void testReadWhenNoFbosBytesWritten() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         assertThat(is.read(), is(0));
         is.close();
@@ -100,8 +103,11 @@ public class ReliableResourceInputStreamTest {
      */
     @Test
     public void testReadWhenFbosBytesWritten() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] bytes = new String("Hello World").getBytes();
         countingFbos.write(bytes, 0, bytes.length);
@@ -120,8 +126,11 @@ public class ReliableResourceInputStreamTest {
      */
     @Test
     public void testMultipleReadsWhenFbosBytesWritten() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] bytes = new String("Hello World").getBytes();
         countingFbos.write(bytes, 0, bytes.length);
@@ -136,8 +145,11 @@ public class ReliableResourceInputStreamTest {
 
     @Test
     public void testReadByteBufferFbosBytesWritten() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] bytes = new String("Hello World").getBytes();
         countingFbos.write(bytes, 0, bytes.length);
@@ -150,8 +162,11 @@ public class ReliableResourceInputStreamTest {
 
     @Test
     public void testReadByteBufferBlocksUntilNewFbosBytesWritten() throws Exception {
-        final ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        final ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] bytes = new String("Hello World").getBytes();
         countingFbos.write(bytes, 0, bytes.length);
@@ -193,16 +208,22 @@ public class ReliableResourceInputStreamTest {
 
     @Test(expected = NullPointerException.class)
     public void testReadByteBufferWithNullBuffer() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         is.read(null, 0, 50);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testReadByteBufferWithInvalidOffset() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] buffer = new byte[50];
         is.read(buffer, -1, 50);
@@ -210,8 +231,11 @@ public class ReliableResourceInputStreamTest {
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testReadByteBufferWithInvalidLength() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] buffer = new byte[50];
         is.read(buffer, 0, buffer.length + 1);
@@ -219,8 +243,11 @@ public class ReliableResourceInputStreamTest {
 
     @Test
     public void testReadByteBufferWithZeroLength() throws Exception {
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
         byte[] buffer = new byte[50];
         int numBytesRead = is.read(buffer, 0, 0);
@@ -230,8 +257,11 @@ public class ReliableResourceInputStreamTest {
     @Test
     public void testInputStreamReadRetry() throws Exception {
         LOGGER.info("Testing testInputStreamReadTwice()");
-        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos, countingFbos,
-                downloadState, downloadIdentifier, resourceResponse);
+        ReliableResourceInputStream is = new ReliableResourceInputStream(fbos,
+                countingFbos,
+                downloadState,
+                downloadIdentifier,
+                resourceResponse);
         is.setCallableAndItsFuture(reliableResourceCallable, downloadFuture);
 
         org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(is.getClass());

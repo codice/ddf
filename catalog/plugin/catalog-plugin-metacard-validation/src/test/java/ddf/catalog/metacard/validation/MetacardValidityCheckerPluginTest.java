@@ -61,23 +61,27 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testSearchValid()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS).is().empty());
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS)
+                .is()
+                .empty());
         ValidationQueryDelegate delegate = new ValidationQueryDelegate();
         assertThat(filterAdapter.adapt(query, delegate), is(true));
-        QueryRequest returnQuery = metacardValidityCheckerPlugin
-                .process(new QueryRequestImpl(query));
+        QueryRequest returnQuery =
+                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), delegate), is(true));
     }
 
     @Test
     public void testSearchInvalid()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(
-                filterBuilder.attribute(VALIDATION_WARNINGS).is().equalTo().text("sample"));
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS)
+                .is()
+                .equalTo()
+                .text("sample"));
         ValidationQueryDelegate delegate = new ValidationQueryDelegate();
         assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(true));
-        QueryRequest returnQuery = metacardValidityCheckerPlugin
-                .process(new QueryRequestImpl(query));
+        QueryRequest returnQuery =
+                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(true));
     }
@@ -85,12 +89,16 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testSearchBoth()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder
-                .allOf(filterBuilder.attribute(VALIDATION_WARNINGS).is().empty(),
-                        filterBuilder.attribute(VALIDATION_WARNINGS).is().equalTo()
-                                .text("sample")));
-        QueryRequest returnQuery = metacardValidityCheckerPlugin
-                .process(new QueryRequestImpl(query));
+        QueryImpl query = new QueryImpl(filterBuilder.allOf(filterBuilder.attribute(
+                VALIDATION_WARNINGS)
+                        .is()
+                        .empty(),
+                filterBuilder.attribute(VALIDATION_WARNINGS)
+                        .is()
+                        .equalTo()
+                        .text("sample")));
+        QueryRequest returnQuery =
+                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
 
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(true));
@@ -99,11 +107,13 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testSearchNone()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(
-                filterBuilder.attribute(Metacard.MODIFIED).is().equalTo().text("sample"));
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.MODIFIED)
+                .is()
+                .equalTo()
+                .text("sample"));
         assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(false));
-        QueryRequest returnQuery = metacardValidityCheckerPlugin
-                .process(new QueryRequestImpl(query));
+        QueryRequest returnQuery =
+                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(true));
     }
@@ -111,11 +121,16 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testSearchBothImplicit()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder
-                .allOf(filterBuilder.attribute(VALIDATION_WARNINGS).is().empty(),
-                        filterBuilder.attribute(VALIDATION_WARNINGS).is().equalTo().text("*")));
-        QueryRequest returnQuery = metacardValidityCheckerPlugin
-                .process(new QueryRequestImpl(query));
+        QueryImpl query = new QueryImpl(filterBuilder.allOf(filterBuilder.attribute(
+                VALIDATION_WARNINGS)
+                        .is()
+                        .empty(),
+                filterBuilder.attribute(VALIDATION_WARNINGS)
+                        .is()
+                        .equalTo()
+                        .text("*")));
+        QueryRequest returnQuery =
+                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
 
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(true));
@@ -144,9 +159,8 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsEqualToDate() throws UnsupportedQueryException {
-        assertThat(
-                testValidationQueryDelegate.propertyIsEqualTo(Metacard.ANY_TEXT, mock(Date.class)),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsEqualTo(Metacard.ANY_TEXT,
+                mock(Date.class)), is(false));
     }
 
     @Test
@@ -193,15 +207,14 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsNotEqualToString() throws UnsupportedQueryException {
-        assertThat(
-                testValidationQueryDelegate.propertyIsNotEqualTo(Metacard.ANY_TEXT, "helloworld"),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsNotEqualTo(Metacard.ANY_TEXT,
+                "helloworld"), is(false));
     }
 
     @Test
     public void testPropertyIsNotEqualToDate() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsNotEqualTo(Metacard.ANY_TEXT, mock(Date.class)), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsNotEqualTo(Metacard.ANY_TEXT,
+                mock(Date.class)), is(false));
     }
 
     @Test
@@ -248,15 +261,14 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsGreaterThanString() throws UnsupportedQueryException {
-        assertThat(
-                testValidationQueryDelegate.propertyIsNotEqualTo(Metacard.ANY_TEXT, "helloworld"),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsNotEqualTo(Metacard.ANY_TEXT,
+                "helloworld"), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanDate() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsNotEqualTo(Metacard.ANY_TEXT, mock(Date.class)), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsNotEqualTo(Metacard.ANY_TEXT,
+                mock(Date.class)), is(false));
     }
 
     @Test
@@ -291,9 +303,8 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsGreaterThanByteArray() throws UnsupportedQueryException {
-        assertThat(
-                testValidationQueryDelegate.propertyIsGreaterThan(Metacard.ANY_TEXT, new byte[0]),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThan(Metacard.ANY_TEXT,
+                new byte[0]), is(false));
     }
 
     @Test
@@ -304,56 +315,56 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToString() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, "helloworld"), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                "helloworld"), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToDate() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, mock(Date.class)), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                mock(Date.class)), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToInt() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, (int) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                (int) 0), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToShort() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, (short) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                (short) 0), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToLong() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, (long) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                (long) 0), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToFloat() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, (float) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                (float) 0), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToDouble() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, (double) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                (double) 0), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToByteArray() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, new byte[0]), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                new byte[0]), is(false));
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToObject() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT, (Object) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsGreaterThanOrEqualTo(Metacard.ANY_TEXT,
+                (Object) 0), is(false));
     }
 
     @Test
@@ -364,9 +375,8 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsLessThanDate() {
-        assertThat(
-                testValidationQueryDelegate.propertyIsLessThan(Metacard.ANY_TEXT, mock(Date.class)),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThan(Metacard.ANY_TEXT,
+                mock(Date.class)), is(false));
     }
 
     @Test
@@ -413,113 +423,119 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsLessThanOrEqualToString() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, "helloworld"), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                "helloworld"), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToDate() {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, mock(Date.class)), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                mock(Date.class)), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToInt() throws UnsupportedQueryException {
-        assertThat(
-                testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, (int) 0),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                (int) 0), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToShort() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, (short) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                (short) 0), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToLong() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, (long) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                (long) 0), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToFloat() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, (float) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                (float) 0), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToDouble() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, (double) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                (double) 0), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToByteArray() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, new byte[0]), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                new byte[0]), is(false));
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToObject() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT, (Object) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLessThanOrEqualTo(Metacard.ANY_TEXT,
+                (Object) 0), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenString() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, "helloworld", "helloworld"), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                "helloworld",
+                "helloworld"), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenDate() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                        .propertyIsBetween(Metacard.ANY_TEXT, mock(Date.class), mock(Date.class)),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                mock(Date.class),
+                mock(Date.class)), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenInt() throws UnsupportedQueryException {
-        assertThat(
-                testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT, (int) 0, (int) 0),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                (int) 0,
+                (int) 0), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenShort() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, (short) 0, (short) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                (short) 0,
+                (short) 0), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenLong() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, (long) 0, (long) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                (long) 0,
+                (long) 0), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenFloat() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, (float) 0, (float) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                (float) 0,
+                (float) 0), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenDouble() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, (double) 0, (double) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                (double) 0,
+                (double) 0), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenByteArray() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, new byte[0], new byte[0]), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                new byte[0],
+                new byte[0]), is(false));
     }
 
     @Test
     public void testPropertyIsBetweenObject() throws UnsupportedQueryException {
-        assertThat(testValidationQueryDelegate
-                .propertyIsBetween(Metacard.ANY_TEXT, (Object) 0, (Object) 0), is(false));
+        assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
+                (Object) 0,
+                (Object) 0), is(false));
     }
 
     @Test
@@ -539,21 +555,23 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testPropertyIsLikeFalse() {
-        assertThat(
-                testValidationQueryDelegate.propertyIsLike(Metacard.ANY_TEXT, "helloworld", true),
-                is(false));
+        assertThat(testValidationQueryDelegate.propertyIsLike(Metacard.ANY_TEXT,
+                "helloworld",
+                true), is(false));
     }
 
     @Test
     public void testPropertyIsLikeTrueErrors() {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLike(VALIDATION_ERRORS, "sample-validator", true), is(true));
+        assertThat(testValidationQueryDelegate.propertyIsLike(VALIDATION_ERRORS,
+                "sample-validator",
+                true), is(true));
     }
 
     @Test
     public void testPropertyIsLikeTrueWarnings() {
-        assertThat(testValidationQueryDelegate
-                .propertyIsLike(VALIDATION_WARNINGS, "sample-validator", true), is(true));
+        assertThat(testValidationQueryDelegate.propertyIsLike(VALIDATION_WARNINGS,
+                "sample-validator",
+                true), is(true));
     }
 
     @Test
@@ -644,8 +662,9 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testDuring() {
-        assertThat(testValidationQueryDelegate
-                .during(Metacard.ANY_TEXT, mock(Date.class), mock(Date.class)), is(false));
+        assertThat(testValidationQueryDelegate.during(Metacard.ANY_TEXT,
+                mock(Date.class),
+                mock(Date.class)), is(false));
     }
 
     @Test

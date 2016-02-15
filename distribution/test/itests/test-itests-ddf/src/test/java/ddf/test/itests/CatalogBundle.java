@@ -58,8 +58,8 @@ public class CatalogBundle {
 
         while (!available) {
             if (provider == null) {
-                ServiceReference<CatalogProvider> providerRef = serviceManager
-                        .getServiceReference(CatalogProvider.class);
+                ServiceReference<CatalogProvider> providerRef = serviceManager.getServiceReference(
+                        CatalogProvider.class);
                 if (providerRef != null) {
                     provider = serviceManager.getService(providerRef);
                 }
@@ -94,8 +94,8 @@ public class CatalogBundle {
 
         while (!available) {
             if (source == null) {
-                Collection<ServiceReference<FederatedSource>> srcRefs = serviceManager
-                        .getServiceReferences(FederatedSource.class, null);
+                Collection<ServiceReference<FederatedSource>> srcRefs =
+                        serviceManager.getServiceReferences(FederatedSource.class, null);
                 for (ServiceReference<FederatedSource> srcRef : srcRefs) {
                     FederatedSource src = serviceManager.getService(srcRef);
                     if (id.equals(src.getId())) {
@@ -125,8 +125,8 @@ public class CatalogBundle {
 
         CatalogFramework catalogFramework = null;
 
-        ServiceReference<CatalogFramework> providerRef = serviceManager
-                .getServiceReference(CatalogFramework.class);
+        ServiceReference<CatalogFramework> providerRef = serviceManager.getServiceReference(
+                CatalogFramework.class);
         if (providerRef != null) {
             catalogFramework = serviceManager.getService(providerRef);
         }

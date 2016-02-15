@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,8 +37,8 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 
 public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin {
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(SourceConfigurationAdminPlugin.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(
+            SourceConfigurationAdminPlugin.class));
 
     private CatalogFramework catalogFramework;
 
@@ -82,7 +82,8 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
 
         Map<String, Object> statusMap = new HashMap<String, Object>();
         try {
-            List<ServiceReference<? extends Source>> refs = new ArrayList<ServiceReference<? extends Source>>();
+            List<ServiceReference<? extends Source>> refs =
+                    new ArrayList<ServiceReference<? extends Source>>();
 
             refs.addAll(bundleContext.getServiceReferences(FederatedSource.class, null));
             refs.addAll(bundleContext.getServiceReferences(CatalogProvider.class, null));
@@ -122,11 +123,13 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
                         // created. If, as in the Solr Catalog Provider case, 
                         // the metatype pid is actually the fully qualified 
                         // class name, then we can match them up this way.
-                        if (csConfigPidMatchesTargetPid || cs.getClass().getCanonicalName()
+                        if (csConfigPidMatchesTargetPid || cs.getClass()
+                                .getCanonicalName()
                                 .equals(configurationPid)) {
 
                             for (SourceDescriptor descriptor : sources) {
-                                if (descriptor.getSourceId().equals(superService.getId())) {
+                                if (descriptor.getSourceId()
+                                        .equals(superService.getId())) {
                                     statusMap.put("available", descriptor.isAvailable());
                                     statusMap.put("sourceId", descriptor.getSourceId());
                                     return statusMap;

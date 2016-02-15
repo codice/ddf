@@ -41,8 +41,7 @@ public class KarafLogoutAction implements ActionProvider {
         try {
             logoutUrl = new URL(SystemBaseUrl.constructUrl("/logout/local"));
         } catch (MalformedURLException e) {
-            LOGGER.info("Unable to resolve URL: {}",
-                    SystemBaseUrl.constructUrl("/logout/local"));
+            LOGGER.info("Unable to resolve URL: {}", SystemBaseUrl.constructUrl("/logout/local"));
         }
     }
 

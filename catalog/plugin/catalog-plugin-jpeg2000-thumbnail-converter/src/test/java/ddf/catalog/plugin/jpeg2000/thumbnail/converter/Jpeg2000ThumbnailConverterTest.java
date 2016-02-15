@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,12 +39,14 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
 
 public class Jpeg2000ThumbnailConverterTest {
-    private final Jpeg2000ThumbnailConverter jpeg2000ThumbnailConverter = new Jpeg2000ThumbnailConverter();
+    private final Jpeg2000ThumbnailConverter jpeg2000ThumbnailConverter =
+            new Jpeg2000ThumbnailConverter();
 
     @Test
     public void testConversion()
             throws IOException, StopProcessingException, PluginExecutionException {
-        IIORegistry.getDefaultInstance().registerServiceProvider(jpeg2000ThumbnailConverter);
+        IIORegistry.getDefaultInstance()
+                .registerServiceProvider(jpeg2000ThumbnailConverter);
         List<Result> resultList = new ArrayList<>();
         Metacard metacard = new MetacardImpl();
         byte[] j2kbytes = new byte[0];
@@ -52,7 +54,8 @@ public class Jpeg2000ThumbnailConverterTest {
         QueryResponseImpl queryResponse = new QueryResponseImpl(null, resultList, 1);
         // there are two possible byte signatures, so test an example of each one
         for (String image : new String[] {"/Bretagne2.j2k", "/Cevennes2.jp2"}) {
-            j2kbytes = Files.readAllBytes(Paths.get(getClass().getResource(image).getPath()));
+            j2kbytes = Files.readAllBytes(Paths.get(getClass().getResource(image)
+                    .getPath()));
             metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, j2kbytes));
             jpeg2000ThumbnailConverter.process(queryResponse);
             // verify the plugin converted the j2k/jp2 image
@@ -77,6 +80,5 @@ public class Jpeg2000ThumbnailConverterTest {
 
         jpeg2000ThumbnailConverter.process(queryResponse);
     }
-
 
 }

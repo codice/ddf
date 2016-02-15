@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,14 +53,16 @@ public class PolicyManager implements ContextPolicyManager {
 
     public static final String DEFAULT_REALM_CONTEXT_VALUE = "karaf";
 
-    private static final String[] DEFAULT_REALM_CONTEXTS = new String[] {
-            "/=" + DEFAULT_REALM_CONTEXT_VALUE};
+    private static final String[] DEFAULT_REALM_CONTEXTS =
+            new String[] {"/=" + DEFAULT_REALM_CONTEXT_VALUE};
 
     private Map<String, ContextPolicy> policyStore = new HashMap<>();
 
     private List<String> whiteListContexts = new ArrayList<>();
 
-    private ContextPolicy defaultPolicy = new Policy("/", DEFAULT_REALM, new ArrayList<String>(),
+    private ContextPolicy defaultPolicy = new Policy("/",
+            DEFAULT_REALM,
+            new ArrayList<String>(),
             new ArrayList<ContextAttributeMapping>());
 
     private Map<String, Object> policyProperties = new HashMap<>();
@@ -132,8 +134,8 @@ public class PolicyManager implements ContextPolicyManager {
 
         List<ContextAttributeMapping> newContextAttrs = newContextPolicy.getAllowedAttributes()
                 .stream()
-                .map(contextAttribute -> new DefaultContextAttributeMapping(
-                        contextAttribute.getContext(), contextAttribute.getAttributeName(),
+                .map(contextAttribute -> new DefaultContextAttributeMapping(contextAttribute.getContext(),
+                        contextAttribute.getAttributeName(),
                         contextAttribute.getAttributeValue()))
                 .collect(Collectors.toList());
 
@@ -235,7 +237,8 @@ public class PolicyManager implements ContextPolicyManager {
                     for (String attribute : attributes) {
                         String[] parts = attribute.split("=");
                         if (parts.length == 2) {
-                            attrMaps.add(new DefaultContextAttributeMapping(context, parts[0],
+                            attrMaps.add(new DefaultContextAttributeMapping(context,
+                                    parts[0],
                                     parts[1]));
                         }
                     }
@@ -281,8 +284,8 @@ public class PolicyManager implements ContextPolicyManager {
             List<ContextAttributeMapping> contextReqAttrs = getContextReqAttrs(path,
                     allContextsToAttrs);
 
-            newPolicyStore
-                    .put(path, new Policy(path, contextRealm, contextAuthTypes, contextReqAttrs));
+            newPolicyStore.put(path,
+                    new Policy(path, contextRealm, contextAuthTypes, contextReqAttrs));
         }
 
         policyStore = newPolicyStore;
@@ -328,13 +331,15 @@ public class PolicyManager implements ContextPolicyManager {
 
         copiedContextAttributes.addAll(contextPolicy.getAllowedAttributes()
                 .stream()
-                .map(contextAttribute -> new DefaultContextAttributeMapping(
-                        contextAttribute.getContext(), contextAttribute.getAttributeName(),
+                .map(contextAttribute -> new DefaultContextAttributeMapping(contextAttribute.getContext(),
+                        contextAttribute.getAttributeName(),
                         contextAttribute.getAttributeValue()))
                 .collect(Collectors.toList()));
 
-        return new Policy(contextPolicy.getContextPath(), contextPolicy.getRealm(),
-                copiedAuthenticationMethods, copiedContextAttributes);
+        return new Policy(contextPolicy.getContextPath(),
+                contextPolicy.getRealm(),
+                copiedAuthenticationMethods,
+                copiedContextAttributes);
     }
 
     /**

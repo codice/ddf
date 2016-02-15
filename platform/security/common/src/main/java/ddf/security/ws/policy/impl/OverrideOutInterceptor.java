@@ -21,7 +21,6 @@ import ddf.security.ws.policy.PolicyLoader;
 
 /**
  * Implementation of the OverrideInterceptor for the outgoing message.
- *
  */
 public class OverrideOutInterceptor extends AbstractOverrideInterceptor {
 

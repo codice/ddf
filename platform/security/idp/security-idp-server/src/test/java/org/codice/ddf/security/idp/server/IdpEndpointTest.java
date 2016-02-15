@@ -734,7 +734,8 @@ public class IdpEndpointTest {
         Response response = idpEndpoint.showPostLogin(samlRequest, relayState, request);
         String responseStr = StringUtils.substringBetween(response.getEntity()
                 .toString(), "SAMLResponse\" value=\"", "\" />");
-        responseStr = new String(Base64.getDecoder().decode(responseStr));
+        responseStr = new String(Base64.getDecoder()
+                .decode(responseStr));
 
         //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
         assertThat(responseStr, containsString("status:RequestUnsupported"));

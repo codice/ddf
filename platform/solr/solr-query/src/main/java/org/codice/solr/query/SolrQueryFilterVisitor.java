@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -35,12 +35,13 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     private static final String QUOTE = "\"";
 
     // *, ?, and / are escaped by the filter adapter
-    private static final String[] LUCENE_SPECIAL_CHARACTERS = new String[] {"+", "-", "&&", "||",
-            "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~", ":"};
+    private static final String[] LUCENE_SPECIAL_CHARACTERS =
+            new String[] {"+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "\"", "~",
+                    ":"};
 
-    private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS = new String[] {"\\+", "\\-",
-            "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\\"", "\\~",
-            "\\:"};
+    private static final String[] ESCAPED_LUCENE_SPECIAL_CHARACTERS =
+            new String[] {"\\+", "\\-", "\\&&", "\\||", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[",
+                    "\\]", "\\^", "\\\"", "\\~", "\\:"};
 
     private static final Map<String, String> FIELD_MAP;
 
@@ -74,8 +75,10 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
         ExpressionValueVisitor expressionVisitor = new ExpressionValueVisitor();
 
-        filter.getExpression1().accept(expressionVisitor, data);
-        filter.getExpression2().accept(expressionVisitor, data);
+        filter.getExpression1()
+                .accept(expressionVisitor, data);
+        filter.getExpression2()
+                .accept(expressionVisitor, data);
 
         String propertyName = expressionVisitor.getPropertyName();
 
@@ -120,7 +123,9 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
         if (schemaField != null) {
             mappedPropertyName = schemaField.getName();
             LOGGER.info("propertyName = {},    mappedPropertyName = {},   schemaField = {}",
-                    propertyName, mappedPropertyName, schemaField);
+                    propertyName,
+                    mappedPropertyName,
+                    schemaField);
         } else {
             // Fallback - treat all fields as String
             mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING, true);
@@ -147,7 +152,8 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     }
 
     private String escapeSpecialCharacters(String searchPhrase) {
-        return StringUtils.replaceEach(searchPhrase, LUCENE_SPECIAL_CHARACTERS,
+        return StringUtils.replaceEach(searchPhrase,
+                LUCENE_SPECIAL_CHARACTERS,
                 ESCAPED_LUCENE_SPECIAL_CHARACTERS);
     }
 

@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader;
 
@@ -52,18 +51,20 @@ import ddf.catalog.data.Metacard;
 public class FeatureCollectionMessageBodyReaderWfs10
         implements MessageBodyReader<WfsFeatureCollection> {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(FeatureCollectionMessageBodyReaderWfs10.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            FeatureCollectionMessageBodyReaderWfs10.class);
 
     protected XStream xstream;
 
     protected FeatureCollectionConverterWfs10 featureCollectionConverter;
 
-    protected Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
+    protected Map<String, FeatureConverter> featureConverterMap =
+            new HashMap<String, FeatureConverter>();
 
     public FeatureCollectionMessageBodyReaderWfs10() {
         xstream = new XStream(new WstxDriver());
-        xstream.setClassLoader(this.getClass().getClassLoader());
+        xstream.setClassLoader(this.getClass()
+                .getClassLoader());
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.registerConverter(new GmlEnvelopeConverter());
         xstream.alias("FeatureCollection", WfsFeatureCollection.class);
@@ -93,7 +94,8 @@ public class FeatureCollectionMessageBodyReaderWfs10
 
         // Re-create the input stream (since it has already been read for potential
         // exception message creation)
-        inStream = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
+        inStream =
+                new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
 
         WfsFeatureCollection featureCollection = null;
 
@@ -110,7 +112,8 @@ public class FeatureCollectionMessageBodyReaderWfs10
             // which CXF will wrap as a ClientException that the WfsSource catches, converts
             // to a WfsException, and logs.
             LOGGER.error("Exception unmarshalling {}", e);
-            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream bis = new ByteArrayInputStream(originalInputStream.getBytes(
+                    StandardCharsets.UTF_8));
             ResponseBuilder responseBuilder = Response.ok(bis);
             responseBuilder.type("text/xml");
             Response response = responseBuilder.build();
@@ -123,9 +126,11 @@ public class FeatureCollectionMessageBodyReaderWfs10
     }
 
     public void registerConverter(FeatureConverter converter) {
-        featureConverterMap.put(converter.getMetacardType().getName(), converter);
+        featureConverterMap.put(converter.getMetacardType()
+                .getName(), converter);
         xstream.registerConverter(converter);
-        xstream.alias(converter.getMetacardType().getName(), Metacard.class);
+        xstream.alias(converter.getMetacardType()
+                .getName(), Metacard.class);
     }
 
 }

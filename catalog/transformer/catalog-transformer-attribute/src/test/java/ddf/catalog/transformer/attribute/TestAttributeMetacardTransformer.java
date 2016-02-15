@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -42,8 +42,8 @@ import ddf.catalog.transform.MetacardTransformer;
  */
 public class TestAttributeMetacardTransformer {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestAttributeMetacardTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TestAttributeMetacardTransformer.class);
 
     private static MimeType jpegMimeType = null;
 
@@ -58,11 +58,11 @@ public class TestAttributeMetacardTransformer {
         }
     }
 
-    private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER = new AttributeMetacardTransformer(
-            Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
+    private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER =
+            new AttributeMetacardTransformer(Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
 
-    private static final AttributeMetacardTransformer METADATA_TRANSFORMER = new AttributeMetacardTransformer(
-            Metacard.METADATA, Metacard.METADATA, xmlMimeType);
+    private static final AttributeMetacardTransformer METADATA_TRANSFORMER =
+            new AttributeMetacardTransformer(Metacard.METADATA, Metacard.METADATA, xmlMimeType);
 
     /**
      * Tests case of null {@link Metacard}
@@ -172,8 +172,8 @@ public class TestAttributeMetacardTransformer {
 
         Metacard mockMetacard = mock(Metacard.class);
 
-        when(mockMetacard.getAttribute(isA(String.class)))
-                .thenReturn(new AttributeImpl(Metacard.METADATA, new Date()));
+        when(mockMetacard.getAttribute(isA(String.class))).thenReturn(new AttributeImpl(Metacard.METADATA,
+                new Date()));
 
         METADATA_TRANSFORMER.transform(mockMetacard, null);
 
@@ -192,11 +192,10 @@ public class TestAttributeMetacardTransformer {
 
         LOGGER.debug(transformerToString);
 
-        assertEquals(
-                MetacardTransformer.class.getName() + " {Impl=" + AttributeMetacardTransformer.class
-                        .getName() + ", attributeName=" + Metacard.THUMBNAIL + ", id="
-                        + Metacard.THUMBNAIL + ", MIME Type=" + jpegMimeType + "}",
-                transformerToString);
+        assertEquals(MetacardTransformer.class.getName() + " {Impl="
+                + AttributeMetacardTransformer.class.getName() + ", attributeName="
+                + Metacard.THUMBNAIL + ", id=" + Metacard.THUMBNAIL + ", MIME Type=" + jpegMimeType
+                + "}", transformerToString);
 
     }
 
@@ -205,8 +204,8 @@ public class TestAttributeMetacardTransformer {
         Metacard mockMetacard = mock(Metacard.class);
 
         when(mockMetacard.getThumbnail()).thenReturn(thumbnailBytes);
-        when(mockMetacard.getAttribute(Metacard.THUMBNAIL))
-                .thenReturn(new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
+        when(mockMetacard.getAttribute(Metacard.THUMBNAIL)).thenReturn(new AttributeImpl(Metacard.THUMBNAIL,
+                thumbnailBytes));
 
         BinaryContent content = THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
 
@@ -219,8 +218,8 @@ public class TestAttributeMetacardTransformer {
             throws CatalogTransformerException, IOException {
         Metacard mockMetacard = mock(Metacard.class);
 
-        when(mockMetacard.getAttribute(isA(String.class)))
-                .thenReturn(new AttributeImpl(Metacard.METADATA, metadata));
+        when(mockMetacard.getAttribute(isA(String.class))).thenReturn(new AttributeImpl(Metacard.METADATA,
+                metadata));
 
         BinaryContent content = METADATA_TRANSFORMER.transform(mockMetacard, null);
 

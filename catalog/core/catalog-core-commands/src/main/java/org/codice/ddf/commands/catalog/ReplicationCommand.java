@@ -52,7 +52,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Custom Karaf command to replicate records from a Federated Source into the Catalog.
- *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "replicate", description = "Replicates Metacards from a Federated Source into the Catalog.")
 public class ReplicationCommand extends DuplicateCommands {
@@ -64,8 +63,7 @@ public class ReplicationCommand extends DuplicateCommands {
 
     private long start;
 
-    private List<Metacard> failedMetacards =
-            Collections.synchronizedList(new ArrayList<>());
+    private List<Metacard> failedMetacards = Collections.synchronizedList(new ArrayList<>());
 
     private AtomicInteger queryIndex = new AtomicInteger(1);
 

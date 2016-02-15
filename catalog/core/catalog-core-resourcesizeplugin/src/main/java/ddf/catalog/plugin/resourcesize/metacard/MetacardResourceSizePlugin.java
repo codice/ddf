@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -59,13 +59,16 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
 
                 try {
                     cacheKey = new CacheKey(metacard, resourceRequest);
-                    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+                    ClassLoader tccl = Thread.currentThread()
+                            .getContextClassLoader();
                     key = cacheKey.generateKey();
                     try {
-                        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                        Thread.currentThread()
+                                .setContextClassLoader(getClass().getClassLoader());
                         cachedResource = (ReliableResource) cache.getValid(key, metacard);
                     } finally {
-                        Thread.currentThread().setContextClassLoader(tccl);
+                        Thread.currentThread()
+                                .setContextClassLoader(tccl);
                     }
                 } catch (IllegalArgumentException e) {
                     LOGGER.debug("Unable to retrieve cached resource for metacard id = {}",
@@ -75,7 +78,8 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                 if (cachedResource != null) {
                     long resourceSize = cachedResource.getSize();
                     if (resourceSize > 0 && cachedResource.hasProduct()) {
-                        LOGGER.debug("Setting resourceSize = {} for metacard ID = {}", resourceSize,
+                        LOGGER.debug("Setting resourceSize = {} for metacard ID = {}",
+                                resourceSize,
                                 metacard.getId());
                         Attribute resourceSizeAttribute = new AttributeImpl(Metacard.RESOURCE_SIZE,
                                 String.valueOf(resourceSize));

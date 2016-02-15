@@ -26,9 +26,9 @@ public class MapConverter implements Converter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapConverter.class);
 
     /**
-     * @return true if sourceObject is an instance of DescribableServiceMap; false otherwise
      * @param sourceObject object considering to be converted
-     * @param targetType The target type {@code T}.
+     * @param targetType   The target type {@code T}.
+     * @return true if sourceObject is an instance of DescribableServiceMap; false otherwise
      */
     @Override
     public boolean canConvert(Object sourceObject, ReifiedType targetType) {
@@ -43,9 +43,9 @@ public class MapConverter implements Converter {
     /**
      * Converts (casts) the sourceObject to a DescribableServiceMap.
      *
-     * @return sourceObject cast to a DescribableServiceMap
      * @param sourceObject object being converted
-     * @param targetType The target type {@code T}.
+     * @param targetType   The target type {@code T}.
+     * @return sourceObject cast to a DescribableServiceMap
      */
     @Override
     public Object convert(Object sourceObject, ReifiedType targetType) throws Exception {

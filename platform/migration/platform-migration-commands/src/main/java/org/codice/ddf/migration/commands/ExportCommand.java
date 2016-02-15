@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,17 +27,21 @@ import org.codice.ddf.migration.MigrationWarning;
  * are exported to the directory specified in the implementation of the service
  * (see {@link ConfigurationFileDirectory} for an example).
  */
-@Command(scope = MigrationCommands.NAMESPACE, name = "export", description = "The export command delegates to all "
-        + "registered Migratable services to export bundle specific configuration and data.")
+@Command(scope = MigrationCommands.NAMESPACE, name = "export", description =
+        "The export command delegates to all "
+                + "registered Migratable services to export bundle specific configuration and data.")
 public class ExportCommand extends MigrationCommands {
 
     private static final String STARTING_EXPORT_MESSAGE = "Exporting current configurations to %s.";
 
-    private static final String SUCCESSFUL_EXPORT_MESSAGE = "Successfully exported all configurations.";
+    private static final String SUCCESSFUL_EXPORT_MESSAGE =
+            "Successfully exported all configurations.";
 
-    private static final String FAILED_EXPORT_MESSAGE = "Failed to export all configurations to %s.";
+    private static final String FAILED_EXPORT_MESSAGE =
+            "Failed to export all configurations to %s.";
 
-    private static final String ERROR_EXPORT_MESSAGE = "An error was encountered while executing this command. %s";
+    private static final String ERROR_EXPORT_MESSAGE =
+            "An error was encountered while executing this command. %s";
 
     protected final ConfigurationMigrationService configurationMigrationService;
 
@@ -63,8 +67,8 @@ public class ExportCommand extends MigrationCommands {
 
         outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, exportDirectory));
         try {
-            Collection<MigrationWarning> migrationWarnings = configurationMigrationService
-                    .export(exportDirectory);
+            Collection<MigrationWarning> migrationWarnings = configurationMigrationService.export(
+                    exportDirectory);
 
             if (migrationWarnings.isEmpty()) {
                 outputSuccessMessage(String.format(SUCCESSFUL_EXPORT_MESSAGE));

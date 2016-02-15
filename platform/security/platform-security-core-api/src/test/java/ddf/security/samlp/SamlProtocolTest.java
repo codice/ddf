@@ -145,7 +145,7 @@ public class SamlProtocolTest {
     @Test
     public void testCreateAttributeQueryWithDestination() {
         AttributeQuery attributeQuery = SamlProtocol.createAttributeQuery(SamlProtocol.createIssuer(
-                        "myissuer"),
+                "myissuer"),
                 SamlProtocol.createSubject(SamlProtocol.createNameID("mynameid")),
                 "mydestination");
         assertEquals("myissuer",

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -275,12 +275,12 @@ public class SearchPageTest {
         when(exchange.getProperty("beansWrapper")).thenReturn(beansWrapper);
         when(exchange.getProperty("sourceInfoReqEnterprise")).thenReturn(sourceInfoRequest);
         when(exchange.getProperty("htmlActionProviderList")).thenReturn(htmlActionProviderList);
-        when(exchange.getProperty("metacardActionProviderList"))
-                .thenReturn(metacardActionProviderList);
-        when(exchange.getProperty("thumbnailActionProviderList"))
-                .thenReturn(thumbnailActionProviderList);
-        when(exchange.getProperty("resourceActionProviderList"))
-                .thenReturn(resourceActionProviderList);
+        when(exchange.getProperty("metacardActionProviderList")).thenReturn(
+                metacardActionProviderList);
+        when(exchange.getProperty("thumbnailActionProviderList")).thenReturn(
+                thumbnailActionProviderList);
+        when(exchange.getProperty("resourceActionProviderList")).thenReturn(
+                resourceActionProviderList);
 
         return exchange;
     }
@@ -321,8 +321,8 @@ public class SearchPageTest {
 
     @Test
     public void testFooter() {
-        assertTrue(generatedHtml
-                .contains("<div class=\"navbar-fixed-bottom banner\">" + FOOTER + "</div>"));
+        assertTrue(generatedHtml.contains(
+                "<div class=\"navbar-fixed-bottom banner\">" + FOOTER + "</div>"));
     }
 
     @Test
@@ -348,7 +348,8 @@ public class SearchPageTest {
     public void testHitCount() {
         assertTrue(generatedHtml.contains(
                 "<div class=\"resultsCount pull-left span6\" ><p class=\"lead\">Total Results: "
-                        + NumberFormat.getIntegerInstance().format(HIT_COUNT) + " </p></div>"));
+                        + NumberFormat.getIntegerInstance()
+                        .format(HIT_COUNT) + " </p></div>"));
     }
 
     @Test
@@ -361,8 +362,8 @@ public class SearchPageTest {
                                 metacard) + "\">" + metacard.getTitle() + "</a>"));
             } else {
                 assertFalse(generatedHtml.contains(
-                        "<a href=\"" + generateActionUrl(HTML_ACTION, metacard) + "\">" + metacard
-                                .getTitle() + "</a>"));
+                        "<a href=\"" + generateActionUrl(HTML_ACTION, metacard) + "\">"
+                                + metacard.getTitle() + "</a>"));
             }
             count++;
         }
@@ -400,10 +401,10 @@ public class SearchPageTest {
         for (Iterator<Metacard> itr = getMetacards().iterator();
              itr.hasNext() && count < PAGE_SIZE; itr.next()) {
             count++;
-            lastIndexCreated = generatedHtml
-                    .indexOf("Effective: " + timeAsString + "<br>", lastIndexCreated + 1);
-            lastIndexEffective = generatedHtml
-                    .indexOf("Received: " + timeAsString + "</td>", lastIndexEffective + 1);
+            lastIndexCreated = generatedHtml.indexOf("Effective: " + timeAsString + "<br>",
+                    lastIndexCreated + 1);
+            lastIndexEffective = generatedHtml.indexOf("Received: " + timeAsString + "</td>",
+                    lastIndexEffective + 1);
 
             assertTrue(lastIndexCreated != -1);
             assertTrue(lastIndexEffective != -1);
@@ -416,10 +417,10 @@ public class SearchPageTest {
 
         if (hasPages) {
             assertTrue(generatedHtml.contains("<div class=\"pagination pull-right span6\">"));
-            assertTrue(generatedHtml
-                    .contains("<li class=\"disabled\"><a href=\"" + URL + "\">Prev</a></li>"));
-            assertTrue(generatedHtml
-                    .contains("<li class=\"active\"><a href=\"" + URL + "\">1</a></li>"));
+            assertTrue(generatedHtml.contains(
+                    "<li class=\"disabled\"><a href=\"" + URL + "\">Prev</a></li>"));
+            assertTrue(generatedHtml.contains(
+                    "<li class=\"active\"><a href=\"" + URL + "\">1</a></li>"));
             assertTrue(generatedHtml.contains(">Next</a></li>"));
 
             int pages = (int) Math.ceil(((double) HIT_COUNT) / ((double) PAGE_SIZE));
@@ -434,7 +435,7 @@ public class SearchPageTest {
     }
 
     private boolean containsExactlyOnce(String string, String fragment) {
-        return string.contains(fragment) && (string.indexOf(fragment) == string
-                .lastIndexOf(fragment));
+        return string.contains(fragment) && (string.indexOf(fragment)
+                == string.lastIndexOf(fragment));
     }
 }

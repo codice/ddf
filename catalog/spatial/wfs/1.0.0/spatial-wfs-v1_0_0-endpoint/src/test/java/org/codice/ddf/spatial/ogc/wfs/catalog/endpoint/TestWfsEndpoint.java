@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
@@ -117,25 +116,29 @@ public class TestWfsEndpoint {
 
     private static ServiceReference mockServiceRef = mock(ServiceReference.class);
 
-    private static ServicePropertiesMap<MetacardType> mockServiceList = new ServicePropertiesMap<MetacardType>();
+    private static ServicePropertiesMap<MetacardType> mockServiceList =
+            new ServicePropertiesMap<MetacardType>();
 
-    private ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory wfsObjectFactory = new ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory();
+    private ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory wfsObjectFactory =
+            new ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory();
 
-    private ogc.schema.opengis.filter.v_1_0_0.ObjectFactory filterObjectFactory = new ogc.schema.opengis.filter.v_1_0_0.ObjectFactory();
+    private ogc.schema.opengis.filter.v_1_0_0.ObjectFactory filterObjectFactory =
+            new ogc.schema.opengis.filter.v_1_0_0.ObjectFactory();
 
-    private ogc.schema.opengis.wfs_capabilities.v_1_0_0.ObjectFactory wfsCapabilityObjectFactory = new ogc.schema.opengis.wfs_capabilities.v_1_0_0.ObjectFactory();
+    private ogc.schema.opengis.wfs_capabilities.v_1_0_0.ObjectFactory wfsCapabilityObjectFactory =
+            new ogc.schema.opengis.wfs_capabilities.v_1_0_0.ObjectFactory();
 
     @BeforeClass
-    public static void setup() throws URISyntaxException, SourceUnavailableException,
-            UnsupportedQueryException, FederationException {
+    public static void setup()
+            throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
+            FederationException {
         URI mockUri = new URI("http://example.com/services/wfs");
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
         when(mockServiceRef.getProperty(Metacard.CONTENT_TYPE)).thenReturn(CONTENT_TYPE);
-        when(mockContext.getService(any(ServiceReference.class)))
-                .thenReturn(new MockMetacardType());
+        when(mockContext.getService(any(ServiceReference.class))).thenReturn(new MockMetacardType());
         mockServiceList.bindService(new MockMetacardType(), MockMetacardType.PROPERTIES);
-        when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class)))
-                .thenReturn(mockSourceInfoResponse);
+        when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(
+                mockSourceInfoResponse);
 
         Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
         Set<ContentType> contentTypes = new HashSet<ContentType>();
@@ -212,8 +215,8 @@ public class TestWfsEndpoint {
     }
 
     @Test
-    public void testDescribeMultipleFeatureTypesHttpGet() throws WfsException,
-            UnsupportedEncodingException {
+    public void testDescribeMultipleFeatureTypesHttpGet()
+            throws WfsException, UnsupportedEncodingException {
         DescribeFeatureTypeRequest request = new DescribeFeatureTypeRequest();
         request.setTypeName(MockMetacardType.IMAGE + "," + MockMetacardType.VIDEO);
         XmlSchema schema = wfs.describeFeatureType(request);
@@ -223,8 +226,11 @@ public class TestWfsEndpoint {
         for (XmlSchemaExternal external : schema.getExternals()) {
             XmlSchemaImport importSchema = (XmlSchemaImport) external;
             assertTrue(WfsQnameBuilder.buildQName(MockMetacardType.NAME, MockMetacardType.IMAGE)
-                    .getNamespaceURI().equals(importSchema.getNamespace()) || WfsQnameBuilder
-                    .buildQName(MockMetacardType.NAME, MockMetacardType.VIDEO).getNamespaceURI()
+                    .getNamespaceURI()
+                    .equals(importSchema.getNamespace()) || WfsQnameBuilder.buildQName(
+                    MockMetacardType.NAME,
+                    MockMetacardType.VIDEO)
+                    .getNamespaceURI()
                     .equals(importSchema.getNamespace()));
 
         }
@@ -233,8 +239,8 @@ public class TestWfsEndpoint {
     @Test
     public void testDescribeFeatureTypeWithNamespacePrefix() throws WfsException {
         DescribeFeatureTypeRequest request = new DescribeFeatureTypeRequest();
-        QName qname = WfsQnameBuilder
-                .buildQName(MetacardType.DEFAULT_METACARD_TYPE_NAME, CONTENT_TYPE);
+        QName qname = WfsQnameBuilder.buildQName(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                CONTENT_TYPE);
         request.setTypeName(qname.getPrefix() + ":" + qname.getLocalPart());
         XmlSchema schema = wfs.describeFeatureType(request);
         assertNotNull(schema);
@@ -251,9 +257,10 @@ public class TestWfsEndpoint {
     @Test
     public void testDescribeFeatureTypeHttpPost() throws WfsException {
         DescribeFeatureTypeType request = new DescribeFeatureTypeType();
-        request.getTypeName().add(new QName(Wfs10Constants.NAMESPACE_URN_ROOT
-                        + MetacardType.DEFAULT_METACARD_TYPE_NAME + "." + CONTENT_TYPE,
-                        CONTENT_TYPE));
+        request.getTypeName()
+                .add(new QName(
+                        Wfs10Constants.NAMESPACE_URN_ROOT + MetacardType.DEFAULT_METACARD_TYPE_NAME
+                                + "." + CONTENT_TYPE, CONTENT_TYPE));
         XmlSchema schema = wfs.describeFeatureType(request);
         assertNotNull(schema);
     }
@@ -261,8 +268,9 @@ public class TestWfsEndpoint {
     @Test
     public void testDescribeMultipleFeatureTypesHttpPost() throws WfsException {
         DescribeFeatureTypeType request = new DescribeFeatureTypeType();
-        request.getTypeName().add(WfsQnameBuilder
-                .buildQName(MetacardType.DEFAULT_METACARD_TYPE_NAME, CONTENT_TYPE));
+        request.getTypeName()
+                .add(WfsQnameBuilder.buildQName(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                        CONTENT_TYPE));
         request.getTypeName()
                 .add(WfsQnameBuilder.buildQName(MockMetacardType.NAME, MockMetacardType.IMAGE));
         request.getTypeName()
@@ -279,8 +287,9 @@ public class TestWfsEndpoint {
     }
 
     @Test
-    public void testGetFeaturePropertyIsLike() throws UnsupportedQueryException,
-            SourceUnavailableException, FederationException, WfsException, URISyntaxException {
+    public void testGetFeaturePropertyIsLike()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            WfsException, URISyntaxException {
 
         QueryType queryType = wfsObjectFactory.createQueryType();
         queryType.setFilter(getPropertyIsLikeFilter());
@@ -302,8 +311,9 @@ public class TestWfsEndpoint {
     }
 
     @Test
-    public void testGetFeatureEmptyFilter() throws WfsException, UnsupportedQueryException,
-            SourceUnavailableException, FederationException, URISyntaxException {
+    public void testGetFeatureEmptyFilter()
+            throws WfsException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException, URISyntaxException {
 
         QueryType queryType = wfsObjectFactory.createQueryType();
         queryType.setFilter(new FilterType());
@@ -323,8 +333,9 @@ public class TestWfsEndpoint {
     }
 
     @Test
-    public void testGetFeatureDWithinValidUnits() throws WfsException, UnsupportedQueryException,
-            SourceUnavailableException, FederationException, JAXBException {
+    public void testGetFeatureDWithinValidUnits()
+            throws WfsException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException, JAXBException {
 
         String getFeatureXml = "<?xml version=\"1.0\"?>"
                 + "<ns4:GetFeature version=\"1.0.0\" service=\"WFS\" maxFeatures=\"10\" "
@@ -338,8 +349,9 @@ public class TestWfsEndpoint {
                 + "</ns5:Filter>" + "</ns4:Query>" + "</ns4:GetFeature>";
 
         JAXBContext ctx = JAXBContext.newInstance("ogc.schema.opengis.wfs.v_1_0_0");
-        JAXBElement<GetFeatureType> getFeatureType = (JAXBElement<GetFeatureType>) ctx
-                .createUnmarshaller().unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
+        JAXBElement<GetFeatureType> getFeatureType =
+                (JAXBElement<GetFeatureType>) ctx.createUnmarshaller()
+                        .unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
 
         ArgumentCaptor<QueryRequestImpl> captor = ArgumentCaptor.forClass(QueryRequestImpl.class);
         CatalogFramework cf = getCatalogFrameworkForQuery();
@@ -354,8 +366,9 @@ public class TestWfsEndpoint {
     }
 
     @Test(expected = WfsException.class)
-    public void testGetFeatureDWithinInvalidUnits() throws JAXBException, WfsException,
-            UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testGetFeatureDWithinInvalidUnits()
+            throws JAXBException, WfsException, UnsupportedQueryException,
+            SourceUnavailableException, FederationException {
         String getFeatureXml = "<?xml version=\"1.0\"?>"
                 + "<ns4:GetFeature version=\"1.0.0\" service=\"WFS\" maxFeatures=\"10\" "
                 + "xmlns:ns2=\"http://www.opengis.net/gml\" "
@@ -370,8 +383,9 @@ public class TestWfsEndpoint {
                 + "</ns5:Filter>" + "</ns4:Query>" + "</ns4:GetFeature>";
 
         JAXBContext ctx = JAXBContext.newInstance("ogc.schema.opengis.wfs.v_1_0_0");
-        JAXBElement<GetFeatureType> getFeatureType = (JAXBElement<GetFeatureType>) ctx
-                .createUnmarshaller().unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
+        JAXBElement<GetFeatureType> getFeatureType =
+                (JAXBElement<GetFeatureType>) ctx.createUnmarshaller()
+                        .unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
 
         ArgumentCaptor<QueryRequestImpl> captor = ArgumentCaptor.forClass(QueryRequestImpl.class);
         CatalogFramework cf = getCatalogFrameworkForQuery();
@@ -394,23 +408,28 @@ public class TestWfsEndpoint {
                 + "</wfs:GetFeature> ";
 
         JAXBContext ctx = JAXBContext.newInstance("ogc.schema.opengis.wfs.v_1_0_0");
-        JAXBElement<GetFeatureType> getFeatureType = (JAXBElement<GetFeatureType>) ctx
-                .createUnmarshaller().unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
+        JAXBElement<GetFeatureType> getFeatureType =
+                (JAXBElement<GetFeatureType>) ctx.createUnmarshaller()
+                        .unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
 
         ArgumentCaptor<QueryRequestImpl> captor = ArgumentCaptor.forClass(QueryRequestImpl.class);
         CatalogFramework cf = getCatalogFrameworkForQuery();
 
         WfsFeatureCollection col = getWfsEndpoint(cf).getFeature(getFeatureType.getValue());
-        assertEquals(col.getFeatureMembers().size(), 1);
-        assertEquals(col.getFeatureMembers().get(0).getLocation(), METACARD_LOCATION);
+        assertEquals(col.getFeatureMembers()
+                .size(), 1);
+        assertEquals(col.getFeatureMembers()
+                .get(0)
+                .getLocation(), METACARD_LOCATION);
 
         verify(cf).query(captor.capture());
 
     }
 
     @Test(expected = WfsException.class)
-    public void testGetFeatureBeyondInvalidUnits() throws JAXBException, WfsException,
-            UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testGetFeatureBeyondInvalidUnits()
+            throws JAXBException, WfsException, UnsupportedQueryException,
+            SourceUnavailableException, FederationException {
         String getFeatureXml = "<?xml version=\"1.0\"?>"
                 + "<ns4:GetFeature version=\"1.0.0\" service=\"WFS\" maxFeatures=\"10\" "
                 + "xmlns:ns2=\"http://www.opengis.net/gml\" "
@@ -425,8 +444,9 @@ public class TestWfsEndpoint {
                 + "</ns5:Filter>" + "</ns4:Query>" + "</ns4:GetFeature>";
 
         JAXBContext ctx = JAXBContext.newInstance("ogc.schema.opengis.wfs.v_1_0_0");
-        JAXBElement<GetFeatureType> getFeatureType = (JAXBElement<GetFeatureType>) ctx
-                .createUnmarshaller().unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
+        JAXBElement<GetFeatureType> getFeatureType =
+                (JAXBElement<GetFeatureType>) ctx.createUnmarshaller()
+                        .unmarshal(new ByteArrayInputStream(getFeatureXml.getBytes()));
 
         ArgumentCaptor<QueryRequestImpl> captor = ArgumentCaptor.forClass(QueryRequestImpl.class);
         CatalogFramework cf = getCatalogFrameworkForQuery();
@@ -444,11 +464,13 @@ public class TestWfsEndpoint {
 
         fidType.setFid("123456");
         FilterType filterType = new FilterType();
-        filterType.getFeatureId().add(fidType);
+        filterType.getFeatureId()
+                .add(fidType);
 
         FeatureIdType anotherFidType = new FeatureIdType();
         anotherFidType.setFid("654321");
-        filterType.getFeatureId().add(anotherFidType);
+        filterType.getFeatureId()
+                .add(anotherFidType);
 
         QueryType queryType = wfsObjectFactory.createQueryType();
         queryType.setFilter(filterType);
@@ -468,8 +490,9 @@ public class TestWfsEndpoint {
     }
 
     @Test
-    public void testGetFeatureNoFilter() throws WfsException, UnsupportedQueryException,
-            SourceUnavailableException, FederationException, URISyntaxException {
+    public void testGetFeatureNoFilter()
+            throws WfsException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException, URISyntaxException {
         QueryType queryType = wfsObjectFactory.createQueryType();
         queryType.setTypeName(MOCK_QNAME);
 
@@ -503,8 +526,8 @@ public class TestWfsEndpoint {
             Marshaller marshallerObj = contextObj.createMarshaller();
             marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            marshallerObj
-                    .marshal(wfsCapabilityObjectFactory.createWFSCapabilities(marshalMe), writer);
+            marshallerObj.marshal(wfsCapabilityObjectFactory.createWFSCapabilities(marshalMe),
+                    writer);
 
         } catch (JAXBException e) {
             fail(e.getMessage());
@@ -517,20 +540,27 @@ public class TestWfsEndpoint {
     }
 
     private FilterType getPropertyIsLikeFilter() {
-        JAXBElement<PropertyIsLikeType> propIsLike = filterObjectFactory
-                .createPropertyIsLike(new PropertyIsLikeType());
-        propIsLike.getValue().setEscape(Wfs10Constants.ESCAPE);
-        propIsLike.getValue().setSingleChar(Wfs10Constants.SINGLE_CHAR);
-        propIsLike.getValue().setWildCard(Wfs10Constants.WILD_CARD);
+        JAXBElement<PropertyIsLikeType> propIsLike =
+                filterObjectFactory.createPropertyIsLike(new PropertyIsLikeType());
+        propIsLike.getValue()
+                .setEscape(Wfs10Constants.ESCAPE);
+        propIsLike.getValue()
+                .setSingleChar(Wfs10Constants.SINGLE_CHAR);
+        propIsLike.getValue()
+                .setWildCard(Wfs10Constants.WILD_CARD);
 
         LiteralType literalType = new LiteralType();
-        literalType.getContent().add("Denver");
-        propIsLike.getValue().setLiteral(filterObjectFactory.createLiteral(literalType).getValue());
+        literalType.getContent()
+                .add("Denver");
+        propIsLike.getValue()
+                .setLiteral(filterObjectFactory.createLiteral(literalType)
+                        .getValue());
 
         PropertyNameType propertyNameType = new PropertyNameType();
         propertyNameType.setContent("NAME");
-        propIsLike.getValue().setPropertyName(
-                filterObjectFactory.createPropertyName(propertyNameType).getValue());
+        propIsLike.getValue()
+                .setPropertyName(filterObjectFactory.createPropertyName(propertyNameType)
+                        .getValue());
 
         FilterType filter = filterObjectFactory.createFilterType();
         filter.setComparisonOps(propIsLike);
@@ -540,14 +570,15 @@ public class TestWfsEndpoint {
 
     private GetFeatureType getGetFeatureType(QueryType queryType) {
         GetFeatureType getFeature = new ObjectFactory().createGetFeatureType();
-        getFeature.getQuery().add(queryType);
+        getFeature.getQuery()
+                .add(queryType);
         getFeature.setMaxFeatures(BigInteger.valueOf(MAX_FEATURES));
 
         return getFeature;
     }
 
-    private CatalogFramework getCatalogFrameworkForQuery() throws UnsupportedQueryException,
-            SourceUnavailableException, FederationException {
+    private CatalogFramework getCatalogFrameworkForQuery()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         CatalogFramework cf = mock(CatalogFramework.class);
         // set up responses for catalog framework queries
         QueryResponse mockResponse = mock(QueryResponse.class);

@@ -66,8 +66,7 @@ public class StatusApplicationCommandTest {
         featureSet.add(testFeature);
         testStatus = mock(ApplicationStatusImpl.class);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         when(testStatus.getState()).thenReturn(ApplicationState.ACTIVE);
@@ -91,7 +90,6 @@ public class StatusApplicationCommandTest {
         StatusApplicationCommand statusApplicationCommand = new StatusApplicationCommand();
         statusApplicationCommand.appName = TEST_APP_NAME;
         statusApplicationCommand.setBundleContext(bundleContext);
-
 
         when(testApp.getFeatures()).thenReturn(featureSet);
         statusApplicationCommand.doExecute();

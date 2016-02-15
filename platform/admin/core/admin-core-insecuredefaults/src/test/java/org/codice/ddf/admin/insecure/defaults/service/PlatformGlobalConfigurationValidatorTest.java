@@ -27,9 +27,11 @@ public class PlatformGlobalConfigurationValidatorTest {
 
     private static final String HTTPS_PROTOCOL = "https://";
 
-    private static final String NULL_ADMIN_VALIDATE = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
+    private static final String NULL_ADMIN_VALIDATE =
+            "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";
 
-    private static final String VALIDATE_EXCEPT = "Unable to determine if Platform Global Configuration has insecure defaults.";
+    private static final String VALIDATE_EXCEPT =
+            "Unable to determine if Platform Global Configuration has insecure defaults.";
 
     @Test
     public void testValidateWhenHttpIsEnabled() throws Exception {
@@ -42,7 +44,8 @@ public class PlatformGlobalConfigurationValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(),
+        assertThat(alerts.get(0)
+                        .getMessage(),
                 is(PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP));
     }
 

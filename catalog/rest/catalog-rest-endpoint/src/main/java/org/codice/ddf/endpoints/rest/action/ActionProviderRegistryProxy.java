@@ -42,7 +42,8 @@ public class ActionProviderRegistryProxy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionProviderRegistryProxy.class);
 
-    private Map<ServiceReference, ServiceRegistration> actionProviderRegistry = new HashMap<ServiceReference, ServiceRegistration>();
+    private Map<ServiceReference, ServiceRegistration> actionProviderRegistry =
+            new HashMap<ServiceReference, ServiceRegistration>();
 
     private BundleContext bundleContext;
 
@@ -63,12 +64,14 @@ public class ActionProviderRegistryProxy {
 
         if (reference.getProperty(Constants.SERVICE_ID) != null) {
 
-            transformerId = reference.getProperty(Constants.SERVICE_ID).toString();
+            transformerId = reference.getProperty(Constants.SERVICE_ID)
+                    .toString();
 
             // backwards compatibility
         } else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
 
-            transformerId = reference.getProperty(Constants.SERVICE_SHORTNAME).toString();
+            transformerId = reference.getProperty(Constants.SERVICE_SHORTNAME)
+                    .toString();
         }
 
         if (transformerId == null) {
@@ -77,15 +80,17 @@ public class ActionProviderRegistryProxy {
 
         String actionProviderId = ACTION_ID_PREFIX + transformerId;
 
-        ActionProvider provider = actionFactory
-                .createActionProvider(actionProviderId, transformerId);
+        ActionProvider provider = actionFactory.createActionProvider(actionProviderId,
+                transformerId);
 
         Dictionary actionProviderProperties = new Hashtable<String, String>();
 
         actionProviderProperties.put(Constants.SERVICE_ID, actionProviderId);
 
-        ServiceRegistration actionServiceRegistration = bundleContext
-                .registerService(PROVIDER_INTERFACE_NAME, provider, actionProviderProperties);
+        ServiceRegistration actionServiceRegistration = bundleContext.registerService(
+                PROVIDER_INTERFACE_NAME,
+                provider,
+                actionProviderProperties);
 
         LOGGER.info("Registered new {} [{}]", PROVIDER_INTERFACE_NAME, actionServiceRegistration);
 
@@ -101,7 +106,8 @@ public class ActionProviderRegistryProxy {
 
         if (actionProviderRegistration != null) {
             actionProviderRegistration.unregister();
-            LOGGER.info("Unregistered {} [{}]", PROVIDER_INTERFACE_NAME,
+            LOGGER.info("Unregistered {} [{}]",
+                    PROVIDER_INTERFACE_NAME,
                     actionProviderRegistration);
         }
 

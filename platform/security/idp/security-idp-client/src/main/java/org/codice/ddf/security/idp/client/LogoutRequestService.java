@@ -187,8 +187,8 @@ public class LogoutRequestService {
         simpleSign.signSamlObject(logoutRequest);
         LOGGER.debug("Converting SAML Request to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(logoutRequest, doc));
-        String encodedSamlRequest = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
-                StandardCharsets.UTF_8));
+        String encodedSamlRequest = Base64.getEncoder()
+                .encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
         String singleLogoutLocation = idpMetadata.getSingleLogoutLocation();
         String submitFormUpdated = String.format(submitForm,
                 singleLogoutLocation,
@@ -415,8 +415,8 @@ public class LogoutRequestService {
         simpleSign.signSamlObject(samlResponse);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-        String encodedSamlResponse = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
-                StandardCharsets.UTF_8));
+        String encodedSamlResponse = Base64.getEncoder()
+                .encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
 
         return Response.ok(HtmlResponseTemplate.getPostPage(idpMetadata.getSingleLogoutLocation(),
                 SamlProtocol.Type.RESPONSE,
@@ -440,7 +440,8 @@ public class LogoutRequestService {
     }
 
     private String decodeBase64(String encoded) {
-        return Base64.getMimeEncoder().encodeToString(encoded.getBytes(StandardCharsets.UTF_8));
+        return Base64.getMimeEncoder()
+                .encodeToString(encoded.getBytes(StandardCharsets.UTF_8));
     }
 
     private Response buildLogoutResponse(String message) {

@@ -233,8 +233,8 @@ public class GeoNamesLuceneIndexer implements GeoEntryIndexer {
                 geoEntry.getLatitude(),
                 Field.Store.YES));
         document.add(new DoubleField(GeoNamesLuceneConstants.LONGITUDE_FIELD,
-                        geoEntry.getLongitude(),
-                        Field.Store.YES));
+                geoEntry.getLongitude(),
+                Field.Store.YES));
 
         document.add(new StringField(GeoNamesLuceneConstants.FEATURE_CODE_FIELD,
                 geoEntry.getFeatureCode(),

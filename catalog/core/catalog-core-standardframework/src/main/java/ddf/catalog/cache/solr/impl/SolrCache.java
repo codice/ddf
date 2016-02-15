@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -66,7 +67,6 @@ import ddf.catalog.source.solr.SchemaFields;
 import ddf.catalog.source.solr.SolrFilterDelegate;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClient;
-
 
 /**
  * Catalog cache implementation using Apache Solr 4
@@ -141,8 +141,8 @@ public class SolrCache implements SolrCacheMBean {
         List<Metacard> updatedMetacards = new ArrayList<>();
         for (Metacard metacard : metacards) {
             if (metacard != null) {
-                if (StringUtils.isNotBlank(metacard.getSourceId()) && StringUtils
-                        .isNotBlank(metacard.getId())) {
+                if (StringUtils.isNotBlank(metacard.getSourceId()) && StringUtils.isNotBlank(
+                        metacard.getId())) {
                     updatedMetacards.add(metacard);
                 }
             } else {

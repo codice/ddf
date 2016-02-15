@@ -110,14 +110,19 @@ public class CertificateSigningRequest {
     }
 
     JcaX509v3CertificateBuilder newCertificateBuilder(X509Certificate certificate) {
-        return new JcaX509v3CertificateBuilder(certificate, serialNumber, notBefore.toDate(),
-                notAfter.toDate(), subjectName, getSubjectPublicKey());
+        return new JcaX509v3CertificateBuilder(certificate,
+                serialNumber,
+                notBefore.toDate(),
+                notAfter.toDate(),
+                subjectName,
+                getSubjectPublicKey());
     }
 
     //Set reasonable defaults
     void initialize() {
         setSerialNumber(System.currentTimeMillis());
-        setNotBefore(DateTime.now().minusDays(1));
+        setNotBefore(DateTime.now()
+                .minusDays(1));
         setNotAfter(getNotBefore().plusYears(VALID_YEARS));
         setCommonName(PkiTools.getHostName());
         setSubjectKeyPair(PkiTools.generateRsaKeyPair());

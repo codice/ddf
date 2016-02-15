@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
@@ -45,9 +44,13 @@ public class DescriptionTemplateHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DescriptionTemplateHelper.class);
 
-    private static final List<String> NON_PRINTABLE_ATTRIBUTES = Collections.unmodifiableList(
-            Arrays.asList(Metacard.RESOURCE_SIZE, Metacard.RESOURCE_URI, Metacard.GEOGRAPHY,
-                    Metacard.METADATA, Metacard.THUMBNAIL, Metacard.CONTENT_TYPE_VERSION));
+    private static final List<String> NON_PRINTABLE_ATTRIBUTES =
+            Collections.unmodifiableList(Arrays.asList(Metacard.RESOURCE_SIZE,
+                    Metacard.RESOURCE_URI,
+                    Metacard.GEOGRAPHY,
+                    Metacard.METADATA,
+                    Metacard.THUMBNAIL,
+                    Metacard.CONTENT_TYPE_VERSION));
 
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -91,7 +94,8 @@ public class DescriptionTemplateHelper {
         case LONG:
         case SHORT:
         default:
-            return attribute.getValue().toString();
+            return attribute.getValue()
+                    .toString();
         }
     }
 
@@ -134,10 +138,12 @@ public class DescriptionTemplateHelper {
         if (resourceActionProvider != null) {
             Action action = resourceActionProvider.getAction(context);
             if (action != null) {
-                return action.getUrl().toString();
+                return action.getUrl()
+                        .toString();
             }
         }
-        return context.getResourceURI().toString();
+        return context.getResourceURI()
+                .toString();
 
     }
 
@@ -145,8 +151,9 @@ public class DescriptionTemplateHelper {
         String resourceSize = context.getResourceSize();
         String sizePrefixes = " KMGTPEZYXWVU";
 
-        if (resourceSize == null || resourceSize.trim().length() == 0
-                || resourceSize.toLowerCase().indexOf("n/a") >= 0) {
+        if (resourceSize == null || resourceSize.trim()
+                .length() == 0 || resourceSize.toLowerCase()
+                .indexOf("n/a") >= 0) {
             return null;
         }
 

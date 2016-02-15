@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -96,8 +96,8 @@ public class FederationStrategyTest {
 
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(FederationStrategyTest.class.getName());
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(FederationStrategyTest.class.getName());
 
     @Rule
     public PowerMockRule rule = new PowerMockRule();
@@ -109,8 +109,13 @@ public class FederationStrategyTest {
     public void testQueryTimeout() {
         long queryDelay = 100;
 
-        MockDelayProvider provider = new MockDelayProvider("Provider", "Provider", "v1.0", "DDF",
-                new HashSet<ContentType>(), true, new Date());
+        MockDelayProvider provider = new MockDelayProvider("Provider",
+                "Provider",
+                "v1.0",
+                "DDF",
+                new HashSet<ContentType>(),
+                true,
+                new Date());
         provider.setQueryDelayMillis(queryDelay);
 
         // Mock register the provider in the container
@@ -123,14 +128,25 @@ public class FederationStrategyTest {
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
-                Collections.singletonList((CatalogProvider) provider), null,
-                new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
-                new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), fedStrategy,
-                mock(QueryResponsePostProcessor.class), null, poller, null, null, null);
+        CatalogFrameworkImpl framework =
+                new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
+                        null,
+                        new ArrayList<PreIngestPlugin>(),
+                        new ArrayList<PostIngestPlugin>(),
+                        new ArrayList<PreQueryPlugin>(),
+                        new ArrayList<PostQueryPlugin>(),
+                        new ArrayList<PreResourcePlugin>(),
+                        new ArrayList<PostResourcePlugin>(),
+                        new ArrayList<ConnectedSource>(),
+                        new ArrayList<FederatedSource>(),
+                        new ArrayList<ResourceReader>(),
+                        fedStrategy,
+                        mock(QueryResponsePostProcessor.class),
+                        null,
+                        poller,
+                        null,
+                        null,
+                        null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
@@ -147,13 +163,16 @@ public class FederationStrategyTest {
         } catch (SourceUnavailableException e1) {
             fail();
         }
-        assertEquals(createResponse.getCreatedMetacards().size(), provider.size());
+        assertEquals(createResponse.getCreatedMetacards()
+                .size(), provider.size());
         for (Metacard curCard : createResponse.getCreatedMetacards()) {
             assertNotNull(curCard.getId());
         }
 
         QueryImpl query = new QueryImpl(FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.ID),
-                FILTER_FACTORY.literal(createResponse.getCreatedMetacards().get(0).getId())));
+                FILTER_FACTORY.literal(createResponse.getCreatedMetacards()
+                        .get(0)
+                        .getId())));
         query.setTimeoutMillis(SHORT_TIMEOUT);
         query.setSortBy(new FilterFactoryImpl().sort(Result.RELEVANCE, SortOrder.ASCENDING));
 
@@ -198,13 +217,17 @@ public class FederationStrategyTest {
                 new ArrayList<PostFederatedQueryPlugin>());
 
         QueryResponse fedResponse = sortedStrategy.federate(sources, fedQueryRequest);
-        assertEquals(1, fedResponse.getResults().size());
+        assertEquals(1,
+                fedResponse.getResults()
+                        .size());
 
         FifoFederationStrategy fifoStrategy = new FifoFederationStrategy(EXECUTOR,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
         fedResponse = fifoStrategy.federate(sources, fedQueryRequest);
-        assertEquals(1, fedResponse.getResults().size());
+        assertEquals(1,
+                fedResponse.getResults()
+                        .size());
     }
 
     /**
@@ -243,9 +266,10 @@ public class FederationStrategyTest {
         Result mockSource1Result4 = mock(Result.class);
 
         SourceResponse mockSource1Response = mock(SourceResponse.class);
-        List<Result> mockSource1Results = Arrays
-                .asList(mockSource1Result1, mockSource1Result2, mockSource1Result3,
-                        mockSource1Result4);
+        List<Result> mockSource1Results = Arrays.asList(mockSource1Result1,
+                mockSource1Result2,
+                mockSource1Result3,
+                mockSource1Result4);
         when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
 
         Source mockSource1 = mock(Source.class);
@@ -265,9 +289,10 @@ public class FederationStrategyTest {
         Result mockSource2Result4 = mock(Result.class);
 
         SourceResponse mockSource2Response = mock(SourceResponse.class);
-        List<Result> mockSource2Results = Arrays
-                .asList(mockSource2Result1, mockSource2Result2, mockSource2Result3,
-                        mockSource2Result4);
+        List<Result> mockSource2Results = Arrays.asList(mockSource2Result1,
+                mockSource2Result2,
+                mockSource2Result3,
+                mockSource2Result4);
         when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
 
         Source mockSource2 = mock(Source.class);
@@ -288,19 +313,30 @@ public class FederationStrategyTest {
         Result mockSortedResult7 = mock(Result.class);
         Result mockSortedResult8 = mock(Result.class);
 
-        List<Result> mockSortedResults = Arrays
-                .asList(mockSortedResult1, mockSortedResult2, mockSortedResult3, mockSortedResult4,
-                        mockSortedResult5, mockSortedResult6, mockSortedResult7, mockSortedResult8);
+        List<Result> mockSortedResults = Arrays.asList(mockSortedResult1,
+                mockSortedResult2,
+                mockSortedResult3,
+                mockSortedResult4,
+                mockSortedResult5,
+                mockSortedResult6,
+                mockSortedResult7,
+                mockSortedResult8);
 
         QueryResponseImpl mockOriginalResults = Mockito.mock(QueryResponseImpl.class);
         // Return true for the number of mockSortedResults
         Mockito.when(mockOriginalResults.hasMoreResults())
                 .thenReturn(true, true, true, true, true, true, true, true, false);
-        Mockito.when(mockOriginalResults.getResults()).thenReturn(mockSortedResults);
+        Mockito.when(mockOriginalResults.getResults())
+                .thenReturn(mockSortedResults);
         // Returns the sorted results from both sources (4 + 4 = 8)
         Mockito.when(mockOriginalResults.take())
-                .thenReturn(mockSortedResult1, mockSortedResult2, mockSortedResult3,
-                        mockSortedResult4, mockSortedResult5, mockSortedResult6, mockSortedResult7,
+                .thenReturn(mockSortedResult1,
+                        mockSortedResult2,
+                        mockSortedResult3,
+                        mockSortedResult4,
+                        mockSortedResult5,
+                        mockSortedResult6,
+                        mockSortedResult7,
                         mockSortedResult8);
         QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
         PowerMockito.whenNew(QueryResponseImpl.class)
@@ -320,15 +356,29 @@ public class FederationStrategyTest {
 
         // The modified query should have a start index of 1 and an end index of offset + pageSize -
         // 1
-        assertEquals(1, argument1.getValue().getQuery().getStartIndex());
-        assertEquals(4, argument1.getValue().getQuery().getPageSize());
+        assertEquals(1,
+                argument1.getValue()
+                        .getQuery()
+                        .getStartIndex());
+        assertEquals(4,
+                argument1.getValue()
+                        .getQuery()
+                        .getPageSize());
 
         verify(mockSource2).query(argument2.capture());
-        assertThat(mockQuery, not(argument2.getValue().getQuery()));
+        assertThat(mockQuery,
+                not(argument2.getValue()
+                        .getQuery()));
         // The modified query should have a start index of 1 and an end index of offset + pageSize -
         // 1
-        assertEquals(1, argument2.getValue().getQuery().getStartIndex());
-        assertEquals(4, argument2.getValue().getQuery().getPageSize());
+        assertEquals(1,
+                argument2.getValue()
+                        .getQuery()
+                        .getStartIndex());
+        assertEquals(4,
+                argument2.getValue()
+                        .getQuery()
+                        .getPageSize());
 
         /**
          * Verify three results (page size) are returned. The sorted results returned by the sources
@@ -342,10 +392,18 @@ public class FederationStrategyTest {
         LOGGER.debug("mockSortedResult3: " + mockSortedResult3);
         LOGGER.debug("mockSortedResult4: " + mockSortedResult4);
 
-        assertEquals(3, federatedResponse.getResults().size());
-        assertEquals(mockSortedResult2, federatedResponse.getResults().get(0));
-        assertEquals(mockSortedResult3, federatedResponse.getResults().get(1));
-        assertEquals(mockSortedResult4, federatedResponse.getResults().get(2));
+        assertEquals(3,
+                federatedResponse.getResults()
+                        .size());
+        assertEquals(mockSortedResult2,
+                federatedResponse.getResults()
+                        .get(0));
+        assertEquals(mockSortedResult3,
+                federatedResponse.getResults()
+                        .get(1));
+        assertEquals(mockSortedResult4,
+                federatedResponse.getResults()
+                        .get(2));
 
         for (Result result : federatedResponse.getResults()) {
             LOGGER.debug("federated response result: " + result);
@@ -403,15 +461,22 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: " + federatedResponse.getResults().size());
+        LOGGER.debug("Federated response result size: " + federatedResponse.getResults()
+                .size());
 
         /**
          * Verify two results (page size) are returned. The results returned by the source already
          * have the offset and page size taken into account, so we can verify that the lists match.
          */
-        assertEquals(2, federatedResponse.getResults().size());
-        assertEquals(mockResult1, federatedResponse.getResults().get(0));
-        assertEquals(mockResult2, federatedResponse.getResults().get(1));
+        assertEquals(2,
+                federatedResponse.getResults()
+                        .size());
+        assertEquals(mockResult1,
+                federatedResponse.getResults()
+                        .get(0));
+        assertEquals(mockResult2,
+                federatedResponse.getResults()
+                        .get(1));
 
         LOGGER.debug("mockResult1: " + mockResult1);
         LOGGER.debug("mockResult2: " + mockResult2);
@@ -447,18 +512,23 @@ public class FederationStrategyTest {
          * into account.
          */
         Result mockSource1Result1 = mock(Result.class);
-        Mockito.when(mockSource1Result1.getRelevanceScore()).thenReturn(0.7);
+        Mockito.when(mockSource1Result1.getRelevanceScore())
+                .thenReturn(0.7);
         Result mockSource1Result2 = mock(Result.class);
-        Mockito.when(mockSource1Result2.getRelevanceScore()).thenReturn(0.5);
+        Mockito.when(mockSource1Result2.getRelevanceScore())
+                .thenReturn(0.5);
         Result mockSource1Result3 = mock(Result.class);
-        Mockito.when(mockSource1Result3.getRelevanceScore()).thenReturn(0.3);
+        Mockito.when(mockSource1Result3.getRelevanceScore())
+                .thenReturn(0.3);
         Result mockSource1Result4 = mock(Result.class);
-        Mockito.when(mockSource1Result4.getRelevanceScore()).thenReturn(0.1);
+        Mockito.when(mockSource1Result4.getRelevanceScore())
+                .thenReturn(0.1);
 
         SourceResponse mockSource1Response = mock(SourceResponse.class);
-        List<Result> mockSource1Results = Arrays
-                .asList(mockSource1Result1, mockSource1Result2, mockSource1Result3,
-                        mockSource1Result4);
+        List<Result> mockSource1Results = Arrays.asList(mockSource1Result1,
+                mockSource1Result2,
+                mockSource1Result3,
+                mockSource1Result4);
         when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
 
         Source mockSource1 = mock(Source.class);
@@ -466,18 +536,23 @@ public class FederationStrategyTest {
         when(mockSource1.getId()).thenReturn("####### MOCK SOURCE 1.4 #######");
 
         Result mockSource2Result1 = mock(Result.class);
-        Mockito.when(mockSource2Result1.getRelevanceScore()).thenReturn(0.8);
+        Mockito.when(mockSource2Result1.getRelevanceScore())
+                .thenReturn(0.8);
         Result mockSource2Result2 = mock(Result.class);
-        Mockito.when(mockSource2Result2.getRelevanceScore()).thenReturn(0.6);
+        Mockito.when(mockSource2Result2.getRelevanceScore())
+                .thenReturn(0.6);
         Result mockSource2Result3 = mock(Result.class);
-        Mockito.when(mockSource2Result3.getRelevanceScore()).thenReturn(0.4);
+        Mockito.when(mockSource2Result3.getRelevanceScore())
+                .thenReturn(0.4);
         Result mockSource2Result4 = mock(Result.class);
-        Mockito.when(mockSource2Result4.getRelevanceScore()).thenReturn(0.2);
+        Mockito.when(mockSource2Result4.getRelevanceScore())
+                .thenReturn(0.2);
 
         SourceResponse mockSource2Response = mock(SourceResponse.class);
-        List<Result> mockSource2Results = Arrays
-                .asList(mockSource2Result1, mockSource2Result2, mockSource2Result3,
-                        mockSource2Result4);
+        List<Result> mockSource2Results = Arrays.asList(mockSource2Result1,
+                mockSource2Result2,
+                mockSource2Result3,
+                mockSource2Result4);
         when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
 
         Source mockSource2 = mock(Source.class);
@@ -499,7 +574,8 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: " + federatedResponse.getResults().size());
+        LOGGER.debug("Federated response result size: " + federatedResponse.getResults()
+                .size());
 
         /**
          * Verify three results (page size) are returned. Since we are using mock Results, the
@@ -509,10 +585,18 @@ public class FederationStrategyTest {
          * results are mockSource2Result1, mockSource1Result1, mockSource2Result2. No need to use
          * OffsetResultHander in this case.
          */
-        assertEquals(3, federatedResponse.getResults().size());
-        assertEquals(mockSource2Result1, federatedResponse.getResults().get(0));
-        assertEquals(mockSource1Result1, federatedResponse.getResults().get(1));
-        assertEquals(mockSource2Result2, federatedResponse.getResults().get(2));
+        assertEquals(3,
+                federatedResponse.getResults()
+                        .size());
+        assertEquals(mockSource2Result1,
+                federatedResponse.getResults()
+                        .get(0));
+        assertEquals(mockSource1Result1,
+                federatedResponse.getResults()
+                        .get(1));
+        assertEquals(mockSource2Result2,
+                federatedResponse.getResults()
+                        .get(2));
 
         LOGGER.debug("mockSource2Result1: " + mockSource2Result1);
         LOGGER.debug("mockSource1Result1: " + mockSource1Result1);
@@ -527,15 +611,15 @@ public class FederationStrategyTest {
 
         assertTrue(siteList.contains("####### MOCK SOURCE 2.4 #######"));
 
-        Map<String, Serializable> siteProperties = (Map) federatedResponse
-                .getPropertyValue("####### MOCK SOURCE 2.4 #######");
+        Map<String, Serializable> siteProperties = (Map) federatedResponse.getPropertyValue(
+                "####### MOCK SOURCE 2.4 #######");
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
 
         assertTrue(siteList.contains("####### MOCK SOURCE 2.4 #######"));
 
-        siteProperties = (Map) federatedResponse
-                .getPropertyValue("####### MOCK SOURCE 1.4 #######");
+        siteProperties =
+                (Map) federatedResponse.getPropertyValue("####### MOCK SOURCE 1.4 #######");
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
     }
@@ -590,15 +674,22 @@ public class FederationStrategyTest {
         // Verification
         assertNotNull(federatedResponse);
 
-        LOGGER.debug("Federated response result size: " + federatedResponse.getResults().size());
+        LOGGER.debug("Federated response result size: " + federatedResponse.getResults()
+                .size());
 
         /**
          * Verify two results (page size) are returned. The results returned by the source already
          * have the offset and page size taken into account, so we can verify that the lists match.
          */
-        assertEquals(2, federatedResponse.getResults().size());
-        assertEquals(mockResult1, federatedResponse.getResults().get(0));
-        assertEquals(mockResult2, federatedResponse.getResults().get(1));
+        assertEquals(2,
+                federatedResponse.getResults()
+                        .size());
+        assertEquals(mockResult1,
+                federatedResponse.getResults()
+                        .get(0));
+        assertEquals(mockResult2,
+                federatedResponse.getResults()
+                        .get(1));
 
         LOGGER.debug("mockResult1: " + mockResult1);
         LOGGER.debug("mockResult2: " + mockResult2);
@@ -608,11 +699,11 @@ public class FederationStrategyTest {
         }
 
         // Check the responseProperties
-        assertEquals("####### MOCK SOURCE 1.2 #######",
-                ((List) federatedResponse.getPropertyValue(QueryResponse.SITE_LIST)).get(0));
+        assertEquals("####### MOCK SOURCE 1.2 #######", ((List) federatedResponse.getPropertyValue(
+                QueryResponse.SITE_LIST)).get(0));
 
-        Map<String, Serializable> siteProperties = (Map) federatedResponse
-                .getPropertyValue("####### MOCK SOURCE 1.2 #######");
+        Map<String, Serializable> siteProperties = (Map) federatedResponse.getPropertyValue(
+                "####### MOCK SOURCE 1.2 #######");
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
     }

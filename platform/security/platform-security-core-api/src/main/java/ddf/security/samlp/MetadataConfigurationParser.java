@@ -128,8 +128,8 @@ public class MetadataConfigurationParser {
             HttpRequest httpRequest = httpTransport.createRequestFactory()
                     .buildGetRequest(new GenericUrl(entityDescription));
             httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(
-                            new ExponentialBackOff()).setBackOffRequired(
-                            HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
+                    new ExponentialBackOff()).setBackOffRequired(
+                    HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
             ListeningExecutorService service =
                     MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
             ListenableFuture<HttpResponse> httpResponseFuture =

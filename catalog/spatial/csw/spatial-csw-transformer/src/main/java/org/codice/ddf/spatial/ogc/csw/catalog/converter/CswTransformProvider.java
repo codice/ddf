@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -91,8 +91,8 @@ public class CswTransformProvider implements Converter {
             String outputSchema = (String) arg;
             transformer = metacardTransformerManager.getTransformerBySchema(outputSchema);
         } else {
-            transformer = metacardTransformerManager
-                    .getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+            transformer =
+                    metacardTransformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
         }
 
         if (transformer == null) {
@@ -113,9 +113,8 @@ public class CswTransformProvider implements Converter {
     private void writeXml(BinaryContent content, HierarchicalStreamWriter writer) {
         try {
             XmlPullParser parser = XppFactory.createDefaultParser();
-            new HierarchicalStreamCopier()
-                    .copy(new XppReader(new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8), parser),
-                            writer);
+            new HierarchicalStreamCopier().copy(new XppReader(new InputStreamReader(content.getInputStream(),
+                    StandardCharsets.UTF_8), parser), writer);
         } catch (XmlPullParserException e) {
             throw new ConversionException("Unable to copy metadata to XML Output.", e);
         }
@@ -150,18 +149,18 @@ public class CswTransformProvider implements Converter {
         Object outputSchema = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
         Object typeName = context.get(CswConstants.TYPE_NAME_PARAMETER);
         InputTransformer transformer = null;
-        if (StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA, (String) outputSchema) || StringUtils
-                .equals(CswConstants.CSW_RECORD, (String) typeName) ||
+        if (StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA, (String) outputSchema)
+                || StringUtils.equals(CswConstants.CSW_RECORD, (String) typeName) ||
                 (outputSchema == null && typeName == null)) {
-            transformer = inputTransformerManager
-                    .<InputTransformer>getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
+                    CswConstants.CSW_OUTPUT_SCHEMA);
             if (transformer != null) {
                 return ((CswRecordConverter) transformer).unmarshal(reader, context);
             }
         } else if (outputSchema != null) {
             String outputSchemaStr = (String) outputSchema;
-            transformer = inputTransformerManager
-                    .<InputTransformer>getTransformerBySchema(outputSchemaStr);
+            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
+                    outputSchemaStr);
         } else {
             String typeNameStr = (String) typeName;
             transformer = inputTransformerManager.<InputTransformer>getTransformerById(typeNameStr);
@@ -176,11 +175,11 @@ public class CswTransformProvider implements Converter {
         try (InputStream is = readXml(reader, context)) {
             InputStream inputStream = is;
             if (LOGGER.isDebugEnabled()) {
-                String originalInputStream = IOUtils
-                        .toString(inputStream, StandardCharsets.UTF_8.name());
+                String originalInputStream = IOUtils.toString(inputStream,
+                        StandardCharsets.UTF_8.name());
                 LOGGER.debug("About to transform\n{}", originalInputStream);
-                inputStream = new ByteArrayInputStream(
-                        originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
+                inputStream =
+                        new ByteArrayInputStream(originalInputStream.getBytes(StandardCharsets.UTF_8.name()));
             }
             metacard = transformer.transform(inputStream);
         } catch (IOException | CatalogTransformerException e) {

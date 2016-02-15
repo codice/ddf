@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -70,15 +70,19 @@ public class RangeCommand extends CatalogCommands {
 
         Filter filter = null;
 
-        Date wayInTheFuture = new DateTime().plusYears(5000).toDate();
-        Date wayInThePast = new DateTime().minusYears(5000).toDate();
+        Date wayInTheFuture = new DateTime().plusYears(5000)
+                .toDate();
+        Date wayInThePast = new DateTime().minusYears(5000)
+                .toDate();
         Date endDate = wayInTheFuture;
         Date startDate = wayInThePast;
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
         if (WILDCARD.equals(parameter1) && WILDCARD.equals(parameter2)) {
-            filter = builder.attribute(attributeName).before().date(endDate);
+            filter = builder.attribute(attributeName)
+                    .before()
+                    .date(endDate);
         } else if (WILDCARD.equals(parameter1) && !WILDCARD.equals(parameter2)) {
             try {
                 endDate = formatter.parse(parameter2);
@@ -86,7 +90,9 @@ public class RangeCommand extends CatalogCommands {
                 throw new InterruptedException(
                         "Could not parse second parameter [" + parameter2 + "]");
             }
-            filter = builder.attribute(attributeName).before().date(endDate);
+            filter = builder.attribute(attributeName)
+                    .before()
+                    .date(endDate);
         } else if (!WILDCARD.equals(parameter1) && WILDCARD.equals(parameter2)) {
             try {
                 startDate = formatter.parse(parameter1);
@@ -94,7 +100,9 @@ public class RangeCommand extends CatalogCommands {
                 throw new InterruptedException(
                         "Could not parse first parameter [" + parameter1 + "]");
             }
-            filter = builder.attribute(attributeName).during().dates(startDate, endDate);
+            filter = builder.attribute(attributeName)
+                    .during()
+                    .dates(startDate, endDate);
         } else {
             try {
                 startDate = formatter.parse(parameter1);
@@ -102,7 +110,9 @@ public class RangeCommand extends CatalogCommands {
             } catch (ParseException e) {
                 throw new InterruptedException("Could not parse date parameters.");
             }
-            filter = builder.attribute(attributeName).during().dates(startDate, endDate);
+            filter = builder.attribute(attributeName)
+                    .during()
+                    .dates(startDate, endDate);
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -119,13 +129,19 @@ public class RangeCommand extends CatalogCommands {
 
         int i = 1;
         for (Result result : results) {
-            Attribute attribute = result.getMetacard().getAttribute(attributeName);
+            Attribute attribute = result.getMetacard()
+                    .getAttribute(attributeName);
             if (attribute != null && attribute.getValue() != null) {
-                String returnedDate = new DateTime(attribute.getValue())
-                        .toString(DATETIME_FORMATTER);
-                String title = result.getMetacard().getTitle();
+                String returnedDate =
+                        new DateTime(attribute.getValue()).toString(DATETIME_FORMATTER);
+                String title = result.getMetacard()
+                        .getTitle();
 
-                console.printf(formatString, i, result.getMetacard().getId(), returnedDate,
+                console.printf(formatString,
+                        i,
+                        result.getMetacard()
+                                .getId(),
+                        returnedDate,
                         title.substring(0, Math.min(title.length(), MAX_LENGTH)));
             }
 

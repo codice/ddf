@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -57,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 
 import junit.framework.Assert;
+
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
@@ -108,7 +109,8 @@ public class ResourceReaderTest {
 
     private static final String HOST = "127.0.0.1";
 
-    private static final String BAD_FILE_NAME = "mydata?uri=63f30ff4dc85436ea507fceeb1396940_blahblahblah&this=that";
+    private static final String BAD_FILE_NAME =
+            "mydata?uri=63f30ff4dc85436ea507fceeb1396940_blahblahblah&this=that";
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
@@ -175,50 +177,70 @@ public class ResourceReaderTest {
     @Test
     public void testReadJPGFile() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
-        verifyFile(filePath, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testReadMPEGFile() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + MPEG_FILE_NAME_1;
-        verifyFile(filePath, MPEG_FILE_NAME_1, VIDEO_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                MPEG_FILE_NAME_1,
+                VIDEO_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testReadMP4File() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + MP4_FILE_NAME_1;
-        verifyFile(filePath, MP4_FILE_NAME_1, MP4_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                MP4_FILE_NAME_1,
+                MP4_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testReadPPTFile() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + PPT_FILE_NAME_1;
-        verifyFile(filePath, PPT_FILE_NAME_1, "application/vnd.ms-powerpoint", ABSOLUTE_PATH
-                + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf");
+        verifyFile(filePath,
+                PPT_FILE_NAME_1,
+                "application/vnd.ms-powerpoint",
+                ABSOLUTE_PATH + TEST_PATH,
+                ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testReadPPTXFile() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + PPTX_FILE_NAME_1;
-        verifyFile(filePath, PPTX_FILE_NAME_1,
+        verifyFile(filePath,
+                PPTX_FILE_NAME_1,
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                ABSOLUTE_PATH + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf");
+                ABSOLUTE_PATH + TEST_PATH,
+                ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testReadFileWithUnknownExtension() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + "UnknownExtension.hugh";
-        verifyFile(filePath, "UnknownExtension.hugh", DEFAULT_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                "UnknownExtension.hugh",
+                DEFAULT_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testReadFileWithNoExtension() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithoutExtension";
-        verifyFile(filePath, "JpegWithoutExtension", JPEG_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                "JpegWithoutExtension",
+                JPEG_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
@@ -226,31 +248,40 @@ public class ResourceReaderTest {
     public void testReadFileWithCustomExtension() throws Exception {
         // Add custom file extension to mime type mapping to custom mime type
         // resolver
-        this.customResolver.setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "="
-                + CUSTOM_MIME_TYPE});
+        this.customResolver.setCustomMimeTypes(new String[] {
+                CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + "CustomExtension.xyz";
-        verifyFile(filePath, "CustomExtension.xyz", CUSTOM_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                "CustomExtension.xyz",
+                CUSTOM_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testJpegWithUnknownExtension() throws Exception {
         String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithUnknownExtension.hugh";
-        verifyFile(filePath, "JpegWithUnknownExtension.hugh", JPEG_MIME_TYPE, ABSOLUTE_PATH
-                + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf");
+        verifyFile(filePath,
+                "JpegWithUnknownExtension.hugh",
+                JPEG_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
+                ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
     public void testJpegWithCustomExtension() throws Exception {
         // Add custom file extension to mime type mapping to custom mime type
         // resolver
-        this.customResolver.setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "="
-                + CUSTOM_MIME_TYPE});
+        this.customResolver.setCustomMimeTypes(new String[] {
+                CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithCustomExtension.xyz";
-        verifyFile(filePath, "JpegWithCustomExtension.xyz", CUSTOM_MIME_TYPE, ABSOLUTE_PATH
-                + TEST_PATH, ABSOLUTE_PATH + TEST_PATH + "pdf");
+        verifyFile(filePath,
+                "JpegWithCustomExtension.xyz",
+                CUSTOM_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
+                ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test
@@ -260,7 +291,10 @@ public class ResourceReaderTest {
         this.customResolver.setCustomMimeTypes(new String[] {"jpg=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1;
-        verifyFile(filePath, JPEG_FILE_NAME_1, CUSTOM_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(filePath,
+                JPEG_FILE_NAME_1,
+                CUSTOM_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
@@ -326,17 +360,21 @@ public class ResourceReaderTest {
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
         map.put(HttpHeaders.CONTENT_DISPOSITION,
-                Arrays.<Object> asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+                Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
         when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1,
-                JPEG_MIME_TYPE, null);
+        ResourceResponse response = verifyFileFromURLResourceReader(uri,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                null);
 
         // verify that we got the entire resource
-        Assert.assertEquals(5, response.getResource().getByteArray().length);
+        Assert.assertEquals(5,
+                response.getResource()
+                        .getByteArray().length);
     }
 
     @Test
@@ -347,7 +385,7 @@ public class ResourceReaderTest {
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
         map.put(HttpHeaders.CONTENT_DISPOSITION,
-                Arrays.<Object> asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+                Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
@@ -355,11 +393,15 @@ public class ResourceReaderTest {
 
         String bytesToSkip = "2";
 
-        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1,
-                JPEG_MIME_TYPE, bytesToSkip);
+        ResourceResponse response = verifyFileFromURLResourceReader(uri,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                bytesToSkip);
 
         // verify that we got the entire resource
-        Assert.assertEquals(3, response.getResource().getByteArray().length);
+        Assert.assertEquals(3,
+                response.getResource()
+                        .getByteArray().length);
     }
 
     @Test
@@ -370,7 +412,7 @@ public class ResourceReaderTest {
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
         map.put(HttpHeaders.CONTENT_DISPOSITION,
-                Arrays.<Object> asList("inline; filename=" + JPEG_FILE_NAME_1));
+                Arrays.<Object>asList("inline; filename=" + JPEG_FILE_NAME_1));
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
@@ -386,7 +428,7 @@ public class ResourceReaderTest {
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
         map.put(HttpHeaders.CONTENT_DISPOSITION,
-                Arrays.<Object> asList("inline;filename=" + JPEG_FILE_NAME_1 + ";"));
+                Arrays.<Object>asList("inline;filename=" + JPEG_FILE_NAME_1 + ";"));
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
@@ -409,14 +451,20 @@ public class ResourceReaderTest {
     @Test(expected = ResourceNotFoundException.class)
     public void testReadFileInvalidResourcePath() throws Exception {
         String invalidFilePath = INVALID_PATH + JPEG_FILE_NAME_1;
-        verifyFile(invalidFilePath, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(invalidFilePath,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
     @Test(expected = ResourceNotFoundException.class)
     public void testReadFileInvalidResourcePathWithBackReferences() throws Exception {
         String invalidFilePath = ABSOLUTE_PATH + TEST_PATH + "../../../../../" + JPEG_FILE_NAME_1;
-        verifyFile(invalidFilePath, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, ABSOLUTE_PATH + TEST_PATH,
+        verifyFile(invalidFilePath,
+                JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE,
+                ABSOLUTE_PATH + TEST_PATH,
                 ABSOLUTE_PATH + TEST_PATH + "pdf");
     }
 
@@ -443,7 +491,8 @@ public class ResourceReaderTest {
         Set<String> rootResourceDirectories = resourceReader.getRootResourceDirectories();
         assertThat(rootResourceDirectories.size(), is(1));
         assertThat(rootResourceDirectories, hasItems(Paths.get(ABSOLUTE_PATH + TEST_PATH)
-                .normalize().toString()));
+                .normalize()
+                .toString()));
     }
 
     @Test
@@ -457,16 +506,19 @@ public class ResourceReaderTest {
         // is passed in (not just the path to add). In this case, ABSOLUTE_PATH + TEST_PATH + "doc"
         // is added.
         resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH,
-                ABSOLUTE_PATH + TEST_PATH + "pdf", ABSOLUTE_PATH + TEST_PATH + "doc"));
+                ABSOLUTE_PATH + TEST_PATH + "pdf",
+                ABSOLUTE_PATH + TEST_PATH + "doc"));
 
         // Verify
         Set<String> rootResourceDirectories = resourceReader.getRootResourceDirectories();
         assertThat(rootResourceDirectories.size(), is(3));
-        assertThat(
-                rootResourceDirectories,
-                hasItems(Paths.get(ABSOLUTE_PATH + TEST_PATH).normalize().toString(),
-                        Paths.get(ABSOLUTE_PATH + TEST_PATH + "pdf").normalize().toString(), Paths
-                                .get(ABSOLUTE_PATH + TEST_PATH + "doc").normalize().toString()));
+        assertThat(rootResourceDirectories, hasItems(Paths.get(ABSOLUTE_PATH + TEST_PATH)
+                .normalize()
+                .toString(), Paths.get(ABSOLUTE_PATH + TEST_PATH + "pdf")
+                .normalize()
+                .toString(), Paths.get(ABSOLUTE_PATH + TEST_PATH + "doc")
+                .normalize()
+                .toString()));
     }
 
     /**
@@ -525,8 +577,8 @@ public class ResourceReaderTest {
     private void verifyFile(String filePath, String filename, String expectedMimeType,
             String... rootResourceDirectories) throws Exception {
         URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
-        resourceReader.setRootResourceDirectories(new HashSet<String>(Arrays
-                .asList(rootResourceDirectories)));
+        resourceReader.setRootResourceDirectories(new HashSet<String>(Arrays.asList(
+                rootResourceDirectories)));
 
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
 
@@ -548,16 +600,17 @@ public class ResourceReaderTest {
         String name = resource.getName();
         assertNotNull(name);
         assertThat(name, is(filename));
-        assertThat(resource.getMimeType().toString(), containsString(expectedMimeType));
+        assertThat(resource.getMimeType()
+                .toString(), containsString(expectedMimeType));
     }
 
     private void verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType)
-        throws URISyntaxException, IOException, ResourceNotFoundException {
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         Response mockResponse = mock(Response.class);
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
         map.put(HttpHeaders.CONTENT_DISPOSITION,
-                Arrays.<Object> asList("inline; filename=\"" + filename + "\""));
+                Arrays.<Object>asList("inline; filename=\"" + filename + "\""));
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
@@ -567,8 +620,8 @@ public class ResourceReaderTest {
 
     // Create arguments, adding bytesToSkip if present, and call doVerification
     private ResourceResponse verifyFileFromURLResourceReader(URI uri, String filename,
-            String expectedMimeType, String bytesToSkip) throws URISyntaxException, IOException,
-        ResourceNotFoundException {
+            String expectedMimeType, String bytesToSkip)
+            throws URISyntaxException, IOException, ResourceNotFoundException {
 
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
 
@@ -581,8 +634,8 @@ public class ResourceReaderTest {
     }
 
     private ResourceResponse doVerification(URI uri, String filename, String expectedMimeType,
-            Map<String, Serializable> arguments) throws URISyntaxException, IOException,
-        ResourceNotFoundException {
+            Map<String, Serializable> arguments)
+            throws URISyntaxException, IOException, ResourceNotFoundException {
 
         URLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
         resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
@@ -600,7 +653,9 @@ public class ResourceReaderTest {
         String name = resource.getName();
         assertNotNull(name);
         assertThat(name, is(filename));
-        assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
+        assertTrue(resource.getMimeType()
+                .toString()
+                .contains(expectedMimeType));
 
         return resourceResponse;
     }

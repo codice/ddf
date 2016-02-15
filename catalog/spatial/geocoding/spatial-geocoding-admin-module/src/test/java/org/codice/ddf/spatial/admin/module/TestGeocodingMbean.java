@@ -49,7 +49,7 @@ public class TestGeocodingMbean {
     private static final String URL = "http://example.com";
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         geocoding = new Geocoding();
         geoEntryExtractor = Mockito.mock(GeoEntryExtractor.class);
         geoEntryIndexer = Mockito.mock(GeoEntryIndexer.class);
@@ -79,11 +79,15 @@ public class TestGeocodingMbean {
     }
 
     @Test
-    public void testUpdateIndexExtractionException() throws GeoEntryIndexingException, GeoEntryExtractionException,
+    public void testUpdateIndexExtractionException()
+            throws GeoEntryIndexingException, GeoEntryExtractionException,
             GeoNamesRemoteDownloadException {
-        Mockito.doThrow(new GeoEntryExtractionException("Error Extracting")).when(geoEntryIndexer)
-                .updateIndex(Mockito.anyString(), Mockito.any(GeoEntryExtractor.class),
-                        Mockito.anyBoolean(), Mockito.any(ProgressCallback.class));
+        Mockito.doThrow(new GeoEntryExtractionException("Error Extracting"))
+                .when(geoEntryIndexer)
+                .updateIndex(Mockito.anyString(),
+                        Mockito.any(GeoEntryExtractor.class),
+                        Mockito.anyBoolean(),
+                        Mockito.any(ProgressCallback.class));
         try {
             assertFalse(geocoding.updateGeoIndexWithFilePath(PATH, CONTENT_FILE, TRUE));
         } catch (Exception e) {
@@ -92,11 +96,15 @@ public class TestGeocodingMbean {
     }
 
     @Test
-    public void testUpdateIndexRemoteDownloadException() throws GeoEntryIndexingException, GeoEntryExtractionException,
+    public void testUpdateIndexRemoteDownloadException()
+            throws GeoEntryIndexingException, GeoEntryExtractionException,
             GeoNamesRemoteDownloadException {
-        Mockito.doThrow(new GeoNamesRemoteDownloadException("Error Downloading")).when(geoEntryIndexer)
-                .updateIndex(Mockito.anyString(), Mockito.any(GeoEntryExtractor.class),
-                        Mockito.anyBoolean(), Mockito.any(ProgressCallback.class));
+        Mockito.doThrow(new GeoNamesRemoteDownloadException("Error Downloading"))
+                .when(geoEntryIndexer)
+                .updateIndex(Mockito.anyString(),
+                        Mockito.any(GeoEntryExtractor.class),
+                        Mockito.anyBoolean(),
+                        Mockito.any(ProgressCallback.class));
         try {
             assertFalse(geocoding.updateGeoIndexWithFilePath(PATH, CONTENT_FILE, TRUE));
         } catch (Exception e) {
@@ -105,11 +113,15 @@ public class TestGeocodingMbean {
     }
 
     @Test
-    public void testUpdateIndexIndexingException() throws GeoEntryIndexingException, GeoEntryExtractionException,
+    public void testUpdateIndexIndexingException()
+            throws GeoEntryIndexingException, GeoEntryExtractionException,
             GeoNamesRemoteDownloadException {
-        Mockito.doThrow(new GeoEntryIndexingException("Error Indexing")).when(geoEntryIndexer)
-                .updateIndex(Mockito.anyString(), Mockito.any(GeoEntryExtractor.class),
-                        Mockito.anyBoolean(), Mockito.any(ProgressCallback.class));
+        Mockito.doThrow(new GeoEntryIndexingException("Error Indexing"))
+                .when(geoEntryIndexer)
+                .updateIndex(Mockito.anyString(),
+                        Mockito.any(GeoEntryExtractor.class),
+                        Mockito.anyBoolean(),
+                        Mockito.any(ProgressCallback.class));
         try {
             assertFalse(geocoding.updateGeoIndexWithFilePath(PATH, CONTENT_FILE, TRUE));
         } catch (Exception e) {

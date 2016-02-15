@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,19 +66,29 @@ public class IngestCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory
-            .getLogger(Constants.INGEST_LOGGER_NAME);
+    private static final Logger INGEST_LOGGER =
+            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final int DEFAULT_BATCH_SIZE = 500;
 
     private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
-            .appendDays().appendSuffix(" day", " days").appendSeparator(" ").appendHours()
-            .appendSuffix(" hour", " hours").appendSeparator(" ").appendMinutes()
-            .appendSuffix(" minute", " minutes").appendSeparator(" ").appendSeconds()
-            .appendSuffix(" second", " seconds").toFormatter();
+            .appendDays()
+            .appendSuffix(" day", " days")
+            .appendSeparator(" ")
+            .appendHours()
+            .appendSuffix(" hour", " hours")
+            .appendSeparator(" ")
+            .appendMinutes()
+            .appendSuffix(" minute", " minutes")
+            .appendSeparator(" ")
+            .appendSeconds()
+            .appendSuffix(" second", " seconds")
+            .toFormatter();
 
     private final AtomicInteger ingestCount = new AtomicInteger();
+
     private final AtomicInteger ignoreCount = new AtomicInteger();
+
     private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
 
     @Argument(name = "File path or Directory path", description =
@@ -170,7 +180,8 @@ public class IngestCommand extends CatalogCommands {
                 refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
                         "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
             } catch (InvalidSyntaxException e) {
-                throw new IllegalArgumentException("Invalid transformer transformerId: " + transformerId, e);
+                throw new IllegalArgumentException(
+                        "Invalid transformer transformerId: " + transformerId, e);
             }
 
             if (refs == null || refs.length == 0) {
@@ -181,9 +192,14 @@ public class IngestCommand extends CatalogCommands {
         }
 
         BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
-        RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-        ExecutorService executorService = new ThreadPoolExecutor(multithreaded, multithreaded, 0L,
-                TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
+        RejectedExecutionHandler rejectedExecutionHandler =
+                new ThreadPoolExecutor.CallerRunsPolicy();
+        ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                multithreaded,
+                0L,
+                TimeUnit.MILLISECONDS,
+                blockingQueue,
+                rejectedExecutionHandler);
 
         if (inputFile.isDirectory()) {
             final long start = System.currentTimeMillis();
@@ -198,7 +214,9 @@ public class IngestCommand extends CatalogCommands {
 
             try {
                 for (List<File> batch : partition) {
-                    IngestRunnable ingestRunnable = new IngestRunnable(start, catalog, ignoreList,
+                    IngestRunnable ingestRunnable = new IngestRunnable(start,
+                            catalog,
+                            ignoreList,
                             batch);
                     executorService.submit(ingestRunnable);
                 }
@@ -222,21 +240,29 @@ public class IngestCommand extends CatalogCommands {
             String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
             console.printf(" %d file(s) ingested in %s %n", ingestCount.get(), elapsedTime);
 
-            LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
-                    elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
-            INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
-                    elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
+            LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
+                    ingestCount.get(),
+                    elapsedTime,
+                    calculateRecordsPerSecond(ingestCount.get(), start, end));
+            INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
+                    ingestCount.get(),
+                    elapsedTime,
+                    calculateRecordsPerSecond(ingestCount.get(), start, end));
 
             if (fileCount.get() != ingestCount.get()) {
                 console.println();
                 if ((fileCount.get() - ingestCount.get() - ignoreCount.get()) >= 1) {
-                    String failedAmount = Integer.toString(fileCount.get() - ingestCount.get() - ignoreCount.get());
-                    printErrorMessage(failedAmount + " file(s) failed to be ingested.  See the ingest log for more details.");
+                    String failedAmount = Integer.toString(
+                            fileCount.get() - ingestCount.get() - ignoreCount.get());
+                    printErrorMessage(failedAmount
+                            + " file(s) failed to be ingested.  See the ingest log for more details.");
                     INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
                 }
                 if (ignoreList != null) {
                     String ignoredAmount = Integer.toString(ignoreCount.get());
-                    printColor(Ansi.Color.YELLOW, ignoredAmount + " file(s) ignored.  See the ingest log for more details.");
+                    printColor(Ansi.Color.YELLOW,
+                            ignoredAmount
+                                    + " file(s) ignored.  See the ingest log for more details.");
                     INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
                 }
             }
@@ -286,7 +312,8 @@ public class IngestCommand extends CatalogCommands {
                         console.println("ID: " + record.getId() + " created.");
                     }
                     if (INGEST_LOGGER.isDebugEnabled()) {
-                        INGEST_LOGGER.debug("{} file(s) created. {}", metacards.size(),
+                        INGEST_LOGGER.debug("{} file(s) created. {}",
+                                metacards.size(),
                                 buildIngestLog(metacards));
                     }
                 }
@@ -309,13 +336,20 @@ public class IngestCommand extends CatalogCommands {
 
         for (int i = 0; i < metacards.size(); i++) {
             Metacard card = metacards.get(i);
-            strBuilder.append(newLine).append("Batch #: ").append(i + 1).append(" | ");
+            strBuilder.append(newLine)
+                    .append("Batch #: ")
+                    .append(i + 1)
+                    .append(" | ");
             if (card != null) {
                 if (card.getTitle() != null) {
-                    strBuilder.append("Metacard Title: ").append(card.getTitle()).append(" | ");
+                    strBuilder.append("Metacard Title: ")
+                            .append(card.getTitle())
+                            .append(" | ");
                 }
                 if (card.getId() != null) {
-                    strBuilder.append("Metacard ID: ").append(card.getId()).append(" | ");
+                    strBuilder.append("Metacard ID: ")
+                            .append(card.getId())
+                            .append(" | ");
                 }
             } else {
                 strBuilder.append("Null Metacard");
@@ -342,7 +376,8 @@ public class IngestCommand extends CatalogCommands {
 
     private void logIngestException(IngestException exception, File inputFile) {
         LOGGER.debug("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
-        INGEST_LOGGER.warn("Failed to ingest file [{}]:  \n{}", inputFile.getAbsolutePath(),
+        INGEST_LOGGER.warn("Failed to ingest file [{}]:  \n{}",
+                inputFile.getAbsolutePath(),
                 Exceptions.getFullMessage(exception));
     }
 
@@ -440,19 +475,23 @@ public class IngestCommand extends CatalogCommands {
         } catch (IngestException e) {
             printErrorMessage("Error executing command: " + e.getMessage());
             if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER
-                        .warn("Error ingesting metacard batch {}", buildIngestLog(metacards), e);
+                INGEST_LOGGER.warn("Error ingesting metacard batch {}",
+                        buildIngestLog(metacards),
+                        e);
             }
         } catch (SourceUnavailableException e) {
             if (INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on process batch, local provider not available. {}"
-                                + " metacards failed to ingest. {}", metacards.size(),
-                        buildIngestLog(metacards), e);
+                                + " metacards failed to ingest. {}",
+                        metacards.size(),
+                        buildIngestLog(metacards),
+                        e);
             }
         }
 
         if (createResponse != null) {
-            ingestCount.getAndAdd(createResponse.getCreatedMetacards().size());
+            ingestCount.getAndAdd(createResponse.getCreatedMetacards()
+                    .size());
         }
         return createResponse != null;
     }
@@ -479,7 +518,8 @@ public class IngestCommand extends CatalogCommands {
 
         private List<File> files;
 
-        public IngestRunnable(long start, CatalogFacade catalog, List<String> ignoreList, List<File> files) {
+        public IngestRunnable(long start, CatalogFacade catalog, List<String> ignoreList,
+                List<File> files) {
             this.start = start;
             this.catalog = catalog;
             this.ignoreList = ignoreList;
@@ -497,10 +537,13 @@ public class IngestCommand extends CatalogCommands {
                     extension = extension.substring(x);
                 }
 
-                if (file.isHidden() || (ignoreList != null && (ignoreList.contains(extension) || ignoreList.contains(file.getName())))) {
+                if (file.isHidden() || (ignoreList != null && (ignoreList.contains(extension)
+                        || ignoreList.contains(file.getName())))) {
                     ignoreCount.incrementAndGet();
                     failed++;
-                    printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+                    printProgressAndFlush(start,
+                            fileCount.get(),
+                            ingestCount.get() + ignoreCount.get());
                 } else {
                     Metacard result;
                     try {
@@ -511,9 +554,11 @@ public class IngestCommand extends CatalogCommands {
                         if (failedIngestDirectory != null) {
                             moveToFailedIngestDirectory(file);
                         }
-                        printErrorMessage("Failed to ingest file [" + file.getAbsolutePath() + "].");
+                        printErrorMessage(
+                                "Failed to ingest file [" + file.getAbsolutePath() + "].");
                         if (INGEST_LOGGER.isWarnEnabled()) {
-                            INGEST_LOGGER.warn("Failed to ingest file [{}].", file.getAbsolutePath());
+                            INGEST_LOGGER.warn("Failed to ingest file [{}].",
+                                    file.getAbsolutePath());
                         }
                         failed++;
                     }
@@ -533,7 +578,9 @@ public class IngestCommand extends CatalogCommands {
                         return;
                     }
 
-                    printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+                    printProgressAndFlush(start,
+                            fileCount.get(),
+                            ingestCount.get() + ignoreCount.get());
                 }
             }
         }

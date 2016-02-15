@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
@@ -79,8 +78,8 @@ public class UserService {
                 userMap.put("isGuest", String.valueOf(subject.isGuest()));
                 List<Map<String, Object>> preferencesList;
                 try {
-                    preferencesList = persistentStore
-                            .get(PersistentStore.PREFERENCES_TYPE, "user = '" + username + "'");
+                    preferencesList = persistentStore.get(PersistentStore.PREFERENCES_TYPE,
+                            "user = '" + username + "'");
                     if (preferencesList.size() == 1) {
                         Map<String, Object> preferences = preferencesList.get(0);
                         JSONContext.Client jsonContext = new Jackson1JSONContextClient();
@@ -94,20 +93,23 @@ public class UserService {
                         } catch (ParseException e) {
                             LOGGER.info(
                                     "ParseException while trying to convert persisted preferences for user {} from JSON",
-                                    username, e);
+                                    username,
+                                    e);
                         }
                     }
                 } catch (PersistenceException e) {
                     LOGGER.info(
                             "PersistenceException while trying to retrieve persisted preferences for user {}",
-                            username, e);
+                            username,
+                            e);
                 }
                 reply.put("user", userMap);
                 reply.put(Search.SUCCESSFUL, true);
                 remote.deliver(serverSession, "/service/user", reply);
             } else {
                 JSONContext.Server jsonContext = new Jackson1JSONContextServer();
-                String json = jsonContext.getGenerator().generate(data);
+                String json = jsonContext.getGenerator()
+                        .generate(data);
                 LOGGER.debug("preferences JSON text:\n {}", json);
                 String username = SubjectUtils.getName(subject);
                 PersistentItem item = new PersistentItem();
@@ -119,7 +121,8 @@ public class UserService {
                 } catch (PersistenceException e) {
                     LOGGER.info(
                             "PersistenceException while trying to persist preferences for user {}",
-                            username, e);
+                            username,
+                            e);
                 }
             }
         } else {

@@ -26,7 +26,8 @@ import ddf.security.PropertiesLoader;
 
 public abstract class PropertiesFileValidator implements Validator {
 
-    protected static final String GENERIC_INSECURE_DEFAULTS_MSG = "Unable to determine if [%s] is using insecure defaults. ";
+    protected static final String GENERIC_INSECURE_DEFAULTS_MSG =
+            "Unable to determine if [%s] is using insecure defaults. ";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesFileValidator.class);
 

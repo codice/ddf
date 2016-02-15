@@ -1082,20 +1082,23 @@ public class TestCswSource extends TestCswSourceBase {
         List<Result> results = cswSource.createResults(recordCollection);
 
         assertThat(results, notNullValue());
-        assertThat(results.size(), is(recordCollection.getCswRecords()
-                .size()));
+        assertThat(results.size(),
+                is(recordCollection.getCswRecords()
+                        .size()));
         assertThat(results.get(0)
-                .getMetacard()
-                .getResourceURI(), is(recordCollection.getCswRecords()
-                .get(0)
-                .getResourceURI()));
+                        .getMetacard()
+                        .getResourceURI(),
+                is(recordCollection.getCswRecords()
+                        .get(0)
+                        .getResourceURI()));
         assertThat(results.get(1)
-                .getMetacard()
-                .getResourceURI(), is(URI.create(recordCollection.getCswRecords()
-                .get(1)
-                .getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
-                .getValue()
-                .toString())));
+                        .getMetacard()
+                        .getResourceURI(),
+                is(URI.create(recordCollection.getCswRecords()
+                        .get(1)
+                        .getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
+                        .getValue()
+                        .toString())));
 
     }
 
@@ -1166,31 +1169,31 @@ public class TestCswSource extends TestCswSourceBase {
                 is(defaultCswSourceConfiguration.getUsername()));
         assertThat(cswSourceConfiguration.getPassword(),
                 is(defaultCswSourceConfiguration.getPassword()));
-        assertThat(cswSourceConfiguration.getId(),
-                is(defaultCswSourceConfiguration.getId()));
-        assertThat(cswSourceConfiguration.getConnectionTimeout(), is(
-                defaultCswSourceConfiguration.getConnectionTimeout()));
-        assertThat(cswSourceConfiguration.getReceiveTimeout(), is(
-                defaultCswSourceConfiguration.getReceiveTimeout()));
-        assertThat(cswSourceConfiguration.getIdentifierMapping(), is(
-                defaultCswSourceConfiguration.getIdentifierMapping()));
-        assertThat(cswSourceConfiguration.getDisableCnCheck(), is(
-                defaultCswSourceConfiguration.getDisableCnCheck()));
+        assertThat(cswSourceConfiguration.getId(), is(defaultCswSourceConfiguration.getId()));
+        assertThat(cswSourceConfiguration.getConnectionTimeout(),
+                is(defaultCswSourceConfiguration.getConnectionTimeout()));
+        assertThat(cswSourceConfiguration.getReceiveTimeout(),
+                is(defaultCswSourceConfiguration.getReceiveTimeout()));
+        assertThat(cswSourceConfiguration.getIdentifierMapping(),
+                is(defaultCswSourceConfiguration.getIdentifierMapping()));
+        assertThat(cswSourceConfiguration.getDisableCnCheck(),
+                is(defaultCswSourceConfiguration.getDisableCnCheck()));
         assertThat(cswSourceConfiguration.getCswAxisOrder()
-                .toString(), is(defaultCswSourceConfiguration.getCswAxisOrder()
-                .toString()));
-        assertThat(cswSourceConfiguration.isSetUsePosList(), is(
-                defaultCswSourceConfiguration.isSetUsePosList()));
-        assertThat(cswSourceConfiguration.getCreatedDateMapping(), is(
-                defaultCswSourceConfiguration.getCreatedDateMapping()));
-        assertThat(cswSourceConfiguration.getEffectiveDateMapping(), is(
-                defaultCswSourceConfiguration.getEffectiveDateMapping()));
-        assertThat(cswSourceConfiguration.getModifiedDateMapping(), is(
-                defaultCswSourceConfiguration.getModifiedDateMapping()));
-        assertThat(cswSourceConfiguration.getContentTypeMapping(), is(
-                defaultCswSourceConfiguration.getContentTypeMapping()));
-        assertThat(cswSourceConfiguration.getPollIntervalMinutes(), is(
-                defaultCswSourceConfiguration.getPollIntervalMinutes()));
+                        .toString(),
+                is(defaultCswSourceConfiguration.getCswAxisOrder()
+                        .toString()));
+        assertThat(cswSourceConfiguration.isSetUsePosList(),
+                is(defaultCswSourceConfiguration.isSetUsePosList()));
+        assertThat(cswSourceConfiguration.getCreatedDateMapping(),
+                is(defaultCswSourceConfiguration.getCreatedDateMapping()));
+        assertThat(cswSourceConfiguration.getEffectiveDateMapping(),
+                is(defaultCswSourceConfiguration.getEffectiveDateMapping()));
+        assertThat(cswSourceConfiguration.getModifiedDateMapping(),
+                is(defaultCswSourceConfiguration.getModifiedDateMapping()));
+        assertThat(cswSourceConfiguration.getContentTypeMapping(),
+                is(defaultCswSourceConfiguration.getContentTypeMapping()));
+        assertThat(cswSourceConfiguration.getPollIntervalMinutes(),
+                is(defaultCswSourceConfiguration.getPollIntervalMinutes()));
         assertThat(cswSourceConfiguration.getCswUrl(),
                 is(defaultCswSourceConfiguration.getCswUrl()));
         assertThat(cswSourceConfiguration.isCqlForced(),

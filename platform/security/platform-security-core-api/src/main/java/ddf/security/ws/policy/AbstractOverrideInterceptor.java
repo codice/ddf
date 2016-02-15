@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -56,11 +56,13 @@ public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Messag
     @Override
     public void handleMessage(Message message) {
         if (policy == null) {
-            PolicyBuilder builder = message.getExchange().getBus()
+            PolicyBuilder builder = message.getExchange()
+                    .getBus()
                     .getExtension(PolicyBuilder.class);
 
             try {
-                policy = builder.getPolicy(loader.getPolicy().getDocumentElement());
+                policy = builder.getPolicy(loader.getPolicy()
+                        .getDocumentElement());
                 logger.trace("Read in policy, adding to policy override of message.");
                 message.put(PolicyConstants.POLICY_OVERRIDE, policy);
             } catch (Exception e) {

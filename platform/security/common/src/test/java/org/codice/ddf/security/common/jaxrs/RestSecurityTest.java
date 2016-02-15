@@ -78,14 +78,16 @@ public class RestSecurityTest {
         Element samlToken = readDocument("/saml.xml").getDocumentElement();
         Subject subject = mock(Subject.class);
         SecurityAssertion assertion = mock(SecurityAssertion.class);
-        SecurityToken token = new SecurityToken(UUID.randomUUID().toString(), samlToken, new Date(),
-                new Date());
+        SecurityToken token = new SecurityToken(UUID.randomUUID()
+                .toString(), samlToken, new Date(), new Date());
         when(assertion.getSecurityToken()).thenReturn(token);
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("https://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNotNull(client.getHeaders().get(RestSecurity.AUTH_HEADER));
-        ArrayList headers = (ArrayList) client.getHeaders().get(RestSecurity.AUTH_HEADER);
+        assertNotNull(client.getHeaders()
+                .get(RestSecurity.AUTH_HEADER));
+        ArrayList headers = (ArrayList) client.getHeaders()
+                .get(RestSecurity.AUTH_HEADER);
         boolean containsSaml = false;
         for (Object header : headers) {
             if (StringUtils.contains(header.toString(), RestSecurity.SAML_HEADER_PREFIX)) {
@@ -100,13 +102,14 @@ public class RestSecurityTest {
         Element samlToken = readDocument("/saml.xml").getDocumentElement();
         Subject subject = mock(Subject.class);
         SecurityAssertion assertion = mock(SecurityAssertion.class);
-        SecurityToken token = new SecurityToken(UUID.randomUUID().toString(), samlToken, new Date(),
-                new Date());
+        SecurityToken token = new SecurityToken(UUID.randomUUID()
+                .toString(), samlToken, new Date(), new Date());
         when(assertion.getSecurityToken()).thenReturn(token);
         when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
         WebClient client = WebClient.create("http://example.org");
         RestSecurity.setSubjectOnClient(subject, client);
-        assertNull(client.getHeaders().get(RestSecurity.AUTH_HEADER));
+        assertNull(client.getHeaders()
+                .get(RestSecurity.AUTH_HEADER));
     }
 
     @Test
@@ -116,11 +119,11 @@ public class RestSecurityTest {
         DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
         byte[] deflatedToken = deflateEncoderDecoder.deflateToken(token.getBytes());
 
-        String cxfInflatedToken = IOUtils
-                .toString(deflateEncoderDecoder.inflateToken(deflatedToken));
+        String cxfInflatedToken =
+                IOUtils.toString(deflateEncoderDecoder.inflateToken(deflatedToken));
 
-        String streamInflatedToken = IOUtils.toString(
-                new InflaterInputStream(new ByteArrayInputStream(deflatedToken),
+        String streamInflatedToken =
+                IOUtils.toString(new InflaterInputStream(new ByteArrayInputStream(deflatedToken),
                         new Inflater(true)));
 
         assertNotSame(cxfInflatedToken, token);

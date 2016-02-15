@@ -20,10 +20,15 @@ import java.util.List;
 public class SystemPropertyDetails implements Serializable {
 
     private String title;
+
     private String description;
+
     private List<String> options = new ArrayList<>();
+
     private String key;
+
     private String value;
+
     private String defaultValue;
 
     public SystemPropertyDetails(String title, String description, List<String> options, String key,

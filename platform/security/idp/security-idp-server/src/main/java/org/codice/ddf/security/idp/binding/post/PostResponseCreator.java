@@ -56,8 +56,8 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
         getSimpleSign().signSamlObject(samlResponse);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
-        String encodedSamlResponse = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
-                StandardCharsets.UTF_8));
+        String encodedSamlResponse = Base64.getEncoder()
+                .encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
         String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);
         String submitFormUpdated = responseTemplate.replace("{{" + Idp.ACS_URL + "}}",
                 assertionConsumerServiceURL);

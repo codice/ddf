@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -111,7 +111,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      *         ActivityType values.
      */
     public String getActivityType() {
-        return this.get(STATUS_KEY).toString();
+        return this.get(STATUS_KEY)
+                .toString();
     }
 
     /**
@@ -120,7 +121,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * @return ID of the {@code ActivityEvent}.
      */
     public String getActivityId() {
-        return this.get(ID_KEY).toString();
+        return this.get(ID_KEY)
+                .toString();
     }
 
     /**
@@ -140,7 +142,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * @return session ID of the {@code ActivityEvent}.
      */
     public String getSessionId() {
-        return this.get(SESSION_ID_KEY).toString();
+        return this.get(SESSION_ID_KEY)
+                .toString();
     }
 
     /**
@@ -160,7 +163,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * @return The message associated with the {@code ActivityEvent}
      */
     public String getMessage() {
-        return this.get(MESSAGE_KEY).toString();
+        return this.get(MESSAGE_KEY)
+                .toString();
     }
 
     /**
@@ -179,7 +183,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * @return The title associated with the {@code ActivityEvent}
      */
     public String getTitle() {
-        return this.get(TITLE_KEY).toString();
+        return this.get(TITLE_KEY)
+                .toString();
     }
 
     /**
@@ -198,7 +203,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * @return The category associated with the {@code ActivityEvent}
      */
     public String getCategory() {
-        return this.get(CATEGORY_KEY).toString();
+        return this.get(CATEGORY_KEY)
+                .toString();
     }
 
     /**
@@ -222,7 +228,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      *         occurred.
      */
     public String getTimestampString() {
-        return this.get(TIMESTAMP_KEY).toString();
+        return this.get(TIMESTAMP_KEY)
+                .toString();
     }
 
     /**
@@ -246,7 +253,9 @@ public class ActivityEvent extends HashMap<String, Object> {
      *         {@code ActivityEvent} occurred.
      */
     public Date getTimestamp() {
-        return ISODateTimeFormat.dateTime().parseDateTime(getTimestampString()).toDate();
+        return ISODateTimeFormat.dateTime()
+                .parseDateTime(getTimestampString())
+                .toDate();
     }
 
     /**
@@ -284,7 +293,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      *            {@code ActivityEvent} occurred.
      */
     public void setTimestamp(Date timestamp) {
-        setTimestamp(ISODateTimeFormat.dateTime().print(timestamp.getTime()));
+        setTimestamp(ISODateTimeFormat.dateTime()
+                .print(timestamp.getTime()));
     }
 
     /**
@@ -293,7 +303,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * @return The id of the user to whom this {@code ActivityEvent} is addressed.
      */
     public String getUserId() {
-        return this.get(USER_ID_KEY).toString();
+        return this.get(USER_ID_KEY)
+                .toString();
     }
 
     /**
@@ -314,7 +325,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      */
     public Long getBytesRead() {
         try {
-            Long bytes = Long.valueOf(this.get(BYTES_READ_KEY).toString());
+            Long bytes = Long.valueOf(this.get(BYTES_READ_KEY)
+                    .toString());
             return bytes;
         } catch (NumberFormatException nfe) {
             LOGGER.debug("Received invalid number of bytes. ", nfe.getMessage());

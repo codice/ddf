@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,10 +61,12 @@ public class ManagedServiceFactoryConfigurationFileTest {
     @Test
     public void testCreateConfig() throws Exception {
         // Setup
-        when(mockConfigAdmin.createFactoryConfiguration(FACTORY_PID, null))
-                .thenReturn(mockConfiguration);
+        when(mockConfigAdmin.createFactoryConfiguration(FACTORY_PID, null)).thenReturn(
+                mockConfiguration);
         ConfigurationFile configFile = new ManagedServiceFactoryConfigurationFile(mockPath,
-                properties, mockConfigAdmin, mockPersistenceStrategy);
+                properties,
+                mockConfigAdmin,
+                mockPersistenceStrategy);
 
         // Perform Test
         configFile.createConfig();
@@ -76,10 +78,12 @@ public class ManagedServiceFactoryConfigurationFileTest {
     @Test(expected = ConfigurationFileException.class)
     public void testCreateConfigGetConfigurationFails() throws Exception {
         // Setup
-        when(mockConfigAdmin.createFactoryConfiguration(FACTORY_PID, null))
-                .thenThrow(new IOException());
+        when(mockConfigAdmin.createFactoryConfiguration(FACTORY_PID,
+                null)).thenThrow(new IOException());
         ConfigurationFile configFile = new ManagedServiceFactoryConfigurationFile(mockPath,
-                properties, mockConfigAdmin, mockPersistenceStrategy);
+                properties,
+                mockConfigAdmin,
+                mockPersistenceStrategy);
 
         // Perform Test
         configFile.createConfig();
@@ -88,11 +92,14 @@ public class ManagedServiceFactoryConfigurationFileTest {
     @Test(expected = ConfigurationFileException.class)
     public void testCreateConfigConfigurationUpdateFails() throws Exception {
         // Setup
-        doThrow(IOException.class).when(mockConfiguration).update(properties);
-        when(mockConfigAdmin.createFactoryConfiguration(FACTORY_PID, null))
-                .thenReturn(mockConfiguration);
+        doThrow(IOException.class).when(mockConfiguration)
+                .update(properties);
+        when(mockConfigAdmin.createFactoryConfiguration(FACTORY_PID, null)).thenReturn(
+                mockConfiguration);
         ConfigurationFile configFile = new ManagedServiceFactoryConfigurationFile(mockPath,
-                properties, mockConfigAdmin, mockPersistenceStrategy);
+                properties,
+                mockConfigAdmin,
+                mockPersistenceStrategy);
 
         // Perform Test
         configFile.createConfig();

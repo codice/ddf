@@ -51,8 +51,10 @@ public class SecurityMigratableTest {
 
     private static final String DESCRIPTION = "Exports Security system files";
 
-    private static final Path FILE_CONTAINING_CRL_LOCATION =
-            Paths.get("etc", "ws-security", "server", "encryption.properties");
+    private static final Path FILE_CONTAINING_CRL_LOCATION = Paths.get("etc",
+            "ws-security",
+            "server",
+            "encryption.properties");
 
     private static final boolean IS_OPTIONAL = false;
 
@@ -93,12 +95,12 @@ public class SecurityMigratableTest {
                 .copyFileFromJavaPropertyValue(eq(FILE_CONTAINING_CRL_LOCATION),
                         eq(CRL_PROP_KEY),
                         eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                        Matchers.<Collection<MigrationWarning>>any());
 
         doAnswer(new MigrationWarningAnswerThreeArgs(expectedWarning2)).when(migratableUtil)
                 .copyDirectory(eq(PDP_POLICIES_DIR_REL_PATH),
                         eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                        Matchers.<Collection<MigrationWarning>>any());
 
         SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
                 IS_OPTIONAL,
@@ -144,8 +146,10 @@ public class SecurityMigratableTest {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
         doThrow(MigrationException.class).when(mockMigratableUtil)
-                .copyFileFromJavaPropertyValue(any(Path.class), any(String.class),
-                        eq(exportDirectory), Matchers.<Collection<MigrationWarning>>any());
+                .copyFileFromJavaPropertyValue(any(Path.class),
+                        any(String.class),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
                 IS_OPTIONAL,
                 mockMigratableUtil);
@@ -155,8 +159,7 @@ public class SecurityMigratableTest {
     }
 
     private void assertCrlExport(MigratableUtil mockMigratableUtil) {
-        verify(mockMigratableUtil).copyFileFromJavaPropertyValue(eq(
-                FILE_CONTAINING_CRL_LOCATION),
+        verify(mockMigratableUtil).copyFileFromJavaPropertyValue(eq(FILE_CONTAINING_CRL_LOCATION),
                 eq(CRL_PROP_KEY),
                 eq(exportDirectory),
                 anyCollectionOf(MigrationWarning.class));

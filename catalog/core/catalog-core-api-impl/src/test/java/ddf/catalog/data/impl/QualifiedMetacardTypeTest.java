@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -49,20 +49,32 @@ public class QualifiedMetacardTypeTest {
     public static void prepareTest() {
         qmtAttributes = new HashSet<AttributeDescriptor>();
 
-        AttributeDescriptor ad1 = new AttributeDescriptorImpl(GEO_ATTRIBUTE_DESCRIPTOR_NAME, true,
-                true, false, false, BasicTypes.GEO_TYPE);
+        AttributeDescriptor ad1 = new AttributeDescriptorImpl(GEO_ATTRIBUTE_DESCRIPTOR_NAME,
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.GEO_TYPE);
         qmtAttributes.add(ad1);
         AttributeDescriptor ad2 = new AttributeDescriptorImpl(METADATA_ATTRIBUTE_DESCRIPTOR_NAME,
-                true, true, false, false, BasicTypes.XML_TYPE);
+                true,
+                true,
+                false,
+                false,
+                BasicTypes.XML_TYPE);
         qmtAttributes.add(ad2);
     }
 
     @Test
     public void testEquals() {
         QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
 
         assertTrue(qmt1.equals(qmt2));
         assertTrue(qmt2.equals(qmt1));
@@ -72,9 +84,13 @@ public class QualifiedMetacardTypeTest {
     @Test
     public void testDifferentNames() {
         QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_2, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_2,
+                qmtAttributes);
 
         assertTrue(!qmt1.equals(qmt2));
         assertTrue(!qmt2.equals(qmt1));
@@ -84,9 +100,13 @@ public class QualifiedMetacardTypeTest {
     @Test
     public void testDifferentNamespaces() {
         QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_2, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_2,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
 
         assertTrue(!qmt1.equals(qmt2));
         assertTrue(!qmt2.equals(qmt1));
@@ -96,9 +116,13 @@ public class QualifiedMetacardTypeTest {
     @Test
     public void testDifferentNamesAndNamespaces() {
         QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_2, QUALIFIED_METACARD_TYPE_NAME_2, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_2,
+                QUALIFIED_METACARD_TYPE_NAME_2,
+                qmtAttributes);
 
         assertTrue(!qmt1.equals(qmt2));
         assertTrue(!qmt2.equals(qmt1));
@@ -112,9 +136,13 @@ public class QualifiedMetacardTypeTest {
     @Test
     public void testDifferentAttributes() {
         QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, null);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_1,
+                QUALIFIED_METACARD_TYPE_NAME_1,
+                null);
 
         assertTrue(!qmt1.equals(qmt2));
         assertTrue(!qmt2.equals(qmt1));
@@ -124,8 +152,9 @@ public class QualifiedMetacardTypeTest {
     @Test
     public void testDefaultNamespace() {
         MetacardType mt1 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
-        QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, mt1);
+        QualifiedMetacardTypeImpl qmt1 =
+                new QualifiedMetacardTypeImpl(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
+                        mt1);
         MetacardType mt2 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(null, mt2);
 
@@ -138,7 +167,8 @@ public class QualifiedMetacardTypeTest {
     public void testDefaultNamespaceNotEqual() {
         MetacardType mt1 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
         QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QUALIFIED_METACARD_TYPE_NAMESPACE_2, mt1);
+                QUALIFIED_METACARD_TYPE_NAMESPACE_2,
+                mt1);
         MetacardType mt2 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
         QualifiedMetacardTypeImpl qmt2 = new QualifiedMetacardTypeImpl(null, mt2);
 
@@ -150,8 +180,9 @@ public class QualifiedMetacardTypeTest {
     @Test
     public void testEqualsQualifiedMetacardTypeAndMetacardTypeImpl() {
         MetacardType mt1 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
-        QualifiedMetacardTypeImpl qmt1 = new QualifiedMetacardTypeImpl(
-                QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, mt1);
+        QualifiedMetacardTypeImpl qmt1 =
+                new QualifiedMetacardTypeImpl(QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE,
+                        mt1);
         MetacardType mt2 = new MetacardTypeImpl(QUALIFIED_METACARD_TYPE_NAME_3, qmtAttributes);
 
         assertTrue(qmt1.equals(mt2));

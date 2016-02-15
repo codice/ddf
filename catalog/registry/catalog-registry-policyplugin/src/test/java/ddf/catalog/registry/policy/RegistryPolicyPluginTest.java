@@ -204,11 +204,17 @@ public class RegistryPolicyPluginTest {
 
         assertThat(rpp.isRegistryDisabled(), is(false));
         assertThat(rpp.getBypassAccessPolicy()
-                .get("role").iterator().next(), equalTo("system-admin"));
+                .get("role")
+                .iterator()
+                .next(), equalTo("system-admin"));
         assertThat(rpp.getWriteAccessPolicy()
-                .get("role").iterator().next(), equalTo("guest"));
+                .get("role")
+                .iterator()
+                .next(), equalTo("guest"));
         assertThat(rpp.getReadAccessPolicy()
-                .get("role").iterator().next(), equalTo("guest"));
+                .get("role")
+                .iterator()
+                .next(), equalTo("guest"));
         assertThat(rpp.getRegistryEntryIds()
                 .contains("1234567890abcdefg987654321"), is(true));
 

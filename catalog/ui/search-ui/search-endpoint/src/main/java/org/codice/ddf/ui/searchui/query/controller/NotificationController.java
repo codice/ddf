@@ -77,15 +77,19 @@ public class NotificationController extends AbstractEventController {
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
 
-        if (null == event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION) || event
-                .getProperty(Notification.NOTIFICATION_KEY_APPLICATION).toString().isEmpty()) {
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION)
+                || event.getProperty(Notification.NOTIFICATION_KEY_APPLICATION)
+                .toString()
+                .isEmpty()) {
             throw new IllegalArgumentException(
                     "Event \"" + Notification.NOTIFICATION_KEY_APPLICATION
                             + "\" property is null or empty");
         }
 
-        if (null == event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE) || event
-                .getProperty(Notification.NOTIFICATION_KEY_MESSAGE).toString().isEmpty()) {
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_MESSAGE) || event.getProperty(
+                Notification.NOTIFICATION_KEY_MESSAGE)
+                .toString()
+                .isEmpty()) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_MESSAGE
                     + "\" property is null or empty");
         }
@@ -95,8 +99,10 @@ public class NotificationController extends AbstractEventController {
                     "Event \"" + Notification.NOTIFICATION_KEY_TIMESTAMP + "\" property is null");
         }
 
-        if (null == event.getProperty(Notification.NOTIFICATION_KEY_TITLE) || event
-                .getProperty(Notification.NOTIFICATION_KEY_TITLE).toString().isEmpty()) {
+        if (null == event.getProperty(Notification.NOTIFICATION_KEY_TITLE) || event.getProperty(
+                Notification.NOTIFICATION_KEY_TITLE)
+                .toString()
+                .isEmpty()) {
             throw new IllegalArgumentException("Event \"" + Notification.NOTIFICATION_KEY_TITLE
                     + "\" property is null or empty");
         }
@@ -133,7 +139,9 @@ public class NotificationController extends AbstractEventController {
                 }
             }
 
-            recipient.deliver(controllerServerSession, NOTIFICATION_TOPIC_DOWNLOADS_COMETD, propMap);
+            recipient.deliver(controllerServerSession,
+                    NOTIFICATION_TOPIC_DOWNLOADS_COMETD,
+                    propMap);
         } else {
             LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
                     + "Ignnoring notification", sessionId);
@@ -165,17 +173,22 @@ public class NotificationController extends AbstractEventController {
             List<Map<String, Object>> notifications = getNotificationsForUser(userId);
 
             if (CollectionUtils.isNotEmpty(notifications)) {
-                queuePersistedMessages(remote, notifications,
+                queuePersistedMessages(remote,
+                        notifications,
                         "/" + Notification.NOTIFICATION_TOPIC_BROADCAST);
             }
         } else {
-            String id = UUID.randomUUID().toString().replaceAll("-", "");
+            String id = UUID.randomUUID()
+                    .toString()
+                    .replaceAll("-", "");
             String sessionId = remote.getId();
-            Notification notification = new Notification(id, sessionId,
+            Notification notification = new Notification(id,
+                    sessionId,
                     (String) data.get(Notification.NOTIFICATION_KEY_APPLICATION),
                     (String) data.get(Notification.NOTIFICATION_KEY_TITLE),
                     (String) data.get(Notification.NOTIFICATION_KEY_MESSAGE),
-                    (Long) data.get(Notification.NOTIFICATION_KEY_TIMESTAMP), userId);
+                    (Long) data.get(Notification.NOTIFICATION_KEY_TIMESTAMP),
+                    userId);
             Event event = new Event(Notification.NOTIFICATION_TOPIC_PUBLISH, notification);
             eventAdmin.postEvent(event);
         }

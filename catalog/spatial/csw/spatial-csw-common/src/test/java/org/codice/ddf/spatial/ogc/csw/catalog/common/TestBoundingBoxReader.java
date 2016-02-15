@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -39,12 +38,13 @@ import com.thoughtworks.xstream.io.xml.DomReader;
 
 public class TestBoundingBoxReader {
 
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(TestBoundingBoxReader.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(TestBoundingBoxReader.class);
 
     private static final String POLYGON_CONTROL_WKT_IN_LON_LAT =
             "POLYGON((65.6272038662182 33.305863417212,"
-            + " 65.7733371981862 33.305863417212, 65.7733371981862 33.6653407061501,"
-            + " 65.6272038662182 33.6653407061501, 65.6272038662182 33.305863417212))";
+                    + " 65.7733371981862 33.305863417212, 65.7733371981862 33.6653407061501,"
+                    + " 65.6272038662182 33.6653407061501, 65.6272038662182 33.305863417212))";
 
     private static final String POINT_CONTROL_WKT_IN_LON_LAT =
             "POINT(65.6272038662182 33.305863417212)";
@@ -54,8 +54,8 @@ public class TestBoundingBoxReader {
      * LON/LAT.
      */
     @Test
-    public void testGetWktBoundingBoxInLonLat() throws ParserConfigurationException, SAXException,
-            IOException, CswException {
+    public void testGetWktBoundingBoxInLonLat()
+            throws ParserConfigurationException, SAXException, IOException, CswException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -76,8 +76,8 @@ public class TestBoundingBoxReader {
      * LON/LAT (i.e., the coords are reversed).
      */
     @Test
-    public void testGetWktBoundingBoxInLatLon() throws ParserConfigurationException, SAXException,
-            IOException, CswException {
+    public void testGetWktBoundingBoxInLatLon()
+            throws ParserConfigurationException, SAXException, IOException, CswException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -98,8 +98,8 @@ public class TestBoundingBoxReader {
      * have same exact Lon/Lat, that the resulting WKT is a POINT in LON/LAT.
      */
     @Test
-    public void testGetWktBoundingBoxInLonLatForPoint() throws ParserConfigurationException,
-            SAXException, IOException, CswException {
+    public void testGetWktBoundingBoxInLonLatForPoint()
+            throws ParserConfigurationException, SAXException, IOException, CswException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -119,7 +119,7 @@ public class TestBoundingBoxReader {
      * Verify that if the reader is given something that isn't a BoundingBox, then an exception
      * is raised.
      */
-    @Test(expected=CswException.class)
+    @Test(expected = CswException.class)
     public void testNonBoundingBox() throws CswException {
         HierarchicalStreamReader hReader = mock(HierarchicalStreamReader.class);
         when(hReader.getNodeName()).thenReturn("NOT_A_BOUNDING_BOX");
@@ -131,7 +131,7 @@ public class TestBoundingBoxReader {
      * Verify that if the XML is missing the lower corner, the BoundingBoxReader will throw
      * an exception.
      */
-    @Test(expected=CswException.class)
+    @Test(expected = CswException.class)
     public void testMissingLowerCorner() throws CswException {
         HierarchicalStreamReader reader = mock(HierarchicalStreamReader.class);
         Stack<String> boundingBoxNodes = new Stack<String>();
@@ -145,8 +145,7 @@ public class TestBoundingBoxReader {
 
         Answer<String> answer = new Answer<String>() {
             @Override
-            public String answer(InvocationOnMock invocationOnMock)
-                    throws Throwable {
+            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return boundingBoxNodes.pop();
             }
         };
@@ -162,7 +161,7 @@ public class TestBoundingBoxReader {
      * Verify that if the XML is missing the upper corner, the BoundingBoxReader will throw
      * an exception.
      */
-    @Test(expected=CswException.class)
+    @Test(expected = CswException.class)
     public void testMissingUpperCorner() throws CswException {
         HierarchicalStreamReader reader = mock(HierarchicalStreamReader.class);
         Stack<String> boundingBoxNodes = new Stack<String>();
@@ -176,8 +175,7 @@ public class TestBoundingBoxReader {
 
         Answer<String> answer = new Answer<String>() {
             @Override
-            public String answer(InvocationOnMock invocationOnMock)
-                    throws Throwable {
+            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return boundingBoxNodes.pop();
             }
         };

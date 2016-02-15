@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -51,8 +51,8 @@ public class DownloadsStatusEventPublisher {
 
     public static final String BYTES = "bytes";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(DownloadsStatusEventPublisher.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DownloadsStatusEventPublisher.class);
 
     private static final int ONE_HUNDRED_PERCENT = 100;
 
@@ -88,8 +88,14 @@ public class DownloadsStatusEventPublisher {
     public void postRetrievalStatus(final ResourceResponse resourceResponse,
             ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes,
             String downloadIdentifier) {
-        postRetrievalStatus(resourceResponse, status, metacard, detail, bytes, downloadIdentifier,
-                true, true);
+        postRetrievalStatus(resourceResponse,
+                status,
+                metacard,
+                detail,
+                bytes,
+                downloadIdentifier,
+                true,
+                true);
     }
 
     /**
@@ -132,15 +138,27 @@ public class DownloadsStatusEventPublisher {
         if (notificationEnabled && sendNotification && (status
                 != ProductRetrievalStatus.IN_PROGRESS) && (status
                 != ProductRetrievalStatus.STARTED)) {
-            String id = UUID.randomUUID().toString().replaceAll("-", "");
+            String id = UUID.randomUUID()
+                    .toString()
+                    .replaceAll("-", "");
             Notification notification = new Notification(id,
                     //get sessionId from resource request
-                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY), APPLICATION_NAME,
-                    resourceResponse.getResource().getName(),
-                    generateMessage(status, resourceResponse.getResource().getName(), bytes,
-                            sysTimeMillis, detail), sysTimeMillis, user);
+                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY),
+                    APPLICATION_NAME,
+                    resourceResponse.getResource()
+                            .getName(),
+                    generateMessage(status,
+                            resourceResponse.getResource()
+                                    .getName(),
+                            bytes,
+                            sysTimeMillis,
+                            detail),
+                    sysTimeMillis,
+                    user);
 
-            notification.put(STATUS, status.name().toLowerCase());
+            notification.put(STATUS,
+                    status.name()
+                            .toLowerCase());
             notification.put(BYTES, String.valueOf(bytes));
 
             Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS, notification);
@@ -156,7 +174,8 @@ public class DownloadsStatusEventPublisher {
             Action downloadAction = null;
             if (null != actionProviders && !actionProviders.isEmpty()) {
                 // take the first one
-                downloadAction = actionProviders.get(0).getAction(metacard);
+                downloadAction = actionProviders.get(0)
+                        .getAction(metacard);
             }
 
             // send activity event
@@ -176,7 +195,9 @@ public class DownloadsStatusEventPublisher {
                 type = ActivityStatus.COMPLETE;
                 progress = ONE_HUNDRED_PERCENT;
                 if (downloadAction != null) {
-                    operations = ImmutableMap.of("download", downloadAction.getUrl().toString());
+                    operations = ImmutableMap.of("download",
+                            downloadAction.getUrl()
+                                    .toString());
                 }
                 break;
             case FAILED:
@@ -204,10 +225,22 @@ public class DownloadsStatusEventPublisher {
             }
 
             ActivityEvent eventProperties = new ActivityEvent(downloadIdentifier,
-                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY), new Date(),
-                    "Product Retrieval", resourceResponse.getResource().getName(),
-                    generateMessage(status, resourceResponse.getResource().getName(), bytes,
-                            sysTimeMillis, detail), progress, operations, user, type, bytes);
+                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY),
+                    new Date(),
+                    "Product Retrieval",
+                    resourceResponse.getResource()
+                            .getName(),
+                    generateMessage(status,
+                            resourceResponse.getResource()
+                                    .getName(),
+                            bytes,
+                            sysTimeMillis,
+                            detail),
+                    progress,
+                    operations,
+                    user,
+                    type,
+                    bytes);
             Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
             eventAdmin.postEvent(event);
         } else {
@@ -220,8 +253,10 @@ public class DownloadsStatusEventPublisher {
     private String getProperty(ResourceResponse resourceResponse, String property) {
         String response = "";
 
-        if (resourceResponse.getRequest().containsPropertyName(property)) {
-            response = (String) resourceResponse.getRequest().getPropertyValue(property);
+        if (resourceResponse.getRequest()
+                .containsPropertyName(property)) {
+            response = (String) resourceResponse.getRequest()
+                    .getPropertyValue(property);
             LOGGER.debug("resourceResponse {} property: {}", property, response);
         }
 

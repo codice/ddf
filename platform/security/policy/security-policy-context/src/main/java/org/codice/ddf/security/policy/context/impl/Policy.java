@@ -66,8 +66,8 @@ public class Policy implements ContextPolicy {
         for (ContextAttributeMapping mapping : attributeMappings) {
             perms.add(mapping.getAttributePermission());
         }
-        KeyValueCollectionPermission permissions = new KeyValueCollectionPermission(
-                getContextPath());
+        KeyValueCollectionPermission permissions =
+                new KeyValueCollectionPermission(getContextPath());
         permissions.addAll(perms);
         return permissions;
     }

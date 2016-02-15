@@ -44,8 +44,8 @@ import ddf.catalog.source.CatalogProvider;
  */
 public abstract class CatalogCommands extends SubjectCommands {
 
-    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat
-            .forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
+    public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormat.forPattern(
+            "yyyy-MM-dd'T'HH:mm:ssZZ");
 
     public static final String NAMESPACE = "catalog";
 
@@ -70,8 +70,10 @@ public abstract class CatalogCommands extends SubjectCommands {
         ObjectName solrCacheObjectName = new ObjectName(SolrCacheMBean.OBJECTNAME);
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
 
-        return MBeanServerInvocationHandler
-                .newProxyInstance(mBeanServer, solrCacheObjectName, SolrCacheMBean.class, false);
+        return MBeanServerInvocationHandler.newProxyInstance(mBeanServer,
+                solrCacheObjectName,
+                SolrCacheMBean.class,
+                false);
 
     }
 

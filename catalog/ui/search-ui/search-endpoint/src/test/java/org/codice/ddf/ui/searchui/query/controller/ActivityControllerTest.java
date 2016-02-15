@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -59,13 +58,21 @@ import org.osgi.service.event.EventAdmin;
 public class ActivityControllerTest {
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
+
     private static final String MOCK_ACTIVITY_ID = "12345";
+
     private static final String MOCK_TITLE = "Download Complete of San Francisco";
-    private static final String MOCK_MESSAGE = "The download of the 1024 byte JPEG of San " +
-            "Francisco that you requested has completed with a status of: SUCCESS";
+
+    private static final String MOCK_MESSAGE = "The download of the 1024 byte JPEG of San "
+            + "Francisco that you requested has completed with a status of: SUCCESS";
+
     private static final long MOCK_TIMESTAMP = new Date().getTime();
-    private static final String MOCK_USER_ID = UUID.randomUUID().toString();
+
+    private static final String MOCK_USER_ID = UUID.randomUUID()
+            .toString();
+
     private static final String MOCK_PROGRESS = "55%";
+
     private static final String MOCK_STATUS = "RUNNING";
 
     private static final String EXPECTED_COMETD_ACTIVITIES_CHANNEL_PREFIX = "/ddf/activities/";
@@ -84,7 +91,8 @@ public class ActivityControllerTest {
     @Before
     public void setUp() throws Exception {
         activityController = new ActivityController(mock(PersistentStore.class),
-                mock(BundleContext.class), mock(EventAdmin.class));
+                mock(BundleContext.class),
+                mock(EventAdmin.class));
 
         when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
 
@@ -132,8 +140,10 @@ public class ActivityControllerTest {
         activityController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(ActivityController.class.getName()
                         + " did not return correctly store a user-id-based "
-                        + "referece to the ServerSession", MOCK_SESSION_ID,
-                activityController.getSessionByUserId(MOCK_SESSION_ID).getId());
+                        + "referece to the ServerSession",
+                MOCK_SESSION_ID,
+                activityController.getSessionByUserId(MOCK_SESSION_ID)
+                        .getId());
     }
 
     /**
@@ -151,7 +161,8 @@ public class ActivityControllerTest {
         assertNotNull("ServerSession ID is null", serverSessionId);
 
         assertEquals(ActivityController.class.getName() + " did not return the expected " +
-                ServerSession.class.getName() + " object", serverSessionId,
+                        ServerSession.class.getName() + " object",
+                serverSessionId,
                 mockServerSession.getId());
     }
 
@@ -284,7 +295,8 @@ public class ActivityControllerTest {
         activityController.handleEvent(new Event(ActivityEvent.EVENT_TOPIC, testEventProperties));
     }
 
-    private void verifyGetPersistedActivitiesWithMessageData(Map<String, Object> messageData, boolean expectPublish) {
+    private void verifyGetPersistedActivitiesWithMessageData(Map<String, Object> messageData,
+            boolean expectPublish) {
         Message message = new HashMapMessage();
 
         message.put(Message.DATA_FIELD, messageData);
@@ -294,20 +306,24 @@ public class ActivityControllerTest {
 
         ActivityController spyActivityController = spy(activityController);
 
-        doReturn(activities).when(spyActivityController).getActivitiesForUser(anyString());
+        doReturn(activities).when(spyActivityController)
+                .getActivitiesForUser(anyString());
         // Don't want queuePersistedMessages to start up a new thread.
-        doNothing().when(spyActivityController).queuePersistedMessages(any(ServerSession.class),
-                Matchers.<List<Map<String, Object>>>any(), anyString());
+        doNothing().when(spyActivityController)
+                .queuePersistedMessages(any(ServerSession.class),
+                        Matchers.<List<Map<String, Object>>>any(),
+                        anyString());
 
         spyActivityController.getPersistedActivities(mockServerSession, message);
 
         if (expectPublish) {
-            verify(spyActivityController, times(1))
-                    .queuePersistedMessages(eq(mockServerSession), eq(activities),
-                            startsWith(EXPECTED_COMETD_ACTIVITIES_CHANNEL_PREFIX));
+            verify(spyActivityController, times(1)).queuePersistedMessages(eq(mockServerSession),
+                    eq(activities),
+                    startsWith(EXPECTED_COMETD_ACTIVITIES_CHANNEL_PREFIX));
         } else {
             verify(spyActivityController, never()).queuePersistedMessages(any(ServerSession.class),
-                    Matchers.<List<Map<String, Object>>>any(), anyString());
+                    Matchers.<List<Map<String, Object>>>any(),
+                    anyString());
         }
     }
 
@@ -334,17 +350,18 @@ public class ActivityControllerTest {
 
         testEventProperties.put(ActivityEvent.SESSION_ID_KEY, MOCK_SESSION_ID);
 
-        doReturn(mockServerSession).when(spyActivityController).getSessionByUserId(MOCK_USER_ID);
+        doReturn(mockServerSession).when(spyActivityController)
+                .getSessionByUserId(MOCK_USER_ID);
 
-        spyActivityController
-                .handleEvent(new Event(ActivityEvent.EVENT_TOPIC, testEventProperties));
+        spyActivityController.handleEvent(new Event(ActivityEvent.EVENT_TOPIC,
+                testEventProperties));
 
         ArgumentCaptor<Object> dataArgumentCaptor = ArgumentCaptor.forClass(Object.class);
 
-        verify(mockServerSession, times(1))
-                .deliver(eq(spyActivityController.controllerServerSession),
-                        startsWith(EXPECTED_COMETD_ACTIVITIES_CHANNEL_PREFIX),
-                        dataArgumentCaptor.capture());
+        verify(mockServerSession,
+                times(1)).deliver(eq(spyActivityController.controllerServerSession),
+                startsWith(EXPECTED_COMETD_ACTIVITIES_CHANNEL_PREFIX),
+                dataArgumentCaptor.capture());
 
         @SuppressWarnings("unchecked")
         Map<String, Object> data = (Map<String, Object>) dataArgumentCaptor.getValue();

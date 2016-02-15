@@ -1,13 +1,12 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
- *
+ * version 3 of the License, or any later version.
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
@@ -35,11 +34,11 @@ public class TestContentTypeFilterDelegate {
 
     private static final String MOCK_TYPE_VIDEO = "video";
 
-    private final List<ContentType> contentTypeImage = Arrays
-            .asList((ContentType) new ContentTypeImpl(MOCK_TYPE_IMAGE, ""));
+    private final List<ContentType> contentTypeImage =
+            Arrays.asList((ContentType) new ContentTypeImpl(MOCK_TYPE_IMAGE, ""));
 
-    private final List<ContentType> contentTypeVideo = Arrays
-            .asList((ContentType) new ContentTypeImpl(MOCK_TYPE_VIDEO, ""));
+    private final List<ContentType> contentTypeVideo =
+            Arrays.asList((ContentType) new ContentTypeImpl(MOCK_TYPE_VIDEO, ""));
 
     @Before
     public void setUp() {
@@ -55,12 +54,14 @@ public class TestContentTypeFilterDelegate {
     public void testPropertyIsEqualToStringStringBooleanContentType() {
 
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
-        List<ContentType> types = delegate
-                .propertyIsEqualTo(Metacard.CONTENT_TYPE, MOCK_TYPE_IMAGE, true);
+        List<ContentType> types = delegate.propertyIsEqualTo(Metacard.CONTENT_TYPE,
+                MOCK_TYPE_IMAGE,
+                true);
         // Ensure that the content type was returned correctly
         assertNotNull(types);
         assertTrue(types.size() == 1);
-        assertTrue((types.get(0).getName()).equals(MOCK_TYPE_IMAGE));
+        assertTrue((types.get(0)
+                .getName()).equals(MOCK_TYPE_IMAGE));
     }
 
     @Test
@@ -76,12 +77,14 @@ public class TestContentTypeFilterDelegate {
     @Test
     public void testPropertyIsLikeStringStringBooleanContentType() {
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
-        List<ContentType> types = delegate
-                .propertyIsLike(Metacard.CONTENT_TYPE, MOCK_TYPE_IMAGE, true);
+        List<ContentType> types = delegate.propertyIsLike(Metacard.CONTENT_TYPE,
+                MOCK_TYPE_IMAGE,
+                true);
         // Ensure that the content type was returned correctly
         assertNotNull(types);
         assertTrue(types.size() == 1);
-        assertTrue((types.get(0).getName()).equals(MOCK_TYPE_IMAGE));
+        assertTrue((types.get(0)
+                .getName()).equals(MOCK_TYPE_IMAGE));
     }
 
     @Test
@@ -99,8 +102,8 @@ public class TestContentTypeFilterDelegate {
 
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
         @SuppressWarnings("unchecked")
-        List<ContentType> types = delegate
-                .and(Arrays.asList(this.contentTypeImage, this.contentTypeVideo));
+        List<ContentType> types = delegate.and(Arrays.asList(this.contentTypeImage,
+                this.contentTypeVideo));
 
         // Ensure the lists were combined into a single list
         assertNotNull(types);
@@ -127,8 +130,8 @@ public class TestContentTypeFilterDelegate {
 
         ContentTypeFilterDelegate delegate = new ContentTypeFilterDelegate();
         @SuppressWarnings("unchecked")
-        List<ContentType> types = delegate
-                .or(Arrays.asList(this.contentTypeImage, this.contentTypeVideo));
+        List<ContentType> types = delegate.or(Arrays.asList(this.contentTypeImage,
+                this.contentTypeVideo));
 
         // Ensure the lists were combined into a single list
         assertNotNull(types);

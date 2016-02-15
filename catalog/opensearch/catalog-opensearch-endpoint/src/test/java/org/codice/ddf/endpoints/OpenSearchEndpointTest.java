@@ -133,18 +133,36 @@ public class OpenSearchEndpointTest {
         InputStream is = new ByteArrayInputStream("Test String From InputStream".getBytes("UTF-8"));
         when(mockBinaryContent.getInputStream()).thenReturn(is);
         when(mockBinaryContent.getMimeTypeValue()).thenReturn("text/plain");
-        when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap()))
-                .thenReturn(mockBinaryContent);
+        when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap())).thenReturn(
+                mockBinaryContent);
 
         OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder);
 
         System.setProperty(SystemInfo.SITE_NAME, testSiteName);
 
         // ***Test Execution***
-        osEndPoint
-                .processQuery(searchTerms, null, sources, null, null, count, null, null, null, null,
-                        null, null, null, null, null, null, null, null, mockUriInfo, null, null,
-                        null);
+        osEndPoint.processQuery(searchTerms,
+                null,
+                sources,
+                null,
+                null,
+                count,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                mockUriInfo,
+                null,
+                null,
+                null);
 
     }
 }

@@ -30,7 +30,6 @@ import ddf.security.ws.policy.PolicyLoader;
 
 /**
  * Uses the filesystem to load a policy file.
- *
  */
 public class FilePolicyLoader implements PolicyLoader {
 
@@ -39,12 +38,9 @@ public class FilePolicyLoader implements PolicyLoader {
     /**
      * Creates a new instance of the file policy loader.
      *
-     * @param context
-     *            Used to obtain the file from the file system.
-     * @param policyLocation
-     *            Location of the file within the bundle classpath.
-     * @throws IOException
-     *             If an error occurs while trying to load the policy file.
+     * @param context        Used to obtain the file from the file system.
+     * @param policyLocation Location of the file within the bundle classpath.
+     * @throws IOException If an error occurs while trying to load the policy file.
      */
     public FilePolicyLoader(BundleContext context, String policyLocation) throws IOException {
         URL policyURL = context.getBundle()
@@ -55,11 +51,9 @@ public class FilePolicyLoader implements PolicyLoader {
     /**
      * Loads the policy and converts it into a Document.
      *
-     * @param policyFileURL
-     *            URL that is based in from the bundlecontext.
+     * @param policyFileURL URL that is based in from the bundlecontext.
      * @return The policy in a Document format.
-     * @throws IOException
-     *             If an error occurs while trying to parse the file into a Document.
+     * @throws IOException If an error occurs while trying to parse the file into a Document.
      */
     protected Document loadFromFile(URL policyFileURL) throws IOException {
         InputStream policyStream = null;

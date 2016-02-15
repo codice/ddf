@@ -44,9 +44,13 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+                ACTION_PROVIDER_ID,
+                SAMPLE_TRANSFORMER_ID);
 
-        this.configureActionProvider("badProtocol", SAMPLE_IP, SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+        this.configureActionProvider("badProtocol",
+                SAMPLE_IP,
+                SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
         assertNull("A bad url should have been caught and a null action returned.",
@@ -61,9 +65,13 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+                ACTION_PROVIDER_ID,
+                SAMPLE_TRANSFORMER_ID);
 
-        this.configureActionProvider(SAMPLE_PROTOCOL, "23^&*#", SAMPLE_PORT, SAMPLE_SERVICES_ROOT,
+        this.configureActionProvider(SAMPLE_PROTOCOL,
+                "23^&*#",
+                SAMPLE_PORT,
+                SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
         assertNull("A bad url should have been caught and a null action returned.",
@@ -80,7 +88,8 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         Metacard metacard = givenMetacard(SAMPLE_ID, noSource);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+                ACTION_PROVIDER_ID,
+                SAMPLE_TRANSFORMER_ID);
         this.configureActionProvider();
 
         // when
@@ -94,8 +103,10 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
                 MetacardTransformerActionProvider.DESCRIPTION_SUFFIX, action.getDescription());
 
         assertThat(action.getUrl()
-                .toString(), is(expectedDefaultAddressWith(metacard.getId(), SAMPLE_SOURCE_NAME,
-                SAMPLE_TRANSFORMER_ID)));
+                        .toString(),
+                is(expectedDefaultAddressWith(metacard.getId(),
+                        SAMPLE_SOURCE_NAME,
+                        SAMPLE_TRANSFORMER_ID)));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }
@@ -135,7 +146,8 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         metacard.setSourceId(newSourceName);
 
         AbstractMetacardActionProvider actionProvider = new MetacardTransformerActionProvider(
-                ACTION_PROVIDER_ID, SAMPLE_TRANSFORMER_ID);
+                ACTION_PROVIDER_ID,
+                SAMPLE_TRANSFORMER_ID);
         this.configureActionProvider();
 
         // when
@@ -143,8 +155,10 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
 
         // then
         assertThat(action.getUrl()
-                .toString(), is(expectedDefaultAddressWith(metacard.getId(), newSourceName,
-                SAMPLE_TRANSFORMER_ID)));
+                        .toString(),
+                is(expectedDefaultAddressWith(metacard.getId(),
+                        newSourceName,
+                        SAMPLE_TRANSFORMER_ID)));
         assertEquals(ACTION_PROVIDER_ID, actionProvider.getId());
 
     }

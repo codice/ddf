@@ -116,7 +116,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to create keystore instance of type {}",
-                    System.getProperty("javax.net.ssl.keyStoreType"), e);
+                    System.getProperty("javax.net.ssl.keyStoreType"),
+                    e);
         }
         Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
         Path trustStoreFile = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
@@ -130,7 +131,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
         String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
         if (!Files.isReadable(keyStoreFile) || !Files.isReadable(trustStoreFile)) {
-            LOGGER.error("Unable to read system key/trust store files: [ {} ] [ {} ]", keyStoreFile,
+            LOGGER.error("Unable to read system key/trust store files: [ {} ] [ {} ]",
+                    keyStoreFile,
                     trustStoreFile);
             return;
         }
@@ -203,8 +205,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 aliasMap.put("alias", alias);
                 aliasMap.put("isKey", isKey);
                 aliasMap.put("type", certificate.getType());
-                aliasMap.put("format", certificate.getPublicKey().getFormat());
-                aliasMap.put("algorithm", certificate.getPublicKey().getAlgorithm());
+                aliasMap.put("format",
+                        certificate.getPublicKey()
+                                .getFormat());
+                aliasMap.put("algorithm",
+                        certificate.getPublicKey()
+                                .getAlgorithm());
                 storeEntries.add(aliasMap);
             }
         } catch (KeyStoreException e) {
@@ -224,8 +230,15 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
         }
         String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-        addToStore(alias, keyPassword, storePassword, data, type, fileName, keyStoreFile.toString(),
-                keyStorePassword, keyStore);
+        addToStore(alias,
+                keyPassword,
+                storePassword,
+                data,
+                type,
+                fileName,
+                keyStoreFile.toString(),
+                keyStorePassword,
+                keyStore);
     }
 
     @Override
@@ -239,8 +252,15 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
         }
         String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
-        addToStore(alias, keyPassword, storePassword, data, type, fileName,
-                trustStoreFile.toString(), trustStorePassword, trustStore);
+        addToStore(alias,
+                keyPassword,
+                storePassword,
+                data,
+                type,
+                fileName,
+                trustStoreFile.toString(),
+                trustStorePassword,
+                trustStore);
     }
 
     @Override
@@ -266,18 +286,28 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         }
 
         try {
-            if (StringUtils.isEmpty(fqdn) || !validKeystoreAlias(fqdn, keystorePassword,
-                    keystoreData, keystoreFileName)) {
+            if (StringUtils.isEmpty(fqdn) || !validKeystoreAlias(fqdn,
+                    keystorePassword,
+                    keystoreData,
+                    keystoreFileName)) {
                 errors.add("Keystore does not contain the required key for " + fqdn);
                 return errors;
             }
 
             deleteAllSystemStoreEntries();
 
-            addPrivateKey(fqdn, keyPassword, keystorePassword, keystoreData, null,
+            addPrivateKey(fqdn,
+                    keyPassword,
+                    keystorePassword,
+                    keystoreData,
+                    null,
                     keystoreFileName);
 
-            addTrustedCertificate(fqdn, null, truststorePassword, truststoreData, null,
+            addTrustedCertificate(fqdn,
+                    null,
+                    truststorePassword,
+                    truststoreData,
+                    null,
                     truststoreFileName);
         } catch (Exception e) {
             LOGGER.error("Unable to replace system stores.", e);
@@ -290,7 +320,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     private boolean validKeystoreAlias(String alias, String keystorePassword, String keystoreData,
             String keystoreFileName) throws KeystoreEditorException {
         boolean valid = false;
-        try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreData))) {
+        try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder()
+                .decode(keystoreData))) {
             if (StringUtils.isBlank(alias)) {
                 throw new IllegalArgumentException("Alias cannot be null.");
             }
@@ -316,7 +347,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             String data, String type, String fileName, String path, String storepass,
             KeyStore store) throws KeystoreEditorException {
         OutputStream fos = null;
-        try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data))) {
+        try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder()
+                .decode(data))) {
             if (StringUtils.isBlank(alias)) {
                 throw new IllegalArgumentException("Alias cannot be null.");
             }
@@ -346,7 +378,9 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                     if (jks.isKeyEntry(jksAlias)) {
                         Key key = jks.getKey(jksAlias, keyPassword.toCharArray());
                         Certificate[] certificateChain = jks.getCertificateChain(jksAlias);
-                        store.setKeyEntry(jksAlias, key, keyPassword.toCharArray(),
+                        store.setKeyEntry(jksAlias,
+                                key,
+                                keyPassword.toCharArray(),
                                 certificateChain);
                     } else {
                         Certificate certificate = jks.getCertificate(jksAlias);
@@ -362,14 +396,16 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                 ASN1Primitive asn1Primitive = asn1InputStream.readObject();
                 X509CertificateHolder x509CertificateHolder = new X509CertificateHolder(
                         asn1Primitive.getEncoded());
-                CertificateFactory certificateFactory = CertificateFactory
-                        .getInstance("X.509", "BC");
-                Certificate certificate = certificateFactory.generateCertificate(
-                        new ByteArrayInputStream(x509CertificateHolder.getEncoded()));
-                X500Name x500name = new JcaX509CertificateHolder((X509Certificate) certificate)
-                        .getSubject();
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509",
+                        "BC");
+                Certificate certificate =
+                        certificateFactory.generateCertificate(new ByteArrayInputStream(
+                                x509CertificateHolder.getEncoded()));
+                X500Name x500name =
+                        new JcaX509CertificateHolder((X509Certificate) certificate).getSubject();
                 RDN cn = x500name.getRDNs(BCStyle.CN)[0];
-                String cnStr = IETFUtils.valueToString(cn.getFirst().getValue());
+                String cnStr = IETFUtils.valueToString(cn.getFirst()
+                        .getValue());
                 if (!store.isCertificateEntry(cnStr) && !store.isKeyEntry(cnStr)) {
                     store.setCertificateEntry(cnStr, certificate);
                 }
@@ -388,11 +424,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                     if (object instanceof PEMEncryptedKeyPair || object instanceof PEMKeyPair) {
                         PEMKeyPair pemKeyPair;
                         if (object instanceof PEMEncryptedKeyPair) {
-                            PEMEncryptedKeyPair pemEncryptedKeyPairKeyPair = (PEMEncryptedKeyPair) object;
-                            JcePEMDecryptorProviderBuilder jcePEMDecryptorProviderBuilder = new JcePEMDecryptorProviderBuilder();
+                            PEMEncryptedKeyPair pemEncryptedKeyPairKeyPair =
+                                    (PEMEncryptedKeyPair) object;
+                            JcePEMDecryptorProviderBuilder jcePEMDecryptorProviderBuilder =
+                                    new JcePEMDecryptorProviderBuilder();
                             pemKeyPair = pemEncryptedKeyPairKeyPair.decryptKeyPair(
-                                    jcePEMDecryptorProviderBuilder
-                                            .build(keyPassword.toCharArray()));
+                                    jcePEMDecryptorProviderBuilder.build(keyPassword.toCharArray()));
                         } else {
                             pemKeyPair = (PEMKeyPair) object;
                         }
@@ -407,15 +444,19 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                         store.setKeyEntry(alias, privateKey, keyPassword.toCharArray(), chain);
                         setEntry = true;
                     } else if (object instanceof X509CertificateHolder) {
-                        X509CertificateHolder x509CertificateHolder = (X509CertificateHolder) object;
-                        CertificateFactory certificateFactory = CertificateFactory
-                                .getInstance("X.509", "BC");
-                        Certificate certificate = certificateFactory.generateCertificate(
-                                new ByteArrayInputStream(x509CertificateHolder.getEncoded()));
-                        X500Name x500name = new JcaX509CertificateHolder(
-                                (X509Certificate) certificate).getSubject();
+                        X509CertificateHolder x509CertificateHolder =
+                                (X509CertificateHolder) object;
+                        CertificateFactory certificateFactory = CertificateFactory.getInstance(
+                                "X.509",
+                                "BC");
+                        Certificate certificate =
+                                certificateFactory.generateCertificate(new ByteArrayInputStream(
+                                        x509CertificateHolder.getEncoded()));
+                        X500Name x500name =
+                                new JcaX509CertificateHolder((X509Certificate) certificate).getSubject();
                         RDN cn = x500name.getRDNs(BCStyle.CN)[0];
-                        String cnStr = IETFUtils.valueToString(cn.getFirst().getValue());
+                        String cnStr = IETFUtils.valueToString(cn.getFirst()
+                                .getValue());
                         if (!store.isCertificateEntry(cnStr) && !store.isKeyEntry(cnStr)) {
                             store.setCertificateEntry(cnStr, certificate);
                         }
@@ -432,28 +473,32 @@ public class KeystoreEditor implements KeystoreEditorMBean {
                             setEntry = importASN1CertificatesToStore(store, setEntry, certificates);
                         } else if (contentInfo.getContentType()
                                 .equals(CMSObjectIdentifiers.signedData)) {
-                            SignedData signedData = SignedData
-                                    .getInstance(contentInfo.getContent());
+                            SignedData signedData =
+                                    SignedData.getInstance(contentInfo.getContent());
                             ASN1Set certificates = signedData.getCertificates();
                             setEntry = importASN1CertificatesToStore(store, setEntry, certificates);
                         }
                     } else if (object instanceof PKCS8EncryptedPrivateKeyInfo) {
-                        PKCS8EncryptedPrivateKeyInfo pkcs8EncryptedPrivateKeyInfo = (PKCS8EncryptedPrivateKeyInfo) object;
+                        PKCS8EncryptedPrivateKeyInfo pkcs8EncryptedPrivateKeyInfo =
+                                (PKCS8EncryptedPrivateKeyInfo) object;
                         Certificate[] chain = store.getCertificateChain(alias);
                         if (chain == null) {
                             chain = buildCertChain(alias, store);
                         }
                         try {
-                            store.setKeyEntry(alias, pkcs8EncryptedPrivateKeyInfo.getEncoded(),
+                            store.setKeyEntry(alias,
+                                    pkcs8EncryptedPrivateKeyInfo.getEncoded(),
                                     chain);
                             setEntry = true;
                         } catch (KeyStoreException keyEx) {
                             try {
-                                PKCS8Key pkcs8Key = new PKCS8Key(
-                                        pkcs8EncryptedPrivateKeyInfo.getEncoded(),
-                                        keyPassword.toCharArray());
-                                store.setKeyEntry(alias, pkcs8Key.getPrivateKey(),
-                                        keyPassword.toCharArray(), chain);
+                                PKCS8Key pkcs8Key =
+                                        new PKCS8Key(pkcs8EncryptedPrivateKeyInfo.getEncoded(),
+                                                keyPassword.toCharArray());
+                                store.setKeyEntry(alias,
+                                        pkcs8Key.getPrivateKey(),
+                                        keyPassword.toCharArray(),
+                                        chain);
                                 setEntry = true;
                             } catch (GeneralSecurityException e) {
                                 LOGGER.error(
@@ -488,10 +533,10 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         if (PKCS7_TYPE.equals(type) || CERT_TYPE.equals(type) || PEM_TYPE.equals(type)) {
             return true;
             //check file extensions
-        } else if (StringUtils.endsWithIgnoreCase(fileName, ".crt") || StringUtils
-                .endsWithIgnoreCase(fileName, ".key") || StringUtils
-                .endsWithIgnoreCase(fileName, ".pem") || StringUtils
-                .endsWithIgnoreCase(fileName, ".p7b")) {
+        } else if (StringUtils.endsWithIgnoreCase(fileName, ".crt")
+                || StringUtils.endsWithIgnoreCase(fileName, ".key")
+                || StringUtils.endsWithIgnoreCase(fileName, ".pem")
+                || StringUtils.endsWithIgnoreCase(fileName, ".p7b")) {
             return true;
         }
         return false;
@@ -502,19 +547,19 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         Enumeration certificateEnumeration = certificates.getObjects();
         try {
             while (certificateEnumeration.hasMoreElements()) {
-                ASN1Primitive asn1Primitive = ((ASN1Encodable) certificateEnumeration.nextElement())
-                        .toASN1Primitive();
-                org.bouncycastle.asn1.x509.Certificate instance = org.bouncycastle.asn1.x509.Certificate
-                        .getInstance(asn1Primitive);
-                CertificateFactory certificateFactory = CertificateFactory
-                        .getInstance("X.509", "BC");
-                Certificate certificate = certificateFactory
-                        .generateCertificate(new ByteArrayInputStream(instance.getEncoded()));
-                X500Name x500name = new JcaX509CertificateHolder((X509Certificate) certificate)
-                        .getSubject();
+                ASN1Primitive asn1Primitive =
+                        ((ASN1Encodable) certificateEnumeration.nextElement()).toASN1Primitive();
+                org.bouncycastle.asn1.x509.Certificate instance =
+                        org.bouncycastle.asn1.x509.Certificate.getInstance(asn1Primitive);
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509",
+                        "BC");
+                Certificate certificate =
+                        certificateFactory.generateCertificate(new ByteArrayInputStream(instance.getEncoded()));
+                X500Name x500name =
+                        new JcaX509CertificateHolder((X509Certificate) certificate).getSubject();
                 RDN cn = x500name.getRDNs(BCStyle.CN)[0];
-                store.setCertificateEntry(IETFUtils.valueToString(cn.getFirst().getValue()),
-                        certificate);
+                store.setCertificateEntry(IETFUtils.valueToString(cn.getFirst()
+                        .getValue()), certificate);
                 setEntry = true;
             }
         } catch (CertificateException | NoSuchProviderException | KeyStoreException | IOException e) {
@@ -538,14 +583,16 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         try {
             Certificate certificate = store.getCertificate(alias);
             if (certificate != null) {
-                X500Name x500nameSubject = new JcaX509CertificateHolder(
-                        (X509Certificate) certificate).getSubject();
+                X500Name x500nameSubject =
+                        new JcaX509CertificateHolder((X509Certificate) certificate).getSubject();
                 RDN subjectCn = x500nameSubject.getRDNs(BCStyle.CN)[0];
-                X500Name x500nameIssuer = new JcaX509CertificateHolder(
-                        (X509Certificate) certificate).getIssuer();
+                X500Name x500nameIssuer =
+                        new JcaX509CertificateHolder((X509Certificate) certificate).getIssuer();
                 RDN issuerCn = x500nameIssuer.getRDNs(BCStyle.CN)[0];
-                String issuer = IETFUtils.valueToString(issuerCn.getFirst().getValue());
-                String subject = IETFUtils.valueToString(subjectCn.getFirst().getValue());
+                String issuer = IETFUtils.valueToString(issuerCn.getFirst()
+                        .getValue());
+                String subject = IETFUtils.valueToString(subjectCn.getFirst()
+                        .getValue());
                 if (StringUtils.isBlank(issuer) || issuer.equals(subject)) {
                     List<Certificate> certificates = new ArrayList<>();
                     certificates.add(certificate);

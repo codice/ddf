@@ -671,7 +671,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 .exists(), is(true));
         assertThat(getExportSubDirectory(exportDirectory, "users.properties").toFile()
                 .exists(), is(true));
-        assertThat(getExportSubDirectory(exportDirectory, "org.codice.ddf.admin.applicationlist.properties").toFile()
+        assertThat(getExportSubDirectory(exportDirectory,
+                "org.codice.ddf.admin.applicationlist.properties").toFile()
                 .exists(), is(true));
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "keystores"),
                 "serverKeystore.jks",

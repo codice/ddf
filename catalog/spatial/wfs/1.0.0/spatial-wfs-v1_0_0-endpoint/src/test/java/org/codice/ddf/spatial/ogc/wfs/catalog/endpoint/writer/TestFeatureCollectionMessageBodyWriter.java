@@ -146,8 +146,8 @@ public class TestFeatureCollectionMessageBodyWriter {
             }
         });
 
-        Source wfsSchemaSource = new StreamSource(
-                getClass().getResourceAsStream("/wfs/1.0.0/wfs.xsd"));
+        Source wfsSchemaSource = new StreamSource(getClass().getResourceAsStream(
+                "/wfs/1.0.0/wfs.xsd"));
         Source testSchemaSource = new StreamSource(getClass().getResourceAsStream("/schema.xsd"));
 
         Schema schema = schemaFactory.newSchema(new Source[] {wfsSchemaSource, testSchemaSource});
@@ -218,17 +218,41 @@ public class TestFeatureCollectionMessageBodyWriter {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        descriptors.add(
-                new AttributeDescriptorImpl(ID, false, false, false, false, BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(TITLE, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(ID,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.LONG_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(TITLE,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(DATE_CREATED, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(DATE_CREATED,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(WINS, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(WINS,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.INTEGER_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(HOME_LOCATION, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(HOME_LOCATION,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.GEO_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(AWAY_LOCATION, false, false, false, false,
+        descriptors.add(new AttributeDescriptorImpl(AWAY_LOCATION,
+                false,
+                false,
+                false,
+                false,
                 BasicTypes.GEO_TYPE));
 
         MetacardTypeImpl metacardType = new MetacardTypeImpl(CONTENT_TYPE, descriptors);

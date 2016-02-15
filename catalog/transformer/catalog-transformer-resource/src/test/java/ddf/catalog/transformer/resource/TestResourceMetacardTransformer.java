@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -100,11 +100,11 @@ public class TestResourceMetacardTransformer {
         URI uri = getUri(filePath);
         Metacard metacard = getMockMetacard(uri, federatedSourceId);
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
-        ArgumentCapture capture = new ArgumentCapture(
-                getResourceResponse(getResource(mimeType, uri)));
+        ArgumentCapture capture = new ArgumentCapture(getResourceResponse(getResource(mimeType,
+                uri)));
         CatalogFramework framework = givenFramework(capture);
-        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(
-                framework);
+        ResourceMetacardTransformer resourceTransformer =
+                new ResourceMetacardTransformer(framework);
 
         // when
         resourceTransformer.transform(metacard, new HashMap<String, Serializable>());
@@ -159,8 +159,8 @@ public class TestResourceMetacardTransformer {
         thrown.expectMessage("Unable to retrieve resource.");
         Metacard metacard = getMockMetacard(null);
         CatalogFramework framework = getFrameworkException(new ResourceNotFoundException(""));
-        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(
-                framework);
+        ResourceMetacardTransformer resourceTransformer =
+                new ResourceMetacardTransformer(framework);
         resourceTransformer.transform(metacard, new HashMap<String, Serializable>());
     }
 
@@ -215,8 +215,8 @@ public class TestResourceMetacardTransformer {
 
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
-        CatalogFramework framework = getFrameworkException(
-                new ResourceNotFoundException("Test Resource Not Found Exception"));
+        CatalogFramework framework = getFrameworkException(new ResourceNotFoundException(
+                "Test Resource Not Found Exception"));
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
     }
 
@@ -233,8 +233,8 @@ public class TestResourceMetacardTransformer {
         thrown.expectMessage("Source: " + TEST_SITE);
         boolean expectSuccess = false;
         MimeType mimeType = getMimeType(JPEG_MIME_TYPE);
-        CatalogFramework framework = getFrameworkException(
-                new ResourceNotSupportedException("Test Resource Not Supported Exception"));
+        CatalogFramework framework = getFrameworkException(new ResourceNotSupportedException(
+                "Test Resource Not Supported Exception"));
         testGetResource(metacard, filePath, mimeType, framework, expectSuccess);
     }
 
@@ -252,11 +252,11 @@ public class TestResourceMetacardTransformer {
     private void testGetResource(Metacard metacard, String filePath, MimeType mimeType,
             CatalogFramework framework, boolean expectSuccess) throws Exception {
 
-        ResourceMetacardTransformer resourceTransformer = new ResourceMetacardTransformer(
-                framework);
+        ResourceMetacardTransformer resourceTransformer =
+                new ResourceMetacardTransformer(framework);
 
-        BinaryContent binaryContent = resourceTransformer
-                .transform(metacard, new HashMap<String, Serializable>());
+        BinaryContent binaryContent = resourceTransformer.transform(metacard,
+                new HashMap<String, Serializable>());
 
         byte[] fileContents = FileUtils.readFileToByteArray(new File(filePath));
 
@@ -281,8 +281,8 @@ public class TestResourceMetacardTransformer {
 
         when(framework.getId()).thenReturn(TEST_SITE);
 
-        when(framework.getResource(any(ResourceRequest.class), isA(String.class)))
-                .thenAnswer(answer);
+        when(framework.getResource(any(ResourceRequest.class),
+                isA(String.class))).thenAnswer(answer);
 
         return framework;
 
@@ -291,8 +291,8 @@ public class TestResourceMetacardTransformer {
     private CatalogFramework getFramework(ResourceResponse resourceResponse) throws Exception {
         CatalogFramework framework = mock(CatalogFramework.class);
         when(framework.getId()).thenReturn(TEST_SITE);
-        when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE)))
-                .thenReturn(resourceResponse);
+        when(framework.getResource(any(ResourceRequest.class), eq(TEST_SITE))).thenReturn(
+                resourceResponse);
         return framework;
     }
 
@@ -306,9 +306,12 @@ public class TestResourceMetacardTransformer {
     private Resource getResource(MimeType mimeType, URI uri) throws Exception {
         Resource resource = mock(Resource.class);
         when(resource.getMimeType()).thenReturn(mimeType);
-        when(resource.getMimeTypeValue())
-                .thenReturn((mimeType == null) ? null : mimeType.getBaseType());
-        when(resource.getInputStream()).thenReturn(uri.toURL().openConnection().getInputStream());
+        when(resource.getMimeTypeValue()).thenReturn((mimeType == null) ?
+                null :
+                mimeType.getBaseType());
+        when(resource.getInputStream()).thenReturn(uri.toURL()
+                .openConnection()
+                .getInputStream());
         return resource;
     }
 

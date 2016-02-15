@@ -64,7 +64,8 @@ public class ActiveApplicationsCompleterTest {
                 testAppService);
 
         assertThat("If the return value is -1, the expected match was not found.",
-                activeApplicationsCompleter.complete("Tes", 2, new ArrayList()), is(not(-1)));
+                activeApplicationsCompleter.complete("Tes", 2, new ArrayList()),
+                is(not(-1)));
     }
 
     /**
@@ -73,8 +74,8 @@ public class ActiveApplicationsCompleterTest {
      */
     @Test
     public void testActiveApplicationsCompleterNullAppService() {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -86,7 +87,6 @@ public class ActiveApplicationsCompleterTest {
                 testAppService);
 
         activeApplicationsCompleter.complete("Tes", 2, new ArrayList());
-
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override

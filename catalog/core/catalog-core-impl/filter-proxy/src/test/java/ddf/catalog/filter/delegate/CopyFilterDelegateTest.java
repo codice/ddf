@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -81,21 +81,21 @@ public class CopyFilterDelegateTest {
 
     private static final Instant EPOCH_INSTANT = new DefaultInstant(new DefaultPosition(EPOCH));
 
-    private static final Instant EPOCH_PLUS_DAY_INSTANT = new DefaultInstant(
-            new DefaultPosition(EPOCH_PLUS_DAY));
+    private static final Instant EPOCH_PLUS_DAY_INSTANT = new DefaultInstant(new DefaultPosition(
+            EPOCH_PLUS_DAY));
 
     private static final Period EPOCH_DAY_PERIOD = new DefaultPeriod(EPOCH_INSTANT,
             EPOCH_PLUS_DAY_INSTANT);
 
-    private static final PeriodDuration DAY_DURATION = new DefaultPeriodDuration(
-            DAY_IN_MILLISECONDS);
+    private static final PeriodDuration DAY_DURATION =
+            new DefaultPeriodDuration(DAY_IN_MILLISECONDS);
 
     private static final double DISTANCE_10 = 10.0;
 
     private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
 
-    private static final GeometryBuilder GEO_BUILDER = new GeometryBuilder(
-            DefaultGeographicCRS.WGS84);
+    private static final GeometryBuilder GEO_BUILDER =
+            new GeometryBuilder(DefaultGeographicCRS.WGS84);
 
     private static final WKTParser WKT_PARSER = new WKTParser(GEO_BUILDER);
 
@@ -286,8 +286,8 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsGreaterThanString() throws Exception {
-        assertFilterException(
-                FF.greater(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
+        assertFilterException(FF.greater(TEST_PROPERTY,
+                FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
@@ -327,8 +327,8 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToString() throws Exception {
-        assertFilterException(
-                FF.greaterOrEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
+        assertFilterException(FF.greaterOrEqual(TEST_PROPERTY,
+                FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
@@ -408,8 +408,8 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsLesserThanOrEqualToString() throws Exception {
-        assertFilterException(
-                FF.lessOrEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
+        assertFilterException(FF.lessOrEqual(TEST_PROPERTY,
+                FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
@@ -454,43 +454,50 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsBetweenDates() throws Exception {
-        assertFilterException(
-                FF.between(TEST_PROPERTY, FF.literal(EPOCH), FF.literal(EPOCH_PLUS_DAY)));
+        assertFilterException(FF.between(TEST_PROPERTY,
+                FF.literal(EPOCH),
+                FF.literal(EPOCH_PLUS_DAY)));
     }
 
     @Test
     public void testPropertyIsBetweenInts() throws Exception {
-        assertFilterEquals(
-                FF.between(TEST_PROPERTY, FF.literal(new Integer(1)), FF.literal(new Integer(5))));
+        assertFilterEquals(FF.between(TEST_PROPERTY,
+                FF.literal(new Integer(1)),
+                FF.literal(new Integer(5))));
     }
 
     @Test
     public void testPropertyIsBetweenShorts() throws Exception {
-        assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Short((short) 1)),
+        assertFilterEquals(FF.between(TEST_PROPERTY,
+                FF.literal(new Short((short) 1)),
                 FF.literal(new Short((short) 5))));
     }
 
     @Test
     public void testPropertyIsBetweenLongs() throws Exception {
-        assertFilterEquals(
-                FF.between(TEST_PROPERTY, FF.literal(new Long(1)), FF.literal(new Long(5))));
+        assertFilterEquals(FF.between(TEST_PROPERTY,
+                FF.literal(new Long(1)),
+                FF.literal(new Long(5))));
     }
 
     @Test
     public void testPropertyIsBetweenFloats() throws Exception {
-        assertFilterEquals(
-                FF.between(TEST_PROPERTY, FF.literal(new Float(1.0)), FF.literal(new Float(5.0))));
+        assertFilterEquals(FF.between(TEST_PROPERTY,
+                FF.literal(new Float(1.0)),
+                FF.literal(new Float(5.0))));
     }
 
     @Test
     public void testPropertyIsBetweenDoubles() throws Exception {
-        assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Double(1.0)),
+        assertFilterEquals(FF.between(TEST_PROPERTY,
+                FF.literal(new Double(1.0)),
                 FF.literal(new Double(5.0))));
     }
 
     @Test
     public void testPropertyIsBetweenObjects() throws Exception {
-        assertFilterException(FF.between(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3)),
+        assertFilterException(FF.between(TEST_PROPERTY,
+                FF.literal(Arrays.asList(1, 2, 3)),
                 FF.literal(Arrays.asList(4, 5, 6))));
     }
 
@@ -501,9 +508,12 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsLikeCaseSensitive() {
-        assertFilterEquals(FF.like(TEST_PROPERTY, FOO_LITERAL_VALUE.toUpperCase(),
-                FilterDelegate.WILDCARD_CHAR, FilterDelegate.SINGLE_CHAR,
-                FilterDelegate.ESCAPE_CHAR, true));
+        assertFilterEquals(FF.like(TEST_PROPERTY,
+                FOO_LITERAL_VALUE.toUpperCase(),
+                FilterDelegate.WILDCARD_CHAR,
+                FilterDelegate.SINGLE_CHAR,
+                FilterDelegate.ESCAPE_CHAR,
+                true));
     }
 
     @Test
@@ -525,21 +535,26 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testXpathIsLikeCaseSensitive() {
-        assertFilterEquals(FF.like(FF.property("//ns:title"), "foo*", FilterDelegate.WILDCARD_CHAR,
-                FilterDelegate.SINGLE_CHAR, FilterDelegate.ESCAPE_CHAR, true));
+        assertFilterEquals(FF.like(FF.property("//ns:title"),
+                "foo*",
+                FilterDelegate.WILDCARD_CHAR,
+                FilterDelegate.SINGLE_CHAR,
+                FilterDelegate.ESCAPE_CHAR,
+                true));
     }
 
     @Test
     public void testXpathIsFuzzy() {
-        assertFilterEquals(
-                FF.like(new FuzzyFunction(Arrays.asList((Expression) (FF.property("//ns:title"))),
-                                FF.literal("")), "foo*?"));
+        assertFilterEquals(FF.like(new FuzzyFunction(Arrays.asList((Expression) (FF.property(
+                "//ns:title"))), FF.literal("")), "foo*?"));
     }
 
     @Test
     public void testSpatialBeyond() {
         Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-        assertFilterEquals(FF.beyond(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10,
+        assertFilterEquals(FF.beyond(TEST_PROPERTY_VALUE,
+                polygonGeometry,
+                DISTANCE_10,
                 UomOgcMapping.METRE.name()));
     }
 
@@ -552,7 +567,9 @@ public class CopyFilterDelegateTest {
     @Test
     public void testSpatialDWithin() {
         Geometry polygonGeometry = wktToGeometry(POLYGON_WKT);
-        assertFilterEquals(FF.dwithin(TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_10,
+        assertFilterEquals(FF.dwithin(TEST_PROPERTY_VALUE,
+                polygonGeometry,
+                DISTANCE_10,
                 UomOgcMapping.METRE.name()));
     }
 

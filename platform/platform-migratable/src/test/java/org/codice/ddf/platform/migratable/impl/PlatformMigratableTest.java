@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -55,8 +55,9 @@ public class PlatformMigratableTest {
     private static final Path SYSTEM_PROPERTIES_REL_PATH = Paths.get("etc", "system.properties");
 
     private static final Path USERS_PROPERTIES_REL_PATH = Paths.get("etc", "users.properties");
-    
-    private static final Path APPLICATION_LIST = Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties");
+
+    private static final Path APPLICATION_LIST = Paths.get("etc",
+            "org.codice.ddf.admin.applicationlist.properties");
 
     private static final Path EXPORTED_DIR_REL_PATH = Paths.get("etc", "exported");
 
@@ -78,7 +79,8 @@ public class PlatformMigratableTest {
     public void testExportValidRelativePaths() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -95,23 +97,28 @@ public class PlatformMigratableTest {
      * Verify that if an absolute path is encountered during the export, a warning is returned.
      */
     @Test
-    public void testExportWarningsReturnedWhenExportingKeystoreTruststoreAppList() throws Exception {
+    public void testExportWarningsReturnedWhenExportingKeystoreTruststoreAppList()
+            throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
         MigrationWarning expectedMigrationWarning1 = new MigrationWarning("warning 1");
         doAnswer(new MigrationWarningAnswer(expectedMigrationWarning1)).when(mockMigratableUtil)
-                .copyFileFromSystemPropertyValue(eq(KEYSTORE_SYSTEM_PROP), eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                .copyFileFromSystemPropertyValue(eq(KEYSTORE_SYSTEM_PROP),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
         MigrationWarning expectedMigrationWarning2 = new MigrationWarning("warning 2");
         doAnswer(new MigrationWarningAnswer(expectedMigrationWarning2)).when(mockMigratableUtil)
-                .copyFileFromSystemPropertyValue(eq(TRUSTSTORE_SYSTEM_PROP), eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                .copyFileFromSystemPropertyValue(eq(TRUSTSTORE_SYSTEM_PROP),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
         MigrationWarning expectedMigrationWarning3 = new MigrationWarning("warning 3");
         doAnswer(new MigrationWarningAnswer(expectedMigrationWarning3)).when(mockMigratableUtil)
-                .copyFile(eq(APPLICATION_LIST), eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                .copyFile(eq(APPLICATION_LIST),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -132,14 +139,17 @@ public class PlatformMigratableTest {
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
         MigrationWarning expectedMigrationWarning1 = new MigrationWarning("warning 1");
         doAnswer(new MigrationWarningAnswer(expectedMigrationWarning1)).when(mockMigratableUtil)
-                .copyFile(eq(SYSTEM_PROPERTIES_REL_PATH), eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                .copyFile(eq(SYSTEM_PROPERTIES_REL_PATH),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
         MigrationWarning expectedMigrationWarning2 = new MigrationWarning("warning 2");
         doAnswer(new MigrationWarningAnswer(expectedMigrationWarning2)).when(mockMigratableUtil)
-                .copyFile(eq(USERS_PROPERTIES_REL_PATH), eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                .copyFile(eq(USERS_PROPERTIES_REL_PATH),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -159,27 +169,32 @@ public class PlatformMigratableTest {
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
         MigrationWarning expectedMigrationWarning = new MigrationWarning("warning 1");
         doAnswer(new MigrationWarningAnswer(expectedMigrationWarning)).when(mockMigratableUtil)
-                .copyDirectory(eq(WS_SECURITY_DIR_REL_PATH), eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>> any());
+                .copyDirectory(eq(WS_SECURITY_DIR_REL_PATH),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
         MigrationMetadata migrationMetadata = platformMigratable.export(exportDirectory);
 
         // Verify
-        assertThat(migrationMetadata.getMigrationWarnings().contains(expectedMigrationWarning),
-                is(true));
+        assertThat(migrationMetadata.getMigrationWarnings()
+                .contains(expectedMigrationWarning), is(true));
     }
-    
+
     @Test(expected = MigrationException.class)
     public void testExportExceptionThrownWhenCopyingFile() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil).copyFile(any(Path.class),
-                eq(exportDirectory), Matchers.<Collection<MigrationWarning>> any());
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        doThrow(MigrationException.class).when(mockMigratableUtil)
+                .copyFile(any(Path.class),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
@@ -190,23 +205,28 @@ public class PlatformMigratableTest {
     public void testExportExceptionThrownWhenCopyingDirectory() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil).copyDirectory(any(Path.class),
-                eq(exportDirectory), Matchers.<Collection<MigrationWarning>> any());
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        doThrow(MigrationException.class).when(mockMigratableUtil)
+                .copyDirectory(any(Path.class),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
         platformMigratable.export(exportDirectory);
     }
-    
+
     @Test(expected = MigrationException.class)
     public void testExportExceptionThrownWhenCopyingFileFromSystemPropertyValue() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil).copyFileFromSystemPropertyValue(
-                any(String.class), eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>> any());
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION, IS_OPTIONAL,
+        doThrow(MigrationException.class).when(mockMigratableUtil)
+                .copyFileFromSystemPropertyValue(any(String.class),
+                        eq(exportDirectory),
+                        Matchers.<Collection<MigrationWarning>>any());
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
+                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
@@ -214,35 +234,39 @@ public class PlatformMigratableTest {
     }
 
     private void assertWsSecurityExport(MigratableUtil mockMigratableUtil) {
-        verify(mockMigratableUtil).copyDirectory(eq(WS_SECURITY_DIR_REL_PATH), eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>> any());
+        verify(mockMigratableUtil).copyDirectory(eq(WS_SECURITY_DIR_REL_PATH),
+                eq(exportDirectory),
+                Matchers.<Collection<MigrationWarning>>any());
     }
 
     private void assertSystemPropertiesFilesExport(MigratableUtil mockMigratableUtil) {
         verify(mockMigratableUtil).copyFile(eq(SYSTEM_PROPERTIES_REL_PATH),
-                eq(exportDirectory), Matchers.<Collection<MigrationWarning>> any());
+                eq(exportDirectory),
+                Matchers.<Collection<MigrationWarning>>any());
         verify(mockMigratableUtil).copyFile(eq(USERS_PROPERTIES_REL_PATH),
-                eq(exportDirectory), Matchers.<Collection<MigrationWarning>> any());
+                eq(exportDirectory),
+                Matchers.<Collection<MigrationWarning>>any());
     }
-    
+
     private void assertKeystoresExport(MigratableUtil mockMigratableUtil) {
-        verify(mockMigratableUtil).copyFileFromSystemPropertyValue(
-                eq(KEYSTORE_SYSTEM_PROP), eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>> any());
-        verify(mockMigratableUtil).copyFileFromSystemPropertyValue(
-                eq(TRUSTSTORE_SYSTEM_PROP), eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>> any());
+        verify(mockMigratableUtil).copyFileFromSystemPropertyValue(eq(KEYSTORE_SYSTEM_PROP),
+                eq(exportDirectory),
+                Matchers.<Collection<MigrationWarning>>any());
+        verify(mockMigratableUtil).copyFileFromSystemPropertyValue(eq(TRUSTSTORE_SYSTEM_PROP),
+                eq(exportDirectory),
+                Matchers.<Collection<MigrationWarning>>any());
     }
-    
+
     private void assertAppListExported(MigratableUtil mockMigratableUtil) {
-        verify(mockMigratableUtil).copyFile(eq(APPLICATION_LIST), eq(exportDirectory),
-                Matchers.<Collection<MigrationWarning>> any());
+        verify(mockMigratableUtil).copyFile(eq(APPLICATION_LIST),
+                eq(exportDirectory),
+                Matchers.<Collection<MigrationWarning>>any());
     }
 
     private class MigrationWarningAnswer implements Answer<Void> {
-        
+
         private final MigrationWarning expectedWarning;
-        
+
         private MigrationWarningAnswer(MigrationWarning expectedWarning) {
             this.expectedWarning = expectedWarning;
         }
@@ -253,6 +277,6 @@ public class PlatformMigratableTest {
             Object[] args = invocation.getArguments();
             ((Collection<MigrationWarning>) args[2]).add(expectedWarning);
             return null;
-        }    
+        }
     }
 }

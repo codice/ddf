@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -83,9 +83,12 @@ public class SecureCxfClientFactoryTest {
     public void testInsecureClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                INSECURE_ENDPOINT, IDummy.class);
+                INSECURE_ENDPOINT,
+                IDummy.class);
         Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
+        assertTrue(unsecuredClient.getBaseURI()
+                .toASCIIString()
+                .equals(INSECURE_ENDPOINT));
         // negative cases
         boolean subject = true;
         secureCxfClientFactory.getClientForSubject(getSubject());
@@ -102,9 +105,12 @@ public class SecureCxfClientFactoryTest {
     public void testInsecureWebClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                INSECURE_ENDPOINT, IDummy.class);
+                INSECURE_ENDPOINT,
+                IDummy.class);
         Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT));
+        assertTrue(unsecuredClient.getBaseURI()
+                .toASCIIString()
+                .equals(INSECURE_ENDPOINT));
         // negative cases
         boolean subject = true;
         secureCxfClientFactory.getWebClientForSubject(getSubject());
@@ -121,9 +127,12 @@ public class SecureCxfClientFactoryTest {
     public void testHttpsClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                SECURE_ENDPOINT, IDummy.class);
+                SECURE_ENDPOINT,
+                IDummy.class);
         Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
+        assertTrue(unsecuredClient.getBaseURI()
+                .toASCIIString()
+                .equals(SECURE_ENDPOINT));
         // negative cases
         boolean subject = true;
         secureCxfClientFactory.getClientForSubject(getSubject());
@@ -140,9 +149,12 @@ public class SecureCxfClientFactoryTest {
     public void testHttpsWebClient() throws SecurityServiceException {
         // positive case
         SecureCxfClientFactory<IDummy> secureCxfClientFactory = new SecureCxfClientFactory<>(
-                SECURE_ENDPOINT, IDummy.class);
+                SECURE_ENDPOINT,
+                IDummy.class);
         Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT));
+        assertTrue(unsecuredClient.getBaseURI()
+                .toASCIIString()
+                .equals(SECURE_ENDPOINT));
         // negative cases
         boolean subject = true;
         secureCxfClientFactory.getWebClientForSubject(getSubject());
@@ -157,11 +169,16 @@ public class SecureCxfClientFactoryTest {
 
     @Test
     public void validateConduit() throws SecurityServiceException {
-        IDummy clientForSubject = new SecureCxfClientFactory<>(SECURE_ENDPOINT, IDummy.class, null,
-                null, true, true).getClient();
+        IDummy clientForSubject = new SecureCxfClientFactory<>(SECURE_ENDPOINT,
+                IDummy.class,
+                null,
+                null,
+                true,
+                true).getClient();
         HTTPConduit httpConduit = WebClient.getConfig(WebClient.client(clientForSubject))
                 .getHttpConduit();
-        assertThat(httpConduit.getTlsClientParameters().isDisableCNCheck(), is(true));
+        assertThat(httpConduit.getTlsClientParameters()
+                .isDisableCNCheck(), is(true));
     }
 
     private DummySubject getSubject() {
@@ -177,7 +194,8 @@ public class SecureCxfClientFactoryTest {
 
         @Override
         public Response ok() {
-            return Response.ok().build();
+            return Response.ok()
+                    .build();
         }
     }
 
@@ -185,7 +203,12 @@ public class SecureCxfClientFactoryTest {
 
         public DummySubject(org.apache.shiro.mgt.SecurityManager manager,
                 PrincipalCollection principals) {
-            super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
+            super(principals,
+                    true,
+                    null,
+                    new SimpleSession(UUID.randomUUID()
+                            .toString()),
+                    manager);
         }
 
         @Override

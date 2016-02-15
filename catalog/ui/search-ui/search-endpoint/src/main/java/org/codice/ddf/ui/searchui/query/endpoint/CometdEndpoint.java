@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
@@ -88,18 +87,23 @@ public class CometdEndpoint {
      *            - FilterBuilder for the SearchService to use
      */
     public CometdEndpoint(CometDServlet cometdServlet, CatalogFramework framework,
-            FilterBuilder filterBuilder, FilterAdapter filterAdapter, PersistentStore persistentStore,
-            BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry,
-            ExecutorService executorService) {
+            FilterBuilder filterBuilder, FilterAdapter filterAdapter,
+            PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin,
+            ActionRegistry actionRegistry, ExecutorService executorService) {
         LOGGER.trace("Constructing Cometd Endpoint");
         this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
-        this.searchController = new SearchController(framework, actionRegistry, filterAdapter, executorService);
+        this.searchController = new SearchController(framework,
+                actionRegistry,
+                filterAdapter,
+                executorService);
         this.persistentStore = persistentStore;
-        this.notificationController = new NotificationController(persistentStore, bundleContext,
+        this.notificationController = new NotificationController(persistentStore,
+                bundleContext,
                 eventAdmin);
-        this.activityController = new ActivityController(persistentStore, bundleContext,
+        this.activityController = new ActivityController(persistentStore,
+                bundleContext,
                 eventAdmin);
         LOGGER.trace("Exiting CometdEndpoint constructor. ");
     }

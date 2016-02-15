@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,8 @@ public class DelegateServletFilter implements Filter {
             }
         }
 
-        LinkedList<ServiceReference<Filter>> serviceRefs = new LinkedList<ServiceReference<Filter>>();
+        LinkedList<ServiceReference<Filter>> serviceRefs =
+                new LinkedList<ServiceReference<Filter>>();
         try {
             serviceRefs.addAll(ctx.getServiceReferences(Filter.class, null));
         } catch (InvalidSyntaxException e) {
@@ -89,7 +90,10 @@ public class DelegateServletFilter implements Filter {
             while (reverseIterator.hasNext()) {
                 ServiceReference<Filter> curReference = reverseIterator.next();
                 Filter curFilter = ctx.getService(curReference);
-                if (!curFilter.getClass().toString().equals(this.getClass().toString())) {
+                if (!curFilter.getClass()
+                        .toString()
+                        .equals(this.getClass()
+                                .toString())) {
                     chain.addFilter(curFilter);
                 }
                 reverseIterator.remove();

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,7 +45,8 @@ public class MockRestEndpoint {
     @Path("/{id}")
     public Response getDocument(@PathParam("id") String id,
             @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo) {
-        return Response.ok().build();
+        return Response.ok()
+                .build();
     }
 
     @PUT
@@ -54,7 +55,8 @@ public class MockRestEndpoint {
             InputStream message) {
 
         LOGGER.info("id={}", id);
-        return Response.ok().build();
+        return Response.ok()
+                .build();
     }
 
     /**
@@ -67,7 +69,8 @@ public class MockRestEndpoint {
     public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
             InputStream message) {
         LOGGER.debug("POST");
-        return Response.ok().build();
+        return Response.ok()
+                .build();
     }
 
     /**
@@ -80,7 +83,8 @@ public class MockRestEndpoint {
     @Path("/{id}")
     public Response deleteDocument(@PathParam("id") String id) {
         LOGGER.debug("DELETE");
-        return Response.ok().build();
+        return Response.ok()
+                .build();
     }
 
 }

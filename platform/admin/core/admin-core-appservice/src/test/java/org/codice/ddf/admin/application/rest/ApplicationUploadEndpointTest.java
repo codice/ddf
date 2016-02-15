@@ -100,15 +100,16 @@ public class ApplicationUploadEndpointTest {
         testDisp = mock(ContentDisposition.class);
         testDataHandler = mock(DataHandler.class);
         attachmentList.add(testAttach1);
-        testFile = new File(File.class.getResource(TEST_FILE_NAME).getPath());
+        testFile = new File(File.class.getResource(TEST_FILE_NAME)
+                .getPath());
         testIS = new FileInputStream(testFile);
 
         when(testAttach1.getDataHandler()).thenReturn(testDataHandler);
         when(testAttach1.getContentDisposition()).thenReturn(testDisp);
         when(testMultipartBody.getAllAttachments()).thenReturn(attachmentList);
         when(testDataHandler.getInputStream()).thenReturn(testIS);
-        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME))
-                .thenReturn(TEST_FILE_NAME);
+        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)).thenReturn(
+                TEST_FILE_NAME);
     }
 
     /**
@@ -123,9 +124,11 @@ public class ApplicationUploadEndpointTest {
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
 
         Response response = applicationUploadEndpoint.update(testMultipartBody, testUriInfo);
-        Response testResponse = Response.ok("{\"status\":\"success\"}").type("application/json")
+        Response testResponse = Response.ok("{\"status\":\"success\"}")
+                .type("application/json")
                 .build();
-        assertThat("Returned status is success", response.getStatus(),
+        assertThat("Returned status is success",
+                response.getStatus(),
                 is(testResponse.getStatus()));
     }
 
@@ -146,9 +149,11 @@ public class ApplicationUploadEndpointTest {
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
         Response response = applicationUploadEndpoint.update(testMultipartBody, testUriInfo);
 
-        Response testResponse = Response.ok("{\"status\":\"success\"}").type("application/json")
+        Response testResponse = Response.ok("{\"status\":\"success\"}")
+                .type("application/json")
                 .build();
-        assertThat("Returned status is success", response.getStatus(),
+        assertThat("Returned status is success",
+                response.getStatus(),
                 is(testResponse.getStatus()));
         verify(testAppService).removeApplication(testApp);
         verify(testAppService).startApplication(anyString());
@@ -169,8 +174,10 @@ public class ApplicationUploadEndpointTest {
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
 
         Response response = applicationUploadEndpoint.update(testMultipartBody, testUriInfo);
-        Response expectedResponse = Response.serverError().build();
-        assertThat("Response should indicate server error.", response.getStatus(),
+        Response expectedResponse = Response.serverError()
+                .build();
+        assertThat("Response should indicate server error.",
+                response.getStatus(),
                 is(expectedResponse.getStatus()));
 
     }
@@ -187,8 +194,10 @@ public class ApplicationUploadEndpointTest {
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
         Response response = applicationUploadEndpoint.create(testMultipartBody, testUriInfo);
 
-        Response expectedResponse = Response.ok().build();
-        assertThat("No errors reported by response", response.getStatus(),
+        Response expectedResponse = Response.ok()
+                .build();
+        assertThat("No errors reported by response",
+                response.getStatus(),
                 is(expectedResponse.getStatus()));
         verify(testAppService).addApplication(Mockito.any(URI.class));
     }
@@ -211,9 +220,11 @@ public class ApplicationUploadEndpointTest {
 
         Response response = applicationUploadEndpoint.create(testMultipartBody, testUriInfo);
 
-        Response expectedResponse = Response.serverError().build();
+        Response expectedResponse = Response.serverError()
+                .build();
 
-        assertThat("Response should report server error.", response.getStatus(),
+        assertThat("Response should report server error.",
+                response.getStatus(),
                 is(expectedResponse.getStatus()));
     }
 
@@ -225,8 +236,8 @@ public class ApplicationUploadEndpointTest {
      */
     @Test
     public void testApplicationUploadEndpointCreateInvalidType() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -235,24 +246,27 @@ public class ApplicationUploadEndpointTest {
         ApplicationUploadEndpoint applicationUploadEndpoint = new ApplicationUploadEndpoint(
                 testAppService);
 
-        testFile = new File(File.class.getResource(BAD_FILE_NAME).getPath());
+        testFile = new File(File.class.getResource(BAD_FILE_NAME)
+                .getPath());
         testIS = mock(InputStream.class);
 
         when(testIS.available()).thenReturn(1);
         when(testDataHandler.getInputStream()).thenReturn(testIS);
-        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME))
-                .thenReturn(BAD_FILE_NAME);
+        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)).thenReturn(
+                BAD_FILE_NAME);
 
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
 
         Response response = applicationUploadEndpoint.create(testMultipartBody, testUriInfo);
 
-        Response expectedResponse = Response.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE_415).build();
+        Response expectedResponse = Response.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE_415)
+                .build();
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(WRONG_FILE_TYPE);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(WRONG_FILE_TYPE);
             }
         }));
     }
@@ -265,8 +279,8 @@ public class ApplicationUploadEndpointTest {
      */
     @Test
     public void testApplicationUploadEndpointCreateIOException() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -274,9 +288,10 @@ public class ApplicationUploadEndpointTest {
         ApplicationUploadEndpoint applicationUploadEndpoint = new ApplicationUploadEndpoint(
                 testAppService);
 
-        doThrow(new IOException()).when(testDataHandler).getInputStream();
-        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME))
-                .thenReturn(BAD_FILE_NAME);
+        doThrow(new IOException()).when(testDataHandler)
+                .getInputStream();
+        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)).thenReturn(
+                BAD_FILE_NAME);
 
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
 
@@ -285,7 +300,8 @@ public class ApplicationUploadEndpointTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(IOEX_STRING);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(IOEX_STRING);
             }
         }));
     }
@@ -298,8 +314,8 @@ public class ApplicationUploadEndpointTest {
      */
     @Test
     public void testApplicationUploadEndpointCreateFileNotFound() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -308,12 +324,13 @@ public class ApplicationUploadEndpointTest {
         ApplicationUploadEndpoint applicationUploadEndpoint = new ApplicationUploadEndpoint(
                 testAppService);
 
-        testFile = new File(File.class.getResource(TEST_FILE_NAME).getPath());
+        testFile = new File(File.class.getResource(TEST_FILE_NAME)
+                .getPath());
         testIS = null;
 
         when(testDataHandler.getInputStream()).thenReturn(testIS);
-        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME))
-                .thenReturn(TEST_FILE_NAME);
+        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)).thenReturn(
+                TEST_FILE_NAME);
 
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
 
@@ -322,7 +339,8 @@ public class ApplicationUploadEndpointTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(FILE_NOT_FOUND);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(FILE_NOT_FOUND);
             }
         }));
     }
@@ -335,8 +353,8 @@ public class ApplicationUploadEndpointTest {
      */
     @Test
     public void testApplicationUploadEndpointCreateEmptyFilename() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -345,12 +363,13 @@ public class ApplicationUploadEndpointTest {
         ApplicationUploadEndpoint applicationUploadEndpoint = new ApplicationUploadEndpoint(
                 testAppService);
 
-        testFile = new File(File.class.getResource(TEST_FILE_NAME).getPath());
+        testFile = new File(File.class.getResource(TEST_FILE_NAME)
+                .getPath());
         testIS = new FileInputStream(testFile);
 
         when(testDataHandler.getInputStream()).thenReturn(testIS);
-        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME))
-                .thenReturn(StringUtils.EMPTY);
+        when(testDisp.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME)).thenReturn(
+                StringUtils.EMPTY);
 
         applicationUploadEndpoint.setDefaultFileLocation(TEST_FILE_LOCATION);
 
@@ -359,7 +378,8 @@ public class ApplicationUploadEndpointTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(USING_DEFAULT);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(USING_DEFAULT);
             }
         }));
     }

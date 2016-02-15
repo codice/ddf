@@ -66,7 +66,8 @@ public class XmlMetacardTransformer implements MetacardTransformer {
 
         try {
             String xmlString = metacardMarshaller.marshal(metacard, arguments);
-            ByteArrayInputStream bais = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream bais =
+                    new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
             return new BinaryContentImpl(bais, MIME_TYPE);
         } catch (XmlPullParserException | IOException e) {
             throw new CatalogTransformerException(e);

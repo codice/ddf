@@ -1,4 +1,4 @@
-    /**
+/**
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -40,9 +40,13 @@ import net.minidev.json.parser.ParseException;
 public class TestGeoCoderEndpoint {
 
     private ServiceSelector<GeoCoder> mockGeoCoderFactory;
+
     private GeoCoder mockGeoCoder;
+
     private GeoResult geoResult;
+
     private GeoCoderEndpoint geoCoderEndpoint;
+
     private NearbyLocation nearbyLocation;
 
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
@@ -65,7 +69,6 @@ public class TestGeoCoderEndpoint {
         when(mockGeoCoder.getNearbyCity(anyString())).thenReturn(nearbyLocation);
         when(mockGeoCoder.getNearbyCity(null)).thenReturn(null);
     }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorException() {
@@ -102,9 +105,9 @@ public class TestGeoCoderEndpoint {
         Response response = geoCoderEndpoint.getNearbyCities("POINT(10 30)");
 
         if (response != null) {
-            String responseString = (String)response.getEntity();
+            String responseString = (String) response.getEntity();
             if (responseString != null) {
-                JSONObject jsonObject = (JSONObject)jsonParser.parse(responseString);
+                JSONObject jsonObject = (JSONObject) jsonParser.parse(responseString);
 
                 assertThat(jsonObject.get("name"), is("Phoenix"));
                 assertThat(jsonObject.get("direction"), is("N"));
@@ -119,7 +122,6 @@ public class TestGeoCoderEndpoint {
         assertThat(response.getStatus(), is(Response.Status.NO_CONTENT.getStatusCode()));
     }
 
-
     private GeoCoder buildMockGeoCoder() {
         return mock(GeoCoder.class);
     }
@@ -129,12 +131,14 @@ public class TestGeoCoderEndpoint {
         return geoCoderFactory;
     }
 
-    private GeoResult buildGeoResult(final String name, final double latitude, final double longitude,
-                                     final String featureCode, final long population) {
-        GeoResult geoResult = GeoResultCreator.createGeoResult(name, latitude, longitude,
-                featureCode, population);
+    private GeoResult buildGeoResult(final String name, final double latitude,
+            final double longitude, final String featureCode, final long population) {
+        GeoResult geoResult = GeoResultCreator.createGeoResult(name,
+                latitude,
+                longitude,
+                featureCode,
+                population);
         return geoResult;
     }
-
 
 }

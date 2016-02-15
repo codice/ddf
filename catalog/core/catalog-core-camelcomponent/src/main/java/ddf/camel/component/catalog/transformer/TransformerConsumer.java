@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -39,8 +39,8 @@ import ddf.mime.MimeTypeToTransformerMapper;
  *
  */
 public class TransformerConsumer extends DefaultConsumer {
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(TransformerConsumer.class);
+    private static final transient Logger LOGGER =
+            LoggerFactory.getLogger(TransformerConsumer.class);
 
     private final CatalogEndpoint endpoint;
 
@@ -85,8 +85,8 @@ public class TransformerConsumer extends DefaultConsumer {
             props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, endpoint.getMimeType());
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Registering as QueryResponseTransformer with id=" + endpoint
-                    .getTransformerId());
+            LOGGER.debug("Registering as QueryResponseTransformer with id="
+                    + endpoint.getTransformerId());
         }
 
         // Register this Catalog Consumer as an QueryResponseTransformer in the OSGi registry.
@@ -94,7 +94,8 @@ public class TransformerConsumer extends DefaultConsumer {
         // is used as the "id" key for this QueryResponseTransformer in the OSGi registry.
         // (This is how the CatalogContentPlugin will be able to look up this transformer by
         // mimetype)
-        registration = endpoint.getComponent().getBundleContext()
+        registration = endpoint.getComponent()
+                .getBundleContext()
                 .registerService(transformerClass.getName(), this, props);
 
         LOGGER.debug("EXITING: doStart");
@@ -142,7 +143,8 @@ public class TransformerConsumer extends DefaultConsumer {
             LOGGER.debug("AFTER process(exchange)");
 
             // Entire route has completed - get the output from the last node in the route.
-            content = exchange.getOut().getBody(objClass);
+            content = exchange.getOut()
+                    .getBody(objClass);
 
             // Result should be a BinaryContent - getBody(BinaryContent) will return null if it
             // isn't
@@ -156,12 +158,14 @@ public class TransformerConsumer extends DefaultConsumer {
             if (e2 instanceof CatalogTransformerException) {
                 throw (CatalogTransformerException) e2;
             }
-            getExceptionHandler().handleException("Error processing exchange", exchange,
+            getExceptionHandler().handleException("Error processing exchange",
+                    exchange,
                     exchange.getException());
         } finally {
             // log exception if an exception occurred and was not handled
             if (exchange.getException() != null) {
-                getExceptionHandler().handleException("Error processing exchange", exchange,
+                getExceptionHandler().handleException("Error processing exchange",
+                        exchange,
                         exchange.getException());
             }
         }

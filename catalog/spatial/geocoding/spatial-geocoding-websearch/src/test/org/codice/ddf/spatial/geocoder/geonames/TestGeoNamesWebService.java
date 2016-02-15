@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -56,7 +56,8 @@ public class TestGeoNamesWebService {
 
     private static final String CREATE_POINT_FROM_WKT_POINT = "POINT(-1.0 22)";
 
-    private static final String CREATE_POINT_FROM_WKT_POLYGON = "POLYGON((30 10, 10 20, 20 40, 40 40, 30 10))";
+    private static final String CREATE_POINT_FROM_WKT_POLYGON =
+            "POLYGON((30 10, 10 20, 20 40, 40 40, 30 10))";
 
     private GeoNamesWebService webService;
 
@@ -91,7 +92,8 @@ public class TestGeoNamesWebService {
         when(webClientMock.acceptEncoding(anyString())).thenReturn(webClientMock);
         when(webClientMock.accept(anyString())).thenReturn(webClientMock);
         when(webClientMock.get(String.class)).thenReturn(QUERY_TEST_RESPONSE);
-        doReturn(webClientMock).when(webServiceSpy).createWebClient(anyString());
+        doReturn(webClientMock).when(webServiceSpy)
+                .createWebClient(anyString());
 
         NearbyLocation nearbyLocation = webServiceSpy.getNearbyCity(QUERY_TEST_LOCATION);
         assertThat(nearbyLocation.getCardinalDirection(), equalTo("W"));

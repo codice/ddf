@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -149,7 +149,10 @@ public class RrdJmxCollector implements JmxCollector {
     private ExecutorService executorPool;
 
     public RrdJmxCollector(String mbeanName, String mbeanAttributeName, String metricName) {
-        this(mbeanName, mbeanAttributeName, metricName, DERIVE_DATA_SOURCE_TYPE,
+        this(mbeanName,
+                mbeanAttributeName,
+                metricName,
+                DERIVE_DATA_SOURCE_TYPE,
                 DEFAULT_DATA_SOURCE_NAME);
     }
 
@@ -161,8 +164,12 @@ public class RrdJmxCollector implements JmxCollector {
     public RrdJmxCollector(String mbeanName, String mbeanAttributeName, String metricName,
             String metricType, String dataSourceName) {
 
-        LOGGER.debug("Creating RrdJmxCollector for {}, {}, {}, {}, {}", mbeanName,
-                mbeanAttributeName, metricName, metricType, dataSourceName);
+        LOGGER.debug("Creating RrdJmxCollector for {}, {}, {}, {}, {}",
+                mbeanName,
+                mbeanAttributeName,
+                metricName,
+                metricType,
+                dataSourceName);
 
         this.mbeanName = mbeanName;
         this.mbeanAttributeName = mbeanAttributeName;
@@ -198,8 +205,8 @@ public class RrdJmxCollector implements JmxCollector {
      * @return true if object's value is numeric, false otherwise
      */
     public static boolean isNumeric(Object value) {
-        return ((value instanceof Number) || ((value instanceof String) && NumberUtils
-                .isNumber((String) value)));
+        return ((value instanceof Number) || ((value instanceof String)
+                && NumberUtils.isNumber((String) value)));
     }
 
     @Override
@@ -325,7 +332,8 @@ public class RrdJmxCollector implements JmxCollector {
                 attr = localMBeanServer.getAttribute(new ObjectName(mbeanName), mbeanAttributeName);
 
                 if (!isNumeric(attr)) {
-                    LOGGER.debug("{} from MBean {} has non-numeric data", mbeanAttributeName,
+                    LOGGER.debug("{} from MBean {} has non-numeric data",
+                            mbeanAttributeName,
                             mbeanName);
                     return false;
                 }
@@ -391,8 +399,8 @@ public class RrdJmxCollector implements JmxCollector {
                     "The name of the data source used in the RRD file must be specified.");
         }
 
-        if (!dsType.equals(DsType.COUNTER) && !dsType.equals(DsType.GAUGE) && !dsType
-                .equals(DsType.DERIVE)) {
+        if (!dsType.equals(DsType.COUNTER) && !dsType.equals(DsType.GAUGE)
+                && !dsType.equals(DsType.DERIVE)) {
             throw new CollectorException(
                     "Data Source type for the RRD file must be either DERIVE, COUNTER or GAUGE.");
         }
@@ -400,10 +408,13 @@ public class RrdJmxCollector implements JmxCollector {
         File file = new File(rrdPath);
         if (!file.exists()) {
             // Create necessary parent directories
-            if (!file.getParentFile().exists()) {
-                if (!file.getParentFile().mkdirs()) {
+            if (!file.getParentFile()
+                    .exists()) {
+                if (!file.getParentFile()
+                        .mkdirs()) {
                     LOGGER.warn("Could not create parent file: {}",
-                            file.getParentFile().getAbsolutePath());
+                            file.getParentFile()
+                                    .getAbsolutePath());
                 }
             }
 
@@ -429,14 +440,18 @@ public class RrdJmxCollector implements JmxCollector {
                 def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);
 
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15,
+                def.addArchive(ConsolFun.TOTAL,
+                        DEFAULT_XFF_FACTOR,
+                        15,
                         ONE_YEAR_IN_15_MINUTE_STEPS);
 
                 // 1 minute resolution for last 60 minutes
                 def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);
 
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 15,
+                def.addArchive(ConsolFun.AVERAGE,
+                        DEFAULT_XFF_FACTOR,
+                        15,
                         ONE_YEAR_IN_15_MINUTE_STEPS);
 
                 // 1 minute resolution for last 60 minutes
@@ -451,8 +466,8 @@ public class RrdJmxCollector implements JmxCollector {
                 // 15 minute resolution for the last year
                 def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
 
-            // Use a GAUGE to store the values we measure directly as they are,
-            // e.g., response time for an ingest or query
+                // Use a GAUGE to store the values we measure directly as they are,
+                // e.g., response time for an ingest or query
             } else if (dsType == DsType.GAUGE) {
                 // If you want to know the amount, look at the averages.
                 // If you want to know the rate, look at the maximum.
@@ -461,14 +476,18 @@ public class RrdJmxCollector implements JmxCollector {
                 def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 1, 60);
 
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.TOTAL, DEFAULT_XFF_FACTOR, 15,
+                def.addArchive(ConsolFun.TOTAL,
+                        DEFAULT_XFF_FACTOR,
+                        15,
                         ONE_YEAR_IN_15_MINUTE_STEPS);
 
                 // 1 minute resolution for last 60 minutes
                 def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 1, 60);
 
                 // 15 minute resolution for the last year
-                def.addArchive(ConsolFun.AVERAGE, DEFAULT_XFF_FACTOR, 15,
+                def.addArchive(ConsolFun.AVERAGE,
+                        DEFAULT_XFF_FACTOR,
+                        15,
                         ONE_YEAR_IN_15_MINUTE_STEPS);
 
                 // 1 minute resolution for last 60 minutes
@@ -487,7 +506,8 @@ public class RrdJmxCollector implements JmxCollector {
             // Create RRD file based on the RRD file definition
             rrdDb = pool.requestRrdDb(def);
         } else {
-            LOGGER.debug("rrd file {} already exists - absolute path = {}", rrdPath,
+            LOGGER.debug("rrd file {} already exists - absolute path = {}",
+                    rrdPath,
                     file.getAbsolutePath());
             rrdDb = pool.requestRrdDb(rrdPath);
         }
@@ -512,10 +532,11 @@ public class RrdJmxCollector implements JmxCollector {
             public void run() {
                 Object attr = null;
                 try {
-                    attr = localMBeanServer
-                            .getAttribute(new ObjectName(mbeanName), mbeanAttributeName);
+                    attr = localMBeanServer.getAttribute(new ObjectName(mbeanName),
+                            mbeanAttributeName);
 
-                    LOGGER.trace("Sampling attribute {} from MBean {}", mbeanAttributeName,
+                    LOGGER.trace("Sampling attribute {} from MBean {}",
+                            mbeanAttributeName,
                             mbeanName);
 
                     // Cast the metric's sampled value to the appropriate data type
@@ -557,7 +578,9 @@ public class RrdJmxCollector implements JmxCollector {
                             sampleSkipCount++;
 
                             LOGGER.debug("now = {},   lastUpdateTime = {}   (sampleSkipCount = {})",
-                                    now, lastUpdateTime, sampleSkipCount);
+                                    now,
+                                    lastUpdateTime,
+                                    sampleSkipCount);
                         }
                     } catch (IllegalArgumentException iae) {
                         LOGGER.error("Dropping sample of datasource {}", rrdDataSourceName, iae);
@@ -589,7 +612,9 @@ public class RrdJmxCollector implements JmxCollector {
     private void updateSample(long now, double val) throws IOException {
 
         LOGGER.debug("Sample time is [{}], updating metric [{}] with value [{}]",
-                MetricsUtil.getCalendarTime(now), mbeanName, val);
+                MetricsUtil.getCalendarTime(now),
+                mbeanName,
+                val);
 
         sample.setTime(now);
         sample.setValue(rrdDataSourceName, val);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -29,7 +29,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
-
 
 /**
  * <p>
@@ -59,11 +58,11 @@ public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(SortedServiceList.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
-    private Map<ServiceReference, T> serviceMap = Collections
-            .synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator()));
+    private Map<ServiceReference, T> serviceMap =
+            Collections.synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator()));
 
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
@@ -104,7 +103,8 @@ public class SortedServiceList<T> implements List<T> {
             LOGGER.debug("BundleContext was null, unable to add service reference");
         }
 
-        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values())
+                .toString());
 
     }
 
@@ -122,7 +122,8 @@ public class SortedServiceList<T> implements List<T> {
 
         serviceMap.remove(ref);
 
-        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values())
+                .toString());
     }
 
     /**
@@ -173,7 +174,8 @@ public class SortedServiceList<T> implements List<T> {
     @Override
     public boolean containsAll(Collection<?> arg0) {
 
-        return serviceMap.values().containsAll(arg0);
+        return serviceMap.values()
+                .containsAll(arg0);
     }
 
     @Override
@@ -203,7 +205,8 @@ public class SortedServiceList<T> implements List<T> {
     @Override
     public Iterator<T> iterator() {
         synchronized (serviceMap) { // Synchronizing on m, not s!
-            return serviceMap.values().iterator();
+            return serviceMap.values()
+                    .iterator();
         }
 
     }
@@ -291,12 +294,14 @@ public class SortedServiceList<T> implements List<T> {
 
     @Override
     public Object[] toArray() {
-        return serviceMap.values().toArray();
+        return serviceMap.values()
+                .toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] arg0) {
-        return serviceMap.values().toArray(arg0);
+        return serviceMap.values()
+                .toArray(arg0);
     }
 
 }

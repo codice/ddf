@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -29,8 +29,12 @@ public class AttributeDescriptorImplTest {
     @Test
     public void testSerialization()
             throws FileNotFoundException, IOException, ClassNotFoundException {
-        AttributeDescriptorImpl adImpl = new AttributeDescriptorImpl("name", true, true, true,
-                false, BasicTypes.BINARY_TYPE);
+        AttributeDescriptorImpl adImpl = new AttributeDescriptorImpl("name",
+                true,
+                true,
+                true,
+                false,
+                BasicTypes.BINARY_TYPE);
 
         Serializer<AttributeDescriptor> serializer = new Serializer<AttributeDescriptor>();
 
@@ -42,10 +46,15 @@ public class AttributeDescriptorImplTest {
 
         assertEquals(adImpl.getName(), readAdImpl.getName());
 
-        assertEquals(adImpl.getType().getAttributeFormat(),
-                readAdImpl.getType().getAttributeFormat());
+        assertEquals(adImpl.getType()
+                        .getAttributeFormat(),
+                readAdImpl.getType()
+                        .getAttributeFormat());
 
-        assertEquals(adImpl.getType().getBinding(), readAdImpl.getType().getBinding());
+        assertEquals(adImpl.getType()
+                        .getBinding(),
+                readAdImpl.getType()
+                        .getBinding());
 
         assertEquals(adImpl.isIndexed(), readAdImpl.isIndexed());
 
@@ -70,7 +79,11 @@ public class AttributeDescriptorImplTest {
 
         ad[3] = new AttributeDescriptorImpl("mane", true, true, true, true, BasicTypes.BINARY_TYPE);
 
-        ad[4] = new AttributeDescriptorImpl("name", false, true, true, true,
+        ad[4] = new AttributeDescriptorImpl("name",
+                false,
+                true,
+                true,
+                true,
                 BasicTypes.BINARY_TYPE);
 
         assertEquals(ad[0], ad[1]);

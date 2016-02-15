@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
@@ -33,8 +32,10 @@ public class WorkspaceServiceTest {
         //        map1.put("extra", extra1);
         //        String json = jsonContext.getGenerator().generate(map1);
         JSONContext.Client jsonContext = new Jackson1JSONContextClient();
-        String json = "{\"id\":\"16\",\"data\":{\"workspaces\":[{\"name\":\"admin_ws\",\"searches\":[{\"radiusUnits\":\"meters\",\"result\":{},\"startIndex\":1,\"count\":250,\"federation\":\"enterprise\",\"q\":\"admin_phrase\",\"name\":\"admin_search\",\"radiusValue\":0,\"radius\":0,\"offsetTimeUnits\":\"hours\",\"src\":\"ddf.distribution\",\"format\":\"geojson\",\"timeType\":\"modified\"}],\"metacards\":[]}],\"successful\":true},\"channel\":\"/service/workspaces\"}";
-        Map map2 = jsonContext.getParser().parse(new StringReader(json), Map.class);
+        String json =
+                "{\"id\":\"16\",\"data\":{\"workspaces\":[{\"name\":\"admin_ws\",\"searches\":[{\"radiusUnits\":\"meters\",\"result\":{},\"startIndex\":1,\"count\":250,\"federation\":\"enterprise\",\"q\":\"admin_phrase\",\"name\":\"admin_search\",\"radiusValue\":0,\"radius\":0,\"offsetTimeUnits\":\"hours\",\"src\":\"ddf.distribution\",\"format\":\"geojson\",\"timeType\":\"modified\"}],\"metacards\":[]}],\"successful\":true},\"channel\":\"/service/workspaces\"}";
+        Map map2 = jsonContext.getParser()
+                .parse(new StringReader(json), Map.class);
         int x = 1;
         //        Data data2 = (Data)map2.get("data");
         //        Extra extra2 = (Extra)map2.get("extra");

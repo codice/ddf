@@ -687,10 +687,13 @@ public class IdpEndpoint implements Idp {
         }
         EntityDescriptor entityDescriptor =
                 SamlProtocol.createIdpMetadata(SystemBaseUrl.constructUrl("/idp/login", true),
-                        Base64.getEncoder().encodeToString(
-                                issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
-                        Base64.getEncoder().encodeToString(
-                                encryptionCert != null ? encryptionCert.getEncoded() : new byte[0]),
+                        Base64.getEncoder()
+                                .encodeToString(
+                                        issuerCert != null ? issuerCert.getEncoded() : new byte[0]),
+                        Base64.getEncoder()
+                                .encodeToString(encryptionCert != null ?
+                                        encryptionCert.getEncoded() :
+                                        new byte[0]),
                         nameIdFormats,
                         SystemBaseUrl.constructUrl("/idp/login", true),
                         SystemBaseUrl.constructUrl("/idp/login", true),
@@ -1018,8 +1021,8 @@ public class IdpEndpoint implements Idp {
         new SimpleSign(systemCrypto).signSamlObject(samlObject);
         LOGGER.debug("Converting SAML Response to DOM");
         String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc));
-        String encodedSamlResponse = Base64.getEncoder().encodeToString(assertionResponse.getBytes(
-                StandardCharsets.UTF_8));
+        String encodedSamlResponse = Base64.getEncoder()
+                .encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
         return Response.ok(HtmlResponseTemplate.getPostPage(targetUrl,
                 samlType,
                 encodedSamlResponse,
@@ -1055,7 +1058,7 @@ public class IdpEndpoint implements Idp {
         this.logoutStates = logoutStates;
     }
 
-    public RelayStates<LogoutState> getLogoutStates(){
+    public RelayStates<LogoutState> getLogoutStates() {
         return this.logoutStates;
     }
 }

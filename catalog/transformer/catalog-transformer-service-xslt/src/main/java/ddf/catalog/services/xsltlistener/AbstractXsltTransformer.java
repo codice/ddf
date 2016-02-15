@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -69,7 +69,8 @@ public abstract class AbstractXsltTransformer {
     public void init(final Bundle bundle, String xslFile) {
         context = bundle.getBundleContext();
         URL xsltUrl = bundle.getResource(xslFile);
-        String mimeType = (String) bundle.getHeaders().get(MIME_TYPE_HEADER_NAME);
+        String mimeType = (String) bundle.getHeaders()
+                .get(MIME_TYPE_HEADER_NAME);
         try {
             init(mimeType, xsltUrl.openStream());
         } catch (IOException ioe) {
@@ -91,8 +92,8 @@ public abstract class AbstractXsltTransformer {
      */
     public void init(String mimeString, InputStream xslStream) {
 
-        TransformerFactory tf = TransformerFactory
-                .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+        TransformerFactory tf =
+                TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
                         getClass().getClassLoader());
         Source xsltSource;
         xsltSource = new StreamSource(xslStream);

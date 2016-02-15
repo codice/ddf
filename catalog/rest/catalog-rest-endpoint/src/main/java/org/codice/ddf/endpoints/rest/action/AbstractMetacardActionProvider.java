@@ -33,8 +33,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     static final String PATH = "/catalog/sources";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            AbstractMetacardActionProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AbstractMetacardActionProvider.class);
 
     protected String actionProviderId;
 

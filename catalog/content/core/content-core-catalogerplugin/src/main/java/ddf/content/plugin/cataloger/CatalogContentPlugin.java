@@ -55,8 +55,8 @@ import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.security.SubjectUtils;
 
 public class CatalogContentPlugin implements ContentPlugin {
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(CatalogContentPlugin.class));
+    private static final XLogger LOGGER =
+            new XLogger(LoggerFactory.getLogger(CatalogContentPlugin.class));
 
     private static final String CATALOG_ID = "Catalog-ID";
 
@@ -92,8 +92,8 @@ public class CatalogContentPlugin implements ContentPlugin {
         try {
             stream = createdContentItem.getInputStream();
         } catch (IOException e) {
-            throw new PluginExecutionException(
-                    "Unable to read InputStream in created content item.", e);
+            throw new PluginExecutionException("Unable to read InputStream in created content item.",
+                    e);
         }
 
         if (stream == null) {
@@ -101,8 +101,12 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         try {
-            Metacard metacard = generateMetacard(createdContentItem, mimeType,
-                    createdContentItem.getUri(), stream, input.getRequest().getProperties());
+            Metacard metacard = generateMetacard(createdContentItem,
+                    mimeType,
+                    createdContentItem.getUri(),
+                    stream,
+                    input.getRequest()
+                            .getProperties());
             String catalogId = cataloger.createMetacard(metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -110,10 +114,12 @@ public class CatalogContentPlugin implements ContentPlugin {
             response.setResponseProperties(properties);
             if (metacard != null) {
                 try {
-                    BinaryContent binaryContent = catalogFramework
-                            .transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
+                    BinaryContent binaryContent = catalogFramework.transform(metacard,
+                            DEFAULT_METACARD_TRANSFORMER,
+                            null);
                     response.setCreatedMetadata(binaryContent.getByteArray());
-                    response.setCreatedMetadataMimeType(binaryContent.getMimeType().toString());
+                    response.setCreatedMetadataMimeType(binaryContent.getMimeType()
+                            .toString());
                 } catch (IOException | CatalogTransformerException e) {
                     LOGGER.warn("Unable to transform metacard to readable metadata.", e);
                 }
@@ -144,8 +150,8 @@ public class CatalogContentPlugin implements ContentPlugin {
         try {
             stream = updatedContentItem.getInputStream();
         } catch (IOException e) {
-            throw new PluginExecutionException(
-                    "Unable to read InputStream in updated content item.", e);
+            throw new PluginExecutionException("Unable to read InputStream in updated content item.",
+                    e);
         }
 
         if (stream == null) {
@@ -153,8 +159,11 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         try {
-            Metacard metacard = generateMetacard(updatedContentItem, mimeType,
-                    updatedContentItem.getUri(), stream, null);
+            Metacard metacard = generateMetacard(updatedContentItem,
+                    mimeType,
+                    updatedContentItem.getUri(),
+                    stream,
+                    null);
             String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -162,10 +171,12 @@ public class CatalogContentPlugin implements ContentPlugin {
             response.setResponseProperties(properties);
             if (metacard != null) {
                 try {
-                    BinaryContent binaryContent = catalogFramework
-                            .transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
+                    BinaryContent binaryContent = catalogFramework.transform(metacard,
+                            DEFAULT_METACARD_TRANSFORMER,
+                            null);
                     response.setUpdatedMetadata(binaryContent.getByteArray());
-                    response.setUpdatedMetadataMimeType(binaryContent.getMimeType().toString());
+                    response.setUpdatedMetadataMimeType(binaryContent.getMimeType()
+                            .toString());
                 } catch (IOException | CatalogTransformerException e) {
                     LOGGER.warn("Unable to transform metacard to readable metadata.", e);
                 }
@@ -193,11 +204,15 @@ public class CatalogContentPlugin implements ContentPlugin {
 
         DeleteResponseImpl response = new DeleteResponseImpl(input);
 
-        String catalogId = cataloger.deleteMetacard(input.getContentItem().getUri());
+        String catalogId = cataloger.deleteMetacard(input.getContentItem()
+                .getUri());
         if (catalogId != null && !catalogId.isEmpty()) {
             // Create response indicating file (actually, catalog entry) was deleted
-            response = new DeleteResponseImpl(input.getRequest(), input.getContentItem(), true,
-                    input.getResponseProperties(), input.getProperties());
+            response = new DeleteResponseImpl(input.getRequest(),
+                    input.getContentItem(),
+                    true,
+                    input.getResponseProperties(),
+                    input.getProperties());
         }
 
         LOGGER.debug("catalogId = " + catalogId);
@@ -215,8 +230,9 @@ public class CatalogContentPlugin implements ContentPlugin {
             throws MetacardCreationException {
         LOGGER.trace("ENTERING: generateMetacard");
 
-        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper
-                .findMatches(InputTransformer.class, mimeType);
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
+                InputTransformer.class,
+                mimeType);
 
         LOGGER.debug("List of matches for mimeType [ {} ]: {}", mimeType, listOfCandidates);
 
@@ -255,9 +271,8 @@ public class CatalogContentPlugin implements ContentPlugin {
                     try {
                         Subject subject = SecurityUtils.getSubject();
                         if (subject != null) {
-                            contentMetacard.setAttribute(
-                                    new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                            SubjectUtils.getName(subject)));
+                            contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                    SubjectUtils.getName(subject)));
                         }
                     } catch (IllegalStateException e) {
                         LOGGER.debug("Unable to retrieve user from request.", e);
@@ -268,15 +283,15 @@ public class CatalogContentPlugin implements ContentPlugin {
                     if (uri != null) {
                         //Setting the non-transformer specific information not including creation and modification dates/times
                         contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-                        contentMetacard.setAttribute(
-                                new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(size)));
+                        contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                String.valueOf(size)));
                     } else {
                         LOGGER.debug("Metacard had a null uri");
                     }
                     if (StringUtils.isBlank(contentMetacard.getTitle())) {
                         LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                        contentMetacard.setAttribute(
-                                new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
+                        contentMetacard.setAttribute(new AttributeImpl(Metacard.TITLE,
+                                contentItem.getFilename()));
                     }
                     break;
                 } catch (IOException | CatalogTransformerException e) {
@@ -298,18 +313,17 @@ public class CatalogContentPlugin implements ContentPlugin {
 
         if (properties != null) {
             if (properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM)) {
-                String checksumValue = (String) properties
-                        .get(ContentMetacardType.RESOURCE_CHECKSUM);
-                contentMetacard.setAttribute(
-                        new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM, checksumValue));
+                String checksumValue =
+                        (String) properties.get(ContentMetacardType.RESOURCE_CHECKSUM);
+                contentMetacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM,
+                        checksumValue));
             }
 
             if (properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM)) {
-                String checksumAlgrotithm = (String) properties
-                        .get(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM);
-                contentMetacard.setAttribute(
-                        new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM,
-                                checksumAlgrotithm));
+                String checksumAlgrotithm =
+                        (String) properties.get(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM);
+                contentMetacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM,
+                        checksumAlgrotithm));
             }
         }
 

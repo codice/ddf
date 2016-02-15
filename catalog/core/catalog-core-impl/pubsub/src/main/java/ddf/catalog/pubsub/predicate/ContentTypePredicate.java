@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -46,8 +46,8 @@ public class ContentTypePredicate implements Predicate {
 
         boolean status = false;
 
-        Map<String, Object> contextualMap = (Map<String, Object>) properties
-                .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
+        Map<String, Object> contextualMap = (Map<String, Object>) properties.getProperty(
+                PubSubConstants.HEADER_CONTEXTUAL_KEY);
         String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
         LOGGER.debug("operation = {}", operation);
 
@@ -59,8 +59,8 @@ public class ContentTypePredicate implements Predicate {
             // source is deleting the catalog entry and did not send any location data with the
             // delete event), then
             // cannot apply any geospatial filtering - just send the event on to the subscriber
-            if (PubSubConstants.DELETE.equals(operation) && PubSubConstants.METADATA_DELETED
-                    .equals(metadata)) {
+            if (PubSubConstants.DELETE.equals(operation) && PubSubConstants.METADATA_DELETED.equals(
+                    metadata)) {
                 LOGGER.debug(
                         "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
                 LOGGER.debug("EXITING: matches");

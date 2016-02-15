@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -133,13 +133,14 @@ public class GeoJsonInputTransformer implements InputTransformer {
         JSONObject geometryJson = (JSONObject) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
-            if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null
-                    && geometryJson.get(CompositeGeometry.COORDINATES_KEY) != null) {
+            if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && geometryJson.get(
+                    CompositeGeometry.COORDINATES_KEY) != null) {
 
-                String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY).toString();
+                String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY)
+                        .toString();
 
-                geoJsonGeometry = CompositeGeometry
-                        .getCompositeGeometry(geometryTypeJson, geometryJson);
+                geoJsonGeometry = CompositeGeometry.getCompositeGeometry(geometryTypeJson,
+                        geometryJson);
 
             } else {
                 LOGGER.warn("Could not find geometry type.");
@@ -149,7 +150,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
         // find where the geometry goes
         String geoAttributeName = null;
         for (AttributeDescriptor ad : metacardType.getAttributeDescriptors()) {
-            if (AttributeFormat.GEOMETRY.equals(ad.getType().getAttributeFormat())) {
+            if (AttributeFormat.GEOMETRY.equals(ad.getType()
+                    .getAttributeFormat())) {
                 geoAttributeName = ad.getName();
             }
         }
@@ -176,7 +178,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
                         String attributeString = attributeValue.toString();
 
-                        switch (ad.getType().getAttributeFormat()) {
+                        switch (ad.getType()
+                                .getAttributeFormat()) {
                         case BINARY:
                             metacard.setAttribute(ad.getName(),
                                     DatatypeConverter.parseBase64Binary(attributeString));
@@ -226,7 +229,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
             } catch (NumberFormatException e) {
                 LOGGER.info(
                         "GeoJSON input for attribute name '{}' does not match expected AttributeType defined in MetacardType: {}. This attribute will not be added to the metacard.",
-                        ad.getName(), metacardTypeName, e);
+                        ad.getName(),
+                        metacardTypeName,
+                        e);
             }
         }
 
@@ -243,8 +248,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     @Override
     public String toString() {
-        return "InputTransformer {Impl=" + this.getClass().getName() + ", id=" + ID + ", mime-type="
-                + MIME_TYPE + "}";
+        return "InputTransformer {Impl=" + this.getClass()
+                .getName() + ", id=" + ID + ", mime-type=" + MIME_TYPE + "}";
     }
 
 }

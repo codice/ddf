@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -158,10 +158,11 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
         // Callable to be canceled and the ReliableResourceStatus may be retrieved before
         // the call() method is interrupted
         LOGGER.debug("Download interrupted - returning {} bytes read", bytesRead);
-        reliableResourceStatus = new ReliableResourceStatus(
-                DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED, bytesRead.get());
-        reliableResourceStatus
-                .setMessage("Download interrupted - returning " + bytesRead + " bytes read");
+        reliableResourceStatus =
+                new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED,
+                        bytesRead.get());
+        reliableResourceStatus.setMessage(
+                "Download interrupted - returning " + bytesRead + " bytes read");
     }
 
     /**
@@ -178,10 +179,11 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
         // Callable to be canceled and the ReliableResourceStatus may be retrieved before
         // the call() method is interrupted
         LOGGER.debug("Download canceled - returning {} bytes read", bytesRead);
-        reliableResourceStatus = new ReliableResourceStatus(
-                DownloadStatus.RESOURCE_DOWNLOAD_CANCELED, bytesRead.get());
-        reliableResourceStatus
-                .setMessage("Download canceled - returning " + bytesRead + " bytes read");
+        reliableResourceStatus =
+                new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_CANCELED,
+                        bytesRead.get());
+        reliableResourceStatus.setMessage(
+                "Download canceled - returning " + bytesRead + " bytes read");
     }
 
     @Override
@@ -203,15 +205,17 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
             } catch (IOException e) {
                 if (interruptDownload || Thread.interrupted()) {
                     if (reliableResourceStatus != null) {
-                        reliableResourceStatus
-                                .setMessage("IOException during read of product's InputStream");
+                        reliableResourceStatus.setMessage(
+                                "IOException during read of product's InputStream");
                     }
                     return reliableResourceStatus;
                 }
                 LOGGER.info("IOException during read of product's InputStream - bytesRead = {}",
-                        bytesRead.get(), e);
-                reliableResourceStatus = new ReliableResourceStatus(
-                        DownloadStatus.PRODUCT_INPUT_STREAM_EXCEPTION, bytesRead.get());
+                        bytesRead.get(),
+                        e);
+                reliableResourceStatus =
+                        new ReliableResourceStatus(DownloadStatus.PRODUCT_INPUT_STREAM_EXCEPTION,
+                                bytesRead.get());
                 return reliableResourceStatus;
             }
             LOGGER.trace("AFTER read() - n = {}", n);
@@ -244,9 +248,9 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                         cacheFileOutputStream.write(buffer, 0, n);
                     } catch (IOException e) {
                         LOGGER.info("IOException during write to cached file's OutputStream", e);
-                        reliableResourceStatus = new ReliableResourceStatus(
-                                DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION,
-                                bytesRead.get());
+                        reliableResourceStatus =
+                                new ReliableResourceStatus(DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION,
+                                        bytesRead.get());
                     }
                 }
 
@@ -258,8 +262,9 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                         LOGGER.info(
                                 "IOException during write to FileBackedOutputStream for client to read",
                                 e);
-                        reliableResourceStatus = new ReliableResourceStatus(
-                                DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
+                        reliableResourceStatus =
+                                new ReliableResourceStatus(DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION,
+                                        bytesRead.get());
                     }
                 }
 
@@ -274,8 +279,9 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
 
         if (!interruptDownload && !cancelDownload && !Thread.interrupted()) {
             LOGGER.debug("Entire file downloaded successfully");
-            reliableResourceStatus = new ReliableResourceStatus(
-                    DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE, bytesRead.get());
+            reliableResourceStatus =
+                    new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE,
+                            bytesRead.get());
             reliableResourceStatus.setMessage("Download completed successfully");
         }
 

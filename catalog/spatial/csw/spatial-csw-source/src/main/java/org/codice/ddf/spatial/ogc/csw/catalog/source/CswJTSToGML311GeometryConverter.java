@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -50,14 +49,16 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
 
     public static final String USE_POS_LIST_GEO_CONVERTER_PROP_KEY = "usePosList";
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswJTSToGML311GeometryConverter.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(CswJTSToGML311GeometryConverter.class);
 
     private final JTSToGML311CoordinateConverter cswCoordinateConverter;
 
-    private final JTSToGML311ConverterInterface<LinearRingType, AbstractRingPropertyType, LinearRing> cswLinearRingConverter;
+    private final JTSToGML311ConverterInterface<LinearRingType, AbstractRingPropertyType, LinearRing>
+            cswLinearRingConverter;
 
-    private final JTSToGML311ConverterInterface<PolygonType, PolygonPropertyType, Polygon> cswPolygonConverter;
+    private final JTSToGML311ConverterInterface<PolygonType, PolygonPropertyType, Polygon>
+            cswPolygonConverter;
 
     /**
      * Constructs a JTS to GML Geometry converter that is functionally identical
@@ -91,7 +92,8 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
      */
     public CswJTSToGML311GeometryConverter(Map<String, String> propertyMap) {
         this(JTSToGML311Constants.DEFAULT_OBJECT_FACTORY,
-                JTSToGML311Constants.DEFAULT_SRS_REFERENCE_GROUP_CONVERTER, propertyMap);
+                JTSToGML311Constants.DEFAULT_SRS_REFERENCE_GROUP_CONVERTER,
+                propertyMap);
     }
 
     /**
@@ -128,18 +130,20 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
         this.cswCoordinateConverter = new JTSToGML311CoordinateConverter(objectFactory,
                 srsReferenceGroupConverter);
         this.cswLinearRingConverter = new CswJTSToGML311LinearRingConverter(objectFactory,
-                srsReferenceGroupConverter, this.cswCoordinateConverter,
+                srsReferenceGroupConverter,
+                this.cswCoordinateConverter,
                 Boolean.valueOf(propertyMap.get(USE_POS_LIST_GEO_CONVERTER_PROP_KEY)));
         this.cswPolygonConverter = new JTSToGML311PolygonConverter(objectFactory,
-                srsReferenceGroupConverter, this.cswLinearRingConverter);
+                srsReferenceGroupConverter,
+                this.cswLinearRingConverter);
     }
 
     /**
      * @see {@code JTSToGML311GeometryConverter#doCreateGeometryType(Geometry geometry}
      */
     @Override
-    protected AbstractGeometryType doCreateGeometryType(Geometry geometry) throws
-            IllegalArgumentException {
+    protected AbstractGeometryType doCreateGeometryType(Geometry geometry)
+            throws IllegalArgumentException {
         if (geometry instanceof LinearRing) {
             LOGGER.debug("Creating LinearRingType");
             return cswLinearRingConverter.createGeometryType((LinearRing) geometry);
@@ -157,8 +161,8 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
      * @see {@code JTSToGML311GeometryConverter#createElement(Geometry)
      */
     @Override
-    public JAXBElement<? extends AbstractGeometryType> createElement(Geometry geometry) throws
-            IllegalArgumentException {
+    public JAXBElement<? extends AbstractGeometryType> createElement(Geometry geometry)
+            throws IllegalArgumentException {
 
         if (geometry instanceof LinearRing) {
             LOGGER.debug("Creating LinearRing");

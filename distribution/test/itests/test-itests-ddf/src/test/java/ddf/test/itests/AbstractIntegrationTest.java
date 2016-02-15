@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -115,6 +115,7 @@ public abstract class AbstractIntegrationTest {
     public static class DynamicPort {
 
         private final String systemProperty;
+
         private final Integer ordinal;
 
         public DynamicPort(Integer ordinal) {
@@ -203,19 +204,30 @@ public abstract class AbstractIntegrationTest {
         }
 
     }
-    public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort", 0);
-    public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort", 1);
-    public static final DynamicPort HTTPS_PORT = new DynamicPort(
-            "org.codice.ddf.system.httpsPort", 2);
+
+    public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort",
+            0);
+
+    public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort",
+            1);
+
+    public static final DynamicPort HTTPS_PORT = new DynamicPort("org.codice.ddf.system.httpsPort",
+            2);
+
     public static final DynamicPort DEFAULT_PORT = new DynamicPort("org.codice.ddf.system.port", 2);
+
     public static final DynamicPort SSH_PORT = new DynamicPort(3);
+
     public static final DynamicPort RMI_SERVER_PORT = new DynamicPort(4);
+
     public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
 
-    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT,
+            HTTPS_PORT,
             "/services");
 
-    public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(INSECURE_ROOT, HTTP_PORT,
+    public static final DynamicUrl INSECURE_SERVICE_ROOT = new DynamicUrl(INSECURE_ROOT,
+            HTTP_PORT,
             "/services");
 
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
@@ -224,10 +236,12 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
 
-    public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(SECURE_ROOT,
+            HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");
 
-    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
+    public static final DynamicUrl ADMIN_STATUS_PATH = new DynamicUrl(SECURE_ROOT,
+            HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/sourceStatus/");
 
     static {
@@ -357,15 +371,18 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureDistribution() {
-        return options(karafDistributionConfiguration(
-                maven().groupId("org.codice.ddf").artifactId("ddf").type("zip").versionAsInProject()
-                        .getURL(), "ddf", KARAF_VERSION).unpackDirectory(new File("target/exam"))
+        return options(karafDistributionConfiguration(maven().groupId("org.codice.ddf")
+                .artifactId("ddf")
+                .type("zip")
+                .versionAsInProject()
+                .getURL(), "ddf", KARAF_VERSION).unpackDirectory(new File("target/exam"))
                 .useDeployFolder(false));
 
     }
 
     protected Option[] configurePaxExam() {
-        return options(logLevel(LogLevelOption.LogLevel.INFO), useOwnExamBundlesStartLevel(100),
+        return options(logLevel(LogLevelOption.LogLevel.INFO),
+                useOwnExamBundlesStartLevel(100),
                 // increase timeout for CI environment
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)),
                 when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
@@ -377,90 +394,105 @@ public abstract class AbstractIntegrationTest {
                 // HACK: incorrect version exported to override hamcrest-core from exam
                 // feature which causes a split package issue for rest-assured
                 wrappedBundle(mavenBundle("org.apache.httpcomponents",
-                        "com.springsource.org.apache.httpcomponents.httpclient")
-                        .versionAsInProject()), wrappedBundle(
-                        mavenBundle("org.apache.httpcomponents",
-                                "com.springsource.org.apache.httpcomponents.httpcore")
-                                .versionAsInProject()), wrappedBundle(
-                        mavenBundle("org.apache.httpcomponents", "httpclient")
-                                .versionAsInProject()), wrappedBundle(
-                        mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
+                        "com.springsource.org.apache.httpcomponents.httpclient").versionAsInProject()),
+                wrappedBundle(mavenBundle("org.apache.httpcomponents",
+                        "com.springsource.org.apache.httpcomponents.httpcore").versionAsInProject()),
+                wrappedBundle(mavenBundle("org.apache.httpcomponents",
+                        "httpclient").versionAsInProject()),
+                wrappedBundle(mavenBundle("org.apache.httpcomponents",
+                        "httpcore").versionAsInProject()),
                 wrappedBundle(mavenBundle("commons-codec", "commons-codec").versionAsInProject()),
-                wrappedBundle(
-                        mavenBundle("commons-logging", "commons-logging").versionAsInProject()),
-                wrappedBundle(mavenBundle("org.hamcrest", "hamcrest-all").versionAsInProject())
-                        .exports("*;version=1.3.0.10"), wrappedBundle(
-                        mavenBundle("org.apache.karaf.itests", "itests").classifier("tests")
-                                .versionAsInProject()), wrappedBundle(
-                        mavenBundle("ddf.test.itests", "test-itests-common").classifier("tests")
-                                .versionAsInProject()).bundleSymbolicName("test-itests-common"),
-                wrappedBundle(
-                        mavenBundle("ddf.security", "ddf-security-common").versionAsInProject())
-                        .bundleSymbolicName("test-security-common"),
+                wrappedBundle(mavenBundle("commons-logging",
+                        "commons-logging").versionAsInProject()),
+                wrappedBundle(mavenBundle("org.hamcrest",
+                        "hamcrest-all").versionAsInProject()).exports("*;version=1.3.0.10"),
+                wrappedBundle(mavenBundle("org.apache.karaf.itests", "itests").classifier("tests")
+                        .versionAsInProject()),
+                wrappedBundle(mavenBundle("ddf.test.itests", "test-itests-common").classifier(
+                        "tests")
+                        .versionAsInProject()).bundleSymbolicName("test-itests-common"),
+                wrappedBundle(mavenBundle("ddf.security",
+                        "ddf-security-common").versionAsInProject()).bundleSymbolicName(
+                        "test-security-common"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
-                wrappedBundle(mavenBundle("com.google.guava", "guava").versionAsInProject())
-                        .exports("*;version=18.0"));
+                wrappedBundle(mavenBundle("com.google.guava",
+                        "guava").versionAsInProject()).exports("*;version=18.0"));
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
         return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
-                editConfigurationFilePut("etc/system.properties", "jetty.port",
+                editConfigurationFilePut("etc/system.properties",
+                        "jetty.port",
                         HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
 
-                editConfigurationFilePut("etc/system.properties", HTTP_PORT.getSystemProperty(),
+                editConfigurationFilePut("etc/system.properties",
+                        HTTP_PORT.getSystemProperty(),
                         HTTP_PORT.getPort()),
-                editConfigurationFilePut("etc/system.properties", HTTPS_PORT.getSystemProperty(),
+                editConfigurationFilePut("etc/system.properties",
+                        HTTPS_PORT.getSystemProperty(),
                         HTTPS_PORT.getPort()),
-                editConfigurationFilePut("etc/system.properties", DEFAULT_PORT.getSystemProperty(),
+                editConfigurationFilePut("etc/system.properties",
+                        DEFAULT_PORT.getSystemProperty(),
                         DEFAULT_PORT.getPort()),
-                editConfigurationFilePut("etc/system.properties", BASE_PORT.getSystemProperty(),
+                editConfigurationFilePut("etc/system.properties",
+                        BASE_PORT.getSystemProperty(),
                         BASE_PORT.getPort()),
 
                 // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
                 // backups serves no purpose and it appears that intermittent failures have occurred
                 // when the background thread attempts to create the backup before the exam bundle
                 // is completely exploded.
-                editConfigurationFilePut("etc/system.properties", "eclipse.enableStateSaver",
+                editConfigurationFilePut("etc/system.properties",
+                        "eclipse.enableStateSaver",
                         Boolean.FALSE.toString()),
 
-                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort",
+                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg",
+                        "sshPort",
                         SSH_PORT.getPort()),
-                editConfigurationFilePut("etc/ddf.platform.config.cfg", "port",
+                editConfigurationFilePut("etc/ddf.platform.config.cfg",
+                        "port",
                         HTTPS_PORT.getPort()),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
-                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port",
-                        HTTP_PORT.getPort()), editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
-                        "org.osgi.service.http.port.secure", HTTPS_PORT.getPort()),
-                editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
+                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port",
+                        HTTP_PORT.getPort()),
+                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                        "org.osgi.service.http.port.secure",
+                        HTTPS_PORT.getPort()),
+                editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
+                        "rmiRegistryPort",
                         RMI_REG_PORT.getPort()),
-                editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
+                editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
+                        "rmiServerPort",
                         RMI_SERVER_PORT.getPort()),
                 installStartupFile(getClass().getResourceAsStream("/hazelcast.xml"),
-                        "/etc/hazelcast.xml"), installStartupFile(getClass().getResourceAsStream(
-                                "/ddf.security.sts.client.configuration.config"),
+                        "/etc/hazelcast.xml"),
+                installStartupFile(getClass().getResourceAsStream(
+                        "/ddf.security.sts.client.configuration.config"),
                         "/etc/ddf.security.sts.client.configuration.config"),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.config",
-                        "address", "\"" + SECURE_ROOT + HTTPS_PORT.getPort()
-                                + "/services/SecurityTokenService?wsdl" + "\""), installStartupFile(
-                        getClass().getResourceAsStream(
-                                "/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
+                        "address",
+                        "\"" + SECURE_ROOT + HTTPS_PORT.getPort()
+                                + "/services/SecurityTokenService?wsdl" + "\""),
+                installStartupFile(getClass().getResourceAsStream(
+                        "/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
                         "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"));
     }
 
     protected Option[] configureMavenRepos() {
         return options(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
-                        "org.ops4j.pax.url.mvn.repositories",
-                        "http://repo1.maven.org/maven2@id=central,"
-                                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-                                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-                                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-                                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-                                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                "org.ops4j.pax.url.mvn.repositories",
+                "http://repo1.maven.org/maven2@id=central,"
+                        + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                        + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                        + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+                        + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+                        + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
+                        + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
                 when(System.getProperty("maven.repo.local") != null).useOptions(
                         editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                                 "org.ops4j.pax.url.mvn.localRepository",
@@ -469,13 +501,15 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureSystemSettings() {
         return options(when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
-                        systemProperty(TEST_LOGLEVEL_PROPERTY)
-                                .value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
-                when(Boolean.getBoolean("isDebugEnabled")).useOptions(
-                        vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
-                when(System.getProperty("maven.repo.local") != null).useOptions(
-                        systemProperty("org.ops4j.pax.url.mvn.localRepository")
-                                .value(System.getProperty("maven.repo.local", ""))));
+                systemProperty(TEST_LOGLEVEL_PROPERTY).value(System.getProperty(
+                        TEST_LOGLEVEL_PROPERTY,
+                        ""))),
+                when(Boolean.getBoolean("isDebugEnabled")).useOptions(vmOption(
+                        "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
+                when(System.getProperty("maven.repo.local") != null).useOptions(systemProperty(
+                        "org.ops4j.pax.url.mvn.localRepository").value(System.getProperty(
+                        "maven.repo.local",
+                        ""))));
     }
 
     protected Option[] configureVmOptions() {
@@ -485,14 +519,18 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureStartScript() {
-        String featuresUrl = maven("ddf.distribution", "sdk-app").classifier("features").type("xml")
-                .versionAsInProject().getURL();
+        String featuresUrl = maven("ddf.distribution", "sdk-app").classifier("features")
+                .type("xml")
+                .versionAsInProject()
+                .getURL();
         return options(
                 // Need to add catalog-app since there are imports in the itests from catalog-app.
-                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
+                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
+                        "featuresBoot",
                         "catalog-app"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
-                        "featuresRepositories", featuresUrl));
+                        "featuresRepositories",
+                        featuresUrl));
     }
 
     protected Integer getBasePort() {
@@ -517,7 +555,8 @@ public abstract class AbstractIntegrationTest {
      */
     protected Option installStartupFile(InputStream resourceInputStream, String destination)
             throws IOException {
-        File tempFile = Files.createTempFile("StartupFile", ".temp").toFile();
+        File tempFile = Files.createTempFile("StartupFile", ".temp")
+                .toFile();
         tempFile.deleteOnExit();
         FileUtils.copyInputStreamToFile(resourceInputStream, tempFile);
         return replaceConfigurationFile(destination, tempFile);

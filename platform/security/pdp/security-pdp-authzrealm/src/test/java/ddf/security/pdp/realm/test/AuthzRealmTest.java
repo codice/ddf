@@ -69,7 +69,8 @@ public class AuthzRealmTest {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         authorizationInfo.addObjectPermission(rulePermission);
         authorizationInfo.addObjectPermission(countryPermission);
-        authorizationInfo.addObjectPermission(new KeyValuePermission("role", Arrays.asList("admin")));
+        authorizationInfo.addObjectPermission(new KeyValuePermission("role",
+                Arrays.asList("admin")));
         authorizationInfo.addRole("admin");
         authorizationInfo.addStringPermission("wild");
 
@@ -90,8 +91,9 @@ public class AuthzRealmTest {
         security.put("rule", Arrays.asList("A", "B"));
         testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
         testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
-        testRealm.setRolePermissionResolver(
-                roleString -> Arrays.asList(new KeyValuePermission("role", Arrays.asList(roleString))));
+        testRealm.setRolePermissionResolver(roleString -> Arrays.asList(new KeyValuePermission(
+                "role",
+                Arrays.asList(roleString))));
     }
 
     @Test
@@ -207,8 +209,9 @@ public class AuthzRealmTest {
         };
         testRealm.setMatchOneMappings(Arrays.asList("CountryOfAffiliation=country"));
         testRealm.setMatchAllMappings(Arrays.asList("FineAccessControls=rule"));
-        testRealm.setRolePermissionResolver(roleString -> Arrays.asList(
-                new KeyValuePermission("role", Arrays.asList(roleString))));
+        testRealm.setRolePermissionResolver(roleString -> Arrays.asList(new KeyValuePermission(
+                "role",
+                Arrays.asList(roleString))));
 
         boolean[] permittedArray = testRealm.isPermitted(mockSubjectPrincipal, permissionList);
 

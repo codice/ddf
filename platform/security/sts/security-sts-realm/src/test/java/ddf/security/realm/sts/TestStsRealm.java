@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -113,8 +113,10 @@ public class TestStsRealm {
             protected void configureStsClient() {
             }
         };
-        Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
-        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
+        Element issuedAssertion = this.readDocument("/saml.xml")
+                .getDocumentElement();
+        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID")
+                .getNodeValue();
         SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
         AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
         when(authenticationToken.getCredentials()).thenReturn(token);
@@ -128,8 +130,10 @@ public class TestStsRealm {
     @Test
     public void testDoGetAuthenticationInfoBase()
             throws ParserConfigurationException, SAXException, IOException {
-        Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
-        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
+        Element issuedAssertion = this.readDocument("/saml.xml")
+                .getDocumentElement();
+        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID")
+                .getNodeValue();
         final SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
         StsRealm realm = new StsRealm() {
             protected SecurityToken requestSecurityToken(Object obj) {
@@ -158,28 +162,60 @@ public class TestStsRealm {
         ContextPolicy policy2 = mock(ContextPolicy.class);
         when(policy1.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim4", "claim5"));
         when(policy2.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim6", "claim7"));
-        when(contextPolicyManager.getAllContextPolicies())
-                .thenReturn(Arrays.asList(policy1, policy2));
+        when(contextPolicyManager.getAllContextPolicies()).thenReturn(Arrays.asList(policy1,
+                policy2));
         stsRealm.setContextPolicyManager(contextPolicyManager);
 
         Element claimsElement = stsRealm.createClaimsElement();
         assertNotNull(claimsElement);
         NodeList childNodes = claimsElement.getChildNodes();
-        assertEquals("claim1", childNodes.item(0).getAttributes().item(1).getTextContent());
-        assertEquals("claim2", childNodes.item(1).getAttributes().item(1).getTextContent());
-        assertEquals("claim3", childNodes.item(2).getAttributes().item(1).getTextContent());
-        assertEquals("claim4", childNodes.item(3).getAttributes().item(1).getTextContent());
-        assertEquals("claim5", childNodes.item(4).getAttributes().item(1).getTextContent());
-        assertEquals("claim6", childNodes.item(5).getAttributes().item(1).getTextContent());
-        assertEquals("claim7", childNodes.item(6).getAttributes().item(1).getTextContent());
+        assertEquals("claim1",
+                childNodes.item(0)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
+        assertEquals("claim2",
+                childNodes.item(1)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
+        assertEquals("claim3",
+                childNodes.item(2)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
+        assertEquals("claim4",
+                childNodes.item(3)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
+        assertEquals("claim5",
+                childNodes.item(4)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
+        assertEquals("claim6",
+                childNodes.item(5)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
+        assertEquals("claim7",
+                childNodes.item(6)
+                        .getAttributes()
+                        .item(1)
+                        .getTextContent());
     }
 
     @Test
     public void testAddClaimsAsString() {
         StsRealm stsRealm = new StsRealm();
-        assertEquals(0, stsRealm.getClaims().size());
+        assertEquals(0,
+                stsRealm.getClaims()
+                        .size());
         stsRealm.setClaims("claim1,claim2,claim3");
-        assertEquals(3, stsRealm.getClaims().size());
+        assertEquals(3,
+                stsRealm.getClaims()
+                        .size());
     }
 
     protected Document readDocument(String name)

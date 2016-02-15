@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -42,15 +42,19 @@ public class TestExternal extends TestSolrProvider {
     public static void setup() throws Exception {
         LOGGER.info("RUNNING setup.");
 
-        SolrCatalogProvider solrCatalogProvider = new SolrCatalogProvider(
-                SolrServerFactory.getHttpSolrServer("http://localhost:8181/solr").get(),
-                new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+        SolrCatalogProvider solrCatalogProvider =
+                new SolrCatalogProvider(SolrServerFactory.getHttpSolrServer(
+                        "http://localhost:8181/solr")
+                        .get(),
+                        new GeotoolsFilterAdapterImpl(),
+                        new SolrFilterDelegateFactoryImpl());
 
         /*
          * necessary for automated test purposes. forces commits so that verification of tests will
          * have valid counts/results
          */
-        ConfigurationStore.getInstance().setForceAutoCommit(true);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(true);
 
         provider = solrCatalogProvider;
 

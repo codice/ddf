@@ -86,7 +86,8 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
                 } catch (URISyntaxException e) {
                     LOGGER.warn(
                             "Claims mapping cannot be converted to a URI. This claim will be excluded: {}",
-                            attr, e);
+                            attr,
+                            e);
                 }
             } else {
                 LOGGER.warn("Invalid claims mapping entered for guest user: {}", attr);
@@ -124,7 +125,7 @@ public class GuestClaimsHandler implements ClaimsHandler, RealmSupport {
         }
 
         if (principal != null && principal instanceof GuestPrincipal) {
-            String ipAddress = ((GuestPrincipal)principal).getAddress();
+            String ipAddress = ((GuestPrincipal) principal).getAddress();
             if (ipAddress != null) {
                 try {
                     ProcessedClaim ipClaim = new ProcessedClaim();

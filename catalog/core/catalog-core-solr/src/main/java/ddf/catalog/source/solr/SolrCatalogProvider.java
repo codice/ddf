@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -77,7 +77,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrCatalogProvider.class);
 
-    private static final String COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE = "Could not complete delete request.";
+    private static final String COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE =
+            "Could not complete delete request.";
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
@@ -92,8 +93,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     private static Properties describableProperties = new Properties();
 
     static {
-        try (InputStream propertiesStream = ddf.catalog.source.solr.SolrCatalogProvider.class
-                .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
+        try (InputStream propertiesStream = ddf.catalog.source.solr.SolrCatalogProvider.class.getResourceAsStream(
+                DESCRIBABLE_PROPERTIES_FILE)) {
             describableProperties.load(propertiesStream);
         } catch (IOException e) {
             LOGGER.info("IO exception loading describable properties", e);
@@ -119,14 +120,17 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IllegalArgumentException("SolrServer cannot be null.");
         }
 
-        LOGGER.debug("Constructing {} with server [{}]", SolrCatalogProvider.class.getName(),
+        LOGGER.debug("Constructing {} with server [{}]",
+                SolrCatalogProvider.class.getName(),
                 server);
 
         this.server = server;
         this.resolver = resolver;
 
         resolver.addFieldsFromServer(server);
-        client = new ProviderSolrMetacardClient(server, adapter, solrFilterDelegateFactory,
+        client = new ProviderSolrMetacardClient(server,
+                adapter,
+                solrFilterDelegateFactory,
                 resolver);
     }
 
@@ -146,10 +150,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         Set<ContentType> finalSet = new HashSet<>();
 
-        String contentTypeField = resolver
-                .getField(Metacard.CONTENT_TYPE, AttributeFormat.STRING, true);
-        String contentTypeVersionField = resolver
-                .getField(Metacard.CONTENT_TYPE_VERSION, AttributeFormat.STRING, true);
+        String contentTypeField = resolver.getField(Metacard.CONTENT_TYPE,
+                AttributeFormat.STRING,
+                true);
+        String contentTypeVersionField = resolver.getField(Metacard.CONTENT_TYPE_VERSION,
+                AttributeFormat.STRING,
+                true);
 
         /*
          * If we didn't find the field, it most likely means it does not exist. If it does not
@@ -179,10 +185,11 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                     if (CollectionUtils.isNotEmpty(facetFields)) {
                         // Only one facet field was added. That facet field may contain multiple
                         // values (content type names).
-                        for (FacetField.Count currContentType : facetFields.get(0).getValues()) {
+                        for (FacetField.Count currContentType : facetFields.get(0)
+                                .getValues()) {
                             // unknown version, so setting it to null
-                            ContentTypeImpl contentType = new ContentTypeImpl(
-                                    currContentType.getName(), null);
+                            ContentTypeImpl contentType =
+                                    new ContentTypeImpl(currContentType.getName(), null);
 
                             finalSet.add(contentType);
                         }
@@ -190,7 +197,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 } else {
                     for (PivotField pf : entry.getValue()) {
 
-                        String contentTypeName = pf.getValue().toString();
+                        String contentTypeName = pf.getValue()
+                                .toString();
                         LOGGER.debug("contentTypeName:{}", contentTypeName);
 
                         if (CollectionUtils.isEmpty(pf.getPivot())) {
@@ -209,10 +217,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                             for (PivotField innerPf : pf.getPivot()) {
 
                                 LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}",
-                                        innerPf.getValue(), contentTypeName);
+                                        innerPf.getValue(),
+                                        contentTypeName);
 
                                 ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
-                                        innerPf.getValue().toString());
+                                        innerPf.getValue()
+                                                .toString());
 
                                 finalSet.add(contentType);
                             }
@@ -233,7 +243,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         try {
             SolrPingResponse ping = server.ping();
 
-            return "OK".equals(ping.getResponse().get("status"));
+            return "OK".equals(ping.getResponse()
+                    .get("status"));
         } catch (Exception e) {
             /*
              * if we get any type of exception, whether declared by Solr or not, we do not want to
@@ -295,13 +306,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         for (Metacard metacard : metacards) {
-            boolean isSourceIdSet = (metacard.getSourceId() != null && !""
-                    .equals(metacard.getSourceId()));
+            boolean isSourceIdSet =
+                    (metacard.getSourceId() != null && !"".equals(metacard.getSourceId()));
             /*
              * If an ID is not provided, then one is generated so that documents are unique. Solr
              * will not accept documents unless the id is unique.
              */
-            if (metacard.getId() == null || metacard.getId().equals("")) {
+            if (metacard.getId() == null || metacard.getId()
+                    .equals("")) {
                 if (isSourceIdSet) {
                     throw new IngestException("Metacard from a separate distribution must have ID");
                 }
@@ -353,7 +365,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         // Loop to get all identifiers
         for (Entry<Serializable, Metacard> updateEntry : updates) {
-            identifiers.add(updateEntry.getKey().toString());
+            identifiers.add(updateEntry.getKey()
+                    .toString());
         }
 
         /* 1a. Create the old Metacard Query */
@@ -371,13 +384,16 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         // CHECK if we got any results back
-        if (idResults != null && idResults.getResults() != null
-                && idResults.getResults().size() != 0) {
+        if (idResults != null && idResults.getResults() != null && idResults.getResults()
+                .size() != 0) {
 
-            LOGGER.info("Found {} current metacard(s).", idResults.getResults().size());
+            LOGGER.info("Found {} current metacard(s).",
+                    idResults.getResults()
+                            .size());
 
             // CHECK updates size assertion
-            if (idResults.getResults().size() > updates.size()) {
+            if (idResults.getResults()
+                    .size() > updates.size()) {
                 throw new IngestException(
                         "Found more metacards than updated metacards provided. Please ensure your attribute values match unique records.");
             }
@@ -400,8 +416,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
          * matter. If we use a List and the metacards are out of order, we might not match the new
          * metacards properly with the old metacards.
          */
-        int initialHashMapCapacity =
-                (int) (idResults.getResults().size() / HASHMAP_DEFAULT_LOAD_FACTOR) + 1;
+        int initialHashMapCapacity = (int) (idResults.getResults()
+                .size() / HASHMAP_DEFAULT_LOAD_FACTOR) + 1;
 
         // map of old metacards to be populated
         Map<Serializable, Metacard> idToMetacardMap = new HashMap<>(initialHashMapCapacity);
@@ -415,11 +431,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 throw new IngestException("Could not create metacard(s).");
             }
 
-            if (!idToMetacardMap.containsKey(old.getAttribute(attributeName).getValue())) {
-                idToMetacardMap.put(old.getAttribute(attributeName).getValue(), old);
+            if (!idToMetacardMap.containsKey(old.getAttribute(attributeName)
+                    .getValue())) {
+                idToMetacardMap.put(old.getAttribute(attributeName)
+                        .getValue(), old);
             } else {
                 throw new IngestException(
-                        "The attribute value given [" + old.getAttribute(attributeName).getValue()
+                        "The attribute value given [" + old.getAttribute(attributeName)
+                                .getValue()
                                 + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
             }
         }
@@ -427,7 +446,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         /* 2. Update the cards */
         List<Metacard> newMetacards = new ArrayList<>();
         for (Entry<Serializable, Metacard> updateEntry : updates) {
-            String localKey = updateEntry.getKey().toString();
+            String localKey = updateEntry.getKey()
+                    .toString();
 
             /* 2a. Prepare new Metacard */
             MetacardImpl newMetacard = new MetacardImpl(updateEntry.getValue());
@@ -479,19 +499,21 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
         }
 
-        if (identifiers.size() <=  MAX_BOOLEAN_CLAUSES) {
+        if (identifiers.size() <= MAX_BOOLEAN_CLAUSES) {
             deleteListOfMetacards(deletedMetacards, identifiers, attributeName);
         } else {
             List<? extends Serializable> identifierPaged = null;
             int currPagingSize = 0;
 
-            for (currPagingSize = MAX_BOOLEAN_CLAUSES; currPagingSize < identifiers.size(); currPagingSize += MAX_BOOLEAN_CLAUSES) {
-                identifierPaged = identifiers
-                        .subList(currPagingSize - MAX_BOOLEAN_CLAUSES, currPagingSize);
+            for (
+                    currPagingSize = MAX_BOOLEAN_CLAUSES;
+                    currPagingSize < identifiers.size(); currPagingSize += MAX_BOOLEAN_CLAUSES) {
+                identifierPaged = identifiers.subList(currPagingSize - MAX_BOOLEAN_CLAUSES,
+                        currPagingSize);
                 deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
             }
-            identifierPaged = identifiers
-                    .subList(currPagingSize - MAX_BOOLEAN_CLAUSES, identifiers.size());
+            identifierPaged = identifiers.subList(currPagingSize - MAX_BOOLEAN_CLAUSES,
+                    identifiers.size());
             deleteListOfMetacards(deletedMetacards, identifierPaged, attributeName);
         }
         return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
@@ -566,7 +588,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 queryBuilder.append(" OR ");
             }
 
-            queryBuilder.append(mappedNames.get(0)).append(":").append(QUOTE).append(id)
+            queryBuilder.append(mappedNames.get(0))
+                    .append(":")
+                    .append(QUOTE)
+                    .append(id)
                     .append(QUOTE);
         }
 
@@ -578,11 +603,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
 
     private String generatePrimaryKey() {
-        return UUID.randomUUID().toString().replaceAll("-", "");
+        return UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
     }
 
     public boolean isForcedAutoCommit() {
-        return ConfigurationStore.getInstance().isForceAutoCommit();
+        return ConfigurationStore.getInstance()
+                .isForceAutoCommit();
     }
 
     public void shutdown() {
@@ -595,7 +623,9 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         public ProviderSolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
                 SolrFilterDelegateFactory solrFilterDelegateFactory,
                 DynamicSchemaResolver dynamicSchemaResolver) {
-            super(solrServer, catalogFilterAdapter, solrFilterDelegateFactory,
+            super(solrServer,
+                    catalogFilterAdapter,
+                    solrFilterDelegateFactory,
                     dynamicSchemaResolver);
         }
 

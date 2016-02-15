@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,11 +38,21 @@ public class ActivityEventTest {
         int progress = 55;
         Map<String, String> operations = new HashMap<String, String>();
         operations.put("cancel", "true");
-        String user = UUID.randomUUID().toString();
+        String user = UUID.randomUUID()
+                .toString();
         ActivityStatus type = ActivityStatus.RUNNING;
         Long bytes = 1024000000L;
-        ActivityEvent event = new ActivityEvent(id, sessionId, timestamp, category, title, message,
-                progress, operations, user, type, bytes);
+        ActivityEvent event = new ActivityEvent(id,
+                sessionId,
+                timestamp,
+                category,
+                title,
+                message,
+                progress,
+                operations,
+                user,
+                type,
+                bytes);
 
         // id
         assertEquals(id, event.getActivityId());
@@ -56,7 +66,9 @@ public class ActivityEventTest {
         assertEquals(timestamp, event.getTimestamp());
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(ISODateTimeFormat.dateTime()
-                .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY).toString()).toDate()
+                .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY)
+                        .toString())
+                .toDate()
                 .getTime());
         assertEquals(timestamp, cal.getTime());
 
@@ -84,7 +96,9 @@ public class ActivityEventTest {
 
         // type
         assertEquals(type, ActivityStatus.valueOf(event.getActivityType()));
-        assertEquals(type, ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY).toString()));
+        assertEquals(type,
+                ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY)
+                        .toString()));
 
         // bytes
         assertEquals(bytes, event.getBytesRead());
@@ -109,8 +123,17 @@ public class ActivityEventTest {
         String user = "";
         ActivityStatus type = ActivityStatus.RUNNING;
         Long bytes = 1024000000L;
-        ActivityEvent event = new ActivityEvent(id, sessionId, timestamp, category, title, message,
-                progress, operations, user, type, bytes);
+        ActivityEvent event = new ActivityEvent(id,
+                sessionId,
+                timestamp,
+                category,
+                title,
+                message,
+                progress,
+                operations,
+                user,
+                type,
+                bytes);
 
         // id
         assertEquals(id, event.getActivityId());
@@ -124,7 +147,9 @@ public class ActivityEventTest {
         assertEquals(timestamp, event.getTimestamp());
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(ISODateTimeFormat.dateTime()
-                .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY).toString()).toDate()
+                .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY)
+                        .toString())
+                .toDate()
                 .getTime());
         assertEquals(timestamp, cal.getTime());
 
@@ -152,7 +177,9 @@ public class ActivityEventTest {
 
         // type
         assertEquals(type, ActivityStatus.valueOf(event.getActivityType()));
-        assertEquals(type, ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY).toString()));
+        assertEquals(type,
+                ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY)
+                        .toString()));
 
         // bytes
         assertEquals(bytes, event.getBytesRead());

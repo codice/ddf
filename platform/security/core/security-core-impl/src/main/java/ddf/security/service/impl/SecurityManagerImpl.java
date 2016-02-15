@@ -100,8 +100,11 @@ public class SecurityManagerImpl implements SecurityManager {
         }
         AuthenticationInfo info = internalManager.authenticate(token);
         try {
-            return new SubjectImpl(info.getPrincipals(), true,
-                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
+            return new SubjectImpl(info.getPrincipals(),
+                    true,
+                    new SimpleSession(UUID.randomUUID()
+                            .toString()),
+                    internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
@@ -118,8 +121,11 @@ public class SecurityManagerImpl implements SecurityManager {
     private Subject getSubject(SecurityToken token) throws SecurityServiceException {
         try {
             // return the newly created subject
-            return new SubjectImpl(createPrincipalFromToken(token), true,
-                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
+            return new SubjectImpl(createPrincipalFromToken(token),
+                    true,
+                    new SimpleSession(UUID.randomUUID()
+                            .toString()),
+                    internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
@@ -134,10 +140,13 @@ public class SecurityManagerImpl implements SecurityManager {
     private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         for (Realm curRealm : realms) {
-            logger.debug("Configuring settings for realm name: {} type: {}", curRealm.getName(),
-                    curRealm.getClass().toString());
+            logger.debug("Configuring settings for realm name: {} type: {}",
+                    curRealm.getName(),
+                    curRealm.getClass()
+                            .toString());
             logger.debug("Is authorizer: {}, is AuthorizingRealm: {}",
-                    curRealm instanceof Authorizer, curRealm instanceof AuthorizingRealm);
+                    curRealm instanceof Authorizer,
+                    curRealm instanceof AuthorizingRealm);
             SecurityAssertion securityAssertion = null;
             try {
                 securityAssertion = new SecurityAssertionImpl(token, usernameAttributeList);

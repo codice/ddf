@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.sdk.soap;
 
@@ -29,10 +28,10 @@ import sdk.ddf.soap.hello.HelloWorldResponse;
         serviceName = "HelloWorldService",
         portName = "HelloWorldServicePort",
         targetNamespace = "http://ddf.sdk/soap/hello",
-        endpointInterface = "sdk.ddf.soap.hello.HelloWorldServicePort"
-        )
+        endpointInterface = "sdk.ddf.soap.hello.HelloWorldServicePort")
 public class SoapEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(SoapEndpoint.class);
+
     public HelloWorldResponse helloWorldOp(HelloWorld helloWorld) {
 
         String name = null;

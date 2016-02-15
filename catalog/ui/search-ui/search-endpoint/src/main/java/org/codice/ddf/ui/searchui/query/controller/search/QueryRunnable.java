@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.ui.searchui.query.controller.search;
 
@@ -67,16 +66,19 @@ public abstract class QueryRunnable implements Runnable {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(QueryRunnable.class);
 
-    protected static final Map<String, ? extends Serializable> CACHE_PROPERTIES = ImmutableMap
-            .of("mode", "cache");
+    protected static final Map<String, ? extends Serializable> CACHE_PROPERTIES = ImmutableMap.of(
+            "mode",
+            "cache");
 
-    protected static final Map<String, ? extends Serializable> UPDATE_PROPERTIES = ImmutableMap
-            .of("mode", "update");
+    protected static final Map<String, ? extends Serializable> UPDATE_PROPERTIES = ImmutableMap.of(
+            "mode",
+            "update");
 
-    protected static final JtsSpatialContextFactory JTS_SPATIAL_CONTEXT_FACTORY = new JtsSpatialContextFactory();
+    protected static final JtsSpatialContextFactory JTS_SPATIAL_CONTEXT_FACTORY =
+            new JtsSpatialContextFactory();
 
-    protected static final JtsSpatialContext SPATIAL_CONTEXT = JTS_SPATIAL_CONTEXT_FACTORY
-            .newSpatialContext();
+    protected static final JtsSpatialContext SPATIAL_CONTEXT =
+            JTS_SPATIAL_CONTEXT_FACTORY.newSpatialContext();
 
     protected static final int FUTURE_TIMEOUT_SECONDS = 60;
 
@@ -130,19 +132,19 @@ public abstract class QueryRunnable implements Runnable {
             }
             for (Map.Entry<String, Result> entry : results.entrySet()) {
                 Result result = entry.getValue();
-                if (result.getMetacard() != null && StringUtils
-                        .isNotBlank(result.getMetacard().getLocation())) {
+                if (result.getMetacard() != null && StringUtils.isNotBlank(result.getMetacard()
+                        .getLocation())) {
                     try {
-                        Shape locationShape = SPATIAL_CONTEXT
-                                .readShapeFromWkt(result.getMetacard().getLocation());
+                        Shape locationShape = SPATIAL_CONTEXT.readShapeFromWkt(result.getMetacard()
+                                .getLocation());
 
-                        double distance = DistanceUtils.degrees2Dist(SPATIAL_CONTEXT
-                                        .calcDistance(locationShape.getCenter(),
-                                                queryShape.getCenter()),
-                                DistanceUtils.EARTH_MEAN_RADIUS_KM) * METERS_IN_KILOMETERS;
+                        double distance = DistanceUtils.degrees2Dist(SPATIAL_CONTEXT.calcDistance(
+                                locationShape.getCenter(),
+                                queryShape.getCenter()), DistanceUtils.EARTH_MEAN_RADIUS_KM)
+                                * METERS_IN_KILOMETERS;
 
-                        ResultImpl updatedResult = new ResultImpl(
-                                new MetacardImpl(result.getMetacard()));
+                        ResultImpl updatedResult =
+                                new ResultImpl(new MetacardImpl(result.getMetacard()));
                         updatedResult.setDistanceInMeters(distance);
                         results.put(entry.getKey(), updatedResult);
                     } catch (ParseException e) {
@@ -155,12 +157,14 @@ public abstract class QueryRunnable implements Runnable {
 
     protected void normalizeRelevance(List<Result> indexResults, Map<String, Result> results) {
         for (Result indexResult : indexResults) {
-            String resultKey =
-                    indexResult.getMetacard().getAttribute(FilteringDynamicSchemaResolver.SOURCE_ID)
-                            .getValue() + indexResult.getMetacard().getId();
+            String resultKey = indexResult.getMetacard()
+                    .getAttribute(FilteringDynamicSchemaResolver.SOURCE_ID)
+                    .getValue() + indexResult.getMetacard()
+                    .getId();
 
             if (results.containsKey(resultKey)) {
-                MetacardImpl metacard = new MetacardImpl(results.get(resultKey).getMetacard());
+                MetacardImpl metacard = new MetacardImpl(results.get(resultKey)
+                        .getMetacard());
                 metacard.setAttribute(Search.CACHED, null);
 
                 ResultImpl result = new ResultImpl(metacard);
@@ -173,8 +177,10 @@ public abstract class QueryRunnable implements Runnable {
     }
 
     protected int getMaxResults(SearchRequest request) {
-        return request.getQuery().getPageSize() > 0 ?
-                request.getQuery().getPageSize() :
+        return request.getQuery()
+                .getPageSize() > 0 ?
+                request.getQuery()
+                        .getPageSize() :
                 Integer.MAX_VALUE;
     }
 
@@ -198,9 +204,8 @@ public abstract class QueryRunnable implements Runnable {
         if (sortBy != null && sortBy.getPropertyName() != null) {
             PropertyName sortingProp = sortBy.getPropertyName();
             String sortType = sortingProp.getPropertyName();
-            SortOrder sortOrder = (sortBy.getSortOrder() == null) ?
-                    SortOrder.DESCENDING :
-                    sortBy.getSortOrder();
+            SortOrder sortOrder =
+                    (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING : sortBy.getSortOrder();
 
             // Temporal searches are currently sorted by the effective time
             if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
@@ -234,36 +239,45 @@ public abstract class QueryRunnable implements Runnable {
 
                 if (subject != null) {
                     LOGGER.debug("Adding {} property with value {} to request.",
-                            SecurityConstants.SECURITY_SUBJECT, subject);
-                    request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                            SecurityConstants.SECURITY_SUBJECT,
+                            subject);
+                    request.getProperties()
+                            .put(SecurityConstants.SECURITY_SUBJECT, subject);
                 }
 
                 LOGGER.debug("Sending query: {}", query);
-                response = searchController.getFramework().query(request);
+                response = searchController.getFramework()
+                        .query(request);
             }
         } catch (UnsupportedQueryException | FederationException e) {
             LOGGER.warn("Error executing query", e);
-            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
+            response.getProcessingDetails()
+                    .add(new ProcessingDetailsImpl(sourceId, e));
         } catch (SourceUnavailableException e) {
             LOGGER.warn("Error executing query because the underlying source was unavailable.", e);
-            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
+            response.getProcessingDetails()
+                    .add(new ProcessingDetailsImpl(sourceId, e));
         } catch (RuntimeException e) {
             // Account for any runtime exceptions and send back a server error
             // this prevents full stacktraces returning to the client
             // this allows for a graceful server error to be returned
             LOGGER.warn("RuntimeException on executing query", e);
-            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
+            response.getProcessingDetails()
+                    .add(new ProcessingDetailsImpl(sourceId, e));
         }
         long estimatedTime = System.currentTimeMillis() - startTime;
-        response.getProperties().put("elapsed", estimatedTime);
+        response.getProperties()
+                .put("elapsed", estimatedTime);
 
         return response;
     }
 
     private QueryResponse getEmptyResponse(String sourceId) {
         // No query was specified
-        QueryRequest queryRequest = new QueryRequestImpl(null, false,
-                Collections.singletonList(sourceId), null);
+        QueryRequest queryRequest = new QueryRequestImpl(null,
+                false,
+                Collections.singletonList(sourceId),
+                null);
 
         // Create a dummy QueryResponse with zero results
         return new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);

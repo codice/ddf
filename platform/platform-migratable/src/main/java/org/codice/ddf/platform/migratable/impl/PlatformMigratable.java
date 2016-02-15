@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -34,8 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PlatformMigratable extends AbstractMigratable {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(PlatformMigratable.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
@@ -46,16 +45,18 @@ public class PlatformMigratable extends AbstractMigratable {
     private static final Path SYSTEM_PROPERTIES = Paths.get("etc", "system.properties");
 
     private static final Path USERS_PROPERTIES = Paths.get("etc", "users.properties");
-    
-    private static final Path APPLICATION_LIST = Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties");
-    
+
+    private static final Path APPLICATION_LIST = Paths.get("etc",
+            "org.codice.ddf.admin.applicationlist.properties");
+
     private final MigratableUtil migratableUtil;
-    
-    public PlatformMigratable(@NotNull String description, boolean isOptional, @NotNull MigratableUtil migratableUtil) {
+
+    public PlatformMigratable(@NotNull String description, boolean isOptional,
+            @NotNull MigratableUtil migratableUtil) {
         super(description, isOptional);
         this.migratableUtil = migratableUtil;
     }
-    
+
     public MigrationMetadata export(Path exportPath) throws MigrationException {
         LOGGER.debug("Exporting system files...");
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
@@ -64,22 +65,32 @@ public class PlatformMigratable extends AbstractMigratable {
         return new MigrationMetadata(migrationWarnings);
     }
 
-    private void exportSystemFiles(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
-        LOGGER.debug("Exporting system files: [{}], [{}], and [{}]", SYSTEM_PROPERTIES.toString(), USERS_PROPERTIES.toString(), APPLICATION_LIST.toString());
+    private void exportSystemFiles(Path exportDirectory,
+            Collection<MigrationWarning> migrationWarnings) {
+        LOGGER.debug("Exporting system files: [{}], [{}], and [{}]",
+                SYSTEM_PROPERTIES.toString(),
+                USERS_PROPERTIES.toString(),
+                APPLICATION_LIST.toString());
         migratableUtil.copyFile(SYSTEM_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(USERS_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(APPLICATION_LIST, exportDirectory, migrationWarnings);
     }
 
-    private void exportWsSecurity(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+    private void exportWsSecurity(Path exportDirectory,
+            Collection<MigrationWarning> migrationWarnings) {
         LOGGER.debug("Exporting [{}]...", WS_SECURITY_DIR.toString());
         migratableUtil.copyDirectory(WS_SECURITY_DIR, exportDirectory, migrationWarnings);
         exportKeystores(exportDirectory, migrationWarnings);
     }
 
-    private void exportKeystores(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+    private void exportKeystores(Path exportDirectory,
+            Collection<MigrationWarning> migrationWarnings) {
         LOGGER.debug("Exporting keystore and truststore...");
-        migratableUtil.copyFileFromSystemPropertyValue(KEYSTORE_SYSTEM_PROP, exportDirectory, migrationWarnings);
-        migratableUtil.copyFileFromSystemPropertyValue(TRUSTSTORE_SYSTEM_PROP, exportDirectory, migrationWarnings);
+        migratableUtil.copyFileFromSystemPropertyValue(KEYSTORE_SYSTEM_PROP,
+                exportDirectory,
+                migrationWarnings);
+        migratableUtil.copyFileFromSystemPropertyValue(TRUSTSTORE_SYSTEM_PROP,
+                exportDirectory,
+                migrationWarnings);
     }
 }

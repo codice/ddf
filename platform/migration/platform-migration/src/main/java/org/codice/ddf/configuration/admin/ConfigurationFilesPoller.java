@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -73,7 +73,9 @@ public class ConfigurationFilesPoller implements Runnable {
     }
 
     public void init() {
-        LOGGER.debug("Starting {}...", this.getClass().getName());
+        LOGGER.debug("Starting {}...",
+                this.getClass()
+                        .getName());
         executorService.execute(this);
     }
 
@@ -91,13 +93,15 @@ public class ConfigurationFilesPoller implements Runnable {
                 configurationDirectoryPath.register(watchService, ENTRY_CREATE);
             } catch (IOException e) {
                 LOGGER.error("Unable to register path [{}] with Watch Service",
-                        configurationDirectoryPath.toString(), e);
+                        configurationDirectoryPath.toString(),
+                        e);
                 return;
             }
 
             WatchKey key;
 
-            while (!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread()
+                    .isInterrupted()) {
                 key = watchService.take(); // blocking
                 LOGGER.debug("Key has been signalled.  Looping over events.");
 
@@ -111,10 +115,12 @@ public class ConfigurationFilesPoller implements Runnable {
 
                     Path filename = (Path) genericEvent.context();
 
-                    if (!filename.toString().endsWith(fileExtension)) {
+                    if (!filename.toString()
+                            .endsWith(fileExtension)) {
                         LOGGER.debug(
                                 "Skipping event for [{}] due to unsupported file extension of [{}].",
-                                filename, fileExtension);
+                                filename,
+                                fileExtension);
                         continue; // just skip to the next event
                     }
 
@@ -123,7 +129,9 @@ public class ConfigurationFilesPoller implements Runnable {
                         // done writing, otherwise the listener may read the file too soon.
                         TimeUnit.SECONDS.sleep(1);
                         LOGGER.debug("Notifying [{}] of event [{}] for file [{}].",
-                                changeListener.getClass().getName(), kind,
+                                changeListener.getClass()
+                                        .getName(),
+                                kind,
                                 configurationDirectoryPath.resolve(filename));
                         changeListener.notify(configurationDirectoryPath.resolve(filename));
                     }
@@ -138,8 +146,12 @@ public class ConfigurationFilesPoller implements Runnable {
                 }
             }
         } catch (InterruptedException | RuntimeException e) {
-            LOGGER.error("The [{}] was interrupted.", this.getClass().getName(), e);
-            Thread.currentThread().interrupt();
+            LOGGER.error("The [{}] was interrupted.",
+                    this.getClass()
+                            .getName(),
+                    e);
+            Thread.currentThread()
+                    .interrupt();
         }
     }
 
@@ -157,7 +169,8 @@ public class ConfigurationFilesPoller implements Runnable {
             }
         } catch (IOException | InterruptedException e) {
             executorService.shutdownNow();
-            Thread.currentThread().interrupt();
+            Thread.currentThread()
+                    .interrupt();
         }
     }
 }

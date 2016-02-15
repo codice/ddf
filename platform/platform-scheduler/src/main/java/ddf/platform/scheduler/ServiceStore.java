@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,7 +15,6 @@ package ddf.platform.scheduler;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * Allows {@link org.quartz.Job}s or other objects within this limited classpath to acquire them from a single
@@ -53,7 +52,8 @@ public class ServiceStore {
      */
     public void setObject(Object object) {
 
-        Class<?>[] interfaces = object.getClass().getInterfaces();
+        Class<?>[] interfaces = object.getClass()
+                .getInterfaces();
 
         for (Class<?> interfaceObject : interfaces) {
             String interfaceKey = interfaceObject.getSimpleName();

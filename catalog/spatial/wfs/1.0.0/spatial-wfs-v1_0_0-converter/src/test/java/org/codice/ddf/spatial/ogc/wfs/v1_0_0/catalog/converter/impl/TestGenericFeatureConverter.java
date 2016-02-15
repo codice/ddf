@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.impl;
 
@@ -99,44 +98,63 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GmlGeometryConverter());
 
         xstream.alias(FEATURE_TYPE, MetacardImpl.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/video_data_set.xml");
+        InputStream is =
+                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertEquals("video_data_set.2", mc.getId());
         assertEquals(FEATURE_TYPE, mc.getContentTypeName());
-        assertEquals(metacardType.getName(), mc.getMetacardType().getName());
+        assertEquals(metacardType.getName(),
+                mc.getMetacardType()
+                        .getName());
         assertEquals(SOURCE_ID, mc.getSourceId());
         assertEquals("video_data_set.2", mc.getTitle());
 
-        assertEquals(2L, mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT).getValue());
+        assertEquals(2L,
+                mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT)
+                        .getValue());
         assertEquals(Long.valueOf(1L),
-                mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT).getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983").getTime(),
-                mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT)
+                        .getValue());
+        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983")
+                        .getTime(),
+                mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT)
+                        .getValue());
         assertEquals("/data/test_suite/video/video/videoFile.mpg",
-                mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT).getValue());
-        assertEquals(720L, mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT)
+                        .getValue());
+        assertEquals(720L,
+                mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT)
+                        .getValue());
         assertEquals("a8a55092f0afae881099637ef7746cd8d7066270d9af4cf0f52c41dab53c4005",
-                mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT)
+                        .getValue());
         assertEquals(getOtherTagsXml(),
-                mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT).getValue());
-        assertEquals(26L, mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT).getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000").getTime(),
-                mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT).getValue());
-        assertEquals(1280L, mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT)
+                        .getValue());
+        assertEquals(26L,
+                mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT)
+                        .getValue());
+        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000")
+                        .getTime(),
+                mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT)
+                        .getValue());
+        assertEquals(1280L,
+                mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT)
+                        .getValue());
 
         assertEquals(getLocation(), mc.getLocation());
         assertEquals(mc.getLocation(),
-                mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT).getValue());
+                mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT)
+                        .getValue());
 
         assertNotNull(mc.getCreatedDate());
         assertNotNull(mc.getEffectiveDate());
         assertNotNull(mc.getModifiedDate());
 
         assertNotNull(mc.getContentTypeNamespace());
-        assertEquals(mc.getContentTypeNamespace().toString(),
-                WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName());
+        assertEquals(mc.getContentTypeNamespace()
+                .toString(), WfsConstants.NAMESPACE_URN_ROOT + metacardType.getName());
     }
 
     @Test
@@ -156,12 +174,15 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(converter);
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias("FeatureCollection", WfsFeatureCollection.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/video_data_set_collection.xml");
+        InputStream is = TestGenericFeatureConverter.class.getResourceAsStream(
+                "/video_data_set_collection.xml");
 
         WfsFeatureCollection wfc = (WfsFeatureCollection) xstream.fromXML(is);
-        assertEquals(4, wfc.getFeatureMembers().size());
-        Metacard mc = wfc.getFeatureMembers().get(0);
+        assertEquals(4,
+                wfc.getFeatureMembers()
+                        .size());
+        Metacard mc = wfc.getFeatureMembers()
+                .get(0);
         assertEquals(mc.getId(), "video_data_set.1");
 
     }
@@ -172,8 +193,8 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GenericFeatureConverter());
         xstream.registerConverter(new GmlGeometryConverter());
         xstream.alias(FEATURE_TYPE, Metacard.class);
-        InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/video_data_set.xml");
+        InputStream is =
+                TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
         try {
             WfsFeatureCollection wfs = (WfsFeatureCollection) xstream.fromXML(is);
         } catch (Exception e) {
@@ -195,7 +216,8 @@ public class TestGenericFeatureConverter {
 
         Metacard mc = new SampleMetacard().getMetacard();
         WfsFeatureCollection wfc = new WfsFeatureCollection();
-        wfc.getFeatureMembers().add(mc);
+        wfc.getFeatureMembers()
+                .add(mc);
         MetacardImpl mc2 = new SampleMetacard().getMetacard();
         // Ignore the hack stuff, this was just to imitate having two different
         // "MetacardTypes"
@@ -216,7 +238,8 @@ public class TestGenericFeatureConverter {
                 return BasicTypes.BASIC_METACARD.getAttributeDescriptor(arg0);
             }
         });
-        wfc.getFeatureMembers().add(mc2);
+        wfc.getFeatureMembers()
+                .add(mc2);
 
         String xml = xstream.toXML(wfc);
     }
@@ -235,9 +258,12 @@ public class TestGenericFeatureConverter {
     private MetacardType buildMetacardType() {
 
         XmlSchema schema = new XmlSchema();
-        schema.getElements().putAll(buildElementMap(schema));
+        schema.getElements()
+                .putAll(buildElementMap(schema));
 
-        return new FeatureMetacardType(schema, new QName(FEATURE_TYPE), new ArrayList<String>(),
+        return new FeatureMetacardType(schema,
+                new QName(FEATURE_TYPE),
+                new ArrayList<String>(),
                 Wfs10Constants.GML_NAMESPACE);
 
     }

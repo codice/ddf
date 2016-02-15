@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -201,11 +201,13 @@ public class TestCswCqlFilter {
 
     private final String lineStringWkt = "LINESTRING (30 -10, 30 30, 10 30, 10 -10)";
 
-    private final String multiPolygonWkt = "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20)))";
+    private final String multiPolygonWkt =
+            "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)), ((20 35, 45 20, 30 5, 10 10, 10 30, 20 35), (30 20, 20 25, 20 15, 30 20)))";
 
     private final String multiPointWkt = "MULTIPOINT ((10 40), (40 30), (20 20), (30 10))";
 
-    private final String multiLineStringWkt = "MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))";
+    private final String multiLineStringWkt =
+            "MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))";
 
     private final double distance = 123.456;
 
@@ -460,8 +462,7 @@ public class TestCswCqlFilter {
         GeometryOperandsType mockGeometryOperandsType = mock(GeometryOperandsType.class);
         when(mockGeometryOperandsType.getGeometryOperand()).thenReturn(mockGeometryOperands);
         SpatialCapabilitiesType mockSpatialCapabilitiesType = mock(SpatialCapabilitiesType.class);
-        when(mockSpatialCapabilitiesType.getGeometryOperands())
-                .thenReturn(mockGeometryOperandsType);
+        when(mockSpatialCapabilitiesType.getGeometryOperands()).thenReturn(mockGeometryOperandsType);
 
         return mockSpatialCapabilitiesType;
     }
@@ -501,14 +502,14 @@ public class TestCswCqlFilter {
 
         // JAXB context path
         // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
-        String contextPath = StringUtils
-                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
+                CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
+                CswConstants.OGC_OWS_PACKAGE}, ":");
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}", contextPath);
-            jaxbContext = JAXBContext
-                    .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
+            jaxbContext = JAXBContext.newInstance(contextPath,
+                    CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}", contextPath, e);
         }
@@ -523,9 +524,11 @@ public class TestCswCqlFilter {
      */
     @Test
     public void testPropertyIsEqualToStringLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsEqualTo(propertyName, stringLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName,
+                stringLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualTo, cqlText);
     }
 
@@ -538,14 +541,20 @@ public class TestCswCqlFilter {
     public void testPropertyIsEqualToStringLiteralAlternateIdMapping()
             throws UnsupportedQueryException {
         String replacedIdentifierProperty = propertyName;
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
-                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping, replacedIdentifierProperty);
+        CswSourceConfiguration cswSourceConfiguration =
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON,
+                        CswRecordMetacardType.CSW_TYPE,
+                        effectiveDateMapping,
+                        createdDateMapping,
+                        modifiedDateMapping,
+                        replacedIdentifierProperty);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
-        FilterType filterType = cswFilterDelegate
-                .propertyIsEqualTo(propertyName, stringLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName,
+                stringLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualTo, cqlText);
     }
 
@@ -559,15 +568,18 @@ public class TestCswCqlFilter {
         LOGGER.debug("Input date: {}", date);
         LOGGER.debug("ISO 8601 formatted date: {}", convertDateToIso8601Format(getDate()));
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, date);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualToWithDate, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToStringLiteralAnyText() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsEqualTo(propertyNameAnyText, stringLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyNameAnyText,
+                stringLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualToAnyText, cqlText);
     }
 
@@ -576,15 +588,22 @@ public class TestCswCqlFilter {
 
         DateTime startDate = new DateTime(2013, 5, 1, 0, 0, 0, 0);
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
-                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
+        CswSourceConfiguration cswSourceConfiguration =
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON,
+                        CswRecordMetacardType.CSW_TYPE,
+                        effectiveDateMapping,
+                        createdDateMapping,
+                        modifiedDateMapping,
+                        CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
-        FilterType filterType = cswFilterDelegate
-                .during(propertyNameModified, startDate.toCalendar(null).getTime(),
-                        endDate.toCalendar(null).getTime());
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.during(propertyNameModified,
+                startDate.toCalendar(null)
+                        .getTime(),
+                endDate.toCalendar(null)
+                        .getTime());
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String startDateStr = fmt.print(startDate);
@@ -604,15 +623,22 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myEffectiveDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
-                CswRecordMetacardType.CSW_TYPE, replacedTemporalProperty, createdDateMapping,
-                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
+        CswSourceConfiguration cswSourceConfiguration =
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON,
+                        CswRecordMetacardType.CSW_TYPE,
+                        replacedTemporalProperty,
+                        createdDateMapping,
+                        modifiedDateMapping,
+                        CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(cswSourceConfiguration);
-        FilterType filterType = cswFilterDelegate
-                .during(propertyNameEffective, startDate.toCalendar(null).getTime(),
-                        endDate.toCalendar(null).getTime());
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.during(propertyNameEffective,
+                startDate.toCalendar(null)
+                        .getTime(),
+                endDate.toCalendar(null)
+                        .getTime());
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String startDateStr = fmt.print(startDate);
         String endDateStr = fmt.print(endDate);
@@ -629,16 +655,23 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myCreatedDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
-                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, replacedTemporalProperty,
-                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
+        CswSourceConfiguration cswSourceConfiguration =
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON,
+                        CswRecordMetacardType.CSW_TYPE,
+                        effectiveDateMapping,
+                        replacedTemporalProperty,
+                        modifiedDateMapping,
+                        CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
                 cswSourceConfiguration);
-        FilterType filterType = localCswFilterDelegate
-                .during(propertyNameCreated, startDate.toCalendar(null).getTime(),
-                        endDate.toCalendar(null).getTime());
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = localCswFilterDelegate.during(propertyNameCreated,
+                startDate.toCalendar(null)
+                        .getTime(),
+                endDate.toCalendar(null)
+                        .getTime());
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String startDateStr = fmt.print(startDate);
@@ -656,16 +689,23 @@ public class TestCswCqlFilter {
         DateTime endDate = new DateTime(2013, 12, 31, 0, 0, 0, 0);
 
         String replacedTemporalProperty = "myModifiedDate";
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
-                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                replacedTemporalProperty, CswRecordMetacardType.CSW_IDENTIFIER);
+        CswSourceConfiguration cswSourceConfiguration =
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON,
+                        CswRecordMetacardType.CSW_TYPE,
+                        effectiveDateMapping,
+                        createdDateMapping,
+                        replacedTemporalProperty,
+                        CswRecordMetacardType.CSW_IDENTIFIER);
 
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
                 cswSourceConfiguration);
-        FilterType filterType = localCswFilterDelegate
-                .during(propertyNameModified, startDate.toCalendar(null).getTime(),
-                        endDate.toCalendar(null).getTime());
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = localCswFilterDelegate.during(propertyNameModified,
+                startDate.toCalendar(null)
+                        .getTime(),
+                endDate.toCalendar(null)
+                        .getTime());
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
 
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String startDateStr = fmt.print(startDate);
@@ -680,14 +720,19 @@ public class TestCswCqlFilter {
     @Test
     public void testRelative() throws UnsupportedQueryException {
         long duration = 92000000000L;
-        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(CswAxisOrder.LAT_LON,
-                CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, createdDateMapping,
-                modifiedDateMapping, CswRecordMetacardType.CSW_IDENTIFIER);
+        CswSourceConfiguration cswSourceConfiguration =
+                initCswSourceConfiguration(CswAxisOrder.LAT_LON,
+                        CswRecordMetacardType.CSW_TYPE,
+                        effectiveDateMapping,
+                        createdDateMapping,
+                        modifiedDateMapping,
+                        CswRecordMetacardType.CSW_IDENTIFIER);
         CswFilterDelegate localCswFilterDelegate = initDefaultCswFilterDelegate(
                 cswSourceConfiguration);
         FilterType filterType = localCswFilterDelegate.relative(propertyNameModified, duration);
 
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
 
         String durationCompare = during.replace(REPLACE_START_DATE, "")
                 .replace(REPLACE_END_DATE, "")
@@ -704,59 +749,69 @@ public class TestCswCqlFilter {
          * See CswRecordMetacardType.java for queryable and non-queryable properties.
          */
         String nonQueryableProperty = Metacard.METADATA;
-        FilterType filterType = cswFilterDelegate
-                .propertyIsEqualTo(nonQueryableProperty, stringLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsEqualTo(nonQueryableProperty,
+                stringLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertThat(cqlText, equalTo(propertyIsEqualToAnyText));
     }
 
     @Test
     public void testPropertyIsEqualToStringLiteralType() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsEqualTo(Metacard.CONTENT_TYPE, contentTypeLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsEqualTo(Metacard.CONTENT_TYPE,
+                contentTypeLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualToContentType, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToIntLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToShortLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, shortLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToLongLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, longLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToFloatLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, floatLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualToWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToDoubleLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, doubleLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualToWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsEqualToBooleanLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(propertyName, booleanLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsEqualToWithBoolean, cqlText);
     }
 
@@ -765,60 +820,70 @@ public class TestCswCqlFilter {
      */
     @Test
     public void testPropertyIsNotEqualToStringLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsNotEqualTo(propertyName, stringLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName,
+                stringLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToStringLiteralAnyText() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsNotEqualTo(propertyNameAnyText, stringLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyNameAnyText,
+                stringLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualToAnyText, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToIntLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToShortLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName, shortLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToLongLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName, longLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToFloatLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName, floatLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualToWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToDoubleLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName, doubleLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualToWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsNotEqualToBooleanLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsNotEqualTo(propertyName, booleanLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsNotEqualTo(propertyName,
+                booleanLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNotEqualToWithBoolean, cqlText);
     }
 
@@ -827,53 +892,60 @@ public class TestCswCqlFilter {
      */
     @Test
     public void testPropertyIsGreaterThanStringLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThan(propertyName, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyName,
+                stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThan, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanStringLiteralAnyText() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThan(propertyNameAnyText, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyNameAnyText,
+                stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanAnyText, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanIntLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThan, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanShortLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyName, shortLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThan, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanLongLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyName, longLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThan, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanFloatLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyName, floatLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanDoubleLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThan(propertyName, doubleLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThan(propertyName,
+                doubleLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanWithDecimal, cqlText);
     }
 
@@ -882,58 +954,66 @@ public class TestCswCqlFilter {
      */
     @Test
     public void testPropertyIsGreaterThanOrEqualToStringLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyName, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyName,
+                stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToStringLiteralAnyText()
             throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyNameAnyText, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType =
+                cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyNameAnyText,
+                        stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualToAnyText, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToIntLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyName,
+                intLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToShortLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyName, shortLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyName,
+                shortLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToLongLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyName, longLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyName,
+                longLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToFloatLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyName, floatLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyName,
+                floatLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualToWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsGreaterThanOrEqualToDoubleLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsGreaterThanOrEqualTo(propertyName, doubleLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsGreaterThanOrEqualTo(propertyName,
+                doubleLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsGreaterThanOrEqualToWithDecimal, cqlText);
     }
 
@@ -944,50 +1024,57 @@ public class TestCswCqlFilter {
     public void testPropertyIsLessThanStringLiteral() throws UnsupportedQueryException {
 
         FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyName, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThan, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanStringLiteralAnyText() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThan(propertyNameAnyText, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyNameAnyText,
+                stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanAnyText, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanIntLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThan, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanShortLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyName, shortLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThan, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanLongLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyName, longLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThan, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanFloatLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyName, floatLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanDoubleLiteral() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsLessThan(propertyName, doubleLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanWithDecimal, cqlText);
     }
 
@@ -996,58 +1083,65 @@ public class TestCswCqlFilter {
      */
     @Test
     public void testPropertyIsLessThanOrEqualToStringLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyName, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyName,
+                stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToStringLiteralAnyText()
             throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyNameAnyText, stringLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyNameAnyText,
+                stringLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualToAnyText, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToIntLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyName,
+                intLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToShortLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyName, intLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyName,
+                intLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToLongLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyName, shortLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyName,
+                shortLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualTo, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToFloatLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyName, floatLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyName,
+                floatLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualToWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyIsLessThanOrEqualToDoubleLiteral() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLessThanOrEqualTo(propertyName, doubleLiteral);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLessThanOrEqualTo(propertyName,
+                doubleLiteral);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLessThanOrEqualToWithDecimal, cqlText);
     }
 
@@ -1056,113 +1150,136 @@ public class TestCswCqlFilter {
      */
     @Test
     public void testPropertyBetweenStringLiterals() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsBetween(propertyName, stringLowerBoundary, stringUpperBoundary);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsBetween(propertyName,
+                stringLowerBoundary,
+                stringUpperBoundary);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsBetween, cqlText);
     }
 
     @Test
     public void testPropertyBetweenIntLiterals() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsBetween(propertyName, intLowerBoundary, intUpperBoundary);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsBetween(propertyName,
+                intLowerBoundary,
+                intUpperBoundary);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsBetween, cqlText);
     }
 
     @Test
     public void testPropertyBetweenShortLiterals() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsBetween(propertyName, shortLowerBoundary, shortUpperBoundary);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsBetween(propertyName,
+                shortLowerBoundary,
+                shortUpperBoundary);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsBetween, cqlText);
     }
 
     @Test
     public void testPropertyBetweenLongLiterals() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsBetween(propertyName, longLowerBoundary, longUpperBoundary);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsBetween(propertyName,
+                longLowerBoundary,
+                longUpperBoundary);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsBetween, cqlText);
     }
 
     @Test
     public void testPropertyBetweenFloatLiterals() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsBetween(propertyName, floatLowerBoundary, floatUpperBoundary);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsBetween(propertyName,
+                floatLowerBoundary,
+                floatUpperBoundary);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsBetweenWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyBetweenDoubleLiterals() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsBetween(propertyName, doubleLowerBoundary, doubleUpperBoundary);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsBetween(propertyName,
+                doubleLowerBoundary,
+                doubleUpperBoundary);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsBetweenWithDecimal, cqlText);
     }
 
     @Test
     public void testPropertyNull() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsNull(propertyName);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsNull, cqlText);
     }
 
     @Test
     public void testPropertyLike() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLike(propertyName,
+                likeLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLike, cqlText);
     }
 
     @Test
     public void testPropertyLikeAnyText() throws UnsupportedQueryException {
-        FilterType filterType = cswFilterDelegate
-                .propertyIsLike(propertyNameAnyText, likeLiteral, isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        FilterType filterType = cswFilterDelegate.propertyIsLike(propertyNameAnyText,
+                likeLiteral,
+                isCaseSensitive);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(propertyIsLikeAnyText, cqlText);
     }
 
     @Test
     public void testComparisonOpsOr() throws UnsupportedQueryException {
-        FilterType propertyIsLikeFilter = cswFilterDelegate
-                .propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
-        FilterType propertyIsEqualFilter = cswFilterDelegate
-                .propertyIsEqualTo(propertyName, booleanLiteral);
+        FilterType propertyIsLikeFilter = cswFilterDelegate.propertyIsLike(propertyName,
+                likeLiteral,
+                isCaseSensitive);
+        FilterType propertyIsEqualFilter = cswFilterDelegate.propertyIsEqualTo(propertyName,
+                booleanLiteral);
 
         List<FilterType> filters = new ArrayList<FilterType>();
         filters.add(propertyIsEqualFilter);
         filters.add(propertyIsLikeFilter);
         FilterType filter = cswFilterDelegate.or(filters);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(orComparisonOps, cqlText);
     }
 
     @Test
     public void testLogicOpsFiltersOr() throws UnsupportedQueryException {
-        FilterType propertyIsLikeFilter = cswFilterDelegate
-                .propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
+        FilterType propertyIsLikeFilter = cswFilterDelegate.propertyIsLike(propertyName,
+                likeLiteral,
+                isCaseSensitive);
         FilterType notFilter = cswFilterDelegate.not(propertyIsLikeFilter);
-        FilterType propertyIsEqualFilter = cswFilterDelegate
-                .propertyIsEqualTo(propertyName, booleanLiteral);
+        FilterType propertyIsEqualFilter = cswFilterDelegate.propertyIsEqualTo(propertyName,
+                booleanLiteral);
 
         List<FilterType> filters = new ArrayList<FilterType>();
         filters.add(notFilter);
         filters.add(propertyIsEqualFilter);
         FilterType filter = cswFilterDelegate.or(filters);
 
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(orLogicOps, cqlText);
     }
 
     @Test
     public void testSpatialOpsOr() throws UnsupportedQueryException {
-        FilterType spatialFilter = cswFilterDelegate
-                .dwithin(CswConstants.BBOX_PROP, pointWkt, distance);
-        FilterType propertyIsLikeFilter = cswFilterDelegate
-                .propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
+        FilterType spatialFilter = cswFilterDelegate.dwithin(CswConstants.BBOX_PROP,
+                pointWkt,
+                distance);
+        FilterType propertyIsLikeFilter = cswFilterDelegate.propertyIsLike(propertyName,
+                likeLiteral,
+                isCaseSensitive);
 
         List<FilterType> filters = new ArrayList<FilterType>();
         filters.add(spatialFilter);
@@ -1170,57 +1287,66 @@ public class TestCswCqlFilter {
 
         FilterType filter = cswFilterDelegate.or(filters);
 
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(orSpatialOps, cqlText);
     }
 
     @Test
     public void testFeatureId() throws UnsupportedQueryException {
-        FilterType filter = cswFilterDelegate
-                .propertyIsEqualTo(Metacard.ID, String.valueOf(CSW_RECORD_ID), false);
+        FilterType filter = cswFilterDelegate.propertyIsEqualTo(Metacard.ID,
+                String.valueOf(CSW_RECORD_ID),
+                false);
 
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(featureIdCql, cqlText);
     }
 
     @Test
     public void testComparisonOpsAnd() throws UnsupportedQueryException {
-        FilterType propertyIsLikeFilter = cswFilterDelegate
-                .propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
-        FilterType propertyIsEqualFilter = cswFilterDelegate
-                .propertyIsEqualTo(propertyName, booleanLiteral);
+        FilterType propertyIsLikeFilter = cswFilterDelegate.propertyIsLike(propertyName,
+                likeLiteral,
+                isCaseSensitive);
+        FilterType propertyIsEqualFilter = cswFilterDelegate.propertyIsEqualTo(propertyName,
+                booleanLiteral);
 
         List<FilterType> filters = new ArrayList<FilterType>();
         filters.add(propertyIsEqualFilter);
         filters.add(propertyIsLikeFilter);
         FilterType filter = cswFilterDelegate.and(filters);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(andComparisonOps, cqlText);
     }
 
     @Test
     public void testLogicOpsFiltersAnd() throws UnsupportedQueryException {
-        FilterType propertyIsLikeFilter = cswFilterDelegate
-                .propertyIsLike(propertyName, likeLiteral, isCaseSensitive);
+        FilterType propertyIsLikeFilter = cswFilterDelegate.propertyIsLike(propertyName,
+                likeLiteral,
+                isCaseSensitive);
         FilterType notFilter = cswFilterDelegate.not(propertyIsLikeFilter);
-        FilterType propertyIsEqualFilter = cswFilterDelegate
-                .propertyIsEqualTo(propertyName, booleanLiteral);
+        FilterType propertyIsEqualFilter = cswFilterDelegate.propertyIsEqualTo(propertyName,
+                booleanLiteral);
 
         List<FilterType> filters = new ArrayList<FilterType>();
         filters.add(notFilter);
         filters.add(propertyIsEqualFilter);
         FilterType filter = cswFilterDelegate.and(filters);
 
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(andLogicOps, cqlText);
     }
 
     @Test
     public void testSpatialOpsAnd() throws UnsupportedQueryException {
-        FilterType spatialFilter = cswFilterDelegate
-                .dwithin(CswConstants.BBOX_PROP, pointWkt, distance);
-        FilterType propertyIsLikeFilter = cswFilterDelegate
-                .propertyIsLike(DEFAULT_PROPERTY_NAME, likeLiteral, isCaseSensitive);
+        FilterType spatialFilter = cswFilterDelegate.dwithin(CswConstants.BBOX_PROP,
+                pointWkt,
+                distance);
+        FilterType propertyIsLikeFilter = cswFilterDelegate.propertyIsLike(DEFAULT_PROPERTY_NAME,
+                likeLiteral,
+                isCaseSensitive);
 
         List<FilterType> filters = new ArrayList<FilterType>();
         filters.add(spatialFilter);
@@ -1228,7 +1354,8 @@ public class TestCswCqlFilter {
 
         FilterType filter = cswFilterDelegate.or(filters);
 
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filter);
         assertEquals(andSpatialOps, cqlText);
     }
 
@@ -1236,7 +1363,8 @@ public class TestCswCqlFilter {
     public void testIntersectsPropertyAnyGeo() throws UnsupportedQueryException {
         String propName = Metacard.ANY_GEO;
         FilterType filterType = cswFilterDelegate.intersects(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1244,7 +1372,8 @@ public class TestCswCqlFilter {
     public void testIntersectsPropertyDctSpatial() throws UnsupportedQueryException {
         String propName = CswConstants.SPATIAL_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsPolygonPropertyDctSpatial, cqlText);
     }
 
@@ -1252,7 +1381,8 @@ public class TestCswCqlFilter {
     public void testIntersectsPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1260,7 +1390,8 @@ public class TestCswCqlFilter {
     public void testIntersectsPropertyOwsBoundingBoxPoint() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, pointWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsPointPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1269,7 +1400,8 @@ public class TestCswCqlFilter {
             throws UnsupportedQueryException, com.vividsolutions.jts.io.ParseException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1277,7 +1409,8 @@ public class TestCswCqlFilter {
     public void testIntersectsPropertyOwsBoundingBoxLineString() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, lineStringWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsLineStringPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1286,7 +1419,8 @@ public class TestCswCqlFilter {
             throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, multiPolygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsMultiPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1294,7 +1428,8 @@ public class TestCswCqlFilter {
     public void testIntersectsPropertyOwsBoundingBoxMultiPoint() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, multiPointWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsMultiPointPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1303,7 +1438,8 @@ public class TestCswCqlFilter {
             throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.intersects(propName, multiLineStringWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(intersectsMultiLineStringPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1311,7 +1447,8 @@ public class TestCswCqlFilter {
     public void testCrossesPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.crosses(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(crossesPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1320,7 +1457,8 @@ public class TestCswCqlFilter {
             throws UnsupportedQueryException, com.vividsolutions.jts.io.ParseException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.within(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(withinPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1328,7 +1466,8 @@ public class TestCswCqlFilter {
     public void testContainsPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.contains(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(containsPolygonXmlPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1336,7 +1475,8 @@ public class TestCswCqlFilter {
     public void testBeyondPropertyOwsBoundingBoxPoint() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.beyond(propName, pointWkt, distance);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(beyondPointPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1344,7 +1484,8 @@ public class TestCswCqlFilter {
     public void testDWithinPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.dwithin(propName, polygonWkt, distance);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(dwithinPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1352,7 +1493,8 @@ public class TestCswCqlFilter {
     public void testTouchesPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.touches(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(touchesPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1360,7 +1502,8 @@ public class TestCswCqlFilter {
     public void testOverlapsPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.overlaps(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(overlapsPolygonPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1368,7 +1511,8 @@ public class TestCswCqlFilter {
     public void testDisjointPropertyOwsBoundingBoxPolygon() throws UnsupportedQueryException {
         String propName = CswConstants.BBOX_PROP;
         FilterType filterType = cswFilterDelegate.disjoint(propName, polygonWkt);
-        String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
+        String cqlText = CswCqlTextFilter.getInstance()
+                .getCqlText(filterType);
         assertEquals(disjointPolygonXmlPropertyOwsBoundingBox, cqlText);
     }
 
@@ -1402,16 +1546,22 @@ public class TestCswCqlFilter {
         DomainType resultTypesValues = null;
 
         for (DomainType dt : getOperation().getParameter()) {
-            if (dt.getName().equals(CswConstants.OUTPUT_FORMAT_PARAMETER)) {
+            if (dt.getName()
+                    .equals(CswConstants.OUTPUT_FORMAT_PARAMETER)) {
                 outputFormatValues = dt;
-            } else if (dt.getName().equals(CswConstants.RESULT_TYPE_PARAMETER)) {
+            } else if (dt.getName()
+                    .equals(CswConstants.RESULT_TYPE_PARAMETER)) {
                 resultTypesValues = dt;
             }
         }
 
-        CswFilterDelegate localCswFilterDelegate = new CswFilterDelegate(
-                new CswRecordMetacardType(), getOperation(), getMockFilterCapabilities(),
-                outputFormatValues, resultTypesValues, cswSourceConfiguration);
+        CswFilterDelegate localCswFilterDelegate =
+                new CswFilterDelegate(new CswRecordMetacardType(),
+                        getOperation(),
+                        getMockFilterCapabilities(),
+                        outputFormatValues,
+                        resultTypesValues,
+                        cswSourceConfiguration);
         return localCswFilterDelegate;
     }
 

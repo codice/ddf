@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -45,26 +45,25 @@ public class LdapClaimsHandlerTest {
 
     @Test
     public void testUnsuccessfulConnectionBind() {
-        LDAPConnectionFactory mockedConnectionFactory = PowerMockito
-                .mock(LDAPConnectionFactory.class);
+        LDAPConnectionFactory mockedConnectionFactory =
+                PowerMockito.mock(LDAPConnectionFactory.class);
         BindResult mockedBindResult = mock(BindResult.class);
         when(mockedBindResult.isSuccess()).thenReturn(false);
         Connection mockedConnection = mock(Connection.class);
         try {
             when(mockedConnectionFactory.getConnection()).thenReturn(mockedConnection);
-            when(mockedConnection.bind(anyString(), any(char[].class)))
-                    .thenReturn(mockedBindResult);
+            when(mockedConnection.bind(anyString(),
+                    any(char[].class))).thenReturn(mockedBindResult);
         } catch (LdapException e) {
             LOGGER.error("LDAP Exception", e);
         }
         LdapClaimsHandler ldapClaimsHandler = new LdapClaimsHandler();
         ldapClaimsHandler.setLdapConnectionFactory(mockedConnectionFactory);
 
-        ProcessedClaimCollection testClaimCollection = ldapClaimsHandler
-                .retrieveClaimValues(new ClaimCollection(), new ClaimsParameters());
+        ProcessedClaimCollection testClaimCollection =
+                ldapClaimsHandler.retrieveClaimValues(new ClaimCollection(),
+                        new ClaimsParameters());
         assertThat(testClaimCollection.isEmpty(), is(true));
     }
-
-
 
 }

@@ -41,10 +41,10 @@ public class UpdateAction extends CswAction {
      * the exception report response so the specific action within the transaction that caused the
      * error can be identified.
      *
-     * @param metacard  the updated metacard that will replace the existing metacard with the same
-     *                  ID
-     * @param typeName  the type of record being updated, such as csw:Record
-     * @param handle  the name to associate with this update action
+     * @param metacard the updated metacard that will replace the existing metacard with the same
+     *                 ID
+     * @param typeName the type of record being updated, such as csw:Record
+     * @param handle   the name to associate with this update action
      */
     public UpdateAction(Metacard metacard, String typeName, String handle) {
         super(typeName, handle);
@@ -64,13 +64,13 @@ public class UpdateAction extends CswAction {
      * the exception report response so the specific action within the transaction that caused the
      * error can be identified.
      *
-     * @param recordProperties  the map of attribute names to update to their new values
-     * @param typeName  the type of record being updated, such as csw:Record
-     * @param handle  the name to associate with this update action
-     * @param constraint  the {@link QueryConstraintType} that specifies which metacards this update
-     *                    will be applied to
-     * @param prefixToUriMappings  the map that contains the XML namespace prefix to URI mappings
-     *                             declared in the transaction request XML
+     * @param recordProperties    the map of attribute names to update to their new values
+     * @param typeName            the type of record being updated, such as csw:Record
+     * @param handle              the name to associate with this update action
+     * @param constraint          the {@link QueryConstraintType} that specifies which metacards this update
+     *                            will be applied to
+     * @param prefixToUriMappings the map that contains the XML namespace prefix to URI mappings
+     *                            declared in the transaction request XML
      */
     public UpdateAction(Map<String, Serializable> recordProperties, String typeName, String handle,
             QueryConstraintType constraint, Map<String, String> prefixToUriMappings) {

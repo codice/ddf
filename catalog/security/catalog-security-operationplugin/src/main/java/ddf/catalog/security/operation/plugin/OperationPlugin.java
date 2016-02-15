@@ -48,7 +48,8 @@ public class OperationPlugin implements AccessPlugin {
     }
 
     @Override
-    public UpdateRequest processPreUpdate(UpdateRequest input, Map<String, Metacard> existingMetacards) throws StopProcessingException {
+    public UpdateRequest processPreUpdate(UpdateRequest input,
+            Map<String, Metacard> existingMetacards) throws StopProcessingException {
         checkOperation(input);
         return input;
     }

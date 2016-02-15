@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -60,8 +60,11 @@ public class TestMetacardResourceSizePlugin {
 
         MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
-        assertThat(queryResponse.getResults().size(), is(1));
-        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(queryResponse.getResults()
+                .size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults()
+                .get(0)
+                .getMetacard();
         assertThat(metacard, is(notNullValue()));
         // Since using Metacard vs. MetacardImpl have to get resource-size as an
         // Attribute vs. Long
@@ -98,8 +101,11 @@ public class TestMetacardResourceSizePlugin {
 
         MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
-        assertThat(queryResponse.getResults().size(), is(1));
-        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(queryResponse.getResults()
+                .size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults()
+                .get(0)
+                .getMetacard();
         assertThat(metacard, is(notNullValue()));
         // Since using Metacard vs. MetacardImpl have to get resource-size as an
         // Attribute vs. String
@@ -143,8 +149,11 @@ public class TestMetacardResourceSizePlugin {
 
         MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
-        assertThat(queryResponse.getResults().size(), is(1));
-        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(queryResponse.getResults()
+                .size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults()
+                .get(0)
+                .getMetacard();
         assertThat(metacard, is(notNullValue()));
         // Since using Metacard vs. MetacardImpl have to get resource-size as an
         // Attribute vs. Long
@@ -173,8 +182,11 @@ public class TestMetacardResourceSizePlugin {
 
         MetacardResourceSizePlugin plugin = new MetacardResourceSizePlugin(cache);
         QueryResponse queryResponse = plugin.process(input);
-        assertThat(queryResponse.getResults().size(), is(1));
-        Metacard resultMetacard = queryResponse.getResults().get(0).getMetacard();
+        assertThat(queryResponse.getResults()
+                .size(), is(1));
+        Metacard resultMetacard = queryResponse.getResults()
+                .get(0)
+                .getMetacard();
         assertThat(metacard, is(notNullValue()));
         // Since using Metacard vs. MetacardImpl have to get resource-size as an
         // Attribute vs. Long

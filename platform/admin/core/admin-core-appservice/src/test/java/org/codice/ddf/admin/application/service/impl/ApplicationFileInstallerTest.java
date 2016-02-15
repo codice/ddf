@@ -46,11 +46,13 @@ public class ApplicationFileInstallerTest {
 
     private static final String MAIN_FEATURE_VERSION = "1.0.1";
 
-    private static final String INVALID_ZIP_STRING = "Got an error when trying to read the application as a zip file.";
+    private static final String INVALID_ZIP_STRING =
+            "Got an error when trying to read the application as a zip file.";
 
     private static final String IOEX_STRING = "Could not write out file.";
 
-    private static final String INSTALL_IOEX = "Got an error when trying to read the incoming application.";
+    private static final String INSTALL_IOEX =
+            "Got an error when trying to read the incoming application.";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationFileInstaller.class);
 
@@ -76,15 +78,19 @@ public class ApplicationFileInstallerTest {
     public void testInstall() throws Exception {
 
         ApplicationFileInstaller testInstaller = new ApplicationFileInstaller();
-        File testFile = new File(File.class.getResource(TEST_FILE_NAME).getPath());
+        File testFile = new File(File.class.getResource(TEST_FILE_NAME)
+                .getPath());
 
         assertTrue("Returned URI should have a unix-style path",
-                testInstaller.install(testFile).getPath().matches("(/.+)+"));
+                testInstaller.install(testFile)
+                        .getPath()
+                        .matches("(/.+)+"));
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(IOEX_STRING);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(IOEX_STRING);
             }
         }));
     }
@@ -98,14 +104,16 @@ public class ApplicationFileInstallerTest {
     @Test(expected = ApplicationServiceException.class)
     public void testInstallInvalidZip() throws Exception {
         ApplicationFileInstaller testInstaller = new ApplicationFileInstaller();
-        File testFile = new File(File.class.getResource(BAD_FILE_NAME).getPath());
+        File testFile = new File(File.class.getResource(BAD_FILE_NAME)
+                .getPath());
 
         testInstaller.install(testFile);
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(INVALID_ZIP_STRING);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(INVALID_ZIP_STRING);
             }
         }));
     }
@@ -120,7 +128,8 @@ public class ApplicationFileInstallerTest {
     public void testInstallInvalidFile() throws Exception {
 
         ApplicationFileInstaller testInstaller = new ApplicationFileInstaller();
-        File testFile = new File(File.class.getResource(BAD_ZIP_NAME).getPath());
+        File testFile = new File(File.class.getResource(BAD_ZIP_NAME)
+                .getPath());
 
         testInstaller.install(testFile);
     }
@@ -143,7 +152,8 @@ public class ApplicationFileInstallerTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(INSTALL_IOEX);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(INSTALL_IOEX);
             }
         }));
     }
@@ -156,7 +166,8 @@ public class ApplicationFileInstallerTest {
     @Test
     public void testGetAppDetails() throws Exception {
         ApplicationFileInstaller testInstaller = new ApplicationFileInstaller();
-        File testFile = new File(File.class.getResource(TEST_FILE_NAME).getPath());
+        File testFile = new File(File.class.getResource(TEST_FILE_NAME)
+                .getPath());
         ZipFileApplicationDetails testFileDetails;
 
         testFileDetails = testInstaller.getAppDetails(testFile);
@@ -175,7 +186,8 @@ public class ApplicationFileInstallerTest {
     @Test(expected = ApplicationServiceException.class)
     public void testGetAppDetailsZipException() throws Exception {
         ApplicationFileInstaller testInstaller = new ApplicationFileInstaller();
-        File testFile = new File(File.class.getResource(BAD_FILE_NAME).getPath());
+        File testFile = new File(File.class.getResource(BAD_FILE_NAME)
+                .getPath());
 
         testInstaller.getAppDetails(testFile);
     }

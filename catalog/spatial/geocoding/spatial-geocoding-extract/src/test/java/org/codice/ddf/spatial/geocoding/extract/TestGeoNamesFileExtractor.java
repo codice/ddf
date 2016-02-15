@@ -51,17 +51,21 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class TestGeoNamesFileExtractor extends TestBase {
-    private static final String VALID_TEXT_FILE_PATH = TestGeoNamesFileExtractor.class
-            .getResource("/geonames/valid.txt").getPath();
+    private static final String VALID_TEXT_FILE_PATH = TestGeoNamesFileExtractor.class.getResource(
+            "/geonames/valid.txt")
+            .getPath();
 
-    private static final String INVALID_TEXT_FILE_PATH = TestGeoNamesFileExtractor.class
-            .getResource("/geonames/invalid.txt").getPath();
+    private static final String INVALID_TEXT_FILE_PATH =
+            TestGeoNamesFileExtractor.class.getResource("/geonames/invalid.txt")
+                    .getPath();
 
-    private static final String VALID_ZIP_FILE_PATH = TestGeoNamesFileExtractor.class
-            .getResource("/geonames/valid_zip.zip").getPath();
+    private static final String VALID_ZIP_FILE_PATH = TestGeoNamesFileExtractor.class.getResource(
+            "/geonames/valid_zip.zip")
+            .getPath();
 
-    private static final String UNSUPPORTED_FILE_PATH = TestGeoNamesFileExtractor.class
-            .getResource("/geonames/foo.rtf").getPath();
+    private static final String UNSUPPORTED_FILE_PATH = TestGeoNamesFileExtractor.class.getResource(
+            "/geonames/foo.rtf")
+            .getPath();
 
     private GeoNamesFileExtractor geoNamesFileExtractor;
 
@@ -78,9 +82,19 @@ public class TestGeoNamesFileExtractor extends TestBase {
     private void verifyGeoEntryList(final List<GeoEntry> geoEntryList) {
         assertEquals(3, geoEntryList.size());
 
-        verifyGeoEntry(geoEntryList.get(0), "Kingman", 35.18944, -114.05301, "PPLA2", 28068,
+        verifyGeoEntry(geoEntryList.get(0),
+                "Kingman",
+                35.18944,
+                -114.05301,
+                "PPLA2",
+                28068,
                 "IGM,Kingman,Kingmen,Kingmun");
-        verifyGeoEntry(geoEntryList.get(1), "Lake Havasu City", 34.4839, -114.32245, "PPL", 52527,
+        verifyGeoEntry(geoEntryList.get(1),
+                "Lake Havasu City",
+                34.4839,
+                -114.32245,
+                "PPL",
+                52527,
                 "HII,Lejk Khavasu Siti,Lejk-Gavasu-Siti");
         verifyGeoEntry(geoEntryList.get(2), "Marana", 32.43674, -111.22538, "PPL", 34961, "MZJ");
     }
@@ -88,8 +102,8 @@ public class TestGeoNamesFileExtractor extends TestBase {
     private void testFileExtractionAllAtOnce(final String fileLocation,
             final ProgressCallback mockProgressCallback)
             throws GeoEntryExtractionException, GeoNamesRemoteDownloadException {
-        final List<GeoEntry> geoEntryList = geoNamesFileExtractor
-                .getGeoEntries(fileLocation, mockProgressCallback);
+        final List<GeoEntry> geoEntryList = geoNamesFileExtractor.getGeoEntries(fileLocation,
+                mockProgressCallback);
 
         if (mockProgressCallback != null) {
             verify(mockProgressCallback, atLeastOnce()).updateProgress(anyInt());
@@ -103,8 +117,8 @@ public class TestGeoNamesFileExtractor extends TestBase {
             GeoEntryIndexingException {
         final ExtractionCallback extractionCallback = mock(ExtractionCallback.class);
 
-        final ArgumentCaptor<GeoEntry> geoEntryArgumentCaptor = ArgumentCaptor
-                .forClass(GeoEntry.class);
+        final ArgumentCaptor<GeoEntry> geoEntryArgumentCaptor =
+                ArgumentCaptor.forClass(GeoEntry.class);
 
         geoNamesFileExtractor.pushGeoEntriesToExtractionCallback(fileLocation, extractionCallback);
 
@@ -134,8 +148,8 @@ public class TestGeoNamesFileExtractor extends TestBase {
             throws GeoEntryExtractionException, GeoNamesRemoteDownloadException {
         testFileExtractionAllAtOnce(VALID_ZIP_FILE_PATH, null);
         // Delete the extracted text file.
-        FileUtils.deleteQuietly(
-                new File(FilenameUtils.removeExtension(VALID_ZIP_FILE_PATH) + ".txt"));
+        FileUtils.deleteQuietly(new File(
+                FilenameUtils.removeExtension(VALID_ZIP_FILE_PATH) + ".txt"));
     }
 
     @Test
@@ -144,8 +158,8 @@ public class TestGeoNamesFileExtractor extends TestBase {
             GeoEntryIndexingException {
         testFileExtractionStreaming(VALID_ZIP_FILE_PATH);
         // Delete the extracted text file.
-        FileUtils.deleteQuietly(
-                new File(FilenameUtils.removeExtension(VALID_ZIP_FILE_PATH) + ".txt"));
+        FileUtils.deleteQuietly(new File(
+                FilenameUtils.removeExtension(VALID_ZIP_FILE_PATH) + ".txt"));
     }
 
     @Test
@@ -164,9 +178,8 @@ public class TestGeoNamesFileExtractor extends TestBase {
     public void testExtractFromNonexistentFile()
             throws GeoEntryExtractionException, GeoNamesRemoteDownloadException {
         try {
-            geoNamesFileExtractor
-                    .getGeoEntries(FilenameUtils.getFullPath(VALID_TEXT_FILE_PATH) + "fake.txt",
-                            null);
+            geoNamesFileExtractor.getGeoEntries(
+                    FilenameUtils.getFullPath(VALID_TEXT_FILE_PATH) + "fake.txt", null);
             fail("Should have thrown a GeoEntryExtractionException because 'fake.txt' does not "
                     + "exist.");
         } catch (GeoEntryExtractionException e) {
@@ -198,7 +211,7 @@ public class TestGeoNamesFileExtractor extends TestBase {
 
     @Test(expected = GeoEntryExtractionException.class)
     public void testExtractFromMockWebConnectionInvalidFileExtension()
-            throws GeoEntryExtractionException,             GeoNamesRemoteDownloadException, IOException {
+            throws GeoEntryExtractionException, GeoNamesRemoteDownloadException, IOException {
         setMockConnection(404, 12345);
         setMockInputStream("/geonames/valid.txt");
         geoNamesFileExtractor.getGeoEntries("valid", mock(ProgressCallback.class));
@@ -224,29 +237,36 @@ public class TestGeoNamesFileExtractor extends TestBase {
     public void testExtractFromMockWebConnectionInvalidStreamForFile()
             throws GeoEntryExtractionException, GeoNamesRemoteDownloadException, IOException {
         setMockConnection(404, 12345);
-        doReturn(null).when(geoNamesFileExtractor).getUrlInputStreamFromWebClient();
+        doReturn(null).when(geoNamesFileExtractor)
+                .getUrlInputStreamFromWebClient();
         geoNamesFileExtractor.getGeoEntries("valid", mock(ProgressCallback.class));
     }
 
     private void setMockInputStream(String filePath)
             throws FileNotFoundException, GeoNamesRemoteDownloadException {
         FileInputStream fileInputStream = getFileInputStream(filePath);
-        doReturn(fileInputStream).when(geoNamesFileExtractor).getUrlInputStreamFromWebClient();
+        doReturn(fileInputStream).when(geoNamesFileExtractor)
+                .getUrlInputStreamFromWebClient();
     }
 
     private void setMockConnection(int responseCode, int length) {
         Response mockResponse = mock(Response.class);
-        doReturn(responseCode).when(mockResponse).getStatus();
-        doReturn(length).when(mockResponse).getLength();
-        doReturn(mockResponse).when(geoNamesFileExtractor).createConnection(anyString());
-        doNothing().when(geoNamesFileExtractor).closeConnection();
+        doReturn(responseCode).when(mockResponse)
+                .getStatus();
+        doReturn(length).when(mockResponse)
+                .getLength();
+        doReturn(mockResponse).when(geoNamesFileExtractor)
+                .createConnection(anyString());
+        doNothing().when(geoNamesFileExtractor)
+                .closeConnection();
     }
 
     private FileInputStream getFileInputStream(String fileName) {
         File file;
         FileInputStream fileInputStream;
         try {
-            file = new File(TestGeoNamesFileExtractor.class.getResource(fileName).getPath());
+            file = new File(TestGeoNamesFileExtractor.class.getResource(fileName)
+                    .getPath());
             fileInputStream = new FileInputStream(file);
         } catch (NullPointerException | FileNotFoundException e) {
             fileInputStream = null;

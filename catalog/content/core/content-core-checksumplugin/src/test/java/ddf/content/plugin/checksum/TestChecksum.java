@@ -49,7 +49,8 @@ public class TestChecksum {
 
     public static final String RESOURCE_CHECKSUM = "resource-checksum";
 
-    public static final java.lang.String RESOURCE_CHECKSUM_ALGORITHM = "resource-checksum-algorithm";
+    public static final java.lang.String RESOURCE_CHECKSUM_ALGORITHM =
+            "resource-checksum-algorithm";
 
     private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestChecksum.class));
 
@@ -78,8 +79,10 @@ public class TestChecksum {
 
         CreateRequest request = checksum.process(mockRequest);
 
-        String checksumResult = request.getPropertyValue(RESOURCE_CHECKSUM).toString();
-        String checksumAlgorithm = request.getPropertyValue(RESOURCE_CHECKSUM_ALGORITHM).toString();
+        String checksumResult = request.getPropertyValue(RESOURCE_CHECKSUM)
+                .toString();
+        String checksumAlgorithm = request.getPropertyValue(RESOURCE_CHECKSUM_ALGORITHM)
+                .toString();
         assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
         assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));
 

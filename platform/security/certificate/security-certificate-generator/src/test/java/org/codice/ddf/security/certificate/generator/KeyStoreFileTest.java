@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -120,7 +120,8 @@ public class KeyStoreFileTest {
 
         KeyStoreFile keyStore = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
         assertNotNull(keyStore.aliases());
-        assertThat("Missing key in keystore test file resource", keyStore.aliases(),
+        assertThat("Missing key in keystore test file resource",
+                keyStore.aliases(),
                 hasItem(ALIAS_DEMO_CA));
     }
 
@@ -138,18 +139,21 @@ public class KeyStoreFileTest {
         //Get a cert from the keystore
         KeyStore.TrustedCertificateEntry demoCa =
                 (KeyStore.TrustedCertificateEntry) ksFile.getEntry(ALIAS_DEMO_CA);
-        assertThat("Could not retrieve Demo CA from keystore", demoCa,
+        assertThat("Could not retrieve Demo CA from keystore",
+                demoCa,
                 instanceOf(KeyStore.TrustedCertificateEntry.class));
         assertThat(ksFile.isKey(ALIAS_DEMO_CA), is(false));
 
         //Delete a cert from the file
         ksFile.deleteEntry(ALIAS_DEMO_CA);
-        assertThat("Could not delete key from keystore", ksFile.aliases(),
+        assertThat("Could not delete key from keystore",
+                ksFile.aliases(),
                 not(hasItem(ALIAS_DEMO_CA)));
 
         //Add a new entry to the file
         KeyStore.Entry pkEntry = ksFile.getEntry(ALIAS_SAMPLE_PRIVATE_KEY_ENTRY);
-        assertThat("Could not find sample private key in keystore", ksFile.aliases(),
+        assertThat("Could not find sample private key in keystore",
+                ksFile.aliases(),
                 hasItem(ALIAS_SAMPLE_PRIVATE_KEY_ENTRY));
         String alias = "temp";
         ksFile.setEntry(alias, pkEntry);

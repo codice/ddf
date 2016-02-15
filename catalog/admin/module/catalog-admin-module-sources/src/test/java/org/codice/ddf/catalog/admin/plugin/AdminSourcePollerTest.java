@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,8 +61,10 @@ public class AdminSourcePollerTest {
         assertNotNull(sources);
         assertEquals(2, sources.size());
 
-        assertFalse(sources.get(0).containsKey("configurations"));
-        assertTrue(sources.get(1).containsKey("configurations"));
+        assertFalse(sources.get(0)
+                .containsKey("configurations"));
+        assertTrue(sources.get(1)
+                .containsKey("configurations"));
     }
 
     @Test
@@ -89,8 +91,8 @@ public class AdminSourcePollerTest {
                 dict.put("service.pid", CONFIG_PID);
                 dict.put("service.factoryPid", FPID);
                 when(config.getProperties()).thenReturn(dict);
-                when(helper.getConfigurations(anyMap()))
-                        .thenReturn(CollectionUtils.asList(config), null);
+                when(helper.getConfigurations(anyMap())).thenReturn(CollectionUtils.asList(config),
+                        null);
 
                 // Mock out the sources
                 OpenSearchSource source = mock(OpenSearchSource.class);
@@ -100,10 +102,11 @@ public class AdminSourcePollerTest {
                 when(badSource.isAvailable()).thenThrow(new RuntimeException());
 
                 //CONFIG_PID, EXCEPTION_PID, FAKE_SOURCE
-                when(helper.getConfiguration(any(ConfiguredService.class)))
-                        .thenReturn(config, config, config);
-                when(helper.getSources())
-                        .thenReturn(CollectionUtils.asList((Source) source, badSource));
+                when(helper.getConfiguration(any(ConfiguredService.class))).thenReturn(config,
+                        config,
+                        config);
+                when(helper.getSources()).thenReturn(CollectionUtils.asList((Source) source,
+                        badSource));
 
                 // Mock out the metatypes
                 Map<String, Object> metatype = new HashMap<>();
@@ -114,8 +117,8 @@ public class AdminSourcePollerTest {
                 noConfigMetaType.put("id", "No Configurations");
                 noConfigMetaType.put("metatype", new ArrayList<Map<String, Object>>());
 
-                when(helper.getMetatypes())
-                        .thenReturn(CollectionUtils.asList(metatype, noConfigMetaType));
+                when(helper.getMetatypes()).thenReturn(CollectionUtils.asList(metatype,
+                        noConfigMetaType));
             } catch (Exception e) {
 
             }

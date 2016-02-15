@@ -34,9 +34,7 @@ public class SecurityProperties extends HashMap<String, Serializable> {
      * added by the interceptors) it adds the subject to this map so that it can be added to the
      * query request.
      *
-     * @param message
-     *            Incoming CXF message that may contain a subject
-     *
+     * @param message Incoming CXF message that may contain a subject
      * @deprecated use SecurityUtils.getSubject()
      */
     public SecurityProperties(Message message) {

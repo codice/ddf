@@ -41,10 +41,10 @@ import org.opengis.geometry.primitive.Point;
 
 public class TestGeoNamesLocalIndex {
     private GeoNamesLocalIndex geoNamesLocalIndex;
+
     private GeoEntryQueryable geoEntryQueryable;
 
-    private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder()
-            .name("Phoenix")
+    private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder().name("Phoenix")
             .latitude(10)
             .longitude(-20)
             .featureCode("PPL")
@@ -52,8 +52,7 @@ public class TestGeoNamesLocalIndex {
             .alternateNames("")
             .build();
 
-    private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder()
-            .name("Tempe")
+    private static final GeoEntry GEO_ENTRY_2 = new GeoEntry.Builder().name("Tempe")
             .latitude(0)
             .longitude(-90)
             .featureCode("PPLC")
@@ -71,20 +70,22 @@ public class TestGeoNamesLocalIndex {
     @Test
     public void testWithResults() {
         final List<GeoEntry> topResults = Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2);
-        doReturn(topResults).when(geoEntryQueryable).query("Phoenix", 1);
+        doReturn(topResults).when(geoEntryQueryable)
+                .query("Phoenix", 1);
 
         final GeoResult geoResult = geoNamesLocalIndex.getLocation("Phoenix");
         assertThat(geoResult.getFullName(), is(equalTo(GEO_ENTRY_1.getName())));
 
-        final Point point = new PointImpl(new DirectPositionImpl(
-                GEO_ENTRY_1.getLongitude(), GEO_ENTRY_1.getLatitude()));
+        final Point point = new PointImpl(new DirectPositionImpl(GEO_ENTRY_1.getLongitude(),
+                GEO_ENTRY_1.getLatitude()));
         assertThat(geoResult.getPoint(), is(equalTo(point)));
     }
 
     @Test
     public void testWithNoResults() {
         final List<GeoEntry> noResults = Collections.emptyList();
-        doReturn(noResults).when(geoEntryQueryable).query("Tempe", 1);
+        doReturn(noResults).when(geoEntryQueryable)
+                .query("Tempe", 1);
 
         final GeoResult geoResult = geoNamesLocalIndex.getLocation("Tempe");
         assertThat(geoResult, is(nullValue()));
@@ -92,7 +93,8 @@ public class TestGeoNamesLocalIndex {
 
     @Test
     public void testExceptionInQuery() {
-        doThrow(GeoEntryQueryException.class).when(geoEntryQueryable).query("Arizona", 1);
+        doThrow(GeoEntryQueryException.class).when(geoEntryQueryable)
+                .query("Arizona", 1);
 
         final GeoResult geoResult = geoNamesLocalIndex.getLocation("Arizona");
         assertThat(geoResult, is(nullValue()));
@@ -109,7 +111,9 @@ public class TestGeoNamesLocalIndex {
         when(nearbyLocations.size()).thenReturn(1);
         when(nearbyLocations.get(0)).thenReturn(mockNearbyLocation);
 
-        when(geoEntryQueryable.getNearestCities("POINT(1.0 20)", 50, 1)).thenReturn(nearbyLocations);
+        when(geoEntryQueryable.getNearestCities("POINT(1.0 20)",
+                50,
+                1)).thenReturn(nearbyLocations);
         NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
 
         assertThat(returnedNearbyLocation, equalTo(mockNearbyLocation));

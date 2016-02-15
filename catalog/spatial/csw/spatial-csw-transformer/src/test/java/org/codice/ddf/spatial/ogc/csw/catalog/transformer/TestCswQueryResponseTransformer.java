@@ -75,8 +75,8 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 public class TestCswQueryResponseTransformer {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(TestCswQueryResponseTransformer.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TestCswQueryResponseTransformer.class);
 
     private CswQueryResponseTransformer transformer;
 
@@ -192,8 +192,7 @@ public class TestCswQueryResponseTransformer {
     public void whenQueryByIdThenExpectOnlyOneXMLNode()
             throws CatalogTransformerException, IOException {
         // when
-        when(mockPrintWriterProvider.build((Class<Metacard>) notNull()))
-                .thenReturn(mockPrintWriter);
+        when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
 
         when(mockSourceResponse.getResults()).thenReturn(Collections.<Result>emptyList());
@@ -212,7 +211,8 @@ public class TestCswQueryResponseTransformer {
         verify(mockPrintWriter, times(1)).startNode(strArgCaptor.capture());
 
         List<String> values = strArgCaptor.getAllValues();
-        assertThat("Missing root GetRecordByIdResponse node.", values.get(0),
+        assertThat("Missing root GetRecordByIdResponse node.",
+                values.get(0),
                 is(CswQueryResponseTransformer.RECORD_BY_ID_RESPONSE_QNAME));
 
     }
@@ -221,8 +221,7 @@ public class TestCswQueryResponseTransformer {
     public void whenQueryByHitsThenTransformZeroMetacards()
             throws CatalogTransformerException, IOException {
         // when
-        when(mockPrintWriterProvider.build((Class<Metacard>) notNull()))
-                .thenReturn(mockPrintWriter);
+        when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
 
         when(mockSourceResponse.getResults()).thenReturn(createResults(1, 10));
@@ -245,13 +244,13 @@ public class TestCswQueryResponseTransformer {
 
         ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> valCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mockPrintWriter, atLeastOnce())
-                .addAttribute(keyCaptor.capture(), valCaptor.capture());
+        verify(mockPrintWriter, atLeastOnce()).addAttribute(keyCaptor.capture(),
+                valCaptor.capture());
 
         List<String> keys = keyCaptor.getAllValues();
         List<String> vals = valCaptor.getAllValues();
-        int numAttrKeyIndex = keys
-                .indexOf(CswQueryResponseTransformer.NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE);
+        int numAttrKeyIndex =
+                keys.indexOf(CswQueryResponseTransformer.NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE);
         assertThat("Missing XML attribute.", numAttrKeyIndex != -1, is(true));
 
         String numAttrValue = vals.get(numAttrKeyIndex);
@@ -262,8 +261,7 @@ public class TestCswQueryResponseTransformer {
     public void whenEmptyResultListThenTransformZeroMetacards()
             throws CatalogTransformerException, IOException {
         // when
-        when(mockPrintWriterProvider.build((Class<Metacard>) notNull()))
-                .thenReturn(mockPrintWriter);
+        when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
         when(mockSourceResponse.getResults()).thenReturn(Collections.<Result>emptyList());
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
@@ -289,8 +287,7 @@ public class TestCswQueryResponseTransformer {
     public void whenEmptyResultListExpectOnlyThreeXMLNodes()
             throws CatalogTransformerException, IOException {
         // when
-        when(mockPrintWriterProvider.build((Class<Metacard>) notNull()))
-                .thenReturn(mockPrintWriter);
+        when(mockPrintWriterProvider.build((Class<Metacard>) notNull())).thenReturn(mockPrintWriter);
         when(mockPrintWriter.makeString()).thenReturn(new String());
         when(mockSourceResponse.getResults()).thenReturn(Collections.<Result>emptyList());
         when(mockSourceResponse.getRequest()).thenReturn(mockQueryRequest);
@@ -308,11 +305,14 @@ public class TestCswQueryResponseTransformer {
 
         //LOGGER.info("[" + StringUtils.join(strArgCaptor.getAllValues(), ", ") + "]");
         List<String> values = pwCaptor.getAllValues();
-        assertThat("Missing XML node.", values.get(0),
+        assertThat("Missing XML node.",
+                values.get(0),
                 new IsEqual(CswQueryResponseTransformer.RECORDS_RESPONSE_QNAME));
-        assertThat("Missing XML node.", values.get(1),
+        assertThat("Missing XML node.",
+                values.get(1),
                 new IsEqual(CswQueryResponseTransformer.SEARCH_STATUS_QNAME));
-        assertThat("Missing XML node.", values.get(2),
+        assertThat("Missing XML node.",
+                values.get(2),
                 new IsEqual(CswQueryResponseTransformer.SEARCH_RESULTS_QNAME));
 
     }
@@ -341,8 +341,10 @@ public class TestCswQueryResponseTransformer {
 
         assertThat(jaxb.getValue(), is(instanceOf(AcknowledgementType.class)));
         AcknowledgementType response = (AcknowledgementType) jaxb.getValue();
-        assertThat(response.getEchoedRequest().getAny(), is(instanceOf(JAXBElement.class)));
-        JAXBElement<?> jaxB = (JAXBElement<?>) response.getEchoedRequest().getAny();
+        assertThat(response.getEchoedRequest()
+                .getAny(), is(instanceOf(JAXBElement.class)));
+        JAXBElement<?> jaxB = (JAXBElement<?>) response.getEchoedRequest()
+                .getAny();
         assertThat(jaxB.getValue(), is(instanceOf(GetRecordsType.class)));
     }
 
@@ -351,9 +353,12 @@ public class TestCswQueryResponseTransformer {
         int last = 2;
         int max = 0;
         if (request != null) {
-            first = request.getStartPosition().intValue();
-            max = request.getMaxRecords().intValue();
-            int next = request.getMaxRecords().intValue() + first;
+            first = request.getStartPosition()
+                    .intValue();
+            max = request.getMaxRecords()
+                    .intValue();
+            int next = request.getMaxRecords()
+                    .intValue() + first;
             last = next - 1;
             if (last >= resultCount) {
                 last = resultCount;
@@ -387,12 +392,12 @@ public class TestCswQueryResponseTransformer {
 
     private JAXBContext getJaxBContext() throws JAXBException {
         JAXBContext context = null;
-        String contextPath = StringUtils
-                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
+                CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
+                CswConstants.OGC_OWS_PACKAGE}, ":");
 
-        context = JAXBContext
-                .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
+        context = JAXBContext.newInstance(contextPath,
+                CswJAXBElementProvider.class.getClassLoader());
 
         return context;
     }

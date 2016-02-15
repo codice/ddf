@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,7 +37,8 @@ public class MimeTypeMapperTest {
 
     private static final String XML_METACARD_FILE = "src/test/resources/metacard_sample.xml";
 
-    private static final String NO_NAMESPACE_MATCHES_XML_FILE = "src/test/resources/no_namespace_matches.xml";
+    private static final String NO_NAMESPACE_MATCHES_XML_FILE =
+            "src/test/resources/no_namespace_matches.xml";
 
     private static final String NO_NAMESPACES_XML_FILE = "src/test/resources/no_namespaces.xml";
 
@@ -79,12 +80,18 @@ public class MimeTypeMapperTest {
     public void testGuessMimeTypeForXmlIngest() throws Exception {
 
         List<MimeTypeResolver> resolvers = new ArrayList<MimeTypeResolver>();
-        resolvers.add(new MockMimeTypeResolver("NitfResolver", 10,
-                new String[] {"nitf=image/nitf", "ntf=image/nitf"}, null));
-        resolvers.add(new MockMimeTypeResolver("XmlMetacardResolver", 10,
-                new String[] {"xml=text/xml"}, "urn:catalog:metacard"));
-        resolvers.add(new MockMimeTypeResolver("CswResolver", 10,
-                new String[] {"xml=text/xml;id=csw"}, "http://www.opengis.net/cat/csw/2.0.2"));
+        resolvers.add(new MockMimeTypeResolver("NitfResolver",
+                10,
+                new String[] {"nitf=image/nitf", "ntf=image/nitf"},
+                null));
+        resolvers.add(new MockMimeTypeResolver("XmlMetacardResolver",
+                10,
+                new String[] {"xml=text/xml"},
+                "urn:catalog:metacard"));
+        resolvers.add(new MockMimeTypeResolver("CswResolver",
+                10,
+                new String[] {"xml=text/xml;id=csw"},
+                "http://www.opengis.net/cat/csw/2.0.2"));
         TikaMimeTypeResolver tikaMimeTypeResolver = new TikaMimeTypeResolver();
         tikaMimeTypeResolver.setPriority(-1);
         resolvers.add(tikaMimeTypeResolver);

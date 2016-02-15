@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -124,8 +124,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
 
         BinaryContent resultContent;
         StreamResult resultOutput = null;
-        Source source = new StreamSource(
-                new ByteArrayInputStream(metacard.getMetadata().getBytes(StandardCharsets.UTF_8)));
+        Source source = new StreamSource(new ByteArrayInputStream(metacard.getMetadata()
+                .getBytes(StandardCharsets.UTF_8)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         resultOutput = new StreamResult(baos);
@@ -139,7 +139,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
 
         if (!mergedMap.isEmpty()) {
             for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
-                LOGGER.debug("Adding parameter to transform {}:{}", entry.getKey(),
+                LOGGER.debug("Adding parameter to transform {}:{}",
+                        entry.getKey(),
                         entry.getValue());
                 transformer.setParameter(entry.getKey(), entry.getValue());
             }
@@ -169,7 +170,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
      * @return String representation of the dataItemStatus value (defaults to "Unknown")
      */
     public String getDataItemStatus() {
-        return localMap.get("dataItemStatus").toString();
+        return localMap.get("dataItemStatus")
+                .toString();
     }
 
     /**

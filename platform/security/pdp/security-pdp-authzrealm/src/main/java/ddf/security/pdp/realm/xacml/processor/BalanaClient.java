@@ -176,10 +176,7 @@ public class BalanaClient {
         attributeFinderModules.add(selectorModule);
         attributeFinderModules.add(currentEnvModule);
         attributeFinder.setModules(attributeFinderModules);
-        return new PDPConfig(attributeFinder,
-                createPolicyFinder(),
-                null,
-                false);
+        return new PDPConfig(attributeFinder, createPolicyFinder(), null, false);
     }
 
     /**

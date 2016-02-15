@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -54,7 +54,8 @@ public class ClaimsHandlerManagerTest {
         context = mock(BundleContext.class);
         encryptService = mock(EncryptionService.class);
         handlerReg = mock(ServiceRegistration.class);
-        when(context.registerService(eq(ClaimsHandler.class), any(ClaimsHandler.class),
+        when(context.registerService(eq(ClaimsHandler.class),
+                any(ClaimsHandler.class),
                 Matchers.<Dictionary<String, Object>>any())).thenReturn(handlerReg);
     }
 
@@ -89,7 +90,8 @@ public class ClaimsHandlerManagerTest {
         manager.configure();
 
         // verify initial registration
-        verify(context, times(2)).registerService(eq(ClaimsHandler.class), any(ClaimsHandler.class),
+        verify(context, times(2)).registerService(eq(ClaimsHandler.class),
+                any(ClaimsHandler.class),
                 Matchers.<Dictionary<String, Object>>any());
         verify(handlerReg, never()).unregister();
     }

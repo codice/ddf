@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -69,8 +69,11 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
      */
     Rule keywordQueryExpression() {
         StringVar operator = new StringVar();
-        return Sequence(optionalWhiteSpace(), term(),
-                ZeroOrMore(booleanOperator(), operator.set(match()), term(),
+        return Sequence(optionalWhiteSpace(),
+                term(),
+                ZeroOrMore(booleanOperator(),
+                        operator.set(match()),
+                        term(),
                         push(new OperatorASTNode(operator.get(), pop(1), pop()))),
                 optionalWhiteSpace());
     }
@@ -153,10 +156,15 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
     Rule phrase() {
         Action stackPhraseRewriteAction = new StackPhraseRewriteAction();
         // only grab leading spaces
-        return Sequence(optionalWhiteSpace(), dblquote, optionalWhiteSpace(),
-                push(new PhraseDelimiterASTNode()), keyword(),
-                ZeroOrMore(Sequence(optionalWhiteSpace(), keyword())), stackPhraseRewriteAction,
-                optionalWhiteSpace(), dblquote);
+        return Sequence(optionalWhiteSpace(),
+                dblquote,
+                optionalWhiteSpace(),
+                push(new PhraseDelimiterASTNode()),
+                keyword(),
+                ZeroOrMore(Sequence(optionalWhiteSpace(), keyword())),
+                stackPhraseRewriteAction,
+                optionalWhiteSpace(),
+                dblquote);
     }
 
     /**
@@ -170,8 +178,12 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
      */
     Rule group() {
         // only grab leading spaces
-        return Sequence(optionalWhiteSpace(), lpar, optionalWhiteSpace(), keywordQueryExpression(),
-                optionalWhiteSpace(), rpar);
+        return Sequence(optionalWhiteSpace(),
+                lpar,
+                optionalWhiteSpace(),
+                keywordQueryExpression(),
+                optionalWhiteSpace(),
+                rpar);
     }
 
     /**
@@ -228,7 +240,8 @@ public class KeywordTextParser extends BaseParser<ASTNode> {
             }
 
             // push the keywords minus the leading space back onto the stack as a single keyword
-            push(new KeywordASTNode(keywords.toString().substring(1)));
+            push(new KeywordASTNode(keywords.toString()
+                    .substring(1)));
 
             return true;
         }

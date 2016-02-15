@@ -109,8 +109,11 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     protected void addDescriptor(String name, boolean queryable, boolean multivalued,
             AttributeType<?> type) {
-        descriptors.add(
-                new AttributeDescriptorImpl(name, queryable /* indexed */, true /* stored */, false /* tokenized */,
-                        multivalued /* multivalued */, type));
+        descriptors.add(new AttributeDescriptorImpl(name,
+                queryable /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                multivalued /* multivalued */,
+                type));
     }
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -41,8 +41,8 @@ public class TestSolrFilterDelegate {
     @Test(expected = UnsupportedOperationException.class)
     public void intersectsWithNullWkt() {
         // given null WKT and a valid property name
-        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false))
-                .toReturn("testProperty_geohash_index");
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
         // when the delegate intersects
         toTest.intersects("testProperty", null);
         // then the operation is unsupported
@@ -59,8 +59,8 @@ public class TestSolrFilterDelegate {
     @Test
     public void intersectsWithInvalidJtsWkt() {
         // given a geospatial property
-        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false))
-                .toReturn("testProperty_geohash_index");
+        stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false)).toReturn(
+                "testProperty_geohash_index");
 
         // when the delegate intersects on WKT not handled by JTS
         SolrQuery query = toTest.intersects("testProperty", "invalid JTS wkt");
@@ -73,12 +73,13 @@ public class TestSolrFilterDelegate {
     @Test
     public void reservedSpecialCharactersIsEqual() {
         // given a text property
-        stub(mockResolver.getField("testProperty", AttributeFormat.STRING, true))
-                .toReturn("testProperty_txt_index");
+        stub(mockResolver.getField("testProperty", AttributeFormat.STRING, true)).toReturn(
+                "testProperty_txt_index");
 
         // when searching for exact reserved characters
-        SolrQuery equalQuery = toTest
-                .propertyIsEqualTo("testProperty", "+ - && || ! ( ) { } [ ] ^ \" ~ :", true);
+        SolrQuery equalQuery = toTest.propertyIsEqualTo("testProperty",
+                "+ - && || ! ( ) { } [ ] ^ \" ~ :",
+                true);
 
         // then return escaped special characters in the query
         assertThat(equalQuery.getQuery(),
@@ -88,14 +89,15 @@ public class TestSolrFilterDelegate {
     @Test
     public void reservedSpecialCharactersIsLike() {
         // given a tokenized text property
-        stub(mockResolver.getField("testProperty", AttributeFormat.STRING, false))
-                .toReturn("testProperty_txt_index");
-        stub(mockResolver.getCaseSensitiveField("testProperty_txt_index"))
-                .toReturn("testProperty_txt_index_tokenized");
+        stub(mockResolver.getField("testProperty", AttributeFormat.STRING, false)).toReturn(
+                "testProperty_txt_index");
+        stub(mockResolver.getCaseSensitiveField("testProperty_txt_index")).toReturn(
+                "testProperty_txt_index_tokenized");
 
         // when searching for like reserved characters
-        SolrQuery likeQuery = toTest
-                .propertyIsLike("testProperty", "+ - && || ! ( ) { } [ ] ^ \" ~ : \\*?", true);
+        SolrQuery likeQuery = toTest.propertyIsLike("testProperty",
+                "+ - && || ! ( ) { } [ ] ^ \" ~ : \\*?",
+                true);
 
         // then return escaped special characters in the query
         assertThat(likeQuery.getQuery(),
@@ -156,16 +158,17 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeWildcard() {
-        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
-                .toReturn("metadata_txt");
-        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
-                .toReturn("metadata_txt_ws");
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true)).toReturn(
+                "metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt")).toReturn("metadata_txt_ws");
 
         String searchPhrase = "abc-123*";
         String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc\\-123*)";
         boolean isCaseSensitive = false;
 
-        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT,
+                searchPhrase,
+                isCaseSensitive);
 
         assertThat(isLikeQuery.getQuery(), is(expectedQuery));
 
@@ -173,17 +176,17 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeWildcardNoTokens() {
-        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
-                .toReturn("metadata_txt");
-        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
-                .toReturn("metadata_txt_ws");
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true)).toReturn(
+                "metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt")).toReturn("metadata_txt_ws");
 
         String searchPhrase = "title*";
         String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + ":(title*)";
         boolean isCaseSensitive = false;
 
-        SolrQuery isLikeQuery = toTest
-                .propertyIsLike(Metacard.ANY_TEXT, searchPhrase, isCaseSensitive);
+        SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT,
+                searchPhrase,
+                isCaseSensitive);
 
         assertThat(isLikeQuery.getQuery(), is(expectedQuery));
 
@@ -191,10 +194,9 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeMultipleTermsWithWildcard() {
-        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
-                .toReturn("metadata_txt");
-        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
-                .toReturn("metadata_txt_ws");
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true)).toReturn(
+                "metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt")).toReturn("metadata_txt_ws");
 
         String searchPhrase = "abc 123*";
         String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + ":(abc 123*)";
@@ -207,15 +209,15 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testPropertyIsLikeCaseSensitiveWildcard() {
-        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true))
-                .toReturn("metadata_txt");
-        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt"))
-                .toReturn("metadata_txt_ws");
-        stub(mockResolver.getCaseSensitiveField("metadata_txt_ws"))
-                .toReturn("metadata_txt_ws_has_case");
+        stub(mockResolver.getField(Metacard.METADATA, AttributeFormat.STRING, true)).toReturn(
+                "metadata_txt");
+        stub(mockResolver.getWhitespaceTokenizedField("metadata_txt")).toReturn("metadata_txt_ws");
+        stub(mockResolver.getCaseSensitiveField("metadata_txt_ws")).toReturn(
+                "metadata_txt_ws_has_case");
 
         String searchPhrase = "abc-123*";
-        String expectedQuery = WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(abc\\-123*)";
+        String expectedQuery =
+                WHITESPACE_TOKENIZED_METADATA_FIELD + SchemaFields.HAS_CASE + ":(abc\\-123*)";
 
         SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase, true);
 
@@ -224,8 +226,9 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testTemporalBefore() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
         String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z } ";
         SolrQuery temporalQuery = toTest.before(Metacard.CREATED, getCannedTime());
@@ -234,8 +237,9 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testTemporalAfter() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
         String expectedQuery = " created_date:{ 1995-11-24T23:59:56.765Z TO * ] ";
         SolrQuery temporalQuery = toTest.after(Metacard.CREATED, getCannedTime());
@@ -244,8 +248,9 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testDatePropertyGreaterThan() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
         String expectedQuery = " created_date:{ 1995-11-24T23:59:56.765Z TO * ] ";
         SolrQuery temporalQuery = toTest.propertyIsGreaterThan(Metacard.CREATED, getCannedTime());
@@ -254,19 +259,21 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testDatePropertyGreaterThanOrEqualTo() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
         String expectedQuery = " created_date:[ 1995-11-24T23:59:56.765Z TO * ] ";
-        SolrQuery temporalQuery = toTest
-                .propertyIsGreaterThanOrEqualTo(Metacard.CREATED, getCannedTime());
+        SolrQuery temporalQuery = toTest.propertyIsGreaterThanOrEqualTo(Metacard.CREATED,
+                getCannedTime());
         assertThat(temporalQuery.getQuery(), is(expectedQuery));
     }
 
     @Test
     public void testDatePropertyLessThan() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
         String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z } ";
         SolrQuery temporalQuery = toTest.propertyIsLessThan(Metacard.CREATED, getCannedTime());
@@ -275,22 +282,26 @@ public class TestSolrFilterDelegate {
 
     @Test
     public void testDatePropertyLessThanOrEqualTo() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
         String expectedQuery = " created_date:[ * TO 1995-11-24T23:59:56.765Z ] ";
-        SolrQuery temporalQuery = toTest
-                .propertyIsLessThanOrEqualTo(Metacard.CREATED, getCannedTime());
+        SolrQuery temporalQuery = toTest.propertyIsLessThanOrEqualTo(Metacard.CREATED,
+                getCannedTime());
         assertThat(temporalQuery.getQuery(), is(expectedQuery));
     }
 
     @Test
     public void testDatePropertyIsBetween() {
-        stub(mockResolver.getField("created", AttributeFormat.DATE, false))
-                .toReturn("created_date");
+        stub(mockResolver.getField("created",
+                AttributeFormat.DATE,
+                false)).toReturn("created_date");
 
-        String expectedQuery = " created_date:[ 1995-11-24T23:59:56.765Z TO 1995-11-27T04:59:56.765Z ] ";
-        SolrQuery temporalQuery = toTest.propertyIsBetween(Metacard.CREATED, getCannedTime(),
+        String expectedQuery =
+                " created_date:[ 1995-11-24T23:59:56.765Z TO 1995-11-27T04:59:56.765Z ] ";
+        SolrQuery temporalQuery = toTest.propertyIsBetween(Metacard.CREATED,
+                getCannedTime(),
                 getCannedTime(1995, Calendar.NOVEMBER, 27, 4));
         assertThat(temporalQuery.getQuery(), is(expectedQuery));
     }

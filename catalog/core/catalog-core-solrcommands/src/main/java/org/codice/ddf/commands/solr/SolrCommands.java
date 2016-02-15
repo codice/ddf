@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,13 +53,19 @@ public abstract class SolrCommands extends OsgiCommandSupport {
     protected void printColor(Color color, String message) {
         String colorString;
         if (color == null || color.equals(Ansi.Color.DEFAULT)) {
-            colorString = Ansi.ansi().reset().toString();
+            colorString = Ansi.ansi()
+                    .reset()
+                    .toString();
         } else {
-            colorString = Ansi.ansi().fg(color).toString();
+            colorString = Ansi.ansi()
+                    .fg(color)
+                    .toString();
         }
         console.print(colorString);
         console.print(message);
-        console.println(Ansi.ansi().reset().toString());
+        console.println(Ansi.ansi()
+                .reset()
+                .toString());
     }
 
     protected void printSuccessMessage(String message) {

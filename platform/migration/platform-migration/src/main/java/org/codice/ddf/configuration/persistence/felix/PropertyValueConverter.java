@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -31,9 +31,11 @@ abstract class PropertyValueConverter {
     private static final String ARRAY_REGEX = "\\[\\s*(\"[^\"]*\")(\\s*,\\s*\"[^\"]*\")*\\s*\\]";
 
     private static final String VECTOR_REGEX = "\\(\\s*(\"[^\"]*\")(\\s*,\\s*\"[^\"]*\")*\\s*\\)";
-    
-    private static final Pattern PROPERTY_VALUE_PATTERN = Pattern
-            .compile(String.format("%s|%s|%s", SINGLE_VALUE_REGEX, ARRAY_REGEX, VECTOR_REGEX));
+
+    private static final Pattern PROPERTY_VALUE_PATTERN = Pattern.compile(String.format("%s|%s|%s",
+            SINGLE_VALUE_REGEX,
+            ARRAY_REGEX,
+            VECTOR_REGEX));
 
     /**
      * Converts a property value (which can be a single value or an array or list of values) to a
@@ -63,7 +65,8 @@ abstract class PropertyValueConverter {
         if (propertyValue.startsWith("\"")) {
             LOGGER.debug("Converting single value {}", propertyValue);
             output.append('"');
-            convertSingleValue(propertyValue.trim().replaceAll("\"", ""), output);
+            convertSingleValue(propertyValue.trim()
+                    .replaceAll("\"", ""), output);
             output.append('"');
         } else if (propertyValue.startsWith("[") && propertyValue.endsWith("]")) {
             LOGGER.debug("Converting values in array {}", propertyValue);
@@ -94,7 +97,8 @@ abstract class PropertyValueConverter {
         output.append(openingBracket);
 
         String propertyValuesWithoutBrackets = removeSurroundingCharacters(propertyValues,
-                openingBracket, closingBracket);
+                openingBracket,
+                closingBracket);
 
         for (String value : propertyValuesWithoutBrackets.split("\"\\s*,\\s*\"")) {
             String trimmedValue = value.trim();

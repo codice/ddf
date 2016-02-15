@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -135,7 +135,8 @@ public class CatalogPolicyTest {
 
     @Test
     public void testPostQuery() throws StopProcessingException {
-        PolicyResponse response = policyPlugin.processPostQuery(mock(Result.class), new HashMap<>());
+        PolicyResponse response = policyPlugin.processPostQuery(mock(Result.class),
+                new HashMap<>());
         assertThat(response.itemPolicy()
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()
@@ -162,7 +163,8 @@ public class CatalogPolicyTest {
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()
                 .size(), equalTo(1));
-        response = policyPlugin.processPreCreate(mock(Metacard.class), Collections.singletonMap(Constants.LOCAL_DESTINATION_KEY, false));
+        response = policyPlugin.processPreCreate(mock(Metacard.class),
+                Collections.singletonMap(Constants.LOCAL_DESTINATION_KEY, false));
         assertThat(response.itemPolicy()
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()
@@ -190,8 +192,7 @@ public class CatalogPolicyTest {
     @Test
     public void testPreDelete() throws StopProcessingException {
         policyPlugin.setDeletePermissions(new String[] {"role=admin"});
-        PolicyResponse response = policyPlugin.processPreDelete(new ArrayList<>(),
-                new HashMap<>());
+        PolicyResponse response = policyPlugin.processPreDelete(new ArrayList<>(), new HashMap<>());
         assertThat(response.itemPolicy()
                 .size(), equalTo(0));
         assertThat(response.operationPolicy()

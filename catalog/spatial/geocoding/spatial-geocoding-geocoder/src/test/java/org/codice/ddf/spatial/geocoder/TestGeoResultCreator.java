@@ -28,8 +28,11 @@ public class TestGeoResultCreator {
     private void verifyGeoResult(final String name, final double latitude, final double longitude,
             final String featureCode, final long population, final double expectedLatitudeOffset,
             final double expectedLongitudeOffset) {
-        final GeoResult geoResult = GeoResultCreator.createGeoResult(name, latitude, longitude,
-                featureCode, population);
+        final GeoResult geoResult = GeoResultCreator.createGeoResult(name,
+                latitude,
+                longitude,
+                featureCode,
+                population);
 
         assertThat(geoResult.fullName, is(equalTo(name)));
 
@@ -38,15 +41,19 @@ public class TestGeoResultCreator {
 
         assertThat(geoResult.bbox.size(), is(2));
 
-        assertEquals(geoResult.bbox.get(0).getDirectPosition().getCoordinate()[0],
-                longitude - expectedLongitudeOffset, 0.001);
-        assertEquals(geoResult.bbox.get(0).getDirectPosition().getCoordinate()[1],
-                latitude + expectedLatitudeOffset, 0.001);
+        assertEquals(geoResult.bbox.get(0)
+                .getDirectPosition()
+                .getCoordinate()[0], longitude - expectedLongitudeOffset, 0.001);
+        assertEquals(geoResult.bbox.get(0)
+                .getDirectPosition()
+                .getCoordinate()[1], latitude + expectedLatitudeOffset, 0.001);
 
-        assertEquals(geoResult.bbox.get(1).getDirectPosition().getCoordinate()[0],
-                longitude + expectedLongitudeOffset, 0.001);
-        assertEquals(geoResult.bbox.get(1).getDirectPosition().getCoordinate()[1],
-                latitude - expectedLatitudeOffset, 0.001);
+        assertEquals(geoResult.bbox.get(1)
+                .getDirectPosition()
+                .getCoordinate()[0], longitude + expectedLongitudeOffset, 0.001);
+        assertEquals(geoResult.bbox.get(1)
+                .getDirectPosition()
+                .getCoordinate()[1], latitude - expectedLatitudeOffset, 0.001);
     }
 
     @Test

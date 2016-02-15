@@ -35,8 +35,10 @@ public class SecurityMigratable extends AbstractMigratable {
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final Path FILE_CONTAINING_CRL_LOCATION =
-            Paths.get("etc", "ws-security", "server", "encryption.properties");
+    private static final Path FILE_CONTAINING_CRL_LOCATION = Paths.get("etc",
+            "ws-security",
+            "server",
+            "encryption.properties");
 
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
@@ -47,7 +49,7 @@ public class SecurityMigratable extends AbstractMigratable {
         super(description, isOptional);
         this.migratableUtil = migratableUtil;
     }
-    
+
     public MigrationMetadata export(Path exportPath) throws MigrationException {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         exportCrlFile(exportPath, migrationWarnings);
@@ -65,12 +67,10 @@ public class SecurityMigratable extends AbstractMigratable {
                 exportDirectory,
                 migrationWarnings);
     }
-    
+
     private void exportPdpDirectory(Path exportDirectory,
             Collection<MigrationWarning> migrationWarnings) throws MigrationException {
         LOGGER.debug("Exporting PDP Directory at [{}]...", PDP_POLICIES_DIR.toString());
-        migratableUtil.copyDirectory(PDP_POLICIES_DIR,
-                exportDirectory,
-                migrationWarnings);
+        migratableUtil.copyDirectory(PDP_POLICIES_DIR, exportDirectory, migrationWarnings);
     }
 }

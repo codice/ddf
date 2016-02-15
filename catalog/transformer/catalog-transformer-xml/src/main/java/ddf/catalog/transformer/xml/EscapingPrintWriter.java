@@ -182,7 +182,9 @@ public class EscapingPrintWriter extends PrettyPrintWriter implements PrintWrite
                     if (WELL_KNOWN_CHARACTERS.get((int) c)) {
                         sb.append(c);
                     } else {
-                        sb.append("&#x").append(Integer.toHexString(c)).append(';');
+                        sb.append("&#x")
+                                .append(Integer.toHexString(c))
+                                .append(';');
                     }
                 }
             } // for loop

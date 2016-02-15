@@ -54,8 +54,7 @@ public class StopApplicationCommandTest {
         when(testStatus.getState()).thenReturn(ApplicationState.ACTIVE);
         when(testAppService.getApplicationStatus(testApp)).thenReturn(testStatus);
         when(testAppService.getApplication(APP_NAME)).thenReturn(testApp);
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         stopApplicationCommand.doExecute();
@@ -85,8 +84,7 @@ public class StopApplicationCommandTest {
         when(testStatus.getState()).thenReturn(ApplicationState.INACTIVE);
         when(testAppService.getApplicationStatus(testApp)).thenReturn(testStatus);
         when(testAppService.getApplication(APP_NAME)).thenReturn(testApp);
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         // Should handle this condition gracefully without throwing an exception

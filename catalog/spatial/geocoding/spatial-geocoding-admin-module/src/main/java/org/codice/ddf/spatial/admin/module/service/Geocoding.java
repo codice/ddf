@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -87,7 +87,8 @@ public class Geocoding implements GeocodingMBean {
     }
 
     @Override
-    public boolean updateGeoIndexWithFilePath(String fileName, String contentFolderId, String createIndex) {
+    public boolean updateGeoIndexWithFilePath(String fileName, String contentFolderId,
+            String createIndex) {
         progress = 0;
         fileName = BASE_DIR + contentFolderId + "/" + fileName;
         LOGGER.debug("Adding {} to index.  Create New Index : {}", fileName, createIndex);

@@ -104,7 +104,8 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         return info;
     }
 
-    private void addAttributesToMap(List<Attribute> attributes, Map<String, Set<String>> permissionsMap) {
+    private void addAttributesToMap(List<Attribute> attributes,
+            Map<String, Set<String>> permissionsMap) {
         Set<String> attributeSet;
         for (Attribute curAttribute : attributes) {
             attributeSet = expandAttributes(curAttribute);

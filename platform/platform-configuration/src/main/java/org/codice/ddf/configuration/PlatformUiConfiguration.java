@@ -28,9 +28,8 @@ import net.minidev.json.JSONObject;
 
 /**
  * Configuration class for pid=ddf.platform.ui.config.
- *
+ * <p>
  * Contains webservice method for returning the current configuration.
- *
  */
 @Path("/")
 public class PlatformUiConfiguration {
@@ -208,7 +207,7 @@ public class PlatformUiConfiguration {
     }
 
     private void setInfo() throws IOException {
-        if (branding != null && provider !=null) {
+        if (branding != null && provider != null) {
             setVersion();
             setTitle();
             this.productImage = getBase64(branding.getProductImage());

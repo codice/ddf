@@ -212,8 +212,8 @@ public class AttributeImpl implements Attribute {
         // Invariant: This implementation does not allow an Attribute object
         // with no values
         if (numElements == 0) {
-            throw new InvalidObjectException("Cannot construct " + this.getClass().getName()
-                    + " object without any values.");
+            throw new InvalidObjectException("Cannot construct " + this.getClass()
+                    .getName() + " object without any values.");
         }
     }
 

@@ -39,7 +39,8 @@ public class AddApplicationCommandTest {
 
     private static final String CMD_ERROR_STRING = "Error while performing command.";
 
-    private static final String BUNDLE_CONTEXT_STRING = "Bundle Context was closed, service reference already removed.";
+    private static final String BUNDLE_CONTEXT_STRING =
+            "Bundle Context was closed, service reference already removed.";
 
     private Logger logger = LoggerFactory.getLogger(AddApplicationCommand.class);
 
@@ -59,8 +60,7 @@ public class AddApplicationCommandTest {
         addApplicationCommand.appName = "TestApp";
         addApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         addApplicationCommand.doExecute();
@@ -84,8 +84,7 @@ public class AddApplicationCommandTest {
         addApplicationCommand.appName = ">BadURI<";
         addApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         //Should have a graceful recovery, if an exception is thrown, this test fails.
@@ -100,8 +99,8 @@ public class AddApplicationCommandTest {
      */
     @Test
     public void testAddApplicationCommandASE() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -116,8 +115,7 @@ public class AddApplicationCommandTest {
         addApplicationCommand.appName = "TestApp";
         addApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         doThrow(new ApplicationServiceException()).when(testAppService)
@@ -128,7 +126,8 @@ public class AddApplicationCommandTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(CMD_ERROR_STRING);
+                return ((LoggingEvent) argument).getFormattedMessage()
+                        .contains(CMD_ERROR_STRING);
             }
         }));
     }
@@ -141,8 +140,8 @@ public class AddApplicationCommandTest {
      */
     @Test
     public void testAddApplicationCommandISE() throws Exception {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
-                .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         final Appender mockAppender = mock(Appender.class);
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
@@ -157,8 +156,7 @@ public class AddApplicationCommandTest {
         addApplicationCommand.appName = "TestApp";
         addApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class))
-                .thenReturn(mockFeatureRef);
+        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         doThrow(new IllegalStateException()).when(bundleContext)

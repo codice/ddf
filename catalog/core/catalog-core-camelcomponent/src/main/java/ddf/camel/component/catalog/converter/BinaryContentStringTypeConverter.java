@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -38,13 +38,14 @@ import ddf.catalog.data.impl.BinaryContentImpl;
  */
 public class BinaryContentStringTypeConverter extends TypeConverterSupport {
 
-    private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(BinaryContentStringTypeConverter.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(
+            BinaryContentStringTypeConverter.class);
 
     @Override
     public <T> T convertTo(Class<T> type, Exchange exchange, Object value) {
 
-        String mimeTypeString = exchange.getOut().getHeader(HttpHeaders.CONTENT_TYPE, String.class);
+        String mimeTypeString = exchange.getOut()
+                .getHeader(HttpHeaders.CONTENT_TYPE, String.class);
         if (null == mimeTypeString) {
             mimeTypeString = MediaType.TEXT_PLAIN;
         }
@@ -57,8 +58,8 @@ public class BinaryContentStringTypeConverter extends TypeConverterSupport {
 
         T result = null;
         try {
-            result = type.cast(new BinaryContentImpl(exchange.getOut().getBody(InputStream.class),
-                    mimeType));
+            result = type.cast(new BinaryContentImpl(exchange.getOut()
+                    .getBody(InputStream.class), mimeType));
         } catch (ClassCastException e) {
             LOGGER.error("Failed to create BinaryContent", e);
         }

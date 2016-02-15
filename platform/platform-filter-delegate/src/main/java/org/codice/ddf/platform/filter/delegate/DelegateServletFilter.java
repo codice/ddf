@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,8 +79,8 @@ public class DelegateServletFilter implements Filter {
 
             ProxyFilterChain chain = new ProxyFilterChain(filterChain);
 
-            LinkedList<ServiceReference<Filter>> sortedFilters = new LinkedList<ServiceReference<Filter>>(
-                    referenceCollection);
+            LinkedList<ServiceReference<Filter>> sortedFilters =
+                    new LinkedList<ServiceReference<Filter>>(referenceCollection);
             // natural ordering of service references is to sort by service ranking
             Collections.sort(sortedFilters);
 
@@ -91,7 +91,10 @@ public class DelegateServletFilter implements Filter {
                 ServiceReference<Filter> curService = iterator.next();
                 Filter curFilter = context.getService(curService);
                 curFilter.init(filterConfig);
-                if (!curFilter.getClass().toString().equals(this.getClass().toString())) {
+                if (!curFilter.getClass()
+                        .toString()
+                        .equals(this.getClass()
+                                .toString())) {
                     LOGGER.debug("Adding filter that has a service ranking of {}",
                             curService.getProperty(Constants.SERVICE_RANKING));
                     chain.addFilter(curFilter);

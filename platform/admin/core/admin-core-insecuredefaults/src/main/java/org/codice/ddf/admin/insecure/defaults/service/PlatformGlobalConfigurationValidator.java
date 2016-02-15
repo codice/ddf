@@ -22,7 +22,8 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 
 public class PlatformGlobalConfigurationValidator implements Validator {
 
-    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP = "The protocol in the system properties is set to [http].";
+    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP =
+            "The protocol in the system properties is set to [http].";
 
     private static final String HTTP_PROTOCOL = "http://";
 

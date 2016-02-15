@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -43,8 +43,8 @@ public class AttributeMapLoader {
      * @return Map containing the fully populated attributes or empty map if file does not exist.
      */
     public static Map<String, String> buildClaimsMapFile(String attributeMapFile) {
-        Map<String, String> map = PropertiesLoader
-                .toMap(PropertiesLoader.loadProperties(attributeMapFile));
+        Map<String, String> map = PropertiesLoader.toMap(PropertiesLoader.loadProperties(
+                attributeMapFile));
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(logLdapClaimsMap(map));
@@ -80,7 +80,8 @@ public class AttributeMapLoader {
                 // loc
                 // state
                 // country
-                String[] strArr = st.nextToken().split("=");
+                String[] strArr = st.nextToken()
+                        .split("=");
                 if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
                     user = strArr[1];
                     break;
@@ -109,8 +110,12 @@ public class AttributeMapLoader {
         StringBuilder builder = new StringBuilder();
         builder.append("LDAP claims map:\n");
         for (Map.Entry<String, String> claim : map.entrySet()) {
-            builder.append("claim: ").append(claim.getKey()).append("; ").append("LDAP mapping: ")
-                    .append(claim.getValue()).append("\n");
+            builder.append("claim: ")
+                    .append(claim.getKey())
+                    .append("; ")
+                    .append("LDAP mapping: ")
+                    .append(claim.getValue())
+                    .append("\n");
         }
 
         return builder.toString();

@@ -79,9 +79,9 @@ public class KeystoreManagerTest {
             }
         };
 
-        verify(context, times(2))
-                .registerService(eq(KeystoreInstance.class), any(KeystoreInstance.class),
-                        Matchers.<Dictionary<String, Object>>any());
+        verify(context, times(2)).registerService(eq(KeystoreInstance.class),
+                any(KeystoreInstance.class),
+                Matchers.<Dictionary<String, Object>>any());
     }
 
     @Test
@@ -98,9 +98,9 @@ public class KeystoreManagerTest {
             }
         };
 
-        verify(context, times(2))
-                .registerService(eq(KeystoreInstance.class), any(KeystoreInstance.class),
-                        Matchers.<Dictionary<String, Object>>any());
+        verify(context, times(2)).registerService(eq(KeystoreInstance.class),
+                any(KeystoreInstance.class),
+                Matchers.<Dictionary<String, Object>>any());
     }
 
 }

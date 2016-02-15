@@ -59,14 +59,16 @@ public class WebSSOFilter implements Filter {
 
     ContextPolicyManager contextPolicyManager;
 
-    @Override public void init(FilterConfig filterConfig) throws ServletException {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("handlerList size is {}", handlerList.size());
 
             for (AuthenticationHandler authenticationHandler : handlerList) {
                 LOGGER.debug("AuthenticationHandler type: {}, class: {}",
                         authenticationHandler.getAuthenticationType(),
-                        authenticationHandler.getClass().getSimpleName());
+                        authenticationHandler.getClass()
+                                .getSimpleName());
             }
         }
     }
@@ -87,7 +89,8 @@ public class WebSSOFilter implements Filter {
      * @throws IOException
      * @throws ServletException
      */
-    @Override public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
         LOGGER.debug("Performing doFilter() on WebSSOFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
@@ -152,7 +155,8 @@ public class WebSSOFilter implements Filter {
         for (AuthenticationHandler auth : handlers) {
             result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, false);
             if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
-                LOGGER.debug("Handler {} set the result status to {}", auth.getAuthenticationType(),
+                LOGGER.debug("Handler {} set the result status to {}",
+                        auth.getAuthenticationType(),
                         result.getStatus());
                 break;
             }
@@ -166,7 +170,8 @@ public class WebSSOFilter implements Filter {
                 result = auth.getNormalizedToken(httpRequest, httpResponse, filterChain, true);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
                     LOGGER.debug("Handler {} set the result status to {}",
-                            auth.getAuthenticationType(), result.getStatus());
+                            auth.getAuthenticationType(),
+                            result.getStatus());
                     break;
                 }
             }
@@ -192,34 +197,42 @@ public class WebSSOFilter implements Filter {
                 // should never occur - one of the handlers should have returned a token
                 LOGGER.warn(
                         "No handlers were able to determine required credentials, returning bad request to {}. Check policy configuration for path: {}",
-                        ipAddress, path);
+                        ipAddress,
+                        path);
                 returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
                 return;
             case COMPLETED:
                 if (result.getToken() == null) {
                     LOGGER.warn(
                             "Completed without credentials for {} - check context policy configuration for path: {}",
-                            ipAddress, path);
+                            ipAddress,
+                            path);
                     returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
                     return;
                 }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(
                             "Attaching result handler to the http request - token is instance of {} from classloader {}",
-                            result.getToken().getClass().getName(),
-                            result.getToken().getClass().getClassLoader());
+                            result.getToken()
+                                    .getClass()
+                                    .getName(),
+                            result.getToken()
+                                    .getClass()
+                                    .getClassLoader());
                 }
                 httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 break;
             default:
                 LOGGER.warn("Unexpected response from handler - ignoring. Remote IP: {}, Path: {}",
-                        ipAddress, path);
+                        ipAddress,
+                        path);
                 return;
             }
         } else {
             LOGGER.warn(
                     "Expected login credentials from {} - didn't find any. Returning a bad request for path: {}",
-                    ipAddress, path);
+                    ipAddress,
+                    path);
             returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
             return;
         }
@@ -233,7 +246,8 @@ public class WebSSOFilter implements Filter {
             returnSimpleResponse(HttpServletResponse.SC_UNAUTHORIZED, httpResponse);
         } catch (Exception e) {
             LOGGER.debug("Exception in filter chain - passing off to handlers. Msg: {}",
-                    e.getMessage(), e);
+                    e.getMessage(),
+                    e);
 
             // First pass, see if anyone can come up with proper security token
             // from the git-go
@@ -241,7 +255,8 @@ public class WebSSOFilter implements Filter {
             for (AuthenticationHandler auth : handlers) {
                 result = auth.handleError(httpRequest, httpResponse, filterChain);
                 if (result.getStatus() != HandlerResult.Status.NO_ACTION) {
-                    LOGGER.debug("Handler {} set the status to {}", auth.getAuthenticationType(),
+                    LOGGER.debug("Handler {} set the status to {}",
+                            auth.getAuthenticationType(),
                             result.getStatus());
                     break;
                 }
@@ -267,8 +282,10 @@ public class WebSSOFilter implements Filter {
                     for (AuthenticationHandler handler : this.handlerList) {
                         handlerAuthMethod = handler.getAuthenticationType();
                         LOGGER.trace("Handler auth method: {} - desired auth method {}",
-                                handlerAuthMethod, authMethod);
-                        if (handler.getAuthenticationType().equalsIgnoreCase(authMethod)) {
+                                handlerAuthMethod,
+                                authMethod);
+                        if (handler.getAuthenticationType()
+                                .equalsIgnoreCase(authMethod)) {
                             handlers.add(handler);
                         }
                     }
@@ -279,7 +296,8 @@ public class WebSSOFilter implements Filter {
             handlers.addAll(this.handlerList);
         }
         LOGGER.trace("Returning {} handlers that support desired auth methods for path {}",
-                handlers.size(), path);
+                handlers.size(),
+                path);
         return handlers;
     }
 
@@ -304,11 +322,13 @@ public class WebSSOFilter implements Filter {
         }
     }
 
-    @Override public void destroy() {
+    @Override
+    public void destroy() {
 
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return WebSSOFilter.class.getName();
     }
 

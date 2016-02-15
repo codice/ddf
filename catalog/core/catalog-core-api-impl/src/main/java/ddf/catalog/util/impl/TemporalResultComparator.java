@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -66,7 +66,8 @@ public class TemporalResultComparator implements Comparator<Result> {
             this.temporalAttribute = temporalAttribute;
         }
         LOGGER.debug("Comparing on Temporal Attribute: '{}' with Sort Order: '{}'",
-                this.temporalAttribute, this.sortOrder);
+                this.temporalAttribute,
+                this.sortOrder);
     }
 
     /**
@@ -87,14 +88,18 @@ public class TemporalResultComparator implements Comparator<Result> {
         // then catch the NPE and set the Result's temporal attribute to null and proceed with
         // the comparison.
         try {
-            dateA = (Date) contentA.getMetacard().getAttribute(temporalAttribute).getValue();
+            dateA = (Date) contentA.getMetacard()
+                    .getAttribute(temporalAttribute)
+                    .getValue();
         } catch (NullPointerException npe) {
             dateA = null;
         } catch (ClassCastException e) {
             dateA = null;
         }
         try {
-            dateB = (Date) contentB.getMetacard().getAttribute(temporalAttribute).getValue();
+            dateB = (Date) contentB.getMetacard()
+                    .getAttribute(temporalAttribute)
+                    .getValue();
         } catch (NullPointerException npe) {
             dateB = null;
         } catch (ClassCastException e) {

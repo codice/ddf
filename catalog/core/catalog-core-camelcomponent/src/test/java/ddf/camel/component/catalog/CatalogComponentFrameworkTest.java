@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -149,8 +149,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // for this unit test.
 
         // Configure PojoSR to be our mock OSGi Registry
-        final PojoServiceRegistry reg = new PojoServiceRegistryFactoryImpl()
-                .newPojoServiceRegistry(new HashMap());
+        final PojoServiceRegistry reg = new PojoServiceRegistryFactoryImpl().newPojoServiceRegistry(
+                new HashMap());
         final BundleContext bundleContext = reg.getBundleContext();
 
         final CamelContext camelContext = super.createCamelContext();
@@ -168,7 +168,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("direct:sampleInput").to("catalog:framework").to("mock:result");
+                from("direct:sampleInput").to("catalog:framework")
+                        .to("mock:result");
             }
         };
     }
@@ -190,7 +191,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest, new HashMap(),
+        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
@@ -200,8 +202,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn()
+                .getBody();
         assertListSize(cardsCreated, 2);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -238,7 +242,9 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Exercise the route with a CREATE operation
         try {
-            template.sendBodyAndHeader("direct:sampleInput", new String("WRONG TYPE"), "Operation",
+            template.sendBodyAndHeader("direct:sampleInput",
+                    new String("WRONG TYPE"),
+                    "Operation",
                     "CREATE");
         } catch (CamelExecutionException cee) {
             Assert.isInstanceOf(FrameworkProducerException.class, cee.getCause());
@@ -331,7 +337,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest, new HashMap(),
+        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
@@ -341,8 +348,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn()
+                .getBody();
         assertListSize(cardsCreated, 1);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -364,7 +373,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest, new HashMap(),
+        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
@@ -374,8 +384,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn()
+                .getBody();
         assertListSize(cardsCreated, 1);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -397,19 +409,24 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest, new HashMap(),
+        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
         // Exercise the route with a CREATE operation
-        template.sendBodyAndHeader("direct:sampleInput", metacard1, "Operation",
+        template.sendBodyAndHeader("direct:sampleInput",
+                metacard1,
+                "Operation",
                 new Boolean("CREATE"));
 
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn()
+                .getBody();
         assertListSize(cardsCreated, 0);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -431,7 +448,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest, new HashMap(),
+        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
@@ -441,8 +459,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn()
+                .getBody();
         assertListSize(cardsCreated, 0);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -464,7 +484,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Mock catalog framework
         final CreateRequest createRequest = new CreateRequestImpl(metacards);
-        final CreateResponse createResponse = new CreateResponseImpl(createRequest, new HashMap(),
+        final CreateResponse createResponse = new CreateResponseImpl(createRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.create(any(CreateRequest.class))).thenThrow(new IngestException());
 
@@ -474,8 +495,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Metacard> cardsCreated = (List<Metacard>) exchange.getIn()
+                .getBody();
         assertListSize(cardsCreated, 0);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -502,11 +525,13 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         final String[] metacardIds = new String[metacards.size()];
         for (int i = 0; i < metacards.size(); i++) {
-            metacardIds[i] = metacards.get(i).getId();
+            metacardIds[i] = metacards.get(i)
+                    .getId();
         }
 
         UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds, metacards);
-        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest, new HashMap(),
+        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest,
+                new HashMap(),
                 updates);
         when(catalogFramework.update(any(UpdateRequest.class))).thenReturn(updateResponse);
 
@@ -516,8 +541,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Update> cardsUpdated = (List<Update>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Update> cardsUpdated = (List<Update>) exchange.getIn()
+                .getBody();
         assertListSize(cardsUpdated, 1);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -610,11 +637,13 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         final String[] metacardIds = new String[metacards.size()];
         for (int i = 0; i < metacards.size(); i++) {
-            metacardIds[i] = metacards.get(i).getId();
+            metacardIds[i] = metacards.get(i)
+                    .getId();
         }
 
         UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds, metacards);
-        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest, new HashMap(),
+        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest,
+                new HashMap(),
                 updates);
         when(catalogFramework.update(any(UpdateRequest.class))).thenReturn(updateResponse);
 
@@ -624,8 +653,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Update> cardsUpdated = (List<Update>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Update> cardsUpdated = (List<Update>) exchange.getIn()
+                .getBody();
         assertListSize(cardsUpdated, 1);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -652,11 +683,13 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         final String[] metacardIds = new String[metacards.size()];
         for (int i = 0; i < metacards.size(); i++) {
-            metacardIds[i] = metacards.get(i).getId();
+            metacardIds[i] = metacards.get(i)
+                    .getId();
         }
 
         UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds, metacards);
-        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest, new HashMap(),
+        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest,
+                new HashMap(),
                 updates);
         when(catalogFramework.update(any(UpdateRequest.class))).thenThrow(new IngestException());
 
@@ -666,8 +699,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Update> cardsUpdated = (List<Update>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Update> cardsUpdated = (List<Update>) exchange.getIn()
+                .getBody();
         assertListSize(cardsUpdated, 0);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -684,7 +719,9 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Exercise the route with a UPDATE operation
         try {
-            template.sendBodyAndHeader("direct:sampleInput", new String("WRONG TYPE"), "Operation",
+            template.sendBodyAndHeader("direct:sampleInput",
+                    new String("WRONG TYPE"),
+                    "Operation",
                     "UPDATE");
         } catch (CamelExecutionException cee) {
             Assert.isInstanceOf(FrameworkProducerException.class, cee.getCause());
@@ -731,11 +768,13 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // setup mock catalog framework
         final String[] metacardIds = new String[metacards.size()];
         for (int i = 0; i < metacards.size(); i++) {
-            metacardIds[i] = metacards.get(i).getId();
+            metacardIds[i] = metacards.get(i)
+                    .getId();
         }
 
         DeleteRequest deleteRequest = new DeleteRequestImpl(metacardIds);
-        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest, new HashMap(),
+        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(deleteResponse);
 
@@ -745,8 +784,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Update> cardsDeleted = (List<Update>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Update> cardsDeleted = (List<Update>) exchange.getIn()
+                .getBody();
         assertListSize(cardsDeleted, 1);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -769,11 +810,13 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // setup mock catalog framework
         final String[] metacardIds = new String[metacards.size()];
         for (int i = 0; i < metacards.size(); i++) {
-            metacardIds[i] = metacards.get(i).getId();
+            metacardIds[i] = metacards.get(i)
+                    .getId();
         }
 
         DeleteRequest deleteRequest = new DeleteRequestImpl(metacardIds);
-        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest, new HashMap(),
+        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.delete(any(DeleteRequest.class))).thenThrow(new IngestException());
 
@@ -783,8 +826,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Update> cardsDeleted = (List<Update>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Update> cardsDeleted = (List<Update>) exchange.getIn()
+                .getBody();
         assertListSize(cardsDeleted, 0);
 
         mockVerifierEndpoint.assertIsSatisfied();
@@ -827,7 +872,9 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
 
         // Exercise the route with a DELETE operation
         try {
-            template.sendBodyAndHeader("direct:sampleInput", new InvalidObject(), "Operation",
+            template.sendBodyAndHeader("direct:sampleInput",
+                    new InvalidObject(),
+                    "Operation",
                     "DELETE");
         } catch (CamelExecutionException cee) {
             Assert.isInstanceOf(FrameworkProducerException.class, cee.getCause());
@@ -855,12 +902,14 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // setup mock catalog framework
         final String[] metacardIds = new String[metacards.size()];
         for (int i = 0; i < metacards.size(); i++) {
-            metacardIds[i] = metacards.get(i).getId();
+            metacardIds[i] = metacards.get(i)
+                    .getId();
         }
         final List<String> metacardIdList = Arrays.asList(metacardIds);
 
         DeleteRequest deleteRequest = new DeleteRequestImpl(metacardIds);
-        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest, new HashMap(),
+        DeleteResponse deleteResponse = new DeleteResponseImpl(deleteRequest,
+                new HashMap(),
                 metacards);
         when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(deleteResponse);
 
@@ -870,8 +919,10 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
         assertListSize(mockVerifierEndpoint.getExchanges(), 1);
-        final Exchange exchange = mockVerifierEndpoint.getExchanges().get(0);
-        final List<Update> cardsDeleted = (List<Update>) exchange.getIn().getBody();
+        final Exchange exchange = mockVerifierEndpoint.getExchanges()
+                .get(0);
+        final List<Update> cardsDeleted = (List<Update>) exchange.getIn()
+                .getBody();
         assertListSize(cardsDeleted, 2);
 
         mockVerifierEndpoint.assertIsSatisfied();

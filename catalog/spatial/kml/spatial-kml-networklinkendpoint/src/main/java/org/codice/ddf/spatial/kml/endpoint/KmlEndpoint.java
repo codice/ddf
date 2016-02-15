@@ -63,7 +63,6 @@ import de.micromata.opengis.kml.v_2_2_0.ViewRefreshMode;
  * the Catalog through the OpenSearch Endpoint.
  *
  * @author Keith C Wire
- *
  */
 @Path("/")
 public class KmlEndpoint {
@@ -88,14 +87,17 @@ public class KmlEndpoint {
 
     private static final long REFRESH_INTERVAL = 12 * 60 * 60; // 12 Hours in Seconds
 
-    /** Default refresh time after the View stops moving */
+    /**
+     * Default refresh time after the View stops moving
+     */
     private static final double DEFAULT_VIEW_REFRESH_TIME = 2.0;
 
     /**
      * The format of the bounding box query parameters Google Earth attaches to the end of the query
      * URL.
      */
-    private static final String VIEW_FORMAT_STRING = "bbox=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]";
+    private static final String VIEW_FORMAT_STRING =
+            "bbox=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]";
 
     private static final String SOURCE_PARAM = "src";
 
@@ -136,15 +138,15 @@ public class KmlEndpoint {
         templateLoader = new ClassPathTemplateLoader();
         templateLoader.setPrefix("/templates");
         templateLoader.setSuffix(".hbt");
-        this.productName = branding.getProductName().split(" ")[0];
+        this.productName = branding.getProductName()
+                .split(" ")[0];
         LOGGER.trace("EXITING: KML Endpoint Constructor");
     }
 
     /**
      * Attempts to load a KML {@link de.micromata.opengis.kml.v_2_2_0.Style} from a file provided via a file system path.
      *
-     * @param url
-     *            - the path to the file.
+     * @param url - the path to the file.
      */
     public void setStyleUrl(String url) {
         if (StringUtils.isNotBlank(url)) {
@@ -167,8 +169,7 @@ public class KmlEndpoint {
     /**
      * Sets the root directory of icons to be provided via this endpoint.
      *
-     * @param iconLoc
-     *            - the path to the directory of icons
+     * @param iconLoc - the path to the directory of icons
      */
     public void setIconLoc(String iconLoc) {
         this.iconLoc = iconLoc;
@@ -181,8 +182,7 @@ public class KmlEndpoint {
     /**
      * Sets the Description that will be used as the description of the Root {@link NetworkLink}.
      *
-     * @param description
-     *            - the Description of the Root {@link NetworkLink}
+     * @param description - the Description of the Root {@link NetworkLink}
      */
     public void setDescription(String description) {
         this.description = description;
@@ -191,8 +191,7 @@ public class KmlEndpoint {
     /**
      * Sets if the ddf.catalog.source.Source {@link NetworkLink}s should be Visible by Default.
      *
-     * @param visibleByDefault
-     *            - true to enable
+     * @param visibleByDefault - true to enable
      */
     public void setVisibleByDefault(Boolean visibleByDefault) {
         this.visibleByDefault = visibleByDefault;
@@ -201,8 +200,7 @@ public class KmlEndpoint {
     /**
      * Sets the Maximum Number of results each {@link NetworkLink} will return.
      *
-     * @param maxResults
-     *            - maximum number of results to return
+     * @param maxResults - maximum number of results to return
      */
     public void setMaxResults(Integer maxResults) {
         this.maxResults = maxResults;
@@ -215,8 +213,7 @@ public class KmlEndpoint {
     /**
      * Sets the Web Site URL that will be used in the description of the Root {@link NetworkLink}.
      *
-     * @param webSite
-     *            - the URL of the web site
+     * @param webSite - the URL of the web site
      */
     public void setWebSite(String webSite) {
         this.webSite = webSite;
@@ -230,8 +227,7 @@ public class KmlEndpoint {
      * Sets the URL of the Logo that will be used in the description of the Root {@link NetworkLink}
      * .
      *
-     * @param logo
-     *            - the URL to the logo
+     * @param logo - the URL to the logo
      */
     public void setLogo(String logo) {
         this.logo = logo;
@@ -252,8 +248,7 @@ public class KmlEndpoint {
     /**
      * Creates a {@link NetworkLink} to provide a layer to KML Clients.
      *
-     * @param uriInfo
-     *            - injected resource providing the URI.
+     * @param uriInfo - injected resource providing the URI.
      * @return - KML NetworkLink
      */
     @GET
@@ -273,10 +268,12 @@ public class KmlEndpoint {
         NetworkLink rootNetworkLink = kml.createAndSetNetworkLink();
 
         rootNetworkLink.setName(this.productName);
-        rootNetworkLink.setSnippet(KmlFactory.createSnippet().withMaxLines(0));
+        rootNetworkLink.setSnippet(KmlFactory.createSnippet()
+                .withMaxLines(0));
         UriBuilder baseUrlBuidler = UriBuilder.fromUri(uriInfo.getBaseUri());
         baseUrlBuidler.replacePath("");
-        this.baseUrl = baseUrlBuidler.build().toString();
+        this.baseUrl = baseUrlBuidler.build()
+                .toString();
         String descriptionHtml = description;
         Handlebars handlebars = new Handlebars(templateLoader);
         try {
@@ -294,7 +291,8 @@ public class KmlEndpoint {
         builder = generateEndpointUrl(
                 SystemBaseUrl.getRootContext() + FORWARD_SLASH + CATALOG_URL_PATH + FORWARD_SLASH
                         + KML_TRANSFORM_PARAM + FORWARD_SLASH + "sources", builder);
-        link.setHref(builder.build().toString());
+        link.setHref(builder.build()
+                .toString());
         link.setViewRefreshMode(ViewRefreshMode.NEVER);
         link.setRefreshMode(RefreshMode.ON_INTERVAL);
         link.setRefreshInterval(REFRESH_INTERVAL);
@@ -306,8 +304,7 @@ public class KmlEndpoint {
      * Creates a list of {@link NetworkLink}s, one for each {@link ddf.catalog.source.Source} including the local
      * catalog.
      *
-     * @param uriInfo
-     *            - injected resource provding the URI.
+     * @param uriInfo - injected resource provding the URI.
      * @return - {@link Kml} containing a folder of {@link NetworkLink}s.
      */
     @GET
@@ -315,8 +312,8 @@ public class KmlEndpoint {
     @Produces(KML_MIME_TYPE)
     public Kml getAvailableSources(@Context UriInfo uriInfo) {
         try {
-            SourceInfoResponse response = framework
-                    .getSourceInfo(new SourceInfoRequestEnterprise(false));
+            SourceInfoResponse response = framework.getSourceInfo(new SourceInfoRequestEnterprise(
+                    false));
 
             Kml kml = KmlFactory.createKml();
             Folder folder = kml.createAndSetFolder();
@@ -329,9 +326,10 @@ public class KmlEndpoint {
                 builder = builder.queryParam(SOURCE_PARAM, descriptor.getSourceId());
                 builder = builder.queryParam(OPENSEARCH_SORT_KEY, OPENSEARCH_DEFAULT_SORT);
                 builder = builder.queryParam(OPENSEARCH_FORMAT_KEY, KML_TRANSFORM_PARAM);
-                NetworkLink networkLink = generateViewBasedNetworkLink(builder.build().toURL(),
-                        descriptor.getSourceId());
-                folder.getFeature().add(networkLink);
+                NetworkLink networkLink = generateViewBasedNetworkLink(builder.build()
+                        .toURL(), descriptor.getSourceId());
+                folder.getFeature()
+                        .add(networkLink);
             }
 
             return kml;
@@ -418,10 +416,8 @@ public class KmlEndpoint {
     /**
      * Retrieves an icon from the hosted directory based on the id provided.
      *
-     * @param uriInfo
-     *            - injected resource providing the URI
-     * @param id
-     *            - the id (filename) of the icon
+     * @param uriInfo - injected resource providing the URI
+     * @param id      - the id (filename) of the icon
      * @return iconBytes - the icon as a byte[]
      */
     @GET
@@ -433,14 +429,14 @@ public class KmlEndpoint {
 
         if (StringUtils.isBlank(iconLoc)) {
             String icon = ICONS_RESOURCE_LOC + id;
-            try (InputStream iconStream = this.getClass().getClassLoader()
+            try (InputStream iconStream = this.getClass()
+                    .getClassLoader()
                     .getResourceAsStream(icon)) {
 
                 if (iconStream == null) {
                     LOGGER.warn("Resource not found for icon {}", icon);
-                    throw new WebApplicationException(
-                            new FileNotFoundException("Resource not found for icon " + icon),
-                            Status.NOT_FOUND);
+                    throw new WebApplicationException(new FileNotFoundException(
+                            "Resource not found for icon " + icon), Status.NOT_FOUND);
                 }
 
                 iconBytes = IOUtils.toByteArray(iconStream);

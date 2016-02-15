@@ -29,13 +29,16 @@ public class SecurityPolicyConfigurator {
 
     private static final String SYMBOLIC_NAME = "security-policy-context";
 
-    private static final String FACTORY_PID = "org.codice.ddf.security.policy.context.impl.PolicyManager";
+    private static final String FACTORY_PID =
+            "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
     public static final String BASIC_AUTH_TYPES = "/=SAML|basic,/solr=SAML|PKI|basic";
 
-    public static final String GUEST_AUTH_TYPES = "/=SAML|GUEST,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
+    public static final String GUEST_AUTH_TYPES =
+            "/=SAML|GUEST,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic";
 
-    public static final String DEFAULT_WHITELIST = "/services/SecurityTokenService,/services/internal,/proxy";
+    public static final String DEFAULT_WHITELIST =
+            "/services/SecurityTokenService,/services/internal,/proxy";
 
     private ServiceManager services;
 
@@ -69,16 +72,19 @@ public class SecurityPolicyConfigurator {
     public void configureWebContextPolicy(String realms, String authTypes,
             String requiredAttributes, String whitelist) throws Exception {
 
-        Map<String, Object> policyProperties = services
-                .getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID);
+        Map<String, Object> policyProperties = services.getMetatypeDefaults(SYMBOLIC_NAME,
+                FACTORY_PID);
 
         putPolicyValues(policyProperties, "realms", realms);
         putPolicyValues(policyProperties, "authenticationTypes", authTypes);
         putPolicyValues(policyProperties, "requiredAttributes", requiredAttributes);
         putPolicyValues(policyProperties, "whiteListContexts", whitelist);
 
-        new SynchronizedConfiguration(FACTORY_PID, null, policyProperties,
-                createChecker(policyProperties), configAdmin).updateConfig();
+        new SynchronizedConfiguration(FACTORY_PID,
+                null,
+                policyProperties,
+                createChecker(policyProperties),
+                configAdmin).updateConfig();
 
         services.waitForAllBundles();
     }
@@ -100,15 +106,15 @@ public class SecurityPolicyConfigurator {
             @Override
             public Boolean call() throws Exception {
                 for (ContextPolicy policy : ctxPolicyMgr.getAllContextPolicies()) {
-                    ContextPolicy targetPolicy = targetPolicies
-                            .getContextPolicy(policy.getContextPath());
+                    ContextPolicy targetPolicy =
+                            targetPolicies.getContextPolicy(policy.getContextPath());
 
                     if (targetPolicy == null || !targetPolicy.getContextPath()
                             .equals(policy.getContextPath()) || (targetPolicy.getRealm() != null
-                            && !targetPolicy.getRealm().equals(policy.getRealm())) || !targetPolicy
-                            .getAuthenticationMethods()
-                            .containsAll(policy.getAuthenticationMethods()) || !targetPolicy
-                            .getAllowedAttributeNames()
+                            && !targetPolicy.getRealm()
+                            .equals(policy.getRealm())) || !targetPolicy.getAuthenticationMethods()
+                            .containsAll(policy.getAuthenticationMethods())
+                            || !targetPolicy.getAllowedAttributeNames()
                             .containsAll(policy.getAllowedAttributeNames())) {
                         return false;
                     }

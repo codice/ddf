@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.catalog.resource.impl;
 
@@ -56,12 +55,14 @@ public class OgcUrlResourceReader implements ResourceReader {
 
     public static final String TITLE = "OGC URL ddf.catalog.resource.Resource Reader";
 
-    public static final String DESCRIPTION = "Resource Reader which provide redirection when a product has a mime type of text/html";
+    public static final String DESCRIPTION =
+            "Resource Reader which provide redirection when a product has a mime type of text/html";
 
     public static final String ORGANIZATION = "OGC";
 
-    private static final List<String> UNKNOWN_MIME_TYPES = Collections.unmodifiableList(Arrays
-            .asList("application/unknown", "application/octet-stream"));
+    private static final List<String> UNKNOWN_MIME_TYPES =
+            Collections.unmodifiableList(Arrays.asList("application/unknown",
+                    "application/octet-stream"));
 
     private static final String URL_HTTP_SCHEME = "http";
 
@@ -77,7 +78,8 @@ public class OgcUrlResourceReader implements ResourceReader {
     public OgcUrlResourceReader(ResourceReader urlResourceReader, Tika tika) {
         this.tika = tika;
         this.urlResourceReader = urlResourceReader;
-        LOGGER.debug("Supported Schemes for {}: {}", OgcUrlResourceReader.class.getSimpleName(),
+        LOGGER.debug("Supported Schemes for {}: {}",
+                OgcUrlResourceReader.class.getSimpleName(),
                 QUALIFIER_SET.toString());
     }
 
@@ -93,7 +95,7 @@ public class OgcUrlResourceReader implements ResourceReader {
      * to the {@link URI} passed in. Calls {@link URLResourceReader}, if the mime-type is
      * "text/html" it will inject a simple script to redirect to the resourceURI instead of
      * attempting to download it.
-     * 
+     *
      * @param resourceURI
      *            A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
      * @param properties
@@ -103,7 +105,7 @@ public class OgcUrlResourceReader implements ResourceReader {
      * @throws ResourceNotSupportedException
      */
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
-        throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         LOGGER.debug("Calling URLResourceReader.retrieveResource()");
         ResourceResponse response = urlResourceReader.retrieveResource(resourceURI, properties);
         Resource resource = response.getResource();
@@ -115,16 +117,17 @@ public class OgcUrlResourceReader implements ResourceReader {
             if (UNKNOWN_MIME_TYPES.contains(mimeTypeStr)) {
                 detectedMimeType = tika.detect(resourceURI.toURL());
             }
-            if (StringUtils.contains(detectedMimeType, MediaType.TEXT_HTML)
-                    || StringUtils.contains(mimeTypeStr, MediaType.TEXT_HTML)) {
+            if (StringUtils.contains(detectedMimeType, MediaType.TEXT_HTML) || StringUtils.contains(
+                    mimeTypeStr,
+                    MediaType.TEXT_HTML)) {
                 LOGGER.debug("Detected \"text\\html\". Building redirect script");
                 StringBuilder strBuilder = new StringBuilder();
-                strBuilder
-                        .append("<html><script type=\"text/javascript\">window.location.replace(\"");
+                strBuilder.append(
+                        "<html><script type=\"text/javascript\">window.location.replace(\"");
                 strBuilder.append(resourceURI);
                 strBuilder.append("\");</script></html>");
-                return new ResourceResponseImpl(new ResourceImpl(new ByteArrayInputStream(
-                        strBuilder.toString().getBytes(StandardCharsets.UTF_8)), detectedMimeType, resource.getName()));
+                return new ResourceResponseImpl(new ResourceImpl(new ByteArrayInputStream(strBuilder.toString()
+                        .getBytes(StandardCharsets.UTF_8)), detectedMimeType, resource.getName()));
             }
         }
         return response;

@@ -484,7 +484,8 @@ public class LoginFilter implements Filter {
                         if (dataNode.getLocalName()
                                 .equals("X509Certificate")) {
                             String textContent = dataText.getTextContent();
-                            byte[] byteValue = Base64.getMimeDecoder().decode(textContent);
+                            byte[] byteValue = Base64.getMimeDecoder()
+                                    .decode(textContent);
                             try {
                                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                                 X509Certificate cert =
@@ -528,7 +529,8 @@ public class LoginFilter implements Filter {
                                 .equals("X509SKI")) {
                             String textContent = dataText.getTextContent();
                             byte[] tlsSKI = tlsCertificate.getExtensionValue("2.5.29.14");
-                            byte[] assertionSKI = Base64.getMimeDecoder().decode(textContent);
+                            byte[] assertionSKI = Base64.getMimeDecoder()
+                                    .decode(textContent);
                             if (tlsSKI != null && tlsSKI.length > 0) {
                                 ASN1OctetString tlsOs = ASN1OctetString.getInstance(tlsSKI);
                                 ASN1OctetString assertionOs = ASN1OctetString.getInstance(

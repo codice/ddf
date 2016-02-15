@@ -329,8 +329,10 @@ public class AssertionConsumerService {
                 rootContext);
 
         EntityDescriptor entityDescriptor = SamlProtocol.createSpMetadata(entityId,
-                Base64.getEncoder().encodeToString(issuerCert.getEncoded()),
-                Base64.getEncoder().encodeToString(encryptionCert.getEncoded()),
+                Base64.getEncoder()
+                        .encodeToString(issuerCert.getEncoded()),
+                Base64.getEncoder()
+                        .encodeToString(encryptionCert.getEncoded()),
                 logoutLocation,
                 assertionConsumerServiceLocation,
                 assertionConsumerServiceLocation);
@@ -373,8 +375,8 @@ public class AssertionConsumerService {
     }
 
     private String decodeBase64(String encoded) {
-        return new String(Base64.getMimeDecoder().decode(encoded.getBytes(StandardCharsets.UTF_8)),
-                StandardCharsets.UTF_8);
+        return new String(Base64.getMimeDecoder()
+                .decode(encoded.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
     public Filter getLoginFilter() {

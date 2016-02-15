@@ -21,6 +21,7 @@ public interface ChecksumProvider {
 
     /**
      * Calculates checksum from {@link InputStream}
+     *
      * @param {@link InputStream} to process
      * @return calculated checksum value
      */
@@ -28,6 +29,7 @@ public interface ChecksumProvider {
 
     /**
      * Returns identifier for check sum algorithm
+     *
      * @return checksum algorithm identifier
      */
     String getChecksumAlgorithm();

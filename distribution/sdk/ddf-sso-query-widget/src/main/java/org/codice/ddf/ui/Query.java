@@ -70,7 +70,8 @@ public class Query extends HttpServlet {
 
     private static final String PROXY_TICKET_REQUEST_PARAM = "proxyticket";
 
-    private static final String STS_SERVICE_URL = "https://localhost:8993/services/SecurityTokenService";
+    private static final String STS_SERVICE_URL =
+            "https://localhost:8993/services/SecurityTokenService";
 
     private transient CatalogFramework catalogFramework;
 
@@ -168,7 +169,10 @@ public class Query extends HttpServlet {
      */
     private String getMetacardForId(String searchPhrase, String proxyTicket) {
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase);
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(searchPhrase);
         LOGGER.info("Query filter: {}", filter.toString());
         String queryError = "Unable to perform query " + filter.toString() + ".";
         QueryRequest request = new QueryRequestImpl(new QueryImpl(filter), true);
@@ -177,8 +181,10 @@ public class Query extends HttpServlet {
         try {
             Subject subject = securityManager.getSubject(new CasAuthenticationToken(proxyTicket));
             LOGGER.info("Adding {} property with value {} to request",
-                    SecurityConstants.SECURITY_SUBJECT, subject);
-            request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
+                    SecurityConstants.SECURITY_SUBJECT,
+                    subject);
+            request.getProperties()
+                    .put(SecurityConstants.SECURITY_SUBJECT, subject);
         } catch (SecurityServiceException se) {
             LOGGER.error("Could not retrieve subject from securitymanager.", se);
             return queryError;

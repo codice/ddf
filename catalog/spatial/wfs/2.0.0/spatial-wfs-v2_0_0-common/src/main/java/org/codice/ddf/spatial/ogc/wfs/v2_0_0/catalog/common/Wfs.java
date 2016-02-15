@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
@@ -44,8 +43,8 @@ public interface Wfs {
      */
     @GET
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    WFSCapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request) throws
-            WfsException;
+    WFSCapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
+            throws WfsException;
 
     /**
      * GetCapabilites - HTTP POST
@@ -53,16 +52,16 @@ public interface Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    WFSCapabilitiesType getCapabilities(GetCapabilitiesType getCapabilitesRequest) throws
-            WfsException;
+    WFSCapabilitiesType getCapabilities(GetCapabilitiesType getCapabilitesRequest)
+            throws WfsException;
 
     /**
      * DescribeFeatureType - HTTP GET
      */
     @GET
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    XmlSchema describeFeatureType(@QueryParam("") DescribeFeatureTypeRequest request) throws
-            WfsException;
+    XmlSchema describeFeatureType(@QueryParam("") DescribeFeatureTypeRequest request)
+            throws WfsException;
 
     /**
      * DescribeFeatureType - HTTP POST
@@ -70,8 +69,8 @@ public interface Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    XmlSchema describeFeatureType(DescribeFeatureTypeType describeFeatureRequest) throws
-            WfsException;
+    XmlSchema describeFeatureType(DescribeFeatureTypeType describeFeatureRequest)
+            throws WfsException;
 
     /**
      * GetFeature
@@ -86,8 +85,8 @@ public interface Wfs {
      */
     @GET
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    ValueCollectionType getPropertyValueType(@QueryParam("") GetPropertyValueRequest request) throws
-            WfsException;
+    ValueCollectionType getPropertyValueType(@QueryParam("") GetPropertyValueRequest request)
+            throws WfsException;
 
     /**
      * GetPropertyValueType - HTTP POST
@@ -95,7 +94,7 @@ public interface Wfs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    XmlSchema getPropertyValueType(GetPropertyValueType propertyValueTypeRequest) throws
-            WfsException;
+    XmlSchema getPropertyValueType(GetPropertyValueType propertyValueTypeRequest)
+            throws WfsException;
 
 }
