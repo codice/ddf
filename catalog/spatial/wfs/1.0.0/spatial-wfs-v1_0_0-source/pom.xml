@@ -151,6 +151,7 @@
                             platform-util-unavailableurls
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
