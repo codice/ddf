@@ -57,6 +57,13 @@
             <type>zip</type>
         </dependency>
         <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <version>${karaf.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>ddf.distribution</groupId>
             <artifactId>console-branding</artifactId>
             <version>${project.version}</version>
@@ -78,6 +85,11 @@
             <artifactId>webconsole-branding-plugin</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-filter-delegate</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
