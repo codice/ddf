@@ -72,8 +72,11 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
                     "Could not transform metacard to a resource because the metacard is not valid.");
         }
 
-        String id = metacard.getId();
+        if(StringUtils.isNotEmpty(metacard.getResourceSize())) {
+            arguments.put(Metacard.RESOURCE_SIZE, metacard.getResourceSize());
+        }
 
+        String id = metacard.getId();
         LOGGER.debug("executing resource request with id '{}'", id);
 
         final ResourceRequest resourceRequest = new ResourceRequestById(id, arguments);

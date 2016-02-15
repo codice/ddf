@@ -955,6 +955,28 @@
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
         </configfile>
 
+        <configfile finalname="/data/solr/attributes/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/attributes/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/attributes/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/attributes/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/attributes/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/attributes/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/attributes/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
+
     </feature>
 
     <feature name="persistence-core-api" install="manual" version="${project.version}"
@@ -970,6 +992,7 @@
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-listeners/${project.version}</bundle>
+        <bundle>mvn:ddf.persistence.core/persistence-core-attributes-impl/${project.version}</bundle>
     </feature>
 
     <feature name="error" install="manual" version="${project.version}"
