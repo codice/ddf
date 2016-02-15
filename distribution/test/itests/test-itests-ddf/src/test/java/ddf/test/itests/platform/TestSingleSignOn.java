@@ -112,31 +112,37 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeTest() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
-        getServiceManager().waitForAllBundles();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-        getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
+            getServiceManager().waitForAllBundles();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
 
-        // Start the services needed for testing.
-        // We need to start the Search UI to test that it redirects properly
-        getServiceManager().startFeature(true, "security-idp", "search-ui-app");
+            // Start the services needed for testing.
+            // We need to start the Search UI to test that it redirects properly
+            getServiceManager().startFeature(true, "security-idp", "search-ui-app");
 
-        // Get all of the metadata
-        String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
-        String ddfSpMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
+            // Get all of the metadata
+            String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
+            String ddfSpMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
 
-        // Make sure all the metadata is valid before we set it
-        validateSaml(metadata, SamlSchema.METADATA);
-        validateSaml(ddfSpMetadata, SamlSchema.METADATA);
+            // Make sure all the metadata is valid before we set it
+            validateSaml(metadata, SamlSchema.METADATA);
+            validateSaml(ddfSpMetadata, SamlSchema.METADATA);
 
-        // The IdP server can point to multiple Service Providers and as such expects an array.
-        // Thus, even though we are only setting a single item, we must wrap it in an array.
-        setConfig("org.codice.ddf.security.idp.client.IdpMetadata", "metadata", metadata);
-        setConfig("org.codice.ddf.security.idp.server.IdpEndpoint",
-                "spMetadata",
-                new String[] {ddfSpMetadata});
+            // The IdP server can point to multiple Service Providers and as such expects an array.
+            // Thus, even though we are only setting a single item, we must wrap it in an array.
+            setConfig("org.codice.ddf.security.idp.client.IdpMetadata", "metadata", metadata);
+            setConfig("org.codice.ddf.security.idp.server.IdpEndpoint",
+                    "spMetadata",
+                    new String[] {ddfSpMetadata});
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     private void validateSaml(String xml, SamlSchema schema) throws IOException {

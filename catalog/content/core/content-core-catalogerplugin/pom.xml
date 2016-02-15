@@ -96,7 +96,8 @@
                             ddf.catalog.data.impl,
                             ddf.catalog.resource.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package>
                             ddf.content.plugin.cataloger;version=${project.version}

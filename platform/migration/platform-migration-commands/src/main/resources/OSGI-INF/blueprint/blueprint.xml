@@ -19,13 +19,13 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
 
-        <command name="migration/status">
+        <command>
             <action
                     class="org.codice.ddf.migration.commands.MigrationStatusCommand">
                 <argument ref="configStatusService"/>
             </action>
         </command>
-        <command name="migration/export">
+        <command>
             <action class="org.codice.ddf.migration.commands.ExportCommand">
                 <argument ref="configurationMigrationService"/>
                 <argument ref="defaultExportDirectoryPath"/>

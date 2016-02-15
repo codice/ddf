@@ -11,7 +11,10 @@
  *
  **/
  -->
-<features name="${project.artifactId}-${project.version}">
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="sdk-metrics" version="${project.version}" install="manual"
              description="SDK sample metrics.">
@@ -37,7 +40,9 @@
         <bundle>mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}</bundle>
     </feature>
 
-    <feature name="sdk-app" version="${project.version}" description="SDK app.">
+    <feature name="sdk-app" version="${project.version}" description="SDK app." install="auto">
+        <feature prerequisite="true">security-services-app</feature>
+        <feature prerequisite="true">catalog-app</feature>
         <feature>security-expansion</feature>
         <feature>security-pep-serviceauthz</feature>
         <feature>security-pep-user-attributes</feature>

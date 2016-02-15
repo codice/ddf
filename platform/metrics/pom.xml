@@ -28,6 +28,5 @@
         <module>platform-metrics-reporting</module>
         <module>platform-metrics-webconsole-plugin</module>
         <module>platform-metrics-interceptor</module>
-        <module>platform-metrics-ui</module>
     </modules>
 </project>

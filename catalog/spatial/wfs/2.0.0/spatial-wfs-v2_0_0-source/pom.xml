@@ -140,6 +140,10 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -173,7 +177,8 @@
                             gml-v_3_2_1-schema,
                             security-rest-cxfwrapper,
                             ddf-security-common,
-                            platform-util-unavailableurls
+                            platform-util-unavailableurls,
+                            platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -140,11 +140,17 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        getCatalogBundle().waitForCatalogProvider();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     @Before

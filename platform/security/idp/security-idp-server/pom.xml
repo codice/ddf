@@ -32,7 +32,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.fastjson</groupId>
@@ -185,6 +184,10 @@
             <version>2.4.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -223,12 +226,18 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             boon,
-                            ddf-security-common,platform-util-unavailableurls,
+                            ddf-security-common,
+                            platform-util-unavailableurls,
+                            platform-util,
                             antlr4-runtime,
                             commons-lang3,
                             common-system
                         </Embed-Dependency>
-                        <Import-Package>!org.abego.treelayout.*, *</Import-Package>
+                        <Import-Package>
+                            !org.abego.treelayout.*,
+                            com.sun.management;resolution:=optional,
+                            *
+                        </Import-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>

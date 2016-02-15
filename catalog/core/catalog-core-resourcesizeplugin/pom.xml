@@ -78,7 +78,8 @@
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.cache.impl,
-                            ddf.catalog.plugin.resourcesize.metacard
+                            ddf.catalog.plugin.resourcesize.metacard,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package/>

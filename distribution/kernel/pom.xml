@@ -71,11 +71,13 @@
             <groupId>ddf.distribution</groupId>
             <artifactId>webconsole-branding</artifactId>
             <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>ddf.distribution</groupId>
             <artifactId>webconsole-branding-plugin</artifactId>
             <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <build>
@@ -118,13 +120,13 @@
       -->
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
+                <artifactId>karaf-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>add-features-to-repo</id>
+                        <id>features-add-to-repository</id>
                         <phase>prepare-package</phase>
                         <goals>
-                            <goal>add-features-to-repo</goal>
+                            <goal>features-add-to-repository</goal>
                         </goals>
                         <configuration>
                             <descriptors>
@@ -168,31 +170,6 @@
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>bcprov-ext-1.49.jar</destFileName>
                                 </artifactItem>
-                                <!-- Copy over the endorsed libraries 
-                <artifactItem>
-                  <groupId>xalan</groupId>
-                  <artifactId>serializer</artifactId>
-                  <version>${xalan.version}</version>
-                  <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>xalan</groupId>
-                  <artifactId>xalan</artifactId>
-                  <version>${xalan.version}</version>
-                  <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>xerces</groupId>
-                  <artifactId>xercesImpl</artifactId>
-                  <version>${xerces.version}</version>
-                  <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>xml-resolver</groupId>
-                  <artifactId>xml-resolver</artifactId>
-                  <version>${xml-resolver.version}</version>
-                  <outputDirectory>${setup.folder}/endorsed</outputDirectory>
-                </artifactItem>-->
                             </artifactItems>
                         </configuration>
                     </execution>

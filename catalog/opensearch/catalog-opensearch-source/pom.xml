@@ -198,7 +198,8 @@
                             ddf.catalog.source.opensearch,
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package/>
                     </instructions>

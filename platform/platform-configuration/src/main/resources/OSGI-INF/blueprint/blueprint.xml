@@ -22,6 +22,8 @@
 
     <reference id="branding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
 
+    <reference id="provider" interface="org.codice.ddf.branding.BrandingResourceProvider"/>
+
     <!--
     The list of managedServices that are interested in updates to the DDF System Settings.
     These managedServices register their interest in updates to the DDF System Settings as they
@@ -50,6 +52,7 @@
         <cm:managed-properties persistent-id="ddf.platform.ui.config"
                                update-strategy="container-managed"/>
         <property name="branding" ref="branding" />
+        <property name="provider" ref="provider" />
     </bean>
 
     <jaxrs:server id="platformConfigurationService" address="/platform">

@@ -23,8 +23,6 @@
     <packaging>pom</packaging>
     <name>DDF Distribution</name>
     <properties>
-        <pax.web.version>3.2.4</pax.web.version>
-        <pax.cdi.version>0.11.0</pax.cdi.version>
         <sitename.default>ddf.distribution</sitename.default>
     </properties>
     <modules>

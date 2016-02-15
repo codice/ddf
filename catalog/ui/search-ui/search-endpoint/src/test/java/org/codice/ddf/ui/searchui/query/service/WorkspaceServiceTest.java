@@ -18,7 +18,7 @@ import java.io.StringReader;
 import java.util.Map;
 
 import org.cometd.common.JSONContext;
-import org.cometd.common.JacksonJSONContextClient;
+import org.cometd.common.Jackson1JSONContextClient;
 import org.junit.Test;
 
 public class WorkspaceServiceTest {
@@ -32,7 +32,7 @@ public class WorkspaceServiceTest {
         //        map1.put("data", data1);
         //        map1.put("extra", extra1);
         //        String json = jsonContext.getGenerator().generate(map1);
-        JSONContext.Client jsonContext = new JacksonJSONContextClient();
+        JSONContext.Client jsonContext = new Jackson1JSONContextClient();
         String json = "{\"id\":\"16\",\"data\":{\"workspaces\":[{\"name\":\"admin_ws\",\"searches\":[{\"radiusUnits\":\"meters\",\"result\":{},\"startIndex\":1,\"count\":250,\"federation\":\"enterprise\",\"q\":\"admin_phrase\",\"name\":\"admin_search\",\"radiusValue\":0,\"radius\":0,\"offsetTimeUnits\":\"hours\",\"src\":\"ddf.distribution\",\"format\":\"geojson\",\"timeType\":\"modified\"}],\"metacards\":[]}],\"successful\":true},\"channel\":\"/service/workspaces\"}";
         Map map2 = jsonContext.getParser().parse(new StringReader(json), Map.class);
         int x = 1;

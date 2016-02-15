@@ -50,6 +50,10 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
 
 
@@ -62,7 +66,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
-                        <Embed-Dependency>catalog-core-api-impl, commons-lang3</Embed-Dependency>
+                        <Embed-Dependency>catalog-core-api-impl, commons-lang3,platform-util</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

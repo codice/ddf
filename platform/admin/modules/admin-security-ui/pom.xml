@@ -14,14 +14,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>security</artifactId>
-        <groupId>ddf.platform.security</groupId>
+        <artifactId>admin-modules</artifactId>
+        <groupId>ddf.admin.modules</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>ddf.security.admin</groupId>
-    <artifactId>security-admin-module</artifactId>
-    <name>DDF :: Security :: Admin</name>
+    <artifactId>admin-security-ui</artifactId>
+    <name>DDF :: Admin :: Modules :: Security UI</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -91,7 +90,7 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/security-config</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
+                        <_wab>src/main/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             platform-error-servlet

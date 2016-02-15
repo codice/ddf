@@ -96,7 +96,8 @@
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.response.query.atom,
-                            ddf.catalog.data.impl
+                            ddf.catalog.data.impl,
+                            org.codice.ddf.platform.util
                         </Private-Package>
                         <Import-Package><!-- To avoid ClassNotFoundException for FOMFactory -->
                             org.apache.axiom.om,

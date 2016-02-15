@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,8 +22,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URL;
 
-import org.eclipse.osgi.framework.internal.core.BundleFragment;
-import org.eclipse.osgi.framework.internal.core.BundleHost;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
@@ -52,11 +50,10 @@ public class TestBrandingResourceProviderImpl {
 
     @Test
     public void testFullArray() throws IOException {
-        BundleHost bundle = mock(BundleHost.class);
-        BundleFragment fragment = mock(BundleFragment.class);
-        URL url = this.getClass().getResource("/logo.png");
-        when(bundle.getFragments()).thenReturn(new BundleFragment[] {fragment});
-        when(fragment.getEntry(TEST_PATH)).thenReturn(url);
+        Bundle bundle = mock(Bundle.class);
+        URL url = this.getClass()
+                .getResource("/logo.png");
+        when(bundle.getEntry(TEST_PATH)).thenReturn(url);
         TestImpl impl = new TestImpl(bundle);
         assertThat(impl.getResourceAsBytes(TEST_PATH).length, is(equalTo(22490)));
     }

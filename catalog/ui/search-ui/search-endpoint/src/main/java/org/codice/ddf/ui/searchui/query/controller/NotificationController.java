@@ -133,8 +133,7 @@ public class NotificationController extends AbstractEventController {
                 }
             }
 
-            recipient.deliver(controllerServerSession, NOTIFICATION_TOPIC_DOWNLOADS_COMETD, propMap,
-                    null);
+            recipient.deliver(controllerServerSession, NOTIFICATION_TOPIC_DOWNLOADS_COMETD, propMap);
         } else {
             LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
                     + "Ignnoring notification", sessionId);

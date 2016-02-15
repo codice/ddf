@@ -22,7 +22,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -345,7 +344,7 @@ public class ActivityControllerTest {
         verify(mockServerSession, times(1))
                 .deliver(eq(spyActivityController.controllerServerSession),
                         startsWith(EXPECTED_COMETD_ACTIVITIES_CHANNEL_PREFIX),
-                        dataArgumentCaptor.capture(), isNull(String.class));
+                        dataArgumentCaptor.capture());
 
         @SuppressWarnings("unchecked")
         Map<String, Object> data = (Map<String, Object>) dataArgumentCaptor.getValue();

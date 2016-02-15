@@ -67,6 +67,10 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -77,7 +81,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>JavaAPIforKml, handlebars, commons-lang3, antlr4-runtime,
-                            catalog-core-api-impl
+                            catalog-core-api-impl,platform-util
                         </Embed-Dependency>
                         <Import-Package>!org.abego.treelayout.*, *</Import-Package>
                     </instructions>

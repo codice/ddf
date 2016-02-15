@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.internal.FeatureImpl;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
@@ -62,7 +61,7 @@ public class StatusApplicationCommandTest {
         bundleContext = mock(BundleContext.class);
         mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
         testApp = mock(ApplicationImpl.class);
-        testFeature = mock(FeatureImpl.class);
+        testFeature = mock(Feature.class);
         featureSet = new HashSet<>();
         featureSet.add(testFeature);
         testStatus = mock(ApplicationStatusImpl.class);

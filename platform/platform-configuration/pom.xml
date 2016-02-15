@@ -80,7 +80,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>json-smart,common-system,org.apache.felix.utils,commons-lang3,branding-resources</Embed-Dependency>
+                        <Embed-Dependency>json-smart,common-system,org.apache.felix.utils,commons-lang3</Embed-Dependency>
                         <Import-Package>
                             org.apache.felix.webconsole;version="[3.1,5)",
                             *

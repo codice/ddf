@@ -42,6 +42,10 @@
             <artifactId>catalog-registry-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
 
 
@@ -57,7 +61,8 @@
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
                             catalog-registry-common,
-                            commons-lang3
+                            commons-lang3,
+                            platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

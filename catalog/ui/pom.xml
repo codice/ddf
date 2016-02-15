@@ -29,7 +29,7 @@
         <module>docs</module>
     </modules>
     <properties>
-        <cometd.version>2.7.0</cometd.version>
+        <cometd.version>3.0.9</cometd.version>
     </properties>
     <dependencyManagement>
         <dependencies>

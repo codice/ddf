@@ -11,53 +11,36 @@
  *
  **/
  -->
-<features name="${project.artifactId}-${project.version}">
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</repository>
-    <repository>mvn:org.apache.karaf.assemblies.features/spring/${karaf.version}/xml/features</repository>
-    <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features</repository>
-
-    <feature name="kernel-webconsole" description="DDF Kernel-customized karaf webconsole" version="${project.version}">
-        <feature>http</feature>
-        <feature>aries-blueprint</feature>
-        <feature>jaas</feature>
-        <bundle start-level="30">
-            mvn:org.apache.felix/org.apache.felix.metatype/1.0.12
-        </bundle>
-        <bundle start-level="30">
-            mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.branding/${karaf.version}
-        </bundle>
-        <bundle start-level="30">
-            mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.console/${karaf.version}
-        </bundle>
-        <conditional>
-            <condition>features</condition>
-            <bundle start-level="30">
-                mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.features/${karaf.version}
-            </bundle>
-        </conditional>
-        <conditional>
-            <condition>shell</condition>
-            <bundle start-level="30">
-                mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.gogo/${karaf.version}
-            </bundle>
-        </conditional>
-        <conditional>
-            <condition>eventadmin</condition>
-            <bundle start-level="30">
-                mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.1.0
-            </bundle>
-        </conditional>
-        <conditional>
-            <condition>scr</condition>
-            <bundle start-level="30">
-                mvn:org.apache.felix/org.apache.felix.webconsole.plugins.ds/1.0.0
-            </bundle>
-        </conditional>
+    <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.ops4j.pax.cdi/pax-cdi-features/0.12.0/xml/features</repository>
+    <repository>mvn:ddf.platform/platform-app/${project.version}/xml/features</repository>
+    
+    <feature name="kernel" install="manual" version="${project.version}">
+        <feature prerequisite="true" version="${karaf.version}">standard</feature>
+        <feature prerequisite="true" version="${karaf.version}">eventadmin</feature>
+        <feature prerequisite="true" version="${karaf.version}">jasypt-encryption</feature>
+        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+    </feature>
+    
+    <feature name="web" version="${project.version}" install="manual">
+        <feature prerequisite="true" version="${project.version}">kernel</feature>
+        <feature prerequisite="true" version="${karaf.version}">http</feature>
+        <feature>war</feature>
     </feature>
 
-    <feature name="kernel-webconsolebranding" description="" version="${project.version}" >
+    <feature name="kernel-webconsole" install="manual" version="${project.version}">
+        <feature prerequisite="true">web</feature>
+        <feature>webconsole</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    </feature>
+
+    <feature name="kernel-webconsolebranding" description="" version="${project.version}">
+        <feature prerequisite="true">kernel-webconsole</feature>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
     </feature>

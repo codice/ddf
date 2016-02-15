@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-http</artifactId>
-            <version>8.1.10.v20130312</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -58,7 +58,6 @@
         <dependency>
             <groupId>org.apache.karaf.bundle</groupId>
             <artifactId>org.apache.karaf.bundle.core</artifactId>
-            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -115,7 +114,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.89</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>

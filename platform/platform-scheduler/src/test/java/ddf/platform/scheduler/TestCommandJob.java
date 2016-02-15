@@ -15,15 +15,13 @@ package ddf.platform.scheduler;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.concurrent.Callable;
 
 import org.apache.felix.service.command.CommandProcessor;
@@ -48,6 +46,8 @@ import ddf.security.Subject;
  */
 public class TestCommandJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCommandJob.class);
+
+    private static CommandProcessor mockCmdProcessor = mock(CommandProcessor.class);
 
     /**
      * Do no execution when no command processor available
@@ -84,7 +84,7 @@ public class TestCommandJob {
 
         CommandSession session = getSession(captureInput);
 
-        setCommandProcessor(session);
+        when(mockCmdProcessor.createSession(any(), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -110,7 +110,7 @@ public class TestCommandJob {
 
         CommandSession session = getSession(captureInput);
 
-        setCommandProcessor(session);
+        when(mockCmdProcessor.createSession(any(), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -138,7 +138,7 @@ public class TestCommandJob {
 
         CommandSession session = getSession(captureInput);
 
-        setCommandProcessor(session);
+        when(mockCmdProcessor.createSession(any(), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -174,16 +174,19 @@ public class TestCommandJob {
             @Override
             public Subject getSystemSubject() {
                 Subject subject = mock(Subject.class);
-                when(subject.execute(Matchers.<Callable<Object>>any()))
-                        .thenAnswer(new Answer<Object>() {
-                            @Override
-                            public Object answer(InvocationOnMock invocation) throws Throwable {
-                                Callable<Object> callable = (Callable<Object>) invocation
-                                        .getArguments()[0];
-                                return callable.call();
-                            }
-                        });
+                when(subject.execute(Matchers.<Callable<Object>>any())).thenAnswer(new Answer<Object>() {
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
+                        return callable.call();
+                    }
+                });
                 return subject;
+            }
+
+            @Override
+            protected CommandProcessor createCommandProcessor() {
+                return mockCmdProcessor;
             }
         };
         return job;
@@ -200,14 +203,6 @@ public class TestCommandJob {
             int expectedTimesToClose) throws Exception {
         verify(session, times(expectedAmountOfCalls)).execute(command);
         verify(session, times(expectedTimesToClose)).close();
-    }
-
-    private CommandProcessor getCommandProcessor(CommandSession session) {
-        CommandProcessor processor = mock(CommandProcessor.class);
-
-        when(processor.createSession(isNull(InputStream.class), isA(PrintStream.class),
-                isA(PrintStream.class))).thenReturn(session);
-        return processor;
     }
 
     private CommandSession getSession(Answer<String> captureInput) {
@@ -233,12 +228,5 @@ public class TestCommandJob {
         when(context.getMergedJobDataMap()).thenReturn(jobDataMap);
 
         return context;
-    }
-
-    private void setCommandProcessor(CommandSession session) {
-
-        ServiceStore store = ServiceStore.getInstance();
-
-        store.setObject(getCommandProcessor(session));
     }
 }

@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
@@ -35,11 +36,9 @@ import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -60,8 +59,6 @@ import ddf.common.test.KarafConsole;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
 import ddf.test.itests.AbstractIntegrationTest;
-import ddf.test.itests.catalog.TestCatalog;
-import ddf.test.itests.common.Library;
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we
@@ -156,14 +153,20 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        console = new KarafConsole(bundleCtx);
-        basePort = getBasePort();
-        symbolicLink = Paths.get(ddfHome)
-                .resolve("link");
-        enableCrlInEncyptionPropertiesFile();
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            console = new KarafConsole(bundleCtx, features, sessionFactory);
+            basePort = getBasePort();
+            symbolicLink = Paths.get(ddfHome)
+                    .resolve("link");
+            enableCrlInEncyptionPropertiesFile();
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     private void enableCrlInEncyptionPropertiesFile() throws IOException {
@@ -1021,44 +1024,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
             return super.matches(properties);
         }
-    }
-
-    @Test
-    public void testSolrServerFactoryGracePeriod() throws Exception {
-        resetInitialState();
-
-        //Bring down solr server factory and embedded solr server bundles
-
-        TestCatalog.ingestGeoJson(Library.getSimpleGeoJson());
-        String client = "catalog-solr-external-provider";
-        String server = "platform-solr-server-standalone";
-        getServiceManager().stopBundle(client);
-        getServiceManager().stopBundle(server);
-
-        //Bring up solr server factory, make sure it's in grace period
-        getServiceManager().startBundle(client);
-        assertThat("Search should fail.",
-                console.runCommand(SEARCH_COMMAND,
-                        new RolePrincipal("admin"),
-                        new RolePrincipal("group"),
-                        new RolePrincipal("manager"),
-                        new RolePrincipal("viewer"),
-                        new RolePrincipal("webconsole")),
-                containsString("0 result"));
-
-        //Then bring up embedded solr server
-        getServiceManager().startBundle(server);
-
-        //Verify that they're both started successfully now
-        expect("Both bundles should have started successfully, and command should succeed.").within(
-                5,
-                TimeUnit.MINUTES)
-                .until(() -> console.runCommand(SEARCH_COMMAND,
-                        new RolePrincipal("admin"),
-                        new RolePrincipal("group"),
-                        new RolePrincipal("manager"),
-                        new RolePrincipal("viewer"),
-                        new RolePrincipal("webconsole")), containsString("1 result"));
     }
 
 }

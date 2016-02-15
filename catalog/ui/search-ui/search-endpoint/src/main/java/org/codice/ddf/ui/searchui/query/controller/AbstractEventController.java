@@ -218,8 +218,7 @@ public abstract class AbstractEventController implements EventHandler {
 
                     LOGGER.trace("Sending notifications back to client.");
                     serverSession
-                            .deliver(controllerServerSession, topic, propMap,
-                                    null);
+                            .deliver(controllerServerSession, topic, propMap);
                 }
             });
         }

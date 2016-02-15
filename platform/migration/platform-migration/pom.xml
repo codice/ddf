@@ -113,7 +113,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            commons-lang
+                            commons-lang,
+                            platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

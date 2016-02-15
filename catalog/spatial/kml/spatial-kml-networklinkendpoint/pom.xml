@@ -63,6 +63,10 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -75,7 +79,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>JavaAPIforKml, catalog-core-api-impl, handlebars,
-                            antlr4-runtime, commons-lang3, common-system
+                            antlr4-runtime, commons-lang3, common-system, platform-util
                         </Embed-Dependency>
                         <Import-Package>!org.abego.treelayout.*, org.apache.felix.webconsole; version="[3.1.0,4.0.0)", *</Import-Package>
                     </instructions>

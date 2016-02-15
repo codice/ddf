@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
+import javax.inject.Inject;
+
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
@@ -30,15 +30,18 @@ import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
 import org.cometd.bayeux.Message;
+import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.common.JSONContext;
-import org.cometd.common.JacksonJSONContextClient;
-import org.cometd.server.JacksonJSONContextServer;
+import org.cometd.common.Jackson1JSONContextClient;
+import org.cometd.server.Jackson1JSONContextServer;
 import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 
 /**
@@ -51,6 +54,9 @@ public class UserService {
 
     private PersistentStore persistentStore;
 
+    @Inject
+    private BayeuxServer bayeux;
+
     @Session
     private ServerSession serverSession;
 
@@ -62,30 +68,22 @@ public class UserService {
     public void getUser(final ServerSession remote, Message message) {
         ServerMessage.Mutable reply = new ServerMessageImpl();
         Map<String, Object> data = message.getDataAsMap();
-        Subject subject = null;
-
-        try {
-            subject = SecurityUtils.getSubject();
-        } catch (Exception e) {
-            LOGGER.debug("Unable to retrieve user from request.", e);
-        }
+        Subject subject = (Subject) bayeux.getContext()
+                .getRequestAttribute(SecurityConstants.SECURITY_SUBJECT);
 
         if (subject != null) {
             if (data == null || data.isEmpty()) {
                 Map<String, Object> userMap = new HashMap<>();
                 String username = SubjectUtils.getName(subject);
                 userMap.put("username", username);
-                if (subject instanceof ddf.security.Subject) {
-                    userMap.put("isGuest",
-                            String.valueOf(((ddf.security.Subject) subject).isGuest()));
-                }
+                userMap.put("isGuest", String.valueOf(subject.isGuest()));
                 List<Map<String, Object>> preferencesList;
                 try {
                     preferencesList = persistentStore
                             .get(PersistentStore.PREFERENCES_TYPE, "user = '" + username + "'");
                     if (preferencesList.size() == 1) {
                         Map<String, Object> preferences = preferencesList.get(0);
-                        JSONContext.Client jsonContext = new JacksonJSONContextClient();
+                        JSONContext.Client jsonContext = new Jackson1JSONContextClient();
                         String json = (String) preferences.get("preferences_json_txt");
                         LOGGER.debug("preferences extracted JSON text:\n {}", json);
                         Map preferencesMap;
@@ -106,9 +104,9 @@ public class UserService {
                 }
                 reply.put("user", userMap);
                 reply.put(Search.SUCCESSFUL, true);
-                remote.deliver(serverSession, "/service/user", reply, null);
+                remote.deliver(serverSession, "/service/user", reply);
             } else {
-                JSONContext.Server jsonContext = new JacksonJSONContextServer();
+                JSONContext.Server jsonContext = new Jackson1JSONContextServer();
                 String json = jsonContext.getGenerator().generate(data);
                 LOGGER.debug("preferences JSON text:\n {}", json);
                 String username = SubjectUtils.getName(subject);
@@ -126,7 +124,7 @@ public class UserService {
             }
         } else {
             reply.put(Search.SUCCESSFUL, false);
-            remote.deliver(serverSession, "/service/user", reply, null);
+            remote.deliver(serverSession, "/service/user", reply);
         }
     }
 }

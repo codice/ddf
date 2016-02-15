@@ -47,6 +47,7 @@ import javax.management.ObjectName;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
@@ -289,20 +290,20 @@ public class ApplicationServiceBeanTest {
     public void testGetInstallationProfiles() throws Exception {
         Feature testFeature1 = mock(Feature.class);
         Feature testFeature2 = mock(Feature.class);
-        Feature testFeature3 = mock(Feature.class);
-        Feature testFeature4 = mock(Feature.class);
+        Dependency testDependency1 = mock(Dependency.class);
+        Dependency testDependency2 = mock(Dependency.class);
 
         when(testFeature1.getName()).thenReturn(TEST_FEATURE_NAME);
         when(testFeature2.getName()).thenReturn(TEST_FEATURE_NAME);
-        when(testFeature3.getName()).thenReturn(TEST_FEATURE_NAME);
-        when(testFeature4.getName()).thenReturn(TEST_FEATURE_NAME);
+        when(testDependency1.getName()).thenReturn(TEST_FEATURE_NAME);
+        when(testDependency2.getName()).thenReturn(TEST_FEATURE_NAME);
         when(testFeature1.getDescription()).thenReturn(TEST_FEATURE_DESCRIPTION);
         when(testFeature2.getDescription()).thenReturn(TEST_FEATURE_DESCRIPTION);
 
-        List<Feature> dependencies1 = new ArrayList<>();
-        dependencies1.add(testFeature3);
-        List<Feature> dependencies2 = new ArrayList<>();
-        dependencies2.add(testFeature4);
+        List<Dependency> dependencies1 = new ArrayList<>();
+        dependencies1.add(testDependency1);
+        List<Dependency> dependencies2 = new ArrayList<>();
+        dependencies2.add(testDependency2);
 
         when(testFeature1.getDependencies()).thenReturn(dependencies1);
         when(testFeature2.getDependencies()).thenReturn(dependencies2);

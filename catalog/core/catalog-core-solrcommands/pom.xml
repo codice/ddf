@@ -133,6 +133,9 @@
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
+                            !org.eclipse.jetty.server.bio,
+                            !org.eclipse.jetty.server.ssl,
+                            !org.eclipse.jetty.*,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,
@@ -161,7 +164,6 @@
                             org.apache.felix.gogo.commands,
                             org.apache.karaf.shell.console,
                             org.codice.ddf.configuration,
-                            org.eclipse.jetty.*,
                             org.fusesource.jansi,
                             org.osgi.framework;version="[1.5,2)",
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",

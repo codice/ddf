@@ -101,6 +101,10 @@
             <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -118,7 +122,8 @@
                             common-system,
                             httpclient,httpcore,
                             platform-util-unavailableurls,
-                            ddf-security-common
+                            ddf-security-common,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,
@@ -126,7 +131,7 @@
                             net.sf.ehcache.config;resolution:=optional;version="[2.5,3.0.0)",
                             ch.qos.logback.classic;resolution:=optional;version="[1.0,2)",
                             com.hazelcast.core;resolution:=optional,
-                            org.codice.ddf.platform.util,
+                            org.springframework.ldap*;resolution:=optional,
                             *
                         </Import-Package>
                         <Private-Package>

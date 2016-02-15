@@ -47,6 +47,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -93,12 +94,14 @@
                             imgscalr-lib,
                             jai-imageio-core-standalone,
                             jai-imageio-jpeg2000,
-                            Saxon-HE
+                            Saxon-HE,
+                            commons-io
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.input.tika,
                             ddf.catalog.data.impl
                         </Private-Package>
+                        <Import-Package>!sun.security.action, *</Import-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>

@@ -44,10 +44,12 @@ import java.util.Set;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
 import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Dependency;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.karaf.features.FeaturesService.Option;
 import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.RepositoryImpl;
+import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
@@ -99,6 +101,8 @@ public class ApplicationServiceImplTest {
     private static final String TEST_FEATURE_VERSION = "0.0.0";
 
     private static final String TEST_APP_NAME = "TestApp";
+
+    private static final String TEST_REPO_URI = "mvn:group.id/artifactid/1.0.0/xml/features";
 
     private static final String NO_REPO_FEATURES = "Could not get Repository Features";
 
@@ -1098,7 +1102,8 @@ public class ApplicationServiceImplTest {
 
         appService.startApplication(testApp);
 
-        verify(featuresService, atLeastOnce()).installFeature(TEST_FEATURE_1_NAME);
+        verify(featuresService, atLeastOnce()).installFeature(TEST_FEATURE_1_NAME, EnumSet.of(
+                Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1126,7 +1131,7 @@ public class ApplicationServiceImplTest {
         when(testApp.getMainFeature()).thenReturn(testFeature);
 
         doThrow(new ApplicationServiceException()).when(featuresService)
-                .installFeature(anyString());
+                .installFeature(anyString(), any(EnumSet.class));
 
         appService.startApplication(testApp);
 
@@ -1168,8 +1173,10 @@ public class ApplicationServiceImplTest {
 
         appService.startApplication(testApp);
 
-        verify(featuresService).installFeature(TEST_FEATURE_1_NAME);
-        verify(featuresService).installFeature(TEST_FEATURE_2_NAME);
+        verify(featuresService).installFeature(TEST_FEATURE_1_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).installFeature(TEST_FEATURE_2_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1192,8 +1199,10 @@ public class ApplicationServiceImplTest {
 
         appService.startApplication(mainFeatureRepo.getName());
 
-        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[0].getName());
-        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[1].getName());
+        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[0].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).installFeature(mainFeatureRepo.getFeatures()[1].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1239,22 +1248,25 @@ public class ApplicationServiceImplTest {
 
         Application testApp1 = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
-        List<Feature> featureList = new ArrayList<Feature>();
-        Set<Feature> featureSet1 = new HashSet<Feature>();
+        Dependency testDependency1 = mock(Dependency.class);
+        List<Dependency> dependencyList1 = new ArrayList<>();
+        Set<Feature> featureSet1 = new HashSet<>();
+        dependencyList1.add(testDependency1);
         featureSet1.add(testFeature1);
-        featureList.add(testFeature1);
 
         when(testFeature1.getName()).thenReturn(TEST_FEATURE_1_NAME);
         when(testApp1.getMainFeature()).thenReturn(testFeature1);
         when(testApp1.getFeatures()).thenReturn(featureSet1);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);
-        when(testFeature1.getDependencies()).thenReturn(featureList);
+        when(testFeature1.getDependencies()).thenReturn(dependencyList1);
+        when(testDependency1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
         when(testFeature1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
 
         appService.stopApplication(testApp1);
 
-        verify(featuresService, atLeastOnce())
-                .uninstallFeature(TEST_FEATURE_1_NAME, TEST_FEATURE_VERSION);
+        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+                TEST_FEATURE_VERSION,
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1278,16 +1290,18 @@ public class ApplicationServiceImplTest {
 
         Application testApp1 = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
-        List<Feature> featureList = new ArrayList<Feature>();
-        Set<Feature> featureSet1 = new HashSet<Feature>();
+        Dependency testDependency1 = mock(Dependency.class);
+        List<Dependency> dependencyList1 = new ArrayList<>();
+        Set<Feature> featureSet1 = new HashSet<>();
+        dependencyList1.add(testDependency1);
         featureSet1.add(testFeature1);
-        featureList.add(testFeature1);
 
         when(testFeature1.getName()).thenReturn(TEST_FEATURE_1_NAME);
         when(testApp1.getMainFeature()).thenReturn(testFeature1);
         when(testApp1.getFeatures()).thenReturn(featureSet1);
         when(featuresService.isInstalled(testFeature1)).thenReturn(false);
-        when(testFeature1.getDependencies()).thenReturn(featureList);
+        when(testFeature1.getDependencies()).thenReturn(dependencyList1);
+        when(testDependency1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
         when(testFeature1.getVersion()).thenReturn(TEST_FEATURE_VERSION);
 
         appService.stopApplication(testApp1);
@@ -1365,7 +1379,8 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testAppName);
 
-        verify(featuresService).uninstallFeature(featureList[0].getName());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1406,8 +1421,10 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testApp);
 
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME);
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_2_NAME);
+        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_2_NAME,
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1434,8 +1451,10 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testAppName);
 
-        verify(featuresService).uninstallFeature(featureList[0].getName());
-        verify(featuresService).uninstallFeature(featureList[1].getName());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).uninstallFeature(featureList[1].getName(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1502,8 +1521,8 @@ public class ApplicationServiceImplTest {
         Set<Feature> featureSet = new HashSet<>();
         featureSet.add(testFeature1);
         featureSet.add(testFeature2);
-        featuresService.installFeature(testFeature1, EnumSet.noneOf(FeaturesService.Option.class));
-        featuresService.installFeature(testFeature2, EnumSet.noneOf(FeaturesService.Option.class));
+        featuresService.installFeature(testFeature1, EnumSet.noneOf(Option.class));
+        featuresService.installFeature(testFeature2, EnumSet.noneOf(Option.class));
 
         when(testApp.getFeatures()).thenReturn(featureSet);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);
@@ -1517,8 +1536,9 @@ public class ApplicationServiceImplTest {
         appService.removeApplication(testApp);
 
         verify(testApp).getURI();
-        verify(featuresService, Mockito.times(2))
-                .uninstallFeature(TEST_FEATURE_1_NAME, TEST_FEATURE_VERSION);
+        verify(featuresService, Mockito.times(2)).uninstallFeature(TEST_FEATURE_1_NAME,
+                TEST_FEATURE_VERSION,
+                EnumSet.of(Option.NoAutoRefreshBundles));
         verify(featuresService).removeRepository(null, false);
     }
 
@@ -1686,7 +1706,8 @@ public class ApplicationServiceImplTest {
         when(testApp.getFeatures()).thenReturn(featureSet);
 
         doThrow(new Exception()).when(featuresService)
-                .uninstallFeature(anyString(), anyString());
+                .uninstallFeature(anyString(),
+                        anyString(), any(EnumSet.class));
 
         appService.removeApplication(testApp);
 
@@ -1758,16 +1779,16 @@ public class ApplicationServiceImplTest {
         Feature testFeature1 = mock(Feature.class);
         Feature[] featureList = {testFeature1};
         Repository testRepo = mock(Repository.class);
-        when(testRepo.getName()).thenReturn(TEST_APP_NAME);
+        when(testFeature1.getRepositoryUrl()).thenReturn(TEST_REPO_URI);
+        when(testRepo.getURI()).thenReturn(new URI(TEST_REPO_URI));
         when(testRepo.getFeatures()).thenReturn(featureList);
         Repository[] repositoryList = {testRepo};
+        when(featuresService.getFeature(TEST_APP_NAME)).thenReturn(testFeature1);
         when(featuresService.listRepositories()).thenReturn(repositoryList);
         when(featuresService.isInstalled(testFeature1)).thenReturn(true);
 
         List<FeatureDetails> result = appService.findApplicationFeatures(TEST_APP_NAME);
 
-        assertThat("Returned features should match features given.", result.get(0).getRepository(),
-                is(TEST_APP_NAME));
         assertThat("Should return one feature.", result.size(), is(1));
     }
 
@@ -1844,7 +1865,7 @@ public class ApplicationServiceImplTest {
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
             public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage().contains(NO_APP_FEATURES);
+                return ((LoggingEvent) argument).getFormattedMessage().contains(NO_REPO_FEATURES);
             }
         }));
     }
@@ -1928,10 +1949,12 @@ public class ApplicationServiceImplTest {
         appService.removeApplication(testURL);
 
         verify(featuresService).removeRepository(testURL, false);
-        verify(featuresService)
-                .uninstallFeature(featureList[0].getName(), featureList[0].getVersion());
-        verify(featuresService)
-                .uninstallFeature(featureList[1].getName(), featureList[1].getVersion());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                featureList[0].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).uninstallFeature(featureList[1].getName(),
+                featureList[1].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1986,10 +2009,12 @@ public class ApplicationServiceImplTest {
 
         appService.removeApplication(testAppName);
 
-        verify(featuresService)
-                .uninstallFeature(featureList[0].getName(), featureList[0].getVersion());
-        verify(featuresService)
-                .uninstallFeature(featureList[1].getName(), featureList[1].getVersion());
+        verify(featuresService).uninstallFeature(featureList[0].getName(),
+                featureList[0].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).uninstallFeature(featureList[1].getName(),
+                featureList[1].getVersion(),
+                EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -2185,14 +2210,12 @@ public class ApplicationServiceImplTest {
     /**
      * Builds a list containing the feature names of all features.
      *
-     * @param features features to loop through.
+     * @param dependencies dependencies to loop through.
      * @return list containing the feature names.
      */
-    private List<String> getFeatureNames(List<Feature> features) {
-        List<String> featureNames = new ArrayList<String>();
-        for (Feature feature : features) {
-            featureNames.add(feature.getName());
-        }
+    private List<String> getFeatureNames(List<Dependency> dependencies) {
+        List<String> featureNames = new ArrayList<>();
+        dependencies.forEach(dependency -> featureNames.add(dependency.getName()));
         return featureNames;
     }
 
@@ -2425,7 +2448,7 @@ public class ApplicationServiceImplTest {
 
                     logger.trace("Dependencies: ");
 
-                    for (Feature depFeature : feature.getDependencies()) {
+                    for (Dependency depFeature : feature.getDependencies()) {
                         logger.trace("Dependency Feature: " + depFeature);
                         logger.trace(
                                 "Dependency Feature name/version: " + depFeature.getName() + "/"

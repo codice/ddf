@@ -37,7 +37,7 @@ import org.cometd.bayeux.server.ServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.BayeuxServerImpl;
-import org.cometd.server.CometdServlet;
+import org.cometd.server.CometDServlet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,7 +127,7 @@ public class CometdEndpointTest {
         Mockito.doCallRealMethod().when(bayeuxServer).getSecurityPolicy();
 
         // Associate the BayeuxServer with a CometdServlet
-        CometdServlet cometdServlet = mock(CometdServlet.class);
+        CometDServlet cometdServlet = mock(CometDServlet.class);
         ServletContext servletContext = mock(ServletContext.class);
         when(cometdServlet.getServletContext()).thenReturn(servletContext);
         when(servletContext.getAttribute(BayeuxServer.ATTRIBUTE)).thenReturn(bayeuxServer);

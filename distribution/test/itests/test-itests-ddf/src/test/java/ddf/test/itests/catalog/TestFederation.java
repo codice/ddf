@@ -102,43 +102,51 @@ public class TestFederation extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        getCatalogBundle().waitForCatalogProvider();
-        getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
 
-        OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
-                OPENSEARCH_SOURCE_ID);
-        getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
-                openSearchProperties);
+            OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                    OPENSEARCH_SOURCE_ID);
+            getServiceManager().createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+                    openSearchProperties);
 
-        getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
-        get(CSW_PATH + "?_wadl").prettyPrint();
-        CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
-        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
+            getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
+            get(CSW_PATH + "?_wadl").prettyPrint();
+            CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+            getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
+                    cswProperties);
 
-        CswSourceProperties cswProperties2 =
-                new CswSourceProperties(CSW_SOURCE_WITH_METACARD_XML_ID);
-        cswProperties2.put("outputSchema", "urn:catalog:metacard");
-        getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
+            CswSourceProperties cswProperties2 = new CswSourceProperties(
+                    CSW_SOURCE_WITH_METACARD_XML_ID);
+            cswProperties2.put("outputSchema", "urn:catalog:metacard");
+            getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
+                    cswProperties2);
 
-        getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-        getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
-        getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+            getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+            getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
+            getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
 
-        getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(),
-                OPENSEARCH_SOURCE_ID,
-                CSW_SOURCE_ID,
-                CSW_SOURCE_WITH_METACARD_XML_ID);
+            getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(),
+                    OPENSEARCH_SOURCE_ID,
+                    CSW_SOURCE_ID,
+                    CSW_SOURCE_WITH_METACARD_XML_ID);
 
-        metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog.ingest(Library.getSimpleGeoJson(),
-                "application/json");
+            metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog.ingest(Library.getSimpleGeoJson(),
+                    "application/json");
 
-        metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
+            metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
 
-        LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
-                .prettyPrint());
+            LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body()
+                    .prettyPrint());
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     @Before

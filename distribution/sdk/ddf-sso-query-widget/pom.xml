@@ -93,6 +93,11 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -113,16 +118,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,ddf-security-common,platform-util-unavailableurls
+                            catalog-core-api-impl;scope=!test,ddf-security-common,platform-util-unavailableurls,platform-util
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.sso.widget;version=${project.version}
                         </Export-Package>
-                        <Import-Package>
-                            javax.servlet;version="[2.5,3)",
-                            javax.servlet.http;version="[2.5,3)",
-                            *
-                        </Import-Package>
                         <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
                         <Web-ContextPath>${web.contextPath}</Web-ContextPath>
                         <Webapp-Context>${web.contextPath}</Webapp-Context>

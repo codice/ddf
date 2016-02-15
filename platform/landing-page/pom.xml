@@ -25,8 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${servlet-api.version}</version>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -92,8 +91,6 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            javax.servlet;version="[2.5,3)",
-                            javax.servlet.http;version="[2.5,3)",
                             org.apache.felix.webconsole;version="[3.1,5)",
                             !org.abego.treelayout.*,
                             *

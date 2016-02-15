@@ -50,12 +50,13 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
-                        <id>create-kar</id>
+                        <id>kar</id>
                         <goals>
-                            <goal>create-kar</goal>
+                            <goal>kar</goal>
                         </goals>
                         <configuration>
                             <resourcesDir>${project.build.directory}/resources</resourcesDir>
@@ -213,11 +214,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.admin</groupId>
-            <artifactId>security-admin-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-basic</artifactId>
             <version>${project.version}</version>
@@ -295,11 +291,6 @@
         <dependency>
             <groupId>ddf.security.certificate</groupId>
             <artifactId>security-certificate-keystoreeditor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.certificate</groupId>
-            <artifactId>security-certificate-adminmodule</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

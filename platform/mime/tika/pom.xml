@@ -25,6 +25,5 @@
     <packaging>pom</packaging>
     <modules>
         <module>platform-mime-tika-resolver</module>
-        <module>platform-mime-tika-app</module>
     </modules>
 </project>

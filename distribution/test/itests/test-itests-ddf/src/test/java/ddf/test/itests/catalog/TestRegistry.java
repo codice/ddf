@@ -13,6 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
 import org.junit.Test;
@@ -33,10 +34,16 @@ public class TestRegistry extends AbstractIntegrationTest {
 
     @BeforeExam
     public void beforeExam() throws Exception {
-        basePort = getBasePort();
-        getAdminConfig().setLogLevels();
-        getServiceManager().waitForAllBundles();
-        getCatalogBundle().waitForCatalogProvider();
+        try {
+            basePort = getBasePort();
+            getAdminConfig().setLogLevels();
+            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
+        } catch (Exception e) {
+            LOGGER.error("Failed in @BeforeExam: ", e);
+            fail("Failed in @BeforeExam: " + e.getMessage());
+        }
     }
 
     @Test
