@@ -1233,6 +1233,121 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testValidationChecker() throws Exception {
+        getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        try {
+            // Update metacardMarkerPlugin config with no enforcedMetacardValidators
+            Configuration config = configAdmin.getConfiguration(
+                    "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+                    null);
+            Dictionary<String, Object> properties = new Hashtable<>();
+            List<String> property = new ArrayList<>();
+            property.add("");
+            properties.put("enforcedMetacardValidators", property);
+            config.update(properties);
+
+            // Configure invalid filtering
+            config = configAdmin.getConfiguration(
+                    "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
+                    null);
+            properties = new Hashtable<>();
+            property = new ArrayList<>();
+            property.add("");
+            properties.put("attributeMap", property);
+            config.update(properties);
+
+            config = configAdmin.getConfiguration(
+                    "ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin",
+                    null);
+            properties = new Hashtable<>();
+            property = new ArrayList<>();
+            property.add("false");
+            properties.put("showInvalidMetacards", property);
+            config.update(properties);
+
+            String id1 = ingestXmlFromResource("/metacard1.xml");
+            String id2 = ingestXmlFromResource("/metacard2.xml");
+
+            // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
+            // should get added by MetacardValidityCheckerPlugin
+            String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
+                    "AnyText",
+                    "*")
+                    .getQuery();
+            ValidatableResponse response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+            // Assert Metacard1 is in results AND not Metacard2
+            response.body(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id1)));
+            response.body(not(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id2))));
+
+            // Search for all entries that have no validation warnings or errors
+            query = new CswQueryBuilder().addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                    .getQuery();
+            response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+            // Assert Metacard1 is in results AND not Metacard2
+            response.body(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id1)));
+            response.body(not(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id2))));
+
+            //Search for all entries that have validation-warnings from sample-validator or no validation warnings
+            //Only search that will actually return all entries
+
+            query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
+                    VALIDATION_WARNINGS,
+                    "*")
+                    .addPropertyIsNullAttributeFilter(VALIDATION_WARNINGS)
+                    .addLogicalOperator(OR)
+                    .getQuery();
+
+            response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+            // Assert Metacard1 and NOT metacard2 is in results
+            response.body(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id1)));
+            response.body(not(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id2))));
+
+            // Search for all metacards that have validation-warnings
+            query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
+                    VALIDATION_WARNINGS,
+                    "*")
+                    .getQuery();
+
+            response = given().header("Content-Type", MediaType.APPLICATION_XML)
+                    .body(query)
+                    .post(CSW_PATH.getUrl())
+                    .then();
+            // Assert Metacard1 and metacard2 are NOT in results
+            response.body(not(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id1))));
+            response.body(not(hasXPath(String.format(
+                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                    id2))));
+
+            deleteMetacard(id1);
+        } finally {
+            getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+        }
+    }
+
+    @Test
     public void embeddedSolrProviderStarts() throws Exception {
         getServiceManager().startFeature(true, "catalog-solr-embedded-provider");
         getServiceManager().stopFeature(true, "catalog-solr-embedded-provider");

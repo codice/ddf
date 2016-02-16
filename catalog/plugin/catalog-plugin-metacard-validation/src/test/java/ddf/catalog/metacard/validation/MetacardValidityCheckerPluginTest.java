@@ -87,6 +87,38 @@ public class MetacardValidityCheckerPluginTest {
     }
 
     @Test
+    public void testSearchAnyAndShow()
+            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
+        metacardValidityCheckerPlugin.setShowInvalidMetacards(true);
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.MODIFIED)
+                .is()
+                .equalTo()
+                .text("sample"));
+        assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(false));
+        QueryRequest sendQuery = new QueryRequestImpl(query);
+        QueryRequest returnQuery = metacardValidityCheckerPlugin.process(sendQuery);
+        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
+                is(false));
+        assertThat(sendQuery, is(returnQuery));
+    }
+
+    @Test
+    public void testSearchInvalidAndNotShow()
+            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
+        metacardValidityCheckerPlugin.setShowInvalidMetacards(false);
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS)
+                .is()
+                .equalTo()
+                .text("sample"));
+        assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(true));
+        QueryRequest sendQuery = new QueryRequestImpl(query);
+        QueryRequest returnQuery = metacardValidityCheckerPlugin.process(sendQuery);
+        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
+                is(true));
+        assertThat(sendQuery, is(returnQuery));
+    }
+
+    @Test
     public void testSearchBoth()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
         QueryImpl query = new QueryImpl(filterBuilder.allOf(filterBuilder.attribute(
@@ -670,6 +702,12 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testRelative() {
         assertThat(testValidationQueryDelegate.relative(Metacard.ANY_TEXT, (long) 0), is(false));
+    }
+
+    @Test
+    public void testGetShowInvalidMetacards() {
+        metacardValidityCheckerPlugin.setShowInvalidMetacards(true);
+        assertThat(metacardValidityCheckerPlugin.getShowInvalidMetacards(), is(true));
     }
 
 }
