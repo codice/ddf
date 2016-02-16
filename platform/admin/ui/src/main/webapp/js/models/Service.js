@@ -16,6 +16,9 @@
 /* jshint -W024*/
 define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
 
+    function isServiceFactory(properties){
+        return properties.get('service.factoryPid');
+    }
 
     Backbone.Associations.SEPARATOR = '~';
 
@@ -212,6 +215,14 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
                     return defaults;
                 }, {}));
             return this;
+        },
+        getConfigurationDisplayName: function () {
+            var displayName = this.get('id');
+            var properties = this.get('properties');
+            if (isServiceFactory(properties)) {
+                displayName = properties.get('name') || properties.get('shortname') || properties.get('id') || displayName;
+            }
+            return displayName;
         }
     });
 

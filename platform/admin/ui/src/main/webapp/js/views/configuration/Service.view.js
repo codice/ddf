@@ -62,6 +62,9 @@ define([
                     configuration.close();
                 });
             }
+        },
+        serializeData: function () {
+            return _.extend(this.model.toJSON(), {displayName: this.model.getConfigurationDisplayName()});
         }
     });
 
