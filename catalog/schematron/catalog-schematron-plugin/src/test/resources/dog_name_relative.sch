@@ -16,7 +16,7 @@
 
 <schema xmlns="http://purl.oclc.org/dsdl/schematron">
     <sch:pattern id="Dog Name" xmlns:sch="http://purl.oclc.org/dsdl/schematron">
-        <sch:let name="valid_names" value="document('src/test/resources/valid_names.xml')"/>
+        <sch:let name="valid_names" value="document('valid_names.xml')"/>
         <sch:rule context="//Dog/name">
             <sch:assert
                     test="$valid_names//name[normalize-space(.) = normalize-space(current()/.)]"
