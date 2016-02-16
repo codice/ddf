@@ -21,11 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -57,9 +61,15 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
-    private static final ExecutorService EXECUTOR_SERVICE =
-            Executors.newFixedThreadPool(Runtime.getRuntime()
-                    .availableProcessors());
+    private int batchSize;
+
+    private final ArrayList<Metacard> metacards = new ArrayList<>(getBatchSize());
+
+    private int sleepSeconds;
+
+    private ScheduledExecutorService scheduledExecutor;
+
+    private ExecutorService executor;
 
     private File rootBackupDir;
 
@@ -68,7 +78,20 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     private boolean enableBackupPlugin = true;
 
     public CatalogBackupPlugin() {
+        setExecutor(Executors.newSingleThreadExecutor());
+        setScheduledExecutor(Executors.newSingleThreadScheduledExecutor());
         subDirLevels = 0;
+        setBatchSize(1000);
+        setSleepSeconds(60);
+        startPolling();
+    }
+
+    private void startPolling() {
+
+        getScheduledExecutor().scheduleAtFixedRate(this::drain,
+                getSleepSeconds(),
+                getSleepSeconds(),
+                TimeUnit.SECONDS);
     }
 
     /**
@@ -79,7 +102,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * @throws PluginExecutionException
      */
     @Override
-    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+    public synchronized CreateResponse process(CreateResponse input)
+            throws PluginExecutionException {
 
         if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
             LOGGER.trace("Performing backup of metacards in CreateResponse.");
@@ -88,15 +112,24 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            EXECUTOR_SERVICE.submit(() -> processBatch(input.getCreatedMetacards()));
-
-            //Stop accepting new tasks
-            EXECUTOR_SERVICE.shutdown();
-
         }
-
-        //Return while the cards are backed up in another thread.
+        metacards.addAll(input.getCreatedMetacards());
+        drain();
         return input;
+
+    }
+
+    private synchronized void drain() {
+        if (isBatchBigEnough()) {
+            for (List<Metacard> batch : Lists.partition(metacards, getBatchSize())) {
+                getExecutor().submit(() -> backupBatch(batch));
+            }
+            metacards.clear();
+        }
+    }
+
+    private boolean isBatchBigEnough() {
+        return metacards.size() >= getBatchSize();
     }
 
     private PluginExecutionException pluginExceptionWith(List<String> errors) {
@@ -106,7 +139,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 OPERATION.CREATE));
     }
 
-    void processBatch(List<Metacard> metacards) {
+    void backupBatch(List<Metacard> metacards) {
 
         List<String> errors = new ArrayList<>();
         for (Metacard metacard : metacards) {
@@ -226,21 +259,6 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     }
 
     /**
-     * Sets the root file system backup directory.
-     *
-     * @param dir absolute path for the root file system backup directory.
-     */
-    public void setRootBackupDir(String dir) {
-        if (StringUtils.isBlank(dir)) {
-            LOGGER.error("The root backup directory is blank.");
-            return;
-        }
-
-        this.rootBackupDir = new File(dir);
-        LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
-    }
-
-    /**
      * Sets the number of subdirectory levels to create. Two characters from
      * each metacard ID will be used to name each subdirectory level.
      *
@@ -258,7 +276,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         File tempFile = getTempFile(metacard);
 
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))) {
-            LOGGER.debug("Writing temp metacard [{}] to [{}].",
+            LOGGER.trace("Writing temp metacard [{}] to [{}].",
                     tempFile.getName(),
                     tempFile.getParent());
             oos.writeObject(new MetacardImpl(metacard));
@@ -375,9 +393,81 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         return builder.toString();
     }
 
+    public void shutdown() {
+        shutdownExecutor();
+        shutdownScheduledExecutor();
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        shutdownExecutor();
+        this.executor = executor;
+    }
+
+    private void shutdownExecutor() {
+        if (getExecutor() != null) {
+            getExecutor().shutdown();
+        }
+    }
+
+    private void shutdownScheduledExecutor() {
+
+        if (getScheduledExecutor() != null) {
+            getScheduledExecutor().shutdown();
+        }
+    }
+
+    public ScheduledExecutorService getScheduledExecutor() {
+        return scheduledExecutor;
+    }
+
+    public void setScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
+        shutdownScheduledExecutor();
+        this.scheduledExecutor = scheduledExecutor;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getSleepSeconds() {
+        return sleepSeconds;
+    }
+
+    public void setSleepSeconds(int sleepSeconds) {
+        this.sleepSeconds = sleepSeconds;
+    }
+
+    public String getRootBackupDir() {
+        return rootBackupDir.getAbsolutePath();
+    }
+
+    /**
+     * Sets the root file system backup directory.
+     *
+     * @param dir absolute path for the root file system backup directory.
+     */
+    public void setRootBackupDir(String dir) {
+        if (StringUtils.isBlank(dir)) {
+            LOGGER.error("The root backup directory is blank.");
+            return;
+        }
+
+        this.rootBackupDir = new File(dir);
+        LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
+    }
+
     private enum OPERATION {
         CREATE,
         DELETE
     }
 
 }
+
