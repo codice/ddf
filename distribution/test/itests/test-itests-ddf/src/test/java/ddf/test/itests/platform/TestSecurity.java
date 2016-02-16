@@ -275,7 +275,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         try {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             configurePDP();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");

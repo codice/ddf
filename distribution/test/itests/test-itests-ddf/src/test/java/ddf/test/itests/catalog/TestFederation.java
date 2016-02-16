@@ -105,7 +105,7 @@ public class TestFederation extends AbstractIntegrationTest {
         try {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
-            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");

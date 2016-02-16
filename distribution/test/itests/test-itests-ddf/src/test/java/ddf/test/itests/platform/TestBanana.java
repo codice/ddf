@@ -40,7 +40,7 @@ public class TestBanana extends AbstractIntegrationTest {
     public void beforeTest() throws Exception {
         try {
             basePort = getBasePort();
-            getServiceManager().waitForRequiredApps(DEFAULT_REQUIRED_APPS);
+            getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
