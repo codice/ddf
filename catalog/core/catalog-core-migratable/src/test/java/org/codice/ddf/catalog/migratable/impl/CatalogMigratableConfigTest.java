@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.catalog.migratable.impl;
 
-import static org.junit.Assert.assertThat;
-
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,38 +29,13 @@ public class CatalogMigratableConfigTest {
     }
 
     @Test
-    public void testPropertyMaximaMinimaBounds() throws Exception {
-        assertThat(CatalogMigratableConfig.MAX_CARDS_PER_FILE
-                <= CatalogMigratableConfig.MAX_QUERY_PAGE_SIZE / 2, Matchers.is(true));
-        assertThat(CatalogMigratableConfig.MIN_QUERY_PAGE_SIZE > 0, Matchers.is(true));
-        assertThat(CatalogMigratableConfig.MAX_QUERY_PAGE_SIZE < 1000000, Matchers.is(true));
-        assertThat(CatalogMigratableConfig.MAX_THREADS > 1, Matchers.is(true));
-        assertThat(CatalogMigratableConfig.MAX_THREADS < 200, Matchers.is(true));
-    }
-
-    @Test
-    public void testFilePrefixValid() throws Exception {
-        config.setExportFilePrefix("validPrefix");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testFilePrefixNumeric() throws Exception {
-        config.setExportFilePrefix("numericPrefix8");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testFilePrefixSymbolic() throws Exception {
-        config.setExportFilePrefix("symbolic_prefix");
-    }
-
-    @Test
     public void testExportQueryPageSizeValid() throws Exception {
         config.setExportQueryPageSize(70000);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testExportQueryPageSizeTooLarge() throws Exception {
-        config.setExportQueryPageSize(200000);
+        config.setExportQueryPageSize(100001);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -79,7 +51,7 @@ public class CatalogMigratableConfigTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCardsPerFileTooLarge() throws Exception {
-        config.setExportCardsPerFile(50100);
+        config.setExportCardsPerFile(50001);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -90,6 +62,21 @@ public class CatalogMigratableConfigTest {
     @Test(expected = IllegalArgumentException.class)
     public void testCardsPerFileBiggerThenQueryPageSize() throws Exception {
         config.setExportQueryPageSize(40000);
-        config.setExportCardsPerFile(45000);
+        config.setExportCardsPerFile(40001);
+    }
+
+    @Test
+    public void testThreadCountValid() throws Exception {
+        config.setExportThreadCount(1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testThreadCountTooSmall() throws Exception {
+        config.setExportThreadCount(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testThreadCountTooLarge() throws Exception {
+        config.setExportThreadCount(129);
     }
 }

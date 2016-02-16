@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,6 @@ public class MigrationFileWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationFileWriter.class);
 
-    //      ========================================================
-    //      TODO: Look into moving these functions to MigratableUtil
-    //      ========================================================
-
     /**
      * Creates the directory for the catalog export if it doesn't exist.
      * <p>
@@ -53,13 +50,12 @@ public class MigrationFileWriter {
      * @throws MigrationException thrown if the export directory doesn't exist and could not be created
      */
     public void init(Path exportPath) throws MigrationException {
-        final File exportDir = exportPath.toFile();
-        if (!exportDir.exists() || !exportDir.isDirectory()) {
-            if (!exportDir.mkdir()) {
-                throw new MigrationException("Could not create catalog directory at export location");
-            } else {
-                LOGGER.debug("Created export directory: 'catalog'");
-            }
+        try {
+            final File exportDir = exportPath.toFile();
+            FileUtils.forceMkdir(exportDir);
+        } catch (IOException e) {
+            LOGGER.error("IO Exception during FileUtils.forceMkdir", e.getMessage(), e);
+            throw new MigrationException(e.getMessage());
         }
     }
 
@@ -71,7 +67,10 @@ public class MigrationFileWriter {
      */
     public void writeMetacards(File exportFile, final List<Result> results) throws IOException {
         if (!exportFile.exists()) {
-            exportFile.createNewFile();
+            boolean success = exportFile.createNewFile();
+            if (!success) {
+                LOGGER.warn("Was not able to create new file for metacard export");
+            }
         }
 
         try (
@@ -98,22 +97,4 @@ public class MigrationFileWriter {
     FileOutputStream createFileStream(File file) throws IOException {
         return new FileOutputStream(file);
     }
-
-    /**
-     * The following will be used for the import logic in the future
-     */
-    //    private List<Metacard> import(File directory) throws Exception {
-    //        List<Metacard> metacards = new ArrayList<>();
-    //        for (File file : directory.listFiles()) {
-    //            FileInputStream fileStream = new FileInputStream(file);
-    //            ObjectInputStream objectStream = new ObjectInputStream(fileStream);
-    //            try {
-    //                while (true) {
-    //                    metacards.add((Metacard) objectStream.readObject());
-    //                }
-    //            } catch (IOException e) {
-    //            }
-    //        }
-    //        return metacards;
-    //    }
 }

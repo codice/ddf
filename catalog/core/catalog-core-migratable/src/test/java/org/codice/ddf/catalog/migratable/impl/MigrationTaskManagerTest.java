@@ -13,8 +13,14 @@
  */
 package org.codice.ddf.catalog.migratable.impl;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,6 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -71,7 +78,6 @@ public class MigrationTaskManagerTest {
     @Mock
     private ListeningExecutorService mockExecutor;
 
-    @Mock
     private FutureCallback<Void> mockFutureCallback;
 
     @Mock
@@ -106,11 +112,11 @@ public class MigrationTaskManagerTest {
         config = new CatalogMigratableConfig();
         config.setExportPath(exportPath);
         taskManager = new InspectableMigrationTaskManager();
+        mockFutureCallback = null;
     }
 
     @Test
     public void testExportSetupInitGetsCalled() throws Exception {
-        taskManager.exportSetup();
         verify(mockFileWriter).init(exportPath);
     }
 
@@ -122,6 +128,7 @@ public class MigrationTaskManagerTest {
 
         verify(mockExecutor).shutdown();
         verify(mockExecutor, never()).shutdownNow();
+        verify(mockExecutor).awaitTermination(anyLong(), any(TimeUnit.class));
     }
 
     @Test
@@ -137,7 +144,7 @@ public class MigrationTaskManagerTest {
 
     @Test
     public void testExportFinishedTimeoutShutdown() throws Exception {
-        when(mockExecutor.awaitTermination(1L, TimeUnit.MINUTES)).thenReturn(false);
+        when(mockExecutor.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(false);
 
         taskManager.exportFinish();
 
@@ -147,17 +154,14 @@ public class MigrationTaskManagerTest {
 
     @Test(expected = MigrationException.class)
     public void testExportFinishedErrorOccurred() throws Exception {
-        taskManager.getAtomicReference()
-                .set(mockThrowable);
-        taskManager.exportFinish();
-    }
-
-    @Test
-    public void testExportFinishedNoError() throws Exception {
-        taskManager.getAtomicReference()
-                .set(null);
-        taskManager.exportFinish();
-        //verify(mockAtomicRef).get(); // Can't execute this line - get() is final
+        try {
+            taskManager.getAtomicReference()
+                    .set(mockThrowable);
+            taskManager.exportFinish();
+        } catch (MigrationException e) {
+            assertThat(e.getCause(), is(mockThrowable));
+            throw e;
+        }
     }
 
     @Test(expected = MigrationException.class)
@@ -201,7 +205,7 @@ public class MigrationTaskManagerTest {
 
         taskManager.exportMetacardQuery(testResults, TEST_GROUP_COUNT);
 
-        assertTrue(writerCallableList.equals(taskManager.getCallables()));
+        assertThat(taskManager.getCallables(), containsInAnyOrder(writerCallableList.toArray()));
 
         int fileCount = TEST_RESULTS_LIST_SIZE / TEST_FILE_SIZE;
         if (TEST_FUTURES_LIST_SIZE % TEST_FILE_SIZE > 0) {
@@ -209,6 +213,35 @@ public class MigrationTaskManagerTest {
         }
 
         verify(mockExecutor, times(fileCount)).submit(any(CatalogWriterCallable.class));
+    }
+
+    @Test
+    public void testExportMetacardQueryEmptyList() throws Exception {
+        List<Result> testResults = new ArrayList<>();
+        config.setExportCardsPerFile(TEST_FILE_SIZE);
+        taskManager.exportMetacardQuery(testResults, TEST_GROUP_COUNT);
+        verify(mockExecutor, never()).submit(any(CatalogWriterCallable.class));
+    }
+
+    @Test
+    public void testExportMetacardQueryRegistersCallback() throws Exception {
+        when(mockExecutor.submit(any(CatalogWriterCallable.class))).thenReturn(mockFutureInstance);
+
+        List<Result> testResults = new ArrayList<>();
+        testResults.add(new ResultImpl(new MetacardImpl()));
+        config.setExportCardsPerFile(TEST_FILE_SIZE);
+        taskManager.exportMetacardQuery(testResults, TEST_GROUP_COUNT);
+
+        assertThat(mockFutureCallback, notNullValue());
+    }
+
+    @Test(expected = MigrationException.class)
+    public void testCtorIfFileWriterInitFails() throws Exception {
+        doThrow(MigrationException.class).when(mockFileWriter)
+                .init(any(Path.class));
+        MigrationTaskManager tempManager = new MigrationTaskManager(new CatalogMigratableConfig(),
+                mockFileWriter,
+                mockExecutor);
     }
 
     /**
@@ -237,6 +270,7 @@ public class MigrationTaskManagerTest {
 
         @Override
         FutureCallback<Void> createFutureCallback() {
+            mockFutureCallback = mock(FutureCallback.class);
             return mockFutureCallback;
         }
 

@@ -21,7 +21,6 @@
     <bean id="catalogMigratableConfig"
           class="org.codice.ddf.catalog.migratable.impl.CatalogMigratableConfig">
         <property name="exportCardsPerFile" value="1"/>
-        <property name="exportFilePrefix" value="catalogExport"/>
         <property name="exportQueryPageSize" value="5000"/>
         <property name="exportThreadCount" value="8"/>
     </bean>
@@ -40,6 +39,7 @@
     </bean>
 
     <service id="catalogMigratableService" ref="catalogMigratable"
-             auto-export="interfaces"/>
+             interface="org.codice.ddf.migration.Migratable"/>
+    <!--auto-export="interfaces"/>-->
 
 </blueprint>

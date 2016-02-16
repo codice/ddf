@@ -34,15 +34,11 @@ import ddf.catalog.data.Result;
 /**
  * Encapsulates all threading state for the catalog migration process and allows inspection of
  * its progress through a public API and the Guava asynchronous call-backs.
- *
- * When using this task manager, always call exportSetup() first to ensure the target directory
- * for metacards has been created. Failure to do so may cause a {@link MigrationException}.
- *
+ * <p>
  * Repeat calls to exportMetacardQuery({@link List<Result>} results, {@link Long} exportGroupCount)
  * as needed to add file write tasks to the {@link java.util.concurrent.BlockingQueue} of the
  * {@link ExecutorService}. When finished, a call to exportFinish() is required to guarantee that
  * no errors occurred and that the executor will be shutdown properly.
- *
  */
 class MigrationTaskManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationTaskManager.class);
@@ -58,7 +54,7 @@ class MigrationTaskManager {
     /**
      * The creation of a task manager requires the passing of migratable configurations so that
      * task behavior can be explicitly defined (i.e. where to export, how many metacards per file,
-     * and other useful data).
+     * and other useful data). Also initializes the {@link MigrationFileWriter} and write directory.
      *
      * @param config The set of configuration options to use.
      */
@@ -68,15 +64,7 @@ class MigrationTaskManager {
         this.taskFailure = createAtomicReference();
         this.catalogConfig = config;
         this.fileWriter = fileWriter;
-    }
 
-    /**
-     * Must be called prior to exportFinish and exportMetacardQuery to initialize the
-     * export directory.
-     *
-     * @throws MigrationException thrown if the setup fails
-     */
-    public void exportSetup() throws MigrationException {
         fileWriter.init(this.catalogConfig.getExportPath());
     }
 
@@ -125,6 +113,7 @@ class MigrationTaskManager {
         for (int i = 0; i < results.size(); i += catalogConfig.getExportCardsPerFile()) {
             final List<Result> fileResults = results.subList(i,
                     Math.min((i + catalogConfig.getExportCardsPerFile()), results.size()));
+
             final File exportFile = catalogConfig.getExportPath()
                     .resolve(makeFileName(exportGroupCount, i))
                     .toFile();
@@ -140,12 +129,6 @@ class MigrationTaskManager {
 
         checkForFailures();
     }
-
-    /**
-     * ===========================================================
-     * The following are package private for unit testing purposes
-     * ===========================================================
-     */
 
     AtomicReference<Throwable> createAtomicReference() {
         return new AtomicReference<>(null);
@@ -182,7 +165,6 @@ class MigrationTaskManager {
                 fileNumber);
     }
 
-    // Explicitly hidden - subtask for this class only and must access thread-safe data
     private void checkForFailures() {
         if (taskFailure.get() != null) {
             throw new MigrationException("Catalog could not export metacards", taskFailure.get());

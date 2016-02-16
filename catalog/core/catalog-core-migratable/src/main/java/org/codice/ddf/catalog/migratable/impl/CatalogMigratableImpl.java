@@ -92,8 +92,7 @@ public class CatalogMigratableImpl extends AbstractMigratable {
     }
 
     /**
-     * Exports all the metacards currently stored in the catalog provider and works off the
-     * assumption that the catalog API does not return null values for valid work.
+     * Exports all the metacards currently stored in the catalog provider.
      * <p>
      * {@inheritDoc}
      */
@@ -119,13 +118,24 @@ public class CatalogMigratableImpl extends AbstractMigratable {
         long exportGroupCount = 1;
         SourceResponse response;
 
+        ExportMigrationException exportMigrationException = new ExportMigrationException(
+                "Catalog could not export metacards");
+
         try {
             List<Result> results;
-            taskManager.exportSetup();
 
             do {
                 response = provider.query(exportQueryRequest);
+                if (response == null) {
+                    LOGGER.error("Response came back null from the query: {}");
+                    throw exportMigrationException;
+                }
+
                 results = response.getResults();
+                if (results == null) {
+                    LOGGER.error("Results came back null from the response: {}");
+                    throw exportMigrationException;
+                }
 
                 if (results.size() > 0) {
                     taskManager.exportMetacardQuery(results, exportGroupCount);
@@ -136,10 +146,10 @@ public class CatalogMigratableImpl extends AbstractMigratable {
             } while (results.size() >= config.getExportQueryPageSize());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Query {} was invalid due to: {}", exportGroupCount, e.getMessage(), e);
-            throw new ExportMigrationException("Catalog could not export metacards", e);
+            throw exportMigrationException;
         } catch (RuntimeException e) {
             LOGGER.error("Internal error occurred when exporting catalog: {}", e.getMessage(), e);
-            throw new ExportMigrationException("Catalog could not export metacards", e);
+            throw exportMigrationException;
         } finally {
             try {
                 taskManager.exportFinish();

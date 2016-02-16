@@ -36,7 +36,6 @@ import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -217,7 +216,6 @@ public class CatalogMigratableImplTest {
 
         MigrationMetadata metadata = migratable.export(EXPORT_PATH);
 
-        verify(taskManager).exportSetup();
         verify(taskManager).exportFinish();
         verifyNoMoreInteractions(taskManager);
 
@@ -237,9 +235,7 @@ public class CatalogMigratableImplTest {
 
         MigrationMetadata metadata = migratable.export(EXPORT_PATH);
 
-        verify(taskManager).exportSetup();
         verify(taskManager).exportMetacardQuery(result1, 1);
-        // TODO - Need to add ArgumentCaptor in when() and assert that query.getStartIndex() == 1
         verify(taskManager).exportFinish();
         verifyNoMoreInteractions(taskManager);
 
@@ -260,7 +256,6 @@ public class CatalogMigratableImplTest {
 
         MigrationMetadata metadata = migratable.export(EXPORT_PATH);
 
-        verify(taskManager).exportSetup();
         verify(taskManager).exportMetacardQuery(result1, 1);
         verify(query).setStartIndex(config.getExportQueryPageSize() + 1);
         verify(taskManager).exportMetacardQuery(result2, 2);
@@ -287,7 +282,6 @@ public class CatalogMigratableImplTest {
         try {
             migratable.export(EXPORT_PATH);
         } finally {
-            verify(taskManager).exportSetup();
             verify(taskManager).exportMetacardQuery(result1, 1);
             verify(taskManager).exportFinish();
             verifyNoMoreInteractions(taskManager);
@@ -307,8 +301,6 @@ public class CatalogMigratableImplTest {
         migratable.export(EXPORT_PATH);
     }
 
-    // TODO - Don't think this is possible right now. Delete or re-enable if it becomes possible.
-    @Ignore
     @Test(expected = MigrationException.class)
     public void exportWhenExportMetacardFailsWithMigrationException() {
         doThrow(new MigrationException("")).when(taskManager)
@@ -323,7 +315,6 @@ public class CatalogMigratableImplTest {
         try {
             migratable.export(EXPORT_PATH);
         } finally {
-            verify(taskManager).exportSetup();
             verify(taskManager).exportMetacardQuery(results, 1);
             verify(taskManager).exportFinish();
             verifyNoMoreInteractions(taskManager);
@@ -344,48 +335,7 @@ public class CatalogMigratableImplTest {
         try {
             migratable.export(EXPORT_PATH);
         } finally {
-            verify(taskManager).exportSetup();
             verify(taskManager).exportMetacardQuery(results, 1);
-            verify(taskManager).exportFinish();
-            verifyNoMoreInteractions(taskManager);
-        }
-    }
-
-    @Test(expected = MigrationException.class)
-    public void exportWhenTaskManagerInitFailsWithMigrationException() {
-        doThrow(new MigrationException("")).when(taskManager)
-                .exportSetup();
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
-                filterBuilder,
-                fileWriter,
-                config);
-
-        try {
-            migratable.export(EXPORT_PATH);
-        } finally {
-            verify(taskManager).exportSetup();
-            verify(taskManager).exportFinish();
-            verifyNoMoreInteractions(taskManager);
-        }
-    }
-
-    @Test(expected = ExportMigrationException.class)
-    public void exportWhenTaskManagerInitThrowsRuntimeException() {
-        doThrow(new RuntimeException()).when(taskManager)
-                .exportSetup();
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
-                filterBuilder,
-                fileWriter,
-                config);
-
-        try {
-            migratable.export(EXPORT_PATH);
-        } finally {
-            verify(taskManager).exportSetup();
             verify(taskManager).exportFinish();
             verifyNoMoreInteractions(taskManager);
         }

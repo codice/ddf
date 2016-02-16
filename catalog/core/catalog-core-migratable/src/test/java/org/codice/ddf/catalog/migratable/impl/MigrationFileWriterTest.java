@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.catalog.migratable.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import java.io.BufferedOutputStream;
@@ -32,10 +35,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.MigrationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -45,7 +50,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MigrationFileWriter.class, File.class})
+@PrepareForTest({MigrationFileWriter.class, File.class, FileUtils.class})
 public class MigrationFileWriterTest {
 
     private static final int RESULT_COUNT = 5;
@@ -94,57 +99,74 @@ public class MigrationFileWriterTest {
     private List<Result> loadList() {
         final List<Result> results = new ArrayList<>();
         for (int i = 0; i < RESULT_COUNT; i++) {
-            results.add(new ResultImpl(new MetacardImpl()));
+            MetacardImpl metacard = new MetacardImpl();
+            metacard.setId("id" + String.valueOf(i));
+            results.add(new ResultImpl(metacard));
         }
         return results;
     }
 
     @Test
-    public void testInitCallsMkDir() throws Exception {
-        when(mockFile.exists()).thenReturn(false);
-        when(mockFile.mkdir()).thenReturn(true);
-
+    public void testInitCallsForceMkDir() throws Exception {
+        mockStatic(FileUtils.class);
         fileWriter.init(mockPath);
-
-        verify(mockFile).mkdir();
+        verifyStatic();
     }
 
     @Test(expected = MigrationException.class)
-    public void testInitFailsToCreateDirectory() throws Exception {
-
-        when(mockFile.exists()).thenReturn(false);
-        when(mockFile.mkdir()).thenReturn(false);
-
+    public void testInitThrowsIOException() throws Exception {
+        when(mockPath.toFile()).thenThrow(IOException.class);
         fileWriter.init(mockPath);
     }
 
     @Test
     public void testWriteSuccess() throws Exception {
+        ArgumentCaptor<MetacardImpl> arg = ArgumentCaptor.forClass(MetacardImpl.class);
         final List<Result> results = loadList();
         when(mockFile.exists()).thenReturn(true);
 
         fileWriter.writeMetacards(mockFile, results);
 
-        verify(mockObjectOutputStream, times(RESULT_COUNT)).writeObject(anyObject());
+        verify(mockObjectOutputStream, times(RESULT_COUNT)).writeObject(arg.capture());
+        for (int i = 0; i < RESULT_COUNT; i++) {
+            assertEquals(results.get(i)
+                            .getMetacard()
+                            .getId(),
+                    arg.getAllValues()
+                            .get(i)
+                            .getId());
+        }
+
         verify(mockBufferedOutputStream, times(1)).flush();
     }
 
     @Test
-    public void testWriteSuccessMakeFile() throws Exception {
+    public void testWriteMakesFile() throws Exception {
         final List<Result> results = loadList();
         when(mockFile.exists()).thenReturn(false);
 
         fileWriter.writeMetacards(mockFile, results);
 
         verify(mockFile).createNewFile();
-        verify(mockObjectOutputStream, times(RESULT_COUNT)).writeObject(anyObject());
-        verify(mockBufferedOutputStream, times(1)).flush();
+    }
+
+    @Test
+    public void testStreamsClosed() throws Exception {
+        final List<Result> results = loadList();
+        when(mockFile.exists()).thenReturn(false);
+
+        fileWriter.writeMetacards(mockFile, results);
+
+        verify(mockObjectOutputStream).close();
+        verify(mockBufferedOutputStream).close();
+        verify(mockFileOutputStream).close();
     }
 
     @Test(expected = IOException.class)
     public void testWriteMetacardsBadDirectory() throws Exception {
         File uncreatedFile = DDF_BASE_PATH.resolve("notRealDirectory")
                 .toFile();
+
         fileWriter.writeMetacards(uncreatedFile, Collections.emptyList());
     }
 
@@ -157,6 +179,7 @@ public class MigrationFileWriterTest {
                 .thenReturn(mockBufferedOutputStream);
         whenNew(ObjectOutputStream.class).withAnyArguments()
                 .thenThrow(IOException.class);
+
         fileWriter.writeMetacards(mockFile, Collections.emptyList());
     }
 
@@ -174,6 +197,7 @@ public class MigrationFileWriterTest {
 
         List<Result> results = new ArrayList<>();
         results.add(new ResultImpl(new MetacardImpl()));
+
         fileWriter.writeMetacards(mockFile, results);
     }
 }
