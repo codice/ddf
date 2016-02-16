@@ -482,7 +482,7 @@ public class CswEndpoint implements Csw {
 
             LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
             CswRecordCollection response = queryById(ids);
-            response.setOutputSchema(request.getOutputSchema());
+            response.setOutputSchema(outputSchema);
             if (StringUtils.isNotBlank(request.getElementSetName())) {
                 response.setElementSetType(ElementSetType.fromValue(request.getElementSetName()));
             } else {
@@ -525,7 +525,7 @@ public class CswEndpoint implements Csw {
 
             LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
             CswRecordCollection response = queryById(ids);
-            response.setOutputSchema(request.getOutputSchema());
+            response.setOutputSchema(outputSchema);
             if (request.isSetElementSetName() && request.getElementSetName()
                     .getValue() != null) {
                 response.setElementSetType(request.getElementSetName()
@@ -536,6 +536,7 @@ public class CswEndpoint implements Csw {
             LOGGER.debug("{} successfully retrieved record(s): {}",
                     request.getService(),
                     request.getId());
+
             return response;
         } else {
             throw new CswException("A GetRecordById Query must contain an ID.",

@@ -27,12 +27,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -53,6 +59,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.resource.Resource;
 
 public class TestGetRecordsMessageBodyReader {
 
@@ -80,11 +87,12 @@ public class TestGetRecordsMessageBodyReader {
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
                 "/getRecordsResponse.xml");
+        MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
         ArgumentCaptor<UnmarshallingContext> captor =
                 ArgumentCaptor.forClass(UnmarshallingContext.class);
 
-        reader.readFrom(CswRecordCollection.class, null, null, null, null, is);
+        reader.readFrom(CswRecordCollection.class, null, null, null, httpHeaders, is);
 
         // Verify the context arguments were set correctly
         verify(mockProvider, times(3)).unmarshal(any(HierarchicalStreamReader.class),
@@ -134,12 +142,13 @@ public class TestGetRecordsMessageBodyReader {
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
                 "/getRecordsResponse.xml");
+        MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
 
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
                 null,
                 null,
                 null,
-                null,
+                httpHeaders,
                 is);
 
         List<Metacard> metacards = cswRecords.getCswRecords();
@@ -200,11 +209,12 @@ public class TestGetRecordsMessageBodyReader {
 
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
                 "/geomaticsGetRecordsResponse.xml");
+        MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
                 null,
                 null,
                 null,
-                null,
+                httpHeaders,
                 is);
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
@@ -212,6 +222,37 @@ public class TestGetRecordsMessageBodyReader {
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    public void testReadProductData() throws Exception {
+        CswSourceConfiguration config = new CswSourceConfiguration();
+        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap()
+                .getCswToMetacardAttributeNames());
+        config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+
+        byte[] data = "SampleData".getBytes();
+        ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
+        MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
+        httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
+                String.format("inline; filename=%s", "ResourceName"));
+        MediaType mediaType = new MediaType("text", "plain");
+
+        CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
+                null,
+                null,
+                mediaType,
+                httpHeaders,
+                dataInputStream);
+
+        Resource resource = cswRecords.getResource();
+        assertThat(resource, not(nullValue()));
+        assertThat(resource.getName(), equalTo("ResourceName"));
+        assertThat(resource.getMimeType()
+                .toString(), is(equalTo(MediaType.TEXT_PLAIN)));
+        assertThat(resource.getByteArray(), is(equalTo(data)));
+    }
 
     private void assertMetacard(Metacard mc, Map<String, Object> expectedValues) {
         assertThat(mc.getId(), equalTo((String) expectedValues.get(Metacard.ID)));

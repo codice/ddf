@@ -60,6 +60,8 @@ public interface CswConstants {
 
     String FEDERATED_CATALOGS = "FederatedCatalogs";
 
+    String PRODUCT_RETRIEVAL_HTTP_HEADER = "X-Csw-Product";
+
     /*
      * typeName vs typeNames: typeName applies to DescribeRecord, where typeNames applies to
      * getRecords. However, throughout the csw 2.0.2 specification, in particular in section 10.8,
