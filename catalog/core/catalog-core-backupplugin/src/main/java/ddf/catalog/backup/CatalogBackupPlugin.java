@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,11 +19,17 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -39,12 +45,12 @@ import ddf.catalog.util.impl.Requests;
  * The CatalogBackupPlugin backups up metacards to the file system. It is a
  * PostIngestPlugin, so it processes CreateResponses, DeleteResponses, and
  * UpdateResponses.
- * <p>
+ * <p/>
  * The root backup directory and subdirectory levels can be configured in the
  * Backup Post-Ingest Plugin section in the admin console.
- * <p>
+ * <p/>
  * This feature can be installed/uninstalled with the following commands:
- * <p>
+ * <p/>
  * ddf@local>features:install catalog-core-backupplugin
  * ddf@local>features:uninstall catalog-core-backupplugin
  */
@@ -55,6 +61,16 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
+    private int batchSize;
+
+    private final ArrayList<Metacard> metacards = new ArrayList<>(getBatchSize());
+
+    private int sleepSeconds;
+
+    private ScheduledExecutorService scheduledExecutor;
+
+    private ExecutorService executor;
+
     private File rootBackupDir;
 
     private int subDirLevels;
@@ -62,52 +78,89 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     private boolean enableBackupPlugin = true;
 
     public CatalogBackupPlugin() {
+        setExecutor(Executors.newSingleThreadExecutor());
+        setScheduledExecutor(Executors.newSingleThreadScheduledExecutor());
         subDirLevels = 0;
+        setBatchSize(1000);
+        setSleepSeconds(60);
+        startPolling();
+    }
+
+    private void startPolling() {
+
+        getScheduledExecutor().scheduleAtFixedRate(this::drain,
+                getSleepSeconds(),
+                getSleepSeconds(),
+                TimeUnit.SECONDS);
     }
 
     /**
      * Backs up created metacards to the file system backup.
      *
      * @param input the {@link CreateResponse} to process
-     * @return
+     * @return {@link CreateResponse}
      * @throws PluginExecutionException
      */
     @Override
-    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+    public synchronized CreateResponse process(CreateResponse input)
+            throws PluginExecutionException {
+
         if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.debug("Performing backup of metacards in CreateResponse.");
+            LOGGER.trace("Performing backup of metacards in CreateResponse.");
 
             if (rootBackupDir == null) {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            List<String> errors = new ArrayList<String>();
+        }
+        metacards.addAll(input.getCreatedMetacards());
+        drain();
+        return input;
 
-            List<Metacard> metacards = input.getCreatedMetacards();
+    }
 
-            for (Metacard metacard : metacards) {
-                try {
-                    backupMetacard(metacard);
-                } catch (IOException e) {
-                    errors.add(metacard.getId());
-                }
+    private synchronized void drain() {
+        if (isBatchBigEnough()) {
+            for (List<Metacard> batch : Lists.partition(metacards, getBatchSize())) {
+                getExecutor().submit(() -> backupBatch(batch));
             }
+            metacards.clear();
+        }
+    }
 
-            if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
-                        null,
-                        errors,
-                        OPERATION.CREATE));
+    private boolean isBatchBigEnough() {
+        return metacards.size() >= getBatchSize();
+    }
+
+    private PluginExecutionException pluginExceptionWith(List<String> errors) {
+        return new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
+                null,
+                errors,
+                OPERATION.CREATE));
+    }
+
+    void backupBatch(List<Metacard> metacards) {
+
+        List<String> errors = new ArrayList<>();
+        for (Metacard metacard : metacards) {
+            try {
+                backupMetacard(metacard);
+            } catch (IOException e) {
+                errors.add(metacard.getId());
             }
         }
-        return input;
+
+        if (!errors.isEmpty()) {
+            LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                    pluginExceptionWith(errors));
+        }
     }
 
     /**
      * Backs up updated metacards to the file system backup.
      *
      * @param input the {@link UpdateResponse} to process
-     * @return
+     * @return {@link UpdateResponse}
      * @throws PluginExecutionException
      */
     @Override
@@ -119,8 +172,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            List<String> deleteErrors = new ArrayList<String>();
-            List<String> backupErrors = new ArrayList<String>();
+            List<String> deleteErrors = new ArrayList<>();
+            List<String> backupErrors = new ArrayList<>();
 
             List<Update> updates = input.getUpdatedMetacards();
 
@@ -142,21 +195,21 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
             String exceptionMessage = null;
 
-            if (deleteErrors.size() > 0) {
+            if (!deleteErrors.isEmpty()) {
                 exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        exceptionMessage,
+                        null,
                         deleteErrors,
                         OPERATION.DELETE);
             }
 
-            if (backupErrors.size() > 0) {
+            if (!backupErrors.isEmpty()) {
                 exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
                         exceptionMessage,
                         backupErrors,
                         OPERATION.CREATE);
             }
 
-            if (deleteErrors.size() > 0 || backupErrors.size() > 0) {
+            if (!(deleteErrors.isEmpty() && backupErrors.isEmpty())) {
                 throw new PluginExecutionException(exceptionMessage);
             }
         }
@@ -167,7 +220,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * Removes deleted metacards from the file system backup.
      *
      * @param input the {@link DeleteResponse} to process
-     * @return
+     * @return {@link DeleteResponse}
      * @throws PluginExecutionException
      */
     @Override
@@ -179,7 +232,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            List<String> errors = new ArrayList<String>();
+            List<String> errors = new ArrayList<>();
 
             List<Metacard> metacards = input.getDeletedMetacards();
 
@@ -206,21 +259,6 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     }
 
     /**
-     * Sets the root file system backup directory.
-     *
-     * @param dir absolute path for the root file system backup directory.
-     */
-    public void setRootBackupDir(String dir) {
-        if (StringUtils.isBlank(dir)) {
-            LOGGER.error("The root backup directory is blank.");
-            return;
-        }
-
-        this.rootBackupDir = new File(dir);
-        LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
-    }
-
-    /**
      * Sets the number of subdirectory levels to create. Two characters from
      * each metacard ID will be used to name each subdirectory level.
      *
@@ -238,7 +276,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         File tempFile = getTempFile(metacard);
 
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))) {
-            LOGGER.debug("Writing temp metacard [{}] to [{}].",
+            LOGGER.trace("Writing temp metacard [{}] to [{}].",
                     tempFile.getName(),
                     tempFile.getParent());
             oos.writeObject(new MetacardImpl(metacard));
@@ -264,7 +302,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * complete. This makes it easy to find and remove failed files.
      *
      * @param metacard the metacard to create a temp file for.
-     * @return
+     * @return File
      * @throws IOException
      */
     private File getTempFile(Metacard metacard) throws IOException {
@@ -355,9 +393,81 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         return builder.toString();
     }
 
+    public void shutdown() {
+        shutdownExecutor();
+        shutdownScheduledExecutor();
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        shutdownExecutor();
+        this.executor = executor;
+    }
+
+    private void shutdownExecutor() {
+        if (getExecutor() != null) {
+            getExecutor().shutdown();
+        }
+    }
+
+    private void shutdownScheduledExecutor() {
+
+        if (getScheduledExecutor() != null) {
+            getScheduledExecutor().shutdown();
+        }
+    }
+
+    public ScheduledExecutorService getScheduledExecutor() {
+        return scheduledExecutor;
+    }
+
+    public void setScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
+        shutdownScheduledExecutor();
+        this.scheduledExecutor = scheduledExecutor;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public int getSleepSeconds() {
+        return sleepSeconds;
+    }
+
+    public void setSleepSeconds(int sleepSeconds) {
+        this.sleepSeconds = sleepSeconds;
+    }
+
+    public String getRootBackupDir() {
+        return rootBackupDir.getAbsolutePath();
+    }
+
+    /**
+     * Sets the root file system backup directory.
+     *
+     * @param dir absolute path for the root file system backup directory.
+     */
+    public void setRootBackupDir(String dir) {
+        if (StringUtils.isBlank(dir)) {
+            LOGGER.error("The root backup directory is blank.");
+            return;
+        }
+
+        this.rootBackupDir = new File(dir);
+        LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
+    }
+
     private enum OPERATION {
         CREATE,
         DELETE
     }
 
 }
+

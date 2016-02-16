@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,7 +17,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static junit.framework.Assert.fail;
 
@@ -28,6 +30,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,8 +67,8 @@ public class CatalogBackupPluginTest {
      */
     @Test
     public void testNullBackupDir() {
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setRootBackupDir(null);
+        PluginBuilder.start()
+                .rootBackupDir((String) null);
     }
 
     @Test(expected = PluginExecutionException.class)
@@ -112,25 +116,30 @@ public class CatalogBackupPluginTest {
     public void testProcessCreateResponseSubdirectoryLevelsIsNegative() throws Exception {
         // Setup
         CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
+        ExecutorService mockExecutor = mock(ExecutorService.class);
 
-        int subDirLevels = -5;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
+        CatalogBackupPlugin plugin = PluginBuilder.start()
+                .executor(mockExecutor)
+                .rootBackupDir(rootBackupDir)
+                .subDirLevels(-5)
+                .batchSize(METACARD_IDS.length)
+                .build();
 
         // Perform Test
-        CreateResponse postPluginCreateResponse = catalogBackupPlugin.process(mockCreateResponse);
+        CreateResponse response = plugin.process(mockCreateResponse);
+
+        //Verify submit was called.
+        verify(mockExecutor).submit(any(Runnable.class));
+
+        //Create the backup files for the next test
+        plugin.backupBatch(mockCreateResponse.getCreatedMetacards());
 
         // Verify
-        assertThat(postPluginCreateResponse, is(notNullValue()));
+        assertThat(response, is(notNullValue()));
 
-        for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = new File(rootBackupDir.getRoot()
-                    .getAbsolutePath() + getMetacardPath(metacardId, 0) + metacardId);
-            assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
+        for (String id : METACARD_IDS) {
+            File file = new File(plugin.getRootBackupDir() + getMetacardPath(id, 0) + id);
+            assertThat(file.exists(), is(true));
         }
     }
 
@@ -479,5 +488,60 @@ public class CatalogBackupPluginTest {
         }
 
         return metacard;
+    }
+
+    private static class PluginBuilder {
+
+        private CatalogBackupPlugin plugin = new CatalogBackupPlugin();
+
+        public static PluginBuilder start() {
+            return new PluginBuilder();
+        }
+
+        public PluginBuilder sleepSeconds(int seconds) {
+            plugin.setSleepSeconds(seconds);
+            return this;
+        }
+
+        public PluginBuilder scheduledExector(ScheduledExecutorService executor) {
+            plugin.setScheduledExecutor(executor);
+            return this;
+        }
+
+        public PluginBuilder executor(ExecutorService executor) {
+            plugin.setExecutor(executor);
+            return this;
+        }
+
+        public PluginBuilder rootBackupDir(String dir) {
+            plugin.setRootBackupDir(dir);
+            return this;
+        }
+
+        public PluginBuilder subDirLevels(int levels) {
+            plugin.setSubDirLevels(levels);
+            return this;
+        }
+
+        public PluginBuilder enablePlugin(boolean enabled) {
+            plugin.setEnableBackupPlugin(enabled);
+            return this;
+        }
+
+        public CatalogBackupPlugin build() {
+            return plugin;
+        }
+
+        public PluginBuilder batchSize(int batchSize) {
+            plugin.setBatchSize(batchSize);
+            return this;
+        }
+
+        public PluginBuilder rootBackupDir(TemporaryFolder folder) {
+            rootBackupDir(folder.getRoot()
+                    .getAbsolutePath());
+            return this;
+        }
+
     }
 }
