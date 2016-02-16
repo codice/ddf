@@ -35,10 +35,8 @@ public class SecurityMigratable extends AbstractMigratable {
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final Path FILE_CONTAINING_CRL_LOCATION = Paths.get("etc",
-            "ws-security",
-            "server",
-            "encryption.properties");
+    private static final Path FILE_CONTAINING_CRL_LOCATION =
+            Paths.get("etc", "ws-security", "server", "encryption.properties");
 
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
@@ -49,23 +47,11 @@ public class SecurityMigratable extends AbstractMigratable {
         super(description, isOptional);
         this.migratableUtil = migratableUtil;
     }
-
+    
     public MigrationMetadata export(Path exportPath) throws MigrationException {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
-        exportCrlFile(exportPath, migrationWarnings);
         exportPdpDirectory(exportPath, migrationWarnings);
         return new MigrationMetadata(migrationWarnings);
-    }
-
-    private void exportCrlFile(Path exportDirectory, Collection<MigrationWarning> migrationWarnings)
-            throws MigrationException {
-        LOGGER.debug("Exporting CRL from property [{}] in file [{}]...",
-                CRL_PROP_KEY,
-                FILE_CONTAINING_CRL_LOCATION.toString());
-        migratableUtil.copyFileFromJavaPropertyValue(FILE_CONTAINING_CRL_LOCATION,
-                CRL_PROP_KEY,
-                exportDirectory,
-                migrationWarnings);
     }
 
     private void exportPdpDirectory(Path exportDirectory,

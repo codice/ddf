@@ -45,16 +45,9 @@ public class SecurityMigratableTest {
 
     private static final Path PDP_POLICIES_DIR_REL_PATH = Paths.get("etc", "pdp");
 
-    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
-
     private static final Path EXPORTED_REL_PATH = Paths.get("etc", "exported");
 
     private static final String DESCRIPTION = "Exports Security system files";
-
-    private static final Path FILE_CONTAINING_CRL_LOCATION = Paths.get("etc",
-            "ws-security",
-            "server",
-            "encryption.properties");
 
     private static final boolean IS_OPTIONAL = false;
 
@@ -78,24 +71,15 @@ public class SecurityMigratableTest {
 
         securityMigratable.export(exportDirectory);
 
-        assertCrlExport(migratableUtil);
         assertPdpDirectoryExport(migratableUtil);
     }
 
     @Test
     public void testWarningsReturned() throws Exception {
         MigratableUtil migratableUtil = mock(MigratableUtil.class);
-        MigrationWarning expectedWarning1 = new MigrationWarning("Expected Warning 1");
         MigrationWarning expectedWarning2 = new MigrationWarning("Expected Warning 2");
         List<MigrationWarning> expectedWarnings = new ArrayList<>();
-        expectedWarnings.add(expectedWarning1);
         expectedWarnings.add(expectedWarning2);
-
-        doAnswer(new MigrationWarningAnswerFourArgs(expectedWarning1)).when(migratableUtil)
-                .copyFileFromJavaPropertyValue(eq(FILE_CONTAINING_CRL_LOCATION),
-                        eq(CRL_PROP_KEY),
-                        eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>>any());
 
         doAnswer(new MigrationWarningAnswerThreeArgs(expectedWarning2)).when(migratableUtil)
                 .copyDirectory(eq(PDP_POLICIES_DIR_REL_PATH),
@@ -126,45 +110,6 @@ public class SecurityMigratableTest {
         platformMigratable.export(exportDirectory);
     }
 
-    @Test(expected = MigrationException.class)
-    public void testExportExceptionThrownWhenCopyingFileFromJavaProperty() throws Exception {
-        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil)
-                .copyFileFromJavaPropertyValue(any(Path.class),
-                        any(String.class),
-                        eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>>any());
-        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
-                mockMigratableUtil);
-
-        platformMigratable.export(exportDirectory);
-    }
-
-    @Test(expected = MigrationException.class)
-    public void testExportExceptionThrownWhenCopyingFile() throws Exception {
-        // Setup
-        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil)
-                .copyFileFromJavaPropertyValue(any(Path.class),
-                        any(String.class),
-                        eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>>any());
-        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
-                mockMigratableUtil);
-
-        // Perform test
-        platformMigratable.export(exportDirectory);
-    }
-
-    private void assertCrlExport(MigratableUtil mockMigratableUtil) {
-        verify(mockMigratableUtil).copyFileFromJavaPropertyValue(eq(FILE_CONTAINING_CRL_LOCATION),
-                eq(CRL_PROP_KEY),
-                eq(exportDirectory),
-                anyCollectionOf(MigrationWarning.class));
-    }
-
     private void assertPdpDirectoryExport(MigratableUtil mockMigratableUtil) {
         verify(mockMigratableUtil).copyDirectory(eq(PDP_POLICIES_DIR_REL_PATH),
                 eq(exportDirectory),
@@ -184,23 +129,6 @@ public class SecurityMigratableTest {
         public Void answer(InvocationOnMock invocation) throws Throwable {
             Object[] args = invocation.getArguments();
             ((Collection<MigrationWarning>) args[2]).add(expectedWarning);
-            return null;
-        }
-    }
-
-    private class MigrationWarningAnswerFourArgs implements Answer<Void> {
-
-        private final MigrationWarning expectedWarning;
-
-        private MigrationWarningAnswerFourArgs(MigrationWarning expectedWarning) {
-            this.expectedWarning = expectedWarning;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Void answer(InvocationOnMock invocation) throws Throwable {
-            Object[] args = invocation.getArguments();
-            ((Collection<MigrationWarning>) args[3]).add(expectedWarning);
             return null;
         }
     }
