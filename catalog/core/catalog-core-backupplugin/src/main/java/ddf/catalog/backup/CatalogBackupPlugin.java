@@ -57,6 +57,10 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
+    private static final ExecutorService EXECUTOR_SERVICE =
+            Executors.newFixedThreadPool(Runtime.getRuntime()
+                    .availableProcessors());
+
     private File rootBackupDir;
 
     private int subDirLevels;
@@ -84,13 +88,10 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 throw new PluginExecutionException("No root backup directory configured.");
             }
 
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.submit(() -> {
-                startExecution(input.getCreatedMetacards());
-            });
+            EXECUTOR_SERVICE.submit(() -> processBatch(input.getCreatedMetacards()));
 
             //Stop accepting new tasks
-            executor.shutdown();
+            EXECUTOR_SERVICE.shutdown();
 
         }
 
@@ -105,7 +106,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 OPERATION.CREATE));
     }
 
-    void startExecution(List<Metacard> metacards) {
+    void processBatch(List<Metacard> metacards) {
 
         List<String> errors = new ArrayList<>();
         for (Metacard metacard : metacards) {
@@ -117,10 +118,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         }
 
         if (!errors.isEmpty()) {
-            {
-                LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
-                        pluginExceptionWith(errors));
-            }
+            LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
+                    pluginExceptionWith(errors));
         }
     }
 
