@@ -28,104 +28,9 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-weaver-privilizer-api</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-            <version>1.8.1</version>
-            &lt;!&ndash;<classifier>with-deps</classifier>&ndash;&gt;
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>logkit</groupId>
-            <artifactId>logkit</artifactId>
-            <version>1.0.1</version>
-        </dependency>
--->
-<!--
-        <dependency>
-            <groupId>org.apache.bval</groupId>
-            <artifactId>org.apache.bval.bundle</artifactId>
-            <version>1.1.0</version>
-        </dependency>
--->
-<!--
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.interceptor</groupId>
-            <artifactId>javax.interceptor-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
--->
-
     </dependencies>
     <build>
         <plugins>
-            <!-- Export mock objects in test JAR for use by other projects -->
-<!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -184,22 +89,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-<!--
-                        <Embed-Dependency>
-                            commons-beanutils,
-                            commons-logging,
-                            commons-digester,
-                            logkit,
-                            cdi-api,
-                            el-api,
-                            javax.interceptor-api,
-                            catalog-core-api-impl
-                        </Embed-Dependency>
--->
                         <Export-Package>
-                            ddf.catalog.data.dynamic.api  <!-- ;uses:=org.apache.commons.beanutils,
-                            org.apache.commons.beanutils
-                            -->
+                            ddf.catalog.data.dynamic.api
                         </Export-Package>
                         <Import-Package>
                             ddf.catalog;version="[2.0,3)",

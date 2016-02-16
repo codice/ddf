@@ -41,6 +41,12 @@ import ddf.catalog.data.dynamic.api.MetacardFactory;
 import ddf.catalog.data.dynamic.impl.MetacardFactoryImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 
+/**
+ * This test mimics the MetacardTest in the catalog-core-api-impl module. It tests the Metacard
+ * interface as implemented by Dynamic Metacards. Method calls used that were not part of the
+ * Metacard interface are commented out and the behavior is accomplished using Dynamic Metacard
+ * methods.
+ */
 public class DynamicMetacardTest extends TestCase {
     private static final String DEFAULT_SERIALIZATION_FILE_LOCATION = "target/metacard1.ser";
 

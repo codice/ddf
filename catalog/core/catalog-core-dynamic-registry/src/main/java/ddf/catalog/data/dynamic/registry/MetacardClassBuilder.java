@@ -53,26 +53,6 @@ public class MetacardClassBuilder {
     }
 
     /**
-     * Takes the values for this metacard type that have been set and generates a new metacard
-     * type class to be used in creating dynamic metacards.
-     * @return instance of a dynamic class containing the name and attributes collected
-     */
-/*
-    public LazyDynaClass getDynamicMetacardClass() {
-        LazyDynaClass dynaClass = null;
-
-        DynaProperty[] descriptors = getDescriptors();
-        if (descriptors != null) {
-            LOGGER.debug("Creating an instance of LazyDynaClass with name {} and {} attributes.",
-                    name,
-                    descriptors.length);
-            dynaClass = new LazyDynaClass(name, null, descriptors);
-        }
-
-        return dynaClass;
-    }
-*/
-    /**
      * Returns a list of type names that this metacard builds upon. The intent is for each type
      * in the list to be included in the metacard definition before attributes specific to the
      * type currently being defined.

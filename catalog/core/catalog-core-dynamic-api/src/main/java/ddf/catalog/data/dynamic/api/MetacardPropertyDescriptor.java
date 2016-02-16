@@ -76,15 +76,35 @@ public interface MetacardPropertyDescriptor extends Serializable {
      */
     void setFormat(AttributeType.AttributeFormat format);
 
-    // Add the methods from the DynaPropery class
+    // Add the methods from the DynaProperty class
 
+    /**
+     * Gets the (optional) type of the indexed content for DynaProperty's that support this feature.
+     * @return the Class for the content type if this is an indexed DynaProperty and this feature is supported. Otherwise null.
+     */
     Class<?> getContentType();
 
+    /**
+     * Get the name of this property.
+     * @return the name of the property
+     */
     String getName();
 
+    /**
+     * Gets the Java class representing the data type of the underlying property values.
+     * @return the property type
+     */
     Class<?> getType();
 
+    /**
+     * Does this property represent an indexed value (ie an array or List)?
+     * @return true if the property is indexed (i.e. is a List or array), otherwise false
+     */
     boolean isIndexed();
 
+    /**
+     * Does this property represent a mapped value (ie a Map)?
+     * @return true if the property is a Map otherwise false
+     */
     boolean isMapped();
 }

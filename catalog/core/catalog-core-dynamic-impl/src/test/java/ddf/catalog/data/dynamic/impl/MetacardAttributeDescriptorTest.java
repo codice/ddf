@@ -74,18 +74,6 @@ public class MetacardAttributeDescriptorTest extends TestCase {
         format = descriptor.getAttributeFormat();
         assertTrue(AttributeType.AttributeFormat.BINARY.compareTo(format) == 0);
 
-/*
-        dynaProperty = new DynaProperty("test", String.class);
-        descriptor = new MetacardAttributeDescriptor(dynaProperty);
-        format = descriptor.getAttributeFormat();
-        assertTrue(AttributeType.AttributeFormat.XML.compareTo(format) == 0);
-
-        dynaProperty = new DynaProperty("test", String.class);
-        descriptor = new MetacardAttributeDescriptor(dynaProperty);
-        format = descriptor.getAttributeFormat();
-        assertTrue(AttributeType.AttributeFormat.GEOMETRY.compareTo(format) == 0);
-*/
-
         dynaProperty = new DynaProperty("test", Object.class);
         descriptor = new MetacardAttributeDescriptor(dynaProperty);
         format = descriptor.getAttributeFormat();

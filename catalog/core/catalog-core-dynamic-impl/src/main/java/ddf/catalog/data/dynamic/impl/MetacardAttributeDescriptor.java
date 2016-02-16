@@ -82,44 +82,6 @@ public class MetacardAttributeDescriptor implements AttributeDescriptor, Attribu
     @Override
     public AttributeFormat getAttributeFormat() {
         return propertyDescriptor.getFormat();
-/*
-        AttributeFormat attributeFormat;
-        Class<?> classType = propertyDescriptor.getType();
-        switch (classType.getSimpleName()) {
-        case "String":
-            attributeFormat = AttributeFormat.STRING;
-            break;
-        case "Boolean":
-            attributeFormat = AttributeFormat.BOOLEAN;
-            break;
-        case "Date":
-            attributeFormat = AttributeFormat.DATE;
-            break;
-        case "Short":
-            attributeFormat = AttributeFormat.SHORT;
-            break;
-        case "Integer":
-            attributeFormat = AttributeFormat.INTEGER;
-            break;
-        case "Long":
-            attributeFormat = AttributeFormat.LONG;
-            break;
-        case "Float":
-            attributeFormat = AttributeFormat.FLOAT;
-            break;
-        case "Double":
-            attributeFormat = AttributeFormat.DOUBLE;
-            break;
-        case "Byte[]":
-            attributeFormat = AttributeFormat.BINARY;
-            break;
-        case "Xml":
-            attributeFormat = AttributeFormat.XML;
-            break;
-        default:
-            attributeFormat = AttributeFormat.OBJECT;
-        }
-        return attributeFormat;
-*/
+
     }
 }

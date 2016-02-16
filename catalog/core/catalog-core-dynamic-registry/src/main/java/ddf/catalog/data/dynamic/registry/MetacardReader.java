@@ -137,45 +137,6 @@ public class MetacardReader {
         return success;
     }
 
-//    public void registerMetacardDefinition(File f) {
-//        if (f == null) {
-//            LOGGER.debug("Unable to read definition from a null file.");
-//            return;
-//        }
-//
-//        LOGGER.debug("Reading metacard definition from file {}", f.getName());
-//        try (BufferedInputStream is = new BufferedInputStream(new FileInputStream(f))) {
-//            registerMetacardDefinition(is);
-//        } catch (IOException e) {
-//            LOGGER.warn("Error opening file {}", f.getName());
-//        }
-//    }
-//
-//    public void registerMetacardDefinition(String s) {
-//        if (s == null) {
-//            LOGGER.warn("Unable to read metacard definition from null string.");
-//            return;
-//        }
-//
-//        InputStream is = new ByteArrayInputStream(s.getBytes());
-//        registerMetacardDefinition(is);
-//    }
-//
-//    public void registerMetacardDefinition(InputStream is) {
-//        try {
-//            LazyDynaClass dclass = parseMetacardDefinition(is);
-//
-//            if ((dclass != null) && (metacardFactory != null)) {
-//                LOGGER.debug("Registering metacard - name: {}", dclass.getName());
-//                metacardFactory.addDynaClass(dclass);
-//            } else {
-//                LOGGER.warn("Unable to register new metacard type.");
-//            }
-//        } catch (Exception e) {
-//            LOGGER.warn("Unexpected error parsing metadata definition.", e);
-//        }
-//    }
-
     /**
      * Allows the metacard factory object to be injected into this reader.
      * @param mcf the {@link MetacardFactory} implementation for registering metacards

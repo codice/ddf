@@ -41,7 +41,6 @@
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.2</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-weaver-privilizer-api</artifactId>
@@ -51,7 +50,6 @@
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
             <version>1.8.1</version>
-            <!--<classifier>with-deps</classifier>-->
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
@@ -68,13 +66,6 @@
             <artifactId>logkit</artifactId>
             <version>1.0.1</version>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.apache.bval</groupId>
-            <artifactId>org.apache.bval.bundle</artifactId>
-            <version>1.1.0</version>
-        </dependency>
--->
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
@@ -95,20 +86,17 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.7</version>
         </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -175,44 +163,7 @@
                     </execution>
                 </executions>
             </plugin>
-<!--
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            commons-beanutils,
-                            commons-logging,
-                            commons-digester,
-                            logkit,
-                            cdi-api,
-                            el-api,
-                            javax.interceptor-api,
-                            catalog-core-api-impl
-                        </Embed-Dependency>
-                        <Import-Package>
-                            ddf.catalog.data.dynamic.api;version="[2.9,3)",
-                            ddf.catalog;version="[2.0,3)",
-                            ddf.catalog.data;version="[2.0,3)",
-                            ddf.catalog.event;version="[2.0,3)",
-                            ddf.catalog.federation;version="[2.0,3)",
-                            ddf.catalog.operation;version="[2.0,3)",
-                            ddf.catalog.plugin;version="[2.0,3)",
-                            ddf.catalog.resource;version="[2.0,3)",
-                            ddf.catalog.source;version="[2.0,3)",
-                            ddf.catalog.transform;version="[2.0,3)",
-                            ddf.catalog.util;version="[2.0,3)",
-                            ddf.catalog.validation;version="[2.0,3)",
-                            org.apache.log4j;version="[1.2,3)",
-                            *
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
--->
+
              <!--Generate Javadocs for this project-->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>

@@ -77,16 +77,6 @@ public class DynamicMetacardImpl implements DynamicMetacard {
     }
 
     /**
-     * Creates a {@link Metacard} from the provided {@link DynaClass} with empty
-     * {@link Attribute}s.
-     */
-/*
-    public DynamicMetacardImpl(DynaClass dynaClass) {
-        attributesBean = new LazyDynaBean(dynaClass);
-    }
-*/
-
-    /**
      * Creates a {@link Metacard} from the provided {@link LazyDynaBean} or another DynamicMetacardImpl
      * with empty {@link Attribute}s.
      */
@@ -625,14 +615,6 @@ public class DynamicMetacardImpl implements DynamicMetacard {
                     name);
         }
     }
-
-/*
-    public void addMetacardType(String name) {
-        if (!metacardTypes.contains(name)) {
-            metacardTypes.add(name);
-        }
-    }
-*/
 
     @Override
     public List<String> getMetacardTypes() {

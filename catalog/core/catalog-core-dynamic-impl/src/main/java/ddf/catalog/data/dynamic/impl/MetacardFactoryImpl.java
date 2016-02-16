@@ -54,14 +54,13 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
                 new MetacardPropertyDescriptorImpl(Metacard.EXPIRATION, Date.class),
                 new MetacardPropertyDescriptorImpl(Metacard.EFFECTIVE, Date.class),
                 new MetacardPropertyDescriptorImpl(Metacard.ID, String.class),
-                new MetacardPropertyDescriptorImpl(Metacard.GEOGRAPHY, String.class), // ("location", String.class),
-                new MetacardPropertyDescriptorImpl(DynamicMetacard.SOURCE_ID, String.class), // ("sourceId", String.class),
+                new MetacardPropertyDescriptorImpl(Metacard.GEOGRAPHY, String.class),
+                new MetacardPropertyDescriptorImpl(DynamicMetacard.SOURCE_ID, String.class),
                 new MetacardPropertyDescriptorImpl(Metacard.THUMBNAIL, byte[].class),
                 new MetacardPropertyDescriptorImpl(Metacard.TITLE, String.class),
                 new MetacardPropertyDescriptorImpl(Metacard.METADATA, String.class),
-                //new MetacardPropertyDescriptorImpl(DynamicMetacardImpl.METACARD_TYPE, MetacardType.class), // ("metacardType", MetacardType.class),
-                new MetacardPropertyDescriptorImpl(Metacard.TARGET_NAMESPACE, String.class), // ("contentTypeNamespace", URI.class),
-                new MetacardPropertyDescriptorImpl(Metacard.CONTENT_TYPE, String.class), // ("contentTypeName", String.class),
+                new MetacardPropertyDescriptorImpl(Metacard.TARGET_NAMESPACE, String.class),
+                new MetacardPropertyDescriptorImpl(Metacard.CONTENT_TYPE, String.class),
                 new MetacardPropertyDescriptorImpl(Metacard.POINT_OF_CONTACT, String.class),
                 new MetacardPropertyDescriptorImpl(Metacard.DESCRIPTION, String.class),
                 new MetacardPropertyDescriptorImpl(Metacard.CONTENT_TYPE_VERSION, String.class),
@@ -211,7 +210,5 @@ public class MetacardFactoryImpl implements ddf.catalog.data.dynamic.api.Metacar
         dynaClass.setReturnNull(true);
         LOGGER.info("Registering new dynamic metacard - name {}", dynaClass.getName());
         typeClasses.put(dynaClass.getName(), dynaClass);
-
-
     }
 }
