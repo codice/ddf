@@ -49,7 +49,7 @@ define([
     Installer.Model = Backbone.Model.extend({
         installUrl:'/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
         uninstallUrl: '/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
-        rebootUrl:    '/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
+        rebootUrl:    '/jolokia/exec/org.apache.karaf:type=system,name=root/rebootCleanAll()',
         defaults: function () {
             return {
                 hasNext: true,
