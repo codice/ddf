@@ -47,6 +47,9 @@ import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationSta
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.service.cm.Configuration;
@@ -58,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of the ApplicationService. Uses the karaf features service and
  * bundle state service to determine current state of items in karaf.
  */
-public class ApplicationServiceImpl implements ApplicationService {
+public class ApplicationServiceImpl implements ApplicationService, ServiceListener {
 
     private static final String POST_CONFIG_START = "admin-post-install-modules";
 
@@ -70,18 +73,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private static final String UNINSTALLED = "Uninstalled";
 
-    /**
-     * Used to make sure that the config file is only checked on first run.
-     */
-    private static final String FIRST_RUN_MARKER = "first-run";
-
-    private Logger logger = LoggerFactory.getLogger(ApplicationServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
     private FeaturesService featuresService = null;
 
     private List<BundleStateService> bundleStateServices = null;
 
     private Set<String> ignoredApplicationNames = null;
+
+    private String configFileName;
 
     /**
      * Creates a new instance of Application Service.
@@ -98,24 +98,35 @@ public class ApplicationServiceImpl implements ApplicationService {
         this.bundleStateServices = bundleStateServices;
         ignoredApplicationNames = new HashSet<>();
 
+        try {
+            // If the service is not available at this time, it means this is the first
+            // boot of the system and we need to listen for the completion of the
+            // boot cycle in order to update configuration properties
+            if (context.getServiceReference("org.apache.karaf.features.BootFinished") == null) {
+                context.addServiceListener(this,
+                        "(objectclass=org.apache.karaf.features.BootFinished)");
+            }
+        } catch (InvalidSyntaxException e) {
+            LOGGER.error("Failed to create service listener filter", e);
+        }
     }
 
     @Override
     public Set<Application> getApplications() {
-        logger.trace("Getting all applications.");
+        LOGGER.trace("Getting all applications.");
         Repository[] repos = {};
         try {
             repos = featuresService.listRepositories();
 
-            logger.debug("Found {} applications from feature service.", repos.length);
+            LOGGER.debug("Found {} applications from feature service.", repos.length);
 
-            if (logger.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 for (int ii = 0; ii < repos.length; ++ii) {
-                    logger.debug("Repo/App {}: {}", ii, repos[ii].getName());
+                    LOGGER.debug("Repo/App {}: {}", ii, repos[ii].getName());
                 }
             }
         } catch (Exception e) {
-            logger.warn("Unable to get list of Repositories.", e);
+            LOGGER.warn("Unable to get list of Repositories.", e);
         }
 
         Set<Application> applications = new HashSet<Application>(repos.length);
@@ -127,7 +138,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     applications.add(newApp);
                 }
             } catch (ApplicationServiceException ase) {
-                logger.warn("Exception while trying to find information for application named {}. "
+                LOGGER.warn("Exception while trying to find information for application named {}. "
                         + "It will be excluded from the application list.", newApp.getName(), ase);
             }
         }
@@ -174,8 +185,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
 
-            logger.debug("{} has {} required features that must be started.",
-                    application.getName(),
+            LOGGER.debug("{} has {} required features that must be started.", application.getName(),
                     requiredFeatures.size());
 
             uninstalledFeatures = getNotInstalledFeatures(requiredFeatures);
@@ -201,14 +211,12 @@ public class ApplicationServiceImpl implements ApplicationService {
                 installState = ApplicationState.ACTIVE;
             }
         } catch (Exception e) {
-            logger.warn("Encountered an error while trying to determine status of application {}. "
+            LOGGER.warn("Encountered an error while trying to determine status of application {}. "
                     + "Setting status as UNKNOWN.", application.getName(), e);
             installState = ApplicationState.UNKNOWN;
         }
 
-        return new ApplicationStatusImpl(application,
-                installState,
-                uninstalledFeatures,
+        return new ApplicationStatusImpl(application, installState, uninstalledFeatures,
                 errorBundles);
     }
 
@@ -222,7 +230,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void setIgnoredApplications(List<String> applicationNames) {
         if (applicationNames != null) {
             ignoredApplicationNames = new HashSet<String>(applicationNames);
-            logger.debug("Ignoring applications with the following names: {}",
+            LOGGER.debug("Ignoring applications with the following names: {}",
                     ignoredApplicationNames);
         }
     }
@@ -235,33 +243,7 @@ public class ApplicationServiceImpl implements ApplicationService {
      *                       list.
      */
     public void setConfigFileName(String configFileName) {
-        try {
-            BundleContext context = getContext();
-            ServiceReference<ConfigurationAdmin> configAdminRef = context.getServiceReference(
-                    ConfigurationAdmin.class);
-            ConfigurationAdmin configAdmin = context.getService(configAdminRef);
-            Configuration config =
-                    configAdmin.getConfiguration(ApplicationServiceImpl.class.getName());
-            Dictionary<String, Object> properties = config.getProperties();
-
-            if (properties.get(FIRST_RUN_MARKER) == null) {
-                logger.debug("Checking the configuration file on the first run.");
-                ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
-                        configFileName,
-                        this,
-                        featuresService,
-                        POST_CONFIG_START,
-                        POST_CONFIG_STOP);
-                configInstaller.start();
-                properties.put(FIRST_RUN_MARKER, Boolean.TRUE);
-                config.update(properties);
-            } else {
-                logger.debug("Not the first run, ignoring the installer configuration file.");
-            }
-
-        } catch (Exception e) {
-            logger.warn("Could not check for installer application configuration file.", e);
-        }
+        this.configFileName = configFileName;
     }
 
     protected BundleContext getContext() {
@@ -300,9 +282,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         for (Entry<Application, ApplicationNodeImpl> curAppNode : appMap.entrySet()) {
             if (curAppNode.getValue()
                     .getParent() == null) {
-                logger.debug("Adding {} as a root application.",
-                        curAppNode.getKey()
-                                .getName());
+                LOGGER.debug("Adding {} as a root application.", curAppNode.getKey()
+                        .getName());
                 applicationTree.add(curAppNode.getValue());
             }
         }
@@ -331,7 +312,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
                 if (null == mainFeature) {
                     if (reportDebug) {
-                        logger.debug("Application \"{}\" does not contain a main feature",
+                        LOGGER.debug("Application \"{}\" does not contain a main feature",
                                 curAppNode.getKey()
                                         .getName());
                     }
@@ -347,22 +328,21 @@ public class ApplicationServiceImpl implements ApplicationService {
                 // where they are from
                 Set<Application> depAppSet = new HashSet<>();
                 for (Dependency curDepFeature : dependencies) {
-                    Application dependencyApp =
-                            findFeature(featuresService.getFeature(curDepFeature.getName()),
-                                    filteredApplications);
+                    Application dependencyApp = findFeature(
+                            featuresService.getFeature(curDepFeature.getName()),
+                            filteredApplications);
                     if (dependencyApp != null) {
                         if (dependencyApp.equals(curAppNode.getKey())) {
                             if (reportDebug) {
-                                logger.debug("Self-dependency");
+                                LOGGER.debug("Self-dependency");
                             }
                             continue;
                         } else {
                             if (reportDebug) {
-                                logger.debug(
+                                LOGGER.debug(
                                         "Application {} depends on the feature {} which is located in application {}.",
                                         curAppNode.getKey()
-                                                .getName(),
-                                        curDepFeature.getName(),
+                                                .getName(), curDepFeature.getName(),
                                         dependencyApp.getName());
                             }
                             depAppSet.add(dependencyApp);
@@ -375,7 +355,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         parentApp = findCommonParent(depAppSet, appMap);
                         if (parentApp == null) {
                             if (reportDebug) {
-                                logger.warn(
+                                LOGGER.warn(
                                         "Found more than 1 application dependency for application {}. Could not determine which one is the correct parent. Application will be sent back as root application.",
                                         curAppNode.getKey()
                                                 .getName());
@@ -394,7 +374,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .setParent(parentAppNode);
                 } else {
                     if (reportDebug) {
-                        logger.debug(
+                        LOGGER.debug(
                                 "No dependency applications found for {}. This will be sent back as a root application.",
                                 curAppNode.getKey()
                                         .getName());
@@ -405,11 +385,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                 // (FeaturesService)
             } catch (Exception e) {
                 if (reportDebug) {
-                    logger.warn(
+                    LOGGER.warn(
                             "Encountered error while determining dependencies for \"{}\". This may cause an incomplete application hierarchy to be created.",
                             curAppNode.getKey()
-                                    .getName(),
-                            e);
+                                    .getName(), e);
                 }
             }
         }
@@ -445,14 +424,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         // within its parents
         for (Entry<Application, Set<Application>> curAppEntry : applicationTreeSet.entrySet()) {
             if (!(new HashSet<Application>(applicationSet).retainAll(curAppEntry.getValue()))) {
-                logger.debug("{} contains all needed dependencies.",
-                        curAppEntry.getKey()
-                                .getName());
+                LOGGER.debug("{} contains all needed dependencies.", curAppEntry.getKey()
+                        .getName());
                 return curAppEntry.getKey();
             } else {
-                logger.trace("{} does not contain all needed dependencies.",
-                        curAppEntry.getKey()
-                                .getName());
+                LOGGER.trace("{} does not contain all needed dependencies.", curAppEntry.getKey()
+                        .getName());
             }
         }
 
@@ -466,7 +443,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<Feature> getInstallationProfiles() {
-        logger.debug("Looking for installation profile features");
+        LOGGER.debug("Looking for installation profile features");
         List<Feature> profiles = new ArrayList<Feature>();
         try {
             for (Feature feature : featuresService.listFeatures()) {
@@ -476,7 +453,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception e) {
-            logger.error(
+            LOGGER.error(
                     "Encountered an error while trying to obtain the installation profile features.",
                     e);
         }
@@ -493,7 +470,7 @@ public class ApplicationServiceImpl implements ApplicationService {
      * application contains the feature.
      */
     protected Application findFeature(Feature feature, Set<Application> applications) {
-        logger.debug("Looking for feature {} - {}", feature.getName(), feature.getVersion());
+        LOGGER.debug("Looking for feature {} - {}", feature.getName(), feature.getVersion());
         for (Application curApp : applications) {
             try {
                 if (curApp.getFeatures()
@@ -501,14 +478,12 @@ public class ApplicationServiceImpl implements ApplicationService {
                     return curApp;
                 }
             } catch (Exception e) {
-                logger.warn(
+                LOGGER.warn(
                         "Encountered and error when trying to check features in application named {}. "
-                                + "Skipping and checking other applications.",
-                        curApp,
-                        e);
+                                + "Skipping and checking other applications.", curApp, e);
             }
         }
-        logger.warn("Could not find feature {} in any known application, returning null.",
+        LOGGER.warn("Could not find feature {} in any known application, returning null.",
                 feature.getName());
 
         return null;
@@ -578,9 +553,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         // check if any service frameworks (e.g. Blueprint
                         // and SpringDM) failed on start
                         for (BundleStateService curStateService : bundleStateServices) {
-                            logger.trace("Checking {} for bundle state of {}.",
-                                    curStateService.getName(),
-                                    curBundle.getSymbolicName());
+                            LOGGER.trace("Checking {} for bundle state of {}.",
+                                    curStateService.getName(), curBundle.getSymbolicName());
                             BundleState curState = curStateService.getState(curBundle);
 
                             switch (curState) {
@@ -588,9 +562,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                             case Waiting:
                             case Starting:
                             case Stopping:
-                                logger.trace("{} is in an inactive state. Current State: {}",
-                                        curBundle.getSymbolicName(),
-                                        curState.toString());
+                                LOGGER.trace("{} is in an inactive state. Current State: {}",
+                                        curBundle.getSymbolicName(), curState.toString());
 
                                 bundleStateSet.addInactiveBundle(curBundle);
                                 break;
@@ -598,9 +571,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                             case Installed:
                             case GracePeriod:
                             case Failure:
-                                logger.trace("{} is in a failed state. Current State: {}",
-                                        curBundle.getSymbolicName(),
-                                        curState.toString());
+                                LOGGER.trace("{} is in a failed state. Current State: {}",
+                                        curBundle.getSymbolicName(), curState.toString());
 
                                 bundleStateSet.addFailedBundle(curBundle);
                                 break;
@@ -608,9 +580,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                             case Unknown:
                             case Active:
                             default:
-                                logger.trace("{} is in an active state. Current State: {}",
-                                        curBundle.getSymbolicName(),
-                                        curState.toString());
+                                LOGGER.trace("{} is in an active state. Current State: {}",
+                                        curBundle.getSymbolicName(), curState.toString());
 
                                 bundleStateSet.addActiveBundle(curBundle);
                                 break;
@@ -642,7 +613,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         Set<Feature> notInstalledFeatures = new HashSet<Feature>();
         for (Feature curFeature : features) {
             if (!featuresService.isInstalled(curFeature)) {
-                logger.debug("{} is not installed.", curFeature.getName());
+                LOGGER.debug("{} is not installed.", curFeature.getName());
                 notInstalledFeatures.add(curFeature);
             }
         }
@@ -657,15 +628,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                 featuresService.installFeature(application.getMainFeature()
                         .getName(), EnumSet.of(Option.NoAutoRefreshBundles));
             } else {
-                logger.debug(
+                LOGGER.debug(
                         "Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
                         application.getName());
                 for (Feature curFeature : application.getFeatures()) {
                     if (curFeature.getInstall()
                             .equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
-                        logger.debug("Installing feature {} for application {}",
-                                curFeature.getName(),
-                                application.getName());
+                        LOGGER.debug("Installing feature {} for application {}",
+                                curFeature.getName(), application.getName());
                         featuresService.installFeature(curFeature.getName(),
                                 EnumSet.of(Option.NoAutoRefreshBundles));
                     }
@@ -704,15 +674,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                     for (Feature curFeature : features) {
                         try {
                             if (application.getFeatures()
-                                    .contains(curFeature)
-                                    && featuresService.isInstalled(curFeature)) {
+                                    .contains(curFeature) && featuresService.isInstalled(
+                                    curFeature)) {
                                 featuresService.uninstallFeature(curFeature.getName(),
                                         curFeature.getVersion(),
                                         EnumSet.of(Option.NoAutoRefreshBundles));
                             }
                         } catch (Exception e) {
-                            logger.debug("Error while trying to uninstall {}",
-                                    curFeature.getName(),
+                            LOGGER.debug("Error while trying to uninstall {}", curFeature.getName(),
                                     e);
                         }
                     }
@@ -721,14 +690,13 @@ public class ApplicationServiceImpl implements ApplicationService {
                             "Application " + application.getName() + " is already stopped.");
                 }
             } else {
-                logger.debug(
+                LOGGER.debug(
                         "Main feature not found when trying to stop {}, going through and manually stop all features that are installed.",
                         application.getName());
                 for (Feature curFeature : application.getFeatures()) {
                     if (featuresService.isInstalled(curFeature)) {
-                        logger.debug("Uninstalling feature {} for application {}",
-                                curFeature.getName(),
-                                application.getName());
+                        LOGGER.debug("Uninstalling feature {} for application {}",
+                                curFeature.getName(), application.getName());
                         featuresService.uninstallFeature(curFeature.getName(),
                                 EnumSet.of(Option.NoAutoRefreshBundles));
                     }
@@ -758,11 +726,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (applicationURL.toString()
                     .startsWith("file:")) {
                 applicationURL = ApplicationFileInstaller.install(new File(applicationURL));
-                logger.info("Installing newly added feature repo: {}", applicationURL);
+                LOGGER.info("Installing newly added feature repo: {}", applicationURL);
             }
             featuresService.addRepository(applicationURL, false);
         } catch (Exception e) {
-            logger.warn("Could not add new application due to error.", e);
+            LOGGER.warn("Could not add new application due to error.", e);
             throw new ApplicationServiceException(e);
         }
     }
@@ -776,7 +744,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             uninstallAllFeatures(applicationURL);
             featuresService.removeRepository(applicationURL, false);
         } catch (Exception e) {
-            logger.warn("Could not remove application due to error.", e);
+            LOGGER.warn("Could not remove application due to error.", e);
             throw new ApplicationServiceException(e);
         }
     }
@@ -789,7 +757,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 featuresService.removeRepository(application.getURI(), false);
             }
         } catch (Exception e) {
-            logger.warn("Could not remove application due to error.", e);
+            LOGGER.warn("Could not remove application due to error.", e);
             throw new ApplicationServiceException(e);
         }
 
@@ -834,20 +802,17 @@ public class ApplicationServiceImpl implements ApplicationService {
             for (Feature feature : features) {
                 if (featuresService.isInstalled(feature)) {
                     try {
-                        featuresService.uninstallFeature(feature.getName(),
-                                feature.getVersion(),
+                        featuresService.uninstallFeature(feature.getName(), feature.getVersion(),
                                 EnumSet.of(Option.NoAutoRefreshBundles));
                     } catch (Exception e) {
                         //if there is an issue uninstalling a feature try to keep uninstalling the other features
-                        logger.warn("Could not uninstall feature: {} version: {}",
-                                feature.getName(),
-                                feature.getVersion(),
-                                e);
+                        LOGGER.warn("Could not uninstall feature: {} version: {}",
+                                feature.getName(), feature.getVersion(), e);
                     }
                 }
             }
         } catch (ApplicationServiceException ase) {
-            logger.error("Error obtaining feature list from application", ase);
+            LOGGER.error("Error obtaining feature list from application", ase);
         }
     }
 
@@ -859,7 +824,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 features.add(getFeatureView(feature));
             }
         } catch (Exception ex) {
-            logger.warn("Could not obtain all features.", ex);
+            LOGGER.warn("Could not obtain all features.", ex);
         }
         return features;
     }
@@ -873,7 +838,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception ex) {
-            logger.warn("Could not map Features to their Repositories.", ex);
+            LOGGER.warn("Could not map Features to their Repositories.", ex);
         }
         return feature2repo;
     }
@@ -910,9 +875,35 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception e) {
-            logger.warn("Could not get Repository Features", e);
+            LOGGER.warn("Could not get Repository Features", e);
         }
         return repoFeatures;
+    }
+
+    @Override
+    public void serviceChanged(ServiceEvent serviceEvent) {
+        if (serviceEvent.getType() == ServiceEvent.REGISTERED) {
+            BundleContext context = getContext();
+            try {
+                ServiceReference<ConfigurationAdmin> configAdminRef = context.getServiceReference(
+                        ConfigurationAdmin.class);
+                ConfigurationAdmin configAdmin = context.getService(configAdminRef);
+                Configuration config = configAdmin.getConfiguration(
+                        ApplicationServiceImpl.class.getName());
+                Dictionary<String, Object> properties = config.getProperties();
+
+                LOGGER.debug("Checking the configuration file on the first run.");
+                ApplicationConfigInstaller configInstaller = new ApplicationConfigInstaller(
+                        configFileName, this, featuresService, POST_CONFIG_START, POST_CONFIG_STOP);
+                configInstaller.start();
+                config.update(properties);
+
+            } catch (Exception e) {
+                LOGGER.warn("Could not check for installer application configuration file.", e);
+            } finally {
+                context.removeServiceListener(this);
+            }
+        }
     }
 
     /**
