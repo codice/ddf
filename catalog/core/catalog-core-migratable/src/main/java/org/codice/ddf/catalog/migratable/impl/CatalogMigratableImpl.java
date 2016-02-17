@@ -66,6 +66,10 @@ public class CatalogMigratableImpl extends AbstractMigratable {
 
     private final CatalogMigratableConfig config;
 
+    private final MigrationTaskManager taskManager;
+
+    private long exportGroupCount;
+
     /**
      * Constructor.
      *
@@ -89,6 +93,8 @@ public class CatalogMigratableImpl extends AbstractMigratable {
         this.filterBuilder = filterBuilder;
         this.fileWriter = fileWriter;
         this.config = config;
+
+        this.taskManager = createTaskManager(config, createExecutorService(config));
     }
 
     /**
@@ -98,8 +104,6 @@ public class CatalogMigratableImpl extends AbstractMigratable {
      */
     public MigrationMetadata export(Path exportPath) throws MigrationException {
         config.setExportPath(exportPath.resolve(CATALOG_EXPORT_DIRECTORY));
-        MigrationTaskManager taskManager = createTaskManager(config, createExecutorService(config));
-
         Collection<MigrationWarning> warnings = new ArrayList<>();
         Map<String, Serializable> props = new HashMap<>();
         Filter dumpFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
@@ -110,46 +114,19 @@ public class CatalogMigratableImpl extends AbstractMigratable {
         useNativeQueryMode(props);
 
         QueryImpl exportQuery = createQuery(dumpFilter);
-        QueryRequest exportQueryRequest = new QueryRequestImpl(exportQuery, props);
-
         exportQuery.setPageSize(config.getExportQueryPageSize());
         exportQuery.setRequestsTotalResultsCount(false);
 
-        long exportGroupCount = 1;
-        SourceResponse response;
-
-        ExportMigrationException exportMigrationException = new ExportMigrationException(
-                "Catalog could not export metacards");
+        QueryRequest exportQueryRequest = new QueryRequestImpl(exportQuery, props);
 
         try {
-            List<Result> results;
-
-            do {
-                response = provider.query(exportQueryRequest);
-                if (response == null) {
-                    LOGGER.error("Response came back null from the query: {}");
-                    throw exportMigrationException;
-                }
-
-                results = response.getResults();
-                if (results == null) {
-                    LOGGER.error("Results came back null from the response: {}");
-                    throw exportMigrationException;
-                }
-
-                if (results.size() > 0) {
-                    taskManager.exportMetacardQuery(results, exportGroupCount);
-                    exportQuery.setStartIndex(
-                            exportQuery.getStartIndex() + config.getExportQueryPageSize());
-                    exportGroupCount++;
-                }
-            } while (results.size() >= config.getExportQueryPageSize());
+            executeQueryLoop(exportQuery, exportQueryRequest);
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Query {} was invalid due to: {}", exportGroupCount, e.getMessage(), e);
-            throw exportMigrationException;
+            throw new ExportMigrationException("Catalog could not export metacards");
         } catch (RuntimeException e) {
             LOGGER.error("Internal error occurred when exporting catalog: {}", e.getMessage(), e);
-            throw exportMigrationException;
+            throw new ExportMigrationException("Catalog could not export metacards");
         } finally {
             try {
                 taskManager.exportFinish();
@@ -184,5 +161,34 @@ public class CatalogMigratableImpl extends AbstractMigratable {
     private void useNativeQueryMode(Map<String, Serializable> props) {
         // Prevent the catalog provider from caching results.
         props.put("mode", "native");
+    }
+
+    private void executeQueryLoop(QueryImpl exportQuery, QueryRequest exportQueryRequest)
+            throws UnsupportedQueryException {
+
+        exportGroupCount = 1;
+        SourceResponse response;
+        List<Result> results;
+
+        do {
+            response = provider.query(exportQueryRequest);
+            if (response == null) {
+                LOGGER.error("Response came back null from the query: {}");
+                throw new ExportMigrationException("Catalog could not export metacards");
+            }
+
+            results = response.getResults();
+            if (results == null) {
+                LOGGER.error("Results came back null from the response: {}");
+                throw new ExportMigrationException("Catalog could not export metacards");
+            }
+
+            if (results.size() > 0) {
+                taskManager.exportMetacardQuery(results, exportGroupCount);
+                exportQuery.setStartIndex(
+                        exportQuery.getStartIndex() + config.getExportQueryPageSize());
+                exportGroupCount++;
+            }
+        } while (results.size() >= config.getExportQueryPageSize());
     }
 }

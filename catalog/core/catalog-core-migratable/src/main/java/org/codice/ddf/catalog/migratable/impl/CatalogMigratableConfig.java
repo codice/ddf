@@ -18,10 +18,10 @@ import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Contains configuration constants used to change the behavior of catalog migratable operations.
+ */
 public class CatalogMigratableConfig {
-
-    //  Package private bounds on the property values to ensure
-    //  relationships are preserved in test
 
     private static final int MAX_CARDS_PER_FILE = 50000;
 

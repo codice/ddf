@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class MigrationFileWriter {
             FileUtils.forceMkdir(exportDir);
         } catch (IOException e) {
             LOGGER.error("IO Exception during FileUtils.forceMkdir", e.getMessage(), e);
-            throw new MigrationException(e.getMessage());
+            throw new ExportMigrationException(e.getMessage());
         }
     }
 

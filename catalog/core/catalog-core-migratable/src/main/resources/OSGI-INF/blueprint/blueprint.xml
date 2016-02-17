@@ -40,6 +40,5 @@
 
     <service id="catalogMigratableService" ref="catalogMigratable"
              interface="org.codice.ddf.migration.Migratable"/>
-    <!--auto-export="interfaces"/>-->
 
 </blueprint>

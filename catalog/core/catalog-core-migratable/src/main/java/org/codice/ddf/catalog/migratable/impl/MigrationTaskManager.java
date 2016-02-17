@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ class MigrationTaskManager {
     }
 
     /**
-     * Must be called after exportSetup and all calls to exportMetacardQuery. This will attempt
+     * Must be called after all invocations to exportMetacardQuery. This will attempt
      * to gracefully shutdown the executor service and handle any exceptions that might have
      * occured in the asynchronous threads.
      * <p>
@@ -167,7 +168,8 @@ class MigrationTaskManager {
 
     private void checkForFailures() {
         if (taskFailure.get() != null) {
-            throw new MigrationException("Catalog could not export metacards", taskFailure.get());
+            throw new ExportMigrationException("Catalog could not export metacards",
+                    taskFailure.get());
         }
     }
 }
