@@ -144,14 +144,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- After the doc directory is more consistent across all repositories
-                 there should not be a need for the gem-maven-plugin and
-                 maven-antrun-plugin in this pom file to generate docs -->
-            <plugin>
-                <groupId>de.saumya.mojo</groupId>
-                <artifactId>gem-maven-plugin</artifactId>
-                <version>1.0.5</version>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>

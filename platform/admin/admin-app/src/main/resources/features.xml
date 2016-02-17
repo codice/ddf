@@ -53,12 +53,17 @@
         <bundle>mvn:ddf.admin.modules/admin-modules-application/${project.version}</bundle>
     </feature>
 
+    <feature name="admin-security-ui" install="manual" version="${project.version}">
+        <details>Placeholder for Security Admin UI</details>
+        <feature prerequisite="true">admin-ui</feature>
+        <bundle>mvn:ddf.admin.modules/admin-security-ui/${project.version}</bundle>
+    </feature>
+
     <feature name="admin-post-install-modules" install="manual" version="${project.version}"
              description="Contains the modules that should be installed after the installer is finished.">
         <feature>admin-modules-configuration</feature>
         <feature>admin-modules-application</feature>
         <bundle>mvn:ddf.admin.modules/admin-metrics-ui/${project.version}</bundle>
-        <bundle>mvn:ddf.admin.modules/admin-security-ui/${project.version}</bundle>
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>
 

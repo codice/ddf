@@ -86,11 +86,6 @@
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-filter-delegate</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <resources>
