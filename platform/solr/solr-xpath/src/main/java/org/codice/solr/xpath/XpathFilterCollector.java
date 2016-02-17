@@ -28,8 +28,9 @@ import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathSelector;
+import net.sf.saxon.s9api.XdmAtomicValue;
+import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.s9api.XdmValue;
 
 /**
  * Collector that evaluates each Lucene document against a given XPath
@@ -79,8 +80,9 @@ public class XpathFilterCollector extends DelegatingCollector {
 
                 try {
                     selector.setContextItem(node);
-                    XdmValue result = selector.evaluate();
-                    if (result.size() > 0) {
+                    XdmItem result = selector.evaluateSingle();
+                    if (result != null && result.size() > 0 && !(result.isAtomicValue()
+                            && !((XdmAtomicValue) result).getBooleanValue())) {
                         super.collect(docId);
                     }
                 } catch (SaxonApiException e) {

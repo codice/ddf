@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>solr</artifactId>
-        <groupId>ddf.solr</groupId>
+        <groupId>ddf.platform.solr</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -35,52 +35,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.noggit</groupId>
-            <artifactId>noggit</artifactId>
-            <version>0.5</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -95,21 +49,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            solr-core,
-                            solr-solrj,
-                            solr-factory,
-                            httpclient,
-                            httpcore,
-                            httpmime,
-                            commons-io,
-                            commons-lang,
-                            lucene-core,
-                            joda-time,
-                            noggit
+                            solr-factory
                         </Embed-Dependency>
                         <Import-Package>
-                            !org.eclipse.jetty.server.bio,
-                            !org.eclipse.jetty.server.ssl,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.management,
@@ -122,8 +64,6 @@
                             javax.net.ssl,
                             javax.script,
                             javax.security.auth.x500,
-                            javax.servlet,
-                            javax.servlet.http,
                             javax.xml.bind,
                             javax.xml.namespace,
                             javax.xml.parsers,
@@ -138,17 +78,13 @@
                             org.apache.felix.gogo.commands,
                             org.apache.karaf.shell.console,
                             org.codice.ddf.configuration,
-                            org.eclipse.jetty.*;version="[9.2,10)",
-                            org.fusesource.jansi,
                             org.osgi.framework,
                             org.osgi.service.blueprint,
                             org.osgi.service.cm,
                             org.slf4j,
                             org.w3c.dom,
                             org.xml.sax,
-                            org.xml.sax.ext,
-                            com.google.common.base,
-                            com.google.common.util.concurrent
+                            org.xml.sax.ext
                         </Import-Package>
                     </instructions>
                 </configuration>

@@ -24,7 +24,7 @@ import ddf.catalog.source.UnsupportedQueryException
 import ddf.catalog.source.solr.SchemaFields
 import ddf.catalog.source.solr.SolrFilterDelegate
 import ddf.catalog.source.solr.SolrFilterDelegateFactory
-import org.apache.solr.client.solrj.SolrServer
+import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.SolrInputDocument
 import org.apache.solr.common.util.NamedList
@@ -101,7 +101,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
 
     def "Do not filter used anonymous fields that are known"() {
         setup:
-        SolrServer server = Mock(SolrServer) {
+        SolrClient server = Mock(SolrClient) {
             query(_) >> {
                 Mock(QueryResponse) {
                     getResponse() >> {

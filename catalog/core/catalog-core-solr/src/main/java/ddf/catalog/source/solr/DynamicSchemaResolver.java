@@ -20,6 +20,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,8 +39,8 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -62,6 +63,15 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import lux.Config;
+import lux.xml.SaxonDocBuilder;
+import lux.xml.XmlReader;
+import lux.xml.tinybin.TinyBinary;
+import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.tree.tiny.TinyDocumentImpl;
+import net.sf.saxon.tree.tiny.TinyTree;
 
 /**
  * This class tries to resolve all user given field names to their corresponding dynamic Solr index
@@ -133,6 +143,8 @@ public class DynamicSchemaResolver {
 
     protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<>();
 
+    private Processor processor = new Processor(new Config());
+
     public DynamicSchemaResolver() {
         this.schemaFields = new SchemaFields();
 
@@ -145,13 +157,13 @@ public class DynamicSchemaResolver {
 
     /**
      * Adds the fields that are already in the server to the cache. This method should be called
-     * once the SolrServer is up to ensure the cache is synchronized with the server.
+     * once the SolrClient is up to ensure the cache is synchronized with the server.
      *
-     * @param server
-     *            the SolrServer we are working with
+     * @param client
+     *            the SolrClient we are working with
      */
-    public void addFieldsFromServer(SolrServer server) {
-        if (server == null) {
+    public void addFieldsFromServer(SolrClient client) {
+        if (client == null) {
             LOGGER.warn("Server is null, could not add fields to cache.");
             return;
         }
@@ -169,12 +181,12 @@ public class DynamicSchemaResolver {
         query.setRequestHandler("/admin/luke");
 
         try {
-            QueryResponse response = server.query(query);
+            QueryResponse response = client.query(query);
             for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse()
                     .get(FIELDS_KEY)))) {
                 fieldsCache.add(e.getKey());
             }
-        } catch (SolrServerException | SolrException e) {
+        } catch (SolrServerException | SolrException | IOException e) {
             LOGGER.warn("Could not update cache for field names.", e);
         }
     }
@@ -250,7 +262,12 @@ public class DynamicSchemaResolver {
         if (!ConfigurationStore.getInstance()
                 .isDisableTextPath()) {
             if (StringUtils.isNotBlank(metacard.getMetadata())) {
-                solrInputDocument.addField(LUX_XML_FIELD_NAME, metacard.getMetadata());
+                try {
+                    byte[] luxXml = createTinyBinary(metacard.getMetadata());
+                    solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
+                } catch (XMLStreamException | SaxonApiException e) {
+                    LOGGER.warn("Unable to parse metadata field.  XPath support unavailable for metacard " + metacard.getId());
+                }
             }
         }
 
@@ -273,6 +290,22 @@ public class DynamicSchemaResolver {
         }
 
         solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+    }
+
+    private byte[] createTinyBinary(String xml) throws XMLStreamException, SaxonApiException {
+        SaxonDocBuilder builder = new SaxonDocBuilder(processor);
+
+        XmlReader xmlReader = new XmlReader();
+        xmlReader.addHandler(builder);
+        xmlReader.setStripNamespaces(true);
+        xmlReader.read(IOUtils.toInputStream(xml));
+
+        XdmNode node = builder.getDocument();
+
+        TinyTree tinyTree = ((TinyDocumentImpl) node.getUnderlyingNode()).getTree();
+        TinyBinary tinyBinary = new TinyBinary(tinyTree, StandardCharsets.UTF_8);
+
+        return tinyBinary.getBytes();
     }
 
     /**

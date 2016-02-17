@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.solr.factory.ConfigurationStore;
 import org.codice.solr.factory.SolrServerFactory;
@@ -64,8 +64,6 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpCatalogProvider.class);
 
-    private static final String SOLR_CATALOG_CONFIG_FILE = "solrcatalogconfig.xml";
-
     private static Properties describableProperties = new Properties();
 
     static {
@@ -75,14 +73,13 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         } catch (IOException e) {
             LOGGER.info("Did not load properties properly.", e);
         }
-
     }
 
     private String url = SolrServerFactory.getDefaultHttpsAddress();
 
     private CatalogProvider provider = new UnconfiguredCatalogProvider();
 
-    private SolrServer server;
+    private SolrClient server;
 
     private FilterAdapter filterAdapter;
 
@@ -90,15 +87,15 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private DynamicSchemaResolver resolver;
 
-    private Future<SolrServer> serverFuture;
+    private Future<SolrClient> serverFuture;
 
     /**
      * Simple constructor
      *
      * @param filterAdapter
-     * @param server        - {@link SolrServer} to handle requests
+     * @param server        - {@link SolrClient} to handle requests
      */
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrServer server,
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrClient server,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
 
         this.filterAdapter = filterAdapter;
@@ -108,9 +105,9 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     }
 
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrServer server,
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrClient client,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
-        this(filterAdapter, server, solrFilterDelegateFactory, null);
+        this(filterAdapter, client, solrFilterDelegateFactory, null);
     }
 
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
@@ -209,7 +206,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     public void shutdown() {
         LOGGER.info("Releasing connection to solr server.");
         if (getServer() != null) {
-            getServer().shutdown();
+            try {
+                getServer().close();
+            } catch (IOException e) {
+                LOGGER.warn("Unable to close Solr client", e);
+            }
         }
     }
 
@@ -243,7 +244,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                 if (getServer() != null) {
                     LOGGER.info(
                             "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
-                    getServer().shutdown();
+                    try {
+                        getServer().close();
+                    } catch (IOException e) {
+                        LOGGER.warn("Unable to close Solr client", e);
+                    }
                     LOGGER.info("Shutdown complete.");
                 }
 
@@ -258,8 +263,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private void updateServer() {
         serverFuture = SolrServerFactory.getHttpSolrServer(url,
-                SOLR_CATALOG_CORE_NAME,
-                SOLR_CATALOG_CONFIG_FILE);
+                SOLR_CATALOG_CORE_NAME);
         server = null;
     }
 
@@ -281,14 +285,14 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     }
 
-    private boolean isServerUp(SolrServer solrServer) {
+    private boolean isServerUp(SolrClient solr) {
 
-        if (solrServer == null) {
+        if (solr == null) {
             return false;
         }
 
         try {
-            return OK_STATUS.equals(solrServer.ping()
+            return OK_STATUS.equals(solr.ping()
                     .getResponse()
                     .get("status"));
         } catch (Exception e) {
@@ -301,7 +305,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         return false;
     }
 
-    private SolrServer getServer() {
+    private SolrClient getServer() {
         if (server == null && serverFuture != null) {
             try {
                 return serverFuture.get(5, TimeUnit.SECONDS);

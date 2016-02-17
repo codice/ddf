@@ -53,6 +53,8 @@ import ddf.measure.Distance.LinearUnit;
  */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
+
     public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
 
     public static final String XPATH_FILTER_QUERY = "xpath";
@@ -79,8 +81,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
 
     private static final WKTWriter WKT_WRITER = new WKTWriter();
 
@@ -187,9 +187,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             for (String xpath : xpathIndexes) {
                 indexes.add("(" + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\")");
             }
-            String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
-
-            query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
+            // TODO DDF-1882 add pre-filter xpath index
+            //String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
+            //query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
+            query.setParam(FILTER_QUERY_PARAM_NAME, filter);
         } else if (queryParams.size() > 0) {
             // Pass through original filter queries if only a single XPath is present
             query.setParam(FILTER_QUERY_PARAM_NAME,
@@ -562,7 +563,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private String geoPointToCircleQuery(String propertyName, double distanceInDegrees, Point pnt) {
-        String circle = "Circle(" + pnt.getX() + " " + pnt.getY() + " d=" + distanceInDegrees + ")";
+        String circle = "BUFFER(POINT(" + pnt.getX() + " " + pnt.getY() + "), " + distanceInDegrees + ")";
         String geoIndexName = getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false);
 
         return geoIndexName + ":\"" + INTERSECTS_OPERATION + "(" + circle + ")\"";
@@ -695,8 +696,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         SolrQuery solrQuery = new SolrQuery(query);
         solrQuery.addFilterQuery(
-                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"",
-                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\"");
+                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"");
+        // TODO DDF-1882 add pre-filter xpath index
+        //        solrQuery.addFilterQuery(
+        //                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"" + xpath + "\"",
+        //                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\"");
 
         return solrQuery;
     }

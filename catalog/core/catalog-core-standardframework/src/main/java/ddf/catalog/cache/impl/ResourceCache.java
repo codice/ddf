@@ -327,7 +327,7 @@ public class ResourceCache implements ResourceCacheInterface {
                 return null;
             }
         } else {
-            LOGGER.info("No product found in cache for key = {}", key);
+            LOGGER.debug("No product found in cache for key = {}", key);
             return null;
         }
 

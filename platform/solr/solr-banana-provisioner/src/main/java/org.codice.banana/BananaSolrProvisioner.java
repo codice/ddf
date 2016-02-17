@@ -14,18 +14,45 @@
 
 package org.codice.banana;
 
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrServerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BananaSolrProvisioner {
-    public BananaSolrProvisioner() throws ExecutionException, InterruptedException {
-        SolrServer server =
-                SolrServerFactory.getHttpSolrServer(SolrServerFactory.getDefaultHttpsAddress(),
-                        "banana-int")
-                        .get();
-        server.shutdown();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
+
+    public BananaSolrProvisioner() {
+        CompletableFuture.supplyAsync(BananaSolrProvisioner::bananaClientSupplier)
+                .thenAccept(BananaSolrProvisioner::closeSolrClient);
+    }
+
+    private static SolrClient bananaClientSupplier() {
+        SolrClient client = null;
+        try {
+            client =
+                    SolrServerFactory.getHttpSolrServer(SolrServerFactory.getDefaultHttpsAddress(),
+                            "banana-int")
+                            .get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warn("Failed to provision Banana Solr core", e);
+        }
+        return client;
+    }
+
+    private static void closeSolrClient(SolrClient client) {
+        if (client != null) {
+            try {
+                client.close();
+            } catch (IOException e) {
+                LOGGER.warn("Failed to close Banana Solr core", e);
+            }
+        }
     }
 
 }

@@ -15,19 +15,8 @@ package org.codice.solr.xpath;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Query;
-import org.apache.solr.common.SolrException;
 import org.apache.solr.search.SolrQueryParser;
 import org.apache.solr.search.SyntaxError;
-
-import lux.Compiler;
-import lux.Evaluator;
-import lux.XdmResultSet;
-import lux.functions.Search;
-import lux.search.LuxSearcher;
-import lux.solr.SolrIndexConfig;
-import net.sf.saxon.om.NodeInfo;
-import net.sf.saxon.om.SequenceIterator;
-import net.sf.saxon.trans.XPathException;
 
 /**
  * XPath query parser that will create Lucene and Post Filter queries to support XPath.
@@ -46,42 +35,28 @@ public class XpathQueryParser extends SolrQueryParser {
             throws SyntaxError {
 
         if (field.equals("xpath")) {
-            // post filter with Saxon
+            // post-filter with Saxon
             return new XpathFilterQuery(queryText);
         } else if (field.equals("xpath_index")) {
-            // pre filter with Lux index fields
+            // pre-filter with xpath index
             return getLuceneQuery(queryText);
         } else {
-            // pass through any non-XPath related fields
+            // pass-through any non-XPath related fields
             return super.getFieldQuery(field, queryText, quoted);
         }
     }
 
     /**
-     * Converts XPath into a Lucene query that will pre-filter based on LuxDB path and attribute
+     * Converts XPath into a Lucene query that will pre-filter based on xpath path and attribute
      * index fields. Further post filtering is needed for XPath functionality that cannot evaluated
-     * against a LuxDB index.
+     * against xpath index.
      *
      * @param queryText
-     *            XPath expression to convert into LuxDB index query
-     * @return Lucene query to pre-filter using LuxDB index
+     *            XPath expression to convert into lucene path and attribute index query
+     * @return Lucene query to pre-filter using xpath index
      */
     private Query getLuceneQuery(final String queryText) {
         String xpath = queryText;
-
-        SolrIndexConfig solrIndexConfig =
-                SolrIndexConfig.registerIndexConfiguration(parser.getRequest()
-                        .getCore());
-        LuxSearcher searcher = new LuxSearcher(parser.getRequest()
-                .getSearcher());
-        Compiler compiler = new Compiler(solrIndexConfig.getIndexConfig());
-        Evaluator evaluator = new Evaluator(compiler, searcher, null);
-
-        // get Lucene query for Lux indexes by overriding lux:search function
-        LuceneSearch lsearch = new LuceneSearch();
-        evaluator.getCompiler()
-                .getProcessor()
-                .registerExtensionFunction(lsearch);
 
         // Assume root is context node since evaluation does not have a context item
         if (StringUtils.startsWith(xpath, "./")) {
@@ -90,77 +65,7 @@ public class XpathQueryParser extends SolrQueryParser {
             xpath = "/" + xpath;
         }
 
-        XdmResultSet result = evaluator.evaluate(xpath);
-
-        Query luxQuery = lsearch.getQuery();
-        if (luxQuery == null || result.getErrors()
-                .size() > 0) {
-            throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
-                    "Failed to rewrite XPath into Query: " + queryText + "\nErrors: "
-                            + result.getErrors()
-                            .toString());
-        }
-
-        return luxQuery;
-    }
-
-    /**
-     * Lux search function that is overridden to store the Lucene query and return an empty sequence
-     * iterator to bypass further Saxon evaluation. This extension function, like the evaluator, is
-     * not thread safe.
-     */
-    public static class LuceneSearch extends Search {
-
-        private Query query;
-
-        @Override
-        public SequenceIterator<NodeInfo> iterate(Query searchQuery, Evaluator eval,
-                String[] sortCriteria, int start) throws XPathException {
-            query = searchQuery;
-
-            return new SequenceIterator<NodeInfo>() {
-                @Override
-                public NodeInfo next() throws XPathException {
-                    return null;
-                }
-
-                @Override
-                public NodeInfo current() {
-                    return null;
-                }
-
-                @Override
-                public int position() {
-                    return 0;
-                }
-
-                @Override
-                public void close() {
-
-                }
-
-                @Override
-                public SequenceIterator<NodeInfo> getAnother() throws XPathException {
-                    return null;
-                }
-
-                @Override
-                public int getProperties() {
-                    return 0;
-                }
-            };
-        }
-
-        @Override
-        public SequenceIterator<NodeInfo> iterateDistributed(String searchQuery,
-                QueryParser queryParser, Evaluator eval, String[] sortCriteria, int start)
-                throws XPathException {
-            return super.iterateDistributed(searchQuery, queryParser, eval, sortCriteria, start);
-        }
-
-        public Query getQuery() {
-            return query;
-        }
+        return null; // TODO DDF-1882 add lucene xpath pre-filtering
     }
 
 }

@@ -28,9 +28,9 @@ import java.util.UUID;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
@@ -71,7 +71,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
 
 /**
- * {@link CatalogProvider} implementation using Apache Solr 4+
+ * {@link CatalogProvider} implementation using Apache Solr
  */
 public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider {
 
@@ -103,32 +103,32 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private DynamicSchemaResolver resolver;
 
-    private SolrServer server;
+    private SolrClient server;
 
     private SolrMetacardClient client;
 
     /**
      * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
      *
-     * @param server   Solr server
+     * @param client   Solr server
      * @param adapter  injected implementation of FilterAdapter
      * @param resolver Solr schema resolver
      */
-    public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
+    public SolrCatalogProvider(SolrClient client, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
-        if (server == null) {
-            throw new IllegalArgumentException("SolrServer cannot be null.");
+        if (client == null) {
+            throw new IllegalArgumentException("SolrClient cannot be null.");
         }
 
         LOGGER.debug("Constructing {} with server [{}]",
                 SolrCatalogProvider.class.getName(),
                 server);
 
-        this.server = server;
+        this.server = client;
         this.resolver = resolver;
 
-        resolver.addFieldsFromServer(server);
-        client = new ProviderSolrMetacardClient(server,
+        resolver.addFieldsFromServer(client);
+        this.client = new ProviderSolrMetacardClient(client,
                 adapter,
                 solrFilterDelegateFactory,
                 resolver);
@@ -140,7 +140,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
      * @param server  Solr server
      * @param adapter injected implementation of FilterAdapter
      */
-    public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
+    public SolrCatalogProvider(SolrClient server, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(server, adapter, solrFilterDelegateFactory, new DynamicSchemaResolver());
     }
@@ -231,7 +231,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 }
             }
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             LOGGER.info("SOLR server exception getting content types", e);
         }
 
@@ -379,7 +379,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         /* 1b. Execute Query */
         try {
             idResults = server.query(query, METHOD.POST);
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             LOGGER.warn("SOLR server exception during query", e);
         }
 
@@ -563,7 +563,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         QueryResponse solrResponse;
         try {
             solrResponse = server.query(query, METHOD.POST);
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             LOGGER.info("SOLR server exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
@@ -614,19 +614,20 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     }
 
     public void shutdown() {
-        LOGGER.info("Shutting down solr server.");
-        server.shutdown();
+        LOGGER.info("Shutting down Solr server.");
+        try {
+            server.close();
+        } catch (IOException e) {
+            LOGGER.info("Failed to shutdown Solr server.", e);
+        }
     }
 
     private class ProviderSolrMetacardClient extends SolrMetacardClient {
 
-        public ProviderSolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
+        public ProviderSolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
                 SolrFilterDelegateFactory solrFilterDelegateFactory,
                 DynamicSchemaResolver dynamicSchemaResolver) {
-            super(solrServer,
-                    catalogFilterAdapter,
-                    solrFilterDelegateFactory,
-                    dynamicSchemaResolver);
+            super(client, catalogFilterAdapter, solrFilterDelegateFactory, dynamicSchemaResolver);
         }
 
         @Override

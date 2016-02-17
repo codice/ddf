@@ -27,9 +27,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -54,7 +54,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
     private PropertyResolver solrUrl;
 
-    private ConcurrentHashMap<String, SolrServer> coreSolrServers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, SolrClient> coreSolrServers = new ConcurrentHashMap<>();
 
     public PersistentStoreImpl(String solrUrl) {
         LOGGER.trace("INSIDE: PersistentStoreImpl constructor with solrUrl = {}", solrUrl);
@@ -69,10 +69,14 @@ public class PersistentStoreImpl implements PersistentStore {
                     solrUrl.getResolvedString())) {
                 solrUrl = new PropertyResolver(url.trim());
 
-                List<SolrServer> servers = new ArrayList<>(coreSolrServers.values());
+                List<SolrClient> servers = new ArrayList<>(coreSolrServers.values());
                 coreSolrServers.clear();
-                for (SolrServer server : servers) {
-                    server.shutdown();
+                for (SolrClient server : servers) {
+                    try {
+                        server.close();
+                    } catch (IOException e) {
+                        LOGGER.warn("Unable to close Solr client", e);
+                    }
                 }
             }
         } else {
@@ -95,7 +99,7 @@ public class PersistentStoreImpl implements PersistentStore {
         LOGGER.debug("Adding entry of type {}", type);
 
         // Set Solr Core name to type and create/connect to Solr Core
-        SolrServer coreSolrServer = getSolrCore(type);
+        SolrClient coreSolrServer = getSolrCore(type);
         if (coreSolrServer == null) {
             return;
         }
@@ -137,7 +141,7 @@ public class PersistentStoreImpl implements PersistentStore {
         }
     }
 
-    private void doRollback(SolrServer coreSolrServer, String type) {
+    private void doRollback(SolrClient coreSolrServer, String type) {
         LOGGER.debug("ENTERING: doRollback()");
         try {
             coreSolrServer.rollback();
@@ -165,7 +169,7 @@ public class PersistentStoreImpl implements PersistentStore {
         List<Map<String, Object>> results = new ArrayList<>();
 
         // Set Solr Core name to type and create/connect to Solr Core
-        SolrServer coreSolrServer = getSolrCore(type);
+        SolrClient coreSolrServer = getSolrCore(type);
         if (coreSolrServer == null) {
             return results;
         }
@@ -220,7 +224,7 @@ public class PersistentStoreImpl implements PersistentStore {
             throw new PersistenceException(
                     "CQLException while getting Solr data with cql statement " + cql,
                     e);
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             throw new PersistenceException(
                     "SolrServerException while getting Solr data with cql statement " + cql,
                     e);
@@ -232,7 +236,7 @@ public class PersistentStoreImpl implements PersistentStore {
     @Override
     public int delete(String type, String cql) throws PersistenceException {
         List<Map<String, Object>> itemsToDelete = this.get(type, cql);
-        SolrServer coreSolrServer = getSolrCore(type);
+        SolrClient coreSolrServer = getSolrCore(type);
         if (coreSolrServer == null) {
             return 0;
         }
@@ -283,16 +287,16 @@ public class PersistentStoreImpl implements PersistentStore {
         return idsToDelete.size();
     }
 
-    private SolrServer getSolrCore(String storeName) {
+    private SolrClient getSolrCore(String storeName) {
         if (coreSolrServers.containsKey(storeName)) {
             LOGGER.info("Returning core {} from map of coreSolrServers", storeName);
             return coreSolrServers.get(storeName);
         }
 
         // Must specify shard in URL so proper core is used
-        SolrServer coreSolrServer = null;
+        SolrClient coreSolrServer = null;
         try {
-            Future<SolrServer> coreSolrServerFuture =
+            Future<SolrClient> coreSolrServerFuture =
                     SolrServerFactory.getHttpSolrServer(solrUrl.getResolvedString(), storeName);
             coreSolrServer = coreSolrServerFuture.get(5, TimeUnit.SECONDS);
             coreSolrServers.put(storeName, coreSolrServer);

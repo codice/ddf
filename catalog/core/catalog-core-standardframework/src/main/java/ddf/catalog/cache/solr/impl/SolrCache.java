@@ -35,8 +35,8 @@ import javax.management.StandardMBean;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
@@ -69,7 +69,7 @@ import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClient;
 
 /**
- * Catalog cache implementation using Apache Solr 4
+ * Catalog cache implementation using Apache Solr
  */
 public class SolrCache implements SolrCacheMBean {
 
@@ -92,7 +92,7 @@ public class SolrCache implements SolrCacheMBean {
 
     private String url = SolrServerFactory.getDefaultHttpsAddress();
 
-    private SolrServer server;
+    private SolrClient server;
 
     private SolrFilterDelegateFactory solrFilterDelegateFactory;
 
@@ -259,8 +259,12 @@ public class SolrCache implements SolrCacheMBean {
                 if (server != null) {
                     LOGGER.info(
                             "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
-                    server.shutdown();
-                    LOGGER.info("Shutdown complete.");
+                    try {
+                        server.close();
+                        LOGGER.info("Shutdown complete.");
+                    } catch (IOException e) {
+                        LOGGER.info("Failed to shutdown Solr server.", e);
+                    }
                 }
 
                 try {
@@ -301,8 +305,12 @@ public class SolrCache implements SolrCacheMBean {
     public void shutdown() {
         LOGGER.info("Shutting down cache expiration scheduler.");
         shutdownCacheExpirationScheduler();
-        LOGGER.info("Shutting down solr server.");
-        server.shutdown();
+        LOGGER.info("Shutting down Solr server.");
+        try {
+            server.close();
+        } catch (IOException e) {
+            LOGGER.info("Failed to shutdown Solr server.", e);
+        }
     }
 
     @Override
@@ -352,9 +360,9 @@ public class SolrCache implements SolrCacheMBean {
 
     private class CacheSolrMetacardClient extends SolrMetacardClient {
 
-        public CacheSolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
+        public CacheSolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
                 SolrFilterDelegateFactory solrFilterDelegateFactory) {
-            super(solrServer,
+            super(client,
                     catalogFilterAdapter,
                     solrFilterDelegateFactory,
                     new DynamicSchemaResolver());

@@ -13,13 +13,13 @@
  */
 package org.codice.ddf.ui.searchui.query.solr;
 
+import static org.codice.solr.factory.EmbeddedSolrFactory.IMMEMORY_SOLRCONFIG_XML;
+import static org.codice.solr.factory.EmbeddedSolrFactory.getConfigFile;
 import static org.codice.solr.factory.SolrServerFactory.DEFAULT_SCHEMA_XML;
-import static org.codice.solr.factory.SolrServerFactory.DEFAULT_SOLR_XML;
-import static org.codice.solr.factory.SolrServerFactory.IMMEMORY_SOLRCONFIG_XML;
-import static org.codice.solr.factory.SolrServerFactory.getConfigFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +34,8 @@ import org.apache.solr.core.SolrResourceLoader;
 import org.apache.solr.schema.IndexSchema;
 import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.EmbeddedSolrFactory;
 import org.codice.solr.factory.SolrCoreContainer;
-import org.codice.solr.factory.SolrServerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -88,7 +88,6 @@ public class FilteringSolrIndex {
     private static EmbeddedSolrServer createSolrServer(String coreName,
             ConfigurationFileProxy configProxy) {
 
-        File solrFile = getConfigFile(DEFAULT_SOLR_XML, configProxy);
         File configFile = getConfigFile(IMMEMORY_SOLRCONFIG_XML, configProxy);
         File schemaFile = getConfigFile(DEFAULT_SCHEMA_XML, configProxy);
         File solrConfigHome = new File(configFile.getParent());
@@ -97,9 +96,9 @@ public class FilteringSolrIndex {
                 .getContextClassLoader();
         try {
             Thread.currentThread()
-                    .setContextClassLoader(SolrServerFactory.class.getClassLoader());
+                    .setContextClassLoader(EmbeddedSolrFactory.class.getClassLoader());
 
-            SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(),
+            SolrConfig solrConfig = new SolrConfig(Paths.get(solrConfigHome.getParent()),
                     IMMEMORY_SOLRCONFIG_XML,
                     new InputSource(FileUtils.openInputStream(configFile)));
 
@@ -108,15 +107,24 @@ public class FilteringSolrIndex {
                         DEFAULT_SCHEMA_XML,
                         new InputSource(FileUtils.openInputStream(schemaFile)));
             }
-            SolrResourceLoader loader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
-            SolrCoreContainer container = new SolrCoreContainer(loader, solrFile);
+            SolrResourceLoader loader = new SolrResourceLoader(Paths.get(solrConfigHome.getAbsolutePath()));
+            SolrCoreContainer container = new SolrCoreContainer(loader);
 
             CoreDescriptor coreDescriptor = new CoreDescriptor(container,
                     coreName,
                     solrConfig.getResourceLoader()
-                            .getInstanceDir());
+                            .getInstancePath()
+                            .toString());
+            SolrCore core = new SolrCore(coreName,
+                    null,
+                    solrConfig,
+                    indexSchema,
+                    null,
+                    coreDescriptor,
+                    null,
+                    null,
+                    null);
 
-            SolrCore core = new SolrCore(coreName, null, solrConfig, indexSchema, coreDescriptor);
             container.register(coreName, core, false);
 
             return new EmbeddedSolrServer(container, coreName);

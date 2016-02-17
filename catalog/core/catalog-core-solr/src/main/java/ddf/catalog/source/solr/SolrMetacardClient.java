@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -63,7 +63,7 @@ public class SolrMetacardClient {
 
     private static final String QUOTE = "\"";
 
-    private final SolrServer server;
+    private final SolrClient server;
 
     private final SolrFilterDelegateFactory filterDelegateFactory;
 
@@ -71,10 +71,10 @@ public class SolrMetacardClient {
 
     private final DynamicSchemaResolver resolver;
 
-    public SolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
+    public SolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory,
             DynamicSchemaResolver dynamicSchemaResolver) {
-        server = solrServer;
+        server = client;
         filterDelegateFactory = solrFilterDelegateFactory;
         filterAdapter = catalogFilterAdapter;
         resolver = dynamicSchemaResolver;
@@ -113,7 +113,7 @@ public class SolrMetacardClient {
                 results.add(tmpResult);
             }
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             LOGGER.warn("Failure in Solr server query.", e);
             throw new UnsupportedQueryException("Could not complete solr query.");
         } catch (SolrException e) {
@@ -147,7 +147,7 @@ public class SolrMetacardClient {
             }
 
             return results;
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | IOException e) {
             LOGGER.warn("Failure in Solr server query.", e);
             throw new UnsupportedQueryException("Could not complete solr query.");
         }

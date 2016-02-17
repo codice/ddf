@@ -15,11 +15,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf.solr</groupId>
+        <groupId>ddf.platform.solr</groupId>
         <artifactId>solr</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.platform.solr</groupId>
     <artifactId>solr-query</artifactId>
     <name>DDF :: Platform :: Solr :: Query</name>
     <packaging>jar</packaging>
@@ -74,42 +73,9 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <!-- exclusions from LuxDB -->
-            <exclusions>
-                <exclusion>
-                    <artifactId>wstx-asl</artifactId>
-                    <groupId>org.codehaus.woodstox</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-jdk14</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>velocity-tools</artifactId>
-                    <groupId>org.apache.velocity</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hadoop-annotations</artifactId>
-                    <groupId>org.apache.hadoop</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <exclusions>
-                <!-- exclusion for LuxDB -->
-                <exclusion>
-                    <artifactId>wstx-asl</artifactId>
-                    <groupId>org.codehaus.woodstox</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-factory</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -130,11 +96,6 @@
             <artifactId>gt-cql</artifactId>
             <version>${org.geotools.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-factory</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>

@@ -13,11 +13,9 @@
  */
 package org.codice.solr.factory;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -33,46 +31,38 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.core.CoreDescriptor;
-import org.apache.solr.core.DirectoryFactory;
-import org.apache.solr.core.PluginInfo;
-import org.apache.solr.core.SolrConfig;
-import org.apache.solr.core.SolrCore;
-import org.apache.solr.core.SolrResourceLoader;
-import org.apache.solr.schema.IndexSchema;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.google.common.util.concurrent.Futures;
 
 /**
- * Factory that creates {@link org.apache.solr.client.solrj.SolrServer} instances. Currently will create a
- * {@link EmbeddedSolrServer} instance.
+ * Factory that creates {@link org.apache.solr.client.solrj.SolrClient} instances.
  */
-public final class SolrServerFactory {
+public class SolrServerFactory {
 
-    public static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
+    protected static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
+
+    private static ExecutorService pool = getThreadPool();
 
     public static final String DEFAULT_CORE_NAME = "core1";
 
@@ -87,33 +77,13 @@ public final class SolrServerFactory {
 
     public static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
 
-    public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
-
-    public static final String DEFAULT_SOLR_XML = "solr.xml";
-
     private static final Integer MAX_RETRY_COUNT = 11;
 
-    private static final Integer THREAD_POOL_DEFAULT_SIZE = 128;
+    private static final String THREAD_POOL_DEFAULT_SIZE = "128";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
-
-    private static ExecutorService pool = getThreadPool();
-
-    /**
-     * Hiding constructor
-     */
-    private SolrServerFactory() {
-
-    }
-
-    private static ExecutorService getThreadPool() {
-        Integer threadPoolSize;
-        try {
-            threadPoolSize = Integer.parseInt(System.getProperty(
-                    "org.codice.ddf.system.threadPoolSize"));
-        } catch (NumberFormatException e) {
-            return Executors.newFixedThreadPool(THREAD_POOL_DEFAULT_SIZE);
-        }
+    private static ExecutorService getThreadPool() throws NumberFormatException {
+        Integer threadPoolSize = Integer.parseInt(System.getProperty(
+                    "org.codice.ddf.system.threadPoolSize", THREAD_POOL_DEFAULT_SIZE));
         return Executors.newFixedThreadPool(threadPoolSize);
     }
 
@@ -126,68 +96,57 @@ public final class SolrServerFactory {
     }
 
     /**
-     * @return {@link org.apache.solr.client.solrj.SolrServer} instance
-     */
-    public static SolrServer getEmbeddedSolrServer() {
-        return getEmbeddedSolrServer(DEFAULT_SOLRCONFIG_XML, null, null);
-    }
-
-    public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml) {
-        return getEmbeddedSolrServer(solrConfigXml, null, null);
-
-    }
-
-    /**
-     * Creates an {@link org.apache.solr.client.solrj.impl.HttpSolrServer} with the default http address
+     * Creates an {@link org.apache.solr.client.solrj.SolrClient} with the default http address
      * url.
      *
-     * @return SolrServer
+     * @return SolrClient
      */
-    static SolrServer getHttpSolrServer() {
-        return new HttpSolrServer(getDefaultHttpAddress());
+    static SolrClient getHttpSolrServer() {
+        return new HttpSolrClient(getDefaultHttpAddress());
     }
 
-    public static Future<SolrServer> getHttpSolrServer(String url) {
+    public static Future<SolrClient> getHttpSolrServer(String url) {
         return getHttpSolrServer(url, DEFAULT_CORE_NAME, null);
     }
 
-    public static Future<SolrServer> getHttpSolrServer(String url, String coreName) {
+    public static Future<SolrClient> getHttpSolrServer(String url, String coreName) {
         return getHttpSolrServer(url, coreName, null);
     }
 
-    public static Future<SolrServer> getHttpSolrServer(String url, String coreName,
+    public static Future<SolrClient> getHttpSolrServer(String url, String coreName,
             String configFile) {
         if (StringUtils.isBlank(url)) {
             url = SystemBaseUrl.constructUrl("/solr");
         }
 
         String coreUrl = url + "/" + coreName;
-        SolrServer server;
+        SolrClient client;
         try {
-            server = getSolrServer(url, coreName, configFile, coreUrl);
+            client = getSolrServer(url, coreName, configFile, coreUrl);
         } catch (Exception ex) {
-            return pool.submit(new SolrServerFetcher(url, coreName, configFile, coreUrl));
+            LOGGER.info("Returning future for HTTP Solr client ({})", coreName);
+            LOGGER.debug("Failed to create Solr client (" + coreName + ")", ex);
+            return pool.submit(new SolrClientFetcher(url, coreName, configFile, coreUrl));
         }
 
-        LOGGER.info("Created HTTP Solr server client ({})", coreUrl);
-        return Futures.immediateFuture(server);
+        LOGGER.info("Created HTTP Solr client ({})", coreName);
+        return Futures.immediateFuture(client);
     }
 
-    private static SolrServer getSolrServer(String url, String coreName, String configFile,
-            String coreUrl) throws SolrException, IOException, SolrServerException {
-        SolrServer server;
+    private static SolrClient getSolrServer(String url, String coreName, String configFile,
+            String coreUrl) throws IOException, SolrServerException {
+        SolrClient server;
         if (StringUtils.startsWith(url, "https")) {
-            CloseableHttpClient client = getHttpClient();
-            createSolrCore(url, coreName, configFile, client);
-            server = new HttpSolrServer(coreUrl, client);
+            createSolrCore(url, coreName, configFile, getHttpClient(false));
+            server = new HttpSolrClient(coreUrl, getHttpClient(true));
         } else {
             createSolrCore(url, coreName, configFile, null);
-            server = new HttpSolrServer(coreUrl);
+            server = new HttpSolrClient(coreUrl);
         }
         return server;
     }
 
-    private static CloseableHttpClient getHttpClient() {
+    private static CloseableHttpClient getHttpClient(boolean retryRequestsOnError) {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
                 getSslContext(),
                 getProtocols(),
@@ -195,13 +154,17 @@ public final class SolrServerFactory {
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
         HttpRequestRetryHandler solrRetryHandler = new SolrServerHttpRequestRetryHandler();
 
-        return HttpClients.custom()
+        HttpClientBuilder builder = HttpClients.custom()
                 .setSSLSocketFactory(sslConnectionSocketFactory)
                 .setDefaultCookieStore(new BasicCookieStore())
                 .setMaxConnTotal(128)
-                .setMaxConnPerRoute(32)
-                .setRetryHandler(solrRetryHandler)
-                .build();
+                .setMaxConnPerRoute(32);
+
+        if (retryRequestsOnError) {
+            builder.setRetryHandler(solrRetryHandler);
+        }
+
+        return builder.build();
     }
 
     private static String[] getProtocols() {
@@ -273,135 +236,47 @@ public final class SolrServerFactory {
         return keyStore;
     }
 
-    /**
-     * Provides an already instantiated {@link org.apache.solr.client.solrj.SolrServer} object. If an instance has not already
-     * been instantiated, then the single instance will be instantiated with the provided
-     * configuration file. If an instance already exists, it cannot be overwritten with a new
-     * configuration.
-     *
-     * @param solrConfigXml        the name of the solr configuration filename such as solrconfig.xml
-     * @param schemaXml            filename of the schema such as schema.xml
-     * @param givenConfigFileProxy a ConfigurationFileProxy instance. If instance is <code>null</code>, a new
-     *                             {@link ConfigurationFileProxy} is used instead.
-     * @return {@link org.apache.solr.client.solrj.SolrServer} instance
-     */
-    public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
-            ConfigurationFileProxy givenConfigFileProxy) {
-
-        LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]",
-                solrConfigXml,
-                schemaXml,
-                givenConfigFileProxy);
-
-        String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
-        String schemaFileName = DEFAULT_SCHEMA_XML;
-
-        if (isNotBlank(solrConfigXml)) {
-            solrConfigFileName = solrConfigXml;
-        }
-
-        if (isNotBlank(schemaXml)) {
-            schemaFileName = schemaXml;
-        }
-
-        ConfigurationFileProxy configProxy = givenConfigFileProxy;
-
-        if (givenConfigFileProxy == null) {
-            configProxy = new ConfigurationFileProxy(ConfigurationStore.getInstance());
-        }
-
-        File solrConfigFile = getConfigFile(solrConfigFileName, configProxy);
-        File solrSchemaFile = getConfigFile(schemaFileName, configProxy);
-        File solrFile = getConfigFile(DEFAULT_SOLR_XML, configProxy);
-
-        File solrConfigHome = new File(solrConfigFile.getParent());
-
-        ClassLoader tccl = Thread.currentThread()
-                .getContextClassLoader();
-        try {
-            Thread.currentThread()
-                    .setContextClassLoader(SolrServerFactory.class.getClassLoader());
-
-            // NamedSPILoader uses the thread context classloader to lookup
-            // codecs, posting formats, and analyzers
-            SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(),
-                    solrConfigFileName,
-                    new InputSource(FileUtils.openInputStream(solrConfigFile)));
-            IndexSchema indexSchema = new IndexSchema(solrConfig,
-                    schemaFileName,
-                    new InputSource(FileUtils.openInputStream(solrSchemaFile)));
-            SolrResourceLoader loader = new SolrResourceLoader(solrConfigHome.getAbsolutePath());
-            SolrCoreContainer container = new SolrCoreContainer(loader, solrFile);
-
-            String dataDirPath = null;
-            if (!ConfigurationStore.getInstance()
-                    .isInMemory()) {
-                File dataDir = configProxy.getDataDirectory();
-                if (dataDir != null) {
-                    LOGGER.debug("Using data directory [{}]", dataDir);
-                    dataDirPath = dataDir.getAbsolutePath();
-                }
-            } else {
-                PluginInfo info = solrConfig.getPluginInfo(DirectoryFactory.class.getName());
-                if (!"solr.RAMDirectoryFactory".equals(info.className)) {
-                    LOGGER.warn("Using in-memory configuration without RAMDirectoryFactory.");
-                }
-            }
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
-                    DEFAULT_EMBEDDED_CORE_NAME,
-                    solrConfig.getResourceLoader()
-                            .getInstanceDir());
-
-            SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME,
-                    dataDirPath,
-                    solrConfig,
-                    indexSchema,
-                    coreDescriptor);
-            container.register(DEFAULT_EMBEDDED_CORE_NAME, core, false);
-
-            return new EmbeddedSolrServer(container, DEFAULT_EMBEDDED_CORE_NAME);
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            throw new IllegalArgumentException(
-                    "Unable to parse Solr configuration file: " + solrConfigFileName, e);
-        } finally {
-            Thread.currentThread()
-                    .setContextClassLoader(tccl);
-        }
-    }
-
-    public static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy) {
-        return FileUtils.toFile(configProxy.getResource(configFileName));
-    }
-
     private static void createSolrCore(String url, String coreName, String configFileName,
-            HttpClient client) throws IOException, SolrServerException {
-        HttpSolrServer solrServer;
-        if (client != null) {
-            solrServer = new HttpSolrServer(url, client);
+            HttpClient httpClient) throws IOException, SolrServerException {
+        HttpSolrClient client;
+        if (httpClient != null) {
+            client = new HttpSolrClient(url, httpClient);
         } else {
-            solrServer = new HttpSolrServer(url);
+            client = new HttpSolrClient(url);
         }
 
-        if (!solrCoreExists(solrServer, coreName)) {
-            LOGGER.info("Creating Solr core {}", coreName);
+        HttpResponse ping = client.getHttpClient()
+                .execute(new HttpHead(url));
+        if (ping != null && ping.getStatusLine()
+                .getStatusCode() == 200) {
+            if (!solrCoreExists(client, coreName)) {
+                LOGGER.debug("Creating Solr core {}", coreName);
 
-            String instanceDir = System.getProperty("karaf.home") + "/data/solr/" + coreName;
-            String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
+                String configFile = StringUtils.defaultIfBlank(configFileName,
+                        DEFAULT_SOLRCONFIG_XML);
 
-            CoreAdminRequest.createCore(coreName,
-                    instanceDir,
-                    solrServer,
-                    configFile,
-                    DEFAULT_SCHEMA_XML);
-        } else {
-            LOGGER.info("Solr core {} already exists - just reload it", coreName);
-            CoreAdminRequest.reloadCore(coreName, solrServer);
+                String instanceDir = Paths.get(System.getProperty("karaf.home"),
+                        "data",
+                        "solr",
+                        coreName)
+                        .toString();
+
+                CoreAdminRequest.createCore(coreName,
+                        instanceDir,
+                        client,
+                        configFile,
+                        DEFAULT_SCHEMA_XML);
+            } else {
+                LOGGER.debug("Solr core ({}) already exists - reloading it", coreName);
+                CoreAdminRequest.reloadCore(coreName, client);
+            }
         }
+
     }
 
-    private static boolean solrCoreExists(SolrServer solrServer, String coreName) {
+    private static boolean solrCoreExists(SolrClient client, String coreName) {
         try {
-            CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, solrServer);
+            CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, client);
             return response.getCoreStatus(coreName)
                     .get("instanceDir") != null;
         } catch (Exception e) {
@@ -410,7 +285,7 @@ public final class SolrServerFactory {
         }
     }
 
-    private static class SolrServerFetcher implements Callable<SolrServer> {
+    private static class SolrClientFetcher implements Callable<SolrClient> {
         private final String url;
 
         private final String coreName;
@@ -421,7 +296,7 @@ public final class SolrServerFactory {
 
         private int retryCount;
 
-        public SolrServerFetcher(String url, String coreName, String configFile, String coreUrl) {
+        public SolrClientFetcher(String url, String coreName, String configFile, String coreUrl) {
             this.url = url;
             this.coreName = coreName;
             this.configFile = configFile;
@@ -430,13 +305,24 @@ public final class SolrServerFactory {
         }
 
         @Override
-        public SolrServer call() throws Exception {
+        public SolrClient call() throws Exception {
             while (true) {
+                int retryIndex = retryCount + 1;
                 try {
-                    return getSolrServer(url, coreName, configFile, coreUrl);
+                    LOGGER.info("Retry {} to create Solr client for ({})", retryIndex, coreName);
+                    SolrClient client = getSolrServer(url, coreName, configFile, coreUrl);
+                    LOGGER.info("Future for HTTP Solr client ({}) finished", coreName);
+                    return client;
                 } catch (Exception e) {
                     retryCount = Math.min(retryCount + 1, MAX_RETRY_COUNT);
-                    Thread.sleep((long) Math.pow(2, Math.min(retryCount, MAX_RETRY_COUNT)) * 50);
+                    long retrySleepMillis = (long) Math.pow(2, Math.min(retryCount,
+                            MAX_RETRY_COUNT)) * 50;
+                    LOGGER.info("Failed retry {} to create Solr client ({}), trying again in {}",
+                            retryIndex,
+                            coreName,
+                            DurationFormatUtils.formatDurationWords(retrySleepMillis, true, true));
+                    LOGGER.debug("Retry failed", e);
+                    Thread.sleep(retrySleepMillis);
                 }
             }
         }

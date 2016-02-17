@@ -26,7 +26,7 @@
     <name>DDF :: Persistence :: Core :: Internal Implementation</name>
     <packaging>bundle</packaging>
     <properties>
-        <solr.version>4.10.4</solr.version>
+        <solr.version>5.4.1</solr.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -63,65 +63,6 @@
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Remove restlet dependencies from dependencyManagement section when Solr is updated -->
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <version>${solr.version}</version>
-            <!-- exclusions for LuxDB -->
-            <exclusions>
-                <exclusion>
-                    <artifactId>wstx-asl</artifactId>
-                    <groupId>org.codehaus.woodstox</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-jdk14</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>velocity-tools</artifactId>
-                    <groupId>org.apache.velocity</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>hadoop-annotations</artifactId>
-                    <groupId>org.apache.hadoop</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>${solr.version}</version>
-            <exclusions>
-                <!-- exclusion for LuxDB -->
-                <exclusion>
-                    <artifactId>wstx-asl</artifactId>
-                    <groupId>org.codehaus.woodstox</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.noggit</groupId>
-            <artifactId>noggit</artifactId>
-            <version>0.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>3.4.5</version>
-        </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-query</artifactId>
@@ -152,26 +93,9 @@
             <artifactId>platform-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -212,30 +136,17 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            commons-codec,
                             gt-cql,
-                            httpclient,
-                            httpcore,
-                            httpmime,
-                            solr-core,
-                            solr-solrj,
-                            solr-query,
                             solr-factory,
-                            noggit,
-                            zookeeper,
-                            common-system,
-                            commons-lang,
-                            commons-io,
-                            joda-time,
-                            commons-codec
+                            solr-query
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
                             org.codice.ddf.persistence.internal
                         </Private-Package>
                         <Import-Package>
-                            !org.eclipse.jetty.server.bio,
-                            !org.eclipse.jetty.server.ssl,
-                            com.google.*,
+                            com.google.common.*,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.io,
                             ddf.security.encryption,
@@ -257,8 +168,6 @@
                             javax.security.auth.spi,
                             javax.security.auth.x500,
                             javax.security.sasl,
-                            javax.servlet;version="[3.1,4)",
-                            javax.servlet.http;version="[3.1,4)",
                             javax.xml.bind,
                             javax.xml.namespace,
                             javax.xml.parsers,
@@ -271,7 +180,6 @@
                             jline,
                             org.apache.commons.logging,
                             org.codice.ddf.persistence;version=1.0.0-SNAPSHOT,
-                            org.eclipse.jetty.*,
                             org.geotools.factory,
                             org.geotools.filter,
                             org.geotools.filter.capability,

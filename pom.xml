@@ -1061,6 +1061,11 @@
             <id>KeyCzar</id>
             <url>http://keyczar.googlecode.com/svn/trunk/java/maven/</url>
         </repository>
+        <repository>
+            <id>maven-restlet</id>
+            <name>Public online Restlet repository</name>
+            <url>http://maven.restlet.com</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>

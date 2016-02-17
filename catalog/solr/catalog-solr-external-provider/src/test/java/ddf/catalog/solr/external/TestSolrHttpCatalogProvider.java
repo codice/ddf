@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrException;
@@ -103,7 +103,7 @@ public class TestSolrHttpCatalogProvider {
 
     @Test
     public void testUnconfiguredCreate() throws IngestException, SolrServerException, IOException {
-        SolrServer givenServer = givenSolrServer(false);
+        SolrClient givenServer = givenSolrServer(false);
         CatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         try {
@@ -125,7 +125,7 @@ public class TestSolrHttpCatalogProvider {
     public void testUnconfiguredCreateSolrException()
             throws IngestException, SolrServerException, IOException {
         // given
-        SolrServer givenServer = mock(SolrServer.class);
+        SolrClient givenServer = mock(SolrClient.class);
         when(givenServer.ping()).thenThrow(SolrException.class);
         CatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
@@ -203,7 +203,7 @@ public class TestSolrHttpCatalogProvider {
     public void testUpdateConfigurationUrlPropertyNull()
             throws IngestException, SolrServerException, IOException {
         // given
-        SolrServer givenServer = givenSolrServer(true);
+        SolrClient givenServer = givenSolrServer(true);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         // when
@@ -212,7 +212,7 @@ public class TestSolrHttpCatalogProvider {
         // then
         assertThat(provider.getUrl(), is(nullValue()));
         verify(givenServer, times(0)).ping();
-        verify(givenServer, times(0)).shutdown();
+        verify(givenServer, times(0)).close();
         // should be no failures/exceptions
 
     }
@@ -248,7 +248,7 @@ public class TestSolrHttpCatalogProvider {
         // given
         String badAddress = "http://localhost:8183/solr";
         boolean serverStatus = false;
-        SolrServer givenServer = givenSolrServer(serverStatus);
+        SolrClient givenServer = givenSolrServer(serverStatus);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
         // when
         try {
@@ -258,7 +258,7 @@ public class TestSolrHttpCatalogProvider {
         provider.updateServer(badAddress);
 
         // then
-        verify(givenServer, times(1)).shutdown();
+        verify(givenServer, times(1)).close();
         verify(givenServer, times(1)).ping();
 
     }
@@ -266,11 +266,11 @@ public class TestSolrHttpCatalogProvider {
     @Test()
     public void testShutdown() throws SolrServerException, IOException {
         boolean serverStatus = true;
-        SolrServer givenServer = givenSolrServer(serverStatus);
+        SolrClient givenServer = givenSolrServer(serverStatus);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
 
         provider.shutdown();
-        verify(givenServer, times(1)).shutdown();
+        verify(givenServer, times(1)).close();
     }
 
     /**
@@ -278,8 +278,8 @@ public class TestSolrHttpCatalogProvider {
      * @throws IOException
      * @throws SolrServerException
      */
-    private SolrServer givenSolrServer(boolean ok) throws SolrServerException, IOException {
-        SolrServer server = mock(SolrServer.class);
+    private SolrClient givenSolrServer(boolean ok) throws SolrServerException, IOException {
+        SolrClient server = mock(SolrClient.class);
 
         SolrPingResponse pingResponse = mock(SolrPingResponse.class);
 

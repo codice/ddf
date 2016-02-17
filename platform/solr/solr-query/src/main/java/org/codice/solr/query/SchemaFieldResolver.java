@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.LukeRequest;
 import org.apache.solr.client.solrj.response.LukeResponse;
@@ -105,10 +105,10 @@ public class SchemaFieldResolver {
         FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.OBJECT, OBJECT_SUFFIX);
     }
 
-    private SolrServer solrServer;
+    private SolrClient solr;
 
-    public SchemaFieldResolver(SolrServer solrServer) {
-        this.solrServer = solrServer;
+    public SchemaFieldResolver(SolrClient client) {
+        this.solr = client;
     }
 
     public AttributeFormat getFormat(String suffix) {
@@ -125,7 +125,7 @@ public class SchemaFieldResolver {
         LukeRequest luke = new LukeRequest();
         LukeResponse rsp;
         try {
-            rsp = luke.process(solrServer);
+            rsp = luke.process(solr);
             Map<String, FieldInfo> fieldsInfo = rsp.getFieldInfo();
             if (fieldsInfo != null && !fieldsInfo.isEmpty()) {
                 LOGGER.info("got fieldsInfo for {} fields", fieldsInfo.size());
