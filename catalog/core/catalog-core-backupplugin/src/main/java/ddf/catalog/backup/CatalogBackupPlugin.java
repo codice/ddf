@@ -19,17 +19,12 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -61,37 +56,23 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
-    private int batchSize;
-
-    private final ArrayList<Metacard> metacards = new ArrayList<>(getBatchSize());
-
-    private int sleepSeconds;
-
-    private ScheduledExecutorService scheduledExecutor;
-
-    private ExecutorService executor;
-
     private File rootBackupDir;
 
     private int subDirLevels;
 
+    private PeriodicDrain periodicDrain;
+
     private boolean enableBackupPlugin = true;
 
     public CatalogBackupPlugin() {
-        setExecutor(Executors.newSingleThreadExecutor());
-        setScheduledExecutor(Executors.newSingleThreadScheduledExecutor());
-        subDirLevels = 0;
-        setBatchSize(1000);
-        setSleepSeconds(60);
-        startPolling();
+
+        init();
     }
 
-    private void startPolling() {
-
-        getScheduledExecutor().scheduleAtFixedRate(this::drain,
-                getSleepSeconds(),
-                getSleepSeconds(),
-                TimeUnit.SECONDS);
+    private void init() {
+        subDirLevels = 0;
+        setPeriodicDrain(new PeriodicDrain(1000, 60, TimeUnit.SECONDS));
+        getPeriodicDrain().setTask(this::backupBatch);
     }
 
     /**
@@ -113,23 +94,11 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             }
 
         }
-        metacards.addAll(input.getCreatedMetacards());
-        drain();
+
+        getPeriodicDrain().addAll(input.getCreatedMetacards());
+
         return input;
 
-    }
-
-    private synchronized void drain() {
-        if (isBatchBigEnough()) {
-            for (List<Metacard> batch : Lists.partition(metacards, getBatchSize())) {
-                getExecutor().submit(() -> backupBatch(batch));
-            }
-            metacards.clear();
-        }
-    }
-
-    private boolean isBatchBigEnough() {
-        return metacards.size() >= getBatchSize();
     }
 
     private PluginExecutionException pluginExceptionWith(List<String> errors) {
@@ -394,55 +363,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     }
 
     public void shutdown() {
-        shutdownExecutor();
-        shutdownScheduledExecutor();
-    }
-
-    public ExecutorService getExecutor() {
-        return executor;
-    }
-
-    public void setExecutor(ExecutorService executor) {
-        shutdownExecutor();
-        this.executor = executor;
-    }
-
-    private void shutdownExecutor() {
-        if (getExecutor() != null) {
-            getExecutor().shutdown();
-        }
-    }
-
-    private void shutdownScheduledExecutor() {
-
-        if (getScheduledExecutor() != null) {
-            getScheduledExecutor().shutdown();
-        }
-    }
-
-    public ScheduledExecutorService getScheduledExecutor() {
-        return scheduledExecutor;
-    }
-
-    public void setScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
-        shutdownScheduledExecutor();
-        this.scheduledExecutor = scheduledExecutor;
-    }
-
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
-    }
-
-    public int getSleepSeconds() {
-        return sleepSeconds;
-    }
-
-    public void setSleepSeconds(int sleepSeconds) {
-        this.sleepSeconds = sleepSeconds;
+        getPeriodicDrain().shutdown();
     }
 
     public String getRootBackupDir() {
@@ -462,6 +383,15 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
         this.rootBackupDir = new File(dir);
         LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
+    }
+
+    public PeriodicDrain<Metacard> getPeriodicDrain() {
+        return periodicDrain;
+    }
+
+    public void setPeriodicDrain(PeriodicDrain<Metacard> periodicDrain) {
+        this.periodicDrain = periodicDrain;
+        getPeriodicDrain().setTask(this::backupBatch);
     }
 
     private enum OPERATION {

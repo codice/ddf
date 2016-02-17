@@ -17,9 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static junit.framework.Assert.fail;
 
@@ -30,8 +28,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -68,78 +66,54 @@ public class CatalogBackupPluginTest {
     @Test
     public void testNullBackupDir() {
         PluginBuilder.start()
-                .rootBackupDir((String) null);
+                .setDirToNull()
+                .build();
+    }
+
+    @Test
+    public void testCreateResponseNotNull() throws PluginExecutionException {
+
+        assertThat(PluginBuilder.start()
+                .rootBackupDir(rootBackupDir)
+                .build()
+                .process(getMockCreateResponse(METACARD_IDS)), is(notNullValue()));
     }
 
     @Test(expected = PluginExecutionException.class)
     public void testProcessCreateResponseRootBackupDirBlank() throws Exception {
-        // Setup
-        int subDirLevels = 3;
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
 
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(null);
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        // Perform Test
-        catalogBackupPlugin.process(mockCreateResponse);
+        PluginBuilder.start()
+                .setDirToNull()
+                .subDirLevels(3)
+                .build()
+                .process(getMockCreateResponse(METACARD_IDS));
     }
 
     @Test
     public void testProcessCreateResponseSubdirectoryLevelsIsZero() throws Exception {
-        // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
-
         int subDirLevels = 0;
+        CatalogBackupPlugin plugin = PluginBuilder.start()
+                .rootBackupDir(rootBackupDir)
+                .subDirLevels(subDirLevels)
+                .build();
 
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        // Perform Test
-        CreateResponse postPluginCreateResponse = catalogBackupPlugin.process(mockCreateResponse);
-
-        // Verify
-        assertThat(postPluginCreateResponse, is(notNullValue()));
-
-        for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = new File(rootBackupDir.getRoot()
-                    .getAbsolutePath() + getMetacardPath(metacardId, 0) + metacardId);
-            assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
+        plugin.backupBatch(createMetacards(METACARD_IDS, ""));
+        for (String id : METACARD_IDS) {
+            assertThat(getMetacardFile(id, subDirLevels).exists(), is(Boolean.TRUE));
         }
     }
 
     @Test
     public void testProcessCreateResponseSubdirectoryLevelsIsNegative() throws Exception {
-        // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
-        ExecutorService mockExecutor = mock(ExecutorService.class);
 
         CatalogBackupPlugin plugin = PluginBuilder.start()
-                .executor(mockExecutor)
                 .rootBackupDir(rootBackupDir)
                 .subDirLevels(-5)
-                .batchSize(METACARD_IDS.length)
                 .build();
 
-        // Perform Test
-        CreateResponse response = plugin.process(mockCreateResponse);
-
-        //Verify submit was called.
-        verify(mockExecutor).submit(any(Runnable.class));
-
-        //Create the backup files for the next test
-        plugin.backupBatch(mockCreateResponse.getCreatedMetacards());
-
-        // Verify
-        assertThat(response, is(notNullValue()));
-
+        plugin.backupBatch(createMetacards(METACARD_IDS, BASE_OLD_TITLE));
         for (String id : METACARD_IDS) {
-            File file = new File(plugin.getRootBackupDir() + getMetacardPath(id, 0) + id);
-            assertThat(file.exists(), is(true));
+            assertThat(getMetacardFile(id, 0).exists(), is(true));
         }
     }
 
@@ -153,7 +127,7 @@ public class CatalogBackupPluginTest {
         // Setup
         String[] metacardIds = {"6c38", "0283"};
 
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(metacardIds));
+        CreateResponse mockCreateResponse = getMockCreateResponse(metacardIds);
 
         int subDirLevels = 1000;
 
@@ -170,8 +144,7 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginCreateResponse, is(notNullValue()));
 
         for (String metacardId : metacardIds) {
-            File backedupMetacard = new File(rootBackupDir.getRoot()
-                    .getAbsolutePath() + getMetacardPath(metacardId, 2) + metacardId);
+            File backedupMetacard = getMetacardFile(metacardId, 2);
             assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
         }
     }
@@ -179,7 +152,7 @@ public class CatalogBackupPluginTest {
     @Test
     public void testProcessCreateResponseCreateSuccessful() throws Exception {
         // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
+        CreateResponse mockCreateResponse = getMockCreateResponse(METACARD_IDS);
 
         int subDirLevels = 3;
 
@@ -196,16 +169,20 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginCreateResponse, is(notNullValue()));
 
         for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = new File(rootBackupDir.getRoot()
-                    .getAbsolutePath() + getMetacardPath(metacardId, 3) + metacardId);
+            File backedupMetacard = getMetacardFile(metacardId, subDirLevels);
             assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
         }
+    }
+
+    private File getMetacardFile(String metacardId, int subDirLevels) {
+        return new File(rootBackupDir.getRoot()
+                .getAbsolutePath() + getMetacardPath(metacardId, subDirLevels) + metacardId);
     }
 
     @Test
     public void testProcessDeleteResponseDeleteSuccessful() throws Exception {
         // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
+        CreateResponse mockCreateResponse = getMockCreateResponse(METACARD_IDS);
 
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
 
@@ -226,8 +203,7 @@ public class CatalogBackupPluginTest {
         assertThat(postPluginDeleteResponse, is(notNullValue()));
 
         for (String metacardId : METACARD_IDS) {
-            File deletedMetacards = new File(rootBackupDir.getRoot()
-                    .getAbsolutePath() + getMetacardPath(metacardId, 3) + metacardId);
+            File deletedMetacards = getMetacardFile(metacardId, subDirLevels);
             assertThat(deletedMetacards.exists(), is(Boolean.FALSE));
         }
     }
@@ -261,8 +237,7 @@ public class CatalogBackupPluginTest {
         // Setup
         String[] createdMetacardIds = {METACARD_IDS[0]};
 
-        CreateResponse mockCreateResponse =
-                getMockCreateResponse(Arrays.asList(createdMetacardIds));
+        CreateResponse mockCreateResponse = getMockCreateResponse(createdMetacardIds);
 
         int subDirLevels = 3;
 
@@ -294,7 +269,7 @@ public class CatalogBackupPluginTest {
     @Test
     public void testProcessUpdateResponseUpdateSuccessful() throws Exception {
         // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
+        CreateResponse mockCreateResponse = getMockCreateResponse(METACARD_IDS);
 
         int subDirLevels = 3;
 
@@ -316,9 +291,7 @@ public class CatalogBackupPluginTest {
 
         int j = 0;
         for (Metacard oldMetacard : mockCreateResponse.getCreatedMetacards()) {
-            File updatedMetacardFile = new File(rootBackupDir.getRoot()
-                    .getAbsolutePath() + getMetacardPath(oldMetacard.getId(), subDirLevels)
-                    + oldMetacard.getId());
+            File updatedMetacardFile = getMetacardFile(oldMetacard.getId(), subDirLevels);
             Metacard updatedMetacard = readMetacard(updatedMetacardFile);
             assertThat(updatedMetacardFile.exists(), is(Boolean.TRUE));
             // Verify that the metacard id has not changed (from newMetacard to
@@ -361,8 +334,7 @@ public class CatalogBackupPluginTest {
         // Setup
         String[] createdMetacardIds = {METACARD_IDS[0]};
 
-        CreateResponse mockCreateResponse =
-                getMockCreateResponse(Arrays.asList(createdMetacardIds));
+        CreateResponse mockCreateResponse = getMockCreateResponse(createdMetacardIds);
 
         int subDirLevels = 3;
 
@@ -395,16 +367,21 @@ public class CatalogBackupPluginTest {
      * Helper Methods
      */
 
-    private CreateResponse getMockCreateResponse(List<String> metacardIds) {
-        List<Metacard> createdMetacards = new ArrayList<Metacard>(metacardIds.size());
-        for (String metacardId : metacardIds) {
-            Metacard metacard = getMetacard(metacardId, BASE_OLD_TITLE);
-            createdMetacards.add(metacard);
-        }
-        CreateRequest request = mock(CreateRequest.class);
+    private List<Metacard> createMetacards(String[] ids, String title) {
+
+        return Arrays.asList(ids)
+                .stream()
+                .map(m -> getMetacard(m, title))
+                .collect(Collectors.toList());
+
+    }
+
+    private CreateResponse getMockCreateResponse(String[] ids) {
+
         CreateResponse mockCreateResponse = mock(CreateResponse.class);
-        when(mockCreateResponse.getCreatedMetacards()).thenReturn(createdMetacards);
-        when(mockCreateResponse.getRequest()).thenReturn(request);
+        when(mockCreateResponse.getCreatedMetacards()).thenReturn(createMetacards(ids,
+                BASE_OLD_TITLE));
+        when(mockCreateResponse.getRequest()).thenReturn(mock(CreateRequest.class));
 
         return mockCreateResponse;
     }
@@ -494,22 +471,25 @@ public class CatalogBackupPluginTest {
 
         private CatalogBackupPlugin plugin = new CatalogBackupPlugin();
 
+        private long period = 60;
+
+        private int flushOnCount = 1;
+
+        private TimeUnit timeUnit = TimeUnit.SECONDS;
+
+        private PeriodicDrain executor;
+
         public static PluginBuilder start() {
             return new PluginBuilder();
         }
 
-        public PluginBuilder sleepSeconds(int seconds) {
-            plugin.setSleepSeconds(seconds);
+        public PluginBuilder period(long period) {
+            this.period = period;
             return this;
         }
 
-        public PluginBuilder scheduledExector(ScheduledExecutorService executor) {
-            plugin.setScheduledExecutor(executor);
-            return this;
-        }
-
-        public PluginBuilder executor(ExecutorService executor) {
-            plugin.setExecutor(executor);
+        public PluginBuilder flushCount(int count) {
+            this.flushOnCount = count;
             return this;
         }
 
@@ -528,12 +508,27 @@ public class CatalogBackupPluginTest {
             return this;
         }
 
+        public PluginBuilder executor(PeriodicDrain executor) {
+            this.executor = executor;
+            return this;
+        }
+
+        public PluginBuilder setDirToNull() {
+            rootBackupDir((String) null);
+            return this;
+        }
+
         public CatalogBackupPlugin build() {
+            if (executor == null) {
+                plugin.setPeriodicDrain(new PeriodicDrain<>(flushOnCount, period, timeUnit));
+            } else {
+                plugin.setPeriodicDrain(executor);
+            }
             return plugin;
         }
 
-        public PluginBuilder batchSize(int batchSize) {
-            plugin.setBatchSize(batchSize);
+        public PluginBuilder timeUnit(TimeUnit timeUnit) {
+            this.timeUnit = timeUnit;
             return this;
         }
 
