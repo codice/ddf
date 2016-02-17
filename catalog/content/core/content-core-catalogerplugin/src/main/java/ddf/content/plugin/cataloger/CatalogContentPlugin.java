@@ -100,8 +100,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     mimeType,
                     createdContentItem.getUri(),
                     stream,
-                    input.getRequest()
-                            .getProperties());
+                    input.getProperties());
             String catalogId = cataloger.createMetacard(metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -158,7 +157,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     mimeType,
                     updatedContentItem.getUri(),
                     stream,
-                    null);
+                    input.getProperties());
             String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -305,33 +304,20 @@ public class CatalogContentPlugin implements ContentPlugin {
             LOGGER.debug("Error encountered while using file-backed stream.", e);
         }
 
-        if (properties != null) {
-            setChecksumAttributes(contentMetacard, properties);
-            setThumbnailAttribute(contentMetacard, properties);
-        }
+        addAttributesFromStoragePlugins(contentMetacard, properties);
 
         return contentMetacard;
     }
 
-    private void setChecksumAttributes(Metacard metacard, Map<String, Serializable> properties) {
-        if (properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM)) {
-            String checksumValue = (String) properties.get(ContentMetacardType.RESOURCE_CHECKSUM);
-            metacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM,
-                    checksumValue));
-        }
-
-        if (properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM)) {
-            String checksumAlgorithm =
-                    (String) properties.get(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM);
-            metacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM,
-                    checksumAlgorithm));
-        }
-    }
-
-    private void setThumbnailAttribute(Metacard metacard, Map<String, Serializable> properties) {
-        if (properties.containsKey(Metacard.THUMBNAIL)) {
-            byte[] thumbnail = (byte[]) properties.get(Metacard.THUMBNAIL);
-            metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbnail));
+    private void addAttributesFromStoragePlugins(final Metacard contentMetacard,
+            final Map<String, Serializable> properties) {
+        if (properties.containsKey(STORAGE_PLUGIN_METACARD_ATTRIBUTES)) {
+            @SuppressWarnings("unchecked")
+            final Map<String, Serializable> attributeMap =
+                    (Map<String, Serializable>) properties.get(STORAGE_PLUGIN_METACARD_ATTRIBUTES);
+            attributeMap.forEach((name, value) -> contentMetacard.setAttribute(new AttributeImpl(
+                    name,
+                    value)));
         }
     }
 }

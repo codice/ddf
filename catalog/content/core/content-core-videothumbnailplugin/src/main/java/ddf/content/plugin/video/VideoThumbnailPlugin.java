@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -52,6 +53,7 @@ import ddf.content.operation.Response;
 import ddf.content.operation.UpdateResponse;
 import ddf.content.operation.impl.CreateResponseImpl;
 import ddf.content.operation.impl.UpdateResponseImpl;
+import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.content.plugin.PostCreateStoragePlugin;
 import ddf.content.plugin.PostUpdateStoragePlugin;
@@ -191,7 +193,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
             try {
                 final byte[] thumbnailBytes = createThumbnail(contentItem.getFile()
                         .getCanonicalPath());
-                properties.put(Metacard.THUMBNAIL, thumbnailBytes);
+                addThumbnailAttribute(properties, thumbnailBytes);
                 LOGGER.debug("Successfully created video thumbnail.");
             } finally {
                 limitFFmpegProcessesSemaphore.release();
@@ -201,6 +203,19 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         } finally {
             deleteImageFiles();
         }
+    }
+
+    private void addThumbnailAttribute(final Map<String, Serializable> properties,
+            final byte[] thumbnailBytes) {
+        if (!properties.containsKey(ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES)) {
+            properties.put(ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES,
+                    new HashMap<String, Serializable>());
+        }
+
+        @SuppressWarnings("unchecked")
+        final Map<String, Serializable> map = (Map<String, Serializable>) properties.get(
+                ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES);
+        map.put(Metacard.THUMBNAIL, thumbnailBytes);
     }
 
     private byte[] createThumbnail(final String videoFilePath)

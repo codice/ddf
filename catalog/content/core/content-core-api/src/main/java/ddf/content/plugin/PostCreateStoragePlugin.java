@@ -15,16 +15,23 @@ package ddf.content.plugin;
 
 import ddf.content.operation.CreateResponse;
 
+/**
+ * Services implementing this interface are called immediately after an item is created in the
+ * content repository.
+ */
 public interface PostCreateStoragePlugin {
-
     /**
      * Processes the {@link CreateResponse}.
+     * <p>
+     * If this storage plugin generates attributes that should be added to the resulting
+     * {@code Metacard} created by the Content Cataloger Plugin, they should be inserted into a
+     * {@code Map<String, Serializable>} (key = attribute name, value = attribute value) inside the
+     * {@code Map<String, Serializable>} returned by {@code input.getProperties()} at the key
+     * {@link ContentPlugin#STORAGE_PLUGIN_METACARD_ATTRIBUTES}.
      *
      * @param input the {@link CreateResponse} to process
-     * @return the value of the processed {@link CreateResponse} to pass to the next
-     * {@link PostCreateStoragePlugin}, or if this is the last {@link PostCreateStoragePlugin} to be called
-     * @throws PluginExecutionException thrown when an error occurs during processing
+     * @return the processed {@link CreateResponse} to pass to the next {@link PostCreateStoragePlugin}
+     * @throws PluginExecutionException if an error occurs during processing
      */
-    public CreateResponse process(CreateResponse input) throws PluginExecutionException;
-
+    CreateResponse process(CreateResponse input) throws PluginExecutionException;
 }

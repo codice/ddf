@@ -22,6 +22,12 @@ import ddf.content.operation.UpdateRequest;
 public interface PreUpdateStoragePlugin {
     /**
      * Processes the {@link UpdateRequest}.
+     * <p>
+     * If this storage plugin generates attributes that should be added to the resulting
+     * {@code Metacard} created by the Content Cataloger Plugin, they should be inserted into a
+     * {@code Map<String, Serializable>} (key = attribute name, value = attribute value) inside the
+     * {@code Map<String, Serializable>} returned by {@code input.getProperties()} at the key
+     * {@link ContentPlugin#STORAGE_PLUGIN_METACARD_ATTRIBUTES}.
      *
      * @param input the {@code UpdateRequest} to process
      * @return the processed {@code UpdateRequest} to pass to the next {@link PreUpdateStoragePlugin}

@@ -13,6 +13,7 @@
  */
 package ddf.content.plugin.video;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.collection.IsMapContaining.hasKey;
@@ -24,12 +25,15 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -43,8 +47,11 @@ import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
 import ddf.content.operation.CreateResponse;
+import ddf.content.operation.Response;
 import ddf.content.operation.UpdateRequest;
 import ddf.content.operation.UpdateResponse;
+import ddf.content.plugin.ContentPlugin;
+import ddf.content.plugin.PluginExecutionException;
 
 public class TestVideoThumbnailPlugin {
     private String binaryPath;
@@ -162,8 +169,7 @@ public class TestVideoThumbnailPlugin {
         final CreateResponse processedCreateResponse = videoThumbnailPlugin.process(
                 mockCreateResponse);
 
-        return (byte[]) processedCreateResponse.getProperties()
-                .get(Metacard.THUMBNAIL);
+        return (byte[]) getAttributeMapFromResponse(processedCreateResponse).get(Metacard.THUMBNAIL);
     }
 
     private void verifyThumbnailIsGif(final byte[] thumbnail) {
@@ -205,8 +211,8 @@ public class TestVideoThumbnailPlugin {
         final UpdateResponse processedUpdateResponse = videoThumbnailPlugin.process(
                 mockUpdateResponse);
 
-        final byte[] thumbnail = (byte[]) processedUpdateResponse.getProperties()
-                .get(Metacard.THUMBNAIL);
+        final byte[] thumbnail = (byte[]) getAttributeMapFromResponse(processedUpdateResponse).get(
+                Metacard.THUMBNAIL);
         assertThat(thumbnail, notNullValue());
         verifyThumbnailIsGif(thumbnail);
     }
@@ -226,7 +232,8 @@ public class TestVideoThumbnailPlugin {
         final CreateResponse processedCreateResponse = videoThumbnailPlugin.process(
                 mockCreateResponse);
 
-        assertThat(processedCreateResponse.getProperties(), not(hasKey(Metacard.THUMBNAIL)));
+        assertThat(getAttributeMapFromResponse(processedCreateResponse),
+                not(hasKey(Metacard.THUMBNAIL)));
     }
 
     @Test
@@ -244,6 +251,23 @@ public class TestVideoThumbnailPlugin {
         final UpdateResponse processedUpdateResponse = videoThumbnailPlugin.process(
                 mockUpdateResponse);
 
-        assertThat(processedUpdateResponse.getProperties(), not(hasKey(Metacard.THUMBNAIL)));
+        assertThat(getAttributeMapFromResponse(processedUpdateResponse),
+                not(hasKey(Metacard.THUMBNAIL)));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Serializable> getAttributeMapFromResponse(final Response response) {
+        return (Map<String, Serializable>) response.getPropertyValue(ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES);
+    }
+
+    @Test
+    public void testCorruptedVideo() {
+        try {
+            getCreatedItemThumbnail("corrupted.mp4");
+            fail("The video thumbnail plugin should have thrown an exception.");
+        } catch (Exception e) {
+            assertThat(e, instanceOf(PluginExecutionException.class));
+            assertThat(e.getCause(), instanceOf(ExecuteException.class));
+        }
     }
 }

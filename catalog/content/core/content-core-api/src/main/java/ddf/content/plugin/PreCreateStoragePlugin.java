@@ -15,16 +15,23 @@ package ddf.content.plugin;
 
 import ddf.content.operation.CreateRequest;
 
+/**
+ * Services implementing this interface are called immediately before an item is created in the
+ * content repository.
+ */
 public interface PreCreateStoragePlugin {
-
     /**
      * Processes the {@link CreateRequest}.
+     * <p>
+     * If this storage plugin generates attributes that should be added to the resulting
+     * {@code Metacard} created by the Content Cataloger Plugin, they should be inserted into a
+     * {@code Map<String, Serializable>} (key = attribute name, value = attribute value) inside the
+     * {@code Map<String, Serializable>} returned by {@code input.getProperties()} at the key
+     * {@link ContentPlugin#STORAGE_PLUGIN_METACARD_ATTRIBUTES}.
      *
      * @param input the {@link CreateRequest} to process
-     * @return the value of the processed {@link CreateRequest} to pass to the next
-     * {@link PreCreateStoragePlugin}, or if this is the last {@link PreCreateStoragePlugin} to be called
-     * @throws PluginExecutionException thrown when an error occurs during processing
+     * @return the processed {@link CreateRequest} to pass to the next {@link PreCreateStoragePlugin}
+     * @throws PluginExecutionException if an error occurs during processing
      */
-    public CreateRequest process(CreateRequest input) throws PluginExecutionException;
-
+    CreateRequest process(CreateRequest input) throws PluginExecutionException;
 }
