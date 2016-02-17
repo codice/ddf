@@ -62,11 +62,8 @@
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
-<<<<<<< 77a4b6e90710133c248412c65af4f599ebd84929
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
-=======
         <bundle>mvn:ddf.catalog.core/catalog-core-dynamic-registry/${project.version}</bundle>
->>>>>>> DDF-1760 Integrated with DDF. Added multiple unit tests.
 
         <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
