@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -107,6 +107,8 @@ public class TestRestEndpoint {
 
     private static final int INTERNAL_SERVER_ERROR = 500;
 
+    private static final int BAD_REQUEST = 400;
+
     private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/catalog";
@@ -115,8 +117,7 @@ public class TestRestEndpoint {
 
     private static final String LOCAL_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog";
 
-    private static final String FED_RETRIEVE_ADDRESS =
-            "http://localhost:8181/services/catalog/sources/test/abc123456def";
+    private static final String FED_RETRIEVE_ADDRESS = "http://localhost:8181/services/catalog/sources/test/abc123456def";
 
     private static final String GET_SITENAME = "test";
 
@@ -175,20 +176,18 @@ public class TestRestEndpoint {
 
         List list = Arrays.asList(getSimpleTransformer());
 
-        when(matchingService.findMatches(eq(InputTransformer.class),
-                isNull(MimeType.class))).thenReturn(list);
+        when(matchingService.findMatches(eq(InputTransformer.class), isNull(MimeType.class)))
+                .thenReturn(list);
 
         rest.setMimeTypeToTransformerMapper(matchingService);
 
         HttpHeaders headers = mock(HttpHeaders.class);
 
-        rest.addDocument(headers,
-                givenUriInfo(SAMPLE_ID),
-                mock(HttpServletRequest.class),
+        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), mock(HttpServletRequest.class),
                 new ByteArrayInputStream("".getBytes()));
 
-        verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class),
-                isNull(MimeType.class));
+        verify(matchingService, atLeastOnce())
+                .findMatches(eq(InputTransformer.class), isNull(MimeType.class));
     }
 
     /**
@@ -210,20 +209,18 @@ public class TestRestEndpoint {
 
         List list = Arrays.asList(getSimpleTransformer());
 
-        when(matchingService.findMatches(eq(InputTransformer.class),
-                isNull(MimeType.class))).thenReturn(list);
+        when(matchingService.findMatches(eq(InputTransformer.class), isNull(MimeType.class)))
+                .thenReturn(list);
 
         rest.setMimeTypeToTransformerMapper(matchingService);
 
         HttpHeaders headers = createHeaders(Arrays.asList("!INVALID!"));
 
-        rest.addDocument(headers,
-                givenUriInfo(SAMPLE_ID),
-                mock(HttpServletRequest.class),
+        rest.addDocument(headers, givenUriInfo(SAMPLE_ID), mock(HttpServletRequest.class),
                 new ByteArrayInputStream("".getBytes()));
 
-        verify(matchingService, atLeastOnce()).findMatches(eq(InputTransformer.class),
-                isNull(MimeType.class));
+        verify(matchingService, atLeastOnce())
+                .findMatches(eq(InputTransformer.class), isNull(MimeType.class));
     }
 
     @Test(expected = ServerErrorException.class)
@@ -252,8 +249,8 @@ public class TestRestEndpoint {
 
         List list = new ArrayList<InputTransformer>();
 
-        when(matchingService.findMatches(eq(InputTransformer.class),
-                isA(MimeType.class))).thenReturn(list);
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn(list);
 
         rest.setMimeTypeToTransformerMapper(matchingService);
 
@@ -277,16 +274,16 @@ public class TestRestEndpoint {
         InputTransformer transformer = mock(InputTransformer.class);
 
         try {
-            when(transformer.transform(isA(InputStream.class))).thenThrow(
-                    CatalogTransformerException.class);
+            when(transformer.transform(isA(InputStream.class)))
+                    .thenThrow(CatalogTransformerException.class);
         } catch (IOException e) {
             LOGGER.debug("Exception occurred during test", e);
         } catch (CatalogTransformerException e) {
             LOGGER.debug("Exception occurred during test", e);
         }
 
-        when(matchingService.findMatches(eq(InputTransformer.class),
-                isA(MimeType.class))).thenReturn((List) Arrays.asList(transformer));
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn((List) Arrays.asList(transformer));
 
         rest.setMimeTypeToTransformerMapper(matchingService);
 
@@ -333,8 +330,8 @@ public class TestRestEndpoint {
             LOGGER.debug("Exception occurred during test", e);
         }
 
-        when(matchingService.findMatches(eq(InputTransformer.class),
-                isA(MimeType.class))).thenReturn((List) Arrays.asList(transformer));
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn((List) Arrays.asList(transformer));
 
         rest.setMimeTypeToTransformerMapper(matchingService);
 
@@ -359,9 +356,7 @@ public class TestRestEndpoint {
 
         UriInfo info = givenUriInfo(SAMPLE_ID);
 
-        Response response = rest.addDocument(headers,
-                info,
-                mock(HttpServletRequest.class),
+        Response response = rest.addDocument(headers, info, mock(HttpServletRequest.class),
                 new ByteArrayInputStream("".getBytes()));
 
         LOGGER.debug(ToStringBuilder.reflectionToString(response));
@@ -495,9 +490,7 @@ public class TestRestEndpoint {
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(GET_STREAM, responseMessage);
         assertEquals(OK, response.getStatus());
-        assertEquals(GET_TYPE_OUTPUT,
-                response.getMetadata()
-                        .toString());
+        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     @Test
@@ -510,9 +503,7 @@ public class TestRestEndpoint {
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(GET_STREAM, responseMessage);
         assertEquals(OK, response.getStatus());
-        assertEquals(GET_KML_TYPE_OUTPUT,
-                response.getMetadata()
-                        .toString());
+        assertEquals(GET_KML_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     /**
@@ -541,9 +532,7 @@ public class TestRestEndpoint {
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(GET_STREAM, responseMessage);
         assertEquals(OK, response.getStatus());
-        assertEquals(GET_TYPE_OUTPUT,
-                response.getMetadata()
-                        .toString());
+        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     /**
@@ -585,7 +574,8 @@ public class TestRestEndpoint {
         SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(localSourceId,
                 contentTypes);
         localDescriptor.setVersion(version);
-        SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(fed1SourceId, contentTypes);
+        SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(fed1SourceId,
+                contentTypes);
         fed1Descriptor.setVersion(version);
         SourceDescriptorImpl fed2Descriptor = new SourceDescriptorImpl(fed2SourceId, null);
 
@@ -593,22 +583,18 @@ public class TestRestEndpoint {
         sourceDescriptors.add(fed1Descriptor);
         sourceDescriptors.add(fed2Descriptor);
 
-        SourceInfoResponse sourceInfoResponse = new SourceInfoResponseImpl(null,
-                null,
+        SourceInfoResponse sourceInfoResponse = new SourceInfoResponseImpl(null, null,
                 sourceDescriptors);
 
         CatalogFramework framework = mock(CatalogFramework.class);
-        when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class))).thenReturn(
-                sourceInfoResponse);
+        when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class)))
+                .thenReturn(sourceInfoResponse);
 
         RESTEndpoint restEndpoint = new RESTEndpoint(framework);
 
         Response response = restEndpoint.getDocument(null, null);
         assertEquals(OK, response.getStatus());
-        assertEquals(jsonMimeTypeString,
-                response.getMetadata()
-                        .get("Content-Type")
-                        .get(0));
+        assertEquals(jsonMimeTypeString, response.getMetadata().get("Content-Type").get(0));
 
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         JSONArray srcList = (JSONArray) new JSONParser().parse(responseMessage);
@@ -664,9 +650,7 @@ public class TestRestEndpoint {
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(GET_STREAM, responseMessage);
         assertEquals(OK, response.getStatus());
-        assertEquals(GET_TYPE_OUTPUT,
-                response.getMetadata()
-                        .toString());
+        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     /**
@@ -695,9 +679,7 @@ public class TestRestEndpoint {
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         assertEquals(GET_STREAM, responseMessage);
         assertEquals(OK, response.getStatus());
-        assertEquals(GET_TYPE_OUTPUT,
-                response.getMetadata()
-                        .toString());
+        assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
     /**
@@ -725,15 +707,16 @@ public class TestRestEndpoint {
         InputStream inputStream = new ByteArrayInputStream(metacardXml.getBytes(GET_OUTPUT_TYPE));
         when(content.getInputStream()).thenReturn(inputStream);
         when(content.getMimeTypeValue()).thenReturn("application/json;id=geojson");
-        when(framework.transform(isA(Metacard.class), anyString(), isNull(Map.class))).thenAnswer(
-                new Answer<BinaryContent>() {
-                    @Override
-                    public BinaryContent answer(InvocationOnMock invocation) throws Throwable {
-                        Object[] args = invocation.getArguments();
-                        Metacard metacard = (Metacard) args[0];
-                        return content;
-                    }
-                });
+        when(framework.transform(isA(Metacard.class), anyString(), isNull(Map.class)))
+                .thenAnswer(new Answer<BinaryContent>() {
+                            @Override
+                            public BinaryContent answer(InvocationOnMock invocation)
+                                    throws Throwable {
+                                Object[] args = invocation.getArguments();
+                                Metacard metacard = (Metacard) args[0];
+                                return content;
+                            }
+                        });
 
         RESTEndpoint restEndpoint = new RESTEndpoint(framework);
 
@@ -777,9 +760,8 @@ public class TestRestEndpoint {
         MultipartBody multipartBody = new MultipartBody(attachments, mediaType, true);
 
         UriInfo uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
-        Response response = restEndpoint.createMetacard(multipartBody,
-                uriInfo,
-                RESTEndpoint.DEFAULT_METACARD_TRANSFORMER);
+        Response response = restEndpoint
+                .createMetacard(multipartBody, uriInfo, RESTEndpoint.DEFAULT_METACARD_TRANSFORMER);
         assertEquals(OK, response.getStatus());
         InputStream responseEntity = (InputStream) response.getEntity();
         String responseXml = IOUtils.toString(responseEntity);
@@ -866,8 +848,8 @@ public class TestRestEndpoint {
 
         when(queryResponse.getResults()).thenReturn(list);
 
-        when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class))).thenReturn(
-                queryResponse);
+        when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class)))
+                .thenReturn(queryResponse);
 
         metacard = new MetacardImpl();
         metacard.setSourceId(GET_SITENAME);
@@ -878,8 +860,8 @@ public class TestRestEndpoint {
         when(resource.getInputStream()).thenReturn(inputStream);
         when(resource.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
         when(resource.getName()).thenReturn(GET_FILENAME);
-        when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class))).thenReturn(
-                resource);
+        when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class)))
+                .thenReturn(resource);
 
         RESTEndpoint restEndpoint = new RESTEndpoint(framework);
         restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
@@ -936,8 +918,8 @@ public class TestRestEndpoint {
             ResourceNotSupportedException {
         String transformer = null;
         QueryResponse queryResponse = mock(QueryResponse.class);
-        when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class))).thenReturn(
-                queryResponse);
+        when(framework.query(isA(QueryRequest.class), isNull(FederationStrategy.class)))
+                .thenReturn(queryResponse);
 
         List<Result> list = null;
         MetacardImpl metacard = null;
@@ -975,8 +957,8 @@ public class TestRestEndpoint {
             when(resource.getInputStream()).thenReturn(inputStream);
             when(resource.getMimeTypeValue()).thenReturn(GET_MIME_TYPE);
             when(resource.getName()).thenReturn(GET_FILENAME);
-            when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class))).thenReturn(
-                    resource);
+            when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class)))
+                    .thenReturn(resource);
             break;
 
         case KML_TEST:
@@ -993,8 +975,8 @@ public class TestRestEndpoint {
             inputStream = new ByteArrayInputStream(GET_STREAM.getBytes(GET_OUTPUT_TYPE));
             when(content.getInputStream()).thenReturn(inputStream);
             when(content.getMimeTypeValue()).thenReturn(GET_KML_MIME_TYPE);
-            when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class))).thenReturn(
-                    content);
+            when(framework.transform(isA(Metacard.class), anyString(), isA(Map.class)))
+                    .thenReturn(content);
             break;
         }
 
@@ -1016,11 +998,8 @@ public class TestRestEndpoint {
             response = restEndpoint.getDocument(GET_ID, transformer, uriInfo, request);
         } else {
             uriInfo = createSpecificUriInfo(FED_RETRIEVE_ADDRESS);
-            response = restEndpoint.getDocument(GET_SITENAME,
-                    GET_ID,
-                    transformer,
-                    uriInfo,
-                    request);
+            response = restEndpoint
+                    .getDocument(GET_SITENAME, GET_ID, transformer, uriInfo, request);
         }
 
         return response;
@@ -1042,14 +1021,17 @@ public class TestRestEndpoint {
         UriInfo info = givenUriInfo(SAMPLE_ID);
 
         try {
-            rest.addDocument(headers,
-                    info,
-                    mock(HttpServletRequest.class),
+            rest.addDocument(headers, info, mock(HttpServletRequest.class),
                     new ByteArrayInputStream("".getBytes()));
             fail();
         } catch (ServerErrorException e) {
-            assertThat(e.getResponse()
-                    .getStatus(), equalTo(INTERNAL_SERVER_ERROR));
+            if (klass.getName().equals(SourceUnavailableException.class.getName())) {
+                assertThat(e.getResponse()
+                        .getStatus(), equalTo(INTERNAL_SERVER_ERROR));
+            } else if (klass.getName().equals(IngestException.class.getName())) {
+                assertThat(e.getResponse()
+                        .getStatus(), equalTo(BAD_REQUEST));
+            }
         }
     }
 
@@ -1061,9 +1043,8 @@ public class TestRestEndpoint {
 
         when(returnMetacard.getId()).thenReturn(returnId);
 
-        when(framework.create(isA(CreateRequest.class))).thenReturn(new CreateResponseImpl(null,
-                null,
-                Arrays.asList(returnMetacard)));
+        when(framework.create(isA(CreateRequest.class)))
+                .thenReturn(new CreateResponseImpl(null, null, Arrays.asList(returnMetacard)));
 
         return framework;
     }
@@ -1088,8 +1069,8 @@ public class TestRestEndpoint {
 
         try {
             when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
-                    generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class)))
+                    .thenReturn(generatedMetacard);
         } catch (IOException e) {
             LOGGER.debug("Exception occurred during test", e);
         } catch (CatalogTransformerException e) {
@@ -1128,8 +1109,8 @@ public class TestRestEndpoint {
 
         MimeTypeToTransformerMapper matchingService = mock(MimeTypeToTransformerMapper.class);
 
-        when(matchingService.findMatches(eq(InputTransformer.class),
-                isA(MimeType.class))).thenReturn((List) sortedListOfTransformers);
+        when(matchingService.findMatches(eq(InputTransformer.class), isA(MimeType.class)))
+                .thenReturn((List) sortedListOfTransformers);
 
         rest.setMimeTypeToTransformerMapper(matchingService);
 

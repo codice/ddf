@@ -112,6 +112,7 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
@@ -958,7 +959,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing create", re);
             ingestError = re;
-            throw new IngestException("Exception during runtime while performing create");
+            throw new InternalIngestException("Exception during runtime while performing create");
         } finally {
             if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
@@ -1032,8 +1033,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 idFilters.add(filterBuilder.attribute(Metacard.ID)
                         .is()
                         .equalTo()
-                        .text(update.getValue()
-                                .getId()));
+                        .text(update.getKey().toString()));
             }
 
             QueryImpl queryImpl = new QueryImpl(filterBuilder.anyOf(idFilters));
@@ -1136,7 +1136,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing update", re);
-            throw new IngestException("Exception during runtime while performing update");
+            throw new InternalIngestException("Exception during runtime while performing update");
 
         } finally {
             LOGGER.exit(methodName);
@@ -1296,7 +1296,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing delete", re);
-            throw new IngestException("Exception during runtime while performing delete");
+            throw new InternalIngestException("Exception during runtime while performing delete");
 
         } finally {
             LOGGER.exit(methodName);

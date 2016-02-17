@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,11 +15,17 @@ package ddf.catalog.security.filter.plugin;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.TreeMap;
 
 import org.apache.shiro.subject.Subject;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +47,10 @@ import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.security.FilterResult;
 import ddf.catalog.security.FilterStrategy;
+import ddf.catalog.util.impl.ServiceComparator;
 import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.Security;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
@@ -54,10 +62,24 @@ public class FilterPlugin implements AccessPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterPlugin.class);
 
-    private List<FilterStrategy> filterStrategies;
+    private Map<ServiceReference, FilterStrategy> filterStrategies = Collections
+            .synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
-    public FilterPlugin(List<FilterStrategy> filterStrategies) {
-        this.filterStrategies = filterStrategies;
+    public void addStrategy(ServiceReference<FilterStrategy> filterStrategyRef) {
+        Bundle bundle = FrameworkUtil.getBundle(FilterPlugin.class);
+        if (bundle != null) {
+            FilterStrategy filterStrategy = bundle.getBundleContext()
+                    .getService(filterStrategyRef);
+            filterStrategies.put(filterStrategyRef, filterStrategy);
+        }
+    }
+
+    public void removeStrategy(ServiceReference<FilterStrategy> filterStrategyRef) {
+        filterStrategies.remove(filterStrategyRef);
+    }
+
+    protected Subject getSystemSubject() {
+        return Security.getSystemSubject();
     }
 
     @Override
@@ -66,14 +88,20 @@ public class FilterPlugin implements AccessPlugin {
                 CollectionPermission.CREATE_ACTION);
         List<Metacard> metacards = input.getMetacards();
         Subject subject = getSubject(input);
+        Subject systemSubject = getSystemSubject();
+        List<String> notPermittedIds = new ArrayList<>();
         for (Metacard metacard : metacards) {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr,
-                    securityPermission,
-                    subject,
-                    CollectionPermission.CREATE_ACTION)) {
-                throw new StopProcessingException("Metacard creation not permitted.");
+            if (!checkPermissions(attr, securityPermission, subject,
+                    CollectionPermission.CREATE_ACTION) || !checkPermissions(attr,
+                    securityPermission, systemSubject, CollectionPermission.CREATE_ACTION)) {
+                notPermittedIds.add(metacard.getId());
             }
+        }
+        if (!notPermittedIds.isEmpty()) {
+            throw new StopProcessingException(
+                    "Metacard creation not permitted for: [ " + listToString(notPermittedIds)
+                            + " ]");
         }
 
         return input;
@@ -86,23 +114,39 @@ public class FilterPlugin implements AccessPlugin {
                 CollectionPermission.UPDATE_ACTION);
         List<Map.Entry<Serializable, Metacard>> updates = input.getUpdates();
         Subject subject = getSubject(input);
+        Subject systemSubject = getSystemSubject();
+        List<String> unknownIds = new ArrayList<>();
+        List<String> notPermittedIds = new ArrayList<>();
         for (Map.Entry<Serializable, Metacard> entry : updates) {
             Metacard newMetacard = entry.getValue();
             Attribute attr = newMetacard.getAttribute(Metacard.SECURITY);
-            Metacard oldMetacard = metacards.get(newMetacard.getId());
+            String id = null;
+            if (entry.getKey() != null && !entry.getKey()
+                    .equals("null")) {
+                id = (String) entry.getKey();
+            } else if (newMetacard.getId() != null && !newMetacard.getId()
+                    .equals("null")) {
+                id = newMetacard.getId();
+            }
+            Metacard oldMetacard = metacards.get(id);
             if (oldMetacard == null) {
-                throw new StopProcessingException("Metacard update not permitted.");
+                unknownIds.add(id);
+            } else {
+                Attribute oldAttr = oldMetacard.getAttribute(Metacard.SECURITY);
+                if (!checkPermissions(attr, securityPermission, subject,
+                        CollectionPermission.UPDATE_ACTION) || !checkPermissions(oldAttr,
+                        securityPermission, subject, CollectionPermission.UPDATE_ACTION)
+                        || !checkPermissions(attr, securityPermission, systemSubject,
+                        CollectionPermission.UPDATE_ACTION)) {
+                    notPermittedIds.add(newMetacard.getId());
+                }
             }
-            Attribute oldAttr = oldMetacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr,
-                    securityPermission,
-                    subject,
-                    CollectionPermission.UPDATE_ACTION) || !checkPermissions(oldAttr,
-                    securityPermission,
-                    subject,
-                    CollectionPermission.UPDATE_ACTION)) {
-                throw new StopProcessingException("Metacard update not permitted.");
-            }
+        }
+        if (!unknownIds.isEmpty() || !notPermittedIds.isEmpty()) {
+            throw new StopProcessingException(
+                    "Update operation not permitted with bad data. Unknown metacards: [ "
+                            + listToString(unknownIds) + " ]. Not Permitted metacards: [ "
+                            + listToString(notPermittedIds) + " ]");
         }
         return input;
     }
@@ -128,11 +172,9 @@ public class FilterPlugin implements AccessPlugin {
         int filteredMetacards = 0;
         for (Metacard metacard : results) {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr,
-                    securityPermission,
-                    subject,
+            if (!checkPermissions(attr, securityPermission, subject,
                     CollectionPermission.READ_ACTION)) {
-                for (FilterStrategy filterStrategy : filterStrategies) {
+                for (FilterStrategy filterStrategy : filterStrategies.values()) {
                     FilterResult filterResult = filterStrategy.process(input, metacard);
                     if (filterResult.processed()) {
                         if (filterResult.metacard() != null) {
@@ -183,11 +225,9 @@ public class FilterPlugin implements AccessPlugin {
         for (Result result : results) {
             metacard = result.getMetacard();
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-            if (!checkPermissions(attr,
-                    securityPermission,
-                    subject,
+            if (!checkPermissions(attr, securityPermission, subject,
                     CollectionPermission.READ_ACTION)) {
-                for (FilterStrategy filterStrategy : filterStrategies) {
+                for (FilterStrategy filterStrategy : filterStrategies.values()) {
                     FilterResult filterResult = filterStrategy.process(input, metacard);
                     if (filterResult.processed()) {
                         if (filterResult.metacard() != null) {
@@ -233,11 +273,9 @@ public class FilterPlugin implements AccessPlugin {
                 CollectionPermission.READ_ACTION);
         Subject subject = getSubject(input);
         Attribute attr = metacard.getAttribute(Metacard.SECURITY);
-        if (!checkPermissions(attr,
-                securityPermission,
-                subject,
+        if (!checkPermissions(attr, securityPermission, subject,
                 CollectionPermission.READ_ACTION)) {
-            for (FilterStrategy filterStrategy : filterStrategies) {
+            for (FilterStrategy filterStrategy : filterStrategies.values()) {
                 FilterResult filterResult = filterStrategy.process(input, metacard);
                 if (filterResult.processed()) {
                     if (filterResult.response() == null) {
@@ -255,6 +293,12 @@ public class FilterPlugin implements AccessPlugin {
             }
         }
         return input;
+    }
+
+    private String listToString(List<String> list) {
+        StringJoiner stringJoiner = new StringJoiner(",");
+        list.forEach(stringJoiner::add);
+        return stringJoiner.toString();
     }
 
     private Subject getSubject(Response input) throws StopProcessingException {

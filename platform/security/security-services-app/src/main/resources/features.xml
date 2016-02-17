@@ -33,7 +33,6 @@
 
     <feature name="security-expansion" install="manual" version="${project.version}"
              description="DDF Security Expansion">
-        <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-commands/${project.version}</bundle>
     </feature>
@@ -254,6 +253,9 @@
     <feature name="security-web-sso-defaults" install="manual" version="${project.version}"
              description="Installs the default features needed for web-based SSO authentication.">
         <feature prerequisite="true">security-policy-context</feature>
+        <feature prerequisite="true">security-expansion</feature>
+        <feature>security-pep-user-attributes</feature>
+        <feature>security-pep-metacard-attributes</feature>
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
         <feature>security-filter-login</feature>

@@ -13,9 +13,10 @@
  */
 package ddf.security.permission;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.Permission;
@@ -28,7 +29,7 @@ import org.apache.shiro.authz.permission.WildcardPermission;
 public class KeyValuePermission implements Permission {
     private String key;
 
-    private List<String> values;
+    private Set<String> values;
 
     /**
      * Creates a new KeyValuePermission with the specified key and an empty list of values.
@@ -36,7 +37,28 @@ public class KeyValuePermission implements Permission {
      * @param key the key to be used for this permission
      */
     public KeyValuePermission(String key) {
-        this(key, new ArrayList<String>());
+        this(key, new HashSet<>());
+    }
+
+    /**
+     * Creates a new KeyValuePermission with the specified key and corresponding list of values.
+     *
+     * @param key    the key to be used for this permission
+     * @param values the list of values to be used for this permission
+     * @throws IllegalArgumentException if the key is null - a valid key is required
+     * @deprecated
+     */
+    public KeyValuePermission(String key, List<String> values) {
+        if (key == null) {
+            throw new IllegalArgumentException(
+                    "Incoming key cannot be null, could not create permission.");
+        }
+        this.key = key;
+        if (values == null) {
+            this.values = new HashSet<>();
+        } else {
+            this.values = new HashSet<>(values);
+        }
     }
 
     /**
@@ -46,14 +68,14 @@ public class KeyValuePermission implements Permission {
      * @param values the list of values to be used for this permission
      * @throws IllegalArgumentException if the key is null - a valid key is required
      */
-    public KeyValuePermission(String key, List<String> values) {
+    public KeyValuePermission(String key, Set<String> values) {
         if (key == null) {
             throw new IllegalArgumentException(
                     "Incoming key cannot be null, could not create permission.");
         }
         this.key = key;
         if (values == null) {
-            this.values = new ArrayList<String>();
+            this.values = new HashSet<>();
         } else {
             this.values = values;
         }
@@ -63,8 +85,8 @@ public class KeyValuePermission implements Permission {
         return key;
     }
 
-    public List<String> getValues() {
-        return Collections.unmodifiableList(values);
+    public Set<String> getValues() {
+        return Collections.unmodifiableSet(values);
     }
 
     /**
@@ -110,8 +132,8 @@ public class KeyValuePermission implements Permission {
             }
         } else if (p instanceof KeyValueCollectionPermission) {
             WildcardPermission thisWildCard = buildWildcardFromKeyValue(this);
-            List<KeyValuePermission> permissionList =
-                    ((KeyValueCollectionPermission) p).getKeyValuePermissionList();
+            List<KeyValuePermission> permissionList = ((KeyValueCollectionPermission) p)
+                    .getKeyValuePermissionList();
             for (KeyValuePermission keyValuePermission : permissionList) {
                 if (getKey().equals(keyValuePermission.getKey())) {
                     WildcardPermission implied = buildWildcardFromKeyValue(keyValuePermission);
@@ -119,8 +141,7 @@ public class KeyValuePermission implements Permission {
                 }
             }
         } else if (p instanceof MatchOneCollectionPermission) {
-            MatchOneCollectionPermission matchOneCollectionPermission =
-                    (MatchOneCollectionPermission) p;
+            MatchOneCollectionPermission matchOneCollectionPermission = (MatchOneCollectionPermission) p;
             return matchOneCollectionPermission.implies(this);
         } else if (p instanceof WildcardPermission) {
             WildcardPermission thisWildCard = buildWildcardFromKeyValue(this);
@@ -144,9 +165,8 @@ public class KeyValuePermission implements Permission {
             wildcardString.append(value);
             wildcardString.append(",");
         }
-        WildcardPermission wildcardPermission = new WildcardPermission(wildcardString.toString()
-                .substring(0, wildcardString.length() - 1));
-        return wildcardPermission;
+        return new WildcardPermission(
+                wildcardString.toString().substring(0, wildcardString.length() - 1));
     }
 
     /**
