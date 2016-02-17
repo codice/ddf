@@ -116,9 +116,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
 
-    private static KarafConsole console;
+    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
-    private static final String SEARCH_COMMAND = "catalog:search";
+    private static KarafConsole console;
 
     private static Path symbolicLink;
 
@@ -146,20 +146,16 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
-    private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
-
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
-            basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             console = new KarafConsole(bundleCtx, features, sessionFactory);
-            basePort = getBasePort();
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
             enableCrlInEncyptionPropertiesFile();
@@ -281,7 +277,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportToDirectory() throws Exception {
         resetInitialState();
 
-        String response = console.runCommand(EXPORT_COMMAND + " " + temporaryFolder.getRoot());
+        String response = console.runCommand(EXPORT_COMMAND + " \"" + temporaryFolder.getRoot() + "\"");
 
         assertThat(String.format("Exporting current configurations to %s.",
                 temporaryFolder.toString()),
@@ -413,6 +409,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportWarningForSymbolicLinkPath() throws Exception {
+        if(System.getProperty("os.name").startsWith("Win")){
+            // can't create symlinks in windows (borrowed from Apache commonsio)
+            return;
+        }
 
         resetInitialState();
 
@@ -473,7 +473,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 getDefaultExportDirectory()),
                 response,
                 containsString(
-                        "Path [etc/system.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
+                        "Path [etc" + FILE_SEPARATOR + "system.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -493,7 +493,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 getDefaultExportDirectory()),
                 response,
                 containsString(
-                        "Path [etc/users.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
+                        "Path [etc" + FILE_SEPARATOR + "users.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -531,7 +531,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 getDefaultExportDirectory()),
                 response,
                 containsString(
-                        "Path [etc/pdp] does not exist or cannot be read; therefore, it will not be included in the export."));
+                        "Path [etc" + FILE_SEPARATOR + "pdp] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
