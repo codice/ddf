@@ -75,14 +75,8 @@ public class AttributesStoreImpl implements AttributesStore {
                 long dataUsage = getCurrentDataUsageByUserNoLock(username);
                 dataUsage += newDataUsage;
 
-                // add to usage and store
-                PersistentItem item = new PersistentItem();
-                item.addIdProperty(username);
-                item.addProperty(USER_KEY, username);
-                item.addProperty(DATA_USAGE_KEY, dataUsage);
-
                 LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, item);
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username, dataUsage));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -103,20 +97,23 @@ public class AttributesStoreImpl implements AttributesStore {
                 readWriteLock.writeLock()
                         .lock();
 
-                // add to usage and store
-                PersistentItem item = new PersistentItem();
-                item.addIdProperty(username);
-                item.addProperty(USER_KEY, username);
-                item.addProperty(DATA_USAGE_KEY, dataUsage);
-
                 LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, item);
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username, dataUsage));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
 
             }
         }
+    }
+
+    private PersistentItem toPersistentItem(final String username, final long dataUsage) {
+        // add to usage and store
+        PersistentItem item = new PersistentItem();
+        item.addIdProperty(username);
+        item.addProperty(USER_KEY, username);
+        item.addProperty(DATA_USAGE_KEY, dataUsage);
+        return item;
     }
 
     private long getCurrentDataUsageByUserNoLock(final String username)

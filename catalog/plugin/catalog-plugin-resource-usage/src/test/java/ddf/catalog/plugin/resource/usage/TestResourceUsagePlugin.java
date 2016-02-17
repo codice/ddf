@@ -13,7 +13,6 @@
  */
 package ddf.catalog.plugin.resource.usage;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -91,12 +90,12 @@ public class TestResourceUsagePlugin {
         ResourceRequest request = plugin.process(origRequest);
 
         assertThat(request, notNullValue());
-        assertThat(request, is(equalTo(origRequest)));
+        assertThat(request, is(origRequest));
 
         verify(attributeStore).updateUserDataUsage(usernameArg.capture(), dataSizeArg.capture());
 
-        assertThat(usernameArg.getValue(), is(equalTo(TEST_USER)));
-        assertThat(dataSizeArg.getValue(), is(equalTo(Long.valueOf(RESOURCE_SIZE))));
+        assertThat(usernameArg.getValue(), is(TEST_USER));
+        assertThat(dataSizeArg.getValue(), is(Long.valueOf(RESOURCE_SIZE)));
     }
 
     @Test
@@ -105,7 +104,7 @@ public class TestResourceUsagePlugin {
         ResourceRequest origRequest = getMockResourceRequest(null, TEST_USER);
         ResourceRequest request = plugin.process(origRequest);
         assertThat(request, is(notNullValue()));
-        assertThat(request, is(equalTo(origRequest)));
+        assertThat(request, is(origRequest));
         verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
     }
 
@@ -115,7 +114,7 @@ public class TestResourceUsagePlugin {
         ResourceRequest origRequest = getMockResourceRequest("47 bytes", TEST_USER);
         ResourceRequest request = plugin.process(origRequest);
         assertThat(request, is(notNullValue()));
-        assertThat(request, is(equalTo(origRequest)));
+        assertThat(request, is(origRequest));
         verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
     }
 
@@ -125,7 +124,7 @@ public class TestResourceUsagePlugin {
         ResourceRequest origRequest = getMockResourceRequestNoSubject(RESOURCE_SIZE);
         ResourceRequest request = plugin.process(origRequest);
         assertThat(request, is(notNullValue()));
-        assertThat(request, is(equalTo(origRequest)));
+        assertThat(request, is(origRequest));
         verify(attributeStore, never()).updateUserDataUsage(anyString(), anyLong());
 
     }
@@ -160,7 +159,7 @@ public class TestResourceUsagePlugin {
         subject = new MockSubject(manager, principalCollection);
 
         ResourceRequest resourceRequest = mock(ResourceRequest.class);
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
+        Map<String, Serializable> requestProperties = new HashMap<>();
 
         requestProperties.put(SecurityConstants.SECURITY_SUBJECT, subject);
 
