@@ -20,7 +20,7 @@
         http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
         http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <bean id="claimsHandler"
+    <bean id="roleClaimsHandler"
           class="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"
@@ -30,7 +30,16 @@
         <property name="propertyFileLocation" value="etc/users.properties"/>
     </bean>
 
-    <service ref="claimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+    <bean id="attributeClaimsHandler" class="org.codice.ddf.security.sts.claims.property.AttributeFileClaimsHandler" init-method="init">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"
+                update-strategy="container-managed"/>
+        <property name="attributeFileLocation" value="etc/users.attributes"/>
+    </bean>
+
+    <service ref="roleClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+
+    <service ref="attributeClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
 
 </blueprint>
 

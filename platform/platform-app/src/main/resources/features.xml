@@ -259,7 +259,7 @@
         <bundle start-level="30">mvn:org.apache.ws.xmlschema/xmlschema-core/${cxf.xmlschema.version}</bundle>
     </feature>
     <feature name="cxf-core" version="${cxf.version}" install="manual">
-        <feature prerequisite="true" version="${project.version}">web</feature>
+        <feature prerequisite="true" version="${project.version}">web-container</feature>
         <feature prerequisite="true" version="${cxf.version}">cxf-specs</feature>
         <feature prerequisite="true" version="${cxf.xmlschema.version}">xmlschema-core</feature>
         <bundle start-level="25" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
@@ -563,7 +563,7 @@
         <bundle>mvn:org.apache.cxf/cxf-tools-corba/${cxf.version}</bundle-->
     </feature>
     <feature name="cxf" version="${cxf.version}" install="manual">
-        <feature prerequisite="true" version="${project.version}">web</feature>
+        <feature prerequisite="true" version="${project.version}">web-container</feature>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
@@ -1007,14 +1007,30 @@
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-filter-delegate" install="manual" version="${project.version}">
+        <feature prerequisite="true" version="${project.version}">kernel</feature>
+        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+    </feature>
+
+    <feature name="web-container" install="manual" version="${project.version}">
+        <feature prerequisite="true">platform-filter-delegate</feature>
+        <feature>war</feature>
+    </feature>
+    
+    <feature name="ddf-webconsole" install="manual" version="${project.version}">
+        <feature prerequisite="true">web-container</feature>
+        <feature version="${project.version}">kernel-webconsole</feature>
+    </feature>
+
     <feature name="platform-app" install="auto" version="${project.version}"
              description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
+        <feature prerequisite="true">web-container</feature>
         <feature prerequisite="true">platform-dependencies</feature>
         <feature>platform-all</feature>
     </feature>
 
     <feature name="platform-dependencies" version="${project.version}" install="manual" hidden="true">
-        <feature prerequisite="true">kernel-webconsole</feature>
+        <feature prerequisite="true">ddf-webconsole</feature>
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">camel-http</feature>
         <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>

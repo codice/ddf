@@ -333,6 +333,7 @@
         <feature>catalog-core-backupplugin</feature>
         <feature>catalog-plugin-jpeg2000</feature>
         <feature>catalog-schematron-plugin</feature>
+        <feature>catalog-security-filter</feature>
     </feature>
 
 

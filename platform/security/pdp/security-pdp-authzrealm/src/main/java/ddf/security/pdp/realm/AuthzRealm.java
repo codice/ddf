@@ -175,8 +175,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             List<Permission> permissions) {
         boolean[] results = new boolean[permissions.size()];
         AuthorizationInfo authorizationInfo = getAuthorizationInfo(subjectPrincipal);
+        List<Permission> expandedPermissions = expandPermissions(permissions);
         int i = 0;
-        for (Permission permission : permissions) {
+        for (Permission permission : expandedPermissions) {
             results[i++] = isPermitted(subjectPrincipal, permission, authorizationInfo);
         }
 

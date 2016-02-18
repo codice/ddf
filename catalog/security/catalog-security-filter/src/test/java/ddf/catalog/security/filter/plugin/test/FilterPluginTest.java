@@ -73,7 +73,6 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.security.filter.plugin.FilterPlugin;
-import ddf.catalog.security.filter.strategy.FilteringStrategy;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
@@ -100,10 +99,6 @@ public class FilterPluginTest {
 
     @Before
     public void setup() {
-        plugin = new FilterPlugin(Arrays.asList(new FilteringStrategy()));
-        QueryRequestImpl request = getSampleRequest();
-        Map<String, Serializable> properties = new HashMap<>();
-
         AuthorizingRealm realm = mock(AuthorizingRealm.class);
 
         when(realm.getName()).thenReturn("mockRealm");
@@ -115,7 +110,6 @@ public class FilterPluginTest {
 
         DefaultSecurityManager manager = new DefaultSecurityManager();
         manager.setRealms(realms);
-
         SimplePrincipalCollection principalCollection =
                 new SimplePrincipalCollection(new Principal() {
                     @Override
@@ -123,6 +117,16 @@ public class FilterPluginTest {
                         return "testuser";
                     }
                 }, realm.getName());
+        Subject systemSubject = new MockSubject(manager, principalCollection);
+
+        plugin = new FilterPlugin() {
+            @Override
+            protected Subject getSystemSubject() {
+                return systemSubject;
+            }
+        };
+        QueryRequestImpl request = getSampleRequest();
+        Map<String, Serializable> properties = new HashMap<>();
 
         Subject subject = new MockSubject(manager, principalCollection);
         properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
@@ -138,16 +142,18 @@ public class FilterPluginTest {
         when(deleteRequest.getProperties()).thenReturn(properties);
         List<Metacard> deletedMetacards = new ArrayList<>();
         deletedMetacards.add(getExactRolesMetacard());
-        deleteResponse = new DeleteResponseImpl(deleteRequest, properties, deletedMetacards);
+        deleteResponse = new DeleteResponseImpl(deleteRequest, properties,
+                deletedMetacards);
 
         List<Metacard> badDeletedMetacards = new ArrayList<>();
         badDeletedMetacards.add(getMoreRolesMetacard());
-        badDeleteResponse = new DeleteResponseImpl(deleteRequest, properties, badDeletedMetacards);
+        badDeleteResponse = new DeleteResponseImpl(deleteRequest, properties,
+                badDeletedMetacards);
 
         createRequest = new CreateRequestImpl(getExactRolesMetacard());
         createRequest.setProperties(properties);
 
-        updateRequest = new UpdateRequestImpl("", getExactRolesMetacard());
+        updateRequest = new UpdateRequestImpl(getExactRolesMetacard().getId(), getExactRolesMetacard());
         updateRequest.setProperties(properties);
 
         ResultImpl result1 = new ResultImpl(getMoreRolesMetacard());
@@ -197,7 +203,7 @@ public class FilterPluginTest {
 
     @Test
     public void testPluginFilterNoStrategies() {
-        plugin = new FilterPlugin(new ArrayList<>());
+        plugin = new FilterPlugin();
         try {
             QueryResponse response = plugin.processPostQuery(incomingResponse);
             verifyFilterResponse(response);
@@ -208,28 +214,24 @@ public class FilterPluginTest {
 
     @Test
     public void testPluginFilterResourceGood() throws StopProcessingException {
-        ResourceResponse response = plugin.processPostResource(resourceResponse,
-                getExactRolesMetacard());
+        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
     }
 
     @Test
     public void testPluginFilterResourceNoStrategiesGood() throws StopProcessingException {
-        plugin = new FilterPlugin(new ArrayList<>());
-        ResourceResponse response = plugin.processPostResource(resourceResponse,
-                getExactRolesMetacard());
+        plugin = new FilterPlugin();
+        ResourceResponse response = plugin.processPostResource(resourceResponse, getExactRolesMetacard());
     }
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterResourceBad() throws StopProcessingException {
-        ResourceResponse response = plugin.processPostResource(resourceResponse,
-                getMoreRolesMetacard());
+        ResourceResponse response = plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
     }
 
     @Test
     public void testPluginFilterDeleteBad() throws StopProcessingException {
         DeleteResponse response = plugin.processPostDelete(badDeleteResponse);
-        assertThat(response.getDeletedMetacards()
-                .size(), is(0));
+        assertThat(response.getDeletedMetacards().size(), is(0));
     }
 
     @Test(expected = StopProcessingException.class)
@@ -244,7 +246,7 @@ public class FilterPluginTest {
 
     @Test(expected = StopProcessingException.class)
     public void testPluginFilterResourceNoStrategiesBad() throws StopProcessingException {
-        plugin = new FilterPlugin(new ArrayList<>());
+        plugin = new FilterPlugin();
         ResourceResponse response = plugin.processPostResource(resourceResponse,
                 getMoreRolesMetacard());
     }
@@ -273,7 +275,7 @@ public class FilterPluginTest {
     @Test(expected = StopProcessingException.class)
     public void testNoRequestSubjectNoStrategies() throws Exception {
         QueryResponseImpl response = new QueryResponseImpl(null);
-        plugin = new FilterPlugin(new ArrayList<>());
+        plugin = new FilterPlugin();
         plugin.processPostQuery(response);
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
@@ -376,6 +378,7 @@ public class FilterPluginTest {
         HashMap<String, List<String>> security = new HashMap<>();
         security.put("Roles", Arrays.asList("A", "B"));
         metacard.setSecurity(security);
+        metacard.setId("exactroles");
         return metacard;
     }
 
