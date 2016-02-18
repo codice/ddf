@@ -98,5 +98,7 @@
         <module>catalog-transformer-streaming-api</module>
         <module>catalog-transformer-streaming-impl</module>
         <module>catalog-transformer-streaming-lib</module>
+        <module>catalog-transformer-pdf-api</module>
+        <module>catalog-transformer-pdf</module>
     </modules>
 </project>
