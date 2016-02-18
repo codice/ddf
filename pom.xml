@@ -56,8 +56,8 @@
         <!-- ouput directory for reports -->
         <project.report.output.directory>project-info</project.report.output.directory>
         <!-- Properties for the frontend-maven-plugin -->
-        <node.version>v0.10.40</node.version>
-        <npm.version>2.14.8</npm.version>
+        <node.version>v4.3.1</node.version>
+        <npm.version>2.14.12</npm.version>
         <camel.version>2.16.1</camel.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.1</commons-io.version>
@@ -434,7 +434,7 @@
                 <plugin>
                     <groupId>com.github.eirslett</groupId>
                     <artifactId>frontend-maven-plugin</artifactId>
-                    <version>0.0.26</version>
+                    <version>0.0.28</version>
                     <configuration>
                         <installDirectory>${session.executionRootDirectory}</installDirectory>
                     </configuration>
@@ -447,7 +447,6 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <npmVersion>${npm.version}</npmVersion>
-                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot>
                             </configuration>
                         </execution>
                         <execution>
