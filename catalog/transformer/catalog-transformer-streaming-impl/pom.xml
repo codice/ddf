@@ -76,6 +76,10 @@
             <artifactId>gml-v_3_1_1-schema</artifactId>
             <version>1.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -92,7 +96,8 @@
                             ogc-tools-gml-jts,
                             gml-v_3_1_1-schema,
                             jaxb2-basics-runtime,
-                            catalog-transformer-streaming-lib
+                            catalog-transformer-streaming-lib,
+                            platform-util
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>
