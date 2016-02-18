@@ -71,7 +71,8 @@ public interface MetacardPropertyDescriptor extends Serializable {
     /**
      * Sets the attribute format for this property. This is useful when the property has a common
      * representation class but is semantically different from other types, e.g. STRING, GEOMETRY,
-     * XML).
+     * XML all use String.class as their representation, but the format should be set as STRING,
+     * GEOMETRY, and XML to enable code to recognize the different formats.
      * @param format the format of this property
      */
     void setFormat(AttributeType.AttributeFormat format);

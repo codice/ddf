@@ -54,8 +54,8 @@ import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
  * </metacard>
  *
  */
-public class MetacardReader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardReader.class);
+public class MetacardTypeReader {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeReader.class);
     private static final DynaProperty[] EMPTY_DYNAPROPERTY_ARRAY = new DynaProperty[0];
     private MetacardFactory metacardFactory;
 

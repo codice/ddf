@@ -34,7 +34,7 @@ public interface MetacardFactory {
     /**
      * Creates an instance of a dynamic metacard containing attributes corresponding to each
      * of the given names. It is expected that a metacard definition for each of the given
-     * name has been registered with teh factory beforehand.
+     * name has been registered with the factory beforehand.
      * @param names the list of names describing the attributes to be included
      * @return an instances of a dynamic metacard containing attributes from all the named types
      */

@@ -432,7 +432,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
             } catch (URISyntaxException e) {
                 LOGGER.warn("Error converting String to URI for {}: {}",
                         attributeName,
-                        e.getMessage());
+                        e);
             }
         } else {
             logUnexpectedDataType(attributeName, o);

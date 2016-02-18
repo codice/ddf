@@ -274,17 +274,17 @@ public class CatalogContentPlugin implements ContentPlugin {
                         DynamicMetacard metacard = (DynamicMetacard) generatedMetacard;
 
                         // set the user name
-                        metacard.setAttribute(Metacard.POINT_OF_CONTACT, name);
+                        metacard.setAttribute(Metacard.POINT_OF_CONTACT, name == null ? "" : name);
 
                         // set the uri
                         if (uri != null) {
                             metacard.setAttribute(Metacard.RESOURCE_URI, uri);
                             metacard.setAttribute(Metacard.RESOURCE_SIZE, String.valueOf(size));
                         } else {
-                            LOGGER.debug("Metacard had a null uri");
+                            LOGGER.debug("Metacard {} had a null uri", metacard.getId());
                         }
                         if (StringUtils.isBlank(metacard.getTitle())) {
-                            LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                            LOGGER.debug("Metacard {} title was blank. Setting title to filename.", metacard.getId());
                             metacard.setAttribute(Metacard.TITLE, contentItem.getFilename());
                         }
                         contentMetacard = generatedMetacard;
@@ -300,16 +300,9 @@ public class CatalogContentPlugin implements ContentPlugin {
                             }
                         }
 
-                        try {
-                            Subject subject = SecurityUtils.getSubject();
-                            if (subject != null) {
-                                contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                        SubjectUtils.getName(subject)));
-                            }
-                        } catch (IllegalStateException e) {
-                            LOGGER.debug("Unable to retrieve user from request.", e);
-                        } catch (UnavailableSecurityManagerException e) {
-                            LOGGER.debug("Unable to retrieve Security Manager.", e);
+                        if (name != null) {
+                            contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                    name));
                         }
 
                         if (uri != null) {

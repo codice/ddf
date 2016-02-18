@@ -15,27 +15,25 @@ package ddf.catalog.data.dynamic.registry;
 
 import java.io.InputStream;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 
 import ddf.catalog.data.dynamic.api.MetacardFactory;
 import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
 import ddf.catalog.data.dynamic.impl.MetacardFactoryImpl;
 
-public class MetacardReaderTest extends TestCase {
+public class MetacardTypeReaderTest extends TestCase {
 
-
+    @Test
     public void testParseMetacardDefinition() throws Exception {
         MetacardFactory mf = new MetacardFactoryImpl();
-        MetacardReader reader = new MetacardReader();
+        MetacardTypeReader reader = new MetacardTypeReader();
         reader.setMetacardFactory(mf);
         InputStream is = getClass().getClassLoader().getResourceAsStream("TestMetacard.xml");
         boolean success = reader.parseMetacardDefinition(is);
 
         MetacardPropertyDescriptor[] descriptors = mf.getMetacardPropertyDescriptors("nitf");
         assertEquals(51, descriptors.length);
-    }
-
-    public void testRegisterMetacard() throws Exception {
-
     }
 }

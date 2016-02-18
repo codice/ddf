@@ -32,7 +32,7 @@ import ddf.catalog.data.dynamic.api.MetacardFactory;
 import ddf.catalog.data.dynamic.api.MetacardPropertyDescriptor;
 
 public class MetacardFactoryImplTest {
-    MetacardFactory factory = new MetacardFactoryImpl();
+    private MetacardFactory factory = new MetacardFactoryImpl();
     private static HashMap<String, List<MetacardPropertyDescriptor>> descriptors = new HashMap<>();
 
     @BeforeClass
