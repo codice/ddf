@@ -416,7 +416,6 @@
                             ddf.catalog.resource.download,
                             ddf.catalog.resource.impl,
                             ddf.catalog.resourceretriever,
-                            ddf.catalog.core.impl,
                             org.codice.ddf.platform.util
                         </Private-Package>
                         <Export-Package>
