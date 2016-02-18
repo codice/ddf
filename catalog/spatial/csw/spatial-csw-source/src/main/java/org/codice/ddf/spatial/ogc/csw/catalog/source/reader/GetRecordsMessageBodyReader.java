@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -29,6 +30,8 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -47,6 +50,7 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.resource.impl.ResourceImpl;
 
 /**
  * Custom JAX-RS MessageBodyReader for parsing a CSW GetRecords response, extracting the search
@@ -92,6 +96,19 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
             MultivaluedMap<String, String> httpHeaders, InputStream inStream)
             throws IOException, WebApplicationException {
 
+        CswRecordCollection cswRecords = null;
+
+        // If the following HTTP header exists and its value is true, the input stream will contain
+        // raw product data
+        String productRetrievalHeader =
+                httpHeaders.getFirst(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER);
+        if (productRetrievalHeader != null && productRetrievalHeader.equalsIgnoreCase("TRUE")) {
+            String fileName = handleContentDispositionHeader(httpHeaders);
+            cswRecords = new CswRecordCollection();
+            cswRecords.setResource(new ResourceImpl(inStream, mediaType.toString(), fileName));
+            return cswRecords;
+        }
+
         // Save original input stream for any exception message that might need to be
         // created
         String originalInputStream = IOUtils.toString(inStream, "UTF-8");
@@ -100,8 +117,6 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         // Re-create the input stream (since it has already been read for potential
         // exception message creation)
         inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
-
-        CswRecordCollection cswRecords = null;
 
         try {
             HierarchicalStreamReader reader = new XppReader(new InputStreamReader(inStream,
@@ -130,8 +145,28 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         } finally {
             IOUtils.closeQuietly(inStream);
         }
-
         return cswRecords;
+    }
+
+    /**
+     * Check Content-Disposition header for filename and return it
+     *
+     * @param httpHeaders The HTTP headers
+     * @return the filename
+     */
+    private String handleContentDispositionHeader(MultivaluedMap<String, String> httpHeaders) {
+        String contentDispositionHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_DISPOSITION);
+        if (StringUtils.isNotBlank(contentDispositionHeader)) {
+            ContentDisposition contentDisposition =
+                    new ContentDisposition(contentDispositionHeader);
+            String filename = contentDisposition.getParameter("filename");
+            if (StringUtils.isNotBlank(filename)) {
+                LOGGER.debug("Found Content-Disposition header, changing resource name to {}",
+                        filename);
+                return filename;
+            }
+        }
+        return "";
     }
 
 }

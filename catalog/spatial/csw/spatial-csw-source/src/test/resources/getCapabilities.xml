@@ -127,6 +127,10 @@
 					<ows:Post xlink:href="http://www.cubewerx.com/cwcsg.cgi"/>
 				</ows:HTTP>
 			</ows:DCP>
+			<ows:Parameter name="outputSchema">
+				<ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+				<ows:Value>http://www.iana.org/assignments/media-types/application/octet-stream</ows:Value>
+			</ows:Parameter>
 			<ows:Parameter name="ElementSetName">
 				<ows:Value>brief</ows:Value>
 				<ows:Value>summary</ows:Value>

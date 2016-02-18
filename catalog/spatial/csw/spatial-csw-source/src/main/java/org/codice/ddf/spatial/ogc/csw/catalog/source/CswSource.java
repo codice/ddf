@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -46,6 +47,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
@@ -61,6 +63,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBodyReader;
 import org.opengis.filter.Filter;
@@ -89,10 +92,13 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
@@ -201,6 +207,11 @@ public class CswSource extends MaskableImpl
     private static Properties describableProperties = new Properties();
 
     private static Map<String, Consumer<Object>> consumerMap = new HashMap<>();
+
+    private static final String OCTET_STREAM_OUTPUT_SCHEMA =
+            "http://www.iana.org/assignments/media-types/application/octet-stream";
+
+    private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
 
     protected String configurationPid;
 
@@ -674,6 +685,7 @@ public class CswSource extends MaskableImpl
         Subject subject =
                 (Subject) queryRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
         Csw csw = factory.getClientForSubject(subject);
+
         return query(queryRequest, ElementSetType.FULL, null, csw);
     }
 
@@ -808,7 +820,41 @@ public class CswSource extends MaskableImpl
             Map<String, Serializable> requestProperties)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
-        LOGGER.debug("retrieving resource at : {}", resourceUri);
+        if (resourceReader == null) {
+            // If no resource reader was found, retrieve the product through a GetRecordById request
+            Serializable serializableId = requestProperties.get(Metacard.ID);
+
+            if (serializableId == null) {
+                throw new ResourceNotFoundException(
+                        "Unable to retrieve resource because no metacard ID was found.");
+            }
+            String metacardId = serializableId.toString();
+
+            LOGGER.debug("Retrieving resource for ID : {}", metacardId);
+            Csw csw = factory.getClient();
+            GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+            getRecordByIdRequest.setService(CswConstants.CSW);
+            getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
+            getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
+            getRecordByIdRequest.setId(metacardId);
+
+            CswRecordCollection recordCollection;
+            try {
+                recordCollection = csw.getRecordById(getRecordByIdRequest);
+
+                Resource resource = recordCollection.getResource();
+                return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(resource.getInputStream()),
+                        resource.getMimeType()
+                                .toString(),
+                        FilenameUtils.getName(recordCollection.getResource()
+                                .getName())));
+            } catch (CswException e) {
+                throw new ResourceNotFoundException(String.format(ERROR_ID_PRODUCT_RETRIEVAL,
+                        metacardId), e);
+            }
+
+        }
+        LOGGER.debug("Retrieving resource at : {}", resourceUri);
         return resourceReader.retrieveResource(resourceUri, requestProperties);
     }
 
@@ -1189,6 +1235,7 @@ public class CswSource extends MaskableImpl
             }
 
             readGetRecordsOperation(capabilities);
+            adjustResourceReaderBasedOnCapability(capabilities);
 
             loadContentTypes();
             LOGGER.debug("{}: {}", cswSourceConfiguration.getId(), capabilities.toString());
@@ -1457,6 +1504,26 @@ public class CswSource extends MaskableImpl
                         cswSourceConfiguration.getId());
                 monitor.setUnavailable();
             }
+        }
+    }
+
+    /**
+     * In order to maintain backwards compatibility for product retrieval, check if it's a
+     * supported capability through GetRecordById, otherwise the ResourceReader will be used
+     * for retrieving the product.
+     *
+     * @param capabilitiesType The capabilities the CSW server supports
+     */
+    private void adjustResourceReaderBasedOnCapability(CapabilitiesType capabilitiesType) {
+        OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
+        // Check if GetRecordById supports the output schema representing product retrieval, and
+        // if so, set the ResourceReader to null.
+        Operation getRecordByIdOp = getOperation(operationsMetadata, CswConstants.GET_RECORD_BY_ID);
+        DomainType getRecordByIdOutputSchemas = getParameter(getRecordByIdOp,
+                CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        if (getRecordByIdOutputSchemas.getValue()
+                .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
+            resourceReader = null;
         }
     }
 

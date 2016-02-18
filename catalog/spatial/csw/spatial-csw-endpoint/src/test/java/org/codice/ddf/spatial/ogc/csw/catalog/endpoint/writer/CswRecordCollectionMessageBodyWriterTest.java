@@ -14,6 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -30,8 +31,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
@@ -45,6 +50,8 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -169,6 +176,29 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
         // TODO - assert lookup by mime type
         // TODO failure case
+    }
+
+    @Test
+    public void testWriteToProductData() throws MimeTypeParseException, IOException {
+        CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
+                mockManager);
+        byte[] data = "SampleData".getBytes();
+        ByteArrayInputStream productData = new ByteArrayInputStream(data);
+        MimeType mimeType = new MimeType("text", "plain");
+
+        MultivaluedMap<String, Object> httpHeaders = new MultivaluedHashMap<>();
+
+        Resource resource = new ResourceImpl(productData, mimeType, "ResourceName");
+        CswRecordCollection collection = new CswRecordCollection();
+        collection.setMimeType(mimeType.toString());
+        collection.setResource(resource);
+        collection.setOutputSchema(
+                "http://www.iana.org/assignments/media-types/application/octet-stream");
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        writer.writeTo(collection, null, null, null, null, httpHeaders, stream);
+
+        assertThat(stream.toByteArray(), is(equalTo(resource.getByteArray())));
     }
 
     private CswRecordCollection createCswRecordCollection(int resultCount) {

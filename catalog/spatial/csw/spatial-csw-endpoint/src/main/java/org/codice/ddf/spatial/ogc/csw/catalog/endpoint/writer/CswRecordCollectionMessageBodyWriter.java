@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -97,10 +99,13 @@ public class CswRecordCollectionMessageBodyWriter
         } else if (recordCollection.getOutputSchema()
                 .equals(OCTET_STREAM_OUTPUT_SCHEMA)) {
             Resource resource = recordCollection.getResource();
-            httpHeaders.put("Content-Type", Arrays.asList(resource.getMimeType()));
-            httpHeaders.put("Content-Disposition",
-                    Arrays.asList("inline; filename=\"" + resource.getName() + "\""));
-            IOUtils.copy(resource.getInputStream(), outStream);
+            httpHeaders.put(HttpHeaders.CONTENT_TYPE, Arrays.asList(resource.getMimeType()));
+            httpHeaders.put(HttpHeaders.CONTENT_DISPOSITION,
+                    Arrays.asList(String.format("inline; filename=\"%s\"", resource.getName())));
+            // Custom HTTP header to represent that the product data will be returned in the response
+            httpHeaders.put(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, Arrays.asList("true"));
+            ByteArrayInputStream in = new ByteArrayInputStream(resource.getByteArray());
+            IOUtils.copy(in, outStream);
             return;
         } else {
             transformer = transformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);

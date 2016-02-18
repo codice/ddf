@@ -76,7 +76,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
-
 import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
@@ -414,11 +413,11 @@ public class TestCswSourceBase {
         DomainType typeNames = new DomainType();
         typeNames.setName(CswConstants.TYPE_NAMES_PARAMETER);
         getRecordsParameters.add(typeNames);
-        DomainType outputSchema = new DomainType();
-        outputSchema.setName(CswConstants.OUTPUT_SCHEMA_PARAMETER);
-        outputSchema.getValue()
+        DomainType getRecordsOutputSchema = new DomainType();
+        getRecordsOutputSchema.setName(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        getRecordsOutputSchema.getValue()
                 .add(CswConstants.CSW_OUTPUT_SCHEMA);
-        getRecordsParameters.add(outputSchema);
+        getRecordsParameters.add(getRecordsOutputSchema);
         DomainType constraintLang = new DomainType();
         constraintLang.setName(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER);
         constraintLang.setValue(Collections.singletonList(CswConstants.CONSTRAINT_LANGUAGE_FILTER));
@@ -433,11 +432,24 @@ public class TestCswSourceBase {
         elementSetName.setName(CswConstants.ELEMENT_SET_NAME_PARAMETER);
         getRecordsParameters.add(elementSetName);
 
+        List<DomainType> getRecordByIdParameters = new ArrayList<>();
+        DomainType getRecordByIdOutputSchema = new DomainType();
+        getRecordByIdOutputSchema.setName(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        List<String> outputSchemas = new ArrayList<>();
+        outputSchemas.add("http://www.iana.org/assignments/media-types/application/octet-stream");
+        outputSchemas.add(CswConstants.CSW_OUTPUT_SCHEMA);
+        getRecordByIdOutputSchema.setValue(outputSchemas);
+        getRecordByIdParameters.add(getRecordByIdOutputSchema);
+
         Operation getRecords = new Operation();
         getRecords.setName(CswConstants.GET_RECORDS);
         getRecords.setParameter(getRecordsParameters);
-        List<Operation> operations = new ArrayList<>(1);
+        Operation getRecordById = new Operation();
+        getRecordById.setName(CswConstants.GET_RECORD_BY_ID);
+        getRecordById.setParameter(getRecordByIdParameters);
+        List<Operation> operations = new ArrayList<>(2);
         operations.add(getRecords);
+        operations.add(getRecordById);
 
         OperationsMetadata mockOperationsMetadata = mock(OperationsMetadata.class);
         mockOperationsMetadata.setOperation(operations);
