@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -21,9 +21,9 @@ import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
+import org.codice.ddf.admin.application.service.impl.ApplicationImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,24 +40,18 @@ public class StopApplicationCommandTest {
     @Test
     public void testStopApplicationCommandTest() throws Exception {
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         Application testApp = mock(ApplicationImpl.class);
         ApplicationStatus testStatus = mock(ApplicationStatus.class);
 
         StopApplicationCommand stopApplicationCommand = new StopApplicationCommand();
         stopApplicationCommand.appName = APP_NAME;
-        stopApplicationCommand.setBundleContext(bundleContext);
 
         when(testStatus.getState()).thenReturn(ApplicationState.ACTIVE);
         when(testAppService.getApplicationStatus(testApp)).thenReturn(testStatus);
         when(testAppService.getApplication(APP_NAME)).thenReturn(testApp);
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
-        stopApplicationCommand.doExecute();
+        stopApplicationCommand.doExecute(testAppService);
         verify(testAppService).stopApplication(APP_NAME);
     }
 
@@ -70,25 +64,19 @@ public class StopApplicationCommandTest {
     @Test
     public void testStopApplicationCommandAlreadyStopped() throws Exception {
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         Application testApp = mock(ApplicationImpl.class);
         ApplicationStatus testStatus = mock(ApplicationStatus.class);
 
         StopApplicationCommand stopApplicationCommand = new StopApplicationCommand();
         stopApplicationCommand.appName = APP_NAME;
-        stopApplicationCommand.setBundleContext(bundleContext);
 
         when(testStatus.getState()).thenReturn(ApplicationState.INACTIVE);
         when(testAppService.getApplicationStatus(testApp)).thenReturn(testStatus);
         when(testAppService.getApplication(APP_NAME)).thenReturn(testApp);
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         // Should handle this condition gracefully without throwing an exception
         // If an exception is thrown, this test fails...
-        stopApplicationCommand.doExecute();
+        stopApplicationCommand.doExecute(testAppService);
     }
 }

@@ -11,13 +11,15 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import java.io.PrintStream;
 import java.util.Set;
 
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.admin.application.service.ApplicationNode;
+import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 
 /**
@@ -26,10 +28,11 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
  *
  */
 @Command(scope = "app", name = "tree", description = "Creates a hierarchy tree of all of the applications.")
+@Service
 public class TreeApplicationCommand extends AbstractApplicationCommand {
 
     @Override
-    protected void applicationCommand() throws ApplicationServiceException {
+    protected void doExecute(ApplicationService applicationService) throws ApplicationServiceException {
 
         // node for the application tree
         Set<ApplicationNode> rootApplications = applicationService.getApplicationTree();

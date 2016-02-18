@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -25,6 +25,9 @@ import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
+import org.codice.ddf.admin.application.service.impl.ApplicationImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationStatusImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -89,10 +92,9 @@ public class StatusApplicationCommandTest {
     public void testStatusApplicationCommandNoError() throws Exception {
         StatusApplicationCommand statusApplicationCommand = new StatusApplicationCommand();
         statusApplicationCommand.appName = TEST_APP_NAME;
-        statusApplicationCommand.setBundleContext(bundleContext);
 
         when(testApp.getFeatures()).thenReturn(featureSet);
-        statusApplicationCommand.doExecute();
+        statusApplicationCommand.doExecute(testAppService);
         verify(testAppService).getApplicationStatus(testApp);
     }
 
@@ -108,10 +110,9 @@ public class StatusApplicationCommandTest {
 
         StatusApplicationCommand statusApplicationCommand = new StatusApplicationCommand();
         statusApplicationCommand.appName = TEST_APP_NAME;
-        statusApplicationCommand.setBundleContext(bundleContext);
 
         when(testApp.getFeatures()).thenReturn(featureSet);
-        statusApplicationCommand.doExecute();
+        statusApplicationCommand.doExecute(testAppService);
         verify(testAppService).getApplicationStatus(testApp);
     }
 
@@ -132,10 +133,9 @@ public class StatusApplicationCommandTest {
 
         StatusApplicationCommand statusApplicationCommand = new StatusApplicationCommand();
         statusApplicationCommand.appName = TEST_APP_NAME;
-        statusApplicationCommand.setBundleContext(bundleContext);
 
         when(testApp.getFeatures()).thenReturn(featureSet);
-        statusApplicationCommand.doExecute();
+        statusApplicationCommand.doExecute(testAppService);
         verify(testAppService).getApplicationStatus(testApp);
     }
 }

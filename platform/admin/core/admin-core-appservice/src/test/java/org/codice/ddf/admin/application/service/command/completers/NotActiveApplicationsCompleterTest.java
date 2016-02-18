@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command.completers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -25,9 +25,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.karaf.shell.api.console.CommandLine;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
+import org.codice.ddf.admin.application.service.impl.ApplicationImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationStatusImpl;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.slf4j.Logger;
@@ -40,6 +44,8 @@ import ch.qos.logback.core.Appender;
 public class NotActiveApplicationsCompleterTest {
 
     private static final String NO_APP_SERV = "No application service";
+
+    private static CommandLine commandLine = mock(CommandLine.class);
 
     /**
      * Tests the {@link NotActiveApplicationsCompleter#complete(String, int, List)} method
@@ -59,10 +65,11 @@ public class NotActiveApplicationsCompleterTest {
         when(testApp.getName()).thenReturn("TestApp");
 
         NotActiveApplicationsCompleter activeApplicationsCompleter =
-                new NotActiveApplicationsCompleter(testAppService);
+                new NotActiveApplicationsCompleter();
+        activeApplicationsCompleter.setApplicationService(testAppService);
 
         assertThat("If the return value is -1, then the expected match was not found.",
-                activeApplicationsCompleter.complete("Tes", 2, new ArrayList()),
+                activeApplicationsCompleter.complete(null, commandLine, new ArrayList<>()),
                 is(not(-1)));
     }
 
@@ -82,9 +89,10 @@ public class NotActiveApplicationsCompleterTest {
         ApplicationService testAppService = null;
 
         NotActiveApplicationsCompleter notActiveApplicationsCompleter =
-                new NotActiveApplicationsCompleter(testAppService);
+                new NotActiveApplicationsCompleter();
+        notActiveApplicationsCompleter.setApplicationService(testAppService);
 
-        notActiveApplicationsCompleter.complete("Tes", 2, new ArrayList());
+        notActiveApplicationsCompleter.complete(null, commandLine, new ArrayList<>());
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override

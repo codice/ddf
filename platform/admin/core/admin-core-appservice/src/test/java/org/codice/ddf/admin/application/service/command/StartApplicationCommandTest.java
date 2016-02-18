@@ -11,21 +11,16 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StartApplicationCommandTest {
-    private Logger logger = LoggerFactory.getLogger(AddApplicationCommand.class);
 
     private static final String APP_NAME = "TestApp";
 
@@ -37,18 +32,11 @@ public class StartApplicationCommandTest {
     @Test
     public void testStartApplicationCommand() throws Exception {
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         StartApplicationCommand startApplicationCommand = new StartApplicationCommand();
         startApplicationCommand.appName = APP_NAME;
-        startApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
-
-        startApplicationCommand.doExecute();
+        startApplicationCommand.doExecute(testAppService);
         verify(testAppService).startApplication(APP_NAME);
     }
 }

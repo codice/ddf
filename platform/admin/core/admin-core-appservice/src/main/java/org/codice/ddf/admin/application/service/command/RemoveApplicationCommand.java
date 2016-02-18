@@ -11,11 +11,15 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Argument;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Completion;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.admin.application.service.command.completers.AllApplicationsCompleter;
 
 /**
  * Utilizes the OSGi Command Shell in Karaf and removes a given application from
@@ -23,13 +27,15 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
  *
  */
 @Command(scope = "app", name = "remove", description = "Removes an application with the given name.")
+@Service
 public class RemoveApplicationCommand extends AbstractApplicationCommand {
 
     @Argument(index = 0, name = "appName", description = "Name of the application to remove.", required = true, multiValued = false)
+    @Completion(AllApplicationsCompleter.class)
     String appName;
 
     @Override
-    protected void applicationCommand() throws ApplicationServiceException {
+    protected void doExecute(ApplicationService applicationService) throws ApplicationServiceException {
 
         applicationService.removeApplication(appName);
 
