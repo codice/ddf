@@ -31,6 +31,7 @@
     <feature name="catalog-core-api" install="manual" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-dynamic-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-bundle/${tika.version}</bundle>
@@ -62,6 +63,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-dynamic-registry/${project.version}</bundle>
 
         <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
