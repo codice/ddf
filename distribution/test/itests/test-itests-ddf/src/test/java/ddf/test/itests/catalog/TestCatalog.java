@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -35,6 +36,7 @@ import static ddf.test.itests.common.CswQueryBuilder.PROPERTY_IS_LIKE;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -73,6 +75,7 @@ import org.osgi.service.cm.Configuration;
 import org.xml.sax.InputSource;
 
 import com.google.common.collect.Maps;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -842,6 +845,37 @@ public class TestCatalog extends AbstractIntegrationTest {
         waitForAllBundles();
 
         deleteMetacard(id1);
+    }
+
+    @Test
+    public void testVideoThumbnail() throws Exception {
+        getServiceManager().startFeature(true,
+                "content-rest-endpoint",
+                "content-core-filesystemstorageprovider",
+                "content-catalogerplugin",
+                "content-core-videothumbnailplugin");
+
+        try (InputStream inputStream = getClass().getClassLoader()
+                .getResourceAsStream("sample.mp4")) {
+            final byte[] fileBytes = IOUtils.toByteArray(inputStream);
+
+            final ValidatableResponse response = given().multiPart("file",
+                    "sample.mp4",
+                    fileBytes,
+                    "video/mp4")
+                    .post(CONTENT_PATH.getUrl())
+                    .then();
+
+            final JsonPath jsonPath = response.extract()
+                    .jsonPath();
+            assertThat(jsonPath.getString("properties.thumbnail"), not(isEmptyOrNullString()));
+        } finally {
+            getServiceManager().stopFeature(true,
+                    "content-rest-endpoint",
+                    "content-core-filesystemstorageprovider",
+                    "content-catalogerplugin",
+                    "content-core-videothumbnailplugin");
+        }
     }
 
     @Test

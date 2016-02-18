@@ -26,8 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import com.google.common.io.FileBackedOutputStream;
 
@@ -55,16 +55,11 @@ import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.security.SubjectUtils;
 
 public class CatalogContentPlugin implements ContentPlugin {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(CatalogContentPlugin.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatalogContentPlugin.class);
 
     private static final String CATALOG_ID = "Catalog-ID";
 
     private static final String DEFAULT_METACARD_TRANSFORMER = "geojson";
-
-    private static final String CHECKSUM_PROPERTY_NAME = "Resource Checksum";
-
-    private static final String CHECKSUM_ALGORITHM_PROPERTY_NAME = "Resource Checksum Algorithm";
 
     private final CatalogFramework catalogFramework;
 
@@ -105,8 +100,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     mimeType,
                     createdContentItem.getUri(),
                     stream,
-                    input.getRequest()
-                            .getProperties());
+                    input.getProperties());
             String catalogId = cataloger.createMetacard(metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -163,7 +157,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     mimeType,
                     updatedContentItem.getUri(),
                     stream,
-                    null);
+                    input.getProperties());
             String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -236,7 +230,6 @@ public class CatalogContentPlugin implements ContentPlugin {
 
         LOGGER.debug("List of matches for mimeType [ {} ]: {}", mimeType, listOfCandidates);
 
-        Metacard generatedMetacard = null;
         Metacard contentMetacard = null;
         try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
@@ -256,7 +249,7 @@ public class CatalogContentPlugin implements ContentPlugin {
 
                 try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
                         .openStream()) {
-                    generatedMetacard = transformer.transform(inputStreamMessageCopy);
+                    Metacard generatedMetacard = transformer.transform(inputStreamMessageCopy);
                     contentMetacard = new MetacardImpl(new ContentMetacardType());
 
                     //copy attributes in loop
@@ -308,26 +301,23 @@ public class CatalogContentPlugin implements ContentPlugin {
 
             LOGGER.trace("EXITING: generateMetacard");
         } catch (IOException e) {
-            LOGGER.debug("Error encountered while using filed backed stream.", e);
+            LOGGER.debug("Error encountered while using file-backed stream.", e);
         }
 
-        if (properties != null) {
-            if (properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM)) {
-                String checksumValue =
-                        (String) properties.get(ContentMetacardType.RESOURCE_CHECKSUM);
-                contentMetacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM,
-                        checksumValue));
-            }
-
-            if (properties.containsKey(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM)) {
-                String checksumAlgrotithm =
-                        (String) properties.get(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM);
-                contentMetacard.setAttribute(new AttributeImpl(ContentMetacardType.RESOURCE_CHECKSUM_ALGORITHM,
-                        checksumAlgrotithm));
-            }
-        }
+        addAttributesFromStoragePlugins(contentMetacard, properties);
 
         return contentMetacard;
     }
 
+    private void addAttributesFromStoragePlugins(final Metacard contentMetacard,
+            final Map<String, Serializable> properties) {
+        if (properties.containsKey(STORAGE_PLUGIN_METACARD_ATTRIBUTES)) {
+            @SuppressWarnings("unchecked")
+            final Map<String, Serializable> attributeMap =
+                    (Map<String, Serializable>) properties.get(STORAGE_PLUGIN_METACARD_ATTRIBUTES);
+            attributeMap.forEach((name, value) -> contentMetacard.setAttribute(new AttributeImpl(
+                    name,
+                    value)));
+        }
+    }
 }

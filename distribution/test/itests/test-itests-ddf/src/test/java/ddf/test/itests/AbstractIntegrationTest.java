@@ -236,6 +236,8 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
+    public static final DynamicUrl CONTENT_PATH = new DynamicUrl(SERVICE_ROOT, "/content/");
+
     public static final DynamicUrl OPENSEARCH_PATH = new DynamicUrl(REST_PATH, "query");
 
     public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
@@ -395,12 +397,6 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureAdditionalBundles() {
         return options(junitBundles(),
-                // HACK: incorrect version exported to override hamcrest-core from exam
-                // feature which causes a split package issue for rest-assured
-                wrappedBundle(mavenBundle("org.apache.httpcomponents",
-                        "com.springsource.org.apache.httpcomponents.httpclient").versionAsInProject()),
-                wrappedBundle(mavenBundle("org.apache.httpcomponents",
-                        "com.springsource.org.apache.httpcomponents.httpcore").versionAsInProject()),
                 wrappedBundle(mavenBundle("org.apache.httpcomponents",
                         "httpclient").versionAsInProject()),
                 wrappedBundle(mavenBundle("org.apache.httpcomponents",
@@ -408,6 +404,8 @@ public abstract class AbstractIntegrationTest {
                 wrappedBundle(mavenBundle("commons-codec", "commons-codec").versionAsInProject()),
                 wrappedBundle(mavenBundle("commons-logging",
                         "commons-logging").versionAsInProject()),
+                // HACK: incorrect version exported to override hamcrest-core from exam
+                // feature which causes a split package issue for rest-assured
                 wrappedBundle(mavenBundle("org.hamcrest",
                         "hamcrest-all").versionAsInProject()).exports("*;version=1.3.0.10"),
                 wrappedBundle(mavenBundle("org.apache.karaf.itests", "itests").classifier("tests")

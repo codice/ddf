@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.content.ContentFramework;
@@ -45,7 +45,9 @@ import ddf.content.operation.impl.UpdateResponseImpl;
 import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.content.plugin.PostCreateStoragePlugin;
+import ddf.content.plugin.PostUpdateStoragePlugin;
 import ddf.content.plugin.PreCreateStoragePlugin;
+import ddf.content.plugin.PreUpdateStoragePlugin;
 import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
 
@@ -55,8 +57,7 @@ import ddf.content.storage.StorageProvider;
  * Repository.
  */
 public class ContentFrameworkImpl implements ContentFramework {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(ContentFrameworkImpl.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentFrameworkImpl.class);
 
     /**
      * The {@link List} of content plugins to execute on the ingest response after content has been
@@ -65,7 +66,7 @@ public class ContentFrameworkImpl implements ContentFramework {
     protected List<ContentPlugin> contentPlugins;
 
     /**
-     * The {@link List} of storage plugins to execute on the ingest response before content has been
+     * The {@link List} of storage plugins to execute on the ingest request before content has been
      * persisted to the filesystem.
      */
     protected List<PreCreateStoragePlugin> preCreateStoragePlugins;
@@ -76,24 +77,49 @@ public class ContentFrameworkImpl implements ContentFramework {
      */
     protected List<PostCreateStoragePlugin> postCreateStoragePlugins;
 
+    /**
+     * The {@link List} of storage plugins to execute on the update request before content has been
+     * updated on the filesystem.
+     */
+    protected List<PreUpdateStoragePlugin> preUpdateStoragePlugins;
+
+    /**
+     * The {@link List} of storage plugins to execute on the update response after content has been
+     * updated on the filesystem.
+     */
+    protected List<PostUpdateStoragePlugin> postUpdateStoragePlugins;
+
     protected MetacardTypeRegistry metacardTypeRegistry;
 
     private BundleContext context;
 
     private StorageProvider provider;
 
+    private static final String STORAGE_PLUGIN_FAILED_TEXT =
+            "Storage plugin processing failed. This is allowable. Skipping to next plugin.";
+
     /**
      * Instantiates a new ContentFrameworkImpl, usually invoked from blueprint.
      *
-     * @param context        The BundleContext that will be utilized by this instance.
-     * @param provider       The {@link StorageProvider} used for read, create, update, and delete operations.
-     * @param contentPlugins A list of {@link ContentPlugin}(s) that will be invoked after the ingest
-     *                       operation.
+     * @param context                  The BundleContext that will be utilized by this instance.
+     * @param provider                 The {@link StorageProvider} used for read, create, update, and delete operations.
+     * @param contentPlugins           A list of {@link ContentPlugin}(s) that will be invoked after the ingest
+     *                                 operation.
+     * @param preCreateStoragePlugins  A list of {@link PreCreateStoragePlugin}(s) that will be invoked
+     *                                 immediately before content is persisted to the filesystem.
+     * @param postCreateStoragePlugins A list of {@link PostCreateStoragePlugin}(s) that will be invoked
+     *                                 immediately after content has been persisted to the filesystem.
+     * @param preUpdateStoragePlugins  A list of {@link PreUpdateStoragePlugin}(s) that will be invoked
+     *                                 immediately before content is updated on the filesystem.
+     * @param postUpdateStoragePlugins A list of {@link PostUpdateStoragePlugin}(s) that will be invoked
+     *                                 immediately after content is updated on the filesystem.
      */
     public ContentFrameworkImpl(BundleContext context, StorageProvider provider,
             List<ContentPlugin> contentPlugins,
             List<PreCreateStoragePlugin> preCreateStoragePlugins,
-            List<PostCreateStoragePlugin> postCreateStoragePlugins) {
+            List<PostCreateStoragePlugin> postCreateStoragePlugins,
+            List<PreUpdateStoragePlugin> preUpdateStoragePlugins,
+            List<PostUpdateStoragePlugin> postUpdateStoragePlugins) {
         LOGGER.trace("ENTERING: ContentFrameworkImpl constructor");
 
         this.context = context;
@@ -101,8 +127,9 @@ public class ContentFrameworkImpl implements ContentFramework {
         this.contentPlugins = contentPlugins;
         this.preCreateStoragePlugins = preCreateStoragePlugins;
         this.postCreateStoragePlugins = postCreateStoragePlugins;
+        this.preUpdateStoragePlugins = preUpdateStoragePlugins;
+        this.postUpdateStoragePlugins = postUpdateStoragePlugins;
         LOGGER.trace("EXITING: ContentFrameworkImpl constructor");
-
     }
 
     @Override
@@ -147,9 +174,7 @@ public class ContentFrameworkImpl implements ContentFramework {
                     try {
                         createRequest = plugin.process(createRequest);
                     } catch (PluginExecutionException e) {
-                        LOGGER.info(
-                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                                e);
+                        LOGGER.warn(STORAGE_PLUGIN_FAILED_TEXT, e);
                     }
                 }
 
@@ -159,9 +184,7 @@ public class ContentFrameworkImpl implements ContentFramework {
                     try {
                         createResponse = plugin.process(createResponse);
                     } catch (PluginExecutionException e) {
-                        LOGGER.info(
-                                "Plugin processing failed. This is allowable. Skipping to next plugin.",
-                                e);
+                        LOGGER.warn(STORAGE_PLUGIN_FAILED_TEXT, e);
                     }
                 }
 
@@ -261,7 +284,7 @@ public class ContentFrameworkImpl implements ContentFramework {
     }
 
     @Override
-    public UpdateResponse update(final UpdateRequest updateRequest, Request.Directive directive)
+    public UpdateResponse update(UpdateRequest updateRequest, Request.Directive directive)
             throws ContentFrameworkException {
         LOGGER.trace("ENTERING: update");
 
@@ -298,7 +321,24 @@ public class ContentFrameworkImpl implements ContentFramework {
 
             LOGGER.info("Updating content repository for content item: " + itemToUpdate.getId());
             try {
+                for (final PreUpdateStoragePlugin plugin : preUpdateStoragePlugins) {
+                    try {
+                        updateRequest = plugin.process(updateRequest);
+                    } catch (PluginExecutionException e) {
+                        LOGGER.warn(STORAGE_PLUGIN_FAILED_TEXT, e);
+                    }
+                }
+
                 updateResponse = this.provider.update(updateRequest);
+
+                for (final PostUpdateStoragePlugin plugin : postUpdateStoragePlugins) {
+                    try {
+                        updateResponse = plugin.process(updateResponse);
+                    } catch (PluginExecutionException e) {
+                        LOGGER.warn(STORAGE_PLUGIN_FAILED_TEXT, e);
+                    }
+                }
+
                 try {
                     LOGGER.debug(
                             "updated item file length = " + updateResponse.getUpdatedContentItem()

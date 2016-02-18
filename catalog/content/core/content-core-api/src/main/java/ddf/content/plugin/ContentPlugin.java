@@ -24,6 +24,8 @@ import ddf.content.operation.UpdateResponse;
  * @author michael.menousek@lmco.com
  */
 public interface ContentPlugin {
+    String STORAGE_PLUGIN_METACARD_ATTRIBUTES = "STORAGE_PLUGIN_METACARD_ATTRIBUTES";
+
     /**
      * Processes the {@link CreateResponse}.
      *

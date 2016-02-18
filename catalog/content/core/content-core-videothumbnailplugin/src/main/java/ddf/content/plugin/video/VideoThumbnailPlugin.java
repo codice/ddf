@@ -1,0 +1,469 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package ddf.content.plugin.video;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.activation.MimeType;
+
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
+import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.net.MediaType;
+
+import ddf.catalog.data.Metacard;
+import ddf.content.data.ContentItem;
+import ddf.content.operation.CreateResponse;
+import ddf.content.operation.Response;
+import ddf.content.operation.UpdateResponse;
+import ddf.content.operation.impl.CreateResponseImpl;
+import ddf.content.operation.impl.UpdateResponseImpl;
+import ddf.content.plugin.ContentPlugin;
+import ddf.content.plugin.PluginExecutionException;
+import ddf.content.plugin.PostCreateStoragePlugin;
+import ddf.content.plugin.PostUpdateStoragePlugin;
+
+public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdateStoragePlugin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoThumbnailPlugin.class);
+
+    private static final int FFMPEG_FILE_NUMBERING_START = 1;
+
+    private static final int THUMBNAIL_COUNT = 3;
+
+    private static final int ROUGH_MINIMUM_SECONDS_FOR_MULTIPLE_THUMBNAILS = 10;
+
+    private static final String SUPPRESS_PRINTING_BANNER_FLAG = "-hide_banner";
+
+    private static final String INPUT_FILE_FLAG = "-i";
+
+    private static final String OVERWRITE_EXISTING_FILE_FLAG = "-y";
+
+    private static final boolean DONT_HANDLE_QUOTING = false;
+
+    private static final int MAX_FFMPEG_PROCESSES = 4;
+
+    private final Semaphore limitFFmpegProcessesSemaphore;
+
+    private final String ffmpegPath;
+
+    private String getBundledFFmpegBinaryPath() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return "linux/ffmpeg";
+        } else if (SystemUtils.IS_OS_MAC) {
+            return "osx/ffmpeg";
+        } else if (SystemUtils.IS_OS_SOLARIS) {
+            return "solaris/ffmpeg";
+        } else if (SystemUtils.IS_OS_WINDOWS) {
+            return "windows/ffmpeg.exe";
+        } else {
+            throw new RuntimeException("OS is not Linux, Mac, Solaris, or Windows."
+                    + " No FFmpeg binary is available for this OS, so the plugin will not work.");
+        }
+    }
+
+    public VideoThumbnailPlugin(final BundleContext bundleContext) throws IOException {
+        final String bundledFFmpegBinaryPath = getBundledFFmpegBinaryPath();
+        final String ffmpegBinaryName = StringUtils.substringAfterLast(bundledFFmpegBinaryPath,
+                "/");
+        final String ffmpegFolderPath = FilenameUtils.concat(System.getProperty("ddf.home"),
+                "bin_third_party/ffmpeg");
+        ffmpegPath = FilenameUtils.concat(ffmpegFolderPath, ffmpegBinaryName);
+
+        try (final InputStream inputStream = bundleContext.getBundle()
+                .getEntry(bundledFFmpegBinaryPath)
+                .openStream()) {
+            copyFFmpegBinary(inputStream);
+        }
+
+        limitFFmpegProcessesSemaphore = new Semaphore(MAX_FFMPEG_PROCESSES, true);
+    }
+
+    /**
+     * Deletes the directory that holds the FFmpeg binary.
+     * <p>
+     * Called by Blueprint.
+     */
+    public void destroy() {
+        if (ffmpegPath != null) {
+            final File ffmpegDirectory =
+                    new File(FilenameUtils.getFullPathNoEndSeparator(ffmpegPath));
+            if (!FileUtils.deleteQuietly(ffmpegDirectory)) {
+                ffmpegDirectory.deleteOnExit();
+            }
+        }
+    }
+
+    private void copyFFmpegBinary(final InputStream inputStream) throws IOException {
+        final File ffmpegBinary = new File(ffmpegPath);
+
+        if (!ffmpegBinary.exists()) {
+            FileUtils.copyInputStreamToFile(inputStream, ffmpegBinary);
+            if (!ffmpegBinary.setExecutable(true)) {
+                LOGGER.warn(
+                        "Couldn't make FFmpeg binary at {} executable. It must be executable by its owner for the plugin to work.",
+                        ffmpegPath);
+            }
+        }
+    }
+
+    @Override
+    public CreateResponse process(final CreateResponse input) throws PluginExecutionException {
+        // TODO: How to handle application/octet-stream?
+        final ContentItem contentItem = input.getCreatedContentItem();
+        final Map<String, Serializable> properties = process(input, contentItem);
+
+        return new CreateResponseImpl(input.getRequest(),
+                contentItem,
+                input.getResponseProperties(),
+                properties);
+    }
+
+    @Override
+    public UpdateResponse process(final UpdateResponse input) throws PluginExecutionException {
+        // TODO: How to handle application/octet-stream?
+        final ContentItem contentItem = input.getUpdatedContentItem();
+        final Map<String, Serializable> properties = process(input, contentItem);
+
+        return new UpdateResponseImpl(input.getRequest(),
+                contentItem,
+                input.getResponseProperties(),
+                properties);
+    }
+
+    private Map<String, Serializable> process(final Response input, final ContentItem contentItem)
+            throws PluginExecutionException {
+        final Map<String, Serializable> properties = input.getProperties();
+
+        if (isVideo(contentItem)) {
+            createThumbnail(contentItem, properties);
+        }
+
+        return properties;
+    }
+
+    private boolean isVideo(final ContentItem contentItem) {
+        final MimeType createdMimeType = contentItem.getMimeType();
+        final MediaType createdMediaType = MediaType.create(createdMimeType.getPrimaryType(),
+                createdMimeType.getSubType());
+        return createdMediaType.is(MediaType.ANY_VIDEO_TYPE);
+    }
+
+    private void createThumbnail(final ContentItem contentItem,
+            final Map<String, Serializable> properties) throws PluginExecutionException {
+        LOGGER.debug("About to create video thumbnail.");
+
+        try {
+            limitFFmpegProcessesSemaphore.acquire();
+
+            try {
+                final byte[] thumbnailBytes = createThumbnail(contentItem.getFile()
+                        .getCanonicalPath());
+                addThumbnailAttribute(properties, thumbnailBytes);
+                LOGGER.debug("Successfully created video thumbnail.");
+            } finally {
+                limitFFmpegProcessesSemaphore.release();
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new PluginExecutionException(e);
+        } finally {
+            deleteImageFiles();
+        }
+    }
+
+    private void addThumbnailAttribute(final Map<String, Serializable> properties,
+            final byte[] thumbnailBytes) {
+        if (!properties.containsKey(ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES)) {
+            properties.put(ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES,
+                    new HashMap<String, Serializable>());
+        }
+
+        @SuppressWarnings("unchecked")
+        final Map<String, Serializable> map = (Map<String, Serializable>) properties.get(
+                ContentPlugin.STORAGE_PLUGIN_METACARD_ATTRIBUTES);
+        map.put(Metacard.THUMBNAIL, thumbnailBytes);
+    }
+
+    private byte[] createThumbnail(final String videoFilePath)
+            throws IOException, InterruptedException {
+        Duration videoDuration = null;
+
+        try {
+            videoDuration = getVideoDuration(videoFilePath);
+        } catch (Exception e) {
+            LOGGER.warn("Couldn't get video duration from FFmpeg output.", e);
+        }
+
+        /* Realistically, to get good thumbnails by dividing a video into segments, the video
+         should be at least 10 seconds long. This is because FFmpeg looks for thumbnails in
+         batches of 100 frames each, and these frames usually come from the portion of the
+         video immediately following the seek position. If the video isn't long enough,
+         the regions of the video FFmpeg will pick thumbnails from will likely overlap,
+         causing the same thumbnail to be generated for multiple segments. */
+        if (videoDuration != null
+                && videoDuration.getSeconds() > ROUGH_MINIMUM_SECONDS_FOR_MULTIPLE_THUMBNAILS) {
+            return createGifThumbnailWithDuration(videoFilePath, videoDuration);
+        } else {
+            return createThumbnailWithoutDuration(videoFilePath);
+        }
+    }
+
+    private Duration getVideoDuration(final String videoFilePath)
+            throws IOException, InterruptedException {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+        final CommandLine command = getFFmpegInfoCommand(videoFilePath);
+        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 3, streamHandler);
+        resultHandler.waitFor();
+
+        return parseVideoDuration(outputStream.toString(StandardCharsets.UTF_8.name()));
+    }
+
+    private CommandLine getFFmpegInfoCommand(final String videoFilePath) {
+        return new CommandLine(ffmpegPath).addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
+                .addArgument(INPUT_FILE_FLAG)
+                .addArgument(videoFilePath, DONT_HANDLE_QUOTING);
+    }
+
+    private Duration parseVideoDuration(final String ffmpegOutput) throws IOException {
+        final Pattern pattern = Pattern.compile("Duration: \\d\\d:\\d\\d:\\d\\d\\.\\d+");
+        final Matcher matcher = pattern.matcher(ffmpegOutput);
+
+        if (matcher.find()) {
+            final String durationString = matcher.group();
+            final String[] durationParts = durationString.substring("Duration: ".length())
+                    .split(":");
+            final String hours = durationParts[0];
+            final String minutes = durationParts[1];
+            final String seconds = durationParts[2];
+            return Duration.parse(String.format("PT%sH%sM%sS", hours, minutes, seconds));
+        } else {
+            throw new IOException("Video duration not found in FFmpeg output.");
+        }
+    }
+
+    private byte[] createGifThumbnailWithDuration(final String videoFilePath,
+            final Duration duration) throws IOException, InterruptedException {
+        final Duration durationFraction = duration.dividedBy(THUMBNAIL_COUNT);
+
+        // Start numbering files with 1 to match FFmpeg's convention.
+        for (int clipNum = FFMPEG_FILE_NUMBERING_START; clipNum <= THUMBNAIL_COUNT; ++clipNum) {
+            final String thumbnailPath = String.format(getThumbnailFilePath(), clipNum);
+
+            final String seek = durationToString(durationFraction.multipliedBy(clipNum - 1));
+
+            final CommandLine command = getFFmpegCreateThumbnailCommand(videoFilePath,
+                    thumbnailPath,
+                    seek,
+                    1);
+
+            final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, null);
+            resultHandler.waitFor();
+        }
+
+        return createGifFromThumbnailFiles();
+    }
+
+    private String durationToString(final Duration duration) {
+        final long seconds = duration.getSeconds();
+        return String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
+    }
+
+    private byte[] createGifFromThumbnailFiles() throws IOException, InterruptedException {
+        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(
+                getFFmpegCreateAnimatedGifCommand(),
+                3,
+                null);
+
+        resultHandler.waitFor();
+
+        if (resultHandler.getException() == null) {
+            return FileUtils.readFileToByteArray(new File(getGifFilePath()));
+        } else {
+            throw resultHandler.getException();
+        }
+    }
+
+    private DefaultExecuteResultHandler executeFFmpeg(final CommandLine command,
+            final int timeoutSeconds, final PumpStreamHandler streamHandler) throws IOException {
+        final ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutSeconds * 1000);
+        final Executor executor = new DefaultExecutor();
+        executor.setWatchdog(watchdog);
+
+        if (streamHandler != null) {
+            executor.setStreamHandler(streamHandler);
+        }
+
+        final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+        executor.execute(command, resultHandler);
+
+        return resultHandler;
+    }
+
+    private CommandLine getFFmpegCreateThumbnailCommand(final String videoFilePath,
+            final String thumbnailFilePath, final String seek, final int numFrames) {
+        final String filterChainFlag = "-vf";
+        final String filterChain = "thumbnail,scale=200:-1";
+        final String videoFramesToOutputFlag = "-frames:v";
+        final String videoFramesToOutput = String.valueOf(numFrames);
+        final String videoSyncFlag = "-vsync";
+        final String videoSyncVariableFrameRate = "vfr";
+
+        final CommandLine command = new CommandLine(ffmpegPath).addArgument(
+                SUPPRESS_PRINTING_BANNER_FLAG);
+
+        if (seek != null) {
+            final String seekFlag = "-ss";
+            command.addArgument(seekFlag)
+                    .addArgument(seek);
+        }
+
+        command.addArgument(INPUT_FILE_FLAG)
+                .addArgument(videoFilePath, DONT_HANDLE_QUOTING)
+                .addArgument(filterChainFlag)
+                .addArgument(filterChain)
+                .addArgument(videoFramesToOutputFlag)
+                .addArgument(videoFramesToOutput)
+                // The "-vsync vfr" argument prevents frames from being duplicated, which allows us
+                // to get a different thumbnail for each of the output images.
+                .addArgument(videoSyncFlag)
+                .addArgument(videoSyncVariableFrameRate);
+
+        command.addArgument(thumbnailFilePath, DONT_HANDLE_QUOTING)
+                .addArgument(OVERWRITE_EXISTING_FILE_FLAG);
+
+        return command;
+    }
+
+    private CommandLine getFFmpegCreateAnimatedGifCommand() {
+        final String framerateFlag = "-framerate";
+        final String framerate = "1";
+        final String loopFlag = "-loop";
+        final String loopValue = "0";
+
+        return new CommandLine(ffmpegPath).addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
+                .addArgument(framerateFlag)
+                .addArgument(framerate)
+                .addArgument(INPUT_FILE_FLAG)
+                .addArgument(getThumbnailFilePath(), DONT_HANDLE_QUOTING)
+                .addArgument(loopFlag)
+                .addArgument(loopValue)
+                .addArgument(getGifFilePath(), DONT_HANDLE_QUOTING)
+                .addArgument(OVERWRITE_EXISTING_FILE_FLAG);
+    }
+
+    private byte[] createThumbnailWithoutDuration(final String videoFilePath)
+            throws IOException, InterruptedException {
+        generateThumbnailsWithoutDuration(videoFilePath);
+
+        final List<File> thumbnailFiles = getThumbnailFiles();
+
+        // FFmpeg looks for thumbnails in batches of 100 frames each, so even if we request more
+        // than one thumbnail for a very short video, we will only get one back.
+        if (thumbnailFiles.size() == 1) {
+            return createStaticImageThumbnail();
+        } else {
+            return createGifFromThumbnailFiles();
+        }
+    }
+
+    private void generateThumbnailsWithoutDuration(final String videoFilePath)
+            throws IOException, InterruptedException {
+        final CommandLine command = getFFmpegCreateThumbnailCommand(videoFilePath,
+                getThumbnailFilePath(),
+                null,
+                THUMBNAIL_COUNT);
+        final DefaultExecuteResultHandler resultHandler = executeFFmpeg(command, 15, null);
+
+        resultHandler.waitFor();
+
+        if (resultHandler.getException() != null) {
+            throw resultHandler.getException();
+        }
+    }
+
+    private byte[] createStaticImageThumbnail() throws IOException {
+        return FileUtils.readFileToByteArray(getThumbnailFiles().get(0));
+    }
+
+    private String getThumbnailFilePath() {
+        final long threadId = Thread.currentThread()
+                .getId();
+
+        // FFmpeg replaces the "%1d" with a single digit when it creates the output file. This is
+        // necessary because FFmpeg requires a unique filename for each output file when outputting
+        // multiple images.
+        final String thumbnailFileName = String.format("thumbnail-%d-%%1d.png", threadId);
+
+        final String tempDirectoryPath = System.getProperty("java.io.tmpdir");
+
+        return FilenameUtils.concat(tempDirectoryPath, thumbnailFileName);
+    }
+
+    private String getGifFilePath() {
+        final String thumbnailFilePath = getThumbnailFilePath();
+        return thumbnailFilePath.substring(0, thumbnailFilePath.lastIndexOf('-')) + ".gif";
+    }
+
+    private List<File> getThumbnailFiles() {
+        final List<File> thumbnailFiles = new ArrayList<>(THUMBNAIL_COUNT);
+
+        final String thumbnailFilePath = getThumbnailFilePath();
+
+        // FFmpeg starts numbering files with 1.
+        for (int i = FFMPEG_FILE_NUMBERING_START; i <= THUMBNAIL_COUNT; ++i) {
+            final File thumbnailFile = new File(String.format(thumbnailFilePath, i));
+            if (thumbnailFile.exists()) {
+                thumbnailFiles.add(new File(String.format(thumbnailFilePath, i)));
+            }
+        }
+
+        return thumbnailFiles;
+    }
+
+    private void deleteImageFiles() {
+        final List<File> imageFiles = getThumbnailFiles();
+
+        imageFiles.add(new File(getGifFilePath()));
+
+        imageFiles.forEach(file -> {
+            if (file.exists() && !file.delete()) {
+                file.deleteOnExit();
+            }
+        });
+    }
+}

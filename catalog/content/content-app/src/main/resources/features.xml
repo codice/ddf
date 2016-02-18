@@ -3,7 +3,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -15,13 +15,13 @@
 <!--
      NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
      is automatically installed when an app's KAR file is hot deployed.
-     
+
      Description of the install attribute from the Karaf features XSD:
-     
-     "Installation mode. Can be either manual or auto. Specifies whether the feature should be 
-     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't 
-     affect feature descriptors that are installed from the command line or as part of the 
-     org.apache.karaf.features.cfg." 
+
+     "Installation mode. Can be either manual or auto. Specifies whether the feature should be
+     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't
+     affect feature descriptors that are installed from the command line or as part of the
+     org.apache.karaf.features.cfg."
 -->
 <features name="${project.artifactId}-${project.version}"
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
@@ -44,6 +44,7 @@
     <feature name="content-core-filesystemstorageprovider" install="manual"
              version="${project.version}"
              description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
+        <feature prerequisite="true">content-core</feature>
         <bundle>mvn:ddf.content.core/content-core-filesystemstorageprovider/${project.version}
         </bundle>
     </feature>
@@ -59,12 +60,21 @@
 
     <feature name="content-rest-endpoint" install="manual" version="${project.version}"
              description="REST Endpoint provides CRUD operations for content storage.">
+        <feature prerequisite="true">content-core</feature>
         <bundle>mvn:ddf.content.endpoint/content-rest-endpoint/${project.version}</bundle>
     </feature>
 
     <feature name="content-catalogerplugin" install="manual" version="${project.version}"
              description="Content Plugin provides post-CUD operations after content storage.">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">content-core</feature>
         <bundle>mvn:ddf.content.core/content-core-catalogerplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="content-core-videothumbnailplugin" install="manual" version="${project.version}"
+             description="Creates thumbnails for ingested video files.">
+        <feature prerequisite="true">content-core</feature>
+        <bundle>mvn:ddf.content.core/content-core-videothumbnailplugin/${project.version}</bundle>
     </feature>
 
     <feature name="content-app" install="auto" version="${project.version}"
