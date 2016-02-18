@@ -62,10 +62,16 @@ public class MetacardTypeReader {
     /**
      * Reads and parses the input stream building the definition for a DynamicMetacardImpl type (a LazyDynaClass)
      * as it reads. It is expected that the stream is closed by the caller.
-     * @param is the input stream containing the xml definition of a metacard class
+     * @param inputStream the input stream containing the xml definition of a metacard class
      * @return an instance of a LazyDynaClass representing the provided metacard attributes
      */
-    public boolean parseMetacardDefinition(InputStream is) {
+    public boolean parseMetacardDefinition(InputStream inputStream) {
+
+        // make sure we have a stream
+        if (inputStream == null) {
+            return false;
+        }
+
         MetacardClassBuilder dmcb = null;
         boolean status = false;
         try {
@@ -86,7 +92,7 @@ public class MetacardTypeReader {
                     "multiValued");
             digester.addSetNext("metacard/attributes/attribute", "addAttribute");
 
-            dmcb = (MetacardClassBuilder) digester.parse(is);
+            dmcb = (MetacardClassBuilder) digester.parse(inputStream);
         } catch (IOException e) {
             LOGGER.warn("Error reading input stream - no metacard definition generated.", e);
         } catch (SAXException e) {
