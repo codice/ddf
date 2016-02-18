@@ -292,6 +292,11 @@
         <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
+    
+    <feature name="catalog-plugin-resource-usage" install="manual" version="${project.version}"
+             description="DDF Resource Plugin tracking data usage ">
+        <bundle>mvn:ddf.catalog.plugin/resource-usage-plugin/${project.version}</bundle>
+    </feature>
 
     <feature name="catalog-registry" install="manual" version="${project.version}"
              description="DDF Registry">
