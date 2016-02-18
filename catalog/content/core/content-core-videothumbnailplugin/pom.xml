@@ -28,6 +28,7 @@
 
     <properties>
         <ffmpeg.version>2.8.4_2</ffmpeg.version>
+        <ffmpeg.unpackDirectory>target/ffmpeg</ffmpeg.unpackDirectory>
     </properties>
 
     <dependencies>
@@ -76,9 +77,34 @@
                         <Embed-Dependency>
                             commons-exec
                         </Embed-Dependency>
+                        <Include-Resource>
+                            ${ffmpeg.unpackDirectory},
+                            {maven-resources}
+                        </Include-Resource>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-ffmpeg-to-test-resources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${ffmpeg.unpackDirectory}</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -145,7 +171,7 @@
                                     <version>${ffmpeg.version}</version>
                                     <type>zip</type>
                                     <classifier>bin</classifier>
-                                    <outputDirectory>src/main/resources</outputDirectory>
+                                    <outputDirectory>${ffmpeg.unpackDirectory}</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
