@@ -67,7 +67,7 @@
             </Sport:location>
             <Sport:metadata-content-type>Sport</Sport:metadata-content-type>
             <Sport:metadata-content-type-version>1.0.0</Sport:metadata-content-type-version>
-            <Sport:team_id>team1</Sport:team_id>
+            <Sport:team_id>1</Sport:team_id>
             <Sport:team_name>team1</Sport:team_name>
             <Sport:title>team1</Sport:title>
             <Sport:wins>55</Sport:wins>
@@ -119,7 +119,7 @@
             </Sport:location>
             <Sport:metadata-content-type>Sport</Sport:metadata-content-type>
             <Sport:metadata-content-type-version>1.0.0</Sport:metadata-content-type-version>
-            <Sport:team_id>team2</Sport:team_id>
+            <Sport:team_id>2</Sport:team_id>
             <Sport:team_name>team2</Sport:team_name>
             <Sport:title>team2</Sport:title>
             <Sport:wins>55</Sport:wins>

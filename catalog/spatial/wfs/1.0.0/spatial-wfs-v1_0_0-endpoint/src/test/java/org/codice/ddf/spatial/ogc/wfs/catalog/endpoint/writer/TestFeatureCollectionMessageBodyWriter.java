@@ -73,9 +73,13 @@ public class TestFeatureCollectionMessageBodyWriter {
 
     private static final String DATE_CREATED = "date_created";
 
-    private static final String TEAM1_ID = "team1";
+    private static final String TEAM1_TITLE = "team1";
 
-    private static final String TEAM2_ID = "team2";
+    private static final String TEAM2_TITLE = "team2";
+
+    private static final Long TEAM1_ID = 1L;
+
+    private static final Long TEAM2_ID = 2L;
 
     private static final String TEAM1_LOCATION = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
 
@@ -195,8 +199,8 @@ public class TestFeatureCollectionMessageBodyWriter {
         WfsFeatureCollection collection = new WfsFeatureCollection();
         List<Metacard> metacards = new ArrayList<Metacard>();
 
-        metacards.add(getMetacard(TEAM1_ID, TEAM1_LOCATION, TEAM2_LOCATION));
-        metacards.add(getMetacard(TEAM2_ID, TEAM2_LOCATION, TEAM1_LOCATION));
+        metacards.add(getMetacard(TEAM1_TITLE, TEAM1_ID, TEAM1_LOCATION, TEAM2_LOCATION));
+        metacards.add(getMetacard(TEAM2_TITLE, TEAM2_ID, TEAM2_LOCATION, TEAM1_LOCATION));
 
         collection.setFeatureMembers(metacards);
 
@@ -214,7 +218,7 @@ public class TestFeatureCollectionMessageBodyWriter {
         return collection;
     }
 
-    private Metacard getMetacard(String team, String home, String away) {
+    private Metacard getMetacard(String team, Long id, String home, String away) {
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
@@ -269,7 +273,7 @@ public class TestFeatureCollectionMessageBodyWriter {
         metacard.setSourceId(SOURCE);
         metacard.setTitle(team);
 
-        metacard.setAttribute(ID, team);
+        metacard.setAttribute(ID, id);
         metacard.setAttribute(TITLE, team);
         metacard.setAttribute(DATE_CREATED, DATE);
         metacard.setAttribute(WINS, WIN_COUNT);

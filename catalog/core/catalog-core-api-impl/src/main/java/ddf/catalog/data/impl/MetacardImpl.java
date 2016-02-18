@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -660,9 +661,28 @@ public class MetacardImpl implements Metacard {
 
     @Override
     public void setAttribute(Attribute attribute) {
-
         if (attribute == null) {
             return;
+        }
+
+        AttributeDescriptor descriptor = this.type.getAttributeDescriptor(attribute.getName());
+        if (descriptor != null) {
+            Class binding = descriptor.getType().getBinding();
+            if (binding != null) {
+                AttributeType.AttributeFormat format = descriptor.getType().getAttributeFormat();
+                if (attribute.getValue() != null && !attribute.getValue().getClass().equals(binding)) {
+                    try {
+                        attribute = new AttributeImpl(attribute.getName(),
+                                (Serializable) binding.cast(attribute.getValue()));
+                    } catch (NumberFormatException | ClassCastException e) {
+                        throw new IllegalArgumentException(
+                                "Tried to set " + attribute.getName() + " as a "
+                                        + attribute.getValue().getClass()
+                                        .getName() + ". The correct type for " + attribute.getName()
+                                        + " is " + format.name() + ".");
+                    }
+                }
+            }
         }
 
         if (wrappedMetacard != null) {
@@ -678,6 +698,14 @@ public class MetacardImpl implements Metacard {
                 }
             }
         }
+    }
+
+    public AttributeType getAttributeType(String attributeName) {
+        AttributeDescriptor descriptor = this.type.getAttributeDescriptor(attributeName);
+        if (descriptor != null) {
+            return descriptor.getType();
+        }
+        return null;
     }
 
     /**
