@@ -27,5 +27,7 @@
         <module>catalog-plugin-federation-replication</module>
         <module>catalog-plugin-jpeg2000-thumbnail-converter</module>
         <module>catalog-plugin-metacard-validation</module>
+        <module>catalog-plugin-querymonitor</module>
+        <module>catalog-plugin-querymonitorcommands</module>
     </modules>
 </project>
