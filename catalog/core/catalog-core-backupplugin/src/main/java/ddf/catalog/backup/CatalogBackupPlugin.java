@@ -60,7 +60,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private int subDirLevels;
 
-    private PeriodicDrain periodicDrain;
+    private PeriodicDrainExecutor periodicDrain;
 
     private boolean enableBackupPlugin = true;
 
@@ -71,8 +71,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private void init() {
         subDirLevels = 0;
-        setPeriodicDrain(new PeriodicDrain(1000, 60, TimeUnit.SECONDS));
-        getPeriodicDrain().setTask(this::backupBatch);
+        setPeriodicDrain(new PeriodicDrainExecutor(1000, 60, TimeUnit.SECONDS));
+        getPeriodicDrain().execute(this::backup);
     }
 
     /**
@@ -108,7 +108,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
                 OPERATION.CREATE));
     }
 
-    void backupBatch(List<Metacard> metacards) {
+    void backup(List<Metacard> metacards) {
 
         List<String> errors = new ArrayList<>();
         for (Metacard metacard : metacards) {
@@ -385,13 +385,13 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
     }
 
-    public PeriodicDrain<Metacard> getPeriodicDrain() {
+    public PeriodicDrainExecutor<Metacard> getPeriodicDrain() {
         return periodicDrain;
     }
 
-    public void setPeriodicDrain(PeriodicDrain<Metacard> periodicDrain) {
+    public void setPeriodicDrain(PeriodicDrainExecutor<Metacard> periodicDrain) {
         this.periodicDrain = periodicDrain;
-        getPeriodicDrain().setTask(this::backupBatch);
+        getPeriodicDrain().execute(this::backup);
     }
 
     private enum OPERATION {

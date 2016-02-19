@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
@@ -365,7 +367,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <bottom><![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]></bottom>
+                        <bottom>
+                            <![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]></bottom>
                         <failOnError>false</failOnError>
                         <aggregate>true</aggregate>
                         <show>protected</show>
@@ -454,6 +457,17 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <npmVersion>${npm.version}</npmVersion>
+                                <
+                                <
+                                <
+                                <
+                                <
+                                <
+                                < HEAD
+                                =======
+                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/
+                                </downloadRoot>
+                                >>>>>>> DDF-1862 Battling compiler error.
                             </configuration>
                         </execution>
                         <execution>
@@ -709,7 +723,8 @@
                             <executions>
                                 <execution>
                                     <configuration>
-                                        <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+                                        <descriptor>${project.basedir}/src/assembly/bin.xml
+                                        </descriptor>
                                         <outputDirectory>${project.build.directory}/documentation
                                         </outputDirectory>
                                     </configuration>
@@ -721,7 +736,8 @@
                                 </execution>
                                 <execution>
                                     <configuration>
-                                        <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                                        <descriptor>${project.basedir}/src/assembly/asciidocs.xml
+                                        </descriptor>
                                         <outputDirectory>${project.build.directory}/adoc-files
                                         </outputDirectory>
                                     </configuration>
@@ -971,16 +987,17 @@
       You should not redeclare them in the sub poms dependencies section.
       -->
     <dependencies>
+        <!--Hamcrest first, then JUnit, then Mockito. See http://stackoverflow.com/questions/7869711/getting-nosuchmethoderror-org-hamcrest-matcher-describemismatch-when-running-->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-            <version>1.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

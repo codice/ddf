@@ -14,8 +14,10 @@
 package ddf.catalog.backup;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,8 +30,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,60 +62,42 @@ public class CatalogBackupPluginTest {
     @Rule
     public TemporaryFolder rootBackupDir = new TemporaryFolder();
 
-    /**
-     * Verify no NullPointerException
-     */
-    @Test
-    public void testNullBackupDir() {
-        PluginBuilder.start()
-                .setDirToNull()
-                .build();
-    }
-
     @Test
     public void testCreateResponseNotNull() throws PluginExecutionException {
 
-        assertThat(PluginBuilder.start()
-                .rootBackupDir(rootBackupDir)
-                .build()
-                .process(getMockCreateResponse(METACARD_IDS)), is(notNullValue()));
-    }
-
-    @Test(expected = PluginExecutionException.class)
-    public void testProcessCreateResponseRootBackupDirBlank() throws Exception {
-
-        PluginBuilder.start()
-                .setDirToNull()
-                .subDirLevels(3)
-                .build()
-                .process(getMockCreateResponse(METACARD_IDS));
+        assertThat(getPlugin().process(getCreateResponse(METACARD_IDS)), is(notNullValue()));
     }
 
     @Test
-    public void testProcessCreateResponseSubdirectoryLevelsIsZero() throws Exception {
+    public void testCreateResponseRootBackupDirBlank() throws Exception {
+        // Set up
+        CatalogBackupPlugin plugin = getPlugin();
+
+        // Verify no Null Pointer Exception
+        plugin.setRootBackupDir(null);
+        plugin.process(getCreateResponse(METACARD_IDS));
+    }
+
+    @Test
+    public void testCreateResponseSubdirectoryLevelsIsZero() throws Exception {
+        // Setup
         int subDirLevels = 0;
-        CatalogBackupPlugin plugin = PluginBuilder.start()
-                .rootBackupDir(rootBackupDir)
-                .subDirLevels(subDirLevels)
-                .build();
 
-        plugin.backupBatch(createMetacards(METACARD_IDS, ""));
-        for (String id : METACARD_IDS) {
-            assertThat(getMetacardFile(id, subDirLevels).exists(), is(Boolean.TRUE));
-        }
+        // Perform test
+        createBackupFilesFor(METACARD_IDS, subDirLevels);
+
+        // Verify
+        assertFilesExist(METACARD_IDS, subDirLevels);
     }
 
     @Test
-    public void testProcessCreateResponseSubdirectoryLevelsIsNegative() throws Exception {
+    public void testCreateResponseSubdirectoryLevelsIsNegative() throws Exception {
+        // Setup
+        createBackupFilesFor(METACARD_IDS, -5);
 
-        CatalogBackupPlugin plugin = PluginBuilder.start()
-                .rootBackupDir(rootBackupDir)
-                .subDirLevels(-5)
-                .build();
-
-        plugin.backupBatch(createMetacards(METACARD_IDS, BASE_OLD_TITLE));
+        // Verify
         for (String id : METACARD_IDS) {
-            assertThat(getMetacardFile(id, 0).exists(), is(true));
+            assertThat(getFileFor(id, 0).exists(), is(true));
         }
     }
 
@@ -123,243 +107,139 @@ public class CatalogBackupPluginTest {
      * as many subdirectories as it can for each metacardId.
      */
     @Test
-    public void testProcessCreateResponseSubdirectoryLevelsTooBigForMetacardId() throws Exception {
-        // Setup
-        String[] metacardIds = {"6c38", "0283"};
+    public void testCreateResponseSubdirectoryLevelsTooBigForMetacardId() throws Exception {
+        //Setup
+        String[] ids = {"6c38", "0283"};
+        createBackupFilesFor(ids, 1000);
 
-        CreateResponse mockCreateResponse = getMockCreateResponse(metacardIds);
-
-        int subDirLevels = 1000;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        // Perform Test
-        CreateResponse postPluginCreateResponse = catalogBackupPlugin.process(mockCreateResponse);
-
-        // Verify
-        assertThat(postPluginCreateResponse, is(notNullValue()));
-
-        for (String metacardId : metacardIds) {
-            File backedupMetacard = getMetacardFile(metacardId, 2);
-            assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
-        }
+        //Verify
+        assertFilesExist(ids, 2);
     }
 
     @Test
-    public void testProcessCreateResponseCreateSuccessful() throws Exception {
-        // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(METACARD_IDS);
+    public void testCreateResponseCreateSuccessful() throws Exception {
 
         int subDirLevels = 3;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        // Perform Test
-        CreateResponse postPluginCreateResponse = catalogBackupPlugin.process(mockCreateResponse);
-
-        // Verify
-        assertThat(postPluginCreateResponse, is(notNullValue()));
-
-        for (String metacardId : METACARD_IDS) {
-            File backedupMetacard = getMetacardFile(metacardId, subDirLevels);
-            assertThat(backedupMetacard.exists(), is(Boolean.TRUE));
-        }
-    }
-
-    private File getMetacardFile(String metacardId, int subDirLevels) {
-        return new File(rootBackupDir.getRoot()
-                .getAbsolutePath() + getMetacardPath(metacardId, subDirLevels) + metacardId);
+        createBackupFilesFor(METACARD_IDS, subDirLevels);
+        assertFilesExist(METACARD_IDS, subDirLevels);
     }
 
     @Test
-    public void testProcessDeleteResponseDeleteSuccessful() throws Exception {
-        // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(METACARD_IDS);
+    public void testDeleteResponseDeleteSuccessful() throws Exception {
 
+        // Setup
+        int subDirLevels = 3;
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
+        createBackupFilesFor(METACARD_IDS, subDirLevels);
 
-        int subDirLevels = 3;
+        // Delete files
+        DeleteResponse postPluginDeleteResponse =
+                getPlugin(subDirLevels).process(mockDeleteResponse);
 
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        catalogBackupPlugin.process(mockCreateResponse);
-
-        // Perform Test
-        DeleteResponse postPluginDeleteResponse = catalogBackupPlugin.process(mockDeleteResponse);
-
-        // Verify
+        // Ensure files were deleted
         assertThat(postPluginDeleteResponse, is(notNullValue()));
-
-        for (String metacardId : METACARD_IDS) {
-            File deletedMetacards = getMetacardFile(metacardId, subDirLevels);
-            assertThat(deletedMetacards.exists(), is(Boolean.FALSE));
-        }
+        assertFilesDoNotExist(METACARD_IDS, subDirLevels);
     }
 
     @Test
-    public void testProcessDeleteResponseFailToDeleteAllMetacards() {
-        // Setup
+    public void testDeleteResponseFailToDeleteAllMetacards() {
+
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
-
-        int subDirLevels = 3;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
         // Perform Test
         try {
-            catalogBackupPlugin.process(mockDeleteResponse);
+            getPlugin().process(mockDeleteResponse);
         } catch (PluginExecutionException e) {
+
             // Verify
-            for (int i = 0; i < METACARD_IDS.length; i++) {
-                assertThat(e.getMessage(), containsString(METACARD_IDS[i]));
-            }
+            assertThat(e.getMessage(), stringContainsInOrder(Arrays.asList(METACARD_IDS)));
         }
     }
 
     @Test
-    public void testProcessDeleteResponseFailToDeleteOneMetacard() {
-        // Setup
-        String[] createdMetacardIds = {METACARD_IDS[0]};
-
-        CreateResponse mockCreateResponse = getMockCreateResponse(createdMetacardIds);
-
-        int subDirLevels = 3;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        try {
-            catalogBackupPlugin.process(mockCreateResponse);
-        } catch (PluginExecutionException e) {
-            fail();
-        }
+    public void testDeleteResponseFailToDeleteOneMetacard() {
 
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
+
+        createBackupFilesFor(new String[] {METACARD_IDS[0]});
 
         try {
             // Perform Test
-            catalogBackupPlugin.process(mockDeleteResponse);
+            getPlugin().process(mockDeleteResponse);
         } catch (PluginExecutionException e) {
-            // Verify
-            for (int i = 1; i < METACARD_IDS.length; i++) {
-                assertThat(e.getMessage(), containsString(METACARD_IDS[i]));
-            }
+
+            //Verify assumptions about hard-codes indexes
+            assertThat("The list of metacard IDs has changed sized",
+                    METACARD_IDS,
+                    arrayWithSize(2));
+
+            //Verify one metacard is missing
+            assertThat(e.getMessage(), containsString(METACARD_IDS[1]));
         }
     }
 
     @Test
-    public void testProcessUpdateResponseUpdateSuccessful() throws Exception {
+    public void testUpdateResponseUpdateSuccessful() throws Exception {
         // Setup
-        CreateResponse mockCreateResponse = getMockCreateResponse(METACARD_IDS);
-
         int subDirLevels = 3;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        catalogBackupPlugin.process(mockCreateResponse);
-
+        createBackupFilesFor(METACARD_IDS, subDirLevels);
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
-        UpdateResponse postPluginUpdateResponse = catalogBackupPlugin.process(mockUpdateResponse);
+        UpdateResponse postPluginUpdateResponse =
+                getPlugin(subDirLevels).process(mockUpdateResponse);
 
         // Verify
         assertThat(postPluginUpdateResponse, is(notNullValue()));
 
-        int j = 0;
-        for (Metacard oldMetacard : mockCreateResponse.getCreatedMetacards()) {
-            File updatedMetacardFile = getMetacardFile(oldMetacard.getId(), subDirLevels);
-            Metacard updatedMetacard = readMetacard(updatedMetacardFile);
-            assertThat(updatedMetacardFile.exists(), is(Boolean.TRUE));
-            // Verify that the metacard id has not changed (from newMetacard to
-            // oldMetacard)
-            assertThat(updatedMetacard.getId(), is(oldMetacard.getId()));
-            // Verify that the metacard title has been updated to "newTitle" + j
-            assertThat((String) updatedMetacard.getAttribute(Metacard.TITLE)
-                    .getValue(), is(BASE_NEW_TITLE + j));
+        IntStream.range(0, METACARD_IDS.length)
+                .forEach(index -> {
+                    String oldId = METACARD_IDS[index];
 
-            j++;
-        }
+                    // Perform test
+                    File updatedFile = getFileFor(oldId, subDirLevels);
+                    Metacard updatedCard = readMetacard(updatedFile);
+
+                    // Verify expected file exists
+                    assertThat(updatedFile.exists(), is(Boolean.TRUE));
+
+                    // Verify that the metacard id has not changed
+                    assertThat(updatedCard.getId(), is(oldId));
+
+                    // Verify that the metacard title has been updated to "newTitle" + index
+                    assertThat(updatedCard.getAttribute(Metacard.TITLE)
+                            .getValue(), is(BASE_NEW_TITLE + index));
+
+                });
     }
 
     @Test
-    public void testProcessUpdateUpdateFailsForAllMetacards() {
+    public void testUpdateUpdateFailsForAllMetacards() {
         // Setup
-        int subDirLevels = 3;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
         try {
-            catalogBackupPlugin.process(mockUpdateResponse);
+            getPlugin().process(mockUpdateResponse);
         } catch (PluginExecutionException e) {
-            // Verify
-            for (int i = 0; i < METACARD_IDS.length; i++) {
-                assertThat(e.getMessage(), containsString(METACARD_IDS[i]));
-            }
+            assertThat(e.getMessage(), stringContainsInOrder(Arrays.asList(METACARD_IDS)));
         }
     }
 
     @Test
-    public void testProcessUpdateUpdateFailsForOneMetacard() {
+    public void testUpdateUpdateFailsForOneMetacard() {
         // Setup
-        String[] createdMetacardIds = {METACARD_IDS[0]};
-
-        CreateResponse mockCreateResponse = getMockCreateResponse(createdMetacardIds);
-
-        int subDirLevels = 3;
-
-        CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
-        catalogBackupPlugin.setEnableBackupPlugin(true);
-        catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot()
-                .getAbsolutePath());
-        catalogBackupPlugin.setSubDirLevels(subDirLevels);
-
-        try {
-            catalogBackupPlugin.process(mockCreateResponse);
-        } catch (PluginExecutionException e) {
-            fail();
-        }
-
+        createBackupFilesFor(new String[] {METACARD_IDS[0]});
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
         try {
-            catalogBackupPlugin.process(mockUpdateResponse);
+            getPlugin().process(mockUpdateResponse);
         } catch (PluginExecutionException e) {
-            // Verify
-            for (int i = 1; i < METACARD_IDS.length; i++) {
-                assertThat(e.getMessage(), containsString(METACARD_IDS[i]));
-            }
+            assertThat("The list of metacard IDs has changed sized",
+                    METACARD_IDS,
+                    arrayWithSize(2));
+            assertThat(e.getMessage(), containsString((METACARD_IDS[1])));
         }
     }
 
@@ -367,7 +247,7 @@ public class CatalogBackupPluginTest {
      * Helper Methods
      */
 
-    private List<Metacard> createMetacards(String[] ids, String title) {
+    private List<Metacard> getMetacards(String[] ids, String title) {
 
         return Arrays.asList(ids)
                 .stream()
@@ -376,10 +256,10 @@ public class CatalogBackupPluginTest {
 
     }
 
-    private CreateResponse getMockCreateResponse(String[] ids) {
+    private CreateResponse getCreateResponse(String[] ids) {
 
         CreateResponse mockCreateResponse = mock(CreateResponse.class);
-        when(mockCreateResponse.getCreatedMetacards()).thenReturn(createMetacards(ids,
+        when(mockCreateResponse.getCreatedMetacards()).thenReturn(getMetacards(ids,
                 BASE_OLD_TITLE));
         when(mockCreateResponse.getRequest()).thenReturn(mock(CreateRequest.class));
 
@@ -390,7 +270,7 @@ public class CatalogBackupPluginTest {
         MetacardType mockMetacardType = mock(MetacardType.class);
         when(mockMetacardType.getName()).thenReturn(MetacardType.DEFAULT_METACARD_TYPE_NAME);
 
-        List<Metacard> deletedMetacards = new ArrayList<Metacard>(metacardIds.size());
+        List<Metacard> deletedMetacards = new ArrayList<>(metacardIds.size());
 
         for (String metacardId : metacardIds) {
             Metacard mockMetacard = mock(Metacard.class);
@@ -408,7 +288,7 @@ public class CatalogBackupPluginTest {
     }
 
     private UpdateResponse getUpdateResponse(List<String> oldMetacardIds) {
-        List<Update> updatedMetacards = new ArrayList<Update>(oldMetacardIds.size());
+        List<Update> updatedMetacards = new ArrayList<>(oldMetacardIds.size());
         int i = 0;
         for (String oldMetacardId : oldMetacardIds) {
             Metacard oldMetacard = getMetacard(oldMetacardId, BASE_OLD_TITLE + i);
@@ -456,87 +336,65 @@ public class CatalogBackupPluginTest {
         return builder.toString();
     }
 
-    private Metacard readMetacard(File file) throws ClassNotFoundException, IOException {
-        Metacard metacard = null;
+    private Metacard readMetacard(File file) {
 
+        Metacard metacard = null;
         try (FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis)) {
             metacard = (Metacard) ois.readObject();
+        } catch (ClassNotFoundException | IOException e) {
+            fail();
         }
 
         return metacard;
     }
 
-    private static class PluginBuilder {
+    private File getFileFor(String metacardId, int subDirLevels) {
+        return new File(rootBackupDir.getRoot()
+                .getAbsolutePath() + getMetacardPath(metacardId, subDirLevels) + metacardId);
+    }
 
-        private CatalogBackupPlugin plugin = new CatalogBackupPlugin();
-
-        private long period = 60;
-
-        private int flushOnCount = 1;
-
-        private TimeUnit timeUnit = TimeUnit.SECONDS;
-
-        private PeriodicDrain executor;
-
-        public static PluginBuilder start() {
-            return new PluginBuilder();
-        }
-
-        public PluginBuilder period(long period) {
-            this.period = period;
-            return this;
-        }
-
-        public PluginBuilder flushCount(int count) {
-            this.flushOnCount = count;
-            return this;
-        }
-
-        public PluginBuilder rootBackupDir(String dir) {
-            plugin.setRootBackupDir(dir);
-            return this;
-        }
-
-        public PluginBuilder subDirLevels(int levels) {
-            plugin.setSubDirLevels(levels);
-            return this;
-        }
-
-        public PluginBuilder enablePlugin(boolean enabled) {
-            plugin.setEnableBackupPlugin(enabled);
-            return this;
-        }
-
-        public PluginBuilder executor(PeriodicDrain executor) {
-            this.executor = executor;
-            return this;
-        }
-
-        public PluginBuilder setDirToNull() {
-            rootBackupDir((String) null);
-            return this;
-        }
-
-        public CatalogBackupPlugin build() {
-            if (executor == null) {
-                plugin.setPeriodicDrain(new PeriodicDrain<>(flushOnCount, period, timeUnit));
-            } else {
-                plugin.setPeriodicDrain(executor);
-            }
-            return plugin;
-        }
-
-        public PluginBuilder timeUnit(TimeUnit timeUnit) {
-            this.timeUnit = timeUnit;
-            return this;
-        }
-
-        public PluginBuilder rootBackupDir(TemporaryFolder folder) {
-            rootBackupDir(folder.getRoot()
-                    .getAbsolutePath());
-            return this;
-        }
+    private void assertFilesDoNotExist(String[] metacardIds, int subDirLevels) {
+        assertFiles(Boolean.FALSE, metacardIds, subDirLevels);
 
     }
+
+    private void assertFilesExist(String[] metacardIds, int subDirLevels) {
+        assertFiles(Boolean.TRUE, metacardIds, subDirLevels);
+    }
+
+    private void assertFiles(Boolean test, String[] metacardIds, int subDirLevels) {
+        for (String id : metacardIds) {
+            assertThat(getFileFor(id, subDirLevels).exists(), is(test));
+        }
+    }
+
+    private void createBackupFilesFor(String[] cardIds, int level) {
+
+        getPlugin(level).backup(getMetacards(cardIds, BASE_OLD_TITLE));
+        assertFilesExist(cardIds, level);
+
+    }
+
+    private void createBackupFilesFor(String[] cardIds) {
+        int level = 3;
+        getPlugin(level).backup(getMetacards(cardIds, BASE_OLD_TITLE));
+        assertFilesExist(cardIds, level);
+
+    }
+
+    private CatalogBackupPlugin getPlugin() {
+
+        return getPlugin(3);
+    }
+
+    private CatalogBackupPlugin getPlugin(int level) {
+        CatalogBackupPlugin plugin = new CatalogBackupPlugin();
+        plugin.setRootBackupDir(rootBackupDir.getRoot()
+                .getAbsolutePath());
+        plugin.setSubDirLevels(level);
+        return plugin;
+    }
 }
+
+
