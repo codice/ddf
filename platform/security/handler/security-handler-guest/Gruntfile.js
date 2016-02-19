@@ -12,8 +12,6 @@
 /*global module,require*/
 
 module.exports = function (grunt) {
-
-    var which = require('which');
     require('load-grunt-tasks')(grunt);
     grunt.loadTasks('src/main/grunt/tasks');
 
@@ -88,18 +86,6 @@ module.exports = function (grunt) {
                 tasks: ['bower']
             }
         },
-        casperjs: {
-            options: {
-                casperjsOptions: [
-                    '--url=http://localhost:<%= ports.express %>/'
-                ],
-                async: {
-                    parallel: false
-                }
-            },
-            //this is where the tests would be called from
-            files: ['src/test/js/*.js']
-        },
         express: {
             options: {
                 port: 8282,
@@ -136,22 +122,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-casperjs');
     grunt.loadNpmTasks('grunt-sed');
 
-    //the grunt-zip task interferes with grunt-express, but since grunt loads these tasks in serially, we can
-    //just load it in down here after the express task is loaded. DO NOT move this task above the test task or
-    //all tests will fail.
-    grunt.registerTask('test', ['port:allocator', 'express:test','casperjs']);
-
     var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint'];
-    try {
-        grunt.log.writeln('Checking for python');
-        var pythonPath = which.sync('python');
-        if(pythonPath) {
-            grunt.log.writeln('Found python');
-            buildTasks = ['clean', 'bower-offline-install','sed:imports', 'cssmin', 'jshint', 'test'];
-        }
-    } catch (e) {
-        grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');
-    }
     
     grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build','express:server','watch']);

@@ -98,50 +98,6 @@ module.exports = function (grunt) {
                 src: ['src/test/js/unit/*.js']
             }
         },
-        mochaWebdriver: {
-            options: {
-                autoInstall: true,
-                usePromises: true,
-                reporter: 'spec',
-                timeout: 1000 * 30,
-                slow: 10000,
-                expressPort: '<%= ports.express %>'
-            },
-            phantom: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    hostname: '127.0.0.1',
-                    usePhantom: true,
-                    phantomPort: '<%= ports.phantom %>'
-                }
-            },
-            selenium: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    // make sure to start selenium server at host:port first
-                    hostname: '127.0.0.1',
-                    port: '<%= ports.selenium %>',
-                    // mochaWebdriver always starts a selenium server so
-                    // starting phantomjs instance that will not be used
-                    phantomPort: '<%= ports.phantom %>',
-                    usePhantom: true
-                }
-            },
-            sauce: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    autoInstall: false,
-                    testName: 'Installation',
-                    concurrency: 3,
-                    timeout: 1000 * 60 * 2,
-                    browsers: [
-                        {platform: 'Windows 7', browserName: 'internet explorer', version: '9'},
-                        {platform: 'Windows 7', browserName: 'chrome', version: '38'},
-                        {platform: 'Windows 7', browserName: 'firefox', version: '31'}
-                    ]
-                }
-            }
-        },
         express: {
             options: {
                 port: 8282,
@@ -180,9 +136,7 @@ module.exports = function (grunt) {
     });
 
 
-    grunt.registerTask('test', [ 'simplemocha:test' /*, 'port:allocator', 'express:test', 'mochaWebdriver:phantom'*/ ]);
-    grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
-    grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
+    grunt.registerTask('test', [ 'simplemocha:test' ]);
 
     grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
         'cssmin', 'jshint']);

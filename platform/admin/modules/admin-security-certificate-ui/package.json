@@ -30,12 +30,10 @@
     "grunt-contrib-less": "0.11.0",
     "grunt-contrib-watch": "0.4.4",
     "grunt-express": "1.2.1",
-    "grunt-mocha-webdriver": "1.1.2",
     "grunt-sed": "0.1.1",
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "1.0.0",
     "mocha": "2.3.0",
-    "phantomjs": "1.9.12",
     "wd": "0.3.12",
     "which": "1.0.5",
     "yargs": "3.23.0"

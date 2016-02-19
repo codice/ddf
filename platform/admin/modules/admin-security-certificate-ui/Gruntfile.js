@@ -86,49 +86,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        mochaWebdriver: {
-            options: {
-                autoInstall: true,
-                usePromises: true,
-                reporter: 'spec',
-                timeout: 1000 * 30,
-                slow: 10000
-            },
-            phantom: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    hostname: '127.0.0.1',
-                    usePhantom: true,
-                    phantomPort: 5555
-                }
-            },
-            selenium: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    // make sure to start selenium server at host:port first
-                    hostname: '127.0.0.1',
-                    port: 4444,
-                    // mochaWebdriver always starts a selenium server so
-                    // starting phantomjs instance that will not be used
-                    phantomPort: 5555,
-                    usePhantom: true
-                }
-            },
-            sauce: {
-                src: ['src/test/js/wd/*.js'],
-                options: {
-                    autoInstall: false,
-                    testName: 'Search UI',
-                    concurrency: 3,
-                    timeout: 1000 * 60 * 2,
-                    browsers: [
-                        {platform: 'Windows 7', browserName: 'internet explorer', version: '9'},
-                        {platform: 'Windows 7', browserName: 'chrome', version: '38'},
-                        {platform: 'Windows 7', browserName: 'firefox', version: '31'}
-                    ]
-                }
-            }
-        },
         express: {
             options: {
                 port: 8282,
@@ -173,10 +130,6 @@ module.exports = function (grunt) {
             }
         }
     });
-
-    grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
-    grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
-    grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
 
     grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
         'cssmin', 'jshint']);
