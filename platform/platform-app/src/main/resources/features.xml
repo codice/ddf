@@ -1068,7 +1068,7 @@
         <feature>error</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
-        <feature>banana</feature>
+        <!--<feature>banana</feature>-->
     </feature>
 
     <feature name="platform-security-session" install="manual" version="${project.version}"
