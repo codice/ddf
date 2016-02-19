@@ -82,8 +82,10 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         Set<String> roles = new HashSet<>();
 
         Map<String, Set<String>> permissionsMap = new HashMap<>();
+        List<Expansion> copiedExpansionServiceList = getCopiedExpansionServiceList();
         for (AttributeStatement curStatement : attributeStatements) {
-            addAttributesToMap(curStatement.getAttributes(), permissionsMap);
+            addAttributesToMap(curStatement.getAttributes(), permissionsMap,
+                    copiedExpansionServiceList);
         }
 
         for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
@@ -109,10 +111,10 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     }
 
     private void addAttributesToMap(List<Attribute> attributes,
-            Map<String, Set<String>> permissionsMap) {
+            Map<String, Set<String>> permissionsMap, List<Expansion> expansions) {
         Set<String> attributeSet;
         for (Attribute curAttribute : attributes) {
-            attributeSet = expandAttributes(curAttribute);
+            attributeSet = expandAttributes(curAttribute, expansions);
             if (attributeSet != null) {
                 if (permissionsMap.containsKey(curAttribute.getName())) {
                     permissionsMap.get(curAttribute.getName())
@@ -135,7 +137,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      * @param attribute current attribute whose values are to be potentially expanded
      * @return a set of potentially expanded values
      */
-    private Set<String> expandAttributes(Attribute attribute) {
+    private Set<String> expandAttributes(Attribute attribute, List<Expansion> expansions) {
         Set<String> attributeSet = new HashSet<>();
         String attributeName = attribute.getName();
         for (XMLObject curValue : attribute.getAttributeValues()) {
@@ -147,25 +149,24 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
                         attributeName);
             }
         }
-        if (expansionServiceList != null) {
-            for (Expansion expansionService : expansionServiceList) {
-                LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName,
-                        attributeSet);
-                attributeSet = expansionService.expand(attributeName, attributeSet);
-            }
+        for (Expansion expansionService : expansions) {
+            LOGGER.debug("Expanding attributes for {} - original values: {}", attributeName,
+                    attributeSet);
+            attributeSet = expansionService.expand(attributeName, attributeSet);
         }
         LOGGER.debug("Expanded attributes for {} - values: {}", attributeName, attributeSet);
         return attributeSet;
     }
 
     protected List<Permission> expandPermissions(List<Permission> permissions) {
-        if (CollectionUtils.isEmpty(expansionServiceList)) {
+        List<Expansion> copiedExpansionServiceList = getCopiedExpansionServiceList();
+        if (CollectionUtils.isEmpty(copiedExpansionServiceList)) {
             return permissions;
         }
         List<Permission> expandedPermissions = new ArrayList<>(permissions.size());
         for (Permission permission : permissions) {
             if (permission instanceof KeyValuePermission) {
-                for (Expansion expansionService : expansionServiceList) {
+                for (Expansion expansionService : copiedExpansionServiceList) {
                     Set<String> expandedSet = expansionService.expand(
                             ((KeyValuePermission) permission).getKey(),
                             new HashSet<>(((KeyValuePermission) permission).getValues()));
@@ -186,6 +187,13 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         }
 
         return expandedPermissions;
+    }
+
+    private List<Expansion> getCopiedExpansionServiceList() {
+        if (expansionServiceList != null) {
+            return new ArrayList<>(expansionServiceList);
+        }
+        return new ArrayList<>();
     }
 
     private <T> List<T> castToKeyValueList(List<Permission> permissionList) {
