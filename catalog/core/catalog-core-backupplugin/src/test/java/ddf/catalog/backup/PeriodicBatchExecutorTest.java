@@ -17,7 +17,6 @@ package ddf.catalog.backup;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
@@ -31,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class PeriodicBatchExecutorTest {
 
@@ -73,7 +74,7 @@ public class PeriodicBatchExecutorTest {
                 Long.MAX_VALUE,
                 TimeUnit.SECONDS);
 
-        List<List<Integer>> batches = runTest(executor, getSampleItems(), batchSize);
+        runTest(executor, getSampleItems(), batchSize);
         executor.shutdown();
 
         //Should throw exception.
@@ -131,7 +132,7 @@ public class PeriodicBatchExecutorTest {
                 .collect(Collectors.toList());
     }
 
-    private <T> int getExpectedNumberOfBatches(List<T> inputItems, int batchSize) {
+    private int getExpectedNumberOfBatches(List inputItems, int batchSize) {
 
         int itemCount = inputItems.size();
         int batchCount = itemCount / batchSize;
@@ -143,7 +144,7 @@ public class PeriodicBatchExecutorTest {
 
     private <T> List<Integer> expectedBatchSizes(List<T> input, int batchSize) {
 
-        return sizeOfSublists(com.google.common.collect.Lists.partition(input, batchSize));
+        return sizeOfSublists(Lists.partition(input, batchSize));
 
     }
 
