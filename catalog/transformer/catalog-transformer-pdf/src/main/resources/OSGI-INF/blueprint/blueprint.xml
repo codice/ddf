@@ -16,8 +16,6 @@
 
     <bean id="pdfTransformer" class="ddf.catalog.transformer.input.pdf.PdfInputTransformer"/>
 
-    <service ref="pdfTransformer" interface="ddf.catalog.transform.pdf.PdfThumbnailGenerator"/>
-
     <service ref="pdfTransformer" interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="pdf"/>

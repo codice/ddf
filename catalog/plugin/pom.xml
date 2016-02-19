@@ -28,6 +28,5 @@
         <module>catalog-plugin-jpeg2000-thumbnail-converter</module>
         <module>catalog-plugin-metacard-validation</module>
         <module>catalog-plugin-resource-usage</module>
-        <module>catalog-plugin-pdf</module>
     </modules>
 </project>

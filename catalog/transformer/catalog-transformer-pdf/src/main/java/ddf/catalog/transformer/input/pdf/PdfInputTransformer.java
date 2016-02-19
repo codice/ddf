@@ -33,9 +33,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transform.pdf.PdfThumbnailGenerator;
 
-public class PdfInputTransformer implements InputTransformer, PdfThumbnailGenerator {
+public class PdfInputTransformer implements InputTransformer {
 
     public static final String PDF_CONTENT_TYPE = "pdf";
 
@@ -113,7 +112,6 @@ public class PdfInputTransformer implements InputTransformer, PdfThumbnailGenera
         }
     }
 
-    @Override
     public byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
         PDDocument pdfDocument = PDDocument.load(pdfInputStream);
         if (pdfDocument.isEncrypted()) {
