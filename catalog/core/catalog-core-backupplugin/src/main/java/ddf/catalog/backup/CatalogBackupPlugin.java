@@ -60,7 +60,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private int subDirLevels;
 
-    private PeriodicDrainExecutor periodicDrain;
+    private PeriodicBatchExecutor periodicDrain;
 
     private boolean enableBackupPlugin = true;
 
@@ -71,7 +71,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private void init() {
         subDirLevels = 0;
-        setPeriodicDrain(new PeriodicDrainExecutor(1000, 60, TimeUnit.SECONDS));
+        setPeriodicDrain(new PeriodicBatchExecutor(1000, 60, TimeUnit.SECONDS));
         getPeriodicDrain().execute(this::backup);
     }
 
@@ -385,11 +385,11 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
     }
 
-    public PeriodicDrainExecutor<Metacard> getPeriodicDrain() {
+    public PeriodicBatchExecutor<Metacard> getPeriodicDrain() {
         return periodicDrain;
     }
 
-    public void setPeriodicDrain(PeriodicDrainExecutor<Metacard> periodicDrain) {
+    public void setPeriodicDrain(PeriodicBatchExecutor<Metacard> periodicDrain) {
         this.periodicDrain = periodicDrain;
         getPeriodicDrain().execute(this::backup);
     }

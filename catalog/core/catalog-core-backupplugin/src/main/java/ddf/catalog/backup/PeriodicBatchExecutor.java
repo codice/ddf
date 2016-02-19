@@ -15,11 +15,9 @@
 package ddf.catalog.backup;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,9 +26,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class PeriodicDrainExecutor<T> {
+public class PeriodicBatchExecutor<T> {
 
-    List<T> items = new CopyOnWriteArrayList<>();
+    List<T> items;
 
     private ExecutorService executor;
 
@@ -44,9 +42,9 @@ public class PeriodicDrainExecutor<T> {
 
     private TimeUnit timeUnit;
 
-    private BlockingQueue<Future<?>> futures;
+    private BlockingQueue<Future> futures;
 
-    public PeriodicDrainExecutor(int chunkSize, long period, TimeUnit timeUnit) {
+    public PeriodicBatchExecutor(int chunkSize, long period, TimeUnit timeUnit) {
         if (chunkSize < 1) {
             throw new IllegalArgumentException("Parameter chunkSize must be greater than zero");
         }
@@ -58,7 +56,8 @@ public class PeriodicDrainExecutor<T> {
         this.timeUnit = timeUnit;
         this.executor = Executors.newSingleThreadExecutor();
         this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        this.futures = new LinkedBlockingQueue();
+        this.futures = new LinkedBlockingQueue<>();
+        this.items = new ArrayList<>();
     }
 
     private synchronized void drain() {
@@ -68,7 +67,7 @@ public class PeriodicDrainExecutor<T> {
         }
     }
 
-    public synchronized void addAll(Collection<T> newItems) {
+    public synchronized void addAll(List<T> newItems) {
         items.addAll(newItems);
         if (isTankFull()) {
             drain();
@@ -101,7 +100,8 @@ public class PeriodicDrainExecutor<T> {
         shutdownScheduledExecutor();
     }
 
-    public Consumer<List<T>> getTask() {
+    private Consumer<List<T>> getTask() {
+
         return Objects.requireNonNull(task);
     }
 
@@ -113,7 +113,7 @@ public class PeriodicDrainExecutor<T> {
 
     private List<List<T>> getBatches() {
         List<List<T>> partitions = new ArrayList<>();
-        List<T> itemsCopy = new ArrayList<T>(items);
+        List<T> itemsCopy = new ArrayList<>(items);
 
         for (int index = 0; index < itemsCopy.size(); index += chunkSize) {
             int end = Math.min(itemsCopy.size(), index + chunkSize);
@@ -125,7 +125,7 @@ public class PeriodicDrainExecutor<T> {
         return partitions;
     }
 
-    public BlockingQueue getFutures() {
+    public BlockingQueue<Future> getFutures() {
         return futures;
     }
 }
