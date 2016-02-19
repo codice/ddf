@@ -13,6 +13,8 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import org.apache.pdfbox.util.ImageIOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.html.HtmlEscapers;
 import com.google.common.net.MediaType;
 
 import ddf.catalog.data.Metacard;
@@ -36,15 +39,15 @@ import ddf.catalog.transform.InputTransformer;
 
 public class PdfInputTransformer implements InputTransformer {
 
-    public static final String PDF_CONTENT_TYPE = "pdf";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfInputTransformer.class);
 
     private static final int RESOLUTION_DPI = 44;
 
-    private static final String FORMAT_NAME = "jpg";
-
     private static final float IMAGE_QUALITY = 1.0f;
+
+    private static final float IMAGE_HEIGHTWIDTH = 128;
+
+    private static final String FORMAT_NAME = "jpg";
 
     public PdfInputTransformer() {
     }
@@ -58,10 +61,21 @@ public class PdfInputTransformer implements InputTransformer {
     public Metacard transform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
         PDDocument pdfDocument = PDDocument.load(input);
+        try {
+            return transformPdf(id, pdfDocument);
+        } finally {
+            if (pdfDocument != null) {
+                pdfDocument.close();
+            }
+        }
+    }
+
+    private Metacard transformPdf(String id, PDDocument pdfDocument) throws IOException {
         MetacardImpl metacard = new MetacardImpl();
 
         metacard.setId(id);
         metacard.setMetadata("");
+        metacard.setContentTypeName(MediaType.PDF.subtype());
 
         if (pdfDocument.isEncrypted()) {
             LOGGER.debug("Cannot transform encrypted pdf");
@@ -71,7 +85,6 @@ public class PdfInputTransformer implements InputTransformer {
         extractPdfMetadata(pdfDocument.getDocumentInformation(), metacard);
 
         metacard.setThumbnail(generatePdfThumbnail(pdfDocument));
-
         return metacard;
     }
 
@@ -81,7 +94,6 @@ public class PdfInputTransformer implements InputTransformer {
      */
     private void extractPdfMetadata(PDDocumentInformation documentInformation,
             MetacardImpl metacard) {
-        metacard.setContentTypeName(MediaType.PDF.subtype());
 
         try {
             Calendar creationDate = documentInformation.getCreationDate();
@@ -108,7 +120,11 @@ public class PdfInputTransformer implements InputTransformer {
         if (StringUtils.isNotBlank(title)) {
             metacard.setTitle(title);
             // TODO (DDF-1887) - remove hardcoded setting when groomer plugin is updated
-            metacard.setMetadata("<pdf><title>" + title + "</title></pdf>");
+            String escapedTitle = HtmlEscapers.htmlEscaper()
+                    .escape(title);
+            metacard.setMetadata("<pdf><title>" + escapedTitle + "</title></pdf>");
+        } else {
+            metacard.setMetadata("<pdf><title></title></pdf>");
         }
     }
 
@@ -124,11 +140,30 @@ public class PdfInputTransformer implements InputTransformer {
         PDPage page = (PDPage) pdfDocument.getDocumentCatalog()
                 .getAllPages()
                 .get(0);
+
         BufferedImage image = page.convertToImage(BufferedImage.TYPE_INT_RGB, RESOLUTION_DPI);
+        int largestDimension = Math.max(image.getHeight(), image.getWidth());
+        float scalingFactor = IMAGE_HEIGHTWIDTH / largestDimension;
+        int scaledHeight = (int) (image.getHeight() * scalingFactor);
+        int scaledWidth = (int) (image.getWidth() * scalingFactor);
+
+        BufferedImage scaledImage = new BufferedImage(scaledWidth,
+                scaledHeight,
+                BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = scaledImage.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
+        graphics.dispose();
 
         byte[] thumbnail = null;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageIOUtil.writeImage(image, FORMAT_NAME, outputStream, RESOLUTION_DPI, IMAGE_QUALITY);
+            ImageIOUtil.writeImage(scaledImage,
+                    FORMAT_NAME,
+                    outputStream,
+                    RESOLUTION_DPI,
+                    IMAGE_QUALITY);
+
             thumbnail = outputStream.toByteArray();
         }
         return thumbnail;

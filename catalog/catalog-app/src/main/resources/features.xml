@@ -324,10 +324,7 @@
     <feature name="catalog-transformer-pdf" install="manual" version="${project.version}"
              description="DDF PDF Input Transformer">
         <feature prerequisite="true">catalog-core-api</feature>
-        <feature prerequisite="true">content-core-api</feature>
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pdf-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pdf/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-pdf/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-app" install="auto" version="${project.version}"
