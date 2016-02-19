@@ -57,7 +57,7 @@ As you add REST endpoints, you may need to add different types of authentication
 
 The {branding} Security Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
 
-===== Idp (Identity Provider) and SP (Service Provider)
+===== IdP (Identity Provider) and SP (Service Provider)
 
 IdP and SP are used for SSO authentication purposes.
 
@@ -1408,6 +1408,51 @@ Configuring a Java Keystore for Secure Communications
 Additional Pax-Web SSL configuration info: http://team.ops4j.org/wiki/display/paxweb/SSL+Configuration[SSL Configuration]
 ====
 
+==== Updating System Users
+
+By default, all system users are located in the `<DDF_INSTALL_DIR>/etc/users.properties` and `<DDF_INSTALL_DIR>/etc/users.attributes` files.
+The default users included in these two files are "admin" and "localhost".
+The `users.properties` file contains username, password, and role information; while the `users.attributes` file is used to mix in additional attributes.
+The `users.properties` file must also contain the user corresponding to the fully qualified domain name (FQDN) of the system where ${branding} is running.
+This FQDN user represents this host system internally when making decisions about what operations the system is capable of performing.
+For example, when performing a ${branding} Catalog Ingest, the system's attributes will be checked against any security attributes present on the metacard, prior to ingest, to determine whether or not the system should be allowed to ingest that metacard.
+
+Additionally, the `users.attributes` file can contain user entries in a regex format.
+This allows an administrator to mix in attributes for external systems that match a particular regex pattern.
+The FQDN user within the `users.attributes` file should be filled out with attributes sufficient to allow the system to ingest the expected data.
+The `users.attributes` file uses a JSON format as shown below:
+
+[source,json,linenums]
+----
+{
+    "admin" : {
+        "test" : "testValue",
+        "test1" : [ "testing1", "testing2", "testing3" ]
+    },
+    "localhost" : {
+
+    },
+    ".*host.*" : {
+        "reg" : "ex"
+    }
+}
+----
+
+For this example, the "admin" user will end up with two additional claims of "test" and "test1" with values of "testValue" and [ "testing1", "testing2", "testing3" ] respectively.
+Also, any host matching the regex ".*host.*" would end up with the claim "reg" with the single value of "ex".
+The "localhost" user would have no additional attributes mixed in.
+
+[WARNING]
+====
+It is possible for a regex in `users.attributes` to match users as well as a system, so verify that the regex pattern's scope will not be too great when using this feature.
+====
+
+[WARNING]
+====
+If your data will contain security markings, and these markings are being parsed out into the METACARD.security attribute via a PolicyPlugin, then the FQDN user *MUST* be updated with attributes that would grant the privileges to ingest that data.
+Failure to update the FQDN user with sufficient attributes will result in an error being returned for any ingest request.
+====
+
 ==== Encryption Service
 
 ===== Encryption Command
@@ -1424,22 +1469,42 @@ ${branding-lowercase}${at-symbol}local>security:encrypt myPasswordToEncrypt
 ${branding-lowercase}${at-symbol}local>bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
 
-==== Filtering
+==== Catalog Operation Authorization
 
-Filtering is performed in a Post Query plugin, after a query has been performed.
+All ${branding} Catalog operations can be restricted to users with certain attributes.
+
+===== Configuring Operation Authorization
+
+. Open the Admin Console at \https://localhost:8993/admin
+. Click the ${ddf-branding} Catalog application tile
+. Click the *Configuration* tab
+. Click on the *Catalog Policy Plugin* configuration.
+. Add any required attributes for each operation type
+
+Only users with the attributes listed on the *Catalog Policy Plugin* configuration will be allowed to access those operations.
+By default, all operations only require a role of "guest" which every user has mixed into their attributes by way of the *Guest Claims Handler*.
+If the default Guest user role is changed to something other than "guest" this configuration will need to be updated to allow users to continue using ${branding} Catalog operations.
+
+==== Catalog Filtering
+
+Filtering is performed in an Access plugin, after a query or delete has been performed or before ingest has been performed.
 
 ===== How Filtering Works
 
-Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a `PolicyPlugin` that populates this attribute.
-The security attribute is a HashMap containing a set of keys that map to lists of values.
+Each metacard result can contain security attributes that are pulled from the metadata record after being processed by a `PolicyPlugin` that populates this attribute.
+The security attribute is a Map containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
 The decision to filter the metacard eventually relies on the installed PDP (`features:install security-pdp-authz`).
 The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
 
+How a metacard gets filtered is left up to any number of FilterStrategy implementations that might be installed.
+Each FilterStrategy will return a result to the filter plugin that says whether or not it was able to process the metacard, along with the metacard or response itself.
+This allows a metacard or entire response to be partially filtered to allow some data to pass back to the requester.
+This could also include filtering any products sent back to a requester.
+
 The security attributes populated on the metacard are completely dependent on the type of the metacard.
 Each type of metacard must have its own `PolicyPlugin` that reads the metadata being returned and then returns the appropriate attributes.
-If the subject or resource (metacard) permissions are missing during filtering, that resource is filtered.
 
 .Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]
@@ -1499,7 +1564,7 @@ Note that this particular configuration would not require any XACML rules to be 
 All of the attributes can be matched internally and there is no reason to call out to the external XACML processing engine.
 For more complex decisions, it might be necessary to write a XACML policy to handle certain attributes.
 
-To set up a XACML policy, place the desired XACML policy in the `<distribution root>/etc/pdp/policies` directory.
+To set up a XACML policy, place the desired XACML policy in the `<distribution root>/etc/pdp/policies` directory and update the included `access-policy.xml` to include the new policy.
 This is the directory in which the PDP will look for XACML policies every 60 seconds.
 A sample XACML policy is located at the end of this page.
 Information on specific bundle configurations and names can be found on the Security PDP application page.
@@ -1621,114 +1686,6 @@ For a query, the user must be associated with the country code ATA (Antarctica),
     </Rule>
     <Rule Effect="Deny" RuleId="deny-read"/>
 </Policy>
-----
-
-====== Service Authorization
-
-====== Allowed Query
-
-.Request
-[source,xml,linenums]
-----
-<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
-        </Attribute>
-    </Attributes>
-</Request>
-----
-
-.Response
-[source,xml,linenums]
-----
-<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <Result>
-        <Decision>Permit</Decision>
-        <Status>
-            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-        </Status>
-    </Result>
-</Response>
-----
-
-====== Denied Query
-
-.Request
-[source,xml,linenums]
-----
-<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
-    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
-        </Attribute>
-    </Attributes>
-    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
-        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User USA</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
-        </Attribute>
-        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
-        </Attribute>
-    </Attributes>
-</Request>
-----
-
-.Response
-[source,xml,linenums]
-----
-<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
-    <Result>
-        <Decision>Deny</Decision>
-        <Status>
-            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
-        </Status>
-    </Result>
-</Response>
 ----
 
 ====== Metacard Authorization
@@ -1860,18 +1817,8 @@ The resource had an additional `RESOURCE_ACCESS` attribute 'C' that the subject 
 
 ==== Expansion Service
 
-The expansion service defines rulesets to map metacard attributes to user attributes to authorize or not authorize users to access the resources represented.
-
-===== Expansion Configuration
-
-===== Installing Expansion Service
-
-The expansion service feature is NOT installed by default.
-To enable:
-
-* Select *${ddf-branding} Security*
-* Select *Features* tab
-* Enable `security-expansion` feature
+The expansion service defines rulesets to map metacard attributes and user attributes to more complete sets of values.
+For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
 ===== Configuring Expansion Service
 // NOTE: This will change with completion of this task DDF-1829
@@ -2031,19 +1978,13 @@ Therefore, it is important to keep track of the DNS hostnames used on each serve
 
 ===== LDAP
 
-LDAP is used to maintain a list of trusted ${branding} users and the attributes associated with them.
-The STS can use LDAP as a user store and queries LDAP for user attributes and converts them to SAML claims.
+An LDAP server can be used to maintain a list of ${branding} users and the attributes associated with them.
+The STS can use an LDAP server as an attribute store and convert those attributes to SAML claims.
 
 . Start the ${branding} distribution.
 . Run the installer at https://localhost:8993/admin (default username/password is `admin`/`admin`)
 . After the installer completes, Click the *Manage* button in the upper right hand corner of the {admin-console}
 . Click the *Play* button on the *Opendj Embedded* tile to install the application.
-
-[WARNING]
-====
-It is very important that the keystore file used in the process is set up to trust the hostnames used by CAS and STS.
-If it is not, there will be certificate authentication issues for the user.
-====
 
 ===== STS
 
