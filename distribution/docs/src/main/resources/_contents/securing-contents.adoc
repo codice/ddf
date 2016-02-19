@@ -1,0 +1,2446 @@
+
+[IMPORTANT]
+====
+${branding} is enabled with an Insecure Defaults Service which will warn users/admins if the system is configured with insecure defaults.
+
+A banner is displayed on the admin console notifying "The system is insecure because default configuration values are in use."
+
+A detailed view is available of the properties to update.
+====
+
+==== Web Context Policy Manager
+
+The Web Context Policy Manager defines all security policies for REST endpoints within ${branding}.
+It defines :
+
+* the realms a context should authenticate against.
+* the type of authentication that a context requires.
+* any user attributes required for authorization.
+
+===== Configuring Web Context Policy Manager
+
+The karaf realm is the only realm available by default and it authenticates against the `user.properties` file.
+As JAAS authentication realms are added to the STS, more realms become available to authenticate against.
+
+For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
+Contexts can then be pointed to the ldap realm for authentication and STS will be instructed to authenticate them against ldap.
+As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
+
+.Default Types of Authentication
+[cols="1,4" options="header"]
+|===
+
+|Authentication Type
+|Description
+
+|`saml`
+|Activates single-sign on (SSO) across all REST endpoints that use.
+
+|`basic`
+|Activates basic authentication.
+
+|`PKI`
+|Activates public key infrastructure authentication
+
+|`IdP`
+|
+
+|`CAS`
+|
+
+|`guest`
+|provides guest access
+
+|===
+
+==== IdP/SP
+
+The {branding} Security Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
+
+===== Idp (Identity Provider) and SP (Service Provider)
+
+IdP and SP are used for SSO authentication purposes.
+
+===== Installing the IdP
+
+The IdP bundles are not installed by default.
+They can be started by installing the `security-idp` feature.
+
+. Install the `security-idp` feature either by command line: `features:install security-idp`, or by the {admin-console}: *${ddf-branding} Security* -> *Features* -> `security-idp`
+
+===== Security IdP Service Provider (SP)
+
+The IdP client that interacts with the specified Identity Provider.
+
+===== IdP SSO Configuration
+
+===== Configuring
+
+. Navigate to Admin Console -> {branding} Security -> Configuration -> IdP Client
+. Populate IdP Metadata field through one of the following:
+.. An HTTPS URL (https://)
+.. A file URL (file:)
+.. An XML block to refer to desired metadata
+... (e.g., \https://localhost:8993/services/idp/login/metadata)
+
+.IdP Client (SP) example.xml
+[source,xml,linenums]
+----
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://localhost:8993/services/idp/login">
+  <md:IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:KeyDescriptor use="signing">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>
+            MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=
+          </ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </md:KeyDescriptor>
+    <md:KeyDescriptor use="encryption">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>
+            MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=
+          </ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </md:KeyDescriptor>
+    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/logout"/>
+    <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/logout"/>
+    <md:NameIDFormat>
+      urn:oasis:names:tc:SAML:2.0:nameid-format:persistent
+    </md:NameIDFormat>
+    <md:NameIDFormat>
+      urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified
+    </md:NameIDFormat>
+    <md:NameIDFormat>
+      urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName
+    </md:NameIDFormat>
+    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/services/idp/login"/>
+    <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/services/idp/login"/>
+  </md:IDPSSODescriptor>
+</md:EntityDescriptor>
+----
+
+==== Security IdP Server
+
+An internal Identity Provider solution.
+
+===== Configuring IdP Server
+
+. Navigate to Admin Console -> {branding} Security -> Configuration -> IdP Server
+. Click the + next to SP Metadata to add a new entry
+. Populate the new entry:
+.. with an HTTPS URL (https://),
+.. file URL (file:), or
+.. XML block to refer to desired metadata, e.g. (https://localhost:8993/services/saml/sso/metadata)
+
+.IdP Server example.xml
+[source,xml,linenums]
+----
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://localhost:8993/services/saml">
+  <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+  <md:KeyDescriptor use="signing">
+    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+      <ds:X509Data>
+        <ds:X509Certificate>
+          MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=
+        </ds:X509Certificate>
+      </ds:X509Data>
+    </ds:KeyInfo>
+  </md:KeyDescriptor>
+  <md:KeyDescriptor use="encryption">
+    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+      <ds:X509Data>
+        <ds:X509Certificate>
+        MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=
+        </ds:X509Certificate>
+      </ds:X509Data>
+    </ds:KeyInfo>
+  </md:KeyDescriptor>
+  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/logout"/>
+  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/logout"/>
+  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8993/services/saml/sso"/>
+  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8993/services/saml/sso"/>
+  </md:SPSSODescriptor>
+</md:EntityDescriptor>
+----
+
+===== Related Configuration
+
+. Navigate to Admin Console -> {branding} Security -> Configuration -> Web Context Policy Manager
+. Under Authentication Types, set the IDP authentication type as necessary.
+Note that it should _only_ be used on context paths that will be accessed by users via web browsers.
+For example:
+- `/search=SAML|IDP`
+
+[NOTE]
+====
+If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in Search UI standard settings.
+====
+
+===== Limitations
+
+The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
+
+
+
+
+===== CAS Authentication
+
+[NOTE]
+====
+CAS Authentication Logging was obtained using a CAS war file deployed to a Tomcat application server.
+Tomcat allows configuration of the log file, but, by default, the logs below were stored in the `$TOMCAT_HOME/logs/catalina.out` file.
+====
+
+====== Username and Password
+
+.Sample – Successful login
+[source,bash]
+----
+2013-04-24 10:39:45,265 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <org.jasig.cas.adaptors.ldap.FastBindLdapAuthenticationHandler successfully authenticated [username: testuser1]>
+2013-04-24 10:39:45,265 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <Resolved principal testuser1>
+2013-04-24 10:39:45,265 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <org.jasig.cas.adaptors.ldap.FastBindLdapAuthenticationHandler${at-symbol}6a4d37e5 authenticated testuser1 with credential [username: testuser1].>
+2013-04-24 10:39:45,265 INFO [com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager] - <Audit trail record BEGIN
+=============================================================
+WHO: [username: testuser1]
+WHAT: supplied credentials: [username: testuser1]
+ACTION: AUTHENTICATION_SUCCESS
+APPLICATION: CAS
+WHEN: Wed Apr 24 10:39:45 MST 2013
+CLIENT IP ADDRESS: 127.0.0.1
+SERVER IP ADDRESS: 127.0.0.1
+=============================================================
+>
+----
+
+.Sample – Failed login
+[source,bash]
+----
+2013-04-24 10:39:17,443 INFO [org.jasig.cas.adaptors.ldap.FastBindLdapAuthenticationHandler] - <Failed to authenticate user testuser1 with error [LDAP: error code 49 - Invalid Credentials]; nested exception is javax.naming.AuthenticationException: [LDAP: error code 49 - Invalid Credentials]>
+2013-04-24 10:39:17,443 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <org.jasig.cas.adaptors.ldap.FastBindLdapAuthenticationHandler failed authenticating [username: testuser1]>
+2013-04-24 10:39:17,443 INFO [com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager] - <Audit trail record BEGIN
+=============================================================
+WHO: [username: testuser1]
+WHAT: supplied credentials: [username: testuser1]
+ACTION: AUTHENTICATION_FAILED
+APPLICATION: CAS
+WHEN: Wed Apr 24 10:39:17 MST 2013
+CLIENT IP ADDRESS: 127.0.0.1
+SERVER IP ADDRESS: 127.0.0.1
+=============================================================
+>
+----
+
+====== PKI Certificate
+
+[NOTE]
+====
+Current testing was performed using the OZone certificates that came with a `testAdmin` and `testUser`, which were signed by a common CA.
+====
+
+.Sample – Successful login
+[source,bash]
+----
+2013-04-24 15:13:14,388 INFO [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <Successfully authenticated CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4>
+2013-04-24 15:13:14,390 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler successfully authenticated CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4>
+2013-04-24 15:13:14,391 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <Resolved principal CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US>
+2013-04-24 15:13:14,391 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler${at-symbol}1e5b04ae authenticated CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US with credential CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4.>
+2013-04-24 15:13:14,394 INFO [com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager] - <Audit trail record BEGIN
+=============================================================
+WHO: CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4
+WHAT: supplied credentials: CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4
+ACTION: AUTHENTICATION_SUCCESS
+APPLICATION: CAS
+WHEN: Wed Apr 24 15:13:14 MST 2013
+CLIENT IP ADDRESS: 127.0.0.1
+SERVER IP ADDRESS: 127.0.0.1
+=============================================================
+>
+----
+
+.Sample – Failed login
+[source,bash]
+----
+The failure was simulated using a filter on the x509 credential handler. This filter looks for a certain CN in the certificate chain and will fail if it cannot find a match. The server was set up to trust the certificate via the Java truststore, but there were additional requirements for logging in. For this test-case, the chain it was looking for is "CN=Hogwarts Certifying Authority.+". Example from the CAS wiki: https://wiki.jasig.org/display/CASUM/X.509+Certificates.
+2013-04-25 14:15:47,477 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <Evaluating CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US, SerialNumber=4>
+2013-04-25 14:15:47,478 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <.* matches CN=testUser1, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US == true>
+2013-04-25 14:15:47,478 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <CN=Hogwarts Certifying Authority.+ matches EMAILADDRESS=goss-support${at-symbol}owfgoss.org, CN=localhost, OU=Ozone, O=Ozone, L=Columbia, ST=Maryland, C=US == false>
+2013-04-25 14:15:47,478 DEBUG [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <Found valid client certificate>
+2013-04-25 14:15:47,478 INFO [org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler] - <Failed to authenticate org.jasig.cas.adaptors.x509.authentication.principal.X509CertificateCredentials${at-symbol}1795f1cc>
+2013-04-25 14:15:47,478 INFO [org.jasig.cas.authentication.AuthenticationManagerImpl] - <org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler failed to authenticate org.jasig.cas.adaptors.x509.authentication.principal.X509CertificateCredentials${at-symbol}1795f1cc>
+2013-04-25 14:15:47,478 INFO [com.github.inspektr.audit.support.Slf4jLoggingAuditTrailManager] - <Audit trail record BEGIN
+=============================================================
+WHO: org.jasig.cas.adaptors.x509.authentication.principal.X509CertificateCredentials${at-symbol}1795f1cc
+WHAT: supplied credentials: org.jasig.cas.adaptors.x509.authentication.principal.X509CertificateCredentials${at-symbol}1795f1cc
+ACTION: AUTHENTICATION_FAILED
+APPLICATION: CAS
+WHEN: Thu Apr 25 14:15:47 MST 2013
+CLIENT IP ADDRESS: 127.0.0.1
+SERVER IP ADDRESS: 127.0.0.1
+=============================================================
+>
+----
+
+
+===== STS Authentication
+
+====== Username and Password
+
+.Sample – Successful login
+[source,bash]
+----
+[INFO ] 2014-07-17 14:40:23,340 | qtp1401560510-76 | securityLogger  |  Username [pparker] successfully logged in using LDAP authentication. Request IP: 127.0.0.1, Port: 52365
+[INFO ] 2014-07-17 14:40:24,074 | qtp1401560510-76 | securityLogger  |  Security Token Service REQUEST
+STATUS: SUCCESS
+OPERATION: Issue
+URL: https://server:8993/services/SecurityTokenService
+WS_SEC_PRINCIPAL: 1.2.840.113549.1.9.1=#160d69346365406c6d636f2e636f6d,CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US
+ONBEHALFOF_PRINCIPAL: pparker
+TOKENTYPE: http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+CLAIMS_SECONDARY: [http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname]
+ Request IP: 127.0.0.1, Port: 52365
+----
+
+.Sample – Failed login
+[source,bash]
+----
+[WARN ] 2014-07-17 14:42:43,627 | qtp1401560510-75 | securityLogger  |  Username [pparker] failed LDAP authentication. Request IP: 127.0.0.1, Port: 52386
+[WARN ] 2014-07-17 14:42:43,632 | qtp1401560510-75 | securityLogger  |  Security Token Service REQUEST
+STATUS: FAILURE
+OPERATION: Issue
+URL: https://server:8993/services/SecurityTokenService
+WS_SEC_PRINCIPAL: 1.2.840.113549.1.9.1=#160d69346365406c6d636f2e636f6d,CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US
+ONBEHALFOF_PRINCIPAL: pparker
+TOKENTYPE: http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+CLAIMS_SECONDARY: [http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname]
+EXCEPTION: org.apache.cxf.ws.security.sts.provider.STSException: The specified request failed
+ Request IP: 127.0.0.1, Port: 52386
+----
+
+====== PKI Certificate
+
+.Sample – Successful login
+[source,bash]
+----
+[INFO ] 2014-07-17 15:03:39,379 | qtp1401560510-74 | securityLogger  |  Security Token Service REQUEST
+STATUS: SUCCESS
+OPERATION: Issue
+URL: https://localhost:8993/services/SecurityTokenService
+WS_SEC_PRINCIPAL: 1.2.840.113549.1.9.1=#160d69346365406c6d636f2e636f6d,CN=client,OU=I4CE,O=Lockheed Martin,L=Goodyear,ST=Arizona,C=US
+TOKENTYPE: http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+CLAIMS_SECONDARY: [http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname, http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname]
+ Request IP: 127.0.0.1, Port: 52573
+----
+
+.Sample – Failed login
+[source,bash]
+----
+[WARN ] 2014-07-17 15:05:46,061 | qtp1401560510-75 | securityLogger  |  Security Token Service REQUEST
+STATUS: FAILURE
+OPERATION: Issue
+URL: N.A.
+TOKENTYPE: N.A.
+APPLIESTO: <null>
+EXCEPTION: org.apache.cxf.ws.security.sts.provider.STSException: The request was invalid or malformed
+ Request IP: 127.0.0.1, Port: 52582
+----
+
+====== Binary Security Token (CAS)
+
+.Sample – Successful Login
+[source,bash]
+----
+15:27:48,098 | INFO  | tp1343209378-282 | securityLogger                   | rity.common.audit.SecurityLogger  156 | 247 - security-core-api - 2.2.0.RC6-SNAPSHOT | Telling the STS to request a security token on behalf of the binary security token:
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<BinarySecurityToken ValueType="#CAS" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ns1:Id="CAS" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">U1QtMTctQmw0aGRrS05jaTV3cE82Zm11VE0tY2FzfGh0dHBzOi8vdG9rZW5pc3N1ZXI6ODk5My9zZXJ2aWNlcy9TZWN1cml0eVRva2VuU2VydmljZQ==</BinarySecurityToken>
+ Request IP: 0:0:0:0:0:0:0:1%0, Port: 53363
+15:27:48,351 | INFO  | tp1343209378-282 | securityLogger                   | rity.common.audit.SecurityLogger  156 | 247 - security-core-api - 2.2.0.RC6-SNAPSHOT | Finished requesting security token. Request IP: 127.0.0.1, Port: 53363
+
+**This message will show when DEBUG is on**
+15:27:48,355 | DEBUG | tp1343209378-282 | securityLogger                   | rity.common.audit.SecurityLogger  102 | 247 - security-core-api - 2.2.0.RC6-SNAPSHOT | <?xml version="1.0" encoding="UTF-16"?>
+<saml2:Assertion>
+SAML ASSERTION WILL BE LOCATED HERE
+----
+
+.Sample – Failed Login
+[source,bash]
+----
+10:54:21,772 | INFO  | qtp995500086-618 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Telling the STS to request a security token on behalf of the binary security token:
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<BinarySecurityToken ValueType="#CAS" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ns1:Id="CAS" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">U1QtMjctOU43RUlkNHkzVFoxQmZCb0RIdkItY2Fz</BinarySecurityToken>
+10:54:22,119 | INFO  | qtp995500086-141 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Validating ticket [ST-27-9N7EId4y3TZ1BfBoDHvB-cas] for service [https://server:8993/services/SecurityTokenService]. Request IP: 127.0.0.1, Port: 64548
+10:54:22,169 | INFO  | qtp995500086-141 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Unable to validate CAS token. Request IP: 127.0.0.1, Port: 64548
+10:54:22,244 | INFO  | qtp995500086-618 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Error requesting the security token from STS at: https://server:8993/services/SecurityTokenService.
+----
+
+
+
+
+==== CAS SSO Configuration
+
+The Web Service Security (WSS) Implementation that comes with ${ddf-branding} was built to run independent of an SSO or authentication mechanism.
+Testing out the security functionality of ${branding} was performed by using the Central Authentication Server (CAS) software.
+This is a popular SSO appliance and allowed ${branding} to be tested using realistic use cases.
+This page contains configurations and settings that were used to help enable CAS to work within the ${branding} environment.
+
+===== General Server Setup and Configuration
+
+[NOTE]
+====
+The following procedure defines the steps for installing CAS to a Tomcat 7.x server running in Linux and Windows.
+Newer versions of tomcat (8.x) are incompatible with the included `server.xml` file and will need additional changes.
+====
+
+====== Install using ${ddf-branding} CAS WAR
+
+${ddf-branding} comes with a custom distribution of the CAS Web application that comes with LDAP and X.509 support configured and built-in.
+Using this configuration may save time and make setup easier.
+
+[NOTE]
+====
+The CAS Web Application can be downloaded from Nexus.
+To find the latest version, execute a search for "cas-distribution".
+Link to the first release: http://artifacts.codice.org/content/repositories/releases/org/codice/cas/distribution/cas-distribution/1.0.0/cas-distribution-1.0.0.war
+====
+
+. Download and unzip http://tomcat.apache.org/download-70.cgi[Tomcat Distribution]. The installation location is referred to as `<TOMCAT_INSTALLATION_DIR>`.
++
+----
+$ unzip apache-tomcat-7.0.39.zip
+----
++
+. Clone https://github.com/codice/cas-distribution to a convenient location.  This folder will be referred to as `cas-distribution`.
+. Set up Keystores and enable SSL. There are sample configurations located within the `security-cas-server-webapp` project.
+.. Copy setenv (`cas-distribution/src/main/resources/tomcat`) to `TOMCAT/bin`
++
+.Linux
+----
+$ cp cas-distribution/src/main/resources/tomcat/setenv.sh <TOMCAT_INSTALLATION_DIR>/bin/
+----
++
+.Windows
+----
+copy cas-distribution\src\main\resources\tomcat\setenv.bat <TOMCAT_INSTALLATION_DIR>\bin\
+----
++
+.. Copy server.xml (`cas-distribution/src/main/resources/tomcat/conf`) to `<TOMCAT_INSTALLATION_DIR>/conf`
++
+.Linux
+----
+$ cp cas-distribution/src/main/resources/tomcat/conf/server.xml <TOMCAT_INSTALLATION_DIR>/conf/
+----
++
+.Windows
+----
+$ cp cas-distribution/src/main/resources/tomcat/conf/server.xml <TOMCAT_INSTALLATION_DIR>/conf/
+----
++
+.. The above files point to `<TOMCAT_INSTALLATION_DIR>/certs/keystore.jks` as the default keystore location to use. This file does not come with Tomcat and needs to be created or the files copied above (setenv.sh and server.xml) need to be modified to point to the correct keystore.
++
+----
+mkdir <TOMCAT_INSTALLATION_DIR>/certs
+----
++
+Copy `casKeystore.jks` from the ${branding} installation directory into <TOMCAT_INSTALLATION_DIR>/certs/.  This will allow CAS to use a "cas" private key and to trust anything signed by "server", "ca", or "ca-root".
+Linux  Expand source
+Windows  Expand source
++
+. Start Tomcat.
++
+----
+$ cd <TOMCAT_INSTALLATION_DIR>/bin/
+$ ./startup.sh
+----
++
+[WARNING]
+====
+Make sure to run `startup.bat` instead of `startup.sh` if Windows is running on a Window machine.
+If `setenv.sh` was not converted to a `.bat` above, `startup.bat` will not function correctly.
+====
++
+If the Tomcat log has can exception like the following, or if you cannot access cas via port 8443 after completing the steps below:
++
+----
+SEVERE: Failed to initialize end point associated with ProtocolHandler ["http-apr-8443"]
+java.lang.Exception: Connector attribute SSLCertificateFile must be defined when using SSL with APR
+----
++
+uncomment the following in server.xml:
++
+[source,xml,linenums]
+----
+<Listener className="org.apache.catalina.security.SecurityListener" />
+----
++
+then comment out:
++
+[source,xml,linenums]
+----
+<Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+----
++
+. Deploy the ${ddf-branding} CAS WAR to Tomcat.
++
+.. Obtain the CAS WAR by building it from cas-distribution.
+.. Copy it into the webapps folder on Tomcat:
++
+----
+$ cp cas-distribution/target/cas.war <TOMCAT_INSTALLATION_DIR>/webapps/
+----
+
+CAS should now be running on the Tomcat server.
+To verify it started without issues, check the Tomcat log and look for lines similar to the following:
+
+----
+Apr 25, 2013 10:55:39 AM org.apache.catalina.startup.HostConfig deployWAR
+INFO: Deploying web application archive /apache-tomcat-7.0.39/webapps/cas.war
+2013-04-25 10:55:42,831 INFO [org.jasig.cas.services.DefaultServicesManagerImpl] - <Loaded 1 services.>
+2013-04-25 10:55:43,540 INFO [org.jasig.cas.util.AutowiringSchedulerFactoryBean] - <Starting Quartz Scheduler now>
+----
+CAS will try to authenticate first with X.509 (using the keystore provided as the truststore) and failover to LDAP username/password.
+The ${branding} distribution of CAS is configured to use the embedded ${branding} instance running on localhost. Configuring the LDAP location may be performed by modifying the bottom of the `cas.properties` file located in `TOMCAT/webapps/cas/WEB-INF/` after the web application is deployed.
+
+====== Configure an Existing CAS Installation
+
+If upgrading an existing CAS installation or using the standard CAS web application, refer to the Configure CAS for LDAP page or the Configure CAS for X509 User Certificates page for directions on specific configurations that need to be performed.
+
+[WARNING]
+====
+As part of setting up the server, it is critical to make sure that Tomcat trusts the ${branding} server certificate and that ${branding} trusts the certificate from Tomcat.
+If this is not done correctly, CAS and/or ${branding} will throw certificate warnings in their logs and will not allow access.
+====
+
+===== Configure CAS for ${branding}
+When configuring CAS to integrate with ${branding}, there are two main configurations that need to be modified.
+By default, ${branding} uses 'server' as the hostname for the local ${branding} instance and 'cas' as the hostname for the CAS server.
+
+====== CAS Client
+
+The CAS client bundle contains CAS client code that can be used by other bundles when validating and retrieving tickets from CAS.
+This bundle is extensively used when performing authentication.
+
+When setting up ${branding}, the 'Server Name' and 'Proxy Callback URL' must be set to the hostname of the local ${branding} instance.
+
+The 'CAS Server URL' configuration should point to the hostname of the CAS server and should match the SSL certificate that it is using.
+
+====== CAS Token Validator
+
+The 'CAS Server URL' configuration should point to the hostname of the CAS server and should match the SSL certificate that it is using.
+
+====== Additional Configuration
+
+Information on each of the CAS-specific bundles that come with ${branding}, as well as their configurations, can be found on the Security CAS application page.
+
+===== Example Workflow
+
+The following is a sample workflow hat shows how CAS integrates within the ${ddf-branding} WSS Implementation.
+
+. User points browser to ${branding} Query Page.
+. CAS servlet filters are invoked during request.
+. Assuming a user is not already signed in, the user is redirected to CAS login page.
+.. For X.509 authentication, CAS will try to obtain a certificate from the browser. Most browsers will prompt the user to select a valid certificate to use.
+.. For username/password authentication, CAS will display a login page.
+. After successful sign-in, the user is redirected back to ${branding} Query page.
+. ${branding} Query Page obtains the Service Ticket sent from CAS, gets a Proxy Granting Ticket (PGT), and uses that to create a Proxy Ticket for the STS.
+. The user fills in search phrase and selects *Search*.
+. The Security API uses the incoming CAS proxy ticket to create a RequestSecurityToken call to the STS.
+. The STS validates the proxy ticket to CAS and creates SAML assertion.
+. The Security API returns a Subject class that contains the SAML assertion.
+. The Query Page creates a new QueryRequest and adds the Subject into the properties map.
+
+From step 10 forward, the message is completely decoupled from CAS and will proceed through the framework properly using the SAML assertion that was created in step 8.
+
+==== Configuring CAS for LDAP
+
+===== Install and Configure LDAP
+
+${ddf-branding} comes with an embedded LDAP instance that can be used for testing.
+During internal testing this LDAP was used extensively.
+
+More information on configuring the LDAP and a list of users and attributes can be found at the Embedded LDAP Configuration page.
+
+===== Add cas-server-support-ldap-3.3.1_1.jar to CAS
+
+Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
+
+===== Add spring-ldap-1.2.1_1.jar to CAS
+
+Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
+
+===== Modify developerConfigContext.xml
+
+. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
++
+.deployerConfigContext.xml
+[source,xml,linenums]
+----
+<bean id="authenticationManager" class="org.jasig.cas.authentication.AuthenticationManagerImpl">
+
+    <!-- other property definitions -->
+
+    <property name="authenticationHandlers">
+        <list>
+            <bean class="org.jasig.cas.adaptors.ldap.FastBindLdapAuthenticationHandler" >
+                <property name="filter" value="uid=%u,ou=users,dc=example,dc=com" />
+                <property name="contextSource" ref="contextSource" />
+            </bean>
+
+            <!-- other bean definitions -->
+
+        </list>
+    </property>
+</bean>
+----
++
+. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
+. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
++
+.deployerConfigContext.xml
+[source,xml,linenums]
+----
+<bean id="contextSource" class="org.jasig.cas.adaptors.ldap.util.AuthenticatedLdapContextSource">
+    <property name="urls">
+        <list>
+            <value>ldap://localhost:1389</value>
+        </list>
+    </property>
+    <property name="userDn" value="uid=admin,ou=system"/>
+    <property name="password" value="secret"/>
+</bean>
+----
+
+===== Configure Ozone
+
+Ozone is also set up to work in LDAP.
+This section is a reference when Ozone is being used in conjunction with CAS.
+The following settings were used for internal testing and should only be used as a reference.
+
+. Modify OWFsecurityContext.xml
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
++
+.OWFsecurityContext.xml
+[source]
+----
+<sec:x509 subject-principal-regex="CN=(.*?)," user-service-ref="ldapUserService" />
+----
++
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, remove the following import:
++
+.OWFsecurityContext.xml
+[source]
+----
+<import resource="ozone-security-beans/UserServiceBeans.xml" />
+----
++
+.. In `{ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml`, add the following import:
++
+.OWFsecurityContext.xml
+[source]
+----
+<import resource="ozone-security-beans/LdapBeans.xml" />
+----
++
+. Modify LdapBeans.xml
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
++
+.LdapBeans.xml
+[source,xml,linenums]
+----
+<bean id="contextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+    <!-- The URL of the ldap server, along with the base path that all other ldap path will be relative to -->
+    <constructor-arg value="ldap://localhost:1389/dc=example,dc=com"/>
+</bean>
+----
++
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `authoritiesPopulator` to the following:
++
+.LdapBeans.xml
+[source,xml,linenums]
+----
+<bean id="authoritiesPopulator" class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+    <constructor-arg ref="contextSource"/>
+    <!-- search base for determining what roles a user has -->
+    <constructor-arg value="ou=roles"/>
+</bean>
+----
++
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `ldapUserSearch` to the following:
++
+.LdapBeans.xml
+[source,xml,linenums]
+----
+<bean id="ldapUserSearch" class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+    <!-- search base for finding User records -->
+    <constructor-arg value="ou=users" />
+    <constructor-arg value="(uid={0})" /> <!-- filter applied to entities under the search base in order to find a given user.
+                                                this default searches for an entity with a matching uid -->
+    <constructor-arg ref="contextSource" />
+</bean>
+----
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `userDetailsMapper` to the following:
++
+.LdapBeans.xml
+[source,xml,linenums]
+----
+<bean id="userDetailsMapper" class="ozone.securitysample.authentication.ldap.OWFUserDetailsContextMapper">
+    <constructor-arg ref="contextSource" />
+    <!-- search base for finding OWF group membership -->
+    <constructor-arg value="ou=groups" />
+    <constructor-arg value="(member={0})" /> <!-- filter that matches only groups that have the given username listed
+                                                      as a "member" attribute -->
+</bean>
+----
++
+. Modify OWFCASBeans.xml
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/OWFCasBeans.xml, change the bean stanza with id `casAuthenticationProvider` to the following:
++
+.OWFCasBeans.xml
+[source,xml,linenums]
+----
+<bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+    <property name="userDetailsService" ref="ldapUserService" />
+    <property name="serviceProperties" ref="serviceProperties" />
+    <property name="ticketValidator" ref="ticketValidator" />
+    <property name="key" value="an_id_for_this_auth_provider_only" />
+</bean>
+----
+
+==== Configuring CAS for X509 User Certificates
+
+The follow settings were tested with CAS version 3.3.1.
+If any issues occur while configuring for newer versions, check the External Links section at the bottom of this page for the CAS documentation, which explains setting up certification authentication.
+
+===== Add the `cas-server-support-x509-3.3.1.jar` to CAS
+
+Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
+
+===== Configure Web Flow
+
+. In apache-tomcat-{version}/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
+.. Remove the XML comments around the action-state stanza with id `startAuthenticate`.
++
+.startAuthenticate
+[source,xml,linenums]
+----
+<action-state id="startAuthenticate">
+  <action bean="x509Check" />
+  <transition on="success" to="sendTicketGrantingTicket" />
+  <transition on="error" to="viewLoginForm" />
+</action-state>
+----
++
+.. Modify the decision-state stanza with id `renewRequestCheck` as follows.
++
+.renewRequestCheck
+[source,xml,linenums]
+----
+<decision-state id="renewRequestCheck">
+  <if test="{externalContext.requestParameterMap['renew'] != '' &amp;&amp; externalContext.requestParameterMap['renew'] != null}" then="startAuthenticate" else="generateServiceTicket" />
+</decision-state>
+----
++
+.. Modify the decision-state stanza with id `gatewayRequestCheck` as follows.
++
+.gatewayRequestCheck
+[source,xml,linenums]
+----
+<decision-state id="gatewayRequestCheck">
+  <if test="{externalContext.requestParameterMap['gateway'] != '' &amp;&amp; externalContext.requestParameterMap['gateway'] != null &amp;&amp; flowScope.service != null}" then="redirect" else="startAuthenticate" />
+</decision-state>
+----
++
+. In `apache-tomcat-{version}/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
+.. Define the x509Check bean.
++
+.x509Check
+[source,xml,linenums]
+----
+<bean
+   id="x509Check"
+   p:centralAuthenticationService-ref="centralAuthenticationService"
+   class="org.jasig.cas.adaptors.x509.web.flow.X509CertificateCredentialsNonInteractiveAction" >
+   <property name="centralAuthenticationService" ref="centralAuthenticationService"/>
+</bean>
+----
+
+===== Configure the Authentication Handler
+
+In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+
+. In the *`list`* stanza of the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`, add the `X509CredentialAuthenticationHander` bean definition.
++
+.X509CredentialAuthenticationHander
+[source,xml,linenums]
+----
+<bean id="authenticationManager"
+  class="org.jasig.cas.authentication.AuthenticationManagerImpl">
+
+  <!-- Other property definitions -->
+
+   <property name="authenticationHandlers">
+     <list>
+
+       <!-- Other bean definitions -->
+
+       <bean
+         class="org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler">
+         <property name="trustedIssuerDnPattern" value=".*" />
+         <!--
+           <property name="maxPathLength" value="3" />
+           <property name="checkKeyUsage" value="true" />
+           <property name="requireKeyUsage" value="true" />
+         -->
+       </bean>
+    </list>
+  </property>
+</bean>
+----
+
+===== Configure the Credentials to the Principal Resolver
+
+In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+
+. In the list stanza of the property stanza with name `credentialsToPrincipalResolver` of the bean stanza with id `AuthenticationManager`, add the `X509CertificateCredentialsToIdentifierPrincipalResolver` bean definition.  The pattern in the value attribute on the property stanza can be modified to suit your needs.  The following is a simple example that uses the first CN field in the DN as the Principal.
++
+.X509CertificateCredentialsToIdentifierPrincipalResolver
+[source,xml,linenums]
+----
+<bean id="authenticationManager"
+  class="org.jasig.cas.authentication.AuthenticationManagerImpl">
+  <property name="credentialsToPrincipalResolvers">
+    <list>
+
+      <!-- Other bean definitions -->
+
+      <bean
+        class="org.jasig.cas.adaptors.x509.authentication.principal.X509CertificateCredentialsToIdentifierPrincipalResolver">
+        <property name="identifier" value="$OU $CN" />
+      </bean>
+    </list>
+  </property>
+  <!-- Other property definitions -->
+
+</bean>
+----
++
+. In addition to the `PrincipalResolver` mentioned above, CAS comes with other resolvers that can return different representations of the user identifier.
+This list was obtained from the official CAS Documentation site linked at the bottom of this page.
++
+[cols="1m,1" options="header"]
+|===
+
+|Resolver Class
+|Identifier Output
+
+|X509CertificateCredentialsToDistinguishedNamePrincipalResolver
+|Retrieve the complete distinguished name and use that as the identifier.
+
+|X509CertificateCredentialsToIdentifierPrincipalResolver
+|Transform some subset of the identifier into the ID for the principal.
+
+|X509CertificateCredentialsToSerialNumberPrincipalResolver
+|Use the unique serial number of the certificate.
+
+|X509CertificateCredentialsToSerialNumberAndIssuerDNPrincipalResolver
+|Create a most-likely globally unique reference to this certificate as a DN-like entry, using the CA name and the unique serial number of the certificate for that CA.
+|===
+
+Different resolvers should be used depending on the use-case for the server.
+When performance external attribute lookup (e.g., attribute lookup via DIAS) it is necessary to have CAS return the full DN as the identifier and the class `X509CertificateCredentialsToDistinguishedNamePrincipalResolver` should be used.
+When using a local LDAP, however, the `X509CertificateCredentialsToIdentifierPrincipalResolver` class can be used to only return the username that maps directly to the LDAP username.
+
+===== Default Certificates
+
+To verify certificate authentication with the default CAS files you must make sure that the included testUser and testAdmin certificates are installed into your web browser.
+This has only been tested to work with Firefox.
+These certificates were provided in the Ozone Widget Framework and can be used in development environments.
+
+* The sample certificate for testUser1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testUser1.p12
+** password: password
+* The sample certificate for testAdmin1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testAdmin1.p12
+** password: password
+
+===== External Links
+
+For more information on CAS configuration options and what each setting means, refer to their https://wiki.jasig.org/display/CASUM/X.509+Certificates[documentation page].
+
+==== Certificate Management
+
+${branding} uses certificates in two ways:
+
+["lowerroman"]
+. Transmitting and receive encrypted messages.
+. Performing authentication of an incoming user request.
+
+This page details general management operations of using certificates in ${branding}.
+
+===== Default Certificates
+
+${branding} comes with a default keystore that contains certificates.
+
+The keystore is used for different services and the certificate contained within it is aliased to `localhost`.
+
+[cols="5m" options="header"]
+|===
+
+|Host
+|Keystore
+|Truststore
+|Configuration Location
+|Usage
+
+|localhost
+|serverKeystore.jks
+|serverTruststore.jks
+|etc/org.ops4j.pax.web.cfg
+
+etc/system.properties
+
+etc/ws-security/server/encryption.properties
+
+etc/ws-security/server/signature.properties
+
+etc/ws-security/issuer/encryption.properties
+
+etc/ws-security/issuer/signature.properties
+
+etc/system.properties
+|Used to secure (SSL) all of the endpoints for ${branding}, to perform outgoing SSL requests, and sign STS SAML assertions.
+This also includes the {admin-
+console} and any other web service that is hosted by ${branding}.
+
+|===
+
+===== Configuring a Java Keystore for Secure Communications
+
+[NOTE]
+====
+The following information was sourced from https://www.racf.bnl.gov/terapaths/software/the-terapaths-api/example-java-client/java-client/setting-up-keystores-with-jetty-and-keytool.
+====
+
+*Creating a Client Keystore*
+
+[WARNING]
+====
+This walk-through details how to use a PKCS12 store. This is the most popular format used when exporting from a web browser.
+====
+
+["lowerroman"]
+. Obtain a personal ECA cert (client certificate)
+["arabic"]
+.. To do this, open Internet Explorer > Tools > Options.
+.. Select the Content tab.
+.. Click Certificates
+.. Select the Personal tab.
+.. Select the certificate needed to export. There should be the one without a "Friendly Name" and it is not the "Encryption Cert").
+.. Click Export.
+.. Follow Certificate Export Wizard.
+.. When a prompt requests to export the private key, select Yes.
+. Add a cert to a new java keystore, replacing cert with the name of the PKCS12 Keystore needed to convert, and replace MY_KEYSTORE.jks with the desired name of the Java Keystore:
+
+[source]
+----
+keytool -importkeystore -srckeystore [MY_FILE.p12] -srcstoretype pkcs12
+ -srcalias [ALIAS_SRC] -destkeystore [MY_KEYSTORE.jks]
+ -deststoretype jks -deststorepass [PASSWORD_JKS] -destalias [ALIAS_DEST]
+----
+. The command prompts for two passwords:
+["arabic"]
+.. Input keystore passphrase is the passphrase that is used to protect cert.p12
+.. Output keystore passphrase is the passphrase that is set for the new java keystore serverKeystore.jks
+. It is recommended that the private key password be the same as the keystore password due to limitations in java.
+["arabic"]
+.. Run the following command to determine the alias name of the added current entry. It is listed after "Alias Name:"
+
+[source]
+----
+keytool -list -v -keystore serverKeystore.jks
+----
+.. Clone the existing key using the java keytool executable, filling in <CurrentAlias>, <NewAlias>, serverKeystore.jks, and password with the correct names.
+
+[source]
+----
+keytool -keyclone -alias "<CurrentAlias>" -dest "<NewAlias>" -keystore serverKeystore.jks -storepass password
+----
+.. When prompted for a password, use the same password used when the keystore was created.
+.. Delete the original alias
+
+[source]
+----
+keytool -delete -alias "<CurrentAlias>" -keystore serverKeystore.jks -storepass password
+----
+
+[NOTE]
+====
+After the keystore is successfully created, delete the jetty files used to perform the import.
+====
+
+*Creating a Truststore*
+
+[WARNING]
+====
+This walk-through details how to import a .cer certificate
+====
+
+["lowerroman"]
+. Import the certificate into a java keystore as a trusted ca certificate
+
+[source]
+----
+keytool -import -trustcacerts -alias "Trusted Cert" -file trustcert.cer -keystore serverTruststore.jks
+----
+. Enter in a keystore password when prompted.
+
+*Adding a certificate to an existing Keystore*
+
+["lowerroman"]
+. Import the certificate into a java keystore as a certificate.
+
+[source]
+----
+keytool -importcert -file newcert.cer -keystore serverKeystore.jks -alias "New Alias"
+----
+. Enter in the keystore password if prompted.
+
+====== Updating Truststore and Keystore information
+
+To limit dependencies between individual applications, within the ${branding} there are several locations where truststore and keystore location is kept. Making a change to security info may mean changing this information in multiple places.
+
+*Locations*
+
+Resources for changing truststore values can be found in the ${branding} Certificate Management documentation.
+
+====== Certificate Configuration Management
+
+Configuration management includes configuring ${branding} to use existing certificates and defining configuration options for the system.
+This includes configuration certificate revocation and keystores.
+
+====== Certificate Revocation Configuration
+
+====== Enabling Revocation
+
+[NOTE]
+====
+Enabling CRL revocation or modifying the CRL file will require a restart of ${branding} to apply updates.
+====
+
+["lowerroman"]
+. Place the CRL in <ddf.home>/etc/keystores.
+. Uncomment the following line in `<ddf.home>/etc/ws-security/server/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/encryption.properties`, `<${ddf-branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/signature.properties`, and `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`  and replace the filename with the CRL file used in previous step.
+
+[source]
+----
+#org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/crlTokenissuerValid.pem
+----
+
+Uncommenting this property will also enable CRL revocation for any context policy implementing PKI authentication.
+For example, adding an authentication policy in the Web Context Policy Manager of `/search=PKI|GUEST` will disable basic authentication, and require a certificate for the search UI.
+If a certificate is not in the CRL, it will be allowed through, otherwise it will get a 401 error.
+Not providing a cert will pass it to the guest handler and the user will be granted guest access.
+
+This also enables CRL revocation for the STS endpoint.
+The STS CRL Interceptor monitors the same `encryption.properties` file and operates in an identical manner to the PKI Authenication's CRL handler. Enabling the CRL via the `encryption.properties` file will also enable it for the STS, and also requires a restart.
+
+====== Add Revocation to a Web Context
+
+The PKIHandler implements CRL revocation, so any web context that is configured to use PKI authentication will also use CRL revocation if revocation is enabled.
+
+. After enabling revocation (see above), open the *Web Context Policy Manager*.
+. Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=SAML|PKI`
+. If guest access is required, add `GUEST` to the policy. Ex, `/search=SAML|PKI|GUEST`.
+
+With guest access, a user with a revoked cert will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.
+
+The STS CRL interceptor does not need a web context specified.
+The CRL interceptor for the STS will become active after specifying the CRL file in the `encryption.properties` file and restarting ${branding}.
+
+[NOTE]
+====
+Disabling or enabling CRL revocation or modifying the CRL file will require a restart of ${branding} to apply updates.
+If CRL checking is already enabled, adding a new context via the *Web Context Policy Manager* will not require a restart.
+====
+
+====== Adding Revocation to a new Endpoint
+
+[NOTE]
+====
+This section explains how to add CXF's CRL revocation method to an endpoint and not the CRL revocation method in the `PKIHandler`.
+====
+
+This guide assumes that the endpoint being created uses CXF and is being started via Blueprint from inside the OSGi container.
+If other tools are being used the configuration may differ.
+
+* Add the following property to the `jasws` endpoint in the endpoint's `blueprint.xml`:
+
+[source]
+----
+<entry key="ws-security.enableRevocation" value="true"/>
+----
+
+.Example xml snippet for the `jaxws:endpoint` with the property:
+[source]
+----
+<jaxws:endpoint id="Test" implementor="#testImpl"
+                wsdlLocation="classpath:META-INF/wsdl/TestService.wsdl"
+                address="/TestService">
+
+    <jaxws:properties>
+        <entry key="ws-security.enableRevocation" value="true"/>
+    </jaxws:properties>
+</jaxws:endpoint>
+----
+
+====== Verifying Revocation is taking place
+
+A *Warning* similar to the following will be displayed in the logs of the source and endpoint showing the exception encountered during certificate validation:
+
+[source]
+----
+11:48:00,016 | WARN  | tp2085517656-302 | WSS4JInInterceptor               | ecurity.wss4j.WSS4JInInterceptor  330 | 164 - org.apache.cxf.cxf-rt-ws-security - 2.7.3 |
+org.apache.ws.security.WSSecurityException: General security error (Error during certificate path validation: Certificate has been revoked, reason: unspecified)
+    at org.apache.ws.security.components.crypto.Merlin.verifyTrust(Merlin.java:838)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.validate.SignatureTrustValidator.verifyTrustInCert(SignatureTrustValidator.java:213)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.validate.SignatureTrustValidator.validate(SignatureTrustValidator.java:72)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.validate.SamlAssertionValidator.verifySignedAssertion(SamlAssertionValidator.java:121)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.validate.SamlAssertionValidator.validate(SamlAssertionValidator.java:100)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.processor.SAMLTokenProcessor.handleSAMLToken(SAMLTokenProcessor.java:188)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.processor.SAMLTokenProcessor.handleToken(SAMLTokenProcessor.java:78)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.ws.security.WSSecurityEngine.processSecurityHeader(WSSecurityEngine.java:396)[161:org.apache.ws.security.wss4j:1.6.9]
+    at org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor.handleMessage(WSS4JInInterceptor.java:274)[164:org.apache.cxf.cxf-rt-ws-security:2.7.3]
+    at org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor.handleMessage(WSS4JInInterceptor.java:93)[164:org.apache.cxf.cxf-rt-ws-security:2.7.3]
+    at org.apache.cxf.phase.PhaseInterceptorChain.doIntercept(PhaseInterceptorChain.java:271)[123:org.apache.cxf.cxf-api:2.7.3]
+    at org.apache.cxf.transport.ChainInitiationObserver.onMessage(ChainInitiationObserver.java:121)[123:org.apache.cxf.cxf-api:2.7.3]
+    at org.apache.cxf.transport.http.AbstractHTTPDestination.invoke(AbstractHTTPDestination.java:239)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.apache.cxf.transport.servlet.ServletController.invokeDestination(ServletController.java:218)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.apache.cxf.transport.servlet.ServletController.invoke(ServletController.java:198)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.apache.cxf.transport.servlet.ServletController.invoke(ServletController.java:137)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.apache.cxf.transport.servlet.CXFNonSpringServlet.invoke(CXFNonSpringServlet.java:158)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.apache.cxf.transport.servlet.AbstractHTTPServlet.handleRequest(AbstractHTTPServlet.java:243)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.apache.cxf.transport.servlet.AbstractHTTPServlet.doPost(AbstractHTTPServlet.java:163)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at javax.servlet.http.HttpServlet.service(HttpServlet.java:713)[52:org.apache.geronimo.specs.geronimo-servlet_2.5_spec:1.1.2]
+    at org.apache.cxf.transport.servlet.AbstractHTTPServlet.service(AbstractHTTPServlet.java:219)[130:org.apache.cxf.cxf-rt-transports-http:2.7.3]
+    at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:547)[63:org.eclipse.jetty.servlet:7.5.4.v20111024]
+    at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:480)[63:org.eclipse.jetty.servlet:7.5.4.v20111024]
+    at org.ops4j.pax.web.service.jetty.internal.HttpServiceServletHandler.doHandle(HttpServiceServletHandler.java:70)[73:org.ops4j.pax.web.pax-web-jetty:1.0.11]
+    at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:119)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.security.SecurityHandler.handle(SecurityHandler.java:520)[62:org.eclipse.jetty.security:7.5.4.v20111024]
+    at org.eclipse.jetty.server.session.SessionHandler.doHandle(SessionHandler.java:227)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:941)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.ops4j.pax.web.service.jetty.internal.HttpServiceContext.doHandle(HttpServiceContext.java:117)[73:org.ops4j.pax.web.pax-web-jetty:1.0.11]
+    at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:409)[63:org.eclipse.jetty.servlet:7.5.4.v20111024]
+    at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:186)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:875)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:117)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.handler.HandlerCollection.handle(HandlerCollection.java:149)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:110)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.Server.handle(Server.java:349)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.HttpConnection.handleRequest(HttpConnection.java:441)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.HttpConnection$RequestHandler.content(HttpConnection.java:936)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.http.HttpParser.parseNext(HttpParser.java:893)[57:org.eclipse.jetty.http:7.5.4.v20111024]
+    at org.eclipse.jetty.http.HttpParser.parseAvailable(HttpParser.java:218)[57:org.eclipse.jetty.http:7.5.4.v20111024]
+    at org.eclipse.jetty.server.BlockingHttpConnection.handle(BlockingHttpConnection.java:50)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.bio.SocketConnector$ConnectorEndPoint.run(SocketConnector.java:245)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.server.ssl.SslSocketConnector$SslConnectorEndPoint.run(SslSocketConnector.java:663)[61:org.eclipse.jetty.server:7.5.4.v20111024]
+    at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:598)[55:org.eclipse.jetty.util:7.5.4.v20111024]
+    at org.eclipse.jetty.util.thread.QueuedThreadPool$3.run(QueuedThreadPool.java:533)[55:org.eclipse.jetty.util:7.5.4.v20111024]
+    at java.lang.Thread.run(Thread.java:662)[:1.6.0_33]
+Caused by: java.security.cert.CertPathValidatorException: Certificate has been revoked, reason: unspecified
+    at sun.security.provider.certpath.PKIXMasterCertPathValidator.validate(PKIXMasterCertPathValidator.java:139)[:1.6.0_33]
+    at sun.security.provider.certpath.PKIXCertPathValidator.doValidate(PKIXCertPathValidator.java:330)[:1.6.0_33]
+    at sun.security.provider.certpath.PKIXCertPathValidator.engineValidate(PKIXCertPathValidator.java:178)[:1.6.0_33]
+    at java.security.cert.CertPathValidator.validate(CertPathValidator.java:250)[:1.6.0_33]
+    at org.apache.ws.security.components.crypto.Merlin.verifyTrust(Merlin.java:814)[161:org.apache.ws.security.wss4j:1.6.9]
+    ... 45 more
+----
+
+===== Certificate File Management
+
+File management includes creating and configuring the files that contain the certificates.
+In ${branding}, these files are generally Java Keystores (`jks`) and Certificate Revocation Lists (`crl`).
+This includes commands and tools that can be used to perform these operations.
+
+The following tools are used:
+
+* openssl
+** Windows users can use: https://code.google.com/p/openssl-for-windows/downloads/detail?name=openssl-0.9.8k_X64.zip&can=2&q=[openssl] for windows.
+* The standard Java http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html[keytool] certificate management utility.
+* http://portecle.sourceforge.net/[Portecle] can be used for *keytool* operations if a GUI if preferred over a command line interface.
+
+====== General Certificates
+
+====== Create a CA Key and Certificate
+
+The following steps demonstrate creating a root CA to sign certificates.
+
+. Create a key pair. +
+`$> openssl genrsa -aes128 -out root-ca.key 1024` +
+. Use the key to sign the CA certificate. +
+`$> openssl req -new -x509 -days 3650 -key root-ca.key -out root-ca.crt`
+
+====== Using the CA to Sign Certificates
+
+The following steps demonstrate signing a certificate for the `tokenissuer` user by a CA.
+
+. Generate a private key and a Certificate Signing Request (CSR). +
+`$> openssl req -newkey rsa:1024 -keyout tokenissuer.key -out tokenissuer.req`
+. Sign the certificate by the CA. +
+`$> openssl ca -out tokenissuer.crt -infiles tokenissuer.req`
+
+====== Java Keystore (JKS)
+
+====== Create a New Keystore/Truststore with an Existing Certificate and Private Key
+
+.  Using the private key, certificate, and CA certificate, create a new keystore containing the data from the new files.
++
+[source]
+----
+cat client.crt >> client.key
+openssl pkcs12 -export -in client.key -out client.p12
+keytool -importkeystore -srckeystore client.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
+keytool -changealias -alias 1 -destalias client -keystore serverKeystore.jks
+keytool -importcert -file ca.crt -keystore serverKeystore.jks -alias "ca"
+keytool -importcert -file ca-root.crt -keystore serverKeystore.jks -alias "ca-root"
+----
++
+.  Create the truststore using only the CA certificate. Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
++
+----
+keytool -import -trustcacerts -alias "ca" -file ca.crt -keystore truststore.jks
+keytool -import -trustcacerts -alias "ca-root" -file ca-root.crt -keystore truststore.jks
+----
++
+. Create a PEM file using the certificate, as some applications require that format.
++
+----
+openssl x509 -in client.crt -out client.der -outform DER
+openssl x509 -in client.der -inform DER -out client.pem -outform PEM
+----
+
+====== Import into a Java Keystore (JKS)
+
+The following steps demonstrate importing a PKCS12 keystore generated by openssl into a Java keystore (JKS).
+
+.  Put the private key and the certificate into one file. +
+`$> cat tokenissuer.crt >> tokenissuer.key`
+.  Put the private key and the certificate in a PKCS12 keystore. +
+`$> openssl pkcs12 -export -in tokenissuer.key -out tokenissuer.p12`
+.  Import the PKCS12 keystore into a JKS. +
+`$> keytool -importkeystore -srckeystore tokenissuer.p12 -destkeystore stsKeystore.jks -srcstoretype pkcs12 -alias 1`
+.  Change the alias. +
+`$> keytool -changealias -alias 1 -destalias tokenissuer`
+
+====== Certificate Revocation List (CRL)
+
+====== Creating a Certificate Revocation List (CRL)
+
+.  Using the CA create in the above steps, create a CRL in which the `tokenissuer`'s certificate is valid. +
+`$> openssl ca -gencrl -out crl-tokenissuer-valid.pem`
+
+====== Revoke a Certificate and Create a New CRL that Contains the Revoked Certificate
+
+----
+$> openssl ca -revoke tokenissuer.crt
+
+$> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
+----
+
+====== Viewing a CRL
+
+. Use the following command to view the serial numbers of the revoked certificates:
+`$> openssl crl -inform PEM -text -noout -in crl-tokenissuer-revoked.pem`
+
+===== Enabling SSL for Sources
+
+====== Updating Key Store / Trust Store for all sources
+
+By default, all newly created sources use the following locations:
+
+Trust Store: `$INSTALL_LOCATION/etc/keystores/serverTruststore.jks`
+
+Key Store: `$INSTALL_LOCATION/etc/keystores/serverKeystore.jks`
+
+These files come included with the distribution and are loaded with self-signed certificates for the `localhost` hostname.
+Certificates can be added and removed from these java keystores by using the keytool application that comes with java.
+
+====== Updating Key Store / Trust Store via the {admin-console}
+
+. Open the {admin-console}.
+. Select the *${ddf-branding} Security* application.
+. Select the *Certificates* tab.
+. Add and remove certificates and private keys as necessary.
+. Restart the container.
+
+[IMPORTANT]
+====
+The default trust store and key store files for {branding} included in `etc/keystores` use self signed certificates.
+Self signed certificates should never be used outside of development/testing areas.
+====
+
+.Reference
+[NOTE]
+====
+* http://docs.oracle.com/javase/6/docs/technotes/tools/solaris/keytool.html[Oracle Keytool Documentation]
+====
+
+====== Enabling SSL/TLS for Services
+
+[NOTE]
+====
+SSL/TLS is enabled out of the box for ${branding}.
+====
+
+// Still an issue?
+[IMPORTANT]
+====
+Do not use the {admin-console} to SSL enable the ${branding} services.
+While the {admin-console} offers this configuration option, it has proven to be unreliable and may crash the system.
+====
+
+Edit the provided configuration file `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` with the settings for the desired configuration.
+
+.Pax Web Configuration Settings
+[cols="3m,2m,6",options="header"]
+|===
+
+|Property
+|Sample Value
+|Description
+
+|org.osgi.service.http.enabled
+|false
+|Set this to false to disable HTTP without SSL
+
+|org.osgi.service.http.secure.enabled
+|true
+|Set this to true to SSL enable the {branding} services
+
+|org.osgi.service.http.port.secure
+|8993
+|Set this to the HTTPS port number.
+
+(Verify this port does not conflict with any other secure ports being used in the network.
+For example, JBoss and other application servers use port 8443 by default)
+
+|org.ops4j.pax.web.ssl.keystore.type
+|jks
+|Set this to the type of keystore (most likely jks)
+
+|org.ops4j.pax.web.ssl.keystore
+|/opt/ddf/keystore.jks
+|Set this to the fully-qualified path to the SSL keystore file
+
+|org.ops4j.pax.web.ssl.keypassword
+|password1
+|Set this to the password for the user's private key
+
+|org.ops4j.pax.web.ssl.password
+|password2
+|Set this to the password for overall keystore integrity checking
+
+|===
+
+.Example `.cfg` file:
+[source]
+----
+######################
+# HTTP settings
+######################
+
+# Disable HTTP
+org.osgi.service.http.enabled=false
+
+# HTTP port number
+org.osgi.service.http.port=8181
+
+
+######################
+# HTTPS settings
+######################
+
+# Enable HTTPS
+org.osgi.service.http.secure.enabled=true
+
+# HTTPS port number
+# (Verify this port does not conflict with any other secure ports being used in the
+# network. For example, JBoss and other application servers use port 8443 by default)
+
+org.osgi.service.http.port.secure=8993
+
+# Fully-qualified path to the SSL keystore
+org.ops4j.pax.web.ssl.keystore=/opt/ddf/keystore.jks
+
+# SSL Keystore Type
+org.ops4j.pax.web.ssl.keystore.type=jks
+
+# Keystore Integrity Password
+org.ops4j.pax.web.ssl.password=abc123
+
+# Keystore Password
+org.ops4j.pax.web.ssl.keypassword=abc123
+
+----
+
+[WARNING]
+====
+All `.cfg` files follow a strict formatting structure in that every entry is a `key=value` pair.
+There should be no whitespace before the key, around the equals sign (=), or after the value.
+Otherwise, the key or value may be misinterpreted.
+
+Also, take care if .`cfg` files originated on an operating system other than the operating system ${branding} is currently running on.
+Hidden characters, e.g., ^M, can be added during the file transfer between the operating systems.
+This often occurs when a ${branding} zip install file from a Unix operating system is transferred to a Windows operating system and installed.
+====
+
+[NOTE]
+====
+Optional: Disable HTTP for the ${branding} services and only use HTTPS by setting the `org.osgi.service.http.enabled` property to `false`.
+After this, all ${branding} clients must use SSL/TLS for HTTP communication.
+====
+
+.Reference
+[NOTE]
+====
+Configuring a Java Keystore for Secure Communications
+
+Additional Pax-Web SSL configuration info: http://team.ops4j.org/wiki/display/paxweb/SSL+Configuration[SSL Configuration]
+====
+
+==== Encryption Service
+
+===== Encryption Command
+
+An encrypt security command is provided with ${branding} that allows plain text to be encrypted.
+This is useful when displaying password fields in a GUI.
+
+Below is an example of the security:encrypted command used to encrypt the plain text `myPasswordToEncrypt`. The output is the encrypted value.
+
+[source%nowrap.java]
+----
+${branding-lowercase}${at-symbol}local>security:encrypt myPasswordToEncrypt
+
+${branding-lowercase}${at-symbol}local>bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
+----
+
+==== Filtering
+
+Filtering is performed in a Post Query plugin, after a query has been performed.
+
+===== How Filtering Works
+
+Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a `PolicyPlugin` that populates this attribute.
+The security attribute is a HashMap containing a set of keys that map to lists of values.
+The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
+This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
+The decision to filter the metacard eventually relies on the installed PDP (`features:install security-pdp-authz`).
+The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
+
+The security attributes populated on the metacard are completely dependent on the type of the metacard.
+Each type of metacard must have its own `PolicyPlugin` that reads the metadata being returned and then returns the appropriate attributes.
+If the subject or resource (metacard) permissions are missing during filtering, that resource is filtered.
+
+.Example (represented as simple XML for ease of understanding):
+[source,xml,linenums]
+----
+<metacard>
+    <security>
+        <map>
+            <entry key="assertedAttribute1" value="A,B" />
+            <entry key="assertedAttribute2" value="X,Y" />
+            <entry key="assertedAttribute3" value="USA,GBR" />
+            <entry key="assertedAttribute4" value="USA,AUS" />
+        </map>
+    </security>
+</metacard>
+----
+
+[source,xml,linenums]
+----
+<user>
+    <claim name="subjectAttribute1">
+        <value>A</value>
+        <value>B</value>
+    </claim>
+    <claim name="subjectAttribute2">
+        <value>X</value>
+        <value>Y</value>
+    </claim>
+    <claim name="subjectAttribute3">
+        <value>USA</value>
+    </claim>
+    <claim name="subjectAttribute4">
+        <value>USA</value>
+    </claim>
+</user>
+----
+
+In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion.
+Each of these user (or subject) claims will be converted to a `KeyValuePermission` object.
+These permission objects will be implied against the permission object generated from the metacard record.
+In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
+
+===== Filter Policies
+
+The procedure for setting up a policy differs depending on whether that policy is to be used internally or by the external XACML processing engine.
+Setting up an internal policy is as follows:
+
+. Open the Admin Console at \https://localhost:8993/admin
+. Click the ${ddf-branding} Security application tile
+. Click the *Configuration* tab
+. Click on the *Security AuthZ Realm* configuration.
+. Add any attribute mappings necessary to map between subject attributes and the attributes to be asserted.
+.. For example, the above example would require two Match All mappings of `subjectAttribute1=assertedAttribute1` and `subjectAttribute2=assertedAttribute2``
+.. Match One mappings would contain subjectAttribute3=assertedAttribute3` and `subjectAttribute4=assertedAttribute4`.
+
+With the `security-pdp-authz` feature configured in this way, the above Metacard would be displayed to the user.
+Note that this particular configuration would not require any XACML rules to be present.
+All of the attributes can be matched internally and there is no reason to call out to the external XACML processing engine.
+For more complex decisions, it might be necessary to write a XACML policy to handle certain attributes.
+
+To set up a XACML policy, place the desired XACML policy in the `<distribution root>/etc/pdp/policies` directory.
+This is the directory in which the PDP will look for XACML policies every 60 seconds.
+A sample XACML policy is located at the end of this page.
+Information on specific bundle configurations and names can be found on the Security PDP application page.
+
+===== Creating a XACML Policy
+
+This document assumes familiarity with the XACML schema and does not go into detail on the XACML language.
+When creating a policy, a target is used to indicate that a certain action should be run only for one type of request.
+Targets can be used on both the main policy element and any individual rules.
+Targets are geared toward the actions that are set in the request.
+These actions generally consist of the standard CRUD operations (create, read, update, delete) or a SOAPAction if the request is coming through a SOAP endpoint.
+
+[NOTE]
+====
+These are only the action values that are currently created by the components that come with ${branding}.
+Additional components can be created and added to ${branding} to identify specific actions.
+====
+
+In the examples below, the policy has specified targets for the above type of calls.
+For the Filtering code, the target was set for "filter", and the Service validation code targets were geared toward two services: `query` and `LocalSiteName`.
+In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
+
+====== Attributes
+
+Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
+
+====== Subject
+
+The attributes for the subject are obtained from the SAML claims and populated within the XACML policy as individual attributes under the `urn:oasis:names:tc:xacml:1.0:subject-category:access-subject` category.
+The name of the claim is used for the `AttributeId` value.
+Examples of the items being populated are available at the end of this page.
+
+====== Resource
+
+The attributes for resources are obtained through the permissions process.
+When checking permissions, the XACML processing engine retrieves a list of permissions that should be checked against the subject.
+These permissions are populated outside of the engine and should be populated with the attributes that should be asserted against the subject.
+When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category.
+
+===== Example Requests and Responses
+
+The following items are a sample request, response, and the corresponding policy. The XACML processing engine reads the policy and outputs a response.
+
+====== Policy
+
+This is the sample policy that was used for the following sample request and responses.
+The policy was made to handle the following actions: `filter`, `query`, and `LocalSiteName`. The filter action is used to compare subject's `SUBJECT_ACCESS` attributes to a metacard's `RESOURCE_ACCESS` attributes.
+The `query` and `LocalSiteName` actions differ, as they are used to perform service authorization.
+For a query, the user must be associated with the country code ATA (Antarctica), and a `LocalSiteName` action can be performed by anyone.
+
+.Policy
+[source,xml,linenums]
+----
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="xpath-target-single-req" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" Version="1.0">
+    <PolicyDefaults>
+        <XPathVersion>http://www.w3.org/TR/1999/REC-xpath-19991116</XPathVersion>
+    </PolicyDefaults>
+    <Target>
+        <AnyOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Match>
+            </AllOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Match>
+            </AllOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Match>
+            </AllOf>
+        </AnyOf>
+    </Target>
+    <Rule Effect="Permit" RuleId="permit-filter">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+                <AttributeDesignator AttributeId="RESOURCE_ACCESS" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                <AttributeDesignator AttributeId="SUBJECT_ACCESS" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+            </Apply>
+        </Condition>
+    </Rule>
+    <Rule Effect="Permit" RuleId="permit-action">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+                        <AttributeDesignator AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                    </Match>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                    </Match>
+                </AllOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+    </Rule>
+    <Rule Effect="Deny" RuleId="deny-read"/>
+</Policy>
+----
+
+====== Service Authorization
+
+====== Allowed Query
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Permit</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+====== Denied Query
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User USA</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Deny</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+====== Metacard Authorization
+
+====== Subject Permitted
+All of the resource's `RESOURCE_ACCESS` attributes were matched with the Subject's `SUBJECT_ACCESS` attributes.
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Deny</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+====== Subject Denied
+
+The resource had an additional `RESOURCE_ACCESS` attribute 'C' that the subject did not have.
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">C</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Deny</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+==== Expansion Service
+
+The expansion service defines rulesets to map metacard attributes to user attributes to authorize or not authorize users to access the resources represented.
+
+===== Expansion Configuration
+
+===== Installing Expansion Service
+
+The expansion service feature is NOT installed by default.
+To enable:
+
+* Select *${ddf-branding} Security*
+* Select *Features* tab
+* Enable `security-expansion` feature
+
+===== Configuring Expansion Service
+// NOTE: This will change with completion of this task DDF-1829
+
+To use the expansion service, create the following two files within the `<INSTALLATION_HOME>` directory:
+
+* `security/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
+* `security/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
+
+Within these files, the following configuration details will be defined.
+
+===== Expansion Service Instances and Configuration
+
+It is expected that multiple instances of the expansion service will be running at the same time.
+Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service.
+The following table lists the two pre-defined instances used by ${ddf-branding} for expanding user attributes and metacard attributes respectively.
+
+[cols="1,3,5" options="header"]
+|===
+|Property Name
+|Value
+|Description
+
+|mapping
+|`security.user.attribute.mapping`
+|This instance is configured with rules that expand the user's attribute values for security checking.
+
+|mapping
+|`security.metacard.attribute.mapping`
+|This instance is configured with rules that expand the metacard's security attributes before comparing with the user's attributes.
+
+|===
+
+Each instance of the expansion service can be configured using a configuration file.
+The configuration file can have three different types of lines:
+comments:: any line prefixed with the `#` character is ignored as a comment (for readability, blank lines are also ignored)
+attribute separator:: a line starting with `separator=` defines the attribute separator string.
+rule:: all other lines are assumed to be rules defined in a string format `<key>:<original value>:<new value>`
+
+The following configuration file defines the rules shown above in the example table (using the space as a separator):
+
+----
+# This defines the separator that will be used when the expansion string contains multiple
+# values - each will be separated by this string. The expanded string will be split at the
+# separator string and each resulting attributed added to the attribute set (duplicates are
+# suppressed). No value indicates the defualt value of ' ' (space).
+separator=
+
+# The following rules define the attribute expansion to be performed. The rules are of the
+# form:
+#       <attribute name>:<original value>:<expanded value>
+# The rules are ordered, so replacements from the first rules may be found in the original
+# values of subsequent rules.
+Location:Goodyear:Goodyear AZ
+Location:AZ:AZ USA
+Location:CA:CA USA
+Title:VP-Sales:VP-Sales VP Sales
+Title:VP-Engineering:VP-Engineering VP Engineering
+----
+
+.Expansion Commands
+[cols="2,1,4" options="header"]
+|===
+
+|Title
+|Namespace
+|Description
+
+|${ddf-branding}::Security::Expansion::Commands
+|security
+|The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active rule set.
+|===
+
+[cols="2m,5"]
+|Command
+|Description
+|===
+|security:expand
+|security:expansions
+
+|Runs the expansion service on the provided data returning the expanded value.
+|Dumps the ruleset for each active expansion service.
+|===
+
+===== Expansion Command Examples and Explanation
+
+====== `security:expansions`
+The `security:expansions` command dumps the ruleset for each active expansion service.
+It takes no arguments and displays each rule on a separate line in the form: `<attribute name> : <original string> : <expanded string>`.
+The following example shows the results of executing the expansions command with no active expansion service.
+
+[source]
+----
+${branding-lowercase}${at-symbol}local>security:expansions
+No expansion services currently available.
+----
+
+After installing the expansions service and configuring it with an appropriate set of rules, the expansions command will provide output similar to the following:
+
+[source]
+----
+${branding-lowercase}${at-symbol}local>security:expansions
+Location : Goodyear : Goodyear AZ
+Location : AZ : AZ USA
+Location : CA : CA USA
+Title : VP-Sales : VP-Sales VP Sales
+Title : VP-Engineering : VP-Engineering VP Engineering
+----
+
+===== `security:expand`
+
+The security:expand command runs the expansion service on the provided data.
+It takes an attribute and an original value, expands the original value using the current expansion service and rule set and dumps the results.
+For the rule set shown above, the expand command produces the following results:
+
+[source]
+----
+${branding-lowercase}${at-symbol}local>security:expand Location Goodyear
+[Goodyear, USA, AZ]
+
+${branding-lowercase}${at-symbol}local>security:expand Title VP-Engineering
+[VP-Engineering, Engineering, VP]
+
+${branding-lowercase}${at-symbol}local>expand Title "VP-Engineering Manager"
+[VP-Engineering, Engineering, VP, Manager]
+----
+
+==== Configure WSS Using Standalone Servers
+
+${branding} can be configured to use SAML 2.0 Web SSO as a single sign-on service and LDAP and STS to keep track of users and user attributes.
+SAML, LDAP, and STS  can be installed on a local ${branding} instance with only a few feature installs.
+Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
+
+If using different keystore names, substitute the name provided in this document with the desired name for your setup.
+For this document, the following data is used:
+
+[cols="1,2m,5"]
+|===
+
+|Server
+|Keystore File
+|Comments
+
+|${branding}
+|serverKeystore.jks
+|Keystore used for SSL/TLS connections.
+
+|===
+
+.Login Authentication Scheme
+image::login_authentication_scheme.jpg[Login Authentication Scheme]
+
+==== Authentication Components
+
+It is assumed that the three authentication components identified below are installed on three separate servers.
+Therefore, it is important to keep track of the DNS hostnames used on each server for certificate authentication purposes.
+
+===== LDAP
+
+LDAP is used to maintain a list of trusted ${branding} users and the attributes associated with them.
+The STS can use LDAP as a user store and queries LDAP for user attributes and converts them to SAML claims.
+
+. Start the ${branding} distribution.
+. Run the installer at https://localhost:8993/admin (default username/password is `admin`/`admin`)
+. After the installer completes, Click the *Manage* button in the upper right hand corner of the {admin-console}
+. Click the *Play* button on the *Opendj Embedded* tile to install the application.
+
+[WARNING]
+====
+It is very important that the keystore file used in the process is set up to trust the hostnames used by CAS and STS.
+If it is not, there will be certificate authentication issues for the user.
+====
+
+===== STS
+
+To run an STS-only ${branding} installation, uninstall unused catalog components to increase performance.
+A list of unneeded components can be found on the STS page.
+The STS is installed by default in ${ddf-branding}.
+
+. Verify that the `serverKeystores.jks` file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
+. Start the distribution.
+. Run the installer at https://localhost:8993/admin (if needed)
+. After the installer completes, click the ${ddf-branding} Security application tile
+. Click the *Features* tab
+. Install `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features by clicking the *Play* button next to each
+. Open the ${ddf-branding} Admin Console as an administrator (https://localhost:8993/admin).
+. Click the *${ddf-branding} Security* application tile
+. Click the *Configuration* tab
+. Open the *Security STS LDAP Login* configuration.
+. Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default ${ddf-branding} LDAP settings will match up with the default settings of the OpenDJ embedded LDAP server. If not using the embedded LDAP server, change these values to map to the location and settings of the LDAP server being used.
+. Select the *Save changes* button if changes were made.
+. Open the *Security STS LDAP and Roles Claims Handler* configuration.
+. Populate the same URL, user, and password fields with your LDAP server information.
+. Select the *Save Changes* button.
+
+All of the authentication components should be running and configured at this point.
+The final step is to configure a ${branding} instance, so this authentication scheme is used.
+
+==== Configuring ${branding} Authentication Scheme
+
+Once everything is configured and running, hooking up an existing ${ddf-branding} instance to the authentication scheme is performed by setting a few configuration properties:
+
+. Open the *Web Context Policy Manager* configuration.
+.. Under *Context Realms* add the contexts that should be protected under the ldap realm.
+... The default setting is `/=karaf`, the `karaf` realm refers to the `user.properties` user store file located in the `<${branding}_HOME>/etc` directory. This can be changed to `/=ldap`, if it is desired that the entire container be protected under ldap. If the `/admin` context is changed to something other than the default (`karaf`), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will roll up, for example: the `/admin` context policy will roll up to the karaf realm with the default configuration because `/` is higher in the context heirarchy than `/admin` and no realm is specifically set for `/admin`.
+.. Under *Authentication Types*, make any desired authentication changes to contexts.
+... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the IdP authentication type
+. Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server. If you are using the default bundled STS, this information will already be correct.
+
+The ${ddf-branding} should now use the SSO/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
+
+===== Enable SSL for Clients
+
+In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
+These values are configured in the `<${branding}_INSTALL_DIR>/etc/system.properties` file.
+The following values can be set:
+
+[cols="1,1,3" options="header"]
+|===
+
+|Property
+|Sample Value
+|Description
+
+|`javax.net.ssl.trustStore`
+|`etc/keystores/serverTruststore.jks`
+|The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS).
+When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
+
+|`javax.net.ssl.trustStorePassword`
+|`changeit`
+|This is the password for the truststore listed in the above property
+
+|`javax.net.ssl.keyStore`
+|`etc/keystores/serverKeystore.jks`
+|The keystore that contains the private key for the local server that can be used for signing, encryption, and SSL/TLS.
+
+|`javax.net.ssl.keyStorePassword`
+|`changeit`
+|The password for the keystore listed above
+
+|`javax.net.ssl.keyStoreType`
+|`jks`
+|The type of keystore
+
+|`https.cipherSuites`
+|`TLS_DHE_RSA_WITH_AES_128_CBC_SHA`,
+`TLS_DHE_RSA_WITH_AES_128_CBC_SHA`,
+`TLS_DHE_DSS_WITH_AES_128_CBC_SHA`,
+`TLS_RSA_WITH_AES_128_CBC_SHA`
+|The cipher suites that are supported when making outbound HTTPS connections
+
+|`https.protocols`
+|`TLSv1.1`,`TLSv1.2`
+|The protocols that are supported when making outbound HTTPS connections
+
+|===
+.`<INSTALLATION_HOME>`
+[NOTE]
+====
+${ddf-branding} is installed in the `<INSTALLATION_HOME>` directory.
+====
+
+==== Auditing
+
+[NOTE]
+====
+The Audit Log default location is `DISTRIBUTION_HOME/data/log/security.log`
+====
+
+===== Configuring Audit Plugin
+
+${ddf-branding} provides an optional *Audit Plugin* that logs all catalog transactions to the `security.log`.
+Information captured includes user identity, query information, and resources retrieved.
+
+The Audit plugin is not enabled by default.
+To enable, sign into the {admin-console}.
+
+. Select ${ddf-branding} Catalog
+. Select *Features* tab
+. Install both `catalog-security-logging` and `catalog-security-auditplugin` features.
+
+
+==== Assuring Authenticity of Bundles and Applications
+
+${branding} Artifacts in the JAR file format (such as bundles or ${branding} applications packaged as KAR files) can be signed and verified using the tools included as part of the Java Runtime Environment.
+
+===== Prerequisites
+
+To work with Java signatures, a keystore/truststore is required.
+For the purposes of this example we'll sign and validate using a self signed certificate which can be generated with the keytool utility.
+In production a certificate issued from a trusted Certificate Authority should be used.
+
+Additional documentation on keytool can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/keytool.html[Keytool home].
+
+.Using keytool to generate a self-signed certificate keystore
+[source]
+----
+~ $ keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass password -validity 360 -keysize 2048
+What is your first and last name?
+  [Unknown]:  Nick Fury
+What is the name of your organizational unit?
+  [Unknown]:  Marvel
+What is the name of your organization?
+  [Unknown]:  SHIELD
+What is the name of your City or Locality?
+  [Unknown]:  New York
+What is the name of your State or Province?
+  [Unknown]:  NY
+What is the two-letter country code for this unit?
+  [Unknown]:  US
+Is CN=Nick Fury, OU=SHIELD, O=Marvel, L="New  York", ST=NY, C=US correct?
+  [no]:  yes
+Enter key password for <selfsigned>
+    (RETURN if same as keystore password):
+Re-enter new password:
+----
+
+===== Signing a JAR/KAR
+
+Once a keystore is available, the JAR can be signed using the `jarsigner`
+ tool.
+
+Additional documentation on jarsigner can be found at http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html[Jarsigner].
+
+.Using jarsigner to sign a KAR
+[source]
+----
+~ $ jarsigner -keystore keystore.jks -keypass shield -storepass password  catalog-app-2.5.1.kar selfsigned
+----
+
+===== Verifying a JAR/KAR
+The jarsigner utility is also used to verify a signature in a JAR-formatted file.
+
+.Using jarsigner to verify a file
+[source]
+----
+~ $ jarsigner -verify -verbose -keystore keystore.jks catalog-app-2.5.1.kar
+        9447 Mon Oct 06 17:05:46 MST 2014 META-INF/MANIFEST.MF
+        9503 Mon Oct 06 17:05:46 MST 2014 META-INF/SELFSIGN.SF
+        1303 Mon Oct 06 17:05:46 MST 2014 META-INF/SELFSIGN.RSA
+           0 Wed Sep 17 17:14:06 MST 2014 META-INF/
+           0 Wed Sep 17 17:14:10 MST 2014 META-INF/maven/
+           0 Wed Sep 17 17:14:10 MST 2014 META-INF/maven/${ddf-branding-lowercase}.catalog/
+           0 Wed Sep 17 17:14:10 MST 2014 META-INF/maven/${ddf-branding-lowercase}.catalog/catalog-app/
+smk     4080 Wed Sep 17 16:54:18 MST 2014 META-INF/maven/${ddf-branding-lowercase}.catalog/catalog-app/pom.xml
+smk      107 Wed Sep 17 17:14:06 MST 2014 META-INF/maven/${ddf-branding-lowercase}.catalog/catalog-app/pom.properties
+           0 Wed Sep 17 17:14:06 MST 2014 repository/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/catalog-app/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/catalog-app/2.5.1/
+smk    12543 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/catalog-app/2.5.1/catalog-app-2.5.1-features.xml
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-api/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-api/2.5.1/
+smk   188995 Wed Sep 17 16:55:28 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-api/2.5.1/catalog-core-api-2.5.1.jar
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/mime/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/mime/core/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/mime/core/mime-core-api/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/${ddf-branding-lowercase}/mime/core/mime-core-api/2.5.0/
+smk     4396 Wed Sep 10 12:38:24 MST 2014 repository/${ddf-branding-lowercase}/mime/core/mime-core-api/2.5.0/mime-core-api-2.5.0.jar
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/apache/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/apache/tika/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/apache/tika/tika-core/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/apache/tika/tika-core/1.2/
+smk   463945 Thu Feb 13 09:26:04 MST 2014 repository/org/apache/tika/tika-core/1.2/tika-core-1.2.jar
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/apache/tika/tika-bundle/
+           0 Wed Sep 17 17:14:06 MST 2014 repository/org/apache/tika/tika-bundle/1.2/
+smk   22360866 Thu Feb 13 09:26:54 MST 2014 repository/org/apache/tika/tika-bundle/1.2/tika-bundle-1.2.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/gt-opengis/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/gt-opengis/8.4_1/
+smk   2335529 Thu Feb 13 09:32:42 MST 2014 repository/org/codice/thirdparty/gt-opengis/8.4_1/gt-opengis-8.4_1.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-commons/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-commons/2.5.1/
+smk    38441 Wed Sep 17 16:56:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-commons/2.5.1/catalog-core-commons-2.5.1.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-camelcomponent/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-camelcomponent/2.5.1/
+smk   103672 Wed Sep 17 16:57:30 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-camelcomponent/2.5.1/catalog-core-camelcomponent-2.5.1.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/measure/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/measure/measure-api/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/${ddf-branding-lowercase}/measure/measure-api/2.5.1/
+smk   609307 Wed Sep 17 16:54:52 MST 2014 repository/${ddf-branding-lowercase}/measure/measure-api/2.5.1/measure-api-2.5.1.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/picocontainer/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/picocontainer/1.2_1/
+smk    10819 Thu Feb 13 09:32:42 MST 2014 repository/org/codice/thirdparty/picocontainer/1.2_1/picocontainer-1.2_1.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/vecmath/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/vecmath/1.3.2_1/
+smk    90446 Thu Feb 13 09:32:42 MST 2014 repository/org/codice/thirdparty/vecmath/1.3.2_1/vecmath-1.3.2_1.jar
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/geotools-suite/
+           0 Wed Sep 17 17:14:08 MST 2014 repository/org/codice/thirdparty/geotools-suite/8.4_1/
+smk   25175516 Thu Feb 13 09:33:40 MST 2014 repository/org/codice/thirdparty/geotools-suite/8.4_1/geotools-suite-8.4_1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/codice/thirdparty/jts/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/codice/thirdparty/jts/1.12_1/
+smk   663441 Thu Feb 13 09:33:44 MST 2014 repository/org/codice/thirdparty/jts/1.12_1/jts-1.12_1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-federationstrategy/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-federationstrategy/2.5.1/
+smk   155049 Wed Sep 17 17:01:02 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-federationstrategy/2.5.1/catalog-core-federationstrategy-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/codice/thirdparty/lucene-core/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/codice/thirdparty/lucene-core/3.0.2_1/
+smk   1041824 Thu Feb 13 09:33:48 MST 2014 repository/org/codice/thirdparty/lucene-core/3.0.2_1/lucene-core-3.0.2_1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/${ddf-branding-lowercase}-pubsub/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/${ddf-branding-lowercase}-pubsub/2.5.1/
+smk   152993 Wed Sep 17 16:58:18 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/${ddf-branding-lowercase}-pubsub/2.5.1/${ddf-branding-lowercase}-pubsub-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-eventcommands/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-eventcommands/2.5.1/
+smk    11132 Wed Sep 17 17:01:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-eventcommands/2.5.1/catalog-core-eventcommands-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/${ddf-branding-lowercase}-pubsub-tracker/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/${ddf-branding-lowercase}-pubsub-tracker/2.5.1/
+smk     6130 Wed Sep 17 17:05:52 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/${ddf-branding-lowercase}-pubsub-tracker/2.5.1/${ddf-branding-lowercase}-pubsub-tracker-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-urlresourcereader/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-urlresourcereader/2.5.1/
+smk    84648 Wed Sep 17 16:57:00 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-urlresourcereader/2.5.1/catalog-core-urlresourcereader-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/filter-proxy/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/filter-proxy/2.5.1/
+smk    33497 Wed Sep 17 16:56:24 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/filter-proxy/2.5.1/filter-proxy-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-commands/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-commands/2.5.1/
+smk   664977 Wed Sep 17 16:56:34 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-commands/2.5.1/catalog-core-commands-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-metacardgroomerplugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-metacardgroomerplugin/2.5.1/
+smk    31421 Wed Sep 17 17:06:04 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-metacardgroomerplugin/2.5.1/catalog-core-metacardgroomerplugin-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/metacard-type-registry/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/metacard-type-registry/2.5.1/
+smk     6349 Wed Sep 17 17:05:58 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/metacard-type-registry/2.5.1/metacard-type-registry-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-standardframework/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-standardframework/2.5.1/
+smk   4930895 Wed Sep 17 16:58:40 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-standardframework/2.5.1/catalog-core-standardframework-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-resourcesizeplugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-resourcesizeplugin/2.5.1/
+smk   4889822 Wed Sep 17 17:06:42 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-resourcesizeplugin/2.5.1/catalog-core-resourcesizeplugin-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/fanout-catalogframework/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/fanout-catalogframework/2.5.1/
+smk   9707692 Wed Sep 17 17:01:20 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/fanout-catalogframework/2.5.1/fanout-catalogframework-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-metricsplugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-metricsplugin/2.5.1/
+smk   708240 Wed Sep 17 16:57:38 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-metricsplugin/2.5.1/catalog-core-metricsplugin-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-sourcemetricsplugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-sourcemetricsplugin/2.5.1/
+smk   709297 Wed Sep 17 17:06:14 MST 2014 repository/${ddf-branding-lowercase}/catalog/core/catalog-core-sourcemetricsplugin/2.5.1/catalog-core-sourcemetricsplugin-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/schematron/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/schematron/catalog-schematron-plugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/schematron/catalog-schematron-plugin/2.5.1/
+smk    19034 Wed Sep 17 17:09:08 MST 2014 repository/${ddf-branding-lowercase}/catalog/schematron/catalog-schematron-plugin/2.5.1/catalog-schematron-plugin-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/rest/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/rest/catalog-rest-endpoint/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/rest/catalog-rest-endpoint/2.5.1/
+smk   151862 Wed Sep 17 17:12:54 MST 2014 repository/${ddf-branding-lowercase}/catalog/rest/catalog-rest-endpoint/2.5.1/catalog-rest-endpoint-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/catalog-opensearch-endpoint/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/catalog-opensearch-endpoint/2.5.1/
+smk   465789 Wed Sep 17 17:12:26 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/catalog-opensearch-endpoint/2.5.1/catalog-opensearch-endpoint-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-extensions-opensearch/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-extensions-opensearch/1.1.3/
+smk    33785 Thu Feb 13 09:31:18 MST 2014 repository/org/apache/abdera/abdera-extensions-opensearch/1.1.3/abdera-extensions-opensearch-1.1.3.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-server/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-server/1.1.3/
+smk   162766 Thu Feb 13 09:31:18 MST 2014 repository/org/apache/abdera/abdera-server/1.1.3/abdera-server-1.1.3.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/catalog-opensearch-source/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/catalog-opensearch-source/2.5.1/
+smk   136957 Wed Sep 17 17:13:04 MST 2014 repository/${ddf-branding-lowercase}/catalog/opensearch/catalog-opensearch-source/2.5.1/catalog-opensearch-source-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/commons-codec/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/commons-codec/commons-codec/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/commons-codec/commons-codec/1.4/
+smk    58160 Thu Feb 13 09:33:48 MST 2014 repository/commons-codec/commons-codec/1.4/commons-codec-1.4.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.axiom-impl/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2/
+smk   121899 Thu Feb 13 09:33:48 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.axiom-impl/1.2.12-2/org.apache.servicemix.bundles.axiom-impl-1.2.12-2.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/ws/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/ws/commons/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/ws/commons/axiom/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/ws/commons/axiom/axiom-api/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/ws/commons/axiom/axiom-api/1.2.10/
+smk   417361 Thu Feb 13 09:33:50 MST 2014 repository/org/apache/ws/commons/axiom/axiom-api/1.2.10/axiom-api-1.2.10.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-core/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-core/1.1.3/
+smk   160895 Thu Feb 13 09:24:52 MST 2014 repository/org/apache/abdera/abdera-core/1.1.3/abdera-core-1.1.3.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-client/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-client/1.1.3/
+smk    62059 Thu Feb 13 09:24:52 MST 2014 repository/org/apache/abdera/abdera-client/1.1.3/abdera-client-1.1.3.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-i18n/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-i18n/1.1.3/
+smk   622568 Thu Feb 13 09:24:54 MST 2014 repository/org/apache/abdera/abdera-i18n/1.1.3/abdera-i18n-1.1.3.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.abdera-parser/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1/
+smk   1379508 Thu Feb 13 09:33:54 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.abdera-parser/1.1.3_1/org.apache.servicemix.bundles.abdera-parser-1.1.3_1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.dom4j/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5/
+smk   325676 Thu Feb 13 09:33:56 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5/org.apache.servicemix.bundles.dom4j-1.6.1_5.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdom/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdom/1.1.2_1/
+smk   160101 Thu Feb 13 09:33:56 MST 2014 repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.jdom/1.1.2_1/org.apache.servicemix.bundles.jdom-1.1.2_1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/codice/thirdparty/commons-httpclient/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/codice/thirdparty/commons-httpclient/3.1.0_1/
+smk   306098 Thu Feb 13 09:33:56 MST 2014 repository/org/codice/thirdparty/commons-httpclient/3.1.0_1/commons-httpclient-3.1.0_1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/plugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/plugin/plugin-federation-replication/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/plugin/plugin-federation-replication/2.5.1/
+smk     8986 Wed Sep 17 17:12:02 MST 2014 repository/${ddf-branding-lowercase}/catalog/plugin/plugin-federation-replication/2.5.1/plugin-federation-replication-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-metadata/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-metadata/2.5.1/
+smk    32559 Wed Sep 17 17:09:44 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-metadata/2.5.1/catalog-transformer-metadata-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-thumbnail/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-thumbnail/2.5.1/
+smk    32578 Wed Sep 17 17:09:52 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-thumbnail/2.5.1/catalog-transformer-thumbnail-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/service-xslt-transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/service-xslt-transformer/2.5.1/
+smk    47227 Wed Sep 17 17:09:28 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/service-xslt-transformer/2.5.1/service-xslt-transformer-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-resource/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-resource/2.5.1/
+smk    83019 Wed Sep 17 17:09:34 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-resource/2.5.1/catalog-transformer-resource-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/tika-input-transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/tika-input-transformer/2.5.1/
+smk    32522 Wed Sep 17 17:10:06 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/tika-input-transformer/2.5.1/tika-input-transformer-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-metacard-transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-metacard-transformer/2.5.1/
+smk     9004 Wed Sep 17 17:10:22 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-metacard-transformer/2.5.1/geojson-metacard-transformer-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-queryresponse-transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-queryresponse-transformer/2.5.1/
+smk    53446 Wed Sep 17 17:10:28 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-queryresponse-transformer/2.5.1/geojson-queryresponse-transformer-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-input-transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-input-transformer/2.5.1/
+smk    35487 Wed Sep 17 17:10:16 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/geojson-input-transformer/2.5.1/geojson-input-transformer-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/service-atom-transformer/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/service-atom-transformer/2.5.1/
+smk    38484 Wed Sep 17 17:10:40 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/service-atom-transformer/2.5.1/service-atom-transformer-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-extensions-geo/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/org/apache/abdera/abdera-extensions-geo/1.1.3/
+smk    28410 Thu Feb 13 09:24:52 MST 2014 repository/org/apache/abdera/abdera-extensions-geo/1.1.3/abdera-extensions-geo-1.1.3.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/common/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/common/geo-formatter/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/common/geo-formatter/2.5.1/
+smk    15970 Wed Sep 17 16:55:18 MST 2014 repository/${ddf-branding-lowercase}/catalog/common/geo-formatter/2.5.1/geo-formatter-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/com/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/com/googlecode/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/com/googlecode/json-simple/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/com/googlecode/json-simple/json-simple/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/com/googlecode/json-simple/json-simple/1.1.1/
+smk    23931 Thu Feb 13 09:24:52 MST 2014 repository/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-xml/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-xml/2.5.1/
+smk   1954994 Wed Sep 17 17:11:02 MST 2014 repository/${ddf-branding-lowercase}/catalog/transformer/catalog-transformer-xml/2.5.1/catalog-transformer-xml-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/commons-collections/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/commons-collections/commons-collections/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/commons-collections/commons-collections/3.2.1/
+smk   575389 Thu Feb 13 09:24:34 MST 2014 repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-filter/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-filter/2.5.1/
+smk     6492 Wed Sep 17 17:13:40 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-filter/2.5.1/catalog-security-filter-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-plugin/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-plugin/2.5.1/
+smk     5463 Wed Sep 17 17:13:50 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-plugin/2.5.1/catalog-security-plugin-2.5.1.jar
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-logging/
+           0 Wed Sep 17 17:14:10 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-logging/2.5.1/
+smk     6768 Wed Sep 17 17:13:58 MST 2014 repository/${ddf-branding-lowercase}/catalog/security/catalog-security-logging/2.5.1/catalog-security-logging-2.5.1.jar
+  s = signature was verified
+  m = entry is listed in manifest
+  k = at least one certificate was found in keystore
+  i = at least one certificate was found in identity scope
+jar verified.
+----
+
+Note the last line: _jar verified_.
+This indicates that the signatures used to sign the JAR (or in this case, KAR) were valid according to the trust relationships specified by the keystore.

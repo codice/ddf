@@ -1343,7 +1343,7 @@ This bundle is installed by default and can be added by installing the `security
 
 ==== Configuring
 
-Settings can be found in the Admin Console (https://localhost:8993/admin) under *{branding} Security -> Configuration -> Security Simple AuthZ Realm*.
+Settings can be found in the Admin Console (https://localhost:8993/admin) under *{branding} Security -> Configuration -> Security AuthZ Realm*.
 
 [cols="1,1,6" options="header"]
 |===

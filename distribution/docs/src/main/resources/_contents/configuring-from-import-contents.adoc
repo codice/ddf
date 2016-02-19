@@ -1,0 +1,43 @@
+
+The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it as a starting point for a new installation.
+
+[IMPORTANT]
+====
+* Importing configuration files is only guaranteed to work when importing files from the same ${branding} version.
+  Importing from a different version is not recommended as it may cause the new ${branding} instance to be incorrectly configured and become unusable.
+* All configurations editable in the Admin Console will be exported to `<${branding}_HOME>/etc/exported/etc`.
+* All other configuration files (system configurations) will be put under `etc/exported` followed by their relative path from `${branding}_HOME`.
+  For instance, if a key store file was located under `<${branding}_HOME>/keystores/keystore.jks`, it will be exported to `<${branding}_HOME>/etc/exported/keystore/keystore.jks`.
+* To keep the export/import process simple and consistent, all system configuration files are required to be under the `${branding}_HOME` directory.
+====
+
+==== Export Configuration Settings
+
+To export the current ${branding} configuration:
+
+. Using the ${branding} Command Line Console, type in `migration:export <directory>`. This command creates the exported configuration files that are saved to the specified directory. If no directory is specified it will default to `<${branding}_HOME>/etc/exported`
+. Zip up the exported files in the export directory.
+----
+cd  <${branding}_HOME>/etc/exported
+zip exportedFiles.zip *
+----
+
+[IMPORTANT]
+====
+Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore`
+property which provides the path to system key store.
+The files referred to in the system configuration files will be included in the export process only if the path is relative to `${branding}_HOME`.
+Using absolute paths and/or symbolic links in those cases will cause the `migration:export` command to display warnings about those files and exclude them from the export process.
+The export process itself will not be aborted.
+====
+
+==== Import Configuration Settings
+
+To import a previously exported configuration:
+
+. Delete all exising `.config` files from `<${branding}_HOME>/etc`: `rm <${branding}_HOME>/etc/*.config`
+. Unzip the exported files from a previous installation to the new instance's `<${branding}_HOME>/etc` directory: `unzip exportedFiles.zip <${branding}_HOME>/etc`
+. If needed, manually update system configuration files such as `system.properties`, `users.properties`. keystores, etc.
+. Launch the newly installed ${branding}.
+. Step through the installation process. The newly installed ${branding} will have the previous ${branding}'s settings imported.
+. To get a status of the import, run the `migration:status` from the Command Line Console.

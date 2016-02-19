@@ -89,9 +89,29 @@
                                             <classifier>DDFOmnibus</classifier>
                                         </artifact>
                                         <artifact>
+                                            <file>${project.build.directory}/docs/html/ddfintroduction.html</file>
+                                            <type>html</type>
+                                            <classifier>DDFIntroduction</classifier>
+                                        </artifact>
+                                        <artifact>
+                                            <file>${project.build.directory}/docs/html/ddfquickstart.html</file>
+                                            <type>html</type>
+                                            <classifier>DDFQuickStart</classifier>
+                                        </artifact>
+                                        <artifact>
                                             <file>${project.build.directory}/docs/pdf/ddfomnibus.pdf</file>
                                             <type>pdf</type>
                                             <classifier>DDFOmnibus</classifier>
+                                        </artifact>
+                                        <artifact>
+                                            <file>${project.build.directory}/docs/pdf/ddfintroduction.pdf</file>
+                                            <type>pdf</type>
+                                            <classifier>DDFIntroduction</classifier>
+                                        </artifact>
+                                        <artifact>
+                                            <file>${project.build.directory}/docs/pdf/ddfquickstart.pdf</file>
+                                            <type>pdf</type>
+                                            <classifier>DDFQuickStart</classifier>
                                         </artifact>
                                     </artifacts>
                                 </configuration>

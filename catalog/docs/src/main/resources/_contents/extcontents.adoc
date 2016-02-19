@@ -5501,7 +5501,7 @@ The following code shows how to correctly register a `Subscription` implementa
 // Map to keep track of registered Subscriptions.  Used for unregistering Subscriptions.
 Map<String, ServiceRegistration<Subscription>> subscriptions = new HashMap<String, ServiceRegistration<Subscription>>();
 
-// New subscription using the {branding} Implementation of subscription
+// New subscription using the ${branding} Implementation of subscription
 Subscription subscription = new SubscriptionImpl(filter, deliveryMethod, sourceIds,isEnterprise);
 
 // Specify the subscription-id to uniquely identify the Subscription

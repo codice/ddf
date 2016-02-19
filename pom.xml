@@ -86,6 +86,16 @@
         <pax.web.version>4.2.4</pax.web.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
+        <!--Documentation Replacements-->
+        <branding>DDF</branding>
+        <branding-lowercase>ddf</branding-lowercase>
+        <ddf-branding>DDF</ddf-branding>
+        <ddf-branding-lowercase>ddf</ddf-branding-lowercase>
+        <ddf-branding-expanded>Distributed Data Framework</ddf-branding-expanded>
+        <!--Needed for proper formatting in documentation-->
+        <at-symbol>@</at-symbol>
+        <variable-prefix>${</variable-prefix>
+        <image-width>500</image-width>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
@@ -544,7 +554,6 @@
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
                 <module>docs</module>
-                <image-width>500</image-width>
             </properties>
             <repositories>
                 <repository>
@@ -697,14 +706,26 @@
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-assembly-plugin</artifactId>
                             <version>2.5.3</version>
-                            <configuration>
-                                <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
-                                <outputDirectory>${project.build.directory}/documentation
-                                </outputDirectory>
-                            </configuration>
                             <executions>
                                 <execution>
+                                    <configuration>
+                                        <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+                                        <outputDirectory>${project.build.directory}/documentation
+                                        </outputDirectory>
+                                    </configuration>
                                     <id>include-docs</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <configuration>
+                                        <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                                        <outputDirectory>${project.build.directory}/adoc-files
+                                        </outputDirectory>
+                                    </configuration>
+                                    <id>include-adocs</id>
                                     <phase>package</phase>
                                     <goals>
                                         <goal>single</goal>

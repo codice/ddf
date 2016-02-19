@@ -1,0 +1,127 @@
+
+This quick tutorial will enable install, configuring and using a basic instance of ${branding}.
+
+These steps will demonstrate:
+
+- [*] Prerequisites
+- [*] Installation
+- [*] Ingesting into the ${ddf-branding} Catalog
+
+==== Prerequisites
+
+* Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
+* Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
+* http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
+* The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
+
+.Setting `JAVA_HOME` on *NIX
+----
+JAVA_HOME=/usr/java/jdk1.8.0_<BUILDNUMBER>
+export JAVA_HOME
+----
+
+.Setting `JAVA_HOME` on Windows
+----
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
+----
+
+.*NIX
+[WARNING]
+====
+Unlink `/usr/bin/java` if it is already linked to a previous version of the JRE:
+`unlink /usr/bin/java`
+====
+
+[TIP]
+====
+Verify that the `JAVA_HOME` was set correctly.
+
+.*NIX
+----
+echo $JAVA_HOME
+----
+
+.Windows
+----
+echo %JAVA_HOME%
+----
+====
+
+* ${branding} installation zip file.
+* A web browser.
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following:
+
+.File Descriptor Limit
+----
+fs.file-max = 6815744
+----
+
+.Restart
+[WARNING]
+====
+For the change to take effect, a restart is required.
+====
+
+.Restart Command
+----
+init 6
+----
+
+==== Installing ${branding}
+
+. Install ${branding} by unzipping the zip file.
+. This will create an installation directory, which is typically created with the name and version of the application.
+This installation directory will be referred to as `<DISTRIBUTION_INSTALL_DIR>`.
+(Substitute the actual directory name.)
+. Start ${branding} by running the `<DISTRIBUTION_INSTALL_DIR>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
+. The {command-console} will display.
+
+.{command-console} Prompt
+----
+${branding-lowercase}${at-symbol}local>
+----
+==== Configuring
+
+.. Go to https://localhost:8993/admin.
+.. Enter the default username of `admin` and the password of `admin`.
+.. Follow the prompts installer prompts for a standard installation.
+... Click start to begin the setup process.
+... Configure guest claims attributes or use defaults.
+... Select Standard Installation.
+... On the System Configuration page, configure any port or protocal changes desired and add any keystores/truststores needed.
+... Click *Next*
+... Click *Finish*
+
+==== Catalog Capabilities
+
+. Download a sample valid https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[GeoJson file here].
+. Navigate in the browser to the Search UI at http://localhost:8993/search.
+. Click the *upload* icon icon:upload[role="blue"] in the upper right corner.
+. Select the file to upload.
+
+==== Using the Content Framework Directory Monitor
+
+Using the Content framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
+
+. In the {admin-console}, select the *${ddf-branding} Content* application.
+. Select *Configuration* tab.
+. Select the *Content Directory Monitor*.
+. Set the directory path to `inbox`.
+. Set *Processing Directive* to `Store and Process` (default).
+. Click the *Save* button.
+. Copy the attached https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[geojson file] to the `<DISTRIBUTION_INSTALL_DIR>/inbox` directory.
++
+The Content Framework will:
++
+.. ingest the file,
+.. store it in the content repository at `<DISTRIBUTION_INSTALL_DIR>/content/store/<GUID>/geojson_valid.json`,
+.. look up the GeoJson Input Transformer based on the mime type of the ingested file,
+.. create a metacard based on the metadata parsed from the ingested GeoJson file, and
+.. insert the metacard into the Catalog using the `CatalogFramework`.
+
+[NOTE]
+====
+XML metadata for text searching is not automatically generated from GeoJson fields.
+====
+
+Querying from the Search UI (https://localhost:8993/search) will return the record for the file ingested.
