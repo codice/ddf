@@ -17,14 +17,20 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+
+import ddf.security.PropertiesLoader;
 
 public class CrlCheckerTest {
 
@@ -118,25 +124,42 @@ public class CrlCheckerTest {
         certs = extractX509CertsFromString(certificateString);
         assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
     }
-
-    private CrlChecker getConfiguredCrlChecker(String encryptionProperties) {
-        CrlChecker crlChecker = new CrlChecker();
-        Properties prop = crlChecker.loadProperties(encryptionProperties);
-        String crlPropertyValue = prop.getProperty(crlChecker.CRL_PROPERTY_KEY);
-
-        // Prevents a null pointer in the unit tests when appending the unit test's getResource path
-        if (crlPropertyValue == null) {
-            crlChecker.setCrlLocation(crlPropertyValue);
-        } else {
-            String crlRelativePath = "/" + prop.getProperty(crlChecker.CRL_PROPERTY_KEY);
-            String crlAbsolutePath = PKIHandlerTest.class.getResource(crlRelativePath)
-                    .getPath();
-            crlChecker.setCrlLocation(crlAbsolutePath);
-        }
-
-        return crlChecker;
+    
+    @Test
+    public void testIsCrlDisabled() {
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
+        
+        boolean enabled = crlChecker.isCrlEnabled();
+        
+        assertThat(enabled, equalTo(false));
+    }
+    
+    @Test
+    public void testIsCrlEnabled() {
+        CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-valid.properties");
+        
+        boolean enabled = crlChecker.isCrlEnabled();
+        
+        assertThat(enabled, equalTo(true));
     }
 
+    private CrlChecker getConfiguredCrlChecker(String encryptionProperties) {
+        CrlChecker crlChecker = new CrlChecker() {
+            @Override
+            Path getCrlPathFromPropertiesFile() {
+                Properties props = PropertiesLoader.loadProperties(encryptionProperties);
+                String path = props.getProperty(CrlChecker.CRL_PROPERTY_KEY);
+                if(StringUtils.isNotBlank(path)) {
+                    return Paths.get(CrlCheckerTest.class.getResource(File.separator + path).getPath());
+                } else {
+                    return null;
+                }
+            }
+        };
+        
+        return crlChecker;
+    }
+        
     /**
      * Exctracts list of X509 certs from a given cert string
      *

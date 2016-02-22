@@ -43,4 +43,17 @@
              ranking="75">
     </service>
 
+    <bean id="crlChecker" class="org.codice.ddf.security.handler.pki.CrlChecker" />
+    
+    <bean id="migratableUtil" class="org.codice.ddf.migration.util.MigratableUtil" />
+
+    <bean id="crlMigratable" class="org.codice.ddf.security.handler.pki.migratable.impl.CrlMigratable">
+        <argument value="Exports CRL"/>
+        <argument value="false"/>
+        <argument ref="crlChecker"/>
+        <argument ref="migratableUtil"/>
+    </bean>
+    
+    <service id="crlMigratableService" ref="crlMigratable" interface="org.codice.ddf.migration.Migratable" />
+
 </blueprint>

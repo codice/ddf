@@ -16,12 +16,15 @@ package org.codice.ddf.security.handler.pki;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.cert.CRL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,20 +35,29 @@ import ddf.security.common.audit.SecurityLogger;
 public class CrlChecker {
 
     public static final String CRL_PROPERTY_KEY = Merlin.OLD_PREFIX + Merlin.X509_CRL_FILE;
+    
+    public static final Path ENCRYPTION_PROPERTIES_PATH = Paths.get("etc", "ws-security", "server", "encryption.properties");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
 
-    private static String encryptionPropertiesLocation =
-            "etc/ws-security/server/encryption.properties";
+    private final Path crlPath;
 
     private CRL crl = null;
 
     /**
-     * Constructor method. Reads encryption.properties and sets CRL location
+     * Constructor method. Reads encryption.properties and creates CRL.
      */
     public CrlChecker() {
-        Properties encryptionProperties = loadProperties(encryptionPropertiesLocation);
-        setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
+        crlPath = getCrlPathFromPropertiesFile();
+        if (crlPath != null) {
+            crl = createCrl(crlPath.toString());
+        } else {
+            String errorMsg = String.format(
+                    "CRL property in %s is not set. Certs will not be checked against a CRL",
+                    ENCRYPTION_PROPERTIES_PATH.toString());
+            SecurityLogger.logTrace(errorMsg);
+            LOGGER.warn(errorMsg);
+        }
     }
 
     /**
@@ -55,7 +67,7 @@ public class CrlChecker {
      * @return true if one of the certs passes the CRL or if CRL revocation is disabled, false if they are all revoked.
      */
     public boolean passesCrlCheck(X509Certificate[] certs) {
-        if (crl == null) {
+        if (!isCrlEnabled()) {
             String errorMsg = "CRL is not set. Skipping CRL check";
             LOGGER.trace(errorMsg);
             SecurityLogger.logTrace(errorMsg);
@@ -63,6 +75,25 @@ public class CrlChecker {
         }
         LOGGER.trace("Checking request certs against CRL.");
         return passesCrl(certs);
+    }
+    
+    /**
+     * Determines whether or not the CRL is enabled. If the CRL is uncommented out in encryption.properties,
+     * it is enabled; otherwise, it is disabled.
+     * 
+     * @return Returns true if the CRL is uncommented out, false otherwise
+     */
+    public boolean isCrlEnabled() {
+        return crl != null;
+    }
+    
+    /**
+     * Gets the CRL path. If the CRL is disabled, it will be null.
+     * 
+     * @return the CRL path
+     */
+    public Path getCrlPath() {
+        return crlPath;
     }
 
     /**
@@ -93,24 +124,6 @@ public class CrlChecker {
     }
 
     /**
-     * Sets the location of the CRL. Enables CRL checking if property is set, disables it otherwise
-     *
-     * @param location Location of the DER-encoded CRL file that should be used to
-     *                 check certificate revocation.
-     */
-    public void setCrlLocation(String location) {
-        if (location == null) {
-            String errorMsg = "CRL property in " + encryptionPropertiesLocation
-                    + "is not set. Certs will not be checked against a CRL";
-            SecurityLogger.logTrace(errorMsg);
-            LOGGER.warn(errorMsg);
-            crl = null;
-        } else {
-            crl = createCrl(location);
-        }
-    }
-
-    /**
      * Generates a new CRL object from the given location.
      *
      * @param location Path to the CRL file
@@ -128,15 +141,29 @@ public class CrlChecker {
             return null;
         }
     }
-
+    
     /**
      * Loads the properties from a given location.
      *
      * @param location location of properties file
      * @return Properties from the file
      */
-    Properties loadProperties(String location) {
+    private Properties loadProperties(String location) {
         return PropertiesLoader.loadProperties(location);
     }
-
+    
+    /**
+     * Gets the path to the CRL from the encryption.properties file.
+     * 
+     * @return path to the CRL if CRL property is found (enabled CRL), null otherwise (disabled CRL).
+     */
+    Path getCrlPathFromPropertiesFile() {
+        Properties encryptionProperties = loadProperties(ENCRYPTION_PROPERTIES_PATH.toString());
+        String path = encryptionProperties.getProperty(CRL_PROPERTY_KEY);
+        if(StringUtils.isNotBlank(path)) {
+            return Paths.get(path);
+        } else {
+            return null;
+        }
+    }
 }

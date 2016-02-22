@@ -118,8 +118,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static KarafConsole console;
 
-    private static final String SEARCH_COMMAND = "catalog:search";
-
     private static Path symbolicLink;
 
     private static ManagedServiceConfigFile managedServiceStartupConfig =
@@ -146,8 +144,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
-    private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
-
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -162,23 +158,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
             basePort = getBasePort();
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
-            enableCrlInEncyptionPropertiesFile();
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
         }
-    }
-
-    private void enableCrlInEncyptionPropertiesFile() throws IOException {
-        File encryptionPropertiesLocation = Paths.get(ddfHome)
-                .resolve(ENCRYPTION_PROPERTIES)
-                .toFile();
-        encryptionPropertiesLocation.delete();
-        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(
-                CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE),
-                Paths.get(ddfHome)
-                        .resolve(ENCRYPTION_PROPERTIES)
-                        .toFile());
     }
 
     public void resetInitialState() throws Exception {
@@ -200,7 +183,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
     /**
-     * Installs the configuration files needed at startup.
+     * Installs files needed at startup.
      */
     @Override
     protected Option[] configureCustom() {
@@ -216,12 +199,15 @@ public class TestConfiguration extends AbstractIntegrationTest {
                             managedServiceFactoryConfigPath),
                             "/etc" + managedServiceFactoryConfigPath),
                     installStartupFile(getClass().getResourceAsStream(invalidConfigPath),
-                            "/etc" + invalidConfigPath));
+                            "/etc" + invalidConfigPath),
+                    installStartupFile(getClass().getResourceAsStream(CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE),
+                            File.separator + ENCRYPTION_PROPERTIES));
         } catch (Exception e) {
-            LOGGER.error("Could not copy config files {}, {} and {} to /etc directory",
+            LOGGER.error("Could not copy files {}, {}, {}, and {}",
                     managedServiceConfigPath,
                     managedServiceFactoryConfigPath,
-                    invalidConfigPath);
+                    invalidConfigPath,
+                    CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE);
             return null;
         }
     }
@@ -502,25 +488,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
-    public void testExportFailureWithoutWSSecurityDirectory() throws Exception {
-        resetInitialState();
-
-        FileUtils.moveDirectory(WS_SECURITY.toFile(), WS_SECURITY_COPY.toFile());
-
-        String response = console.runCommand(EXPORT_COMMAND);
-
-        assertThat(String.format("Should not have been able to export to %s.",
-                getDefaultExportDirectory()),
-                response,
-                containsString("An error was encountered while executing this command."));
-    }
-
-    /**
-     * Tests that when system properties file is missing, export fails
-     *
-     * @throws Exception
-     */
-    @Test
     public void testExportFailureWithoutPDPDirectory() throws Exception {
         resetInitialState();
 
@@ -689,6 +656,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security", "server"),
                 "encryption.properties",
                 "signature.properties");
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "certs", "demoCA", "crl"), 
+                "crl.pem");
     }
 
     private void addConfigurationFile(String fileName, InputStream inputStream) throws IOException {
