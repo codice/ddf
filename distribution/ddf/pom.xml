@@ -68,7 +68,7 @@
                             <goal>features-add-to-repository</goal>
                         </goals>
                         <configuration>
-                            <inherited>false</inherited>
+                            <addTransitiveFeatures>false</addTransitiveFeatures>
                             <descriptors>
                                 <descriptor>
                                     mvn:org.codice.ddf/kernel/${project.version}/xml/features
