@@ -44,8 +44,8 @@ program
   .version(pkg.version)
   .option('-a, --apply', 'apply fixes to files in-place')
   .option('-d, --dir <path>', 'directory to run in, default is pwd')
-  .option('-c, --color', 'enable/disable color')
   .option('-i, --include <items>', 'comma seperated list of group ids to include in a pom if found missing', list)
+  .allowUnknownOption()
   .parse(process.argv)
 
 var apply = function () {
