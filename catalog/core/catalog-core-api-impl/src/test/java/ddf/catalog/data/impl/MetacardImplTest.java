@@ -562,14 +562,4 @@ public class MetacardImplTest {
 
     }
 
-    /*
-     * Test when the resource uri is set with setAttribute() with a URI not a String
-     */
-    @Test(expected=IllegalArgumentException.class)
-    public void testSetAttributeResourceUriWithUriParameter() throws URISyntaxException {
-        MetacardImpl metacard = new MetacardImpl();
-        URI uri = new URI(nsUri.toString() + "/resource.html");
-        metacard.setAttribute("resource-uri", uri);
-    }
-
 }

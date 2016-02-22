@@ -157,7 +157,11 @@ public class TestMetacardGroomerPlugin {
     public void testCreateNoDates() throws PluginExecutionException, StopProcessingException {
 
         Date snapshotOfNow = new Date();
-        Metacard inputMetacard = getStandardMetacardNoDates();
+        Metacard inputMetacard = getStandardMetacard();
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.EXPIRATION, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, ""));
 
         Metacard outputMetacard = processCreate(inputMetacard);
 
@@ -414,12 +418,15 @@ public class TestMetacardGroomerPlugin {
             throws PluginExecutionException, StopProcessingException, ParseException {
 
         Date snapshotOfNow = new Date();
-        Metacard inputMetacard = new MetacardImpl();
+        Metacard inputMetacard = getStandardMetacard();
         inputMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, ""));
         inputMetacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.MODIFIED, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, ""));
+        inputMetacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, ""));
         inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, ""));
         inputMetacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE_VERSION, ""));
-        inputMetacard.setAttribute(new AttributeImpl(Metacard.METADATA, DEFAULT_METADATA));
 
         Metacard outputMetacard = processUpdate(inputMetacard);
 
@@ -655,18 +662,6 @@ public class TestMetacardGroomerPlugin {
         metacard.setEffectiveDate(defaultDate);
         metacard.setExpirationDate(defaultDate);
         metacard.setModifiedDate(defaultDate);
-        metacard.setMetadata(DEFAULT_METADATA);
-        metacard.setContentTypeName(DEFAULT_TYPE);
-        metacard.setContentTypeVersion(DEFAULT_VERSION);
-        metacard.setLocation(DEFAULT_LOCATION);
-        byte[] defaultBytes = {-86};
-        metacard.setThumbnail(defaultBytes);
-        return metacard;
-    }
-
-    protected Metacard getStandardMetacardNoDates() {
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setTitle(DEFAULT_TITLE);
         metacard.setMetadata(DEFAULT_METADATA);
         metacard.setContentTypeName(DEFAULT_TYPE);
         metacard.setContentTypeVersion(DEFAULT_VERSION);

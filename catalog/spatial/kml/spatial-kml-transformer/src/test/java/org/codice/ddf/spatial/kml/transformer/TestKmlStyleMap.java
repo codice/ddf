@@ -145,7 +145,7 @@ public class TestKmlStyleMap {
     @Test
     public void testGetStyleForMetacardBinaryNoMatch() {
         Metacard metacard = new MockMetacard(AttributeFormat.BINARY.toString(),
-                MockMetacard.DEFAULT_LOCATION.getBytes());
+                MockMetacard.DEFAULT_LOCATION);
         KmlStyleMap mapper = new KmlStyleMap();
         mapper.addMapEntry(new KmlStyleMapEntryImpl(AttributeFormat.BINARY.toString(),
                 MockMetacard.DEFAULT_LOCATION,
