@@ -85,6 +85,12 @@
         </configfile>
     </feature>
 
+    <feature name="catalog-core-migratable" install="manual" version="${project.version}"
+             description="Catalog Core feature to enable metacard export.">
+        <feature prerequisite="true">catalog-core</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-migratable/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-metrics" install="manual" version="${project.version}">
         <feature prerequisite="true">catalog-core</feature>
         <feature>catalog-core-metricsplugin</feature>
@@ -359,6 +365,7 @@
         <feature>catalog-transformer-pdf</feature>
         <feature>catalog-security-metacardattributeplugin</feature>
         <feature>catalog-security-xmlattributeplugin</feature>
+        <feature>catalog-core-migratable</feature>
     </feature>
 
 

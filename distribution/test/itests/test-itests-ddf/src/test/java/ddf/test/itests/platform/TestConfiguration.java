@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static com.jayway.restassured.RestAssured.when;
 import static ddf.common.test.WaitCondition.expect;
 import static ddf.common.test.matchers.ConfigurationPropertiesEqualTo.equalToConfigurationProperties;
 
@@ -33,12 +34,15 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -54,11 +58,17 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.path.xml.element.NodeChildren;
+import com.jayway.restassured.response.Response;
+
 import ddf.common.test.BeforeExam;
 import ddf.common.test.KarafConsole;
 import ddf.common.test.callables.GetConfigurationProperties;
 import ddf.common.test.matchers.ConfigurationPropertiesEqualTo;
 import ddf.test.itests.AbstractIntegrationTest;
+import ddf.test.itests.catalog.TestCatalog;
+import ddf.test.itests.common.Library;
 
 /**
  * Note: Tests prefixed with aRunFirst NEED to run before any other tests.  For this reason, we
@@ -74,6 +84,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static final String EXPORT_COMMAND = "migration:export";
 
     private static final String STATUS_COMMAND = "migration:status";
+
+    private static final String CATALOG_REMOVE_ALL_COMMAND = "catalog:removeall --force";
+
+    private static final String CATALOG_INGEST_COMMAND = "catalog:ingest";
 
     private static final String SUCCESSFUL_IMPORT_MESSAGE =
             "All config files imported successfully.";
@@ -195,6 +209,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
+            getCatalogBundle().waitForCatalogProvider();
             console = new KarafConsole(bundleCtx, features, sessionFactory);
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
@@ -222,6 +237,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 + "serverKeystore.jks");
 
         disableCrls();
+        console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
     }
 
     /**
@@ -548,9 +564,9 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportCrlsEnabled() throws Exception {
         resetInitialState();
         enableCrls();
-        
+
         console.runCommand(EXPORT_COMMAND);
-        
+
         assertExportContentsWithCrlsEnabled(getDefaultExportDirectory());
     }
 
@@ -663,6 +679,48 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 is(true));
     }
 
+    @Test
+    public void testExportCatalog() throws Exception {
+        resetInitialState();
+
+        List<String> metacardIds;
+        try {
+            //getServiceManager().startFeature(true, "catalog-core-migratable");
+
+            metacardIds = ingestMetacardsForExport();
+
+            console.runCommand(EXPORT_COMMAND);
+            assertExportCatalog(getDefaultExportDirectory().resolve("catalog"));
+
+            console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
+
+            console.runCommand(String.format("%s %s",
+                    CATALOG_INGEST_COMMAND,
+                    getDefaultExportDirectory().resolve("catalog")), new RolePrincipal("admin"));
+        } finally {
+            //getServiceManager().stopFeature(true, "catalog-core-migratable");
+        }
+        assertMetacardsIngested(metacardIds.size());
+    }
+
+    private void assertMetacardsIngested(int expectedumberOfMetacards) throws Exception {
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=local";
+        Response response = when().get(queryUrl);
+        String bodyXml = response.body()
+                .asString();
+        NodeChildren metacards = new XmlPath(bodyXml).get("metacards.metacard");
+        assertThat(metacards.size(), is(expectedumberOfMetacards));
+    }
+
+    private List<String> ingestMetacardsForExport() {
+        List<String> metacardIds = new ArrayList<>(2);
+        String metacardId1 = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+        metacardIds.add(metacardId1);
+        String metacardId2 = TestCatalog.ingest(Library.getSimpleXml(), "text/xml");
+        metacardIds.add(metacardId2);
+        return metacardIds;
+    }
+
     private void enableCrls() throws IOException {
         backupCrl(SERVER_ENCRYPTION_PROPERTIES, SERVER_ENCRYPTION_PROPERTIES_COPY);
         copyCrlEnabledPropertiesFile(CRL_ENABLED_SERVER_ENCRYPTION_PROPERTIES_FILE,
@@ -773,6 +831,13 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security", "server"),
                 "encryption.properties",
                 "signature.properties");
+    }
+
+    private void assertExportCatalog(Path exportPath) {
+        String[] metacards = exportPath.toFile()
+                .list();
+        assertThat("Exported files should not be null.", metacards, is(notNullValue()));
+        assertThat(metacards.length, is(2));
     }
 
     private void assertExportContentsWithCrlsEnabled(Path exportDirectory) {
