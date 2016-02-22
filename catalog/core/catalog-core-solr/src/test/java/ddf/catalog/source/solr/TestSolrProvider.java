@@ -3694,7 +3694,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
         customMetacard2.setAttribute(floatField, (floatFieldValue + 10.0f));
         customMetacard2.setAttribute(intField, intFieldValue + 1);
         customMetacard2.setAttribute(longField, longFieldValue + 10L);
-        customMetacard2.setAttribute(shortField, (short)(shortFieldValue + 1));
+        customMetacard2.setAttribute(shortField, (shortFieldValue + 1));
 
         create(Arrays.asList((Metacard) customMetacard1, customMetacard2));
 

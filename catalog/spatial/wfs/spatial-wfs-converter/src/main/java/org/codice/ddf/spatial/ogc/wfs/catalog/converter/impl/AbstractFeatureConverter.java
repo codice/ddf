@@ -61,7 +61,6 @@ import com.vividsolutions.jts.io.WKTWriter;
 import com.vividsolutions.jts.io.gml2.GMLReader;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -223,44 +222,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                     LOGGER.debug("Setting metacard basic attribute: {} = {}",
                             reader.getNodeName(),
                             value);
-                    AttributeType expectedType = mc.getAttributeType(reader.getNodeName());
-                    if (expectedType.getBinding() != null && expectedType.getBinding() != value.getClass()) {
-                        //Attempt to convert the value
-                        switch(expectedType.getAttributeFormat()) {
-                        case BOOLEAN:
-                            value = Boolean.parseBoolean((String) value);
-                            break;
-                        case DOUBLE:
-                            value = Double.parseDouble((String) value);
-                            break;
-                        case FLOAT:
-                            value = Float.parseFloat((String) value);
-                            break;
-                        case INTEGER:
-                            value = Integer.parseInt((String) value);
-                            break;
-                        case LONG:
-                            value = Long.parseLong((String) value);
-                            break;
-                        case SHORT:
-                            value = Short.parseShort((String) value);
-                            break;
-                        case BINARY:
-                            value = Byte.parseByte((String) value);
-                            break;
-                        case OBJECT:
-                            break;
-                        case DATE:
-                            //TODO: Use SimpleDateFormat?
-                            value = new Date((String) value);
-                            break;
-                        case STRING:
-                        case GEOMETRY:
-                        case XML:
-                            value = String.valueOf(value);
-                            break;
-                        }
-                    }
+
                     mc.setAttribute(reader.getNodeName(), value);
                 }
 
