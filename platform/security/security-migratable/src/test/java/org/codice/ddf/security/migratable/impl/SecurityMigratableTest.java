@@ -14,6 +14,7 @@
 package org.codice.ddf.security.migratable.impl;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollectionOf;
@@ -21,19 +22,18 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.util.MigratableUtil;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
@@ -47,68 +47,77 @@ public class SecurityMigratableTest {
 
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
-    private static final Path EXPORTED_REL_PATH = Paths.get("etc", "exported");
-
     private static final String DESCRIPTION = "Exports Security system files";
 
-    private static final Path FILE_CONTAINING_CRL_LOCATION = Paths.get("etc",
-            "ws-security",
-            "server",
-            "encryption.properties");
+    private static final Path SERVER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc", "ws-security",
+            "server", "encryption.properties");
+
+    private static final Path SERVER_SIGNATURE_PROPERTIES_PATH = Paths.get("etc", "ws-security",
+            "server", "signature.properties");
+
+    private static final Path ISSUER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc", "ws-security",
+            "issuer", "encryption.properties");
+
+    private static final Path ISSUER_SIGNATURE_PROPERTIES_PATH = Paths.get("etc", "ws-security",
+            "issuer", "signature.properties");
+
+    private static final Path EXPECTED_SERVER_SIGNATURE_CRL_PATH = Paths.get("ddf", "crl",
+            "serverSignature", "crl.pem");
+
+    private static final Path EXPECTED_SERVER_ENCRYPTION_CRL_PATH = Paths.get("ddf", "crl",
+            "serverEncryption", "crl.pem");
+
+    private static final Path EXPECTED_ISSUER_SIGNATURE_CRL_PATH = Paths.get("ddf", "crl",
+            "issuerSignature", "crl.pem");
+
+    private static final Path EXPECTED_ISSUER_ENCRYPTION_CRL_PATH = Paths.get("ddf", "crl",
+            "issuerEncryption", "crl.pem");
 
     private static final boolean IS_OPTIONAL = false;
 
-    private Path ddfHome;
+    private static final Path DDF_HOME = Paths.get(DDF_BASE_DIR);
 
-    private Path exportDirectory;
-
-    @Before
-    public void setup() throws Exception {
-        ddfHome = Paths.get(DDF_BASE_DIR);
-        exportDirectory = ddfHome.resolve(EXPORTED_REL_PATH);
-    }
+    private static final Path EXPORT_DIRECTORY = DDF_HOME.resolve(Paths.get("etc", "exported"));
 
     @Test
     public void testExportValidRelativePaths() throws Exception {
         // Setup
-        MigratableUtil migratableUtil = mock(MigratableUtil.class);
-        SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
-                migratableUtil);
+        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY))
+                .thenReturn(EXPECTED_SERVER_ENCRYPTION_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_SIGNATURE_PROPERTIES_PATH, CRL_PROP_KEY))
+                .thenReturn(EXPECTED_SERVER_SIGNATURE_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(ISSUER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY))
+                .thenReturn(EXPECTED_ISSUER_ENCRYPTION_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(ISSUER_SIGNATURE_PROPERTIES_PATH, CRL_PROP_KEY))
+                .thenReturn(EXPECTED_ISSUER_SIGNATURE_CRL_PATH.toString());
+        SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+                mockMigratableUtil);
 
-        securityMigratable.export(exportDirectory);
+        // Perform Test
+        securityMigratable.export(EXPORT_DIRECTORY);
 
-        assertCrlExport(migratableUtil);
-        assertPdpDirectoryExport(migratableUtil);
+        // Verify
+        assertCrlExport(mockMigratableUtil);
+        assertPdpDirectoryExport(mockMigratableUtil);
     }
 
     @Test
     public void testWarningsReturned() throws Exception {
         MigratableUtil migratableUtil = mock(MigratableUtil.class);
-        MigrationWarning expectedWarning1 = new MigrationWarning("Expected Warning 1");
-        MigrationWarning expectedWarning2 = new MigrationWarning("Expected Warning 2");
-        List<MigrationWarning> expectedWarnings = new ArrayList<>();
-        expectedWarnings.add(expectedWarning1);
-        expectedWarnings.add(expectedWarning2);
-
-        doAnswer(new MigrationWarningAnswerFourArgs(expectedWarning1)).when(migratableUtil)
-                .copyFileFromJavaPropertyValue(eq(FILE_CONTAINING_CRL_LOCATION),
-                        eq(CRL_PROP_KEY),
-                        eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>>any());
-
-        doAnswer(new MigrationWarningAnswerThreeArgs(expectedWarning2)).when(migratableUtil)
+        MigrationWarning expectedWarning = new MigrationWarning("Expected Warning");
+        doAnswer(new MigrationWarningAnswer(expectedWarning)).when(migratableUtil)
                 .copyDirectory(eq(PDP_POLICIES_DIR_REL_PATH),
-                        eq(exportDirectory),
+                        eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
 
         SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
                 IS_OPTIONAL,
                 migratableUtil);
-        MigrationMetadata migrationMetadata = securityMigratable.export(exportDirectory);
+        MigrationMetadata migrationMetadata = securityMigratable.export(EXPORT_DIRECTORY);
 
         assertThat(migrationMetadata.getMigrationWarnings(),
-                containsInAnyOrder(expectedWarnings.toArray()));
+                containsInAnyOrder(expectedWarning));
 
     }
 
@@ -117,65 +126,101 @@ public class SecurityMigratableTest {
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
         doThrow(MigrationException.class).when(mockMigratableUtil)
                 .copyDirectory(any(Path.class),
-                        eq(exportDirectory),
+                        eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
                 IS_OPTIONAL,
                 mockMigratableUtil);
 
-        platformMigratable.export(exportDirectory);
-    }
-
-    @Test(expected = MigrationException.class)
-    public void testExportExceptionThrownWhenCopyingFileFromJavaProperty() throws Exception {
-        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil)
-                .copyFileFromJavaPropertyValue(any(Path.class),
-                        any(String.class),
-                        eq(exportDirectory),
-                        Matchers.<Collection<MigrationWarning>>any());
-        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
-                mockMigratableUtil);
-
-        platformMigratable.export(exportDirectory);
+        platformMigratable.export(EXPORT_DIRECTORY);
     }
 
     @Test(expected = MigrationException.class)
     public void testExportExceptionThrownWhenCopyingFile() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY))
+            .thenReturn(EXPECTED_SERVER_ENCRYPTION_CRL_PATH.toString());
         doThrow(MigrationException.class).when(mockMigratableUtil)
-                .copyFileFromJavaPropertyValue(any(Path.class),
-                        any(String.class),
-                        eq(exportDirectory),
+                .copyFile(any(Path.class),
+                        eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
                 IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
-        platformMigratable.export(exportDirectory);
+        platformMigratable.export(EXPORT_DIRECTORY);
+    }
+
+    @Test
+    public void testExportCrlIsNull() {
+        // Setup
+        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
+        when(
+                mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
+                        CRL_PROP_KEY)).thenReturn(null);
+        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+                mockMigratableUtil);
+
+        // Perform test
+        MigrationMetadata migrationMetadata = platformMigratable.export(EXPORT_DIRECTORY);
+
+        // Verify
+        verify(mockMigratableUtil, never()).copyFile(eq(EXPECTED_SERVER_ENCRYPTION_CRL_PATH),
+                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+        assertThat(migrationMetadata.getMigrationWarnings().size(), is(0));
+    }
+
+    @Test(expected = MigrationException.class)
+    public void testExportCrlIsBlank() {
+        // Setup
+        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
+        when(
+                mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
+                        CRL_PROP_KEY)).thenReturn("");
+        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+                mockMigratableUtil);
+
+        // Perform test
+        platformMigratable.export(EXPORT_DIRECTORY);
+    }
+
+    @Test(expected = MigrationException.class)
+    public void testExportExceptionThrownWhenReadingCrlPropsFile() {
+        // Setup
+        MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
+        doThrow(MigrationException.class).when(mockMigratableUtil).getJavaPropertyValue(
+                SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY);
+        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+                mockMigratableUtil);
+
+        // Perform test
+        platformMigratable.export(EXPORT_DIRECTORY);
     }
 
     private void assertCrlExport(MigratableUtil mockMigratableUtil) {
-        verify(mockMigratableUtil).copyFileFromJavaPropertyValue(eq(FILE_CONTAINING_CRL_LOCATION),
-                eq(CRL_PROP_KEY),
-                eq(exportDirectory),
-                anyCollectionOf(MigrationWarning.class));
+        verify(mockMigratableUtil).copyFile(eq(EXPECTED_SERVER_ENCRYPTION_CRL_PATH),
+                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+        verify(mockMigratableUtil).copyFile(eq(EXPECTED_SERVER_SIGNATURE_CRL_PATH),
+                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+        verify(mockMigratableUtil).copyFile(eq(EXPECTED_ISSUER_ENCRYPTION_CRL_PATH),
+                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+        verify(mockMigratableUtil).copyFile(eq(EXPECTED_ISSUER_SIGNATURE_CRL_PATH),
+                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
     }
 
     private void assertPdpDirectoryExport(MigratableUtil mockMigratableUtil) {
         verify(mockMigratableUtil).copyDirectory(eq(PDP_POLICIES_DIR_REL_PATH),
-                eq(exportDirectory),
+                eq(EXPORT_DIRECTORY),
                 anyCollectionOf(MigrationWarning.class));
     }
 
-    private class MigrationWarningAnswerThreeArgs implements Answer<Void> {
+    private class MigrationWarningAnswer implements Answer<Void> {
 
         private final MigrationWarning expectedWarning;
 
-        private MigrationWarningAnswerThreeArgs(MigrationWarning expectedWarning) {
+        private MigrationWarningAnswer(MigrationWarning expectedWarning) {
             this.expectedWarning = expectedWarning;
         }
 
@@ -184,23 +229,6 @@ public class SecurityMigratableTest {
         public Void answer(InvocationOnMock invocation) throws Throwable {
             Object[] args = invocation.getArguments();
             ((Collection<MigrationWarning>) args[2]).add(expectedWarning);
-            return null;
-        }
-    }
-
-    private class MigrationWarningAnswerFourArgs implements Answer<Void> {
-
-        private final MigrationWarning expectedWarning;
-
-        private MigrationWarningAnswerFourArgs(MigrationWarning expectedWarning) {
-            this.expectedWarning = expectedWarning;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public Void answer(InvocationOnMock invocation) throws Throwable {
-            Object[] args = invocation.getArguments();
-            ((Collection<MigrationWarning>) args[3]).add(expectedWarning);
             return null;
         }
     }
