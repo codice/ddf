@@ -136,6 +136,7 @@
                             <goal>features-add-to-repository</goal>
                         </goals>
                         <configuration>
+                            <addTransitiveFeatures>false</addTransitiveFeatures>
                             <descriptors>
                                 <descriptor>file:${basedir}/target/classes/${project.artifactId}-features.xml</descriptor>
                             </descriptors>

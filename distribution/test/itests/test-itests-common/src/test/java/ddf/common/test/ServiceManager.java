@@ -32,11 +32,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleInfo;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.bundle.core.BundleState;
+import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.service.Application;
@@ -364,6 +366,38 @@ public class ServiceManager {
                             TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
                 }
                 LOGGER.info("Bundles not up, sleeping...");
+                Thread.sleep(1000);
+            }
+        }
+    }
+
+    public void waitForFeature(String featureName, Predicate<FeatureState> predicate)
+            throws Exception {
+        boolean ready = false;
+        FeaturesService featuresService = getFeaturesService();
+
+        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        while (!ready) {
+            Feature feature = featuresService.getFeature(featureName);
+            FeatureState state = featuresService.getState(
+                    feature.getName() + "/" + feature.getVersion());
+            if (state == null) {
+                LOGGER.warn("No Feature found for featureName: {}", featureName);
+                return;
+            } else if (predicate.test(state)) {
+                ready = true;
+            }
+
+            if (!ready) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    printInactiveBundles();
+                    fail(String.format("Feature did not change to State [" + predicate.toString()
+                                    + "] within %d minutes.",
+                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                }
+                LOGGER.info("Feature [{}] not [{}], sleeping...",
+                        featureName,
+                        predicate.toString());
                 Thread.sleep(1000);
             }
         }
