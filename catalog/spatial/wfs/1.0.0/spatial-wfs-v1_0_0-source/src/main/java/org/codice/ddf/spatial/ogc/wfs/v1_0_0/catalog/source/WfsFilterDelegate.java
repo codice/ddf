@@ -305,36 +305,31 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName,
-                Integer.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName, Integer.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName,
-                Short.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName, Short.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName,
-                Long.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName, Long.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName,
-                Float.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName, Float.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, double literal) {
-        return buildPropertyIsFilterType(propertyName,
-                Double.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName, Double.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
@@ -366,35 +361,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsNotEqualTo(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsNotEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsNotEqualTo(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsNotEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsNotEqualTo(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsNotEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsNotEqualTo(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsNotEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsNotEqualTo(String propertyName, double literal) {
+    public FilterType propertyIsNotEqualTo(String propertyName, Number literal) {
         return buildPropertyIsFilterType(propertyName,
                 literal,
                 PROPERTY_IS_OPS.PropertyIsNotEqualTo);
@@ -422,35 +389,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsGreaterThan(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThan);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThan(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThan);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThan(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThan);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThan(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThan);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThan(String propertyName, double literal) {
+    public FilterType propertyIsGreaterThan(String propertyName, Number literal) {
         return buildPropertyIsFilterType(propertyName,
                 literal,
                 PROPERTY_IS_OPS.PropertyIsGreaterThan);
@@ -471,35 +410,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
+    public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, Number literal) {
         return buildPropertyIsFilterType(propertyName,
                 literal,
                 PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
@@ -518,27 +429,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsLessThan(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
-    }
-
-    @Override
-    public FilterType propertyIsLessThan(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
-    }
-
-    @Override
-    public FilterType propertyIsLessThan(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
-    }
-
-    @Override
-    public FilterType propertyIsLessThan(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
-    }
-
-    @Override
-    public FilterType propertyIsLessThan(String propertyName, double literal) {
+    public FilterType propertyIsLessThan(String propertyName, Number literal) {
         return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
     }
 
@@ -557,35 +448,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsLessThanOrEqualTo(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsLessThanOrEqualTo(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsLessThanOrEqualTo(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsLessThanOrEqualTo(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName,
-                literal,
-                PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
-    }
-
-    @Override
-    public FilterType propertyIsLessThanOrEqualTo(String propertyName, double literal) {
+    public FilterType propertyIsLessThanOrEqualTo(String propertyName, Number literal) {
         return buildPropertyIsFilterType(propertyName,
                 literal,
                 PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
@@ -606,31 +469,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
-        return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
-    }
-
-    @Override
-    public FilterType propertyIsBetween(String propertyName, short lowerBoundary,
-            short upperBoundary) {
-        return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
-    }
-
-    @Override
-    public FilterType propertyIsBetween(String propertyName, long lowerBoundary,
-            long upperBoundary) {
-        return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
-    }
-
-    @Override
-    public FilterType propertyIsBetween(String propertyName, float lowerBoundary,
-            float upperBoundary) {
-        return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
-    }
-
-    @Override
-    public FilterType propertyIsBetween(String propertyName, double lowerBoundary,
-            double upperBoundary) {
+    public FilterType propertyIsBetween(String propertyName, Number lowerBoundary,
+            Number upperBoundary) {
         return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
     }
 

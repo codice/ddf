@@ -27,11 +27,8 @@ import java.util.List;
  * <p>
  * A reference implementation is provided with the DDF Core in the org.opengis.filter.Filter Proxy bundle.
  *
+ * @param <T> Generic type that the FilterDelegate will return as a final result
  * @author ddf.isgs@lmco.com
- *
- * @param <T>
- *            Generic type that the FilterDelegate will return as a final result
- *
  * @see FilterAdapter
  */
 public abstract class FilterDelegate<T> {
@@ -57,8 +54,7 @@ public abstract class FilterDelegate<T> {
     /**
      * Logical "and" operation on a list of operands.
      *
-     * @param operands
-     *            list of operands to "and"
+     * @param operands list of operands to "and"
      * @return result of "and" operation on operands
      */
     public T and(List<T> operands) {
@@ -69,8 +65,7 @@ public abstract class FilterDelegate<T> {
     /**
      * Logical "or" operation on a list of operands.
      *
-     * @param operands
-     *            list of T to "or"
+     * @param operands list of T to "or"
      * @return result of "or" operation on operands
      */
     public T or(List<T> operands) {
@@ -81,10 +76,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Returns a sorted list of the nearest neighbors to a property for a given WKT.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of nearest neighbor spatial operation
      */
     public T nearestNeighbor(String propertyName, String wkt) {
@@ -95,8 +88,7 @@ public abstract class FilterDelegate<T> {
     /**
      * Logical "not" operation on an operand.
      *
-     * @param operand
-     *            operand to negate
+     * @param operand operand to negate
      * @return result of "not" operation on operand
      */
     public T not(T operand) {
@@ -131,165 +123,135 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
-     * @param isCaseSensitive
-     *            case-sensitivity boolean
+     * @param propertyName    name of property to compare
+     * @param literal         value to compare
+     * @param isCaseSensitive case-sensitivity boolean
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, Date literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param startDate
-     *            starting date of literal to compare
-     * @param endDate
-     *            ending date of literal to compare
+     * @param propertyName name of property to compare
+     * @param startDate    starting date of literal to compare
+     * @param endDate      ending date of literal to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, Date startDate, Date endDate) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Object) startDate);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, int literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, short literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, long literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, float literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, double literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
+     * @see FilterDelegate#propertyIsEqualTo(String, Object)
+     */
+    public T propertyIsEqualTo(String propertyName, Number literal) {
+        return propertyIsEqualTo(propertyName, (Object) literal);
+    }
+
+    /***
+     * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of equals operation between {@code propertyName} and {@code literal}
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, boolean literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,boolean) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, byte[] literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,byte[]) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsEqualTo(propertyName, (Object) literal);
     }
 
     /**
@@ -297,15 +259,13 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code propertyName == literal}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsEqualTo(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+
+        return propertyIs(propertyName, literal);
     }
 
     // PropertyIsNotEqualTo
@@ -313,182 +273,149 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
-     * @param isCaseSensitive
-     *            case-sensitivity boolean
+     * @param propertyName    name of property to compare
+     * @param literal         value to compare
+     * @param isCaseSensitive case-sensitivity boolean
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, Date literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param startDate
-     *            starting date of literal to compare
-     * @param endDate
-     *            ending date of literal to compare
+     * @param propertyName name of property to compare
+     * @param startDate    starting date of literal to compare
+     * @param endDate      ending date of literal to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, Date startDate, Date endDate) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Object) startDate);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, int literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, short literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, long literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, float literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, double literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
+     * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
+     */
+    public T propertyIsNotEqualTo(String propertyName, Number literal) {
+        return propertyIsNotEqualTo(propertyName, (Object) literal);
+    }
+
+    /***
+     * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of not equals operation between {@code propertyName} and {@code literal}
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, boolean literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,boolean) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, byte[] literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,byte[]) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNotEqualTo(propertyName, (Object) literal);
     }
 
     /**
      * Compares the value associated with a property is not equal to the value of a literal.
-     *
+     * <p>
      * <p>
      * {@code propertyName != literal}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsNotEqualTo(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, literal);
     }
 
     // PropertyIsGreaterThan
@@ -496,113 +423,97 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, String literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, Date literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, int literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, short literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, long literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, float literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, double literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThan(propertyName, (Number) literal);
+    }
+
+    /***
+     * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
+     *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of greater than operation between {@code propertyName} and {@code literal}
+     * @see FilterDelegate#propertyIsGreaterThan(String, Object)
+     */
+    public T propertyIsGreaterThan(String propertyName, Number literal) {
+        return propertyIsGreaterThan(propertyName, (Object) literal);
     }
 
     /**
@@ -610,15 +521,12 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code propertyName > literal}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsGreaterThan(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, literal);
     }
 
     // PropertyIsGreaterThanOrEqualTo
@@ -626,113 +534,97 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, Date literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Number) literal);
+    }
+
+    /***
+     * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
+     *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of greater than operation between {@code propertyName} and {@code literal}
+     * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
+     */
+    public T propertyIsGreaterThanOrEqualTo(String propertyName, Number literal) {
+        return propertyIsGreaterThanOrEqualTo(propertyName, (Object) literal);
     }
 
     /**
@@ -741,15 +633,12 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code propertyName >= literal}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, literal);
     }
 
     // PropertyIsLessThan
@@ -757,113 +646,97 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, String literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, Date literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, int literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, short literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, long literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, float literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, double literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThan(propertyName, (Number) literal);
+    }
+
+    /***
+     * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
+     *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of less than operation between {@code propertyName} and {@code literal}
+     * @see FilterDelegate#propertyIsLessThan(String, Object)
+     */
+    public T propertyIsLessThan(String propertyName, Number literal) {
+        return propertyIsLessThan(propertyName, (Object) literal);
     }
 
     /**
@@ -871,15 +744,12 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code propertyName < literal}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsLessThan(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, literal);
     }
 
     // PropertyIsLessThanOrEqualTo
@@ -887,120 +757,105 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, String literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, Date literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Object) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, int literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, short literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, long literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, float literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
-     *
+     * {@code literal}
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, double literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLessThanOrEqualTo(propertyName, (Number) literal);
+    }
+
+    /***
+     * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
+     *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of less than or equal to operation between {@code propertyName} and
+     * {@code literal}
+     * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
+     */
+    public T propertyIsLessThanOrEqualTo(String propertyName, Number literal) {
+        return propertyIsLessThanOrEqualTo(propertyName, (Object) literal);
     }
 
     /**
@@ -1009,16 +864,13 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code propertyName <= literal}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
-     *         {@code literal}
+     * {@code literal}
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, literal);
     }
 
     // PropertyIsBetween
@@ -1026,127 +878,92 @@ public abstract class FilterDelegate<T> {
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,String,String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Object) lowerBoundary, (Object) upperBoundary);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Object) lowerBoundary, (Object) upperBoundary);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,int,int) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,short,short) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,long,long) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,float,float) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
     }
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
-     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,double,double) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsBetween(propertyName, (Number) lowerBoundary, (Number) upperBoundary);
     }
 
     /**
@@ -1155,17 +972,28 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code lower < propertyName < upper}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param lowerBoundary
-     *            lower boundary to compare
-     * @param upperBoundary
-     *            upper boundary to compare
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
+     * @return result of between operation
+     */
+    public T propertyIsBetween(String propertyName, Number lowerBoundary, Number upperBoundary) {
+        return propertyIsBetween(propertyName, (Object) lowerBoundary, (Object) upperBoundary);
+    }
+
+    /**
+     * Compares the value associated with a property is between a lower and upper boundary. This is
+     * an exclusive comparison.
+     * <p>
+     * {@code lower < propertyName < upper}
+     *
+     * @param propertyName  name of property to compare
+     * @param lowerBoundary lower boundary to compare
+     * @param upperBoundary upper boundary to compare
      * @return result of between operation
      */
     public T propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
-        throw new UnsupportedOperationException(
-                "propertyIsBetween(String,Object,Object) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, lowerBoundary);
     }
 
     /**
@@ -1173,13 +1001,11 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code propertyName == null}
      *
-     * @param propertyName
-     *            name of property to compare
+     * @param propertyName name of property to compare
      * @return result of null check
      */
     public T propertyIsNull(String propertyName) {
-        throw new UnsupportedOperationException(
-                "propertyIsNull(String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, null);
     }
 
     /**
@@ -1189,32 +1015,38 @@ public abstract class FilterDelegate<T> {
      * WILDCARD_CHAR}, {@link FilterDelegate#SINGLE_CHAR SINGLE_CHAR}, and
      * {@link FilterDelegate#ESCAPE_CHAR ESCAPE_CHAR}.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param pattern
-     *            regular expression pattern to match
-     * @param isCaseSensitive
-     *            case-sensitivity boolean
+     * @param propertyName    name of property to compare
+     * @param pattern         regular expression pattern to match
+     * @param isCaseSensitive case-sensitivity boolean
      * @return result of regular expression operation
      */
     public T propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-        throw new UnsupportedOperationException(
-                "propertyIsLike(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIs(propertyName, null);
     }
 
     /**
      * Compares the value associated with a property to the value of a literal with a fuzzy operator
      * which expands the literal to match misspellings.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param literal
-     *            value to compare
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
      * @return result of fuzzy operation
      */
     public T propertyIsFuzzy(String propertyName, String literal) {
+        return propertyIs(propertyName, literal);
+    }
+
+    /**
+     * Compares the value associated with a property to the value of a literal with a fuzzy operator
+     * which expands the literal to match misspellings.
+     *
+     * @param propertyName name of property to compare
+     * @param literal      value to compare
+     * @return result of fuzzy operation
+     */
+    public T propertyIs(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsFuzzy(String,String) not supported by org.opengis.filter.Filter Delegate.");
+                "propertyIs(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // XPath operators
@@ -1222,46 +1054,36 @@ public abstract class FilterDelegate<T> {
     /**
      * Determines if a node expressed by XPath exists.
      *
-     * @param xpath
-     *            XPath expression
+     * @param xpath XPath expression
      * @return result of XPath node existence
      */
     public T xpathExists(String xpath) {
-        throw new UnsupportedOperationException(
-                "xpathExists(String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsNull(xpath);
     }
 
     /**
      * Compares the node expressed by XPath to a regular expression pattern.
      *
-     * @param xpath
-     *            XPath expression
-     * @param pattern
-     *            regular expression pattern to match
-     * @param isCaseSensitive
-     *            case-sensitivity boolean
+     * @param xpath           XPath expression
+     * @param pattern         regular expression pattern to match
+     * @param isCaseSensitive case-sensitivity boolean
      * @return result of regular expression operation on XPath node
-     *
      * @see FilterDelegate#propertyIsLike(String, String, boolean)
      */
     public T xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
-        throw new UnsupportedOperationException(
-                "xpathIsLike(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsLike(xpath, pattern, isCaseSensitive);
     }
 
     /**
      * Compares the node expressed by XPath to the value of a literal with a fuzzy operator which
      * expands the literal to match misspellings.
      *
-     * @param xpath
-     *            XPath expression
-     * @param literal
-     *            value to compare
+     * @param xpath   XPath expression
+     * @param literal value to compare
      * @return result of fuzzy operation on XPath node
      */
     public T xpathIsFuzzy(String xpath, String literal) {
-        throw new UnsupportedOperationException(
-                "xpathIsFuzzy(String,String) not supported by org.opengis.filter.Filter Delegate.");
+        return propertyIsFuzzy(xpath, literal);
     }
 
     // Spatial operators
@@ -1269,12 +1091,9 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property is beyond a distance from a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
-     * @param distance
-     *            distance buffer in meters
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
+     * @param distance     distance buffer in meters
      * @return result of beyond spatial operation
      */
     public T beyond(String propertyName, String wkt, double distance) {
@@ -1285,10 +1104,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property is contained by a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of contains spatial operation
      */
     public T contains(String propertyName, String wkt) {
@@ -1299,10 +1116,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property crosses a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of crosses spatial operation
      */
     public T crosses(String propertyName, String wkt) {
@@ -1313,10 +1128,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property is disjoint from a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of disjoint spatial operation
      */
     public T disjoint(String propertyName, String wkt) {
@@ -1327,12 +1140,9 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property is within a distance from a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
-     * @param distance
-     *            distance buffer in meters
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
+     * @param distance     distance buffer in meters
      * @return result of dwithin spatial operation
      */
     public T dwithin(String propertyName, String wkt, double distance) {
@@ -1343,10 +1153,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property intersects a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of intersects spatial operation
      */
     public T intersects(String propertyName, String wkt) {
@@ -1357,10 +1165,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property overlaps a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of overlaps spatial operation
      */
     public T overlaps(String propertyName, String wkt) {
@@ -1371,10 +1177,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property touches a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of touches spatial operation
      */
     public T touches(String propertyName, String wkt) {
@@ -1385,10 +1189,8 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the geometry associated with a property is within a WKT geometry.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param wkt
-     *            WKT geometry to compare
+     * @param propertyName name of property to compare
+     * @param wkt          WKT geometry to compare
      * @return result of within spatial operation
      */
     public T within(String propertyName, String wkt) {
@@ -1404,10 +1206,8 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code property > date}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param date
-     *            {@code Date} to compare
+     * @param propertyName name of property to compare
+     * @param date         {@code Date} to compare
      * @return result of after temporal operation
      */
     public T after(String propertyName, Date date) {
@@ -1421,10 +1221,8 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code property < date}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param date
-     *            {@code Date} to compare
+     * @param propertyName name of property to compare
+     * @param date         {@code Date} to compare
      * @return result of before temporal operation
      */
     public T before(String propertyName, Date date) {
@@ -1438,12 +1236,9 @@ public abstract class FilterDelegate<T> {
      * <p>
      * {@code startDate < property < endDate}
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param startDate
-     *            start date to compare
-     * @param endDate
-     *            end date to compare
+     * @param propertyName name of property to compare
+     * @param startDate    start date to compare
+     * @param endDate      end date to compare
      * @return result of during temporal operation
      */
     public T during(String propertyName, Date startDate, Date endDate) {
@@ -1455,10 +1250,8 @@ public abstract class FilterDelegate<T> {
      * Compares the value associated with a property is relatively within a duration of milliseconds
      * in the past from the current time of evaluation.
      *
-     * @param propertyName
-     *            name of property to compare
-     * @param duration
-     *            relative duration in milliseconds
+     * @param propertyName name of property to compare
+     * @param duration     relative duration in milliseconds
      * @return result of relative temporal operation
      */
     public T relative(String propertyName, long duration) {
