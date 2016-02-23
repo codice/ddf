@@ -18,6 +18,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.util.Assert.isTrue;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -246,5 +247,28 @@ public class CatalogPolicyTest {
         policyPlugin.setCreatePermissions(new String[] {"role=admin"});
         String[] permissionStrings = policyPlugin.getCreatePermissions();
         assertThat(permissionStrings.length, equalTo(1));
+    }
+
+    @Test
+    public void testUnusedMethods() throws Exception {
+        isTrue(policyPlugin.getReadPermissions() == null);
+        isTrue(policyPlugin.getCreatePermissions() == null);
+        isTrue(policyPlugin.getUpdatePermissions() == null);
+        isTrue(policyPlugin.getDeletePermissions() == null);
+        policyPlugin.setReadPermissions(new String[] {"role=admin"});
+        policyPlugin.setCreatePermissions(new String[] {"role=admin"});
+        policyPlugin.setUpdatePermissions(new String[] {"role=admin"});
+        policyPlugin.setDeletePermissions(new String[] {"role=admin"});
+        assertThat(policyPlugin.getReadPermissions()[0], equalTo("role=admin"));
+        assertThat(policyPlugin.getCreatePermissions()[0], equalTo("role=admin"));
+        assertThat(policyPlugin.getUpdatePermissions()[0], equalTo("role=admin"));
+        assertThat(policyPlugin.getDeletePermissions()[0], equalTo("role=admin"));
+
+        assertThat(policyPlugin.processPostDelete(null, null)
+                .itemPolicy()
+                .isEmpty(), is(true));
+        assertThat(policyPlugin.processPostDelete(null, null)
+                .operationPolicy()
+                .isEmpty(), is(true));
     }
 }

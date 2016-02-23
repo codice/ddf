@@ -126,6 +126,10 @@ import ddf.catalog.util.impl.Masker;
 import ddf.catalog.util.impl.Requests;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import ddf.catalog.util.impl.SourcePoller;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
  * CatalogFrameworkImpl is the core class of DDF. It is used for query, create, update, delete, and
@@ -537,7 +541,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -558,7 +562,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -1651,7 +1655,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             // add all the federated sources
             for (FederatedSource source : federatedSources.values()) {
-                if (sourceIsAvailable(source)) {
+                if (sourceIsAvailable(source) && canAccessSource(source, queryRequest)) {
                     sourcesToQuery.add(source);
                 } else {
                     exceptions.add(createUnavailableProcessingDetails(source));
@@ -1677,7 +1681,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     if (federatedSources.containsKey(id)) {
                         sourceFound = true;
                         if (federatedSources.get(id)
-                                .isAvailable()) {
+                                .isAvailable() && canAccessSource(federatedSources.get(id),
+                                queryRequest)) {
                             sourcesToQuery.add(federatedSources.get(id));
                         } else {
                             exceptions.add(createUnavailableProcessingDetails(federatedSources.get(
@@ -1724,7 +1729,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         if (sourcesToQuery.isEmpty()) {
             // We have nothing to query at all.
             FederationException federationException = new FederationException(
-                    "SiteNames could not be resolved to valid sites, or none of the sites were available.");
+                    "SiteNames could not be resolved due to  invalid site names, none of the sites were available, or the current subject doesn't have permission to access the sites.");
             LOGGER.throwing(XLogger.Level.DEBUG, federationException);
             // TODO change to SourceUnavailableException
             throw federationException;
@@ -1735,6 +1740,25 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         QueryResponse response = strategy.federate(sourcesToQuery, queryRequest);
         queryResponsePostProcessor.processResponse(response);
         return addProcessingDetails(exceptions, response);
+    }
+
+    private boolean canAccessSource(FederatedSource source, QueryRequest request) {
+        Map<String, Set<String>> securityAttributes = source.getSecurityAttributes();
+        if (securityAttributes.isEmpty()) {
+            return true;
+        }
+
+        Object requestSubject = request.getProperties()
+                .get(SecurityConstants.SECURITY_SUBJECT);
+        if (requestSubject instanceof ddf.security.Subject) {
+            Subject subject = (Subject) requestSubject;
+
+            KeyValueCollectionPermission kvCollection = new KeyValueCollectionPermission(
+                    CollectionPermission.READ_ACTION,
+                    securityAttributes);
+            return subject.isPermitted(kvCollection);
+        }
+        return false;
     }
 
     /**
@@ -2193,7 +2217,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p/>
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -2352,7 +2376,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p/>
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.

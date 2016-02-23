@@ -51,6 +51,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
         </dependency>
@@ -438,6 +442,7 @@
                             ddf.action;version="1.0",
                             ddf.catalog;version="2.0",
                             ddf.catalog.event;version="2.0",
+                            ddf.catalog.filter.delegate;version=${project.version},
                             ddf.catalog.pubsub;version="2.0",
                             ddf.catalog.transform;version="2.0",
                             ddf.catalog.data;version="2.0",
@@ -451,6 +456,7 @@
                             ddf.measure;version="2.0",
                             ddf.mime,
                             ddf.security,
+                            ddf.security.permission,
                             javax.activation,
                             javax.annotation,
                             javax.crypto,
@@ -494,6 +500,7 @@
                             org.apache.cxf.jaxrs.client,
                             org.apache.cxf.jaxrs.ext.multipart,
                             org.apache.shiro,
+                            org.apache.shiro.authz,
                             org.apache.shiro.subject,
                             org.apache.tika,
                             org.apache.xerces.parsers,

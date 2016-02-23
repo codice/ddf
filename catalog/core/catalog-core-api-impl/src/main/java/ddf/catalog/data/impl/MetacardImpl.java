@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -372,6 +373,14 @@ public class MetacardImpl implements Metacard {
      */
     public void setContentTypeName(String contentType) {
         setAttribute(Metacard.CONTENT_TYPE, contentType);
+    }
+
+    /**
+     * Sets the tags associated with this metacard
+     * @param tags set of tags
+     */
+    public void setTags(Set<String> tags) {
+        setAttribute(Metacard.TAGS, new ArrayList<>(tags));
     }
 
     /**

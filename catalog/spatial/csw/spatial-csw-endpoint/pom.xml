@@ -33,6 +33,19 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.measure</groupId>
             <artifactId>measure-api</artifactId>
         </dependency>
@@ -120,6 +133,7 @@
                             net.opengis.filter.v_1_1_0;version="[2.8,3)",
                             net.opengis.gml.v_3_1_1;version="[2.8,3)",
                             net.opengis.ows.v_1_0_0;version="[2.8,3)",
+                            ddf.security.permission,
                             *
                         </Import-Package>
                         <Embed-Dependency>

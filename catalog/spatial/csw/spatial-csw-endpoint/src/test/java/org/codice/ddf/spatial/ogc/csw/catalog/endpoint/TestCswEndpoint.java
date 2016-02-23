@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -85,7 +84,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsLike;
@@ -126,11 +124,11 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.AttributeBuilder;
-import ddf.catalog.filter.ContextualExpressionBuilder;
-import ddf.catalog.filter.EqualityExpressionBuilder;
-import ddf.catalog.filter.ExpressionBuilder;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
@@ -344,18 +342,12 @@ public class TestCswEndpoint {
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
 
-        AttributeBuilder attrBuilder = mock(AttributeBuilder.class);
-        ExpressionBuilder exprBuilder = mock(ExpressionBuilder.class);
-        ContextualExpressionBuilder likeExprBuilder = mock(ContextualExpressionBuilder.class);
-        when(likeExprBuilder.text(Matchers.anyString())).thenReturn(Filter.INCLUDE);
-        when(exprBuilder.like()).thenReturn(likeExprBuilder);
-        when(exprBuilder.equalTo()).thenReturn(mock(EqualityExpressionBuilder.class));
-        when(attrBuilder.is()).thenReturn(exprBuilder);
-        when(filterBuilder.attribute(Metacard.ID)).thenReturn(attrBuilder);
-        when(filterBuilder.anyOf(anyList())).thenReturn(mock(Or.class));
+        filterBuilder = new GeotoolsFilterBuilder();
+        FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
         csw = new CswEndpoint(mockContext,
                 catalogFramework,
                 filterBuilder,
+                filterAdapter,
                 mockUriInfo,
                 mockMimeTypeManager,
                 mockSchemaManager,
@@ -2553,6 +2545,22 @@ public class TestCswEndpoint {
         assertThat(secondUpdate.getTitle(), is("foo"));
         assertThat((String) secondUpdate.getAttribute("subject")
                 .getValue(), is("bar"));
+    }
+
+    @Test
+    public void testQueryTags() throws Exception {
+        csw.setSchemaToTagsMapping(new String[] {CswConstants.CSW_OUTPUT_SCHEMA + "=myTag"});
+        GetRecordByIdRequest request = new GetRecordByIdRequest();
+        request.setId("someId");
+        request.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        request.setOutputFormat(CswConstants.OUTPUT_FORMAT_XML);
+
+        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
+        CswRecordCollection results = csw.getRecordById(request);
+
+        FilterAdapter adapter = new GeotoolsFilterAdapterImpl();
+        assertThat(adapter.adapt(argument.getValue()
+                .getQuery(), new TagsFilterDelegate("myTag")), is(true));
     }
 
     /**

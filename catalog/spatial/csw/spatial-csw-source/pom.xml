@@ -166,6 +166,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             !org.jvnet.staxex,
+                            ddf.security.permission,
                             *
                         </Import-Package>
                         <!-- Don't Export Anything -->

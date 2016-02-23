@@ -13,6 +13,8 @@
  */
 package ddf.catalog.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -45,33 +47,33 @@ import ddf.catalog.util.impl.SourcePoller;
  */
 public class FrameworkProperties {
 
-    private List<CatalogProvider> catalogProviders;
+    private List<CatalogProvider> catalogProviders = new ArrayList<>();
 
-    private Map<String, CatalogStore> catalogStoresMap;
+    private Map<String, CatalogStore> catalogStoresMap = new HashMap<>();
 
     private BundleContext bundleContext;
 
-    private List<PreIngestPlugin> preIngest;
+    private List<PreIngestPlugin> preIngest = new ArrayList<>();
 
-    private List<PostIngestPlugin> postIngest;
+    private List<PostIngestPlugin> postIngest = new ArrayList<>();
 
-    private List<PreQueryPlugin> preQuery;
+    private List<PreQueryPlugin> preQuery = new ArrayList<>();
 
-    private List<PostQueryPlugin> postQuery;
+    private List<PostQueryPlugin> postQuery = new ArrayList<>();
 
-    private List<PreResourcePlugin> preResource;
+    private List<PreResourcePlugin> preResource = new ArrayList<>();
 
-    private List<PostResourcePlugin> postResource;
+    private List<PostResourcePlugin> postResource = new ArrayList<>();
 
-    private List<PolicyPlugin> policyPlugins;
+    private List<PolicyPlugin> policyPlugins = new ArrayList<>();
 
-    private List<AccessPlugin> accessPlugins;
+    private List<AccessPlugin> accessPlugins = new ArrayList<>();
 
-    private List<ConnectedSource> connectedSources;
+    private List<ConnectedSource> connectedSources = new ArrayList<>();
 
-    private Map<String, FederatedSource> federatedSources;
+    private Map<String, FederatedSource> federatedSources = new HashMap<>();
 
-    private List<ResourceReader> resourceReaders;
+    private List<ResourceReader> resourceReaders = new ArrayList<>();
 
     private FederationStrategy federationStrategy;
 

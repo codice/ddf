@@ -43,6 +43,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -50,15 +51,7 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.plugin.PostQueryPlugin;
-import ddf.catalog.plugin.PostResourcePlugin;
-import ddf.catalog.plugin.PreIngestPlugin;
-import ddf.catalog.plugin.PreQueryPlugin;
-import ddf.catalog.plugin.PreResourcePlugin;
-import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
@@ -87,25 +80,15 @@ public class CatalogFrameworkQueryTest {
         CachedSource source = mock(CachedSource.class);
         when(source.isAvailable()).thenReturn(Boolean.TRUE);
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
-        ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        framework = new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
-                null,
-                new ArrayList<PreIngestPlugin>(),
-                postIngestPlugins,
-                new ArrayList<PreQueryPlugin>(),
-                new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(),
-                new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(),
-                new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(),
-                mock(QueryResponsePostProcessor.class),
-                null,
-                mockPoller,
-                null,
-                null,
-                null);
+        ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<>();
+        FrameworkProperties props = new FrameworkProperties();
+        props.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
+        props.setPostIngest(postIngestPlugins);
+        props.setFederationStrategy(new MockFederationStrategy());
+        props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
+        props.setSourcePoller(mockPoller);
+        props.setFilterBuilder(new GeotoolsFilterBuilder());
+        framework = new CatalogFrameworkImpl(props);
         framework.bind(provider);
     }
 

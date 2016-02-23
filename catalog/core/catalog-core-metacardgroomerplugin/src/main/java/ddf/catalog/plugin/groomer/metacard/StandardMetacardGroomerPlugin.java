@@ -14,10 +14,12 @@
 package ddf.catalog.plugin.groomer.metacard;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +42,13 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     protected void applyCreatedOperationRules(CreateRequest createRequest, Metacard aMetacard,
             Date now) {
         LOGGER.debug("Applying standard rules on CreateRequest");
-        aMetacard.setAttribute(new AttributeImpl(Metacard.ID,
-                UUID.randomUUID()
-                        .toString()
-                        .replaceAll("-", "")));
+
+        if (aMetacard.getId() == null) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.ID,
+                    UUID.randomUUID()
+                            .toString()
+                            .replaceAll("-", "")));
+        }
 
         if (aMetacard.getCreatedDate() == null) {
             aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
@@ -55,6 +60,11 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
         if (aMetacard.getEffectiveDate() == null) {
             aMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
+        }
+
+        if (CollectionUtils.isEmpty(aMetacard.getTags())) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
+                    Collections.singletonList(Metacard.DEFAULT_TAG)));
         }
     }
 

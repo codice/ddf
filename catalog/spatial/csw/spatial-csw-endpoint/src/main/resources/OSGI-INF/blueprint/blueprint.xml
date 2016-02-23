@@ -120,14 +120,21 @@
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint">
         <argument ref="blueprintBundleContext"/>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
         <argument ref="inputTransformerManager"/>
+        <property name="schemaToTagsMapping">
+            <array value-type="java.lang.String">
+                <value type="java.lang.String">http://www.opengis.net/cat/wrs/1.0=registry</value>
+            </array>
+        </property>
     </bean>
 
     <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">

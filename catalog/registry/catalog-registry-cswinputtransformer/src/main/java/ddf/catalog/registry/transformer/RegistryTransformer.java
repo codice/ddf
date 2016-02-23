@@ -16,6 +16,7 @@ package ddf.catalog.registry.transformer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -66,7 +67,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
     public Metacard transform(InputStream inputStream, String id)
             throws IOException, CatalogTransformerException {
 
-        RegistryMetacardImpl metacard = null;
+        RegistryMetacardImpl metacard;
         String xml = IOUtils.toString(inputStream);
         IOUtils.closeQuietly(inputStream);
 
@@ -86,6 +87,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
         }
 
         metacard.setAttribute(Metacard.METADATA, xml);
+        metacard.setTags(Collections.singleton(RegistryObjectMetacardType.REGISTRY_TAG));
         metacard.setContentTypeName(RegistryServiceMetacardType.SERVICE_REGISTRY_METACARD_TYPE_NAME);
 
         return metacard;

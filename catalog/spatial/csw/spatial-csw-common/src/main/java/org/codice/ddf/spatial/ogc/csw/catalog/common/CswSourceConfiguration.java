@@ -13,17 +13,19 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ddf.catalog.data.Metacard;
+import ddf.security.permission.Permissions;
 
 /**
  * Domain object to encapsulate the configuration of an instance of a {@link CswSource}. CSW
  * converters, readers, etc. will access this object to determine the latest configuration of the
  * {@link CswSource} they are working on.
- *
  */
 public class CswSourceConfiguration {
 
@@ -60,6 +62,10 @@ public class CswSourceConfiguration {
     private String queryTypeQName;
 
     private String queryTypePrefix;
+
+    private Map<String, Set<String>> securityAttributes = new HashMap<>();
+
+    private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
     public String getCswUrl() {
         return cswUrl;
@@ -241,5 +247,28 @@ public class CswSourceConfiguration {
     public void setIdentifierMapping(String identifierMapping) {
         metacardCswMappings.put(Metacard.ID, identifierMapping);
 
+    }
+
+    public Map<String, Set<String>> getSecurityAttributes() {
+        return Collections.unmodifiableMap(securityAttributes);
+    }
+
+    public void setSecurityAttributes(String[] securityAttributStrings) {
+        if (securityAttributStrings != null) {
+            securityAttributes.clear();
+            securityAttributes.putAll(Permissions.parsePermissionsFromString(securityAttributStrings));
+        }
+    }
+
+    public Map<String, Set<String>> getSchemaToTagsMapping() {
+        return schemaToTagsMapping;
+    }
+
+    public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {
+        if (schemaToTagsMappingStrings != null) {
+            schemaToTagsMapping.clear();
+            schemaToTagsMapping.putAll(Permissions.parsePermissionsFromString(
+                    schemaToTagsMappingStrings));
+        }
     }
 }

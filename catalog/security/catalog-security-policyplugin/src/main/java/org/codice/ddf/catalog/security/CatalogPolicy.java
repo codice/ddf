@@ -17,7 +17,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +31,7 @@ import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 import ddf.catalog.util.impl.Requests;
+import ddf.security.permission.Permissions;
 
 /**
  * IngestPlugin is a PreIngestPlugin that restricts the create/update/delete operations
@@ -195,17 +195,7 @@ public class CatalogPolicy implements PolicyPlugin {
     private void parsePermissionsFromString(String[] permStrings,
             Map<String, Set<String>> permissions) {
         permissions.clear();
-        if (permStrings != null) {
-            for (String perm : permStrings) {
-                String[] parts = perm.split("=");
-                if (parts.length == 2) {
-                    String attributeName = parts[0];
-                    String attributeValue = parts[1];
-                    String[] attributeValues = attributeValue.split(",");
-                    permissions.put(attributeName, new HashSet<>(Arrays.asList(attributeValues)));
-                }
-            }
-        }
+        permissions.putAll(Permissions.parsePermissionsFromString(permStrings));
     }
 
     @Override

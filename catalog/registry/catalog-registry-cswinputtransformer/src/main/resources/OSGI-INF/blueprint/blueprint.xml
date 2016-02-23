@@ -26,7 +26,7 @@
         <service-properties>
             <entry key="id" value="ebrim"/>
             <entry key="mime-type" value="text/xml"/>
-            <entry key="schema" value="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"/>
+            <entry key="schema" value="http://www.opengis.net/cat/wrs/1.0"/>
         </service-properties>
         <bean class="ddf.catalog.registry.transformer.RegistryTransformer">
             <argument ref="gml3ToWkt"/>

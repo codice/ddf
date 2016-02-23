@@ -31,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.configuration.PropertyResolver;
+import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,9 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
@@ -55,6 +59,7 @@ import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.RelevanceResultComparator;
@@ -142,6 +147,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private boolean cacheRemoteIngests = false;
 
+    private FilterAdapter adapter;
+
+    private FilterBuilder builder;
+
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
      *
@@ -149,7 +158,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
      */
     public CachingFederationStrategy(ExecutorService queryExecutorService,
             List<PreFederatedQueryPlugin> preQuery, List<PostFederatedQueryPlugin> postQuery,
-            SolrCache cache, ExecutorService cacheExecutorService) {
+            SolrCache cache, ExecutorService cacheExecutorService, FilterAdapter adapter,
+            FilterBuilder builder) {
         this.queryExecutorService = queryExecutorService;
         this.preQuery = preQuery;
         this.postQuery = postQuery;
@@ -157,6 +167,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         this.cache = cache;
         this.cacheExecutorService = cacheExecutorService;
         cacheBulkProcessor = new CacheBulkProcessor(cache);
+        this.adapter = adapter;
+        this.builder = builder;
     }
 
     @Override
@@ -222,6 +234,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 queryRequest.isEnterprise(),
                 queryRequest.getSourceIds(),
                 queryRequest.getProperties());
+        QueryRequest finalQueryRequest;
 
         CompletionService<SourceResponse> queryCompletion =
                 new ExecutorCompletionService<SourceResponse>(queryExecutorService);
@@ -245,8 +258,13 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                         logger.warn("Plugin stopped processing", e);
                     }
 
+                    finalQueryRequest = modifiedQueryRequest;
+                    if (source instanceof CatalogProvider) {
+                        finalQueryRequest = getRequestWithTagsFilter(modifiedQueryRequest);
+                    }
+
                     futures.put(queryCompletion.submit(new CallableSourceResponse(source,
-                            modifiedQueryRequest)), source);
+                            finalQueryRequest)), source);
                 } else {
                     logger.warn("Duplicate source found with name {}. Ignoring second one.",
                             source.getId());
@@ -295,6 +313,47 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         logger.debug("returning Query Results: {}", queryResponse);
         return queryResponse;
+    }
+
+    /**
+     * If the passed in requests query doesn't include a filter for 'tags' one will be
+     * added for the default tag of 'resource'. A filter will also be added to include
+     * metacards without any tags attribute to support backwards compatibility.
+     *
+     * @param request The query request
+     * @return The updated query
+     */
+    private QueryRequest getRequestWithTagsFilter(QueryRequest request) {
+        QueryRequest newRequest = request;
+        try {
+            Query query = request.getQuery();
+
+            if (!adapter.adapt(query, new TagsFilterDelegate())) {
+                List<Filter> filters = new ArrayList<>();
+                //no tags filter given in props or in query. Add the default ones.
+                filters.add(builder.attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(Metacard.DEFAULT_TAG));
+                filters.add(builder.attribute(Metacard.TAGS)
+                        .empty());
+                Filter newFilter = builder.allOf(builder.anyOf(filters), query);
+
+                QueryImpl newQuery = new QueryImpl(newFilter,
+                        query.getStartIndex(),
+                        query.getPageSize(),
+                        query.getSortBy(),
+                        query.requestsTotalResultsCount(),
+                        query.getTimeoutMillis());
+                newRequest = new QueryRequestImpl(newQuery,
+                        request.isEnterprise(),
+                        request.getSourceIds(),
+                        request.getProperties());
+            }
+        } catch (UnsupportedQueryException uqe) {
+            logger.error("Unable to update query with default tags filter");
+        }
+        return newRequest;
     }
 
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,

@@ -1247,6 +1247,20 @@ public abstract class FilterDelegate<T> {
     }
 
     /**
+     * Compares the value associated with the property by checking if it is start at the start date
+     * and ends some time before the endDate
+     *
+     * @param propertyName name of property to compare
+     * @param startDate    start date to compare
+     * @param endDate      end date to compare
+     * @return result of begins temporal operation
+     */
+    public T begins(String propertyName, Date startDate, Date endDate) {
+        throw new UnsupportedOperationException(
+                "begins(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
+    }
+
+    /**
      * Compares the value associated with a property is relatively within a duration of milliseconds
      * in the past from the current time of evaluation.
      *

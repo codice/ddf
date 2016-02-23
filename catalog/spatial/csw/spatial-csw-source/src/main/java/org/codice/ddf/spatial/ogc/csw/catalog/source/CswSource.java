@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,6 +87,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -183,6 +185,10 @@ public class CswSource extends MaskableImpl
     protected static final String QUERY_TYPE_PREFIX_PROPERTY = "queryTypePrefix";
 
     protected static final String USE_POS_LIST_PROPERTY = "usePosList";
+
+    protected static final String SECURITY_ATTRIBUTES_PROPERTY = "securityAttributeStrings";
+
+    protected static final String SCHEMA_TO_TAGS_PROPERTY = "schemaToTagsMapping";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -326,6 +332,7 @@ public class CswSource extends MaskableImpl
         LOGGER.debug("{}: Entering init()", cswSourceConfiguration.getId());
         initClientFactory();
         setupAvailabilityPoll();
+
     }
 
     private void initClientFactory() {
@@ -410,6 +417,12 @@ public class CswSource extends MaskableImpl
 
         consumerMap.put(IS_CQL_FORCED_PROPERTY,
                 value -> cswSourceConfiguration.setIsCqlForced((Boolean) value));
+
+        consumerMap.put(SECURITY_ATTRIBUTES_PROPERTY,
+                value -> cswSourceConfiguration.setSecurityAttributes((String[]) value));
+
+        consumerMap.put(SCHEMA_TO_TAGS_PROPERTY,
+                value -> cswSourceConfiguration.setSchemaToTagsMapping((String[]) value));
 
     }
 
@@ -694,6 +707,13 @@ public class CswSource extends MaskableImpl
 
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
+
+        Set<String> tags = cswSourceConfiguration.getSchemaToTagsMapping()
+                .get(cswSourceConfiguration.getOutputSchema());
+        if (!CollectionUtils.isEmpty(tags) && !tags.contains(Metacard.DEFAULT_TAG)
+                && !filterAdapter.adapt(query, new TagsFilterDelegate(tags))) {
+            return new SourceResponseImpl(queryRequest, Collections.emptyList());
+        }
 
         GetRecordsType getRecordsType = createGetRecordsRequest(query,
                 elementSetName,
@@ -1550,6 +1570,19 @@ public class CswSource extends MaskableImpl
     public void setConfigurationPid(String configurationPid) {
         this.configurationPid = configurationPid;
 
+    }
+
+    @Override
+    public Map<String, Set<String>> getSecurityAttributes() {
+        return this.cswSourceConfiguration.getSecurityAttributes();
+    }
+
+    public void setSecurityAttributeStrings(String[] attributes) {
+        this.cswSourceConfiguration.setSecurityAttributes(attributes);
+    }
+
+    public void setSchemaToTagsMapping(String[] mapping) {
+        this.cswSourceConfiguration.setSchemaToTagsMapping(mapping);
     }
 
     /**
