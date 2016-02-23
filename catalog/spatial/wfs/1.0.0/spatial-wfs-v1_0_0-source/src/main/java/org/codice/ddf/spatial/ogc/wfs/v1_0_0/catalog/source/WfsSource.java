@@ -169,6 +169,8 @@ public class WfsSource extends MaskableImpl
 
     private String wfsUrl;
 
+    private String wfsVersion;
+
     private Map<QName, WfsFilterDelegate> featureTypeFilters =
             new HashMap<QName, WfsFilterDelegate>();
 
@@ -429,6 +431,7 @@ public class WfsSource extends MaskableImpl
         WFSCapabilitiesType capabilities = getCapabilities();
 
         if (capabilities != null) {
+            wfsVersion = capabilities.getVersion();
             List<FeatureTypeType> featureTypes = getFeatureTypes(capabilities);
             List<String> supportedGeo = getSupportedGeo(capabilities);
             buildFeatureFilters(featureTypes, supportedGeo);
@@ -877,6 +880,9 @@ public class WfsSource extends MaskableImpl
 
     @Override
     public String getVersion() {
+        if(StringUtils.isNotBlank(wfsVersion)) {
+            return wfsVersion;
+        }
         return describableProperties.getProperty(VERSION);
     }
 

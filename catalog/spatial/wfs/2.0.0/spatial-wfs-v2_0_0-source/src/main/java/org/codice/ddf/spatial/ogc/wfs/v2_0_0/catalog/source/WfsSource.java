@@ -98,6 +98,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
@@ -120,7 +121,8 @@ import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 /**
  * Provides a Federated and Connected source implementation for OGC WFS servers.
  */
-public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource {
+public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
+        ConfiguredService {
 
     public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -186,6 +188,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String wfsUrl;
 
+    private String wfsVersion;
+
     private String username;
 
     private String password;
@@ -228,6 +232,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private boolean disableSorting;
 
     private SecureCxfClientFactory<Wfs> factory;
+
+    protected String configurationPid;
 
     private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
@@ -421,6 +427,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         WFSCapabilitiesType capabilities = getCapabilities();
 
         if (capabilities != null) {
+            wfsVersion = capabilities.getVersion();
             List<FeatureTypeType> featureTypes = getFeatureTypes(capabilities);
             buildFeatureFilters(featureTypes, capabilities.getFilterCapabilities());
         } else {
@@ -1077,6 +1084,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     @Override
     public String getVersion() {
+        if(StringUtils.isNotBlank(wfsVersion)) {
+            return wfsVersion;
+        }
         return describableProperties.getProperty(VERSION);
     }
 
@@ -1271,6 +1281,16 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
             }
         }
+    }
+
+    @Override
+    public String getConfigurationPid() {
+        return configurationPid;
+    }
+
+    @Override
+    public void setConfigurationPid(String configurationPid) {
+        this.configurationPid = configurationPid;
     }
 
     private static class MetacardTypeRegistration {
