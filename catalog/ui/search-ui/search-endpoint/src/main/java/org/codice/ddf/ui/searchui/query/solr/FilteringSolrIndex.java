@@ -113,8 +113,7 @@ public class FilteringSolrIndex {
             CoreDescriptor coreDescriptor = new CoreDescriptor(container,
                     coreName,
                     solrConfig.getResourceLoader()
-                            .getInstancePath()
-                            .toString());
+                            .getInstancePath());
             SolrCore core = new SolrCore(coreName,
                     null,
                     solrConfig,

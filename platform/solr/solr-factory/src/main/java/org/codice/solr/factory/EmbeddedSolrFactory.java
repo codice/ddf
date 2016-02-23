@@ -136,7 +136,7 @@ public class EmbeddedSolrFactory extends SolrServerFactory {
             CoreDescriptor coreDescriptor = new CoreDescriptor(container,
                     DEFAULT_EMBEDDED_CORE_NAME,
                     solrConfig.getResourceLoader()
-                            .getInstancePath().toString());
+                            .getInstancePath());
 
             SolrCore core = new SolrCore(DEFAULT_EMBEDDED_CORE_NAME,
                     dataDirPath,

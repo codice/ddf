@@ -797,10 +797,10 @@
         <bundle>mvn:ddf.platform.solr/solr-banana/${project.version}/war</bundle>
         <bundle>mvn:ddf.platform.solr/solr-banana-provisioner/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/banana-int/conf/solrconfig.xml">
+        <configfile finalname="/data/solr/banana/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
         </configfile>
-        <configfile finalname="/data/solr/banana-int/conf/schema.xml">
+        <configfile finalname="/data/solr/banana/conf/schema.xml">
             mvn:ddf.platform.solr/solr-banana/${project.version}/xml/bananaschema
         </configfile>
         <configfile finalname="/examples/banana/DefaultDashboard.json">

@@ -37,7 +37,7 @@ public class BananaSolrProvisioner {
         try {
             client =
                     SolrServerFactory.getHttpSolrServer(SolrServerFactory.getDefaultHttpsAddress(),
-                            "banana-int")
+                            "banana")
                             .get();
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.warn("Failed to provision Banana Solr core", e);

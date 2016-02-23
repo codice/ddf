@@ -120,12 +120,12 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IllegalArgumentException("SolrClient cannot be null.");
         }
 
+        this.server = client;
+        this.resolver = resolver;
+
         LOGGER.debug("Constructing {} with server [{}]",
                 SolrCatalogProvider.class.getName(),
                 server);
-
-        this.server = client;
-        this.resolver = resolver;
 
         resolver.addFieldsFromServer(client);
         this.client = new ProviderSolrMetacardClient(client,

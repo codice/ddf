@@ -24,7 +24,6 @@
     <packaging>pom</packaging>
     <name>DDF Solr</name>
     <properties>
-        <solr.version>5.4.1</solr.version>
         <saxon.version>9.5.1-5</saxon.version>
     </properties>
     <dependencyManagement>
