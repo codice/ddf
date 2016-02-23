@@ -192,9 +192,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     QueryResponse queryCache(QueryRequest queryRequest) {
-        final QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest);
+        QueryRequest updatedRequest = getRequestWithTagsFilter(queryRequest);
+        final QueryResponseImpl queryResponse = new QueryResponseImpl(updatedRequest);
         try {
-            SourceResponse result = cache.query(queryRequest);
+            SourceResponse result = cache.query(updatedRequest);
             queryResponse.setHits(result.getHits());
             queryResponse.setProperties(result.getProperties());
             queryResponse.addResults(result.getResults(), true);
