@@ -29,6 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
@@ -41,6 +43,8 @@ import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.SubjectUtils;
 
 public class AttributeFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
@@ -99,7 +103,13 @@ public class AttributeFileClaimsHandler implements ClaimsHandler, RealmSupport {
             ClaimsParameters claimsParameters) {
         ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         Principal principal = claimsParameters.getPrincipal();
-        Object user = json.get(principal.getName());
+        String name;
+        if (principal instanceof X500Principal) {
+            name = SubjectUtils.getCommonName((X500Principal) principal);
+        } else {
+            name = principal.getName();
+        }
+        Object user = json.get(name);
         Map userMap = null;
         if (user != null) {
             if (user instanceof Map) {
