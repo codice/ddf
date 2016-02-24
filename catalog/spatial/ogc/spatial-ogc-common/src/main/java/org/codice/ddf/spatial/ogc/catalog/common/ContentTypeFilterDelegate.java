@@ -62,7 +62,7 @@ public class ContentTypeFilterDelegate extends FilterDelegate<List<ContentType>>
     }
 
     @Override
-    public List<ContentType> propertyIs(String propertyName, Object literal) {
+    public List<ContentType> propertyIs(String propertyName, Object literal, PropertyOperation operation) {
         return Collections.<ContentType>emptyList();
     }
 

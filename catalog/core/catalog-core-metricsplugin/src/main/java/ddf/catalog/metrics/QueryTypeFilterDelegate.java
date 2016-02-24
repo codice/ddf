@@ -160,7 +160,7 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIs(String propertyName, Object literal) {
+    public Boolean propertyIs(String propertyName, Object literal, PropertyOperation operation) {
         return isComparison = true;
     }
 

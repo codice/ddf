@@ -137,7 +137,7 @@ public class RestFilterDelegate extends FilterDelegate<RestUrl> {
     }
 
     @Override
-    public RestUrl propertyIs(String propertyName, Object literal) {
+    public RestUrl propertyIs(String propertyName, Object literal, PropertyOperation operation) {
         return null;
     }
 

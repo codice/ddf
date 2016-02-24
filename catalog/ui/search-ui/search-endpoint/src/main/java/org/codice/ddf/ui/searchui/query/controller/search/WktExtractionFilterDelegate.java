@@ -111,7 +111,7 @@ public class WktExtractionFilterDelegate extends FilterDelegate<String> {
     }
 
     @Override
-    public String propertyIs(String propertyName, Object literal) {
+    public String propertyIs(String propertyName, Object literal, PropertyOperation operation) {
         return "";
     }
 
