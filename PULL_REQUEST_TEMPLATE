@@ -4,5 +4,7 @@
 #### Any background context you want to provide?
 #### What are the relevant tickets?
 #### Screenshots (if appropriate)
-#### Questions:
-- Does the documentation need an update?
+#### Checklist:
+- [ ] Documentation Updated
+- [ ] Update / Add Unit Tests
+- [ ] Update / Add Integration Tests
