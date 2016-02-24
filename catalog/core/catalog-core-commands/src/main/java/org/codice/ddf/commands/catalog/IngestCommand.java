@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -206,7 +205,24 @@ public class IngestCommand extends CatalogCommands {
         int totalFiles = (inputFile.isDirectory()) ? inputFile.list().length : 1;
         fileCount.getAndSet(totalFiles);
 
-        final Queue<Metacard> metacardQueue = new ConcurrentLinkedQueue<>();
+        final ArrayBlockingQueue<Metacard> metacardQueue = new ArrayBlockingQueue<>(
+                batchSize * multithreaded);
+
+        ExecutorService queueExecutor = Executors.newSingleThreadExecutor();
+
+        final long start = System.currentTimeMillis();
+
+        printProgressAndFlush(start, fileCount.get(), 0);
+
+        queueExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                buildQueue(ingestStream, metacardQueue, start);
+            }
+        });
+
+        final ScheduledExecutorService batchScheduler =
+                Executors.newSingleThreadScheduledExecutor();
 
         BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
         RejectedExecutionHandler rejectedExecutionHandler =
@@ -217,20 +233,6 @@ public class IngestCommand extends CatalogCommands {
                 TimeUnit.MILLISECONDS,
                 blockingQueue,
                 rejectedExecutionHandler);
-
-        final long start = System.currentTimeMillis();
-
-        printProgressAndFlush(start, fileCount.get(), 0);
-
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                buildQueue(ingestStream, metacardQueue, start);
-            }
-        });
-
-        final ScheduledExecutorService batchScheduler =
-                Executors.newSingleThreadScheduledExecutor();
 
         submitToCatalog(batchScheduler, executorService, metacardQueue, catalog, batchSize, start);
 
@@ -243,6 +245,7 @@ public class IngestCommand extends CatalogCommands {
         }
 
         try {
+            queueExecutor.shutdown();
             executorService.shutdown();
             batchScheduler.shutdown();
         } catch (SecurityException e) {
@@ -503,27 +506,22 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void submitToCatalog(ScheduledExecutorService batchScheduler,
-            ExecutorService executorService, Queue<Metacard> metacardQueue, CatalogFacade catalog,
-            int batchSize, long start) {
+            ExecutorService executorService, ArrayBlockingQueue<Metacard> metacardQueue,
+            CatalogFacade catalog, int batchSize, long start) {
 
         batchScheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 int queueSize = metacardQueue.size();
-
                 if (queueSize > 0) {
-                    ArrayList<Metacard> metacardBatch = new ArrayList<>();
-                    if (queueSize > batchSize) {
-                        for (int i = 0; i < batchSize; i++) {
-                            metacardBatch.add(metacardQueue.remove());
-                        }
-                        processingThreads.incrementAndGet();
-                    } else if (doneBuildingQueue.get()) {
-                        for (Metacard metacard : metacardQueue) {
-                            metacardBatch.add(metacardQueue.remove());
-                        }
+
+                    ArrayList<Metacard> metacardBatch = new ArrayList<>(batchSize);
+
+                    if (queueSize > batchSize || (doneBuildingQueue.get() && queueSize > 0)) {
+                        metacardQueue.drainTo(metacardBatch, batchSize);
                         processingThreads.incrementAndGet();
                     }
+
                     if (metacardBatch.size() > 0) {
                         executorService.submit(new Runnable() {
                             @Override
@@ -545,5 +543,4 @@ public class IngestCommand extends CatalogCommands {
             }
         }, 100, 100, TimeUnit.MILLISECONDS);
     }
-
 }
