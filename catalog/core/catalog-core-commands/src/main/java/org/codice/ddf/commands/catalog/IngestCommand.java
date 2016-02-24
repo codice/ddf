@@ -201,14 +201,6 @@ public class IngestCommand extends CatalogCommands {
             }
         }
 
-        /*ForkJoinPool forkJoinPool = new ForkJoinPool(multithreaded);
-
-        Stream<Path> ingestStream = forkJoinPool.submit(() -> Files.walk(inputFile.toPath(),
-                FileVisitOption.FOLLOW_LINKS))
-                .get();
-
-        forkJoinPool.shutdown();*/
-
         Stream<Path> ingestStream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS);
 
         int totalFiles = (inputFile.isDirectory()) ? inputFile.list().length : 1;
@@ -239,17 +231,6 @@ public class IngestCommand extends CatalogCommands {
 
         final ScheduledExecutorService batchScheduler =
                 Executors.newSingleThreadScheduledExecutor();
-        /*executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                submitToCatalog(batchScheduler,
-                        executorService,
-                        metacardQueue,
-                        catalog,
-                        batchSize,
-                        start);
-            }
-        });*/
 
         submitToCatalog(batchScheduler, executorService, metacardQueue, catalog, batchSize, start);
 
