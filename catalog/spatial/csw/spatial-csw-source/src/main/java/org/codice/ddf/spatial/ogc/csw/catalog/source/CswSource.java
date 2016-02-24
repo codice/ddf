@@ -840,9 +840,12 @@ public class CswSource extends MaskableImpl
             Map<String, Serializable> requestProperties)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
-        if (resourceReader == null) {
+        if (canRetrieveResourceById()) {
             // If no resource reader was found, retrieve the product through a GetRecordById request
-            Serializable serializableId = requestProperties.get(Metacard.ID);
+            Serializable serializableId = null;
+            if (requestProperties != null) {
+                serializableId = requestProperties.get(Metacard.ID);
+            }
 
             if (serializableId == null) {
                 throw new ResourceNotFoundException(
@@ -863,11 +866,12 @@ public class CswSource extends MaskableImpl
                 recordCollection = csw.getRecordById(getRecordByIdRequest);
 
                 Resource resource = recordCollection.getResource();
-                return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(resource.getInputStream()),
-                        resource.getMimeType()
-                                .toString(),
-                        FilenameUtils.getName(recordCollection.getResource()
-                                .getName())));
+                if (resource != null) {
+                    return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(
+                            resource.getInputStream()),
+                            resource.getMimeTypeValue(),
+                            FilenameUtils.getName(resource.getName())));
+                }
             } catch (CswException e) {
                 throw new ResourceNotFoundException(String.format(ERROR_ID_PRODUCT_RETRIEVAL,
                         metacardId), e);
@@ -1255,7 +1259,6 @@ public class CswSource extends MaskableImpl
             }
 
             readGetRecordsOperation(capabilities);
-            adjustResourceReaderBasedOnCapability(capabilities);
 
             loadContentTypes();
             LOGGER.debug("{}: {}", cswSourceConfiguration.getId(), capabilities.toString());
@@ -1528,23 +1531,23 @@ public class CswSource extends MaskableImpl
     }
 
     /**
-     * In order to maintain backwards compatibility for product retrieval, check if it's a
-     * supported capability through GetRecordById, otherwise the ResourceReader will be used
-     * for retrieving the product.
-     *
-     * @param capabilitiesType The capabilities the CSW server supports
+     * Determine if the resource should be retrieved using a ResourceReader or by calling
+     * GetRecordById.
      */
-    private void adjustResourceReaderBasedOnCapability(CapabilitiesType capabilitiesType) {
-        OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
-        // Check if GetRecordById supports the output schema representing product retrieval, and
-        // if so, set the ResourceReader to null.
+    private boolean canRetrieveResourceById() {
+        OperationsMetadata operationsMetadata = capabilities.getOperationsMetadata();
         Operation getRecordByIdOp = getOperation(operationsMetadata, CswConstants.GET_RECORD_BY_ID);
-        DomainType getRecordByIdOutputSchemas = getParameter(getRecordByIdOp,
-                CswConstants.OUTPUT_SCHEMA_PARAMETER);
-        if (getRecordByIdOutputSchemas.getValue()
-                .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
-            resourceReader = null;
+        if (getRecordByIdOp != null) {
+            DomainType getRecordByIdOutputSchemas = getParameter(getRecordByIdOp,
+                    CswConstants.OUTPUT_SCHEMA_PARAMETER);
+            if (getRecordByIdOutputSchemas != null && getRecordByIdOutputSchemas.getValue() != null
+                    &&
+                    getRecordByIdOutputSchemas.getValue()
+                            .contains(OCTET_STREAM_OUTPUT_SCHEMA)) {
+                return true;
+            }
         }
+        return false;
     }
 
     private boolean isOutputSchemaSupported() {

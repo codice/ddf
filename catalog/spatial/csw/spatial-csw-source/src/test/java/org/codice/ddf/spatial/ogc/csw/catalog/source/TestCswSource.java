@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -32,7 +33,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -56,6 +59,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.custommonkey.xmlunit.Diff;
 import org.geotools.filter.FilterFactoryImpl;
@@ -84,12 +88,16 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.service.SecurityServiceException;
-
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -1100,6 +1108,46 @@ public class TestCswSource extends TestCswSourceBase {
                         .getValue()
                         .toString())));
 
+    }
+
+    @Test
+    public void testRetrieveResourceUsingReader()
+            throws URISyntaxException, ResourceNotFoundException, IOException,
+            ResourceNotSupportedException, CswException {
+        configureMockCsw();
+        CswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null);
+        ResourceReader reader = mock(ResourceReader.class);
+        when(reader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mock(
+                ResourceResponse.class));
+        cswSource.setResourceReader(reader);
+
+        Map<String, Serializable> props = new HashMap<>();
+        props.put(Metacard.ID, "ID");
+        cswSource.retrieveResource(new URI("http://example.com/resource"), props);
+        // Verify
+        verify(reader, times(1)).retrieveResource(any(URI.class), anyMap());
+    }
+
+    @Test
+    public void testRetrieveResourceViaGetRecordById()
+            throws CswException, ResourceNotFoundException, IOException,
+            ResourceNotSupportedException, URISyntaxException {
+        Csw csw = createMockCsw();
+        CswRecordCollection collection = mock(CswRecordCollection.class);
+        Resource resource = mock(Resource.class);
+        when(collection.getResource()).thenReturn(resource);
+        when(csw.getRecordById(any(GetRecordByIdRequest.class))).thenReturn(collection);
+        CswSource cswSource = getCswSource(csw, mockContext, null, null, null);
+        ResourceReader reader = mock(ResourceReader.class);
+        when(reader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mock(
+                ResourceResponse.class));
+        cswSource.setResourceReader(reader);
+
+        Map<String, Serializable> props = new HashMap<>();
+        props.put(Metacard.ID, "ID");
+        cswSource.retrieveResource(new URI("http://example.com/resource"), props);
+        // Verify
+        verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class));
     }
 
     private CswSourceConfiguration getStandardCswSourceConfiguration(String contentTypeMapping,
