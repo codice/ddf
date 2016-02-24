@@ -46,7 +46,7 @@ public class ErrorServlet extends HttpServlet {
         setErrorHandler();
     }
 
-    public void setErrorHandler() {
+    private void setErrorHandler() {
         if (errorHandler == null) {
             Bundle bundle = FrameworkUtil.getBundle(ErrorServlet.class);
             if (bundle != null) {

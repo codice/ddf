@@ -47,8 +47,7 @@ public class ContextSourceDecrypt extends org.springframework.ldap.core.support.
     public void setPassword(String password) {
         if (encryptionService == null) {
             LOGGER.error(
-                    "The ContextSourceDecrypt has a null Encryption Service.  Unable to attempt to decrypt the encrypted password: {}.  Setting decrypted password to null.",
-                    password);
+                    "The ContextSourceDecrypt has a null Encryption Service.  Unable to attempt to decrypt the encrypted password: [HIDDEN].  Setting decrypted password to null.");
             this.password = password;
         } else {
             this.password = encryptionService.decryptValue(password);

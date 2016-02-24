@@ -76,17 +76,4 @@
     <service ref="filter" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
              ranking="50"/>
 
-    <!-- SSO Callback Page -->
-    <bean id="testPage" class="org.codice.ddf.security.handler.cas.TestPage">
-        <argument ref="proxyFilter"/>
-    </bean>
-
-    <service id="testPageService" ref="testPage"
-             interface="javax.servlet.http.HttpServlet">
-        <service-properties>
-            <entry key="alias" value="/sso"/>
-            <entry key="servlet-name" value="TestPage"/>
-        </service-properties>
-    </service>
-
 </blueprint>
