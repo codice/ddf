@@ -81,7 +81,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private MBeanServer mBeanServer;
 
-    private List<String> filterList;
 
     private List<ConfigurationAdminPlugin> configurationAdminPluginList;
 
@@ -206,45 +205,10 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     private String getDefaultFactoryLdapFilter() {
-        if (CollectionUtils.isNotEmpty(filterList)) {
-            StringBuilder ldapFilter = new StringBuilder();
-            ldapFilter.append("(");
-            ldapFilter.append("|");
-
-            for (String fpid : filterList) {
-                ldapFilter.append("(");
-                ldapFilter.append(SERVICE_FACTORYPID);
-                ldapFilter.append("=");
-                ldapFilter.append(fpid);
-                ldapFilter.append(")");
-            }
-
-            ldapFilter.append(")");
-
-            return ldapFilter.toString();
-        }
         return "(" + SERVICE_FACTORYPID + "=" + "*)";
     }
 
     private String getDefaultLdapFilter() {
-        if (CollectionUtils.isNotEmpty(filterList)) {
-            StringBuilder ldapFilter = new StringBuilder();
-            ldapFilter.append("(");
-            ldapFilter.append("|");
-
-            for (String fpid : filterList) {
-                ldapFilter.append("(");
-                ldapFilter.append(SERVICE_PID);
-                ldapFilter.append("=");
-                ldapFilter.append(fpid);
-                ldapFilter.append("*");
-                ldapFilter.append(")");
-            }
-
-            ldapFilter.append(")");
-
-            return ldapFilter.toString();
-        }
         return "(" + SERVICE_PID + "=" + "*)";
     }
 
@@ -462,13 +426,6 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         return tempMetatype;
     }
 
-    public List<String> getFilterList() {
-        return filterList;
-    }
-
-    public void setFilterList(List<String> filterList) {
-        this.filterList = filterList;
-    }
 
     public Map<String, Object> disableConfiguration(String servicePid) throws IOException {
         if (StringUtils.isEmpty(servicePid)) {

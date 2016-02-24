@@ -298,31 +298,6 @@ public class ConfigurationAdminTest {
     }
 
     /**
-     * Tests the {@link ConfigurationAdmin#listServices()} method for the case
-     * where filterList has been set via {@link ConfigurationAdmin#setFilterList(List)}
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testListServicesFilterList() throws Exception {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
-                mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdminExt testConfigAdminExt = mock(ConfigurationAdminExt.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin,
-                testConfigAdminExt);
-
-        List<String> filterList = new ArrayList<>();
-        filterList.add(TEST_FILTER_1);
-        filterList.add(TEST_FILTER_2);
-        configAdmin.setFilterList(filterList);
-
-        List<Map<String, Object>> result = configAdmin.listServices();
-
-        assertTrue("Should return an empty list.", result.isEmpty());
-        verify(testConfigAdminExt).listServices(LIST_SERV_PARAM_1, LIST_SERV_PARAM_2);
-    }
-
-    /**
      * Tests the {@link ConfigurationAdmin#listModules()} method for the case where
      * module.getJSLocation() returns null
      *
@@ -923,29 +898,6 @@ public class ConfigurationAdminTest {
 
         configAdmin.update(TEST_PID, testConfigTable);
         verify(testConfig).update(any(Dictionary.class));
-    }
-
-    /**
-     * Tests basic sanity for {@link ConfigurationAdmin#setFilterList(List)} and
-     * {@link ConfigurationAdmin#getFilterList()}
-     */
-    @Test
-    public void testGetSetFilterList() {
-        org.osgi.service.cm.ConfigurationAdmin testConfigAdmin =
-                mock(org.osgi.service.cm.ConfigurationAdmin.class);
-        ConfigurationAdmin configAdmin = new ConfigurationAdmin(testConfigAdmin);
-
-        List<String> filterList = new ArrayList<>();
-        filterList.add(TEST_FILTER_1);
-        filterList.add(TEST_FILTER_2);
-
-        configAdmin.setFilterList(filterList);
-        assertEquals(TEST_FILTER_1,
-                configAdmin.getFilterList()
-                        .get(0));
-        assertEquals(TEST_FILTER_2,
-                configAdmin.getFilterList()
-                        .get(1));
     }
 
     /**
