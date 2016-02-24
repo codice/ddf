@@ -18,15 +18,23 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.gogo.commands.Argument;
@@ -44,8 +52,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -58,8 +64,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 /**
- * Custom Karaf command for ingesting records into the Catalog. 
- *
+ * Custom Karaf command for ingesting records into the Catalog.
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
@@ -88,6 +93,10 @@ public class IngestCommand extends CatalogCommands {
     private final AtomicInteger ingestCount = new AtomicInteger();
 
     private final AtomicInteger ignoreCount = new AtomicInteger();
+
+    private final AtomicBoolean doneBuildingQueue = new AtomicBoolean();
+
+    private final AtomicInteger processingThreads = new AtomicInteger();
 
     private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
 
@@ -191,6 +200,30 @@ public class IngestCommand extends CatalogCommands {
             }
         }
 
+        Stream<Path> ingestStream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS);
+
+        int totalFiles = (inputFile.isDirectory()) ? inputFile.list().length : 1;
+        fileCount.getAndSet(totalFiles);
+
+        final ArrayBlockingQueue<Metacard> metacardQueue = new ArrayBlockingQueue<>(
+                batchSize * multithreaded);
+
+        ExecutorService queueExecutor = Executors.newSingleThreadExecutor();
+
+        final long start = System.currentTimeMillis();
+
+        printProgressAndFlush(start, fileCount.get(), 0);
+
+        queueExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                buildQueue(ingestStream, metacardQueue, start);
+            }
+        });
+
+        final ScheduledExecutorService batchScheduler =
+                Executors.newSingleThreadScheduledExecutor();
+
         BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
         RejectedExecutionHandler rejectedExecutionHandler =
                 new ThreadPoolExecutor.CallerRunsPolicy();
@@ -201,128 +234,59 @@ public class IngestCommand extends CatalogCommands {
                 blockingQueue,
                 rejectedExecutionHandler);
 
-        if (inputFile.isDirectory()) {
-            final long start = System.currentTimeMillis();
+        submitToCatalog(batchScheduler, executorService, metacardQueue, catalog, batchSize, start);
 
-            List<File> files = getFiles(inputFile);
-
-            fileCount.getAndSet(files.size());
-
-            printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
-
-            List<List<File>> partition = Lists.partition(files, batchSize);
-
+        while (!doneBuildingQueue.get() || processingThreads.get() != 0) {
             try {
-                for (List<File> batch : partition) {
-                    IngestRunnable ingestRunnable = new IngestRunnable(start,
-                            catalog,
-                            ignoreList,
-                            batch);
-                    executorService.submit(ingestRunnable);
-                }
-            } finally {
-                executorService.shutdown();
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                LOGGER.error("Ingest 'Waiting for processing to finish' thread interrupted: {}", e);
             }
-
-            while (!executorService.isTerminated()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-            }
-
-            printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
-
-            long end = System.currentTimeMillis();
-
-            console.println();
-            String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
-            console.printf(" %d file(s) ingested in %s %n", ingestCount.get(), elapsedTime);
-
-            LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
-                    ingestCount.get(),
-                    elapsedTime,
-                    calculateRecordsPerSecond(ingestCount.get(), start, end));
-            INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
-                    ingestCount.get(),
-                    elapsedTime,
-                    calculateRecordsPerSecond(ingestCount.get(), start, end));
-
-            if (fileCount.get() != ingestCount.get()) {
-                console.println();
-                if ((fileCount.get() - ingestCount.get() - ignoreCount.get()) >= 1) {
-                    String failedAmount = Integer.toString(
-                            fileCount.get() - ingestCount.get() - ignoreCount.get());
-                    printErrorMessage(failedAmount
-                            + " file(s) failed to be ingested.  See the ingest log for more details.");
-                    INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
-                }
-                if (ignoreList != null) {
-                    String ignoredAmount = Integer.toString(ignoreCount.get());
-                    printColor(Ansi.Color.YELLOW,
-                            ignoredAmount
-                                    + " file(s) ignored.  See the ingest log for more details.");
-                    INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
-                }
-            }
-            console.println();
-
-            return null;
-        } else if (inputFile.isFile()) {
-            executorService.shutdown();
-
-            ArrayList<Metacard> metacards = new ArrayList<>(batchSize);
-            Metacard result = null;
-            try {
-                result = readMetacard(inputFile);
-            } catch (IngestException e) {
-                result = null;
-                printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath()
-                        + "].  See the ingest log for more details.");
-                logIngestException(e, inputFile);
-                if (failedIngestDirectory != null) {
-                    moveToFailedIngestDirectory(inputFile);
-                }
-            }
-
-            if (result != null) {
-                metacards.add(result);
-            }
-
-            if (metacards.size() > 0) {
-                CreateResponse createResponse = null;
-                try {
-                    createResponse = createMetacards(catalog, metacards);
-                } catch (IngestException | SourceUnavailableException e) {
-                    createResponse = null;
-                    printErrorMessage(inputFile.getAbsolutePath() + " failed ingest.");
-                    if (INGEST_LOGGER.isWarnEnabled()) {
-                        INGEST_LOGGER.warn("{} failed ingest", inputFile.getAbsolutePath(), e);
-                    }
-                    if (failedIngestDirectory != null) {
-                        moveToFailedIngestDirectory(inputFile);
-                    }
-                }
-
-                if (createResponse != null) {
-                    List<Metacard> recordsCreated = createResponse.getCreatedMetacards();
-                    console.println(recordsCreated.size() + " file(s) created.");
-                    for (Metacard record : recordsCreated) {
-                        console.println("ID: " + record.getId() + " created.");
-                    }
-                    if (INGEST_LOGGER.isDebugEnabled()) {
-                        INGEST_LOGGER.debug("{} file(s) created. {}",
-                                metacards.size(),
-                                buildIngestLog(metacards));
-                    }
-                }
-            }
-            return null;
         }
 
-        executorService.shutdown();
-        console.println("Could not execute command.");
+        try {
+            queueExecutor.shutdown();
+            executorService.shutdown();
+            batchScheduler.shutdown();
+        } catch (SecurityException e) {
+            LOGGER.error("Executor service shutdown was not permitted: {}", e);
+        }
+
+        printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+        long end = System.currentTimeMillis();
+        console.println();
+        String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
+
+        console.println();
+        console.printf(" %d file(s) ingested in %s %n", ingestCount.get(), elapsedTime);
+
+        LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
+                ingestCount.get(),
+                elapsedTime,
+                calculateRecordsPerSecond(ingestCount.get(), start, end));
+        INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]",
+                ingestCount.get(),
+                elapsedTime,
+                calculateRecordsPerSecond(ingestCount.get(), start, end));
+
+        if (fileCount.get() != ingestCount.get()) {
+            console.println();
+            if ((fileCount.get() - ingestCount.get() - ignoreCount.get()) >= 1) {
+                String failedAmount = Integer.toString(
+                        fileCount.get() - ingestCount.get() - ignoreCount.get());
+                printErrorMessage(failedAmount
+                        + " file(s) failed to be ingested.  See the ingest log for more details.");
+                INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
+            }
+            if (ignoreList != null) {
+                String ignoredAmount = Integer.toString(ignoreCount.get());
+                printColor(Ansi.Color.YELLOW,
+                        ignoredAmount + " file(s) ignored.  See the ingest log for more details.");
+                INGEST_LOGGER.warn("{} files(s) were ignored.", ignoredAmount);
+            }
+        }
+        console.println();
+
         return null;
     }
 
@@ -356,22 +320,6 @@ public class IngestCommand extends CatalogCommands {
             }
         }
         return strBuilder.toString();
-    }
-
-    private List<File> getFiles(File dir) {
-        List<File> files = new ArrayList<>();
-        File[] filesArr = dir.listFiles();
-        if (filesArr != null) {
-            for (File file : filesArr) {
-                if (file.isDirectory()) {
-                    files.addAll(getFiles(file));
-                } else {
-                    files.add(file);
-                }
-            }
-        }
-
-        return files;
     }
 
     private void logIngestException(IngestException exception, File inputFile) {
@@ -487,6 +435,8 @@ public class IngestCommand extends CatalogCommands {
                         buildIngestLog(metacards),
                         e);
             }
+        } finally {
+            processingThreads.decrementAndGet();
         }
 
         if (createResponse != null) {
@@ -506,84 +456,91 @@ public class IngestCommand extends CatalogCommands {
         }
     }
 
-    private class IngestRunnable implements Runnable {
+    private void buildQueue(Stream<Path> ingestStream, Queue<Metacard> metacardQueue, long start) {
+        ingestStream.filter(a -> !a.toFile()
+                .isDirectory())
+                .forEach(a -> {
+                    File file = a.toFile();
 
-        private long start;
+                    if (file.isHidden()) {
+                        ignoreCount.incrementAndGet();
+                    } else {
+                        String extension = file.getName();
 
-        private CatalogFacade catalog;
-
-        private ArrayList<Metacard> metacards = new ArrayList<>(batchSize);
-
-        private List<String> ignoreList;
-
-        private List<File> files;
-
-        public IngestRunnable(long start, CatalogFacade catalog, List<String> ignoreList,
-                List<File> files) {
-            this.start = start;
-            this.catalog = catalog;
-            this.ignoreList = ignoreList;
-            this.files = files;
-        }
-
-        @Override
-        public void run() {
-            long failed = 0;
-            for (File file : files) {
-                String extension = file.getName();
-
-                if (extension.contains(".")) {
-                    int x = extension.indexOf('.');
-                    extension = extension.substring(x);
-                }
-
-                if (file.isHidden() || (ignoreList != null && (ignoreList.contains(extension)
-                        || ignoreList.contains(file.getName())))) {
-                    ignoreCount.incrementAndGet();
-                    failed++;
-                    printProgressAndFlush(start,
-                            fileCount.get(),
-                            ingestCount.get() + ignoreCount.get());
-                } else {
-                    Metacard result;
-                    try {
-                        result = readMetacard(file);
-                    } catch (IngestException e) {
-                        result = null;
-                        logIngestException(e, file);
-                        if (failedIngestDirectory != null) {
-                            moveToFailedIngestDirectory(file);
+                        if (extension.contains(".")) {
+                            int x = extension.indexOf('.');
+                            extension = extension.substring(x);
                         }
-                        printErrorMessage(
-                                "Failed to ingest file [" + file.getAbsolutePath() + "].");
-                        if (INGEST_LOGGER.isWarnEnabled()) {
-                            INGEST_LOGGER.warn("Failed to ingest file [{}].",
-                                    file.getAbsolutePath());
-                        }
-                        failed++;
-                    }
 
-                    if (result != null) {
-                        metacards.add(result);
-                    }
+                        if (ignoreList != null && (ignoreList.contains(extension)
+                                || ignoreList.contains(file.getName()))) {
+                            ignoreCount.incrementAndGet();
+                            printProgressAndFlush(start,
+                                    fileCount.get(),
+                                    ingestCount.get() + ignoreCount.get());
+                        } else {
+                            Metacard result;
+                            try {
+                                result = readMetacard(file);
+                            } catch (IngestException e) {
+                                result = null;
+                                logIngestException(e, file);
+                                if (failedIngestDirectory != null) {
+                                    moveToFailedIngestDirectory(file);
+                                }
+                                printErrorMessage(
+                                        "Failed to ingest file [" + file.getAbsolutePath() + "].");
+                                if (INGEST_LOGGER.isWarnEnabled()) {
+                                    INGEST_LOGGER.warn("Failed to ingest file [{}].",
+                                            file.getAbsolutePath());
+                                }
+                            }
 
-                    try {
-                        if (metacards.size() + failed == files.size()) {
-                            if (!processBatch(catalog, metacards)) {
-                                return;
+                            if (result != null) {
+                                metacardQueue.add(result);
                             }
                         }
-                    } catch (SourceUnavailableException e) {
-                        // Catalog framework logs these exceptions to the ingest logger so we don't have to.
-                        return;
                     }
-
-                    printProgressAndFlush(start,
-                            fileCount.get(),
-                            ingestCount.get() + ignoreCount.get());
-                }
-            }
-        }
+                });
+        doneBuildingQueue.set(true);
     }
 
+    private void submitToCatalog(ScheduledExecutorService batchScheduler,
+            ExecutorService executorService, ArrayBlockingQueue<Metacard> metacardQueue,
+            CatalogFacade catalog, int batchSize, long start) {
+
+        batchScheduler.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                int queueSize = metacardQueue.size();
+                if (queueSize > 0) {
+
+                    ArrayList<Metacard> metacardBatch = new ArrayList<>(batchSize);
+
+                    if (queueSize > batchSize || (doneBuildingQueue.get() && queueSize > 0)) {
+                        metacardQueue.drainTo(metacardBatch, batchSize);
+                        processingThreads.incrementAndGet();
+                    }
+
+                    if (metacardBatch.size() > 0) {
+                        executorService.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    processBatch(catalog, metacardBatch);
+                                } catch (SourceUnavailableException e) {
+                                    if (INGEST_LOGGER.isWarnEnabled()) {
+                                        INGEST_LOGGER.warn("Error on process batch: {}", e);
+                                    }
+                                }
+                            }
+                        });
+                        printProgressAndFlush(start,
+                                fileCount.get(),
+                                ingestCount.get() + ignoreCount.get());
+                    }
+                }
+            }
+        }, 100, 100, TimeUnit.MILLISECONDS);
+    }
 }
