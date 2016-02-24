@@ -25,7 +25,7 @@
 
     <feature name="security-core" install="manual" version="${project.version}"
              description="DDF Security Core">
-        <feature>security-core-api</feature>
+        <feature prerequisite="true">security-core-api</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
@@ -57,6 +57,9 @@
 
     <feature name="security-pdp-authz" install="manual" version="${project.version}"
              description="DDF Security PDP.">
+        <feature prerequisite="true">security-expansion</feature>
+        <feature prerequisite="true">security-pep-user-attributes</feature>
+        <feature prerequisite="true">security-pep-metacard-attributes</feature>
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
     </feature>
 

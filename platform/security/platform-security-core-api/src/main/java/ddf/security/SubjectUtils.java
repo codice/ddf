@@ -139,6 +139,6 @@ public final class SubjectUtils {
     }
 
     public static String getCommonName(X500Principal principal) {
-        return new X500Name(principal.getName()).getRDNs(BCStyle.CN)[0].toString();
+        return new X500Name(principal.getName()).getRDNs(BCStyle.CN)[0].getFirst().getValue().toString();
     }
 }

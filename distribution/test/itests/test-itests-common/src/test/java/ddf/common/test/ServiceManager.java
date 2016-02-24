@@ -18,7 +18,11 @@ import static org.codice.ddf.admin.application.service.ApplicationStatus.Applica
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -465,6 +469,29 @@ public class ServiceManager {
         }
 
         LOGGER.info("Sources at {} ready.", path);
+    }
+
+    public void waitForAllConfigurations() throws InterruptedException {
+        long timeoutLimit = System.currentTimeMillis() + HTTP_ENDPOINT_TIMEOUT;
+        String ddfHome = System.getProperty("ddf.home");
+        Path etc = Paths.get(ddfHome, "etc");
+        if (Files.isDirectory(etc)) {
+            boolean available = false;
+            while (!available) {
+                File file = etc.toFile();
+                File[] files = file.listFiles((dir, name) -> {
+                    return name.endsWith(".config");
+                });
+                if (files.length == 0) {
+                    available = true;
+                } else {
+                    if (System.currentTimeMillis() > timeoutLimit) {
+                        fail("Configurations were not read in time.");
+                    }
+                    Thread.sleep(2000);
+                }
+            }
+        }
     }
 
     public Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
