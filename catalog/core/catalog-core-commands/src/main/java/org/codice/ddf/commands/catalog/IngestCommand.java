@@ -238,7 +238,7 @@ public class IngestCommand extends CatalogCommands {
             try {
                 TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException e) {
-                // ignore
+                LOGGER.error("Ingest 'Waiting for processing to finish' thread interrupted: {}", e);
             }
         }
 
@@ -531,7 +531,9 @@ public class IngestCommand extends CatalogCommands {
                                 try {
                                     processBatch(catalog, metacardBatch);
                                 } catch (SourceUnavailableException e) {
-
+                                    if (INGEST_LOGGER.isWarnEnabled()) {
+                                        INGEST_LOGGER.warn("Error on process batch: {}", e);
+                                    }
                                 }
                             }
                         });
