@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,11 +75,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         }
     }
 
-    private String url = SolrServerFactory.getDefaultHttpsAddress();
+    private String url = SolrClientFactory.getDefaultHttpsAddress();
 
     private CatalogProvider provider = new UnconfiguredCatalogProvider();
 
-    private SolrClient server;
+    private SolrClient client;
 
     private FilterAdapter filterAdapter;
 
@@ -87,19 +87,19 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private DynamicSchemaResolver resolver;
 
-    private Future<SolrClient> serverFuture;
+    private Future<SolrClient> clientFuture;
 
     /**
      * Simple constructor
      *
      * @param filterAdapter
-     * @param server        - {@link SolrClient} to handle requests
+     * @param client        - {@link SolrClient} to handle requests
      */
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrClient server,
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrClient client,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
 
         this.filterAdapter = filterAdapter;
-        this.server = server;
+        this.client = client;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = (resolver == null) ? new DynamicSchemaResolver() : resolver;
 
@@ -113,7 +113,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(filterAdapter, null, solrFilterDelegateFactory, null);
-        updateServer();
+        updateClient();
     }
 
     @Override
@@ -125,7 +125,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     }
 
     /**
-     * Used to signal to the Solr server to commit on every transaction. Updates
+     * Used to signal to the Solr client to commit on every transaction. Updates
      * the underlying ConfigurationStore so that the property is propagated
      * throughout the Solr Catalog Provider code
      *
@@ -201,13 +201,13 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     }
 
     /**
-     * Shutdown the connection to the Solr Server and releases resources.
+     * Shutdown the connection to Solr and releases resources.
      */
     public void shutdown() {
-        LOGGER.info("Releasing connection to solr server.");
-        if (getServer() != null) {
+        LOGGER.info("Closing connection to solr client.");
+        if (getClient() != null) {
             try {
-                getServer().close();
+                getClient().close();
             } catch (IOException e) {
                 LOGGER.warn("Unable to close Solr client", e);
             }
@@ -226,7 +226,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * @param url
      */
     public void setUrl(String url) {
-        updateServer(PropertyResolver.resolveProperties(url));
+        updateClient(PropertyResolver.resolveProperties(url));
     }
 
     /**
@@ -234,25 +234,25 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      *
      * @param urlValue - url to the Solr Server
      */
-    public void updateServer(String urlValue) {
+    public void updateClient(String urlValue) {
         LOGGER.info("New url {}", urlValue);
 
         if (urlValue != null) {
-            if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || getServer() == null) {
+            if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || getClient() == null) {
                 url = urlValue.trim();
 
-                if (getServer() != null) {
+                if (getClient() != null) {
                     LOGGER.info(
                             "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
                     try {
-                        getServer().close();
+                        getClient().close();
                     } catch (IOException e) {
                         LOGGER.warn("Unable to close Solr client", e);
                     }
                     LOGGER.info("Shutdown complete.");
                 }
 
-                updateServer();
+                updateClient();
             }
 
         } else {
@@ -261,20 +261,19 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         }
     }
 
-    private void updateServer() {
-        serverFuture = SolrServerFactory.getHttpSolrServer(url,
-                SOLR_CATALOG_CORE_NAME);
-        server = null;
+    private void updateClient() {
+        clientFuture = SolrClientFactory.getHttpSolrClient(url, SOLR_CATALOG_CORE_NAME);
+        client = null;
     }
 
     private CatalogProvider getProvider() {
 
-        if (!isServerUp(getServer())) {
+        if (!isClientConnected(getClient())) {
             return new UnconfiguredCatalogProvider();
         }
 
         if (provider instanceof UnconfiguredCatalogProvider) {
-            provider = new SolrCatalogProvider(getServer(),
+            provider = new SolrCatalogProvider(getClient(),
                     filterAdapter,
                     solrFilterDelegateFactory,
                     resolver);
@@ -285,7 +284,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     }
 
-    private boolean isServerUp(SolrClient solr) {
+    private boolean isClientConnected(SolrClient solr) {
 
         if (solr == null) {
             return false;
@@ -305,20 +304,20 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         return false;
     }
 
-    private SolrClient getServer() {
-        if (server == null && serverFuture != null) {
+    private SolrClient getClient() {
+        if (client == null && clientFuture != null) {
             try {
-                return serverFuture.get(5, TimeUnit.SECONDS);
+                return clientFuture.get(5, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                LOGGER.debug("Failed to get server from future", e);
+                LOGGER.debug("Failed to get client from future", e);
             }
         }
-        return server;
+        return client;
     }
 
     /**
      * This class is used to signify an unconfigured CatalogProvider instance. If a user tries to
-     * unsuccessfully connect to a Solr Server, then a message will be displayed to check the
+     * unsuccessfully connect to Solr, then a message will be displayed to check the
      * connection.
      *
      * @author Ashraf Barakat, Lockheed Martin
@@ -326,12 +325,12 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      */
     private static class UnconfiguredCatalogProvider implements CatalogProvider {
 
-        private static final String SERVER_DISCONNECTED_MESSAGE =
-                "Solr Server is not connected. Please check the Solr Server status or url, and then retry.";
+        private static final String CLIENT_DISCONNECTED_MESSAGE =
+                "Solr client is not connected. Please check Solr status or url, and then retry.";
 
         @Override
         public Set<ContentType> getContentTypes() {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
@@ -346,32 +345,32 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
         @Override
         public SourceResponse query(QueryRequest arg0) throws UnsupportedQueryException {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public String getDescription() {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public String getId() {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public String getOrganization() {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public String getTitle() {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public String getVersion() {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
@@ -381,17 +380,17 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
         @Override
         public CreateResponse create(CreateRequest arg0) throws IngestException {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public DeleteResponse delete(DeleteRequest arg0) throws IngestException {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
         @Override
         public UpdateResponse update(UpdateRequest arg0) throws IngestException {
-            throw new IllegalArgumentException(SERVER_DISCONNECTED_MESSAGE);
+            throw new IllegalArgumentException(CLIENT_DISCONNECTED_MESSAGE);
         }
 
     }

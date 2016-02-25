@@ -43,7 +43,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
 import org.codice.ddf.configuration.SystemBaseUrl;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.SolrClientFactory;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +90,7 @@ public class SolrCache implements SolrCacheMBean {
 
     private ObjectName objectName;
 
-    private String url = SolrServerFactory.getDefaultHttpsAddress();
+    private String url = SolrClientFactory.getDefaultHttpsAddress();
 
     private SolrClient server;
 
@@ -268,7 +268,7 @@ public class SolrCache implements SolrCacheMBean {
                 }
 
                 try {
-                    server = SolrServerFactory.getHttpSolrServer(url, METACARD_CACHE_CORE_NAME)
+                    server = SolrClientFactory.getHttpSolrClient(url, METACARD_CACHE_CORE_NAME)
                             .get();
                 } catch (InterruptedException | ExecutionException e) {
                     LOGGER.error("Failed to get solr server from future", e);

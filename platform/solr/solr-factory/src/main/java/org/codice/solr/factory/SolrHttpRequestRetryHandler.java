@@ -25,12 +25,12 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SolrServerHttpRequestRetryHandler implements HttpRequestRetryHandler {
+public class SolrHttpRequestRetryHandler implements HttpRequestRetryHandler {
 
     private static final Integer MAX_RETRY_COUNT = 11;
 
     private static final Logger LOGGER =
-            LoggerFactory.getLogger(SolrServerHttpRequestRetryHandler.class);
+            LoggerFactory.getLogger(SolrHttpRequestRetryHandler.class);
 
     @Override
     public boolean retryRequest(IOException e, int retryCount, HttpContext httpContext) {

@@ -34,7 +34,7 @@ import org.apache.solr.schema.IndexSchema;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class EmbeddedSolrFactory extends SolrServerFactory {
+public class EmbeddedSolrFactory extends SolrClientFactory {
 
     public static final String DEFAULT_EMBEDDED_CORE_NAME = "embedded";
 

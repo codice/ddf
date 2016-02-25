@@ -14,7 +14,7 @@
 package ddf.catalog.solr.external;
 
 import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.SolrClientFactory;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class TestExternal extends TestSolrProvider {
         LOGGER.info("RUNNING setup.");
 
         SolrCatalogProvider solrCatalogProvider =
-                new SolrCatalogProvider(SolrServerFactory.getHttpSolrServer(
+                new SolrCatalogProvider(SolrClientFactory.getHttpSolrClient(
                         "http://localhost:8181/solr")
                         .get(),
                         new GeotoolsFilterAdapterImpl(),

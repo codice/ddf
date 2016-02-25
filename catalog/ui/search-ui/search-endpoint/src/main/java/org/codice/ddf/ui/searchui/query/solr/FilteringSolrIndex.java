@@ -15,7 +15,7 @@ package org.codice.ddf.ui.searchui.query.solr;
 
 import static org.codice.solr.factory.EmbeddedSolrFactory.IMMEMORY_SOLRCONFIG_XML;
 import static org.codice.solr.factory.EmbeddedSolrFactory.getConfigFile;
-import static org.codice.solr.factory.SolrServerFactory.DEFAULT_SCHEMA_XML;
+import static org.codice.solr.factory.SolrClientFactory.DEFAULT_SCHEMA_XML;
 
 import java.io.File;
 import java.io.IOException;

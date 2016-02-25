@@ -19,13 +19,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BananaSolrProvisioner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrClientFactory.class);
 
     public BananaSolrProvisioner() {
         CompletableFuture.supplyAsync(BananaSolrProvisioner::bananaClientSupplier)
@@ -36,7 +36,7 @@ public class BananaSolrProvisioner {
         SolrClient client = null;
         try {
             client =
-                    SolrServerFactory.getHttpSolrServer(SolrServerFactory.getDefaultHttpsAddress(),
+                    SolrClientFactory.getHttpSolrClient(SolrClientFactory.getDefaultHttpsAddress(),
                             "banana")
                             .get();
         } catch (InterruptedException | ExecutionException e) {

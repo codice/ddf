@@ -67,7 +67,7 @@ public class ReuterSolrImport implements Runnable {
                     new SolrFilterDelegateFactoryImpl());
 
         } catch (Exception localException) {
-            throw new RuntimeException("unable to connect to solr server: ", localException);
+            throw new RuntimeException("unable to connect with solr client: ", localException);
         }
     }
 

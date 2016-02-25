@@ -118,7 +118,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
         }
 
         when:
-        resolver.addFieldsFromServer(server)
+        resolver.addFieldsFromClient(server)
         resolver.getAnonymousField("title")
         resolver.addFields(metacard, solrDoc)
 

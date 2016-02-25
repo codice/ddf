@@ -63,7 +63,7 @@ public class SolrMetacardClient {
 
     private static final String QUOTE = "\"";
 
-    private final SolrClient server;
+    private final SolrClient client;
 
     private final SolrFilterDelegateFactory filterDelegateFactory;
 
@@ -74,7 +74,7 @@ public class SolrMetacardClient {
     public SolrMetacardClient(SolrClient client, FilterAdapter catalogFilterAdapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory,
             DynamicSchemaResolver dynamicSchemaResolver) {
-        server = client;
+        this.client = client;
         filterDelegateFactory = solrFilterDelegateFactory;
         filterAdapter = catalogFilterAdapter;
         resolver = dynamicSchemaResolver;
@@ -91,7 +91,7 @@ public class SolrMetacardClient {
         long totalHits;
         List<Result> results = new ArrayList<>();
         try {
-            QueryResponse solrResponse = server.query(query, SolrRequest.METHOD.POST);
+            QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
             totalHits = solrResponse.getResults()
                     .getNumFound();
             SolrDocumentList docs = solrResponse.getResults();
@@ -114,10 +114,10 @@ public class SolrMetacardClient {
             }
 
         } catch (SolrServerException | IOException e) {
-            LOGGER.warn("Failure in Solr server query.", e);
+            LOGGER.warn("Failure in Solr query.", e);
             throw new UnsupportedQueryException("Could not complete solr query.");
         } catch (SolrException e) {
-            LOGGER.error("Could not complete solr query.", e);
+            LOGGER.error("Could not complete Solr query.", e);
             throw new UnsupportedQueryException("Could not complete solr query.");
         }
 
@@ -133,7 +133,7 @@ public class SolrMetacardClient {
         SolrQuery query = new SolrQuery();
         query.setQuery(queryString);
         try {
-            QueryResponse solrResponse = server.query(query, SolrRequest.METHOD.POST);
+            QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
             SolrDocumentList docs = solrResponse.getResults();
 
             List<Metacard> results = new ArrayList<>();
@@ -148,7 +148,7 @@ public class SolrMetacardClient {
 
             return results;
         } catch (SolrServerException | IOException e) {
-            LOGGER.warn("Failure in Solr server query.", e);
+            LOGGER.warn("Failure in Solr query.", e);
             throw new UnsupportedQueryException("Could not complete solr query.");
         }
 
@@ -303,7 +303,7 @@ public class SolrMetacardClient {
         }
 
         if (!forceAutoCommit) {
-            server.add(docs);
+            client.add(docs);
         } else {
             softCommit(docs);
         }
@@ -333,31 +333,30 @@ public class SolrMetacardClient {
                     return o.toString();
                 }
             });
-            server.deleteById((List<String>) identifiers);
+            client.deleteById((List<String>) identifiers);
         } else {
             if (identifiers.size() < SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
-                server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+                client.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
             } else {
                 int i = 0;
                 for (
                         i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES;
                         i < identifiers.size(); i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
-                    server.deleteByQuery(getIdentifierQuery(fieldName,
-                            identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
+                    client.deleteByQuery(getIdentifierQuery(fieldName, identifiers.subList(
+                            i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
                 }
-                server.deleteByQuery(getIdentifierQuery(fieldName,
-                        identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES,
-                                identifiers.size())));
+                client.deleteByQuery(getIdentifierQuery(fieldName, identifiers.subList(
+                        i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
             }
         }
 
         if (forceCommit) {
-            server.commit();
+            client.commit();
         }
     }
 
     public void deleteByQuery(String query) throws IOException, SolrServerException {
-        server.deleteByQuery(query);
+        client.deleteByQuery(query);
     }
 
     public String getIdentifierQuery(String fieldName, List<? extends Serializable> identifiers) {
@@ -383,7 +382,7 @@ public class SolrMetacardClient {
                 /* waitForFlush */true,
                 /* waitToMakeVisible */true,
                 /* softCommit */true)
-                .process(server);
+                .process(client);
     }
 
 }

@@ -156,15 +156,15 @@ public class DynamicSchemaResolver {
     }
 
     /**
-     * Adds the fields that are already in the server to the cache. This method should be called
-     * once the SolrClient is up to ensure the cache is synchronized with the server.
+     * Adds the fields that are already in Solr to the cache. This method should be called
+     * once the SolrClient is up to ensure the cache is synchronized with Solr.
      *
      * @param client
      *            the SolrClient we are working with
      */
-    public void addFieldsFromServer(SolrClient client) {
+    public void addFieldsFromClient(SolrClient client) {
         if (client == null) {
-            LOGGER.warn("Server is null, could not add fields to cache.");
+            LOGGER.warn("Solr client is null, could not add fields to cache.");
             return;
         }
 

@@ -58,9 +58,9 @@ import com.google.common.util.concurrent.Futures;
 /**
  * Factory that creates {@link org.apache.solr.client.solrj.SolrClient} instances.
  */
-public class SolrServerFactory {
+public class SolrClientFactory {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(SolrClientFactory.class);
 
     private static ExecutorService pool = getThreadPool();
 
@@ -101,19 +101,19 @@ public class SolrServerFactory {
      *
      * @return SolrClient
      */
-    static SolrClient getHttpSolrServer() {
+    static SolrClient getHttpSolrClient() {
         return new HttpSolrClient(getDefaultHttpAddress());
     }
 
-    public static Future<SolrClient> getHttpSolrServer(String url) {
-        return getHttpSolrServer(url, DEFAULT_CORE_NAME, null);
+    public static Future<SolrClient> getHttpSolrClient(String url) {
+        return getHttpSolrClient(url, DEFAULT_CORE_NAME, null);
     }
 
-    public static Future<SolrClient> getHttpSolrServer(String url, String coreName) {
-        return getHttpSolrServer(url, coreName, null);
+    public static Future<SolrClient> getHttpSolrClient(String url, String coreName) {
+        return getHttpSolrClient(url, coreName, null);
     }
 
-    public static Future<SolrClient> getHttpSolrServer(String url, String coreName,
+    public static Future<SolrClient> getHttpSolrClient(String url, String coreName,
             String configFile) {
         if (StringUtils.isBlank(url)) {
             url = SystemBaseUrl.constructUrl("/solr");
@@ -122,7 +122,7 @@ public class SolrServerFactory {
         String coreUrl = url + "/" + coreName;
         SolrClient client;
         try {
-            client = getSolrServer(url, coreName, configFile, coreUrl);
+            client = getSolrClient(url, coreName, configFile, coreUrl);
         } catch (Exception ex) {
             LOGGER.info("Returning future for HTTP Solr client ({})", coreName);
             LOGGER.debug("Failed to create Solr client (" + coreName + ")", ex);
@@ -133,17 +133,17 @@ public class SolrServerFactory {
         return Futures.immediateFuture(client);
     }
 
-    private static SolrClient getSolrServer(String url, String coreName, String configFile,
+    private static SolrClient getSolrClient(String url, String coreName, String configFile,
             String coreUrl) throws IOException, SolrServerException {
-        SolrClient server;
+        SolrClient client;
         if (StringUtils.startsWith(url, "https")) {
             createSolrCore(url, coreName, configFile, getHttpClient(false));
-            server = new HttpSolrClient(coreUrl, getHttpClient(true));
+            client = new HttpSolrClient(coreUrl, getHttpClient(true));
         } else {
             createSolrCore(url, coreName, configFile, null);
-            server = new HttpSolrClient(coreUrl);
+            client = new HttpSolrClient(coreUrl);
         }
-        return server;
+        return client;
     }
 
     private static CloseableHttpClient getHttpClient(boolean retryRequestsOnError) {
@@ -152,7 +152,7 @@ public class SolrServerFactory {
                 getProtocols(),
                 getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-        HttpRequestRetryHandler solrRetryHandler = new SolrServerHttpRequestRetryHandler();
+        HttpRequestRetryHandler solrRetryHandler = new SolrHttpRequestRetryHandler();
 
         HttpClientBuilder builder = HttpClients.custom()
                 .setSSLSocketFactory(sslConnectionSocketFactory)
@@ -310,7 +310,7 @@ public class SolrServerFactory {
                 int retryIndex = retryCount + 1;
                 try {
                     LOGGER.info("Retry {} to create Solr client for ({})", retryIndex, coreName);
-                    SolrClient client = getSolrServer(url, coreName, configFile, coreUrl);
+                    SolrClient client = getSolrClient(url, coreName, configFile, coreUrl);
                     LOGGER.info("Future for HTTP Solr client ({}) finished", coreName);
                     return client;
                 } catch (Exception e) {
