@@ -31,5 +31,7 @@
         <module>catalog-plugin-querymonitorcommands</module>
         <module>catalog-plugin-checksum</module>
         <module>catalog-plugin-videothumbnail</module>
+        <module>catalog-plugin-resource-usage</module>
+        <module>catalog-plugin-versioning</module>
     </modules>
 </project>
