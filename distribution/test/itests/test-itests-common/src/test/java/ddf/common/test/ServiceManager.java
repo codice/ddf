@@ -15,8 +15,11 @@ package ddf.common.test;
 
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
 import static org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState.ACTIVE;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
+
+import static ddf.common.test.WaitCondition.expect;
 
 import java.io.File;
 import java.io.IOException;
@@ -233,10 +236,34 @@ public class ServiceManager {
     }
 
     // TODO - we should really make this a bundle and inject this.
-    private FeaturesService getFeaturesService() {
-        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
-                FeaturesService.class);
-        return bundleCtx.getService(featuresServiceRef);
+    private FeaturesService getFeaturesService() throws InterruptedException {
+        FeaturesService featuresService = null;
+        boolean ready = false;
+        long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        while (!ready) {
+            ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
+                    FeaturesService.class);
+            try {
+                if (featuresServiceRef != null) {
+                    featuresService = bundleCtx.getService(featuresServiceRef);
+                    if (featuresService != null) {
+                        ready = true;
+                    }
+                }
+            } catch (NullPointerException e) {
+                //ignore
+            }
+
+            if (!ready) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail(String.format("Feature service could not be resolved within %d minutes.",
+                            TimeUnit.MILLISECONDS.toMinutes(REQUIRED_BUNDLES_TIMEOUT)));
+                }
+                Thread.sleep(1000);
+            }
+        }
+
+        return featuresService;
     }
 
     // TODO - we should really make this a bundle and inject this.
@@ -273,7 +300,7 @@ public class ServiceManager {
     }
 
     private Map<String, Bundle> getBundlesToRestart(Set<String> bundleSymbolicNames) {
-        Map<String, Bundle> bundlesToRestart = new HashMap();
+        Map<String, Bundle> bundlesToRestart = new HashMap<>();
 
         for (Bundle bundle : bundleCtx.getBundles()) {
             if (bundleSymbolicNames.contains(bundle.getSymbolicName())) {
@@ -378,18 +405,19 @@ public class ServiceManager {
     public void waitForFeature(String featureName, Predicate<FeatureState> predicate)
             throws Exception {
         boolean ready = false;
-        FeaturesService featuresService = getFeaturesService();
 
         long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
         while (!ready) {
-            Feature feature = featuresService.getFeature(featureName);
-            FeatureState state = featuresService.getState(
-                    feature.getName() + "/" + feature.getVersion());
-            if (state == null) {
-                LOGGER.warn("No Feature found for featureName: {}", featureName);
-                return;
-            } else if (predicate.test(state)) {
-                ready = true;
+            FeaturesService featuresService = getFeaturesService();
+            if (featuresService != null) {
+                Feature feature = featuresService.getFeature(featureName);
+                FeatureState state = featuresService.getState(feature.getName() + "/" + feature.getVersion());
+                if (state == null) {
+                    LOGGER.warn("No Feature found for featureName: {}", featureName);
+                    return;
+                } else if (predicate.test(state)) {
+                    ready = true;
+                }
             }
 
             if (!ready) {
@@ -610,11 +638,13 @@ public class ServiceManager {
     }
 
     public <S> S getService(ServiceReference<S> serviceReference) {
+        expect("Service to be available: "+serviceReference.toString()).within(2, TimeUnit.MINUTES)
+                .until(() -> bundleCtx.getService(serviceReference), notNullValue());
         return bundleCtx.getService(serviceReference);
     }
 
     public <S> S getService(Class<S> aClass) {
-        return bundleCtx.getService(bundleCtx.getServiceReference(aClass));
+        return getService(bundleCtx.getServiceReference(aClass));
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {

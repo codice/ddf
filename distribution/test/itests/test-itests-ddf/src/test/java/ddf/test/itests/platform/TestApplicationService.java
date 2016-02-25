@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.apache.karaf.features.FeatureState;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -96,9 +94,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
     private static final String APP_LIST_PROPERTIES_FILE =
             "/org.codice.ddf.admin.applicationlist.properties";
 
-    @Inject
-    private ApplicationService applicationService;
-
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
@@ -106,6 +101,8 @@ public class TestApplicationService extends AbstractIntegrationTest {
             getAdminConfig().setLogLevels();
             getServiceManager().waitForAllBundles();
             console = new KarafConsole(bundleCtx, features, sessionFactory);
+            getServiceManager().waitForFeature("admin-core", FeatureState.Started::equals);
+
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
@@ -128,6 +125,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void aTestStartUpWithApplistPropertiesFile() throws Exception {
+        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
         // Test AppService
         getServiceManager().waitForFeature("admin-post-install-modules",
                 p -> FeatureState.Started.equals(p));
@@ -149,6 +147,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void bTestAppStatus() {
+        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
         // Test AppService
         Set<Application> apps = applicationService.getApplications();
         List<Application> catalogList = apps.stream().filter(a -> CATALOG_APP.equals(a.getName())).collect(
@@ -184,6 +183,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void cTestAppStartStop() throws ApplicationServiceException {
+        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
         // Test AppService
         Application solr = applicationService.getApplication(SOLR_APP);
         assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
@@ -223,6 +223,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void dTestAppAddRemove() throws ApplicationServiceException {
+        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
         Application sdkApp = applicationService.getApplication(SDK_APP);
         URI sdkUri = sdkApp.getURI();
 
