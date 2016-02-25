@@ -375,33 +375,27 @@ public class SolrCache implements SolrCacheMBean {
         }
 
         @Override
-        protected SolrQuery getSolrQuery(QueryRequest request,
-                SolrFilterDelegate solrFilterDelegate) throws UnsupportedQueryException {
-            SolrQuery query = super.getSolrQuery(request, solrFilterDelegate);
-
-            if (request.isEnterprise()) {
-                return query;
-            }
-
-            List<SolrQuery> sourceQueries = new ArrayList<>();
-            for (String source : request.getSourceIds()) {
-                sourceQueries.add(solrFilterDelegate.propertyIsEqualTo(StringUtils.removeEnd(
-                        METACARD_SOURCE_NAME,
-                        SchemaFields.TEXT_SUFFIX), source, true));
-            }
-            if (sourceQueries.size() > 0) {
-                SolrQuery allSourcesQuery;
-                if (sourceQueries.size() > 1) {
-                    allSourcesQuery = solrFilterDelegate.or(sourceQueries);
-                } else {
-                    allSourcesQuery = sourceQueries.get(0);
+        protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
+                SolrQuery query) throws UnsupportedQueryException {
+            if (!request.isEnterprise()) {
+                List<SolrQuery> sourceQueries = new ArrayList<>();
+                for (String source : request.getSourceIds()) {
+                    sourceQueries.add(filterDelegate.propertyIsEqualTo(StringUtils.removeEnd(
+                            METACARD_SOURCE_NAME,
+                            SchemaFields.TEXT_SUFFIX), source, true));
                 }
-                query = solrFilterDelegate.and(Lists.newArrayList(query, allSourcesQuery));
+                if (sourceQueries.size() > 0) {
+                    SolrQuery allSourcesQuery;
+                    if (sourceQueries.size() > 1) {
+                        allSourcesQuery = filterDelegate.or(sourceQueries);
+                    } else {
+                        allSourcesQuery = sourceQueries.get(0);
+                    }
+                    query = filterDelegate.and(Lists.newArrayList(query, allSourcesQuery));
+                }
             }
 
-            removeOuterParenthesesIfFunctionPresent(query);
-
-            return query;
+            return super.postAdapt(request, filterDelegate, query);
         }
 
         @Override
