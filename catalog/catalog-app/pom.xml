@@ -253,6 +253,11 @@
             <version>3.1.0_1</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.nato.stanag4559</groupId>
+            <artifactId>catalog-stanag4559-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>plugin-federation-replication</artifactId>
             <version>${project.version}</version>

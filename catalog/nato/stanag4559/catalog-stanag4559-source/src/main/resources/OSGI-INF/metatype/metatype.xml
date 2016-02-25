@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="STANAG 4559 Federated Source" id="Stanag4559_Federated_Source"
+         description="STANAG 4559 Federated Source">
+
+        <AD description="The ID of the STANAG 4559 Source" name="STANAG Source ID" id="id"
+            required="true" type="String" default="STANAG4559 Federated Source"/>
+
+        <AD description="The URL of the IOR File to use for the STANAG 4559 CORBA Server"
+            name="Ior File URL" id="iorUrl" required="true" type="String"/>
+
+        <AD description="The Username to be used in Access Criteria" name="Username" id="username"
+            required="false" type="String"/>
+
+        <AD description="The Password to be used in Access Criteria" name="Password" id="password"
+            required="false" type="String"/>
+
+        <AD description="The Key to be used in Access Criteria" name="Key" id="key" required="false"
+            type="String"/>
+
+        <AD description="The Maximum Hit Count for Queries to the Source" name="Max Hit Count"
+            id="maxHitCount" required="true" type="Integer" default="250"/>
+
+        <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
+            name="Poll Interval" id="pollInterval"
+            required="true" type="Integer" default="20"/>
+    </OCD>
+
+    <OCD name="STANAG 4559 Connected Source" id="Stanag4559_Connected_Source"
+         description="STANAG 4559 Connected Source">
+
+        <AD description="The ID of the STANAG 4559 Source" name="STANAG Source ID" id="id"
+            required="true" type="String" default="STANAG4559 Connected Source"/>
+
+        <AD description="The URL of the IOR File to use for the STANAG 4559 CORBA Server"
+            name="Ior File URL" id="iorUrl" required="true" type="String"/>
+
+        <AD description="The Username to be used in Access Criteria" name="Username" id="username"
+            required="false" type="String"/>
+
+        <AD description="The Password to be used in Access Criteria" name="Password" id="password"
+            required="false" type="String"/>
+
+        <AD description="The Key to be used in Access Criteria" name="Key" id="key" required="false"
+            type="String"/>
+
+        <AD description="The Maximum Hit Count for Queries to the Source" name="Max Hit Count"
+            id="maxHitCount" required="true" type="Integer" default="250"/>
+
+        <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
+            name="Poll Interval" id="pollInterval"
+            required="true" type="Integer" default="20"/>
+    </OCD>
+
+    <Designate pid="Stanag4559_Federated_Source" factoryPid="Stanag4559_Federated_Source">
+        <Object ocdref="Stanag4559_Federated_Source"/>
+    </Designate>
+
+    <Designate pid="Stanag4559_Connected_Source" factoryPid="Stanag4559_Connected_Source">
+        <Object ocdref="Stanag4559_Connected_Source"/>
+    </Designate>
+
+</metatype:MetaData>

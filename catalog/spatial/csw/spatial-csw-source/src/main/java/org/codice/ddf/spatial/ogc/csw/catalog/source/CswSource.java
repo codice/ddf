@@ -864,14 +864,6 @@ public class CswSource extends MaskableImpl
         cswSourceConfiguration.setCswUrl(cswUrl);
     }
 
-    public void setUsername(String username) {
-        cswSourceConfiguration.setUsername(username);
-    }
-
-    public void setPassword(String password) {
-        cswSourceConfiguration.setPassword(password);
-    }
-
     public void setDisableCnCheck(Boolean disableCnCheck) {
         cswSourceConfiguration.setDisableCnCheck(disableCnCheck);
     }

@@ -574,6 +574,7 @@
         <module>ui</module>
         <module>spatial</module>
         <module>docs</module>
+        <module>nato</module>
     </modules>
     <build>
         <plugins>

@@ -25,9 +25,9 @@
     <artifactId>sample-stanag4559-server</artifactId>
     <packaging>bundle</packaging>
 
-<properties>
-    <checkstyle.skip>true</checkstyle.skip>
-</properties>
+    <properties>
+        <checkstyle.skip>true</checkstyle.skip>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -51,8 +51,8 @@
             <version>${commons-lang.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-stanag4559-common</artifactId>
+            <groupId>ddf.catalog.nato.stanag4559</groupId>
+            <artifactId>catalog-stanag4559-common</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -138,7 +138,7 @@
                                 </goals>
                                 <configuration>
                                     <mainClass>
-                                        org.codice.ddf.stanag4559.server.server.MockSTANAG4559
+                                        ddf.catalog.nato.stanag4559.server.server.MockSTANAG4559
                                     </mainClass>
                                     <classpathScope>test</classpathScope>
                                     <arguments>
@@ -167,7 +167,7 @@
                                 </goals>
                                 <configuration>
                                     <mainClass>
-                                        org.codice.ddf.stanag4559.server.client.Client
+                                        ddf.catalog.nato.stanag4559.server.client.Client
                                     </mainClass>
                                     <classpathScope>test</classpathScope>
                                     <arguments>
