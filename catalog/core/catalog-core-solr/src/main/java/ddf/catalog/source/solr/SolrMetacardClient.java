@@ -158,8 +158,14 @@ public class SolrMetacardClient {
             throws UnsupportedQueryException {
         solrFilterDelegate.setSortPolicy(request.getQuery()
                 .getSortBy());
+
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
+        return postAdapt(request, solrFilterDelegate, query);
+    }
+
+    protected SolrQuery postAdapt(QueryRequest request, SolrFilterDelegate filterDelegate,
+            SolrQuery query) throws UnsupportedQueryException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Prepared Query: {}", query.getQuery());
             if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
@@ -185,17 +191,16 @@ public class SolrMetacardClient {
         query.setStart(request.getQuery()
                 .getStartIndex() - 1);
 
-        removeOuterParenthesesIfFunctionPresent(query);
+        checkSpatialFunction(filterDelegate, query);
 
         return query;
     }
 
-    protected void removeOuterParenthesesIfFunctionPresent(SolrQuery query) {
-        // Solr does not support outside parenthesis in certain queries and throws EOF exception.
-        String queryPhrase = query.getQuery()
-                .trim();
-        if (queryPhrase.matches("\\s*\\(\\s*\\{!.*\\)")) {
-            query.setQuery(queryPhrase.replaceAll("^\\s*\\(\\s*|\\s*\\)$", ""));
+    private void checkSpatialFunction(SolrFilterDelegate solrFilterDelegate, SolrQuery query) {
+        if (solrFilterDelegate.isSortedByDistance()) {
+            String queryPhrase = query.getQuery()
+                    .trim();
+            query.setQuery(SolrFilterDelegate.SCORE_DISTANCE + queryPhrase);
         }
     }
 

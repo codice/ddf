@@ -4685,7 +4685,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testSortedPointRadiusWithContentType() throws Exception {
+    public void testSortedPointRadiusWithComplexQuery() throws Exception {
         deleteAllIn(provider);
         MetacardImpl metacard1 = new MockMetacard(Library.getFlagstaffRecord());
         MetacardImpl metacard2 = new MockMetacard(Library.getTampaRecord());
@@ -4712,7 +4712,9 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 .intersecting()
                 .wkt(FLAGSTAFF_AIRPORT_POINT_WKT);
 
-        Filter finalFilter = filterBuilder.allOf(contentFilter, spatialFilter);
+        Filter finalFilter = filterBuilder.allOf(filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
+                .text("flagstaff"), filterBuilder.allOf(contentFilter, spatialFilter));
 
         // sort by distance
         QueryImpl query = new QueryImpl(finalFilter);

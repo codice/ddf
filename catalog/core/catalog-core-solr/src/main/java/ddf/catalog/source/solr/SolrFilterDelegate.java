@@ -13,8 +13,6 @@
  */
 package ddf.catalog.source.solr;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,7 +59,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 
-    private static final String SCORE_DISTANCE = "{! score=distance}";
+    public static final String SCORE_DISTANCE = "{! score=distance}";
 
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -123,6 +121,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private DynamicSchemaResolver resolver;
 
     private SortBy sortBy;
+
+    private boolean isSortedByDistance = false;
 
     public SolrFilterDelegate(DynamicSchemaResolver resolver) {
         this.resolver = resolver;
@@ -706,22 +706,19 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         if (sortBy != null && sortBy.getPropertyName() != null
                 && Result.DISTANCE.equals(sortBy.getPropertyName()
                 .getPropertyName())) {
+            isSortedByDistance = true;
 
-            String spatialQueryWithDistance = SCORE_DISTANCE + givenSpatialString;
-
-            SolrQuery solrQuery = new SolrQuery(spatialQueryWithDistance);
-
+            SolrQuery solrQuery = new SolrQuery(givenSpatialString);
             solrQuery.setFields("*", "score");
 
             ORDER sortOrder = ORDER.asc;
-
             if (SortOrder.DESCENDING.equals(sortBy.getSortOrder())) {
                 sortOrder = ORDER.desc;
             }
 
             solrQuery.addSort("score", sortOrder);
 
-            return new SolrQuery(spatialQueryWithDistance);
+            return solrQuery;
 
         } else {
             return new SolrQuery(givenSpatialString);
@@ -834,25 +831,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                     "[" + operator + "] operation must contain 1 or more filters.");
         }
 
-        // Due to a bug in how solr parses queries, a sorted spatial operand (combined with any
-        // other operand)
-        // must come first in any given expression, so we have to add it to the beginning of the
-        // operand list.
-        for (int i = 0; i < operands.size(); i++) {
-            SolrQuery operand = operands.get(i);
+        for (SolrQuery operand : operands) {
             if (operand == null) {
                 throw new UnsupportedOperationException("Null operand found");
-            }
-            String operandAsString = operand.toString();
-            try {
-                if (operandAsString.contains(URLEncoder.encode(SCORE_DISTANCE, "UTF-8"))) {
-                    SolrQuery temp = operands.get(0);
-                    operands.set(0, operand);
-                    operands.set(i, temp);
-                    break;
-                }
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.info("Unable to encode {}", SCORE_DISTANCE, e);
             }
         }
 
@@ -925,4 +906,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         this.sortBy = sort;
     }
 
+    public boolean isSortedByDistance() {
+        return isSortedByDistance;
+    }
 }
