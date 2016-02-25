@@ -31,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -192,9 +193,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     QueryResponse queryCache(QueryRequest queryRequest) {
-        final QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest);
+        QueryRequest updatedRequest = getRequestWithTagsFilter(queryRequest);
+        final QueryResponseImpl queryResponse = new QueryResponseImpl(updatedRequest);
         try {
-            SourceResponse result = cache.query(queryRequest);
+            SourceResponse result = cache.query(updatedRequest);
             queryResponse.setHits(result.getHits());
             queryResponse.setProperties(result.getProperties());
             queryResponse.addResults(result.getResults(), true);
@@ -259,7 +261,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     }
 
                     finalQueryRequest = modifiedQueryRequest;
-                    if (source instanceof CatalogProvider) {
+                    if (source instanceof CatalogProvider && SystemInfo.getSiteName()
+                            .equals(source.getId())) {
                         finalQueryRequest = getRequestWithTagsFilter(modifiedQueryRequest);
                     }
 

@@ -265,7 +265,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, Object literal) {
 
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_EQUAL_TO);
     }
 
     // PropertyIsNotEqualTo
@@ -415,7 +415,7 @@ public abstract class FilterDelegate<T> {
      * @return result of not equals operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsNotEqualTo(String propertyName, Object literal) {
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_NOT_EQUAL_TO);
     }
 
     // PropertyIsGreaterThan
@@ -526,7 +526,7 @@ public abstract class FilterDelegate<T> {
      * @return result of greater than operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsGreaterThan(String propertyName, Object literal) {
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_GREATER);
     }
 
     // PropertyIsGreaterThanOrEqualTo
@@ -638,7 +638,7 @@ public abstract class FilterDelegate<T> {
      * @return result of greater than operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, Object literal) {
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_GREATER_OR_EQUAL_TO);
     }
 
     // PropertyIsLessThan
@@ -749,7 +749,7 @@ public abstract class FilterDelegate<T> {
      * @return result of less than operation between {@code propertyName} and {@code literal}
      */
     public T propertyIsLessThan(String propertyName, Object literal) {
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_LESS);
     }
 
     // PropertyIsLessThanOrEqualTo
@@ -870,7 +870,7 @@ public abstract class FilterDelegate<T> {
      * {@code literal}
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_LESS_OR_EQUAL_TO);
     }
 
     // PropertyIsBetween
@@ -993,7 +993,7 @@ public abstract class FilterDelegate<T> {
      * @return result of between operation
      */
     public T propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
-        return propertyIs(propertyName, lowerBoundary);
+        return propertyIs(propertyName, lowerBoundary, PropertyOperation.IS_BETWEEN);
     }
 
     /**
@@ -1005,7 +1005,7 @@ public abstract class FilterDelegate<T> {
      * @return result of null check
      */
     public T propertyIsNull(String propertyName) {
-        return propertyIs(propertyName, null);
+        return propertyIs(propertyName, null, PropertyOperation.IS_NULL);
     }
 
     /**
@@ -1021,7 +1021,7 @@ public abstract class FilterDelegate<T> {
      * @return result of regular expression operation
      */
     public T propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-        return propertyIs(propertyName, null);
+        return propertyIs(propertyName, null, PropertyOperation.IS_LIKE);
     }
 
     /**
@@ -1033,7 +1033,7 @@ public abstract class FilterDelegate<T> {
      * @return result of fuzzy operation
      */
     public T propertyIsFuzzy(String propertyName, String literal) {
-        return propertyIs(propertyName, literal);
+        return propertyIs(propertyName, literal, PropertyOperation.IS_FUZZY);
     }
 
     /**
@@ -1044,9 +1044,12 @@ public abstract class FilterDelegate<T> {
      * @param literal      value to compare
      * @return result of fuzzy operation
      */
-    public T propertyIs(String propertyName, Object literal) {
-        throw new UnsupportedOperationException(
-                "propertyIs(String,Object) not supported by org.opengis.filter.Filter Delegate.");
+    public T propertyIs(String propertyName, Object literal, PropertyOperation operation) {
+        throw new UnsupportedOperationException(String.format(
+                "{} not supported by {} for property {}",
+                operation,
+                getClass().getName(),
+                propertyName));
     }
 
     // XPath operators
@@ -1271,6 +1274,19 @@ public abstract class FilterDelegate<T> {
     public T relative(String propertyName, long duration) {
         throw new UnsupportedOperationException(
                 "relative(String,long) not supported by org.opengis.filter.Filter Delegate.");
+    }
+
+    public enum PropertyOperation {
+        IS_EQUAL_TO,
+        IS_NOT_EQUAL_TO,
+        IS_LIKE,
+        IS_FUZZY,
+        IS_BETWEEN,
+        IS_NULL,
+        IS_LESS,
+        IS_LESS_OR_EQUAL_TO,
+        IS_GREATER,
+        IS_GREATER_OR_EQUAL_TO
     }
 
 }
