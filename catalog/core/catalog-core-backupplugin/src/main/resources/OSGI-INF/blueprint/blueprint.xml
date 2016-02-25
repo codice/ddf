@@ -14,13 +14,20 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+
+    <bean id="executor" class="ddf.catalog.backup.PeriodicBatchExcecutor">
+        <argument value="1000"/>
+        <argument value="60"/>
+        <argument value="TimeUnit.SECONDS"/>
+    </bean>
+
+
     <bean id="catalogBackupPlugin" class="ddf.catalog.backup.CatalogBackupPlugin"
-          destroy-method="shutdown">
+          init-method="initialize" destroy-method="shutdown">
         <cm:managed-properties persistent-id="plugin.backup" update-strategy="container-managed"/>
         <property name="rootBackupDir" value="data/backup"/>
         <property name="subDirLevels" value="2"/>
-        <property name="sleepSeconds" value="60"/>
-        <property name="subDibatchSizerLevels" value="1000"/>
+        <property name="executor" ref="executor"/>
     </bean>
 
     <service ref="catalogBackupPlugin" interface="ddf.catalog.plugin.PostIngestPlugin"/>

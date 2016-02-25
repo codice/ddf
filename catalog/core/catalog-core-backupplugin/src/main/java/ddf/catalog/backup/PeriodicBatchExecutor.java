@@ -16,7 +16,6 @@ package ddf.catalog.backup;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,32 +24,40 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 public class PeriodicBatchExecutor<T> {
 
-    List<T> items;
+    public static final int TIMEOUT = 10;
 
-    private ExecutorService executor;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PeriodicBatchExecutor.class);
 
-    private ScheduledExecutorService scheduledExecutor;
+    final List<T> items;
+
+    private final ExecutorService executor;
+
+    private final ScheduledExecutorService scheduledExecutor;
+
+    private final BlockingQueue<Future> futures;
+
+    private final int chunkSize;
+
+    private final long period;
+
+    private final TimeUnit timeUnit;
 
     private Consumer<List<T>> task;
 
-    private int chunkSize;
-
-    private long period;
-
-    private TimeUnit timeUnit;
-
-    private BlockingQueue<Future> futures;
-
     public PeriodicBatchExecutor(int chunkSize, long period, TimeUnit timeUnit) {
-        if (chunkSize < 1) {
-            throw new IllegalArgumentException("Parameter chunkSize must be greater than zero");
-        }
-        if (period < 1) {
-            throw new IllegalArgumentException("Parameter period must be greater than zero ");
-        }
+
+        Validate.isTrue(chunkSize > 0, "Parameter chunkSize must be greater than zero");
+        Validate.isTrue(period > 0, "Parameter period must be greater than zero ");
         this.chunkSize = chunkSize;
         this.period = period;
         this.timeUnit = timeUnit;
@@ -60,72 +67,67 @@ public class PeriodicBatchExecutor<T> {
         this.items = new ArrayList<>();
     }
 
-    private synchronized void drain() {
-        for (List<T> batch : getBatches()) {
-            //            final List<T> batchCopy = new CopyOnWriteArrayList<T>(batch);
-            futures.offer(executor.submit(() -> getTask().accept(batch)));
-        }
-    }
-
     public synchronized void addAll(List<T> newItems) {
-        items.addAll(newItems);
+        getItems().addAll(newItems);
         if (isTankFull()) {
             drain();
         }
     }
 
-    private boolean isTankFull() {
-        return items.size() >= chunkSize;
-    }
-
-    private void startSchedule() {
-        scheduledExecutor.scheduleAtFixedRate(this::drain, period, period, timeUnit);
-    }
-
-    private void shutdownExecutor() {
-        if (executor != null) {
-            executor.shutdown();
-        }
-    }
-
-    private void shutdownScheduledExecutor() {
-        if (scheduledExecutor != null) {
-            scheduledExecutor.shutdown();
-        }
+    public List<T> getItems() {
+        return items;
     }
 
     public void shutdown() {
         drain();
-        shutdownExecutor();
-        shutdownScheduledExecutor();
+        Stream.of(executor, scheduledExecutor)
+                .forEach(executor -> {
+                    executor.shutdown();
+                    if (!executor.isShutdown()) {
+                        try {
+                            executor.awaitTermination(TIMEOUT, TimeUnit.SECONDS);
+                        } catch (InterruptedException e) {
+                            throw new IllegalStateException(e);
+                        }
+                        final List<Runnable> failures = executor.shutdownNow();
+                        final int failedCount = failures.size();
+                        if (failedCount > 0) {
+                            LOGGER.debug("Failed to execute {} tasks", failedCount);
+                        }
+                    }
+                });
     }
 
-    private Consumer<List<T>> getTask() {
-
-        return Objects.requireNonNull(task);
+    public Consumer<List<T>> getTask() {
+        Validate.notNull(task, "The executor's task has not been set");
+        return task;
     }
 
-    public void execute(Consumer<List<T>> command) {
-
-        this.task = Objects.requireNonNull(command);
+    public void setTask(Consumer<List<T>> command) {
+        Validate.notNull(command, "Command object cannot be null");
+        this.task = command;
         startSchedule();
     }
 
-    private List<List<T>> getBatches() {
-        List<List<T>> partitions = new ArrayList<>();
-        List<T> itemsCopy = new ArrayList<>(items);
-
-        for (int index = 0; index < itemsCopy.size(); index += chunkSize) {
-            int end = Math.min(itemsCopy.size(), index + chunkSize);
-
-            List<T> batch = itemsCopy.subList(index, end);
-            partitions.add(batch);
-            items.removeAll(batch);
+    synchronized void drain() {
+        for (List<T> batch : getBatches()) {
+            getFutures().add(executor.submit(() -> getTask().accept(batch)));
         }
-        return partitions;
     }
 
-    public BlockingQueue<Future> getFutures() {
+    List<List<T>> getBatches() {
+        return Lists.partition(getItems(), chunkSize);
+    }
+
+    BlockingQueue<Future> getFutures() {
         return futures;
+    }
+
+    private boolean isTankFull() {
+        return getItems().size() >= chunkSize;
+    }
+
+    private void startSchedule() {
+        scheduledExecutor.scheduleAtFixedRate(this::drain, period, period, timeUnit);
     }
 }

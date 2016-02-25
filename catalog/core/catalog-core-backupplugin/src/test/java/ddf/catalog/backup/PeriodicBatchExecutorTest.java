@@ -88,7 +88,7 @@ public class PeriodicBatchExecutorTest {
         int expectedNumberOfBatches = getExpectedNumberOfBatches(inputItems, batchSize);
 
         List<List<Integer>> batches = new ArrayList<>();
-        executor.execute(batches::add);
+        executor.setTask(batches::add);
 
         executor.addAll(inputItems);
 

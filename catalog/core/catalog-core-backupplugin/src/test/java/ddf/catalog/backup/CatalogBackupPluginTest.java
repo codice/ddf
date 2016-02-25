@@ -30,6 +30,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -68,14 +69,10 @@ public class CatalogBackupPluginTest {
         assertThat(getPlugin().process(getCreateResponse(METACARD_IDS)), is(notNullValue()));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testCreateResponseRootBackupDirBlank() throws Exception {
-        // Set up
-        CatalogBackupPlugin plugin = getPlugin();
 
-        // Verify no Null Pointer Exception
-        plugin.setRootBackupDir(null);
-        plugin.process(getCreateResponse(METACARD_IDS));
+        getPlugin().setRootBackupDir(null);
     }
 
     @Test
@@ -84,7 +81,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 0;
 
         // Perform test
-        createBackupFilesFor(METACARD_IDS, subDirLevels);
+        getPlugin(0).process(getCreateResponse(METACARD_IDS));
 
         // Verify
         assertFilesExist(METACARD_IDS, subDirLevels);
@@ -93,7 +90,7 @@ public class CatalogBackupPluginTest {
     @Test
     public void testCreateResponseSubdirectoryLevelsIsNegative() throws Exception {
         // Setup
-        createBackupFilesFor(METACARD_IDS, -5);
+        getPlugin(-5).process(getCreateResponse(METACARD_IDS));
 
         // Verify
         for (String id : METACARD_IDS) {
@@ -110,7 +107,7 @@ public class CatalogBackupPluginTest {
     public void testCreateResponseSubdirectoryLevelsTooBigForMetacardId() throws Exception {
         //Setup
         String[] ids = {"6c38", "0283"};
-        createBackupFilesFor(ids, 1000);
+        getPlugin(1000).process(getCreateResponse(ids));
 
         //Verify
         assertFilesExist(ids, 2);
@@ -120,7 +117,7 @@ public class CatalogBackupPluginTest {
     public void testCreateResponseCreateSuccessful() throws Exception {
 
         int subDirLevels = 3;
-        createBackupFilesFor(METACARD_IDS, subDirLevels);
+        getPlugin(subDirLevels).process(getCreateResponse(METACARD_IDS));
         assertFilesExist(METACARD_IDS, subDirLevels);
     }
 
@@ -129,12 +126,12 @@ public class CatalogBackupPluginTest {
 
         // Setup
         int subDirLevels = 3;
+        CatalogBackupPlugin plugin = getPlugin(subDirLevels);
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
-        createBackupFilesFor(METACARD_IDS, subDirLevels);
+        plugin.process(getCreateResponse(METACARD_IDS));
 
         // Delete files
-        DeleteResponse postPluginDeleteResponse =
-                getPlugin(subDirLevels).process(mockDeleteResponse);
+        DeleteResponse postPluginDeleteResponse = plugin.process(mockDeleteResponse);
 
         // Ensure files were deleted
         assertThat(postPluginDeleteResponse, is(notNullValue()));
@@ -157,21 +154,21 @@ public class CatalogBackupPluginTest {
     }
 
     @Test
-    public void testDeleteResponseFailToDeleteOneMetacard() {
+    public void testDeleteResponseFailToDeleteOneMetacard() throws PluginExecutionException {
 
+        //Verify assumptions about hard-codes indexes
+        assertThat("The list of metacard IDs has changed sized", METACARD_IDS, arrayWithSize(2));
+
+        CatalogBackupPlugin plugin = getPlugin();
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
 
-        createBackupFilesFor(new String[] {METACARD_IDS[0]});
-
         try {
-            // Perform Test
-            getPlugin().process(mockDeleteResponse);
-        } catch (PluginExecutionException e) {
 
-            //Verify assumptions about hard-codes indexes
-            assertThat("The list of metacard IDs has changed sized",
-                    METACARD_IDS,
-                    arrayWithSize(2));
+            // Perform Test
+            plugin.process(getCreateResponse(new String[] {METACARD_IDS[0]}));
+            plugin.process(mockDeleteResponse);
+
+        } catch (PluginExecutionException e) {
 
             //Verify one metacard is missing
             assertThat(e.getMessage(), containsString(METACARD_IDS[1]));
@@ -182,12 +179,12 @@ public class CatalogBackupPluginTest {
     public void testUpdateResponseUpdateSuccessful() throws Exception {
         // Setup
         int subDirLevels = 3;
-        createBackupFilesFor(METACARD_IDS, subDirLevels);
+        CatalogBackupPlugin plugin = getPlugin(3);
+        plugin.process(getCreateResponse(METACARD_IDS));
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
-        UpdateResponse postPluginUpdateResponse =
-                getPlugin(subDirLevels).process(mockUpdateResponse);
+        UpdateResponse postPluginUpdateResponse = plugin.process(mockUpdateResponse);
 
         // Verify
         assertThat(postPluginUpdateResponse, is(notNullValue()));
@@ -214,7 +211,7 @@ public class CatalogBackupPluginTest {
     }
 
     @Test
-    public void testUpdateUpdateFailsForAllMetacards() {
+    public void testUpdatingAllMissingMetacards() {
         // Setup
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
@@ -227,18 +224,19 @@ public class CatalogBackupPluginTest {
     }
 
     @Test
-    public void testUpdateUpdateFailsForOneMetacard() {
+    public void testUpdatingOneMissingMetacard() throws PluginExecutionException {
+        assertThat("The list of metacard IDs has changed sized", METACARD_IDS, arrayWithSize(2));
         // Setup
-        createBackupFilesFor(new String[] {METACARD_IDS[0]});
+        CatalogBackupPlugin plugin = getPlugin();
+        plugin.process(getCreateResponse(new String[] {METACARD_IDS[0]}));
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
         try {
-            getPlugin().process(mockUpdateResponse);
+            plugin.process(mockUpdateResponse);
+
         } catch (PluginExecutionException e) {
-            assertThat("The list of metacard IDs has changed sized",
-                    METACARD_IDS,
-                    arrayWithSize(2));
+
             assertThat(e.getMessage(), containsString((METACARD_IDS[1])));
         }
     }
@@ -262,7 +260,6 @@ public class CatalogBackupPluginTest {
         when(mockCreateResponse.getCreatedMetacards()).thenReturn(getMetacards(ids,
                 BASE_OLD_TITLE));
         when(mockCreateResponse.getRequest()).thenReturn(mock(CreateRequest.class));
-
         return mockCreateResponse;
     }
 
@@ -369,20 +366,6 @@ public class CatalogBackupPluginTest {
         }
     }
 
-    private void createBackupFilesFor(String[] cardIds, int level) {
-
-        getPlugin(level).backup(getMetacards(cardIds, BASE_OLD_TITLE));
-        assertFilesExist(cardIds, level);
-
-    }
-
-    private void createBackupFilesFor(String[] cardIds) {
-        int level = 3;
-        getPlugin(level).backup(getMetacards(cardIds, BASE_OLD_TITLE));
-        assertFilesExist(cardIds, level);
-
-    }
-
     private CatalogBackupPlugin getPlugin() {
 
         return getPlugin(3);
@@ -393,7 +376,24 @@ public class CatalogBackupPluginTest {
         plugin.setRootBackupDir(rootBackupDir.getRoot()
                 .getAbsolutePath());
         plugin.setSubDirLevels(level);
+        PeriodicBatchExecutor<Metacard> executor = getExecutor();
+        executor.setTask(plugin::backup);
+        plugin.setExecutor(executor);
         return plugin;
+    }
+
+    private PeriodicBatchExecutor<Metacard> getExecutor() {
+        // Create a synchronous executor - it evaluates a task in the same thread as its client.
+        // Because the batch size is 1, drain() is called everything an item is added to the work
+        // list.
+        return new PeriodicBatchExecutor<Metacard>(1, Long.MAX_VALUE, TimeUnit.SECONDS) {
+            @Override
+            synchronized void drain() {
+                for (List<Metacard> batch : getBatches()) {
+                    getTask().accept(batch);
+                }
+            }
+        };
     }
 }
 
