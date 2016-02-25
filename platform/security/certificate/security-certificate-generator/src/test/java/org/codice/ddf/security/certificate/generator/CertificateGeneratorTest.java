@@ -27,6 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import ddf.security.SecurityConstants;
+
 public class CertificateGeneratorTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -45,9 +47,9 @@ public class CertificateGeneratorTest {
         IOUtils.closeQuietly(systemKeyOutStream);
         IOUtils.closeQuietly(systemKeyStream);
 
-        System.setProperty("javax.net.ssl.keyStoreType", "jks");
-        System.setProperty("javax.net.ssl.keyStore", systemKeystoreFile.getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, systemKeystoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, "changeit");
     }
 
     @Test

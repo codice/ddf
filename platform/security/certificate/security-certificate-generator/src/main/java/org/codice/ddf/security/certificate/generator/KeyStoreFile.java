@@ -28,6 +28,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+
 /**
  * Facade class for a Java Keystore (JKS) file. Exposes a few high-level behaviors to abstract away the
  * complexity of JCA/JCE, as well as file I/O operations.
@@ -51,7 +53,7 @@ public class KeyStoreFile {
         try {
             file = PkiTools.createFileObject(filePath);
             try (FileInputStream resource = new FileInputStream(file)) {
-                keyStore = newKeyStore();
+                keyStore = SecurityConstants.newKeystore();
                 keyStore.load(resource, pw);
             }
         } catch (GeneralSecurityException | IOException e) {
@@ -63,11 +65,6 @@ public class KeyStoreFile {
         facade.keyStore = keyStore;
         facade.password = pw;
         return facade;
-    }
-
-    static KeyStore newKeyStore() throws KeyStoreException {
-
-        return KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
     }
 
     /**

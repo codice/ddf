@@ -31,6 +31,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import ddf.security.SecurityConstants;
+
 public class KeystoreEditorTest {
 
     @Rule
@@ -167,12 +169,13 @@ public class KeystoreEditorTest {
         IOUtils.closeQuietly(systemTrustStream);
         IOUtils.closeQuietly(systemTrustOutStream);
 
-        System.setProperty("javax.net.ssl.keyStoreType", "jks");
+        System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+        System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
         System.setProperty("ddf.home", "");
-        System.setProperty("javax.net.ssl.keyStore", keyStoreFile.getAbsolutePath());
-        System.setProperty("javax.net.ssl.trustStore", trustStoreFile.getAbsolutePath());
-        System.setProperty("javax.net.ssl.keyStorePassword", password);
-        System.setProperty("javax.net.ssl.trustStorePassword", password);
+        System.setProperty(SecurityConstants.KEYSTORE_PATH, keyStoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.TRUSTSTORE_PATH, trustStoreFile.getAbsolutePath());
+        System.setProperty(SecurityConstants.KEYSTORE_PASSWORD, password);
+        System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, password);
     }
 
     @Test
