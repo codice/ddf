@@ -267,6 +267,11 @@
             <artifactId>platform-migratable</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.persistence.core</groupId>
+            <artifactId>persistence-core-attributes-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml

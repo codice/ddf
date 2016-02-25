@@ -65,7 +65,7 @@ var options = {
   }
 }
 
-util.find(program.dir, ['!resources'])
+util.find(program.dir, [ '!libs-pomfix' ])
   .pipe(util.read())
   .pipe(fix(util.load, options))
   .pipe(apply())
