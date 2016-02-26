@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,9 +36,7 @@ import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.util.impl.Requests;
 
 /**
  * The CatalogBackupPlugin backups up metacards to the file system. It is a
@@ -60,63 +62,26 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
-    private File rootBackupDir;
+    private static final long TERMINATION_TIMEOUT = 30;
 
     private int subDirLevels;
 
-    private PeriodicBatchExecutor<Metacard> executor;
+    private File rootBackupDir;
 
-    private boolean enableBackupPlugin;
-
-    public CatalogBackupPlugin() {
-        subDirLevels = 0;
-        enableBackupPlugin = true;
-    }
-
-    @SuppressWarnings("unused")
-    public void initialize() {
-        getExecutor().setTask(this::backup);
-    }
+    private ExecutorService executor;
 
     /**
      * Backs up created metacards to the file system backup.
      *
      * @param input the {@link CreateResponse} to process
      * @return {@link CreateResponse}
-     * @throws PluginExecutionException if fail to create metacards
      */
     @Override
-    public synchronized CreateResponse process(CreateResponse input)
-            throws PluginExecutionException {
+    public CreateResponse process(CreateResponse input) {
 
-        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.trace("Performing backup of metacards in CreateResponse.");
-        }
-
-        getExecutor().addAll(input.getCreatedMetacards());
-
+        execute(() -> create(input.getCreatedMetacards()));
         return input;
 
-    }
-
-    void backup(List<Metacard> metacards) {
-
-        List<String> errors = new ArrayList<>();
-        for (Metacard metacard : metacards) {
-            try {
-                backupMetacard(metacard);
-            } catch (RuntimeException | IOException e) {
-                errors.add(metacard.getId());
-            }
-        }
-
-        if (!errors.isEmpty()) {
-            LOGGER.info("Plugin processing failed. This is allowable. Skipping to next plugin.",
-                    new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
-                            null,
-                            errors,
-                            CREATE)));
-        }
     }
 
     /**
@@ -124,54 +89,18 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      *
      * @param input the {@link UpdateResponse} to process
      * @return {@link UpdateResponse}
-     * @throws PluginExecutionException if failed to updated metacards
      */
     @Override
-    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.trace("Updating metacards contained in UpdateResponse in backup.");
+    public UpdateResponse process(UpdateResponse input) {
 
-            List<String> deleteErrors = new ArrayList<>();
-            List<String> backupErrors = new ArrayList<>();
+        //Extract the old and new cards from Update objects
+        Function<Function<Update, Metacard>, List<Metacard>> getCards =
+                (fun) -> input.getUpdatedMetacards()
+                        .stream()
+                        .collect(Collectors.mapping(fun, Collectors.toList()));
 
-            List<Update> updates = input.getUpdatedMetacards();
-
-            for (Update update : updates) {
-                try {
-                    deleteMetacard(update.getOldMetacard());
-                } catch (IOException e) {
-                    deleteErrors.add(update.getOldMetacard()
-                            .getId());
-                }
-
-                try {
-                    backupMetacard(update.getNewMetacard());
-                } catch (IOException e) {
-                    backupErrors.add(update.getNewMetacard()
-                            .getId());
-                }
-            }
-
-            String exceptionMessage = null;
-
-            if (!deleteErrors.isEmpty()) {
-                exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        null,
-                        deleteErrors,
-                        DELETE);
-            }
-
-            if (!backupErrors.isEmpty()) {
-                exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        exceptionMessage,
-                        backupErrors,
-                        CREATE);
-            }
-
-            if (!(deleteErrors.isEmpty() && backupErrors.isEmpty())) {
-                throw new PluginExecutionException(exceptionMessage);
-            }
-        }
+        execute(() -> delete(getCards.apply(Update::getOldMetacard)));
+        execute(() -> create(getCards.apply(Update::getNewMetacard)));
         return input;
     }
 
@@ -180,36 +109,12 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      *
      * @param input the {@link DeleteResponse} to process
      * @return {@link DeleteResponse}
-     * @throws PluginExecutionException if failed to delete metacards
      */
     @Override
-    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+    public DeleteResponse process(DeleteResponse input) {
 
-        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.trace("Deleting metacards contained in DeleteResponse from backup.");
-
-            List<String> errors = new ArrayList<>();
-            for (Metacard metacard : input.getDeletedMetacards()) {
-                try {
-                    deleteMetacard(metacard);
-                } catch (IOException e) {
-                    errors.add(metacard.getId());
-                }
-            }
-
-            if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(DeleteResponse.class.getSimpleName(),
-                        null,
-                        errors,
-                        DELETE));
-            }
-        }
+        execute(() -> delete(input.getDeletedMetacards()));
         return input;
-    }
-
-    @SuppressWarnings("unused")
-    public void setEnableBackupPlugin(boolean enablePlugin) {
-        enableBackupPlugin = enablePlugin;
     }
 
     /**
@@ -225,7 +130,20 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     @SuppressWarnings("unused")
     public void shutdown() {
+
         getExecutor().shutdown();
+        if (!executor.isShutdown()) {
+            try {
+                executor.awaitTermination(TERMINATION_TIMEOUT, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+            final List<Runnable> failures = executor.shutdownNow();
+            final int failedCount = failures.size();
+            if (failedCount > 0) {
+                LOGGER.debug("Failed to execute {} tasks", failedCount);
+            }
+        }
     }
 
     /**
@@ -238,54 +156,76 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         File directory = new File(dir);
         validateDirectory(directory);
         this.rootBackupDir = directory;
-
         LOGGER.trace("Set root backup directory to: {}", this.rootBackupDir.toString());
     }
 
-    public PeriodicBatchExecutor<Metacard> getExecutor() {
+    public ExecutorService getExecutor() {
         return executor;
     }
 
-    public void setExecutor(PeriodicBatchExecutor<Metacard> executor) {
+    public void setExecutor(ExecutorService executor) {
         this.executor = executor;
     }
 
+    private synchronized void execute(Runnable task) {
+
+        executor.execute(task);
+    }
+
+    private void create(List<Metacard> metacards) {
+
+        List<String> errors = new ArrayList<>();
+        for (Metacard metacard : metacards) {
+            try {
+                createFile(metacard);
+            } catch (RuntimeException | IOException e) {
+                errors.add(metacard.getId());
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            LOGGER.debug(getExceptionMessage(errors, CREATE));
+        }
+    }
+
+    private void delete(List<Metacard> cards) {
+        List<String> errors = new ArrayList<>();
+        for (Metacard metacard : cards) {
+            try {
+                deleteFile(metacard);
+            } catch (IOException e) {
+                errors.add(metacard.getId());
+            }
+        }
+
+        if (errors.size() > 0) {
+            LOGGER.debug(getExceptionMessage(errors, DELETE));
+        }
+    }
+
     private void removeTempExtension(File source) throws IOException {
-        LOGGER.debug("Removing {} file extension.", TEMP_FILE_EXTENSION);
+        LOGGER.trace("Removing {} file extension.", TEMP_FILE_EXTENSION);
         File destination = new File(StringUtils.removeEnd(source.getAbsolutePath(),
                 TEMP_FILE_EXTENSION));
         boolean success = source.renameTo(destination);
         if (success) {
-            LOGGER.debug("Moved {} to {}.",
+            LOGGER.trace("Moved {} to {}.",
                     source.getAbsolutePath(),
                     destination.getAbsolutePath());
         } else {
-            LOGGER.debug("Failed to move {} to {}.",
+            LOGGER.trace("Failed to move {} to {}.",
                     source.getAbsolutePath(),
                     destination.getAbsolutePath());
         }
     }
 
-    private String getExceptionMessage(String responseType, String previousExceptionMessage,
-            List<String> metacardsIdsInError, String operation) {
+    private String getExceptionMessage(List<String> metacardsIdsInError, String operation) {
 
-        StringBuilder builder = new StringBuilder();
-        if (StringUtils.isNotBlank(previousExceptionMessage)) {
-            builder.append(previousExceptionMessage)
-                    .append(" ");
-        }
-        return builder.append("Error processing ")
-                .append(responseType)
-                .append(". ")
-                .append("Unable to ")
-                .append(operation)
-                .append(" metacard(s) [")
-                .append(StringUtils.join(metacardsIdsInError, ","))
-                .append("]. ")
-                .toString();
+        return "Catalog Backup Plugin processing error." + " " + "Unable to " + operation
+                + " metacard(s) [" + StringUtils.join(metacardsIdsInError, ",") + "]. ";
     }
 
-    private void backupMetacard(Metacard metacard) throws IOException {
+    private void createFile(Metacard metacard) throws IOException {
 
         // Write metacard to a temp file. When write is complete, rename (remove
         // temp extension).
@@ -307,7 +247,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * @param metacard the metacard to be deleted.
      * @throws IOException
      */
-    private void deleteMetacard(Metacard metacard) throws IOException {
+    private void deleteFile(Metacard metacard) throws IOException {
         File metacardToDelete = getBackupFile(metacard);
         FileUtils.forceDelete(metacardToDelete);
     }
@@ -349,11 +289,11 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     }
 
     private void validateDirectory(File directory) {
+
         if (!(directory.exists() && directory.canWrite())) {
             throw new IllegalArgumentException("Directory " + directory.getAbsolutePath()
                     + " does not exist or is not writable");
         }
     }
-
 }
 

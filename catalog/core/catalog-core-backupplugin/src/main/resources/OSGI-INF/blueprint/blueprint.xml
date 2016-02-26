@@ -15,19 +15,18 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
 
-    <bean id="executor" class="ddf.catalog.backup.PeriodicBatchExcecutor">
-        <argument value="1000"/>
-        <argument value="60"/>
-        <argument value="TimeUnit.SECONDS"/>
+    <bean id="executorService" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor">
     </bean>
 
 
     <bean id="catalogBackupPlugin" class="ddf.catalog.backup.CatalogBackupPlugin"
-          init-method="initialize" destroy-method="shutdown">
+          destroy-method="shutdown">
+        <argument value="30"/>
         <cm:managed-properties persistent-id="plugin.backup" update-strategy="container-managed"/>
         <property name="rootBackupDir" value="data/backup"/>
         <property name="subDirLevels" value="2"/>
-        <property name="executor" ref="executor"/>
+        <property name="executor" ref="executorService"/>
     </bean>
 
     <service ref="catalogBackupPlugin" interface="ddf.catalog.plugin.PostIngestPlugin"/>

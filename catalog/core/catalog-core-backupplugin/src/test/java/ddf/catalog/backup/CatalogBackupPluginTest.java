@@ -30,6 +30,9 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -162,17 +165,10 @@ public class CatalogBackupPluginTest {
         CatalogBackupPlugin plugin = getPlugin();
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
 
-        try {
+        // Perform Test
+        plugin.process(getCreateResponse(new String[] {METACARD_IDS[0]}));
+        plugin.process(mockDeleteResponse);
 
-            // Perform Test
-            plugin.process(getCreateResponse(new String[] {METACARD_IDS[0]}));
-            plugin.process(mockDeleteResponse);
-
-        } catch (PluginExecutionException e) {
-
-            //Verify one metacard is missing
-            assertThat(e.getMessage(), containsString(METACARD_IDS[1]));
-        }
     }
 
     @Test
@@ -373,28 +369,23 @@ public class CatalogBackupPluginTest {
 
     private CatalogBackupPlugin getPlugin(int level) {
         CatalogBackupPlugin plugin = new CatalogBackupPlugin();
+        plugin.setExecutor(getMockExecutor());
         plugin.setRootBackupDir(rootBackupDir.getRoot()
                 .getAbsolutePath());
         plugin.setSubDirLevels(level);
-        PeriodicBatchExecutor<Metacard> executor = getExecutor();
-        executor.setTask(plugin::backup);
-        plugin.setExecutor(executor);
         return plugin;
     }
 
-    private PeriodicBatchExecutor<Metacard> getExecutor() {
-        // Create a synchronous executor - it evaluates a task in the same thread as its client.
-        // Because the batch size is 1, drain() is called everything an item is added to the work
-        // list.
-        return new PeriodicBatchExecutor<Metacard>(1, Long.MAX_VALUE, TimeUnit.SECONDS) {
+    private ExecutorService getMockExecutor() {
+        //Create an executor that synchronously executes the task.
+        return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>()) {
             @Override
-            synchronized void drain() {
-                for (List<Metacard> batch : getBatches()) {
-                    getTask().accept(batch);
-                }
+            public void execute(Runnable command) {
+                command.run();
             }
         };
     }
+
 }
 
 
