@@ -1512,10 +1512,10 @@ Each type of metacard must have its own `PolicyPlugin` that reads the metadata b
 <metacard>
     <security>
         <map>
-            <entry key="assertedAttribute1" value="A,B" />
-            <entry key="assertedAttribute2" value="X,Y" />
-            <entry key="assertedAttribute3" value="USA,GBR" />
-            <entry key="assertedAttribute4" value="USA,AUS" />
+            <entry assertedAttribute1="A,B" />
+            <entry assertedAttribute2="X,Y" />
+            <entry assertedAttribute3="USA,GBR" />
+            <entry assertedAttribute4="USA,AUS" />
         </map>
     </security>
 </metacard>
@@ -1568,6 +1568,26 @@ To set up a XACML policy, place the desired XACML policy in the `<distribution r
 This is the directory in which the PDP will look for XACML policies every 60 seconds.
 A sample XACML policy is located at the end of this page.
 Information on specific bundle configurations and names can be found on the Security PDP application page.
+
+===== Catalog Filter Policy Plugins
+
+Several PolicyPlugins for catalog filtering exist currently: *Metacard Attribute Security Policy Plugin* and *XML Attribute Security Policy Plugin*.
+These PolicyPlugin implementations allow an administrator to easily add filtering capabilities to some standard Metacard types for all ${ddf-branding} Catalog operations.
+These plugins will place policy information on the Metacard itself that allows the FilterPlugin to restrict unauthorized users from viewing content they are not allowed to view.
+
+The *XML Attribute Security Policy Plugin* will parse XML metadata contained within a metacard for security attributes on any number of XML elements in the metadata.
+The configuration for the plugin contains one field for setting the XML elements that will be parsed for security attributes and the other two configurations contain the XML attributes that will be pulled off of those elements.
+The *Security Attributes (union)* field will compute the union of values for each attribute defined.
+While the *Security Attributes (intersection)* field will computer the intersection of values for each attribute defined.
+
+The *Metacard Attribute Security Policy Plugin* will pull attributes directly off of a metacard and combine these attributes into a security field for the metacard.
+This plugin assumes that the pertinent information has already been parsed out of the metadata and placed directly on the metacard itself.
+
+To configure these policy plugins:
+. Open the Admin Console at \https://localhost:8993/admin
+. Click the ${ddf-branding} Catalog application tile
+. Click the *Configuration* tab
+. Click on either the *Metacard Attribute Security Policy Plugin* or *XML Attribute Security Policy Plugin* configuration.
 
 ===== Creating a XACML Policy
 

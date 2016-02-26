@@ -32,5 +32,7 @@
         <module>catalog-security-auditplugin</module>
         <module>catalog-security-policyplugin</module>
         <module>catalog-security-operationplugin</module>
+        <module>catalog-security-xmlattributeplugin</module>
+        <module>catalog-security-metacardattributeplugin</module>
     </modules>
 </project>

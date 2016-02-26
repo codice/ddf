@@ -91,6 +91,8 @@ public class FilterPluginTest {
 
     CreateRequestImpl createRequest;
 
+    CreateRequestImpl badCreateRequest;
+
     UpdateRequestImpl updateRequest;
 
     DeleteResponse deleteResponse;
@@ -152,6 +154,9 @@ public class FilterPluginTest {
 
         createRequest = new CreateRequestImpl(getExactRolesMetacard());
         createRequest.setProperties(properties);
+
+        badCreateRequest = new CreateRequestImpl(getMoreRolesMetacard());
+        badCreateRequest.setProperties(properties);
 
         updateRequest = new UpdateRequestImpl(getExactRolesMetacard().getId(), getExactRolesMetacard());
         updateRequest.setProperties(properties);
@@ -283,6 +288,11 @@ public class FilterPluginTest {
     @Test(expected = StopProcessingException.class)
     public void testPreCreateNoSubject() throws Exception {
         plugin.processPreCreate(new CreateRequestImpl(mock(Metacard.class)));
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testPreCreateBadWithSubject() throws Exception {
+        plugin.processPreCreate(badCreateRequest);
     }
 
     @Test(expected = StopProcessingException.class)
