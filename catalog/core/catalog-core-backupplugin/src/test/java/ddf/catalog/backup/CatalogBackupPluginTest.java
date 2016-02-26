@@ -15,9 +15,7 @@ package ddf.catalog.backup;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -147,13 +145,7 @@ public class CatalogBackupPluginTest {
         DeleteResponse mockDeleteResponse = getDeleteResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
-        try {
-            getPlugin().process(mockDeleteResponse);
-        } catch (PluginExecutionException e) {
-
-            // Verify
-            assertThat(e.getMessage(), stringContainsInOrder(Arrays.asList(METACARD_IDS)));
-        }
+        getPlugin().process(mockDeleteResponse);
     }
 
     @Test
@@ -212,11 +204,7 @@ public class CatalogBackupPluginTest {
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
-        try {
-            getPlugin().process(mockUpdateResponse);
-        } catch (PluginExecutionException e) {
-            assertThat(e.getMessage(), stringContainsInOrder(Arrays.asList(METACARD_IDS)));
-        }
+        getPlugin().process(mockUpdateResponse);
     }
 
     @Test
@@ -228,13 +216,8 @@ public class CatalogBackupPluginTest {
         UpdateResponse mockUpdateResponse = getUpdateResponse(Arrays.asList(METACARD_IDS));
 
         // Perform Test
-        try {
-            plugin.process(mockUpdateResponse);
+        plugin.process(mockUpdateResponse);
 
-        } catch (PluginExecutionException e) {
-
-            assertThat(e.getMessage(), containsString((METACARD_IDS[1])));
-        }
     }
 
     /**
