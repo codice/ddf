@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -214,12 +213,7 @@ public class IngestCommand extends CatalogCommands {
 
         printProgressAndFlush(start, fileCount.get(), 0);
 
-        queueExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                buildQueue(ingestStream, metacardQueue, start);
-            }
-        });
+        queueExecutor.submit(() -> buildQueue(ingestStream, metacardQueue, start));
 
         final ScheduledExecutorService batchScheduler =
                 Executors.newSingleThreadScheduledExecutor();
@@ -234,7 +228,7 @@ public class IngestCommand extends CatalogCommands {
                 blockingQueue,
                 rejectedExecutionHandler);
 
-        submitToCatalog(batchScheduler, executorService, metacardQueue, catalog, batchSize, start);
+        submitToCatalog(batchScheduler, executorService, metacardQueue, catalog, start);
 
         while (!doneBuildingQueue.get() || processingThreads.get() != 0) {
             try {
@@ -456,7 +450,8 @@ public class IngestCommand extends CatalogCommands {
         }
     }
 
-    private void buildQueue(Stream<Path> ingestStream, Queue<Metacard> metacardQueue, long start) {
+    private void buildQueue(Stream<Path> ingestStream, ArrayBlockingQueue<Metacard> metacardQueue,
+            long start) {
         ingestStream.filter(a -> !a.toFile()
                 .isDirectory())
                 .forEach(a -> {
@@ -497,7 +492,13 @@ public class IngestCommand extends CatalogCommands {
                             }
 
                             if (result != null) {
-                                metacardQueue.add(result);
+                                try {
+                                    metacardQueue.put(result);
+                                } catch (InterruptedException e) {
+                                    INGEST_LOGGER.error(
+                                            "Thread interrupted while waiting to 'put' metacard: {}",
+                                            e);
+                                }
                             }
                         }
                     }
@@ -507,38 +508,32 @@ public class IngestCommand extends CatalogCommands {
 
     private void submitToCatalog(ScheduledExecutorService batchScheduler,
             ExecutorService executorService, ArrayBlockingQueue<Metacard> metacardQueue,
-            CatalogFacade catalog, int batchSize, long start) {
+            CatalogFacade catalog, long start) {
 
-        batchScheduler.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                int queueSize = metacardQueue.size();
-                if (queueSize > 0) {
+        batchScheduler.scheduleWithFixedDelay(() -> {
+            int queueSize = metacardQueue.size();
+            if (queueSize > 0) {
 
-                    ArrayList<Metacard> metacardBatch = new ArrayList<>(batchSize);
+                ArrayList<Metacard> metacardBatch = new ArrayList<>(batchSize);
 
-                    if (queueSize > batchSize || (doneBuildingQueue.get() && queueSize > 0)) {
-                        metacardQueue.drainTo(metacardBatch, batchSize);
-                        processingThreads.incrementAndGet();
-                    }
+                if (queueSize > batchSize || doneBuildingQueue.get()) {
+                    metacardQueue.drainTo(metacardBatch, batchSize);
+                    processingThreads.incrementAndGet();
+                }
 
-                    if (metacardBatch.size() > 0) {
-                        executorService.submit(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    processBatch(catalog, metacardBatch);
-                                } catch (SourceUnavailableException e) {
-                                    if (INGEST_LOGGER.isWarnEnabled()) {
-                                        INGEST_LOGGER.warn("Error on process batch: {}", e);
-                                    }
-                                }
+                if (metacardBatch.size() > 0) {
+                    executorService.submit(() -> {
+                        try {
+                            processBatch(catalog, metacardBatch);
+                        } catch (SourceUnavailableException e) {
+                            if (INGEST_LOGGER.isWarnEnabled()) {
+                                INGEST_LOGGER.warn("Error on process batch: {}", e);
                             }
-                        });
-                        printProgressAndFlush(start,
-                                fileCount.get(),
-                                ingestCount.get() + ignoreCount.get());
-                    }
+                        }
+                    });
+                    printProgressAndFlush(start,
+                            fileCount.get(),
+                            ingestCount.get() + ignoreCount.get());
                 }
             }
         }, 100, 100, TimeUnit.MILLISECONDS);
