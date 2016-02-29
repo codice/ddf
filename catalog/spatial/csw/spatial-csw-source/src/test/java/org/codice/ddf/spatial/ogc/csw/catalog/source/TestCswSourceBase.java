@@ -436,7 +436,6 @@ public class TestCswSourceBase {
         DomainType getRecordByIdOutputSchema = new DomainType();
         getRecordByIdOutputSchema.setName(CswConstants.OUTPUT_SCHEMA_PARAMETER);
         List<String> outputSchemas = new ArrayList<>();
-        outputSchemas.add("http://www.iana.org/assignments/media-types/application/octet-stream");
         outputSchemas.add(CswConstants.CSW_OUTPUT_SCHEMA);
         getRecordByIdOutputSchema.setValue(outputSchemas);
         getRecordByIdParameters.add(getRecordByIdOutputSchema);
