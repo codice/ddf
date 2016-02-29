@@ -39,6 +39,8 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
 
     protected final FilterAdapter filterAdapter;
 
+    private boolean showInvalidMetacards;
+
     public MetacardValidityCheckerPlugin(FilterBuilder filterBuilder, FilterAdapter filterAdapter) {
         this.filterBuilder = filterBuilder;
         this.filterAdapter = filterAdapter;
@@ -49,7 +51,8 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
             throws PluginExecutionException, StopProcessingException {
         QueryRequest queryRequest;
         try {
-            if (!filterAdapter.adapt(input.getQuery(), new ValidationQueryDelegate())) {
+            if (!showInvalidMetacards && !filterAdapter.adapt(input.getQuery(),
+                    new ValidationQueryDelegate())) {
                 QueryImpl query = new QueryImpl(filterBuilder.allOf(input.getQuery(),
                         filterBuilder.attribute(VALIDATION_ERRORS)
                                 .is()
@@ -62,6 +65,7 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
                         input.getSourceIds(),
                         input.getProperties());
             } else {
+                // return the existing query with invalid metacards
                 queryRequest = input;
             }
         } catch (UnsupportedQueryException e) {
@@ -69,5 +73,13 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
             throw new StopProcessingException(e.getMessage());
         }
         return queryRequest;
+    }
+
+    public boolean getShowInvalidMetacards() {
+        return showInvalidMetacards;
+    }
+
+    public void setShowInvalidMetacards(boolean showInvalidMetacards) {
+        this.showInvalidMetacards = showInvalidMetacards;
     }
 }
