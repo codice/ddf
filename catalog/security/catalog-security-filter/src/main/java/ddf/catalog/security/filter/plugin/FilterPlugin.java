@@ -49,6 +49,7 @@ import ddf.catalog.security.FilterResult;
 import ddf.catalog.security.FilterStrategy;
 import ddf.catalog.util.impl.ServiceComparator;
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.util.Security;
 import ddf.security.permission.CollectionPermission;
@@ -62,8 +63,8 @@ public class FilterPlugin implements AccessPlugin {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterPlugin.class);
 
-    private Map<ServiceReference, FilterStrategy> filterStrategies = Collections
-            .synchronizedMap(new TreeMap<>(new ServiceComparator()));
+    private Map<ServiceReference, FilterStrategy> filterStrategies = Collections.synchronizedMap(
+            new TreeMap<>(new ServiceComparator()));
 
     public void addStrategy(ServiceReference<FilterStrategy> filterStrategyRef) {
         Bundle bundle = FrameworkUtil.getBundle(FilterPlugin.class);
@@ -89,19 +90,28 @@ public class FilterPlugin implements AccessPlugin {
         List<Metacard> metacards = input.getMetacards();
         Subject subject = getSubject(input);
         Subject systemSubject = getSystemSubject();
-        List<String> notPermittedIds = new ArrayList<>();
+        List<String> userNotPermittedIds = new ArrayList<>();
+        List<String> systemNotPermittedIds = new ArrayList<>();
         for (Metacard metacard : metacards) {
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
             if (!checkPermissions(attr, securityPermission, subject,
-                    CollectionPermission.CREATE_ACTION) || !checkPermissions(attr,
-                    securityPermission, systemSubject, CollectionPermission.CREATE_ACTION)) {
-                notPermittedIds.add(metacard.getId());
+                    CollectionPermission.CREATE_ACTION)) {
+                userNotPermittedIds.add(metacard.getId());
+            }
+            if (!checkPermissions(attr, securityPermission, systemSubject,
+                    CollectionPermission.CREATE_ACTION)) {
+                systemNotPermittedIds.add(metacard.getId());
             }
         }
-        if (!notPermittedIds.isEmpty()) {
+        if (!userNotPermittedIds.isEmpty()) {
             throw new StopProcessingException(
-                    "Metacard creation not permitted for: [ " + listToString(notPermittedIds)
-                            + " ]");
+                    "Metacard creation not permitted for" + SubjectUtils.getName(subject) + ": [ "
+                            + listToString(userNotPermittedIds) + " ]");
+        }
+        if (!systemNotPermittedIds.isEmpty()) {
+            throw new StopProcessingException(
+                    "Metacard creation not permitted for this system: [ " + listToString(
+                            systemNotPermittedIds) + " ]");
         }
 
         return input;
@@ -116,7 +126,8 @@ public class FilterPlugin implements AccessPlugin {
         Subject subject = getSubject(input);
         Subject systemSubject = getSystemSubject();
         List<String> unknownIds = new ArrayList<>();
-        List<String> notPermittedIds = new ArrayList<>();
+        List<String> userNotPermittedIds = new ArrayList<>();
+        List<String> systemNotPermittedIds = new ArrayList<>();
         for (Map.Entry<Serializable, Metacard> entry : updates) {
             Metacard newMetacard = entry.getValue();
             Attribute attr = newMetacard.getAttribute(Metacard.SECURITY);
@@ -135,18 +146,25 @@ public class FilterPlugin implements AccessPlugin {
                 Attribute oldAttr = oldMetacard.getAttribute(Metacard.SECURITY);
                 if (!checkPermissions(attr, securityPermission, subject,
                         CollectionPermission.UPDATE_ACTION) || !checkPermissions(oldAttr,
-                        securityPermission, subject, CollectionPermission.UPDATE_ACTION)
-                        || !checkPermissions(attr, securityPermission, systemSubject,
+                        securityPermission, subject, CollectionPermission.UPDATE_ACTION)) {
+                    userNotPermittedIds.add(newMetacard.getId());
+                }
+                if (!checkPermissions(attr, securityPermission, systemSubject,
                         CollectionPermission.UPDATE_ACTION)) {
-                    notPermittedIds.add(newMetacard.getId());
+                    systemNotPermittedIds.add(newMetacard.getId());
                 }
             }
         }
-        if (!unknownIds.isEmpty() || !notPermittedIds.isEmpty()) {
+        if (!unknownIds.isEmpty() || !userNotPermittedIds.isEmpty()) {
             throw new StopProcessingException(
                     "Update operation not permitted with bad data. Unknown metacards: [ "
                             + listToString(unknownIds) + " ]. Not Permitted metacards: [ "
-                            + listToString(notPermittedIds) + " ]");
+                            + listToString(userNotPermittedIds) + " ]");
+        }
+        if (!systemNotPermittedIds.isEmpty()) {
+            throw new StopProcessingException(
+                    "Update operation not permitted for this system metacards: [ " + listToString(
+                            systemNotPermittedIds) + " ]");
         }
         return input;
     }
@@ -190,9 +208,10 @@ public class FilterPlugin implements AccessPlugin {
             }
         }
 
-        LOGGER.info("Filtered {} metacards, returned {}", filteredMetacards, newResults.size());
-        SecurityLogger.logInfo(
-                "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
+        if (filteredMetacards > 0) {
+            SecurityLogger.logInfo(
+                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
+        }
 
         input.getDeletedMetacards()
                 .clear();
@@ -243,9 +262,10 @@ public class FilterPlugin implements AccessPlugin {
             }
         }
 
-        LOGGER.info("Filtered {} metacards, returned {}", filteredMetacards, newResults.size());
-        SecurityLogger.logInfo(
-                "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
+        if (filteredMetacards > 0) {
+            SecurityLogger.logInfo(
+                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
+        }
 
         input.getResults()
                 .clear();

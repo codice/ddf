@@ -286,9 +286,21 @@
     </feature>
 
     <feature name="catalog-security-policyplugin" install="manual" version="${project.version}"
-             description="DDF Catalog Policy Plugins">
+             description="DDF Catalog Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-security-metacardattributeplugin" install="manual" version="${project.version}"
+             description="DDF Catalog Metacard Attribute Policy Plugin">
+        <feature prerequisite="true">security-pdp-authz</feature>
+        <bundle>mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-security-xmlattributeplugin" install="manual" version="${project.version}"
+             description="DDF Catalog XML Attribute Policy Plugin">
+        <feature prerequisite="true">security-pdp-authz</feature>
+        <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-admin-module-sources" install="manual" version="${project.version}"
@@ -345,6 +357,8 @@
         <feature>catalog-schematron-plugin</feature>
         <feature>catalog-security-filter</feature>
         <feature>catalog-transformer-pdf</feature>
+        <feature>catalog-security-metacardattributeplugin</feature>
+        <feature>catalog-security-xmlattributeplugin</feature>
     </feature>
 
 
