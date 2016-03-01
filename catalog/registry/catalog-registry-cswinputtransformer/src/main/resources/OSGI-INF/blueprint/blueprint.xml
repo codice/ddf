@@ -17,10 +17,6 @@
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                    availability="mandatory"/>
 
-    <bean id="gml3ToWkt" class="ddf.catalog.registry.transformer.Gml3ToWkt">
-        <argument ref="xmlParser"></argument>
-    </bean>
-
     <!-- Register the Transformers -->
     <service auto-export="interfaces">
         <service-properties>
@@ -29,7 +25,7 @@
             <entry key="schema" value="http://www.opengis.net/cat/wrs/1.0"/>
         </service-properties>
         <bean class="ddf.catalog.registry.transformer.RegistryTransformer">
-            <argument ref="gml3ToWkt"/>
+            <property name="parser" ref="xmlParser"/>
         </bean>
     </service>
 

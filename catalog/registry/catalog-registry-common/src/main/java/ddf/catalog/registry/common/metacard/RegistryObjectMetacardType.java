@@ -45,6 +45,28 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String SECURITY_LEVEL = "security-level";
 
+    public static final String SERVICE_REGISTRY_METACARD_TYPE_NAME = "registry.service";
+
+    public static final String LIVE_DATE = "live-date";
+
+    public static final String DATA_START_DATE = "data-start-date";
+
+    public static final String DATA_END_DATE = "data-end-date";
+
+    public static final String LINKS = "links";
+
+    public static final String REGION = "region";
+
+    public static final String DATA_SOURCES = "input-data-sources";
+
+    public static final String DATA_TYPES = "data-types";
+
+    //list of all the service binding ids
+    public static final String SERVICE_BINDINGS = "service-bindings";
+
+    //list of bindingType fields from all the service bindings
+    public static final String SERVICE_BINDING_TYPES = "service-binding-types";
+
     public RegistryObjectMetacardType() {
         this(REGISTRY_METACARD_TYPE_NAME, null);
     }
@@ -72,6 +94,16 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(ORGANIZATION_PHONE_NUMBER, true);
         addQueryableString(ORGANIZATION_EMAIL, true);
         addQueryableString(Metacard.POINT_OF_CONTACT, false);
+        addQueryableDate(LIVE_DATE);
+        addQueryableDate(DATA_START_DATE);
+        addQueryableDate(DATA_END_DATE);
+        addQueryableString(LINKS, true);
+        addQueryableGeo(Metacard.GEOGRAPHY, false);
+        addQueryableString(REGION, false);
+        addQueryableString(DATA_SOURCES, true);
+        addQueryableString(DATA_TYPES, true);
+        addQueryableString(SERVICE_BINDINGS, true);
+        addQueryableString(SERVICE_BINDING_TYPES, true);
     }
 
     /**

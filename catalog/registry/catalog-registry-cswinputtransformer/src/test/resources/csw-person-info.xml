@@ -12,16 +12,10 @@
  *
  **/
 -->
-<rim:Service id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:catalog.service" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+<rim:Person id="urn:node:contact:person1" objectType="urn:catalog.service"
+                  xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+    <rim:PersonName firstName="Vito" lastName="Andolini"/>
+    <rim:TelephoneNumber areaCode="999" number="555-2368"/>
+    <rim:EmailAddress address="godfather@mafia.com"/>
 
-    <rim:ServiceBinding id="registry.federation.method.csw" service="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
-
-        <rim:Slot name="bindingType" slotType="xs:string">
-            <rim:ValueList>
-                <rim:Value>csw</rim:Value>
-            </rim:ValueList>
-        </rim:Slot>
-
-    </rim:ServiceBinding>
-
-</rim:Service>
+</rim:Person>
