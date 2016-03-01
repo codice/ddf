@@ -5195,7 +5195,7 @@ The Catalog Federation Strategy configuration can be found in the admin console 
 
 |`url`
 |String
-|HTTP URL of Solr 4.x Server
+|HTTP URL of Solr Server
 |https://localhost:8993/solr
 |yes
 

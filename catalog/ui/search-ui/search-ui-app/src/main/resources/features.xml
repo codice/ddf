@@ -23,7 +23,51 @@
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
+        
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
+        <configfile finalname="/data/solr/workspace/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
+
+        <configfile finalname="/data/solr/preferences/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/preferences/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/preferences/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/preferences/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/preferences/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/preferences/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/preferences/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
     </feature>
 
     <feature name="search-ui-app" install="auto" version="${project.version}"

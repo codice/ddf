@@ -85,8 +85,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
 
     @Test
     public void testSolrBackupNumToKeep() throws InterruptedException {
-        // The number of backups created are 1 less than the value of numToKeep
-        // (ex. if numToKeep=3, then backups=2)
         int numToKeep = 3;
         String coreName = "catalog";
 
@@ -106,7 +104,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         secondBackupFileSet.removeAll(firstBackupFileSet);
         Set<File> thirdBackupFileSet = waitForFirstFileToBeDeleted(coreName, firstBackupFileSet);
 
-        assertThat("Wrong number of backup files created", thirdBackupFileSet, hasSize(2));
+        assertThat("Wrong number of backup files created", thirdBackupFileSet, hasSize(3));
         assertTrue("Unexpected backup files found",
                 thirdBackupFileSet.containsAll(secondBackupFileSet));
     }

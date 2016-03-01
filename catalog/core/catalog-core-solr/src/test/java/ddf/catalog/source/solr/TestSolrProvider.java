@@ -228,10 +228,10 @@ public class TestSolrProvider extends SolrProviderTestCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestSolrProvider.class);
 
     /**
-     * Testing that you cannot instantiate with a null Server.
+     * Testing that you cannot instantiate with a null Solr client.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testSolrServerNull() {
+    public void testSolrClientNull() {
         new SolrCatalogProvider(null, null, null);
     }
 

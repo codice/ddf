@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.slf4j.Logger;
@@ -64,8 +64,8 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
     private String solrCoreName;
 
-    public SolrQueryFilterVisitor(SolrServer solrServer, String solrCoreName) {
-        schemaFieldResolver = new SchemaFieldResolver(solrServer);
+    public SolrQueryFilterVisitor(SolrClient client, String solrCoreName) {
+        schemaFieldResolver = new SchemaFieldResolver(client);
         this.solrCoreName = solrCoreName;
     }
 

@@ -35,7 +35,7 @@ import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public class SolrHttpWrapper implements HttpWrapper {
             return StringUtils.split(System.getProperty(SecurityConstants.HTTPS_CIPHER_SUITES),
                     ",");
         }
-        return SolrServerFactory.DEFAULT_CIPHER_SUITES.toArray(new String[SolrServerFactory.DEFAULT_CIPHER_SUITES.size()]);
+        return SolrClientFactory.DEFAULT_CIPHER_SUITES.toArray(new String[SolrClientFactory.DEFAULT_CIPHER_SUITES.size()]);
 
     }
 
@@ -144,7 +144,7 @@ public class SolrHttpWrapper implements HttpWrapper {
         if (System.getProperty("https.protocols") != null) {
             return StringUtils.split(System.getProperty("https.protocols"), ",");
         }
-        return SolrServerFactory.DEFAULT_PROTOCOLS.toArray(new String[SolrServerFactory.DEFAULT_PROTOCOLS.size()]);
+        return SolrClientFactory.DEFAULT_PROTOCOLS.toArray(new String[SolrClientFactory.DEFAULT_PROTOCOLS.size()]);
     }
 
 }

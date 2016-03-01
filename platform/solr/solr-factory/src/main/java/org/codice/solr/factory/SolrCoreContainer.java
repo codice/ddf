@@ -13,20 +13,18 @@
  */
 package org.codice.solr.factory;
 
-import java.io.File;
-
-import org.apache.solr.core.ConfigSolr;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.core.SolrResourceLoader;
+import org.apache.solr.core.SolrXmlConfig;
 
 /**
  * Extends functionality of CoreContainer to allow direct registration of
  * a SolrCore
  */
 public class SolrCoreContainer extends CoreContainer {
-    public SolrCoreContainer(SolrResourceLoader loader, File configFile) {
-        super(loader, ConfigSolr.fromFile(loader, configFile));
+    public SolrCoreContainer(SolrResourceLoader loader) {
+        super(SolrXmlConfig.fromSolrHome(loader, loader.getInstancePath()));
         this.load();
     }
 

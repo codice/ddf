@@ -35,7 +35,7 @@ public class XpathQParserPlugin extends QParserPlugin {
 
     @Override
     public String getSource() {
-        return "https://github.com/codice/ddf-solr";
+        return "https://github.com/codice/ddf";
     }
 
     @Override

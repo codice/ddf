@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>solr</artifactId>
-        <groupId>ddf.solr</groupId>
+        <groupId>ddf.platform.solr</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -88,16 +88,6 @@
                                     <file>target/classes/banana-int/conf/schema.xml</file>
                                     <type>xml</type>
                                     <classifier>bananaschema</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/banana-int/conf/solrconfig.xml</file>
-                                    <type>xml</type>
-                                    <classifier>bananaconfig</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/banana-int/core.properties</file>
-                                    <type>properties</type>
-                                    <classifier>bananaproperties</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>target/classes/banana-int/DefaultDashboard.json

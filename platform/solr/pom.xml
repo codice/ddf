@@ -19,22 +19,11 @@
         <artifactId>platform</artifactId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.solr</groupId>
+    <groupId>ddf.platform.solr</groupId>
     <artifactId>solr</artifactId>
     <packaging>pom</packaging>
     <name>DDF Solr</name>
     <properties>
-        <!--
-          Remove restlet.version property and restlet dependencies from the dependencyManagement section when
-          Solr version is updated (see DDF-1110).
-      -->
-        <solr.version>4.10.4</solr.version>
-        <!--
-          Important: version 2.1.4 is being used to address security vulnerabilities CVE-2013-4221 and
-          CVE-2013-4271. As this is a Solr transitive dependency, the restlet.version property and the restlet
-          dependencies found in the dependencyManagement section should be removed.
-      -->
-        <restlet.version>2.1.4</restlet.version>
         <saxon.version>9.5.1-5</saxon.version>
     </properties>
     <dependencyManagement>
@@ -54,21 +43,7 @@
                 <artifactId>lux</artifactId>
                 <version>${lux.version}</version>
             </dependency>
-            <!--
-            Important: version 2.1.4 of restlet is being used to address security vulnerabilities CVE-2013-4221 and
-            CVE-2013-4271. As these are Solr transitive dependencies, the restlet dependencies should be removed
-            when the version of Solr is updated.
-            -->
-            <dependency>
-                <groupId>org.restlet.jee</groupId>
-                <artifactId>org.restlet</artifactId>
-                <version>${restlet.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.restlet.jee</groupId>
-                <artifactId>org.restlet.ext.servlet</artifactId>
-                <version>${restlet.version}</version>
-            </dependency>
+            <!-- Override commons-fileupload version due to CVE-2014-0050 -->
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
@@ -77,6 +52,7 @@
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>solr-dependencies</module>
         <module>solr-factory</module>
         <module>solr-query</module>
         <module>solr-xpath</module>

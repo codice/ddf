@@ -26,10 +26,10 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.EmbeddedSolrFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -46,7 +46,7 @@ public class ReuterSolrImport implements Runnable {
 
     private static final String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
 
-    private SolrServer solrServer;
+    private EmbeddedSolrServer solr;
 
     private SolrCatalogProvider solrProvider;
 
@@ -58,16 +58,16 @@ public class ReuterSolrImport implements Runnable {
 
         try {
 
-            this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
+            this.solr = EmbeddedSolrFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
                     "schema.xml",
                     new ConfigurationFileProxy(ConfigurationStore.getInstance()));
 
-            this.solrProvider = new SolrCatalogProvider(this.solrServer,
+            this.solrProvider = new SolrCatalogProvider(this.solr,
                     new GeotoolsFilterAdapterImpl(),
                     new SolrFilterDelegateFactoryImpl());
 
         } catch (Exception localException) {
-            throw new RuntimeException("unable to connect to solr server: ", localException);
+            throw new RuntimeException("unable to connect with solr client: ", localException);
         }
     }
 
@@ -90,7 +90,7 @@ public class ReuterSolrImport implements Runnable {
     /**
      * @param paramArrayOfString
      */
-    public static void main(String[] paramArrayOfString) {
+    public static void main(String[] paramArrayOfString) throws IOException {
         String str = "Usage: java -jar reutersparser.jar <datadir>";
 
         File localFile = null;
@@ -225,11 +225,15 @@ public class ReuterSolrImport implements Runnable {
 
             LOGGER.error("Unexpected IngestException", e);
         }
-        solrServer.shutdown();
+        try {
+            solr.close();
+        } catch (IOException e) {
+            LOGGER.error("Unable to close Solr client.", e);
+        }
 
     }
 
-    public void ingest() {
+    public void ingest() throws IOException {
         List<Metacard> metacards = new ArrayList<Metacard>();
         for (int i = 0; i < arrayOfFile.length; i++) {
             File localFile = arrayOfFile[i];
@@ -246,7 +250,7 @@ public class ReuterSolrImport implements Runnable {
 
             LOGGER.error("Unexpected IngestException", e);
         }
-        solrServer.shutdown();
+        solr.close();
 
     }
 

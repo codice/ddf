@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrException;
@@ -103,13 +103,13 @@ public class TestSolrHttpCatalogProvider {
 
     @Test
     public void testUnconfiguredCreate() throws IngestException, SolrServerException, IOException {
-        SolrServer givenServer = givenSolrServer(false);
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
+        SolrClient givenClient = givenSolrClient(false);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
 
         try {
             provider.create(mock(CreateRequest.class));
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), containsString("Solr Server is not connected"));
+            assertThat(e.getMessage(), containsString("Solr client is not connected"));
         }
 
     }
@@ -125,9 +125,9 @@ public class TestSolrHttpCatalogProvider {
     public void testUnconfiguredCreateSolrException()
             throws IngestException, SolrServerException, IOException {
         // given
-        SolrServer givenServer = mock(SolrServer.class);
-        when(givenServer.ping()).thenThrow(SolrException.class);
-        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
+        SolrClient givenClient = mock(SolrClient.class);
+        when(givenClient.ping()).thenThrow(SolrException.class);
+        CatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
 
         // when
         String message = null;
@@ -139,8 +139,8 @@ public class TestSolrHttpCatalogProvider {
         }
 
         // then
-        assertThat(message, containsString("Solr Server is not connected"));
-        verify(givenServer, times(1)).ping();
+        assertThat(message, containsString("Solr client is not connected"));
+        verify(givenClient, times(1)).ping();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -193,7 +193,7 @@ public class TestSolrHttpCatalogProvider {
     public void testUpdateConfigurationNullProperties() throws IngestException {
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, null, null);
 
-        provider.updateServer(null);
+        provider.updateClient(null);
 
         // should be no failures/exceptions
 
@@ -203,16 +203,16 @@ public class TestSolrHttpCatalogProvider {
     public void testUpdateConfigurationUrlPropertyNull()
             throws IngestException, SolrServerException, IOException {
         // given
-        SolrServer givenServer = givenSolrServer(true);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
+        SolrClient givenClient = givenSolrClient(true);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
 
         // when
-        provider.updateServer(null);
+        provider.updateClient(null);
 
         // then
         assertThat(provider.getUrl(), is(nullValue()));
-        verify(givenServer, times(0)).ping();
-        verify(givenServer, times(0)).shutdown();
+        verify(givenClient, times(0)).ping();
+        verify(givenClient, times(0)).close();
         // should be no failures/exceptions
 
     }
@@ -247,30 +247,30 @@ public class TestSolrHttpCatalogProvider {
 
         // given
         String badAddress = "http://localhost:8183/solr";
-        boolean serverStatus = false;
-        SolrServer givenServer = givenSolrServer(serverStatus);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
+        boolean clientStatus = false;
+        SolrClient givenClient = givenSolrClient(clientStatus);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
         // when
         try {
             provider.create(mock(CreateRequest.class));
         } catch (IllegalArgumentException e) {
         }
-        provider.updateServer(badAddress);
+        provider.updateClient(badAddress);
 
         // then
-        verify(givenServer, times(1)).shutdown();
-        verify(givenServer, times(1)).ping();
+        verify(givenClient, times(1)).close();
+        verify(givenClient, times(1)).ping();
 
     }
 
     @Test()
     public void testShutdown() throws SolrServerException, IOException {
-        boolean serverStatus = true;
-        SolrServer givenServer = givenSolrServer(serverStatus);
-        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
+        boolean clientStatus = true;
+        SolrClient givenClient = givenSolrClient(clientStatus);
+        SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenClient, null);
 
         provider.shutdown();
-        verify(givenServer, times(1)).shutdown();
+        verify(givenClient, times(1)).close();
     }
 
     /**
@@ -278,8 +278,8 @@ public class TestSolrHttpCatalogProvider {
      * @throws IOException
      * @throws SolrServerException
      */
-    private SolrServer givenSolrServer(boolean ok) throws SolrServerException, IOException {
-        SolrServer server = mock(SolrServer.class);
+    private SolrClient givenSolrClient(boolean ok) throws SolrServerException, IOException {
+        SolrClient client = mock(SolrClient.class);
 
         SolrPingResponse pingResponse = mock(SolrPingResponse.class);
 
@@ -293,9 +293,9 @@ public class TestSolrHttpCatalogProvider {
 
         when(pingResponse.getResponse()).thenReturn(namedList);
 
-        when(server.ping()).thenReturn(pingResponse);
+        when(client.ping()).thenReturn(pingResponse);
 
-        return server;
+        return client;
     }
 
 }

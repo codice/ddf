@@ -29,6 +29,11 @@
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -38,171 +43,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-            <version>${solr.saxon.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice</groupId>
-            <artifactId>lux</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>woodstox-core-asl</artifactId>
-            <version>${lux.woodstox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-            <version>3.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-            <version>0.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-morfologik</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-phonetic</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-join</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-memory</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-misc</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-suggest</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-grouping</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.noggit</groupId>
-            <artifactId>noggit</artifactId>
-            <version>0.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.restlet.jee</groupId>
-            <artifactId>org.restlet</artifactId>
-            <version>2.1.4</version>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-dependencies</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -233,45 +83,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            lux,
-                            solr-xpath,
-                            Saxon-HE,
-                            woodstox-core-asl,
-                            stax2-api,
+                            catalog-core-api-impl,
                             catalog-core-solr,
-                            common-system,
-                            commons-cli,
-                            commons-codec,
-                            commons-collections,
-                            commons-fileupload,
-                            spatial4j,
-                            solr-core,
-                            solr-solrj,
-                            solr-factory,
-                            commons-io,
-                            commons-lang,
-                            joda-time,
-                            lucene-core,
-                            lucene-analyzers-common,
-                            lucene-analyzers-morfologik,
-                            lucene-analyzers-phonetic,
-                            lucene-highlighter,
-                            lucene-join,
-                            lucene-memory,
-                            lucene-misc,
-                            lucene-queryparser,
-                            lucene-suggest,
-                            lucene-grouping,
-                            lucene-queries,
-                            lucene-spatial,
-                            httpclient,
-                            httpcore,
-                            httpmime,
-                            noggit,
-                            org.restlet,
-                            zookeeper
+                            solr-dependencies
                         </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
                         <!-- We want the maven-populated describable.properties, so we overwrite 
                             the src/main/resources one with the one in target -->
                         <Include-Resource>
@@ -286,7 +101,7 @@
                         </Private-Package>
                         <Export-Package/>
                         <Import-Package>
-                            com.google.*,
+                            com.google.common.*,
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
                             com.vividsolutions.jts.geom.impl,
@@ -318,7 +133,7 @@
                             javax.security.auth.spi,
                             javax.security.auth.x500,
                             javax.security.sasl,
-                            javax.servlet;version="2.5",
+                            javax.servlet,
                             javax.xml.namespace,
                             javax.xml.parsers,
                             javax.xml.stream,

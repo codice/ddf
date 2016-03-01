@@ -26,7 +26,7 @@
 	</bean>
 
     <!-- The Solr Server that will be handling the requests -->
-    <bean id="solrServer" class="org.codice.solr.factory.SolrServerFactory"
+    <bean id="solrServer" class="org.codice.solr.factory.EmbeddedSolrFactory"
           factory-method="getEmbeddedSolrServer">
 		<argument value="solrconfig.xml"/>
 		<argument value="schema.xml"/>

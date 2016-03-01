@@ -43,7 +43,7 @@
             Remove restlet.version property and restlet dependencies from the dependencyManagement section when
             Solr version is updated (see DDF-1203).
         -->
-        <solr.version>4.10.4</solr.version>
+        <solr.version>5.5.0</solr.version>
         <!--
             Important: version 2.1.4 is being used to address security vulnerabilities CVE-2013-4221 and
             CVE-2013-4271. As this is a Solr transitive dependency, the restlet.version property and the restlet
@@ -428,42 +428,6 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj</artifactId>
-                <version>${solr.version}</version>
-                <exclusions>
-                    <!-- exclusion for LuxDB -->
-                    <exclusion>
-                        <artifactId>wstx-asl</artifactId>
-                        <groupId>org.codehaus.woodstox</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-core</artifactId>
-                <version>${solr.version}</version>
-                <!-- exclusions from LuxDB -->
-                <exclusions>
-                    <exclusion>
-                        <artifactId>wstx-asl</artifactId>
-                        <groupId>org.codehaus.woodstox</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>slf4j-jdk14</artifactId>
-                        <groupId>org.slf4j</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>velocity-tools</artifactId>
-                        <groupId>org.apache.velocity</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>hadoop-annotations</artifactId>
-                        <groupId>org.apache.hadoop</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>ddf.platform.solr</groupId>
                 <artifactId>solr-factory</artifactId>
                 <version>${project.version}</version>
@@ -474,30 +438,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codice</groupId>
-                <artifactId>lux</artifactId>
-                <version>${lux.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.solr</groupId>
-                        <artifactId>solr-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!--
-                Important: version 2.1.4 of restlet is being used to address security vulnerabilities CVE-2013-4221 and
-                CVE-2013-4271. As these are Solr transitive dependencies, the restlet dependencies should be removed
-                when the version of Solr is updated (see DDF-1203).
-            -->
-            <dependency>
-                <groupId>org.restlet.jee</groupId>
-                <artifactId>org.restlet</artifactId>
-                <version>${restlet.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.restlet.jee</groupId>
-                <artifactId>org.restlet.ext.servlet</artifactId>
-                <version>${restlet.version}</version>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-dependencies</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.content.core</groupId>

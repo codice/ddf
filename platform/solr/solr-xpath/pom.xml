@@ -13,19 +13,51 @@
  **/
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
+        <groupId>ddf.platform.solr</groupId>
         <artifactId>solr</artifactId>
-        <groupId>ddf.solr</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>ddf.platform.solr</groupId>
     <artifactId>solr-xpath</artifactId>
     <name>DDF :: Platform :: Solr :: XPath</name>
     <description>Solr query parser to support XPath queries using a LuxDB.</description>
     <packaging>jar</packaging>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>org.codice:lux</include>
+                            <include>net.sf.saxon:Saxon-HE</include>
+                            <include>org.codehaus.woodstox:stax2-api</include>
+                            <include>org.codehaus.woodstox:woodstox-core-asl</include>
+                        </includes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

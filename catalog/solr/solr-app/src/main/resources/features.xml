@@ -32,6 +32,31 @@
              description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}</bundle>
+
+        <configfile finalname="/data/solr/metacard/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/solrconfig-inmemory.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig-inmemory
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
     </feature>
 
     <feature name="catalog-solr-external-provider" install="manual" version="${project.version}"
@@ -39,12 +64,24 @@
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}</bundle>
 
-        <configfile finalname="/data/solr/catalog/conf/solrcatalogconfig.xml">mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}/xml/solrcatalogconfig</configfile>
-        <configfile finalname="/data/solr/catalog/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/catalog/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/catalog/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/catalog/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/catalog/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/catalog/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/catalog/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/catalog/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/catalog/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/catalog/conf/stopwords.txt"
+                >mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/catalog/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
     </feature>
 
 	<feature name="solr-app" install="auto" version="${project.version}"

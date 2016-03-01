@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
+import org.codice.solr.factory.EmbeddedSolrFactory;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -97,7 +97,7 @@ public abstract class SolrProviderTestCase {
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
                 ConfigurationStore.getInstance());
 
-        provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
+        provider = new SolrCatalogProvider(EmbeddedSolrFactory.getEmbeddedSolrServer(
                 "solrconfig-inmemory.xml",
                 "schema.xml",
                 configurationFileProxy),

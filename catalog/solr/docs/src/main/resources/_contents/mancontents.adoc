@@ -42,7 +42,7 @@ The configurable properties for this SCP are accessed from the Catalog External
 |HTTP URL
 |`url`
 |String
-|HTTP URL of the standalone, preconfigured Solr 4.x Server.
+|HTTP URL of the standalone, preconfigured Solr Server.
 |\https://localhost:8993/solr
 |Yes
 
@@ -72,7 +72,7 @@ Forcing auto-commit makes the search results visible immediately.
 ==== Using
 
 The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store.
-It is a local instance that is a lightweight solution that works out of the box without any configuration. However, it does not provide a http://wiki.apache.org/solr/SolrAdminGUI[Solr Admin GUI] or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
+It is a local instance that is a lightweight Catalog provider solution. However, it does not provide a Solr Admin GUI or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
 
 ==== Installing and Uninstalling
 
@@ -211,38 +211,7 @@ If clustering is necessary, the Solr Server application can run alongside the Pl
 
 ==== Installing
 
-By default, the features for the Embedded Solr Server configuration are installed, so the `catalog-solr-embedded-provider` feature must be uninstalled and the `catalog-solr-server` feature installed at \https://localhost:8993/solr.
-This feature is included out of the box in the current distribution.
-Installing the feature will copy the Solr configuration files in the distribution home directory then deploy the configured Solr war.
-Verification that the server started correctly can be performed by visiting the Solr Admin interface.
-
-[NOTE]
-====
-These Installation steps are the same whether {branding} was installed from a distribution zip or a custom installation using the {branding} Kernel zip.
-====
-
-==== Verifying
-
-To verify if the {branding} Solr Catalog application was successfully installed for the Standalone Solr Server configuration, verify the appropriate features have been successfully installed.
-The features `catalog-solr-external-provider` and `catalog-solr-embedded-provider` should be uninstalled.
-
-.{branding} Solr Catalog Application installed features for Standalone Solr configuration
-----
-ddf@local>features:list | grep catalog-solr-app
-[uninstalled] [2.3.0] catalog-solr-embedded-provider catalog-solr-app-2.3.0    Catalog Provider with locally Embedded Solr Server, implemented using Solr 4.1.0.
-[uninstalled] [2.3.0] catalog-solr-external-provider catalog-solr-app-2.3.0    Catalog Provider to interface with an external Solr 4.1.0 Server
-[installed  ] [2.3.0] catalog-solr-server            catalog-solr-app-2.3.0    Deploys and starts a preconfigured Solr War into this container
-----
-
-Verify the {branding} Solr Catalog Application bundles are Active for the Standalone Solr Server:
-
-.{branding} Solr Catalog Application's active bundles for Standalone Solr Server configuration
-----
-ddf@local>list | grep -i solr
-[ 115] [Active     ] [            ] [       ] [   80] Apache ServiceMix :: Bundles :: SolrJ (0.3.0.2)
-[ 117] [Installed  ] [            ] [       ] [   80] DDF :: Catalog :: Solr :: Embedded :: Provider (2.3.0)
-[ 118] [Active     ] [            ] [       ] [   80] DDF :: Catalog :: Solr :: Server :: Standalone War (2.3.0)
-----
+By default, the features for the Standalone Solr Server and External Solr Catalog Provider are installed.
 
 ===== Remove Data from Solr Core
 
