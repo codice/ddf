@@ -12,6 +12,7 @@
 
 var es = require('event-stream')
 var combine = require('stream-combiner')
+var p = require('path')
 
 var notNull = function (o) { return o !== null }
 var notUndefined = function (o) { return o !== undefined }
@@ -91,6 +92,21 @@ var makeDep = function ($) {
 module.exports = function (load, options) {
   var opts = options || {}
 
+  var findMavenRoot = function (path) {
+    var found = false
+
+    return path
+      .split(p.sep)
+      .filter(function (dir) {
+        if (dir === 'src') {
+          found = true
+        }
+
+        return !found
+      })
+      .join(p.sep)
+  }
+
   // filter out unneeded dependencies
   var exclude = function (dep) {
     var match = function (matchers, field) {
@@ -118,7 +134,7 @@ module.exports = function (load, options) {
   var findDeps = function () {
     var findPom = function (path) {
       if (path.match('features.xml')) {
-        return path.replace(/src\/.+/, 'pom.xml')
+        return p.join(findMavenRoot(path), 'pom.xml')
       }
       return path
     }
