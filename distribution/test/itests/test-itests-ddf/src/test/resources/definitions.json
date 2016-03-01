@@ -1,0 +1,47 @@
+{
+  "metacardTypes": [
+    {
+      "type": "new.metacard.type",
+      "attributes": {
+        "title": {
+          "required": true
+        },
+        "point-of-contact": {
+          "required": true
+        },
+        "new-attribute-notrequired": {
+          "required": false
+        },
+        "new-attribute-required-1": {
+          "required": true
+        },
+        "new-attribute-required-2": {
+          "required": true
+        }
+      }
+    }
+  ],
+  "attributeTypes": {
+    "new-attribute-notrequired": {
+      "type": "STRING_TYPE",
+      "indexed": true,
+      "stored": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "new-attribute-required-1": {
+      "type": "STRING_TYPE",
+      "indexed": true,
+      "stored": true,
+      "tokenized": false,
+      "multivalued": false
+    },
+    "new-attribute-required-2": {
+      "type": "STRING_TYPE",
+      "indexed": true,
+      "stored": true,
+      "tokenized": false,
+      "multivalued": false
+    }
+  }
+}
