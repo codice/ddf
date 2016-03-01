@@ -19,9 +19,12 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +34,7 @@ import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.util.impl.Requests;
 
 /**
  * The CatalogBackupPlugin backups up metacards to the file system. It is a
@@ -51,55 +52,32 @@ import ddf.catalog.util.impl.Requests;
 
 public class CatalogBackupPlugin implements PostIngestPlugin {
 
+    public static final String CREATE = "CREATE";
+
+    public static final String DELETE = "DELETE";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogBackupPlugin.class);
 
     private static final String TEMP_FILE_EXTENSION = ".tmp";
 
-    private File rootBackupDir;
+    private long terminationTimeoutSeconds;
 
     private int subDirLevels;
 
-    private boolean enableBackupPlugin = true;
+    private File rootBackupDir;
 
-    public CatalogBackupPlugin() {
-        subDirLevels = 0;
-    }
+    private ExecutorService executor;
 
     /**
      * Backs up created metacards to the file system backup.
      *
      * @param input the {@link CreateResponse} to process
-     * @return
-     * @throws PluginExecutionException
+     * @return {@link CreateResponse}
      */
     @Override
-    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.debug("Performing backup of metacards in CreateResponse.");
+    public CreateResponse process(CreateResponse input) {
 
-            if (rootBackupDir == null) {
-                throw new PluginExecutionException("No root backup directory configured.");
-            }
-
-            List<String> errors = new ArrayList<String>();
-
-            List<Metacard> metacards = input.getCreatedMetacards();
-
-            for (Metacard metacard : metacards) {
-                try {
-                    backupMetacard(metacard);
-                } catch (IOException e) {
-                    errors.add(metacard.getId());
-                }
-            }
-
-            if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(),
-                        null,
-                        errors,
-                        OPERATION.CREATE));
-            }
-        }
+        execute(() -> create(input.getCreatedMetacards()));
         return input;
     }
 
@@ -107,59 +85,20 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * Backs up updated metacards to the file system backup.
      *
      * @param input the {@link UpdateResponse} to process
-     * @return
-     * @throws PluginExecutionException
+     * @return {@link UpdateResponse}
      */
     @Override
-    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.debug("Updating metacards contained in UpdateResponse in backup.");
-
-            if (rootBackupDir == null) {
-                throw new PluginExecutionException("No root backup directory configured.");
-            }
-
-            List<String> deleteErrors = new ArrayList<String>();
-            List<String> backupErrors = new ArrayList<String>();
-
-            List<Update> updates = input.getUpdatedMetacards();
-
-            for (Update update : updates) {
-                try {
-                    deleteMetacard(update.getOldMetacard());
-                } catch (IOException e) {
-                    deleteErrors.add(update.getOldMetacard()
-                            .getId());
-                }
-
-                try {
-                    backupMetacard(update.getNewMetacard());
-                } catch (IOException e) {
-                    backupErrors.add(update.getNewMetacard()
-                            .getId());
-                }
-            }
-
-            String exceptionMessage = null;
-
-            if (deleteErrors.size() > 0) {
-                exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        exceptionMessage,
-                        deleteErrors,
-                        OPERATION.DELETE);
-            }
-
-            if (backupErrors.size() > 0) {
-                exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(),
-                        exceptionMessage,
-                        backupErrors,
-                        OPERATION.CREATE);
-            }
-
-            if (deleteErrors.size() > 0 || backupErrors.size() > 0) {
-                throw new PluginExecutionException(exceptionMessage);
-            }
+    public UpdateResponse process(UpdateResponse input) {
+        int size = input.getUpdatedMetacards()
+                .size();
+        List<Metacard> toDelete = new ArrayList<>(size);
+        List<Metacard> toCreate = new ArrayList<>(size);
+        for (Update update : input.getUpdatedMetacards()) {
+            toDelete.add(update.getOldMetacard());
+            toCreate.add(update.getNewMetacard());
         }
+        execute(() -> delete(toDelete));
+        execute(() -> create(toCreate));
         return input;
     }
 
@@ -167,57 +106,13 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * Removes deleted metacards from the file system backup.
      *
      * @param input the {@link DeleteResponse} to process
-     * @return
-     * @throws PluginExecutionException
+     * @return {@link DeleteResponse}
      */
     @Override
-    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        if (enableBackupPlugin && Requests.isLocal(input.getRequest())) {
-            LOGGER.debug("Deleting metacards contained in DeleteResponse from backup.");
+    public DeleteResponse process(DeleteResponse input) {
 
-            if (rootBackupDir == null) {
-                throw new PluginExecutionException("No root backup directory configured.");
-            }
-
-            List<String> errors = new ArrayList<String>();
-
-            List<Metacard> metacards = input.getDeletedMetacards();
-
-            for (Metacard metacard : metacards) {
-                try {
-                    deleteMetacard(metacard);
-                } catch (IOException e) {
-                    errors.add(metacard.getId());
-                }
-            }
-
-            if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(DeleteResponse.class.getSimpleName(),
-                        null,
-                        errors,
-                        OPERATION.DELETE));
-            }
-        }
+        execute(() -> delete(input.getDeletedMetacards()));
         return input;
-    }
-
-    public void setEnableBackupPlugin(boolean enablePlugin) {
-        enableBackupPlugin = enablePlugin;
-    }
-
-    /**
-     * Sets the root file system backup directory.
-     *
-     * @param dir absolute path for the root file system backup directory.
-     */
-    public void setRootBackupDir(String dir) {
-        if (StringUtils.isBlank(dir)) {
-            LOGGER.error("The root backup directory is blank.");
-            return;
-        }
-
-        this.rootBackupDir = new File(dir);
-        LOGGER.debug("Set root backup directory to: {}", this.rootBackupDir.toString());
     }
 
     /**
@@ -227,20 +122,117 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * @param levels number of subdirectory levels to create
      */
     public void setSubDirLevels(int levels) {
+        Validate.isTrue(levels >= 0,
+                "Depth of directory hierarchy for the catalog backup plugin must be zero or greater. Actual vaule was ",
+                levels);
         this.subDirLevels = levels;
-        LOGGER.debug("Set subdirectory levels to: {}", this.subDirLevels);
     }
 
-    private void backupMetacard(Metacard metacard) throws IOException {
+    /**
+     * @throws IllegalStateException will be thrown if the tasks in the queue have not
+     *                               completed before the awaitTermination message times out
+     */
+    public void shutdown() {
+
+        getExecutor().shutdown();
+        if (!executor.isShutdown()) {
+            try {
+                executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS);
+                // If the remaining jobs in the queue are not completed TERMINATION_TIMEOUT elapses
+                // The JVM will throw an Interrupted Exception.
+            } catch (InterruptedException e) {
+                LOGGER.warn(
+                        "Backup of metacards interrupted. Some metacards might not be backed up.");
+                throw new IllegalStateException(e);
+            }
+            final List<Runnable> failures = executor.shutdownNow();
+            if (failures.size() > 0) {
+                LOGGER.warn(
+                        "Cancelled tasks to backup metacards. Some metacards might not be backed up.");
+            }
+        }
+    }
+
+    /**
+     * Sets the root file system backup directory.
+     *
+     * @param dir absolute path for the root file system backup directory.
+     */
+    public void setRootBackupDir(String dir) {
+        Validate.notNull(dir);
+        File directory = new File(dir);
+        validateDirectory(directory);
+        this.rootBackupDir = directory;
+    }
+
+    ExecutorService getExecutor() {
+        return executor;
+    }
+
+    void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    private synchronized void execute(Runnable task) {
+
+        executor.execute(task);
+    }
+
+    private void create(List<Metacard> metacards) {
+
+        List<String> errors = new ArrayList<>();
+        for (Metacard metacard : metacards) {
+            try {
+                createFile(metacard);
+            } catch (RuntimeException | IOException e) {
+                errors.add(metacard.getId());
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            LOGGER.debug(getExceptionMessage(errors, CREATE));
+        }
+    }
+
+    private void delete(List<Metacard> cards) {
+        List<String> errors = new ArrayList<>();
+        for (Metacard metacard : cards) {
+            try {
+                deleteFile(metacard);
+            } catch (IOException | RuntimeException e) {
+                errors.add(metacard.getId());
+            }
+        }
+
+        if (errors.size() > 0) {
+            LOGGER.warn(getExceptionMessage(errors, DELETE));
+        }
+    }
+
+    private void removeTempExtension(File source) throws IOException {
+        File destination = new File(StringUtils.removeEnd(source.getAbsolutePath(),
+                TEMP_FILE_EXTENSION));
+        boolean success = source.renameTo(destination);
+        if (!success) {
+            LOGGER.warn("Failed to move {} to {}.",
+                    source.getAbsolutePath(),
+                    destination.getAbsolutePath());
+        }
+    }
+
+    private String getExceptionMessage(List<String> metacardsIdsInError, String operation) {
+
+        return "Catalog Backup Plugin processing error." + " " + "Unable to " + operation
+                + " metacard(s) [" + StringUtils.join(metacardsIdsInError, ",") + "]. ";
+    }
+
+    private void createFile(Metacard metacard) throws IOException {
 
         // Write metacard to a temp file. When write is complete, rename (remove
         // temp extension).
         File tempFile = getTempFile(metacard);
 
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(tempFile))) {
-            LOGGER.debug("Writing temp metacard [{}] to [{}].",
-                    tempFile.getName(),
-                    tempFile.getParent());
             oos.writeObject(new MetacardImpl(metacard));
         }
 
@@ -253,7 +245,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * @param metacard the metacard to be deleted.
      * @throws IOException
      */
-    private void deleteMetacard(Metacard metacard) throws IOException {
+    private void deleteFile(Metacard metacard) throws IOException {
         File metacardToDelete = getBackupFile(metacard);
         FileUtils.forceDelete(metacardToDelete);
     }
@@ -264,7 +256,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * complete. This makes it easy to find and remove failed files.
      *
      * @param metacard the metacard to create a temp file for.
-     * @return
+     * @return File
      * @throws IOException
      */
     private File getTempFile(Metacard metacard) throws IOException {
@@ -277,9 +269,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         File parent = rootBackupDir;
         int levels = this.subDirLevels;
 
-        if (this.subDirLevels < 0) {
-            levels = 0;
-        } else if (metacardId.length() == 1 || metacardId.length() < this.subDirLevels * 2) {
+        if (metacardId.length() == 1 || metacardId.length() < levels * 2) {
             levels = (int) Math.floor(metacardId.length() / 2);
         }
 
@@ -288,76 +278,23 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             FileUtils.forceMkdir(parent);
         }
 
-        LOGGER.debug("Backup directory for metacard  [{}] is [{}].",
-                metacard.getId(),
-                parent.getAbsolutePath());
         return new File(parent, metacardId);
     }
 
-    /**
-     * Removed the temp file extension off of the backed up metacard.
-     *
-     * @param source the backed up metacard file in which the temp file extension
-     *               is to be removed.
-     * @throws IOException
-     */
-    private void removeTempExtension(File source) throws IOException {
-        LOGGER.debug("Removing {} file extension.", TEMP_FILE_EXTENSION);
-        File destination = new File(StringUtils.removeEnd(source.getAbsolutePath(),
-                TEMP_FILE_EXTENSION));
-        boolean success = source.renameTo(destination);
-        if (success) {
-            LOGGER.debug("Moved {} to {}.",
-                    source.getAbsolutePath(),
-                    destination.getAbsolutePath());
-        } else {
-            LOGGER.debug("Failed to move {} to {}.",
-                    source.getAbsolutePath(),
-                    destination.getAbsolutePath());
+    private void validateDirectory(File directory) {
+
+        if (!(directory.isDirectory() && directory.canWrite())) {
+            throw new IllegalArgumentException("Directory " + directory.getAbsolutePath()
+                    + " does not exist or is not writable");
         }
     }
 
-    /**
-     * Gets an exception message
-     *
-     * @param previousExceptionMessage the previous exception message that we wish to append to
-     * @param metacardsIdsInError      the metacard IDs that processed in error
-     * @param operation                the operation being performed
-     * @return the updated exception message
-     */
-    private String getExceptionMessage(String responseType, String previousExceptionMessage,
-            List<String> metacardsIdsInError, OPERATION operation) {
-        StringBuilder builder = new StringBuilder();
-
-        if (StringUtils.isNotBlank(previousExceptionMessage)) {
-            builder.append(previousExceptionMessage);
-            builder.append(" ");
-        }
-
-        builder.append("Error processing ");
-        builder.append(responseType);
-        builder.append(". ");
-
-        switch (operation) {
-        case CREATE:
-            builder.append("Unable to backup metacard(s) [");
-            builder.append(StringUtils.join(metacardsIdsInError, ","));
-            builder.append("]. ");
-            break;
-        case DELETE:
-            builder.append("Unable to delete metacard(s) [");
-            builder.append(StringUtils.join(metacardsIdsInError, ","));
-            builder.append("] from backup. ");
-            break;
-        default:
-            LOGGER.debug("No specific error message details for operation {}", operation);
-        }
-        return builder.toString();
+    public long getTerminationTimeoutSeconds() {
+        return terminationTimeoutSeconds;
     }
 
-    private enum OPERATION {
-        CREATE,
-        DELETE
+    public void setTerminationTimeoutSeconds(long terminationTimeoutSeconds) {
+        this.terminationTimeoutSeconds = terminationTimeoutSeconds;
     }
-
 }
+
