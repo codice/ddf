@@ -17,6 +17,8 @@ package org.codice.ddf.security.certificate.generator;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
+import ddf.security.SecurityConstants;
+
 public class CertificateCommand {
 
     /**
@@ -64,8 +66,8 @@ public class CertificateCommand {
     }
 
     protected static KeyStoreFile getKeyStoreFile() {
-        return KeyStoreFile.openFile(System.getProperty("javax.net.ssl.keyStore"),
-                System.getProperty("javax.net.ssl.keyStorePassword")
+        return KeyStoreFile.openFile(SecurityConstants.getKeystorePath(),
+                SecurityConstants.getKeystorePassword()
                         .toCharArray());
     }
 

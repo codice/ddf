@@ -80,6 +80,8 @@ import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.SecurityConstants;
+
 public class KeystoreEditor implements KeystoreEditorMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeystoreEditor.class);
@@ -112,15 +114,15 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
     private void init() {
         try {
-            keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
-            trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+            keyStore = SecurityConstants.newKeystore();
+            trustStore = SecurityConstants.newTruststore();
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to create keystore instance of type {}",
-                    System.getProperty("javax.net.ssl.keyStoreType"),
+                    System.getProperty(SecurityConstants.KEYSTORE_TYPE),
                     e);
         }
-        Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
-        Path trustStoreFile = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+        Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
+        Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
         Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
         if (!keyStoreFile.isAbsolute()) {
             keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
@@ -128,8 +130,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         if (!trustStoreFile.isAbsolute()) {
             trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
         }
-        String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
-        String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
+        String keyStorePassword = SecurityConstants.getKeystorePassword();
+        String trustStorePassword = SecurityConstants.getTruststorePassword();
         if (!Files.isReadable(keyStoreFile) || !Files.isReadable(trustStoreFile)) {
             LOGGER.error("Unable to read system key/trust store files: [ {} ] [ {} ]",
                     keyStoreFile,
@@ -224,12 +226,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             String type, String fileName) throws KeystoreEditorException {
         LOGGER.info("Adding alias {} to private key", alias);
         LOGGER.trace("Received data {}", data);
-        Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+        Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
         if (!keyStoreFile.isAbsolute()) {
             Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
             keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
         }
-        String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
+        String keyStorePassword = SecurityConstants.getKeystorePassword();
         addToStore(alias,
                 keyPassword,
                 storePassword,
@@ -246,12 +248,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
             String data, String type, String fileName) throws KeystoreEditorException {
         LOGGER.info("Adding alias {} to trust store", alias);
         LOGGER.trace("Received data {}", data);
-        Path trustStoreFile = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+        Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
         if (!trustStoreFile.isAbsolute()) {
             Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
             trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
         }
-        String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
+        String trustStorePassword = SecurityConstants.getTruststorePassword();
         addToStore(alias,
                 keyPassword,
                 storePassword,
@@ -613,24 +615,24 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     @Override
     public void deletePrivateKey(String alias) {
         LOGGER.info("Removing {} from System keystore.", alias);
-        Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+        Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
         if (!keyStoreFile.isAbsolute()) {
             Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
             keyStoreFile = Paths.get(ddfHomePath.toString(), keyStoreFile.toString());
         }
-        String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
+        String keyStorePassword = SecurityConstants.getKeystorePassword();
         deleteFromStore(alias, keyStoreFile.toString(), keyStorePassword, keyStore);
     }
 
     @Override
     public void deleteTrustedCertificate(String alias) {
         LOGGER.info("Removing {} from System truststore.", alias);
-        Path trustStoreFile = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+        Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
         if (!trustStoreFile.isAbsolute()) {
             Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
             trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
         }
-        String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
+        String trustStorePassword = SecurityConstants.getTruststorePassword();
         deleteFromStore(alias, trustStoreFile.toString(), trustStorePassword, trustStore);
     }
 

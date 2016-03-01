@@ -13,6 +13,9 @@
  */
 package ddf.security;
 
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+
 public final class SecurityConstants {
     /**
      * String used to retrieve the security logger in each class that wishes to
@@ -66,6 +69,50 @@ public final class SecurityConstants {
     public static final String TRUSTSTORE_PATH = "javax.net.ssl.trustStore";
 
     public static final String TRUSTSTORE_TYPE = "javax.net.ssl.trustStoreType";
+
+    /**
+     * Helper method for retrieving the keystore
+     *
+     * @return The path to the keystore
+     */
+    public static String getKeystorePath() {
+        return System.getProperty(KEYSTORE_PATH);
+    }
+
+    /**
+     * Helper method for retrieving the keystore password
+     *
+     * @return The keystore password
+     */
+    public static String getKeystorePassword() {
+        return System.getProperty(KEYSTORE_PASSWORD);
+    }
+
+    /**
+     * Helper method for retrieving the truststore
+     *
+     * @return The path to the truststore
+     */
+    public static String getTruststorePath() {
+        return System.getProperty(TRUSTSTORE_PATH);
+    }
+
+    /**
+     * Helper method for retrieving the truststore password
+     *
+     * @return The truststore password
+     */
+    public static String getTruststorePassword() {
+        return System.getProperty(TRUSTSTORE_PASSWORD);
+    }
+
+    public static KeyStore newKeystore() throws KeyStoreException {
+        return KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
+    }
+
+    public static KeyStore newTruststore() throws KeyStoreException {
+        return KeyStore.getInstance(System.getProperty(SecurityConstants.TRUSTSTORE_TYPE));
+    }
 
     private SecurityConstants() {
 
