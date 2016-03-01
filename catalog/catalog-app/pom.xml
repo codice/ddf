@@ -412,5 +412,15 @@
             <artifactId>catalog-transformer-pdf</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.security</groupId>
+            <artifactId>catalog-security-metacardattributeplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.security</groupId>
+            <artifactId>catalog-security-xmlattributeplugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
