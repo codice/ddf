@@ -20,6 +20,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import org.codice.ddf.migration.ExportMigrationException;
@@ -39,20 +41,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opengis.filter.Filter;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CatalogMigratableImplTest {
@@ -66,7 +69,7 @@ public class CatalogMigratableImplTest {
     private CatalogMigratableConfig config;
 
     @Mock
-    private CatalogProvider provider;
+    private CatalogFramework framework;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private FilterBuilder filterBuilder;
@@ -79,13 +82,18 @@ public class CatalogMigratableImplTest {
     @Mock
     MigrationTaskManager taskManager;
 
+    @Mock
+    Subject mockSubject;
+
     private List<Result> results;
 
+    private boolean isAdminRole;
+
     private class CatalogMigratableImplUnderTest extends CatalogMigratableImpl {
-        public CatalogMigratableImplUnderTest(String description, CatalogProvider provider,
+        public CatalogMigratableImplUnderTest(String description, CatalogFramework framework,
                 FilterBuilder filterBuilder, MigrationFileWriter fileWriter,
                 CatalogMigratableConfig config) {
-            super(description, provider, filterBuilder, fileWriter, config);
+            super(description, framework, filterBuilder, fileWriter, config);
         }
 
         @Override
@@ -99,12 +107,24 @@ public class CatalogMigratableImplTest {
                 ExecutorService executorService) {
             return taskManager;
         }
+
+        @Override
+        Subject retrieveSystemSubject() {
+            return mockSubject;
+        }
+
+        @Override
+        boolean verifyAdminRole() {
+            return isAdminRole;
+        }
     }
 
     @Before
     public void setup() throws Exception {
         config = new CatalogMigratableConfig();
         config.setExportQueryPageSize(2);
+
+        isAdminRole = true;
 
         when(filterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
@@ -113,14 +133,14 @@ public class CatalogMigratableImplTest {
 
         results = Collections.singletonList(mock(Result.class));
 
-        SourceResponse response = mock(SourceResponse.class);
-        when(provider.query(any())).thenReturn(response);
+        QueryResponse response = mock(QueryResponse.class);
+        when(framework.query(any())).thenReturn(response);
         when(response.getResults()).thenReturn(results);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullDescription() {
-        new CatalogMigratableImpl(null, provider, filterBuilder, fileWriter, config);
+        new CatalogMigratableImpl(null, framework, filterBuilder, fileWriter, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -130,23 +150,23 @@ public class CatalogMigratableImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFilterBuilder() {
-        new CatalogMigratableImpl(DESCRIPTION, provider, null, fileWriter, config);
+        new CatalogMigratableImpl(DESCRIPTION, framework, null, fileWriter, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFileWriter() {
-        new CatalogMigratableImpl(DESCRIPTION, provider, filterBuilder, null, config);
+        new CatalogMigratableImpl(DESCRIPTION, framework, filterBuilder, null, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfig() {
-        new CatalogMigratableImpl(DESCRIPTION, provider, filterBuilder, fileWriter, null);
+        new CatalogMigratableImpl(DESCRIPTION, framework, filterBuilder, fileWriter, null);
     }
 
     @Test
     public void exportSetsSubDirectory() {
-        CatalogMigratableImpl migratable = new CatalogMigratableImpl(DESCRIPTION,
-                provider,
+        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
@@ -159,18 +179,12 @@ public class CatalogMigratableImplTest {
     @Test
     public void exportUsesRightQuerySettings() throws Exception {
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
         migratable.export(EXPORT_PATH);
-
-        ArgumentCaptor<QueryRequest> queryRequest = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(provider).query(queryRequest.capture());
-
-        QueryRequest queryRequestValue = queryRequest.getValue();
-        assertThat(queryRequestValue.getPropertyValue("mode"), is("native"));
 
         verify(query).setPageSize(config.getExportQueryPageSize());
         verify(query).setRequestsTotalResultsCount(false);
@@ -179,7 +193,7 @@ public class CatalogMigratableImplTest {
     @Test
     public void exportFileWriterCreatesExportDirectory() {
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
@@ -190,38 +204,43 @@ public class CatalogMigratableImplTest {
 
     @Test(expected = ExportMigrationException.class)
     public void exportWhenResponseIsNull() throws Exception {
-        when(provider.query(any())).thenReturn(null);
+        when(framework.query(any())).thenReturn(null);
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
-        migratable.export(EXPORT_PATH);
+        CatalogMigratableImpl.CatalogMigrationRunner runner = migratable.new CatalogMigrationRunner(
+                mock(QueryImpl.class),
+                mock(QueryRequestImpl.class));
+        runner.call();
     }
 
     @Test(expected = ExportMigrationException.class)
     public void exportWhenResultSetIsNull() throws Exception {
-        when(provider.query(any())
+        when(framework.query(any())
                 .getResults()).thenReturn(null);
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
-        migratable.export(EXPORT_PATH);
+        CatalogMigratableImpl.CatalogMigrationRunner runner = migratable.new CatalogMigrationRunner(
+                mock(QueryImpl.class),
+                mock(QueryRequestImpl.class));
+        runner.call();
     }
 
-    @Test
-    public void exportWhenResultSetIsEmpty() throws Exception {
-        when(provider.query(any())
-                .getResults()).thenReturn(new ArrayList<>());
+    @Test(expected = ExportMigrationException.class)
+    public void exportWhenExecuteThrowsRuntime() throws Exception {
+        when(mockSubject.execute(any(Callable.class))).thenThrow(RuntimeException.class);
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
@@ -232,6 +251,23 @@ public class CatalogMigratableImplTest {
         verifyNoMoreInteractions(taskManager);
 
         assertThat(metadata.getMigrationWarnings(), is(empty()));
+    }
+
+    @Test
+    public void exportWhenResultSetIsEmpty() throws Exception {
+        when(framework.query(any())
+                .getResults()).thenReturn(new ArrayList<>());
+        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
+                framework,
+                filterBuilder,
+                fileWriter,
+                config);
+        QueryRequestImpl mockQueryRequest = mock(QueryRequestImpl.class);
+        CatalogMigratableImpl.CatalogMigrationRunner runner = migratable.new CatalogMigrationRunner(
+                mock(QueryImpl.class),
+                mockQueryRequest);
+        runner.call();
+        verify(framework, times(1)).query(mockQueryRequest);
     }
 
     @Test
@@ -240,18 +276,23 @@ public class CatalogMigratableImplTest {
         setupProviderResponses(result1, Collections.emptyList());
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
-        MigrationMetadata metadata = migratable.export(EXPORT_PATH);
+        QueryRequestImpl mockQueryRequest = mock(QueryRequestImpl.class);
+        CatalogMigratableImpl.CatalogMigrationRunner runner = migratable.new CatalogMigrationRunner(
+                mock(QueryImpl.class),
+                mockQueryRequest);
+
+        migratable.export(EXPORT_PATH);
+        runner.call();
 
         verify(taskManager).exportMetacardQuery(result1, 1);
         verify(taskManager).exportFinish();
         verifyNoMoreInteractions(taskManager);
-
-        assertThat(metadata.getMigrationWarnings(), is(empty()));
+        verify(framework, times(2)).query(mockQueryRequest);
     }
 
     @Test
@@ -261,12 +302,16 @@ public class CatalogMigratableImplTest {
         setupProviderResponses(result1, result2);
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
         MigrationMetadata metadata = migratable.export(EXPORT_PATH);
+        CatalogMigratableImpl.CatalogMigrationRunner runner = migratable.new CatalogMigrationRunner(
+                query,
+                mock(QueryRequestImpl.class));
+        runner.call();
 
         verify(taskManager).exportMetacardQuery(result1, 1);
         verify(query).setStartIndex(config.getExportQueryPageSize() + 1);
@@ -276,7 +321,7 @@ public class CatalogMigratableImplTest {
         assertThat(metadata.getMigrationWarnings(), is(empty()));
     }
 
-    @Test(expected = ExportMigrationException.class)
+    @Test(expected = RuntimeException.class)
     public void exportStopsWhenExportMetacardFails() throws Exception {
         List<Result> result1 = Arrays.asList(mock(Result.class), mock(Result.class));
         List<Result> result2 = Collections.singletonList(mock(Result.class));
@@ -286,13 +331,17 @@ public class CatalogMigratableImplTest {
                 .exportMetacardQuery(result1, 1);
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
         try {
             migratable.export(EXPORT_PATH);
+            CatalogMigratableImpl.CatalogMigrationRunner runner =
+                    migratable.new CatalogMigrationRunner(mock(QueryImpl.class),
+                            mock(QueryRequestImpl.class));
+            runner.call();
         } finally {
             verify(taskManager).exportMetacardQuery(result1, 1);
             verify(taskManager).exportFinish();
@@ -300,52 +349,40 @@ public class CatalogMigratableImplTest {
         }
     }
 
-    @Test(expected = ExportMigrationException.class)
-    public void exportWhenProviderQueryFails() throws UnsupportedQueryException {
-        when(provider.query(any())).thenThrow(new UnsupportedQueryException(""));
+    @Test(expected = RuntimeException.class)
+    public void exportWhenProviderQueryFails() throws Exception {
+        when(framework.query(any())).thenThrow(new UnsupportedQueryException(""));
 
         CatalogMigratableImpl migratable = new CatalogMigratableImpl(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
         migratable.export(EXPORT_PATH);
+        CatalogMigratableImpl.CatalogMigrationRunner runner = migratable.new CatalogMigrationRunner(
+                mock(QueryImpl.class),
+                mock(QueryRequestImpl.class));
+        runner.call();
     }
 
-    @Test(expected = MigrationException.class)
-    public void exportWhenExportMetacardFailsWithMigrationException() {
+    @Test(expected = RuntimeException.class)
+    public void exportWhenExportMetacardFailsWithMigrationException() throws Exception {
         doThrow(new MigrationException("")).when(taskManager)
                 .exportMetacardQuery(results, 1);
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
         try {
             migratable.export(EXPORT_PATH);
-        } finally {
-            verify(taskManager).exportMetacardQuery(results, 1);
-            verify(taskManager).exportFinish();
-            verifyNoMoreInteractions(taskManager);
-        }
-    }
-
-    @Test(expected = MigrationException.class)
-    public void exportWhenExportMetacardThrowsRuntimeException() {
-        doThrow(new RuntimeException()).when(taskManager)
-                .exportMetacardQuery(results, 1);
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
-                filterBuilder,
-                fileWriter,
-                config);
-
-        try {
-            migratable.export(EXPORT_PATH);
+            CatalogMigratableImpl.CatalogMigrationRunner runner =
+                    migratable.new CatalogMigrationRunner(mock(QueryImpl.class),
+                            mock(QueryRequestImpl.class));
+            runner.call();
         } finally {
             verify(taskManager).exportMetacardQuery(results, 1);
             verify(taskManager).exportFinish();
@@ -359,7 +396,7 @@ public class CatalogMigratableImplTest {
                 .exportFinish();
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
@@ -367,25 +404,39 @@ public class CatalogMigratableImplTest {
         migratable.export(EXPORT_PATH);
     }
 
-    @Test(expected = ExportMigrationException.class)
-    public void exportWhenTaskManagerFinishFailsWithRuntimeException() {
-        doThrow(new RuntimeException()).when(taskManager)
-                .exportFinish();
+    @Test(expected = MigrationException.class)
+    public void exportWhenNullSubject() throws Exception {
+        mockSubject = null;
 
         CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                provider,
+                framework,
                 filterBuilder,
                 fileWriter,
                 config);
 
         migratable.export(EXPORT_PATH);
+    }
+
+    @Test
+    public void exportWhenNotAdmin() throws Exception {
+        isAdminRole = false;
+
+        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
+                framework,
+                filterBuilder,
+                fileWriter,
+                config);
+
+        MigrationMetadata metadata = migratable.export(EXPORT_PATH);
+        assertThat(metadata.getMigrationWarnings()
+                .size(), is(1));
     }
 
     private void setupProviderResponses(List<Result> result1, List<Result> result2)
-            throws UnsupportedQueryException {
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         QueryResponse response = mock(QueryResponse.class);
         when(response.getResults()).thenReturn(result1)
                 .thenReturn(result2);
-        when(provider.query(any())).thenReturn(response);
+        when(framework.query(any())).thenReturn(response);
     }
 }

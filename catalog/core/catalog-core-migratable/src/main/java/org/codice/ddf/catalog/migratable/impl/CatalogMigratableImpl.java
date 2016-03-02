@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,27 +39,33 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
+import ddf.security.common.util.Security;
 
 /**
  * Implementation of the {@link org.codice.ddf.migration.Migratable} interface used to migrate
- * the current catalog provider's {@link Metacard}s.
+ * the current catalog framework's {@link Metacard}s.
  */
 public class CatalogMigratableImpl extends AbstractMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMigratableImpl.class);
 
+    private static final String DEFAULT_FAILURE_MESSAGE = "Catalog could not export metacards";
+
     private static final String CATALOG_EXPORT_DIRECTORY = "org.codice.ddf.catalog";
 
-    private final CatalogProvider provider;
+    private final CatalogFramework framework;
 
     private final FilterBuilder filterBuilder;
 
@@ -66,43 +73,40 @@ public class CatalogMigratableImpl extends AbstractMigratable {
 
     private final CatalogMigratableConfig config;
 
-    private final MigrationTaskManager taskManager;
-
-    private long exportGroupCount;
+    private MigrationTaskManager taskManager;
 
     /**
      * Constructor.
      *
      * @param description   description of this migratable
-     * @param provider      provider used to retrieve the metacards to export
+     * @param framework     framework used to retrieve the metacards to export
      * @param filterBuilder builder used to create query filters
      * @param fileWriter    object used to write metacards to disk
      * @param config        export configuration information
      */
-    public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogProvider provider,
+    public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogFramework framework,
             @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
             @NotNull CatalogMigratableConfig config) {
         super(description, true);
 
-        notNull(provider, "CatalogProvider cannot be null");
+        notNull(framework, "CatalogFramework cannot be null");
         notNull(filterBuilder, "FilterBuilder cannot be null");
         notNull(fileWriter, "FileWriter cannot be null");
         notNull(config, "Configuration object cannot be null");
 
-        this.provider = provider;
+        this.framework = framework;
         this.filterBuilder = filterBuilder;
         this.fileWriter = fileWriter;
         this.config = config;
-
-        this.taskManager = createTaskManager(config, createExecutorService(config));
     }
 
     /**
-     * Exports all the metacards currently stored in the catalog provider.
+     * Exports all the metacards currently stored in the catalog framework.
      * <p>
      * {@inheritDoc}
      */
     public MigrationMetadata export(Path exportPath) throws MigrationException {
+        taskManager = createTaskManager(config, createExecutorService(config));
         config.setExportPath(exportPath.resolve(CATALOG_EXPORT_DIRECTORY));
         fileWriter.createExportDirectory(config.getExportPath());
 
@@ -119,34 +123,49 @@ public class CatalogMigratableImpl extends AbstractMigratable {
 
         QueryRequest exportQueryRequest = new QueryRequestImpl(exportQuery, props);
 
-        try {
-            executeQueryLoop(exportQuery, exportQueryRequest);
-        } catch (UnsupportedQueryException e) {
-            LOGGER.error("Query {} was invalid due to: {}", exportGroupCount, e.getMessage(), e);
-            throw new ExportMigrationException("Catalog could not export metacards");
-        } catch (RuntimeException e) {
-            LOGGER.error("Internal error occurred when exporting catalog: {}", e.getMessage(), e);
-            throw new ExportMigrationException("Catalog could not export metacards");
-        } finally {
+        Subject subject = retrieveSystemSubject();
+        if (subject == null) {
+            LOGGER.error("System Subject was null");
+            throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+        }
+
+        // TODO: (DDF-1914) Security will need to be removed and relocated in an upcoming ticket
+        if (!verifyAdminRole()) {
+            String adminErrorMsg =
+                    "Current user doesn't have sufficient privileges to export metacards";
+            LOGGER.warn(adminErrorMsg);
+            warnings.add(new MigrationWarning(adminErrorMsg));
+        } else {
             try {
-                taskManager.exportFinish();
+                subject.execute(new CatalogMigrationRunner(exportQuery, exportQueryRequest));
             } catch (RuntimeException e) {
-                throw new ExportMigrationException(e);
+                LOGGER.error("Internal error occurred when exporting catalog: {}",
+                        e.getMessage(),
+                        e);
+                throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+            } finally {
+                taskManager.exportFinish();
             }
         }
 
         return new MigrationMetadata(warnings);
     }
 
-    // Factory method for creating QueryImpl objects so they can be mocked later.
     QueryImpl createQuery(Filter dumpFilter) {
         return new QueryImpl(dumpFilter);
     }
 
-    // Factory method for creating MigrationTaskManager objects so they can be mocked later.
     MigrationTaskManager createTaskManager(CatalogMigratableConfig config,
             ExecutorService executorService) {
         return new MigrationTaskManager(config, fileWriter, executorService);
+    }
+
+    Subject retrieveSystemSubject() {
+        return Security.getSystemSubject();
+    }
+
+    boolean verifyAdminRole() {
+        return Security.javaSubjectHasAdminRole();
     }
 
     private ExecutorService createExecutorService(CatalogMigratableConfig config) {
@@ -160,37 +179,54 @@ public class CatalogMigratableImpl extends AbstractMigratable {
 
     private Map<String, Serializable> createMapWithNativeQueryMode() {
         Map<String, Serializable> props = new HashMap<>();
-        // Prevent the catalog provider from caching results. Be efficient.
+        // Prevent the catalog framework from caching results. Be efficient.
         props.put("mode", "native");
         return props;
     }
 
-    private void executeQueryLoop(QueryImpl exportQuery, QueryRequest exportQueryRequest)
-            throws UnsupportedQueryException {
+    class CatalogMigrationRunner implements Callable<Void> {
+        private QueryImpl exportQuery;
 
-        exportGroupCount = 1;
-        SourceResponse response;
-        List<Result> results;
+        private QueryRequest exportQueryRequest;
 
-        do {
-            response = provider.query(exportQueryRequest);
-            if (response == null) {
-                LOGGER.error("Response came back null from the query: {}");
-                throw new ExportMigrationException("Catalog could not export metacards");
-            }
+        public CatalogMigrationRunner(QueryImpl exportQuery, QueryRequest exportQueryRequest) {
+            this.exportQuery = exportQuery;
+            this.exportQueryRequest = exportQueryRequest;
+        }
 
-            results = response.getResults();
-            if (results == null) {
-                LOGGER.error("Results came back null from the response: {}");
-                throw new ExportMigrationException("Catalog could not export metacards");
-            }
+        private void executeQueryLoop()
+                throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
-            if (results.size() > 0) {
-                taskManager.exportMetacardQuery(results, exportGroupCount);
-                exportQuery.setStartIndex(
-                        exportQuery.getStartIndex() + config.getExportQueryPageSize());
-                exportGroupCount++;
-            }
-        } while (results.size() >= config.getExportQueryPageSize());
+            long exportGroupCount = 1;
+            SourceResponse response;
+            List<Result> results;
+
+            do {
+                response = framework.query(exportQueryRequest);
+                if (response == null) {
+                    LOGGER.error("Response came back null from the query");
+                    throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+                }
+
+                results = response.getResults();
+                if (results == null) {
+                    LOGGER.error("Results came back null from the response");
+                    throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+                }
+
+                if (!results.isEmpty()) {
+                    taskManager.exportMetacardQuery(results, exportGroupCount);
+                    exportQuery.setStartIndex(
+                            exportQuery.getStartIndex() + config.getExportQueryPageSize());
+                    exportGroupCount++;
+                }
+            } while (results.size() >= config.getExportQueryPageSize());
+        }
+
+        @Override
+        public Void call() throws Exception {
+            executeQueryLoop();
+            return null;
+        }
     }
 }

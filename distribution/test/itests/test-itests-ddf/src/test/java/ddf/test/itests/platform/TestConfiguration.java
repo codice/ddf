@@ -206,6 +206,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         try {
+            basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
@@ -322,7 +323,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportToDirectory() throws Exception {
         resetInitialState();
 
-        String response = console.runCommand(EXPORT_COMMAND + " \"" + temporaryFolder.getRoot() + "\"");
+        String response = console.runCommand(
+                EXPORT_COMMAND + " \"" + temporaryFolder.getRoot() + "\"");
 
         assertThat(String.format("Exporting current configurations to %s.",
                 temporaryFolder.toString()),
@@ -454,7 +456,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportWarningForSymbolicLinkPath() throws Exception {
-        if(System.getProperty("os.name").startsWith("Win")){
+        if (System.getProperty("os.name")
+                .startsWith("Win")) {
             // can't create symlinks in windows (borrowed from Apache commonsio)
             return;
         }
@@ -517,8 +520,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString(
-                        "Path [etc" + FILE_SEPARATOR + "system.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
+                containsString("Path [etc" + FILE_SEPARATOR
+                        + "system.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -537,8 +540,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString(
-                        "Path [etc" + FILE_SEPARATOR + "users.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
+                containsString("Path [etc" + FILE_SEPARATOR
+                        + "users.properties] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -585,8 +588,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThat(String.format("Warning should have been returned when exporting to %s.",
                 getDefaultExportDirectory()),
                 response,
-                containsString(
-                        "Path [etc" + FILE_SEPARATOR + "pdp] does not exist or cannot be read; therefore, it will not be included in the export."));
+                containsString("Path [etc" + FILE_SEPARATOR
+                        + "pdp] does not exist or cannot be read; therefore, it will not be included in the export."));
     }
 
     /**
@@ -683,23 +686,18 @@ public class TestConfiguration extends AbstractIntegrationTest {
     public void testExportCatalog() throws Exception {
         resetInitialState();
 
-        List<String> metacardIds;
-        try {
-            //getServiceManager().startFeature(true, "catalog-core-migratable");
+        List<String> metacardIds = ingestMetacardsForExport();
 
-            metacardIds = ingestMetacardsForExport();
+        console.runCommand(EXPORT_COMMAND);
+        assertExportCatalog(getDefaultExportDirectory().resolve("org.codice.ddf.catalog"));
 
-            console.runCommand(EXPORT_COMMAND);
-            assertExportCatalog(getDefaultExportDirectory().resolve("catalog"));
+        console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
 
-            console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
+        console.runCommand(String.format("%s %s",
+                CATALOG_INGEST_COMMAND,
+                getDefaultExportDirectory().resolve("org.codice.ddf.catalog")),
+                new RolePrincipal("admin"));
 
-            console.runCommand(String.format("%s %s",
-                    CATALOG_INGEST_COMMAND,
-                    getDefaultExportDirectory().resolve("catalog")), new RolePrincipal("admin"));
-        } finally {
-            //getServiceManager().stopFeature(true, "catalog-core-migratable");
-        }
         assertMetacardsIngested(metacardIds.size());
     }
 

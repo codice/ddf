@@ -17,7 +17,8 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.Nonnull;
 
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
@@ -46,11 +47,11 @@ class MigrationTaskManager implements AutoCloseable {
 
     private final ListeningExecutorService taskExecutor;
 
-    private final AtomicReference<Throwable> taskFailure;
-
     private final MigrationFileWriter fileWriter;
 
     private final CatalogMigratableConfig catalogConfig;
+
+    private boolean failureFlag;
 
     /**
      * The creation of a task manager requires the passing of migratable configurations so that
@@ -62,9 +63,9 @@ class MigrationTaskManager implements AutoCloseable {
     public MigrationTaskManager(final CatalogMigratableConfig config,
             final MigrationFileWriter fileWriter, final ExecutorService executor) {
         this.taskExecutor = MoreExecutors.listeningDecorator(executor);
-        this.taskFailure = createAtomicReference();
         this.catalogConfig = config;
         this.fileWriter = fileWriter;
+        this.failureFlag = false;
     }
 
     /**
@@ -100,8 +101,6 @@ class MigrationTaskManager implements AutoCloseable {
             if (!isGracefulTermination) {
                 taskExecutor.shutdownNow();
             }
-
-            checkForFailures();
         }
     }
 
@@ -133,20 +132,12 @@ class MigrationTaskManager implements AutoCloseable {
                     fileWriter);
 
             ListenableFuture<Void> task = taskExecutor.submit(writerCallable);
-            //taskExecutor.
-
             Futures.addCallback(task, createFutureCallback());
+
+            if (failureFlag) {
+                throw new ExportMigrationException("Error in file writing thread");
+            }
         }
-
-        checkForFailures();
-    }
-
-    AtomicReference<Throwable> createAtomicReference() {
-        return new AtomicReference<>(null);
-    }
-
-    AtomicReference<Throwable> getAtomicReference() {
-        return taskFailure;
     }
 
     FutureCallback<Void> createFutureCallback() {
@@ -157,9 +148,10 @@ class MigrationTaskManager implements AutoCloseable {
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
-                LOGGER.error("File writing thread threw an exception");
-                taskFailure.set(throwable);
+            public void onFailure(@Nonnull Throwable throwable) {
+                LOGGER.error("File writing thread threw an exception: ", throwable);
+                taskExecutor.shutdownNow();
+                failureFlag = true;
             }
         };
     }
@@ -174,13 +166,5 @@ class MigrationTaskManager implements AutoCloseable {
                 catalogConfig.getExportFilePrefix(),
                 queryPageNumber,
                 fileNumber);
-    }
-
-    private void checkForFailures() {
-        if (taskFailure.get() != null) {
-            taskExecutor.shutdownNow();
-            throw new ExportMigrationException("Catalog could not export metacards",
-                    taskFailure.get());
-        }
     }
 }

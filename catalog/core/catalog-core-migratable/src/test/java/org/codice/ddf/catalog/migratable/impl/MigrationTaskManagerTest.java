@@ -14,12 +14,10 @@
 package org.codice.ddf.catalog.migratable.impl;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -34,9 +32,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.codice.ddf.migration.MigrationException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -117,12 +113,6 @@ public class MigrationTaskManagerTest {
     }
 
     @Test
-    @Ignore
-    public void testExportSetupInitGetsCalled() throws Exception {
-        verify(mockFileWriter).createExportDirectory(exportPath);
-    }
-
-    @Test
     public void testExportFinishedGracefulShutdown() throws Exception {
         when(mockExecutor.awaitTermination(1L, TimeUnit.MINUTES)).thenReturn(true);
 
@@ -152,32 +142,6 @@ public class MigrationTaskManagerTest {
 
         verify(mockExecutor).shutdown();
         verify(mockExecutor).shutdownNow();
-    }
-
-    @Test(expected = MigrationException.class)
-    public void testExportFinishedErrorOccurred() throws Exception {
-        try {
-            taskManager.getAtomicReference()
-                    .set(mockThrowable);
-            taskManager.exportFinish();
-        } catch (MigrationException e) {
-            assertThat(e.getCause(), is(mockThrowable));
-            throw e;
-        }
-    }
-
-    @Test(expected = MigrationException.class)
-    public void testExportMetacardQueryWithError() throws Exception {
-        List<Result> testResults = new ArrayList<>();
-        for (int i = 0; i < TEST_RESULTS_LIST_SIZE; i++) {
-            testResults.add(new ResultImpl());
-        }
-
-        when(mockExecutor.submit(any(CatalogWriterCallable.class))).thenReturn(mockFutureInstance);
-
-        taskManager.getAtomicReference()
-                .set(mockThrowable);
-        taskManager.exportMetacardQuery(testResults, TEST_GROUP_COUNT);
     }
 
     @Test
@@ -237,16 +201,6 @@ public class MigrationTaskManagerTest {
         assertThat(mockFutureCallback, notNullValue());
     }
 
-    @Test(expected = MigrationException.class)
-    @Ignore
-    public void testCtorIfFileWriterInitFails() throws Exception {
-        doThrow(MigrationException.class).when(mockFileWriter)
-                .createExportDirectory(any(Path.class));
-        MigrationTaskManager tempManager = new MigrationTaskManager(new CatalogMigratableConfig(),
-                mockFileWriter,
-                mockExecutor);
-    }
-
     /**
      * Extension of {@link MigrationTaskManager} to provide exposed test data.
      * <p>
@@ -264,11 +218,6 @@ public class MigrationTaskManagerTest {
 
         public List<CatalogWriterCallable> getCallables() {
             return callables;
-        }
-
-        @Override
-        AtomicReference<Throwable> createAtomicReference() {
-            return mockAtomicRef;
         }
 
         @Override
