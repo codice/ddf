@@ -1,248 +1,17 @@
 
-This section discusses the several extension points and components permitted by the Distributed Data Framework ({branding}) APIs.
-Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and integrate various {branding} components.
+This section discusses the several extension points and components permitted by the ${branding} APIs.
+Using code examples, diagrams, and references to specific instances of each API, this guide provides details on how to develop and extend various ${branding} components.
 
-=== Building {branding}
-
-==== Prerequisites
-
-* Install J2SE 8 SDK (http://www.oracle.com/technetwork/java/javase/downloads/index.html).
-* Verify that the JAVA_HOME environment variable is set to the newly installed JDK location, and that the PATH includes `%JAVA_HOME%\bin` (for Windows) or `$JAVA_HOME$/bin` (*nix).
-Install Maven 3.1.0 or later (http://maven.apache.org/download.cgi). Verify that the PATH includes the `MVN_HOME/bin` directory.
-In addition, access to a Maven repository with the latest project artifacts and dependencies is necessary in order for a successful build.
-The following sample settings.xml (the default settings file) can be used to access the public repositories with the required artifacts.
-For more help on how to use the settings.xml file, refer to the Maven settings reference page (http://maven.apache.org/settings.html).
-
-.Sample settings.xml file
-[source,xml,linenums]
-----
-<settings>
-	<!-- If proxy is needed
-	<proxies>
-		<proxy>
-		</proxy>
-	</proxies>
-	-->
-</settings>
-----
-
-.Handy Tip on Encrypting Passwords
-[TIP]
-====
-See this http://maven.apache.org/guides/mini/guide-encryption.html[Maven guide] on how to encrypt the passwords in your settings.xml.
-====
-
-==== Procedures
-
-===== Run the Build
-
-
-* Build command example for one individual repository.
-----
-# Build is run from the top level of the specified repository in a command line prompt or terminal.
-cd ddf-support
-mvn clean install
-
-# At the end of the build, a BUILD SUCCESS will be displayed.
-----
-
+=== ${branding} Development Prerequisites
 
 [NOTE]
 ====
-[The zip distribution of {branding} is contained in the {branding} app in the distribution/ddf/target directory after the {branding} app is built.
+Development requires full knowledge of the ${ddf-catalog}.
 ====
 
-[NOTE]
-====
-It may take several moments for Maven to download the required dependencies in the first build.
-Build times may vary based on network speed and machine specifications.
-====
-
-[WARNING]
-====
-In certain circumstances, the build may fail due to a 'java.lang.OutOfMemory: Java heap space' error.
-This error is due to the large number of sub-modules in the {branding} build, which causes the heap space to run out in the main Maven JVM.
-To fix this issue, set the system variable `MAVEN_OPTS` with the value `-Xmx2048m` before running the build.
-Example on Linux system with the bash shell: `export MAVEN_OPTS='-Xmx2048m'`
-====
-
-==== Troubleshoot Build Errors on ddf-admin and ddf-ui on a Windows Platform
-
-Currently, the developers are using the following tools:
-
-[cols="2" options="header"]
-|===
-
-|Name
-|Version
-
-|bower
-|1.3.2
-
-|node.js
-|v0.10.26
-
-|npm
-|1.4.3
-
-|===
-
-[NOTE]
-====
-There have been intermittent build issues during the bower install.
-The error code that shows is an EPERM related to either 'renaming' files or 'unlinking' files.
-This issue has been tracked multiple times on the bower github page.
-The following link contains the most recent issue that was tracked:
-https://github.com/bower/bower/issues/991
-
-This issue will be closely monitored for a full resolution.
-Until a proper solution is found, there are some options that may solve the issue.
-
-. Re-run the build.
-Occasionally, the issue occurs on first run and will resolve itself on the next.
-. Clean out the cache.
-There may be a memory issue, and a cache clean may help solve the issue.
-+
-----
-bower cache clean
-npm cache clean
-----
-+
-.Reinstall bower.
-An occasional reinstall may solve the issue.
-+
-----
-npm uninstall -g bower && npm install -g bower
-----
-+
-. Download and use Cygwin to perform the build.
-This may allow a user to simulate a run on a *nix system, which may not experience these issues.
-
-These options are taken from suggestions provided on github issue tickets.
-There have been several tickets created and closed, and several workarounds have been suggested.
-However, it appears that the issue still exists.
-Once more information develops on the resolution of this issue, this page will be updated.
-====
-
-=== "White Box" {branding} Architecture
-
-.Architecture Diagram
-[ditaa,architecture_diagram_white_box,png]
-----
-+-----------------------------------------------------------------------------------------------------------------------+
-|                        /----------------------\  /-------------------\ /----------------------\  /-------------------\|
-|      Components        |         New          |  |    New Security   | |         New          |  |       New         ||
-|                        |   Catalog Components |  |     Components    | |   Content Components |  |  App Components   ||
-|                        \----------------------/  \-------------------/ \----------------------/  \-------------------/|
-|                      /-=------------------------------------------------------------------------\                     |
-|                      | /----------------------\  /-------------------\ /----------------------\ |/-------------------\|
-|   DDF Applications   | |cDEF  DDF Catalog     |  |cDEFDDF Security   | |cDEF  DDF Content     | ||  New Application  ||
-|                      | |                      |  |                   | |                      | |\-------------------/|
-|                      | \----------------------/  \-------------------/ \----------------------/ \-------------------\ |
-| /--------------------/ /------------------------------------------------------------------------------------------\ | |
-| |       DDF            |cDEF                              DDF Framework                                           | | |
-| \--------------------\ |                                                                                          | | |
-|                      | |                        includes Apache Karaf, Apache CXF,                                | | |
-|                      | |                           Eclipse Equinox OSGi Container                                 | | |
-|                      | \------------------------------------------------------------------------------------------/ | |
-|                      \----------------------------------------------------------------------------------------------/ |
-|                      /----------------------------------------------------------------------------------------------\ |
-|         JVM          |cEEE                                Sun Java JDK                                              | |
-|                      \----------------------------------------------------------------------------------------------/ |
-|                      /---------------------\/---------------------\/------------------\/----------------------------\ |
-|   Operating System   |cEEE     Windows     ||cEEE     Linux       ||cEEEMac OS X      ||cEEE       Solaris          | |
-|                      \---------------------/\---------------------/\------------------/\----------------------------/ |
-|                      /------------------------------------------------------------------------------\/--------------\ |
-|       Hardware       |cEEE                       x86                                                ||cEEE SPARC    | |
-|                      \------------------------------------------------------------------------------/\--------------/ |
-+-----------------------------------------------------------------------------------------------------------------------+
-----
-
-As depicted in the architectural diagram above, {branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
-The items within the dotted line represent the {branding} out-of-the-box.
-
-{branding} is a customized and branded distribution of Apache Karaf.
-{branding} could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.
-Similar to its peers, {branding} incorporates additional upstream dependencies (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies).
-
-{branding} as a framework hosts {branding} applications, which are extensible by adding components via OSGi.
-The best example of this is the {branding} Catalog (API), which offers extensibility via several types of Catalog Components.
-The {branding} Catalog API serves as the foundation for several applications and resides in the applications tier.
-
-The Catalog Components consist of Endpoints, Plugins, Catalog Frameworks, Sources, and Catalog Providers.
-Customized components can be added to {branding}.
-
-==== Nomenclature
-
-Capability:: A general term used to refer to an ability of the system
-Application:: One or more features that together form a cohesive collection of capabilities
-Component:: Represents a portion of an Application that can be extended
-Bundle:: Java Archives (JARs) with special OSGi manifest entries.
-Feature:: One or more bundles that form an installable unit;  Defined by Apache Karaf but portable to other OSGi containers.
-
-==== OSGi Core
-{branding} makes use of OSGi v4.2 to provide several capabilities:
-
-* Has a Microkernel-based foundation, which is lightweight due to its origin in embedded systems.
-* Enables integrators to easily customize components to run on their system.
-* Software applications are deployed as OSGi components, or bundles.
-Bundles are modules that can be deployed into the OSGi container (Eclipse Equinox OSGi Framework by default).
-* Bundles provide flexibility allowing integrators to choose the bundles that meet their mission needs.
-* Bundles provide reusable modules that can be dropped in any container.
-* Provides modularity, module-based security, and low-level services, such as  Hypertext Transfer Protocol (HTTP), logging, events (basic publish/subscribe), and dependency injection.
-* Implements a dynamic component model that allows application updates without downtime.
-Components can be added or updated in a running system.
-* Standardized Application Configuration (ConfigurationAdmin and MetaType)
-
-OSGi is not an acronym, but if more context is desired the name Open Specifications Group Initiative has been suggested.
-
-More information on OSGi is available at http://www.osgi.org/.
-
-==== Built on Apache Karaf
-
-Apache Karaf is a FOSS product that includes an OSGi framework and adds extra functionality, including:
-
-Admin Console:: Useful for configuring applications, installing/uninstalling features, and viewing services such as metrics.
-System Console:: Provides command line administration of the OSGi container. All functionality in the Admin Console can also be performed via this command line console.
-Logging:: Provides centralized logging to data/log/ddf.log. Security logging is provided at data/log/security.log. Ingest error logging can be viewed in data/log/ingest_error.log.
-Provisioning:: Of libraries or applications.
-Security:: Provides a security framework based on Java Authentication and Authorization Service (JAAS).
-Deployer:: Provides hot deployment of new bundles by dropping them into the <INSTALL_DIR>/deploy directory.
-Blueprint:: Provides an implementation of the OSGi Blueprint Container specification that defines a dependency injection framework for dealing with dynamic configuration of OSGi services.
-** {branding} uses the Apache Aries implementation of Blueprint.
-More information can be found at http://aries.apache.org/modules/blueprint.htm.
-Spring DM:: An alternative dependency injection framework.
-{branding} is not dependent on specific dependency injection framework.
-Blueprint is recommended.
-
-==== Additional Upstream Dependencies
-{branding} is a customized distribution of Apache Karaf, and therefore includes all the capabilities of Apache Karaf.
-{branding} also includes additional FOSS components to provide a richer set of capabilities.
-Integrated components include their own dependencies, but at the platform level, {branding} includes the following upstream dependencies:
-
-Apache CXF:: Apache CXF is an open source services framework. CXF helps build and develop services using front end programming APIs, such as JAX-WS and JAX-RS. More information can be found at http://cxf.apache.org.
-Apache Commons:: Provides a set of reusable Java components that extends functionality beyond that provided by the standard JDK  (More info available at http://commons.apache.org)
-OSGeo GeoTools:: Provides spatial object model and fundamental geometric functions, which are used by {branding} spatial criteria searches. More information can be found at http://geotools.org/.
-Joda Time:: Provides an enhanced, easier to use version of Java date and time classes.
-More information can be found at http://joda-time.sourceforge.net.
-
-For a full list of dependencies, refer to the Software Version Description Document (SVDD).
-
-==== Recommended Hardware
-Because of its modular nature, {branding} may require a few or many system resources, depending on which bundles and features are deployed.
-In general, {branding} will take advantage of available memory and processors.
-A 64-bit JVM is required, and a typical installation is performed on a single machine with 16GB of memory and eight processor cores.
-
-=== {branding} Development Prerequisites
-
-[NOTE]
-====
-Development requires full knowledge of the {branding} Catalog.
-====
-
-{branding} is written in Java and requires a moderate amount of experience with the Java programming language, along with Java terminology, such as packages, methods, classes, and interfaces.
-{branding} uses a small OSGi runtime to deploy components and applications.
-Before developing for {branding}, it is necessary that developers have general knowledge on OSGi and the concepts used within.
+${branding} is written in Java and requires a moderate amount of experience with the Java programming language, along with Java terminology, such as _packages_, _methods_, _classes_, and _interfaces_.
+${branding} uses a small OSGi runtime to deploy components and applications.
+Before developing for ${branding}, it is necessary that developers have general knowledge on OSGi and the concepts used within.
 This includes, but is not limited to, Catalog Commands and the following topics:
 
 * The Service Registry
@@ -252,96 +21,50 @@ This includes, but is not limited to, Catalog Commands and the following topics:
 ** Their role in OSGi
 ** How they are developed
 
-Documentation on OSGi can be viewed at the OSGi Alliance website (http://www.osgi.org).
-Helpful literature for beginners includes OSGi and Apache Felix 3.0 Beginner's Guide by Walid Joseph Gédéon and OSGi in Action: Creating Modular Applications in Java by Richard Hall, Karl Pauls, Stuart McCulloch, and David Savage.
-For specific code examples from {branding}, source code can be seen in the OSGi Services section.
+Documentation on OSGi can be viewed at the http://www.osgi.org[OSGi Alliance website].
+Helpful literature for beginners includes _OSGi and Apache Felix 3.0 Beginner's Guide_ by Walid Joseph Gédéon and _OSGi in Action: Creating Modular Applications in Java_ by Richard Hall, Karl Pauls, Stuart McCulloch, and David Savage.
+
+==== Recommended Hardware
+
+Because of its modular nature, ${branding} may require a few or many system resources, depending on which bundles and features are deployed.
+In general, ${branding} will take advantage of available memory and processors.
+A 64-bit JVM is required, and a typical installation is performed on a single machine with 16GB of memory and eight processor cores.
 
 ==== Getting Set Up
-To develop on {branding}, access to the source code via Github is required.
+
+To develop on ${branding}, access to the source code via Github is required.
 
 ===== Integrated Development Environments (IDE)
 
-The {branding} source code is not tied to any particular IDE.
-However, if a developer is interested in setting up the Eclipse IDE, they can view the Sonatype guide (http://books.sonatype.com/m2eclipse-book/reference/) on developing with Eclipse.
-
-===== Additional Documentation
-
-Additional documentation on developing with the core technologies used by {branding} can be found on their respective websites.
-
-Notably:
-* Karaf (http://karaf.apache.org/)
-* CXF (http://cxf.apache.org/docs/overview.html)
-* Geotools (http://docs.geotools.org/latest/developer/)
-
-==== Major Directories
-During {branding} installation, the major directories shown in the table below are created, modified, or replaced in the destination directory.
-
-[cols="1,9" options="header"]
-|===
-
-|Directory Name
-|Description
-
-|bin
-|Scripts to start and stop {branding}
-
-|data
-|The working directory of the system – installed bundles and their data
-
-|data/log/ddf.log
-|Log file for {branding}, logging all errors, warnings, and (optionally) debug statements.
-This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
-
-|deploy
-|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon {branding} installation)
-
-|docs
-|The {branding} Catalog API Javadoc
-
-|etc
-|Directory monitored for addition/modification/deletion of third party .cfg configuration files
-
-|etc/ddf
-|Directory monitored for addition/modification/deletion of {branding}-related .cfg configuration files (e.g., Schematron configuration file)
-
-|etc/templates
-|Template .cfg files for use in configuring {branding} sources, settings, etc., by copying to the etc/ddf directory.
-
-|lib
-|The system's bootstrap libraries.
-Includes the ddf-branding.jar file which is used to brand the system console with the {branding} logo.
-
-|licenses
-|Licensing information related to the system
-
-|system
-|Local bundle repository.
-Contains all of the JARs required by {branding}, including third-party JARs.
-
-|===
+The ${branding} source code is not tied to any particular IDE.
+However, if a developer is interested in setting up the Eclipse IDE, they can view the http://books.sonatype.com/m2eclipse-book/reference/[Sonatype guide] on developing with Eclipse.
 
 ==== Formatting Source Code
-A code formatter for the Eclipse IDE that can be used across all {branding} projects will allow developers to format code similarly and minimize merge issues in the future.
 
-{branding} uses an updated version of the http://servicemix.apache.org/developers/building.html[Apache ServiceMix Code Formatter] for code formatting.
+A code formatter for the Eclipse IDE that can be used across all ${branding} projects will allow developers to format code similarly and minimize merge issues in the future.
+
+${branding} uses an updated version of the http://servicemix.apache.org/developers/building.html[Apache ServiceMix Code Formatter] for code formatting.
 
 ===== Load the Code Formatter Into the Eclipse IDE
 
+. Download the https://github.com/codice/ddf-support/blob/master/support-checkstyle/src/main/resources/ddf-eclipse-code-formatter.xml[Eclipse Code Formatter].
 . In Eclipse, select *Window → Preferences*. The Preferences window opens.
 . Select *Java → Code Style → Formatter*.
-. Select the *Edit...* button and load the attached ddf-eclipse-code-formatter.xml file.
+. Select the *Edit...* button and then Select the downloaded file.
 . Select the *OK* button.
 
 ===== Load the Code Formatter Into IntelliJ IDEA
 
 IntelliJ IDEA 13 is capable of importing Eclipse's Code Formatter directly from within IntelliJ without the use of any plugins.
 
+. Download the https://github.com/codice/ddf-support/blob/master/support-checkstyle/src/main/resources/ddf-intellij-code-formatter.jar[IntelliJ Code Formatter].
 . Open *IntelliJ* IDEA.
 . Select *File → Settings → Code Style → Java*.
 . Select *Manage*.
-. Select the *Import* button to Import ddf-eclipse-code-formatter.xml file.
+. Select the *Import* button and select the file.
 
 ===== Format Your Source Code Using Eclipse
+
 A developer may write code and format it before saving.
 
 . Before the file is saved, highlight all of the source code in the IDE editor window.
@@ -349,6 +72,7 @@ A developer may write code and format it before saving.
 . Select *Source → Format*. The code formatter is applied to the source code and the file can be saved.
 
 ====== Set Up Save Actions in Eclipse
+
 A developer can also set up Save Actions to format the source code automatically.
 
 . Open Eclipse.
@@ -362,23 +86,26 @@ A developer can also set up Save Actions to format the source code automatically
 . Select the *OK* button.
 
 ===== Format Source Code Using IntelliJ
+
 In the toolbar, select *Code → Reformat Code* or use the keyboard shortcut `Ctrl-Alt-L`.
 
-==== {branding} Software Versioning
+==== ${branding} Software Versioning
 
-{branding} follows the Semantic Versioning White Paper for bundle versioning (see Software Versioning).
+${branding} follows the Semantic Versioning White Paper for bundle versioning (see Software Versioning).
 
 ==== Ensuring Compatibility
 
 ===== Compatibility Goals
-The {branding} framework, like all software, will mature over time.
+
+The ${branding} framework, like all software, will mature over time.
 Changes will be made to improve efficiency, add features, and fix bugs.
-To ensure that components built for {branding} and its sub-frameworks are compatible, developers must use caution when establishing dependencies from developed components.
+To ensure that components built for ${branding} and its sub-frameworks are compatible, developers must use caution when establishing dependencies from developed components.
 
 ===== Guidelines for Maintaining Compatibility
 
-====== {branding} Framework
-For components written at the {branding} Framework level (see Developing at the Framework Level), adhere to the following specifications:
+====== ${branding} Framework
+
+For components written at the ${branding} Framework level (see Developing at the Framework Level), adhere to the following specifications:
 
 [cols="2,1,5" options="header"]
 |===
@@ -395,7 +122,7 @@ Eclipse Equinox
 |OSGi Enterprise Specification
 |4.2
 |Apache Aries (Blueprint) +
-Apache Felix FileInstall and ConfigurationAdmin
+Apache Felix `FileInstall` and `ConfigurationAdmin`
 |===
 
 [IMPORTANT]
@@ -403,8 +130,9 @@ Apache Felix FileInstall and ConfigurationAdmin
 Avoid developing dependencies on the implementations directly, as compatibility in future releases is not guaranteed.
 ====
 
-==== {branding} Catalog API
-For components written for the {branding} Catalog (see Developing Catalog Components), only dependencies on the current major version of the Catalog API should be used.
+==== ${branding} Catalog API
+
+For components written for the ${branding} Catalog (see Developing Catalog Components), only dependencies on the current major version of the Catalog API should be used.
 Detailed documentation of the Catalog API can be found in the Catalog API Javadocs.
 
 [cols="1,1,5"]
@@ -414,7 +142,7 @@ Detailed documentation of the Catalog API can be found in the Catalog API Javado
 |Version Interval
 |Notes
 
-|{branding} Catalog API
+|${branding} Catalog API
 |[2.0, 3.0)
 |Major version will be incremented (to 3.0) if/when compatibility is broken with the 2.x API.
 
@@ -423,15 +151,17 @@ Detailed documentation of the Catalog API can be found in the Catalog API Javado
 ==== OGC Filter
 
 ===== OGC Filter
+
 An OGC Filter is a Open Geospatial Consortium (OGC) standard that describes a query expression in terms of XML and Key-Value Pairs (KVP).
 
-{branding} originally had a custom query representation that some found difficult to understand and implement.
+${branding} originally had a custom query representation that some found difficult to understand and implement.
 In switching to a well-known standard like the OGC Filter, developers benefit from various third party products and third party documentation, as well as any previous experience with the standard.
 The OGC Filter is used to represent a query to be sent to sources and the Catalog Provider, as well as to represent a Subscription.
-The OGC Filter provides support for expression processing, such as adding or dividing expressions in a query, but that is not the intended use for {branding}.
+The OGC Filter provides support for expression processing, such as adding or dividing expressions in a query, but that is not the intended use for ${branding}.
 
-===== OGC filter in the {branding} Catalog
-The {branding} Catalog Framework uses the implementation provided by Geotools, which provides a Java representation of the standard.
+===== OGC filter in the ${branding} Catalog
+
+The ${branding} Catalog Framework uses the implementation provided by Geotools, which provides a Java representation of the standard.
 
 Geotools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located.
 Java developers should use the Java objects exclusively to complete query tasks, rather than parsing or viewing the XML representation.
@@ -439,15 +169,19 @@ Java developers should use the Java objects exclusively to complete query tasks,
 === Development Recommendations
 
 ==== Javascript
-Avoid using *console.log*
+
+Avoid using `console.log`
 
 ==== Package Names
+
 Use singular package names.
 
 ==== Author Tags
+
 Author tags are discouraged from being placed in the source code, as they can be a barrier to collaboration and have potential legal ramifications.
 
 ==== Unit Testing
+
 All code should contain unit tests that are able to test out any localized functionality within that class.
 When working with OSGi, code may have references to various services and other areas that are not available at compile-time.
 One way to work around the issue of these external dependencies is to use a mocking framework.
@@ -455,8 +189,8 @@ One way to work around the issue of these external dependencies is to use a mock
 .Recommended Framework
 [NOTE]
 ====
-The recommended framework to use with {branding} is https://github.com/mockito/mockito[Mockito].
-This test-level dependency is managed by the ddf-parent pom and is used to standardize the version being used across {branding}.
+The recommended framework to use with ${branding} is https://github.com/mockito/mockito[Mockito].
+This test-level dependency is managed by the ${branding-lowercase} pom and is used to standardize the version being used across ${branding}.
 ====
 
 ==== Logging
@@ -471,7 +205,7 @@ SLF4J allows a very robust logging API while letting the backend implementation 
 Additionally, it is compatible with pax logging and natively implemented by logback.
 ====
 
-{branding} code uses the first five SLF4J log levels:
+${branding} code uses the first five SLF4J log levels:
 
 . trace (the least serious)
 . debug
@@ -491,102 +225,150 @@ if (LOGGER.isTraceEnabled()) {
 LOGGER.trace("Executing search: {}", search);
 ----
 
-==== Third Party and Utility Bundles
-It is recommended to avoid building directly on included third party and utility bundles.
-These components do provide utility (e.g., JScience) and reuse potential; however, they may be upgraded or even replaced at anytime as bug fixes and new capabilities dictate.
-For example, Web services may be built using CXF.
-However, the distributions frequently upgrade CXF between releases to take advantage of new features.
-If building on these components, be aware of the version upgrades with each distribution release.
+==== UI Development Recommendations
 
-Instead, component developers should package and deliver their own dependencies to ensure future compatibility.
-For example, if re-using a bundle like `commons-geospatial`, the specific bundle version that you are depending on should be included in your packaged release, and the proper versions should be referenced in your bundle(s).
+Recommendations for developing UI components.
+//TODO: This section is empty? add content or delete. DDF-1867
 
-==== Best Practices
+=== Building ${ddf-branding}
+include::building-ddf-contents.adoc[]
 
-* Always use a version number when exporting a package.
-* In the following example, the `${project.artifactId}` represents the project and artifactId of the package being exported.
-* The `${project.version}` represents the version of the project.
+=== "White Box" ${branding} Architecture
 
-.Export Example
-[source,xml,linenums]
+.Architecture Diagram
+[ditaa,architecture_diagram_white_box,png]
 ----
-<Export-Package>
-  ${project.artifactId}*;version=${project.version}
-</Export-Package>
++-----------------------------------------------------------------------------------------------------------------------+
+|                        /----------------------\  /-------------------\ /----------------------\  /-------------------\|
+|      Components        |         New          |  |    New Security   | |         New          |  |       New         ||
+|                        |   Catalog Components |  |     Components    | |   Content Components |  |  App Components   ||
+|                        \----------------------/  \-------------------/ \----------------------/  \-------------------/|
+|                      /-=------------------------------------------------------------------------\                     |
+|                      | /----------------------\  /-------------------\ /----------------------\ |/-------------------\|
+|   ${ddf-branding} Applications   | |cDEF  ${ddf-branding} Catalog     |  |cDEF${ddf-branding} Security   | |cDEF  ${ddf-branding} Content     | ||  New Application  ||
+|                      | |                      |  |                   | |                      | |\-------------------/|
+|                      | \----------------------/  \-------------------/ \----------------------/ \-------------------\ |
+| /--------------------/ /------------------------------------------------------------------------------------------\ | |
+| |       ${ddf-branding}            |cDEF                              ${ddf-branding} Framework                                           | | |
+| \--------------------\ |                                                                                          | | |
+|                      | |                        includes Apache Karaf, Apache CXF,                                | | |
+|                      | |                           Eclipse Equinox OSGi Container                                 | | |
+|                      | \------------------------------------------------------------------------------------------/ | |
+|                      \----------------------------------------------------------------------------------------------/ |
+|                      /----------------------------------------------------------------------------------------------\ |
+|         JVM          |cEEE                                Sun Java JDK                                              | |
+|                      \----------------------------------------------------------------------------------------------/ |
+|                      /---------------------\/---------------------\/------------------\/----------------------------\ |
+|   Operating System   |cEEE     Windows     ||cEEE     Linux       ||cEEEMac OS X      ||cEEE       Solaris          | |
+|                      \---------------------/\---------------------/\------------------/\----------------------------/ |
+|                      /------------------------------------------------------------------------------\/--------------\ |
+|       Hardware       |cEEE                       x86                                                ||cEEE SPARC    | |
+|                      \------------------------------------------------------------------------------/\--------------/ |
++-----------------------------------------------------------------------------------------------------------------------+
 ----
 
-* Try to avoid deploying multiple versions of a bundle.
-Although OSGi is designed to support multiple versions, other developers may not include the versions of the packages that are being imported.
-If the bundle is versioned and designed appropriately, typically, having multiple versions of the bundle will not be an issue.
-However, if each bundle is competing for a specific resource, race conditions may occur.
-Third party and utility bundles (often denoted by commons in the bundle name) are the general exception to this rule, as these bundles will likely function as expected with multiple versions deployed.
+As depicted in the architectural diagram above, ${branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
+The items within the dotted line represent the ${branding} out-of-the-box.
+
+${branding} is a customized and branded distribution of Apache Karaf.
+${branding} could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.
+Similar to its peers, ${branding} incorporates <<additional upstream dependencies>>.
+
+${branding} as a framework hosts ${branding} applications, which are extensible by adding components via OSGi.
+The best example of this is the ${branding} Catalog (API), which offers extensibility via several types of Catalog Components.
+The ${branding} Catalog API serves as the foundation for several applications and resides in the applications tier.
+
+The Catalog Components consist of Endpoints, Plugins, Catalog Frameworks, Sources, and Catalog Providers.
+Customized components can be added to ${branding}.
+
+==== Nomenclature
+
+Capability:: A general term used to refer to an ability of the system
+Application:: One or more features that together form a cohesive collection of capabilities
+Component:: Represents a portion of an Application that can be extended
+Bundle:: Java Archives (JARs) with special OSGi manifest entries.
+Feature:: One or more bundles that form an installable unit; Defined by Apache Karaf but portable to other OSGi containers.
+
+==== OSGi Core
+
+${branding} makes use of OSGi v4.2 to provide several capabilities:
+
+* Has a Microkernel-based foundation, which is lightweight due to its origin in embedded systems.
+* Enables integrators to easily customize components to run on their system.
+* Software applications are deployed as OSGi components, or bundles.
+Bundles are modules that can be deployed into the OSGi container (Eclipse Equinox OSGi Framework by default).
+* Bundles provide flexibility allowing integrators to choose the bundles that meet their mission needs.
+* Bundles provide reusable modules that can be dropped in any container.
+* Provides modularity, module-based security, and low-level services, such as Hypertext Transfer Protocol (HTTP), logging, events (basic publish/subscribe), and dependency injection.
+* Implements a dynamic component model that allows application updates without downtime.
+Components can be added or updated in a running system.
+* Standardized Application Configuration (ConfigurationAdmin and MetaType)
+
+OSGi is not an acronym, but if more context is desired the name Open Specifications Group Initiative has been suggested.
+
+More information on OSGi is available at http://www.osgi.org/.
+
+==== Built on Apache Karaf
+
+Apache Karaf is a FOSS product that includes an OSGi framework and adds extra functionality, including:
+
+${admin-console}:: Useful for configuring applications, installing/uninstalling features, and viewing services such as metrics.
+${command-console}:: Provides command line administration of the OSGi container. All functionality in the {admin-console} can also be performed via this command line console.
+Logging:: Provides centralized logging to `data/log/${branding-lowercase}.log`. Security logging is provided at `data/log/security.log`. Ingest error logging can be viewed in `data/log/ingest_error.log`.
+Provisioning:: Of libraries or applications.
+Security:: Provides a security framework based on Java Authentication and Authorization Service (JAAS).
+Deployer:: Provides hot deployment of new bundles dropped into the `<INSTALL_DIR>/deploy` directory.
+Blueprint:: Provides an implementation of the OSGi Blueprint Container specification that defines a dependency injection framework for dealing with dynamic configuration of OSGi services.
+** ${branding} uses the Apache Aries implementation of Blueprint.
+More information can be found at http://aries.apache.org/modules/blueprint.htm[Apache Aries].
+Spring DM:: An alternative dependency injection framework.
+${branding} is not dependent on specific dependency injection framework, but Blueprint is recommended.
+
+==== Additional Upstream Dependencies
+
+${branding} is a customized distribution of Apache Karaf, and therefore includes all the capabilities of Apache Karaf.
+${branding} also includes additional FOSS components to provide a richer set of capabilities.
+Integrated components include their own dependencies, but at the platform level, ${branding} includes the following upstream dependencies:
+
+Apache CXF:: Apache CXF is an open source services framework. CXF helps build and develop services using front end programming APIs, such as JAX-WS and JAX-RS. More information can be found at http://cxf.apache.org[CXF].
+Apache Commons:: Provides a set of reusable Java components that extends functionality beyond that provided by the standard JDK  (More info available at http://commons.apache.org[Apache Commons]).
+OSGeo GeoTools:: Provides spatial object model and fundamental geometric functions, which are used by ${branding} spatial criteria searches. More information can be found at http://geotools.org/[GeoTools].
+Joda Time:: Provides an enhanced, easier to use version of Java date and time classes.
+More information can be found at http://joda-time.sourceforge.net[Joda Time].
+
+For a full list of dependencies, refer to the Software Version Description Document (SVDD).
+
+=== OSGi Services
+
+Services consist of:
+
+An API Bundle:: The API, written as Java interfaces, defines the contract of the service and should, to the extent possible, reference only those concrete classes that are loaded by the root classloader.
+These classes being in the `java.\*` packages.
+These exceptions to the `java.*` rule can be made:
+
+** Extra interfaces can be declared by the API and used as input parameters and return values from API methods.
+
+** Because of their complexity and relative permanence, generated JAXB classes can be exported from an API bundle for use by its consumers.
+
+At least one implementation bundle:: As the intent of loosely coupled services is to allow a variety of implementations to be deployed into the container, it is common for there to be more than one concrete implementation of a service. However, that is not a requirement. A single implementation can suffice. It should include a `blueprint.xml` associating the implementation class(es) with interface(s), providing any other wiring of beans, services, and metadata necessary, and registering with the container.
 
 ==== Dependency Injection Frameworks
 
-It is highly recommended to use a dependency injection framework, such as Blueprint, Spring-DM, or iPojo for non-advanced OSGi tasks.
+${branding} uses resource injection to retrieve and register services to the OSGi registry.
+There are many resource injection frameworks that are used to complete these operations.
+Blueprint and Spring DM are both used by ${branding}.
+There are many tutorials and guides available on the Internet for both of these frameworks.
+
+It is highly recommended to use a dependency injection framework for non-advanced OSGi tasks.
 Dependency injection frameworks allow for more modularity in code, keep the code's business logic clean of OSGi implementation details, and take the complexity out of the dynamic nature of OSGi.
 In OSGi, services can be added and removed at any time, and dependency injection frameworks are better suited to handle these types of situations.
 Allowing the code to be clean of OSGi packages also makes code easier to reuse outside of OSGi.
 These frameworks provide code conveniences of service registration, service tracking, configuration property management, and other OSGi core principles.
 
-===== Basic OSGi Security
-
-(Provided by Pierre Parrend (http://www.slideshare.net/kaihackbarth/security-in-osgi-applications-robust-osgi-platforms-secure-bundles))
-
-* Bundles should
-** Never use synchronized statements that rely on third party code. Keep multi-threaded code in mind when using synchronized statements in general, as they can lead to performance issues.
-** Only have dependencies on bundles that are trusted.
-* Shared Code
-** Provides only final static non-mutable fields.
-** Sets security manager calls during creation in all required places at the beginning of methods.
-*** All Constructors
-*** clone() method if a class implements Cloneable
-*** readObject(ObjectInputStream) if the class implements Serializable
-** Have security check in final methods only.
-* Shared Objects (OSGi services)
-** Only have basic types and serializable final types as parameters.
-** Perform copy and validation (e.g., null checks) of parameters prior to using them.
-** Do not use Exception objects that carry any configuration information.
-
-=== OSGi Services
-
-{branding} uses resource injection to retrieve and register services to the OSGi registry.
-There are many resource injection frameworks that are used to complete these operations.
-Blueprint and Spring DM are both used by {branding}.
-There are many tutorials and guides available on the Internet for both of these frameworks.
-Refer to the Additional Resources section for details not covered in this guide.
-Links to some of these guides are given in the External Links section of this page.
-
-==== Spring DM - Retrieving a Service Instance
-
-.Spring DM example of retrieving and injecting services
-[source,xml,linenums]
-----
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:osgi="http://www.springframework.org/schema/osgi">
-
-  <osgi:reference id="ddfCatalogFramework" interface="ddf.catalog.CatalogFramework" />
-
-  <bean class="my.sample.NiftyEndpoint">
-     <constructor-arg ref="ddfCatalogFramework" />
-  </bean>
-</beans>
-----
-
-[cols="1,7" options="header"]
-|===
-
-|Line #
-|Action
-
-|5
-|Retrieves a Service from the Registry
-
-|8
-|Instantiates a new object, injecting the retrieved Service as a constructor argument
-
-|===
+[NOTE]
+====
+It is recommended to use Blueprint over Spring DM wherever possible.
+====
 
 ==== Blueprint - Retrieving a Service Instance
 
@@ -595,10 +377,10 @@ Links to some of these guides are given in the External Links section of this pa
 ----
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
- <reference id="ddfCatalogFramework" interface="ddf.catalog.CatalogFramework" />
+ <reference id="${ddf-branding-lowercase}CatalogFramework" interface="${ddf-branding-lowercase}.catalog.CatalogFramework" />
 
  <bean class="my.sample.NiftyEndpoint" >
-    <argument ref="ddfCatalogFramework" />
+    <argument ref="${ddf-branding-lowercase}CatalogFramework" />
  </bean>
 
 </blueprint>
@@ -618,6 +400,37 @@ Links to some of these guides are given in the External Links section of this pa
 
 |===
 
+==== Spring DM - Retrieving a Service Instance
+
+.Spring DM example of retrieving and injecting services
+[source,xml,linenums]
+----
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgi="http://www.springframework.org/schema/osgi">
+
+  <osgi:reference id="${ddf-branding-lowercase}CatalogFramework" interface="${ddf-branding-lowercase}.catalog.CatalogFramework" />
+
+  <bean class="my.sample.NiftyEndpoint">
+     <constructor-arg ref="${ddf-branding-lowercase}CatalogFramework" />
+  </bean>
+</beans>
+----
+
+[cols="1,7" options="header"]
+|===
+
+|Line #
+|Action
+
+|5
+|Retrieves a Service from the Registry
+
+|8
+|Instantiates a new object, injecting the retrieved Service as a constructor argument
+
+|===
+
 ==== Blueprint - Registering a Service into the Registry
 
 .Creating a bean and registering it into the Service Registry
@@ -627,7 +440,7 @@ Links to some of these guides are given in the External Links section of this pa
 
   <bean id="transformer" class="my.sample.NiftyTransformer"/>
 
-  <service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer" />
+  <service ref="transformer" interface="${ddf-branding-lowercase}.catalog.transform.QueryResponseTransformer" />
 
 </blueprint>
 ----
@@ -642,35 +455,44 @@ Links to some of these guides are given in the External Links section of this pa
 |Instantiates a new object
 
 |5
-|Registers the object instance created in Line 3 as a service that implements the `ddf.catalog.transform.QueryResponseTransformer` interface
+|Registers the object instance created in Line 3 as a service that implements the `${ddf-branding-lowercase}.catalog.transform.QueryResponseTransformer` interface
 
 |===
 
 ==== Packaging Capabilities as Bundles
-Services and code are physically deployed to {branding} using bundles.
-The bundles within {branding} are created using the maven bundle plug-in. Bundles are Java JAR files that have additional metadata in the MANIFEST.MF that is relevant to an OSGi container.
 
-Alternative Bundle Creation Methods
+The best resource for learning about the structure and headers in the manifest definition is in section 3.6 of the https://osgi.org/download/r5/osgi.core-5.0.0.pdf[OSGi Core Specification].
+The bundles within {branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in], which uses the http://bnd.bndtools.org/[BND tool].
+Bundles are Java JAR files that have additional metadata in the `MANIFEST.MF` file that is relevant to an OSGi container.
 
+.Alternative Bundle Creation Methods
 [TIP]
 ====
-Using Maven is not necessary to create bundles. Alternative tools exist, and OSGi manifest files can also be created by hand, although hand editing should be avoided by most developers.
+Using Maven is not necessary to create bundles.
+Many alternative tools exist, and OSGi manifest files can also be created by hand, although hand-editing should be avoided by most developers.
 ====
-
-See external links (below) for resources that give in-depth guides on creating bundles.
 
 ===== Creating a Bundle
 
 ====== Bundle Development Recommendations
 
-* Avoid creating bundles by hand or editing a manifest file. Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file.
+Avoid creating bundles by hand or editing a manifest file:: Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file.
+Always make a distinction on which imported packages are `optional` or `required`:: Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
+Embedding is an implementation detail:: Using the `Embed-Dependency` instruction provided by the `maven-bundle-plugin` will insert the specified jar(s) into the target archive and add them to the `Bundle-ClassPath`. These jars and their contained packages/classes are not for public consumption; they are for the internal implementation of this service implementation only.
+Bundles should never be embedded:: Bundles expose service implementations; they do not provide arbitrary classes to be used by other bundles.
+Bundles should expose service implementations:: This is the corollary to the previous rule. Bundles should not be created when arbitrary concrete classes are being extracted to a library. In that case, a library/jar is the appropriate module packaging type.
+Bundles should generally _only_ export service packages:: If there are packages internal to a bundle that comprise its implementation but not its public manifestation of the API, they should be excluded from export and kept as private packages.
+Concrete objects that are not loaded by the root classloader should not be passed in or out of a bundle:: This is a general rule with some exceptions (JAXB generated classes being the most prominent example). Where complex objects need to be passed in or out of a service method, an interface should be defined in the API bundle.
 
-* Always make a distinction on which imported packages are optional or required. Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
+Bundles separate contract from implementation and allow for modularized development and deployment of functionality.
+For that to be effective, they must be defined and used correctly so inadvertent coupling does not occur.
+Good bundle definition and usage leads to a more flexible environment.
 
 ====== Maven Bundle Plugin
-Below is a code snippet from a Maven pom.xml for creating an OSGi Bundle using the Maven Bundle plugin.
 
-.Maven pom.xml
+Below is a code snippet from a Maven `pom.xml` for creating an OSGi Bundle using the Maven Bundle plugin.
+
+.Maven `pom.xml`
 
 [source,xml,linenums]
 ----
@@ -688,8 +510,8 @@ Below is a code snippet from a Maven pom.xml for creating an OSGi Bundle using t
         <Export-Package />
         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
         <Import-Package>
-          ddf.catalog,
-          ddf.catalog.*
+          ${ddf-branding-lowercase}.catalog,
+          ${ddf-branding-lowercase}.catalog.*
         </Import-Package>
       </instructions>
     </configuration>
@@ -699,38 +521,72 @@ Below is a code snippet from a Maven pom.xml for creating an OSGi Bundle using t
 ...
 ----
 
+===== Third Party and Utility Bundles
+
+It is recommended to avoid building directly on included third party and utility bundles.
+These components do provide utility and reuse potential; however, they may be upgraded or even replaced at anytime as bug fixes and new capabilities dictate.
+For example, Web services may be built using CXF.
+However, the distributions frequently upgrade CXF between releases to take advantage of new features.
+If building on these components, be aware of the version upgrades with each distribution release.
+
+Instead, component developers should package and deliver their own dependencies to ensure future compatibility.
+For example, if re-using a bundle, the specific bundle version that you are depending on should be included in your packaged release, and the proper versions should be referenced in your bundle(s).
+
 ===== Deploying a Bundle
-A bundle is typically installed in two ways:
 
-. As a feature
-. Hot deployed in the /deploy directory
+A bundle is typically installed in one of two ways:
 
-The fastest way to deploy a created bundle during development is to copy it to the /deploy directory of a running {branding}.
+. Installed as a feature
+. Hot deployed in the `/deploy` directory
+
+The fastest way to deploy a created bundle during development is to copy it to the `/deploy` directory of a running ${branding}.
 This directory checks for new bundles and deploys them immediately.
 According to Karaf documentation, "Karaf supports hot deployment of OSGi bundles by monitoring JAR files inside the `[home]/deploy` directory.
 Each time a JAR is copied in this folder, it will be installed inside the runtime.
 It can be updated or deleted and changes will be handled automatically.
 In addition, Karaf also supports exploded bundles and custom deployers (Blueprint and Spring DM are included by default)."
-Once deployed, the bundle should come up in the Active state if all of the dependencies were properly met.
+Once deployed, the bundle should come up in the Active state, if all of the dependencies were properly met.
 When this occurs, the service is available to be used.
 
 ===== Verifying Bundle State
 
 To verify if a bundle is deployed and running, go to the running command console and view the status.
 
-* Execute the list command.
+* Execute the `list` command.
 * If the name of the bundle is known, the `list` command can be piped to the `grep` command to quickly find the bundle.
 
-The example below shows how to verify if the CAB Client is deployed and running.
+The example below shows how to verify if a Client is deployed and running.
 
 .Verifying with grep
 ----
-ddf@local>list | grep -i cab
-[ 162] [Active    ] [       ] [  ] [ 80] DDF :: Registry :: CAB Client (2.0.0)
+${ddf-branding-lowercase}@local>list | grep -i example
+[ 162] [Active    ] [       ] [  ] [ 80] ${ddf-branding} :: Registry :: example Client (2.0.0)
 ----
+
 The state is `Active`, indicating that the bundle is ready for program execution.
 
-==== Additional Resources
+===== Best Practices
+
+* Always use a version number when exporting a package.
+* In the following example, the `<PROJECT/ARTIFACTID>` represents the `project` and `artifactId` of the package being exported.
+* The `<VERSION>` represents the version of the project.
+
+.Export Example
+[source,xml,linenums]
+----
+<Export-Package>
+  <PROJECT/ARTIFACTID>*;version=<VERSION>
+</Export-Package>
+----
+
+* Try to avoid deploying multiple versions of a bundle.
+Although OSGi is designed to support multiple versions, other developers may not include the versions of the packages that are being imported.
+If the bundle is versioned and designed appropriately, typically, having multiple versions of the bundle will not be an issue.
+However, if each bundle is competing for a specific resource, race conditions may occur.
+Third party and utility bundles (often denoted by commons in the bundle name) are the general exception to this rule, as these bundles will likely function as expected with multiple versions deployed.
+
+==== Additional Bundling Resources
+
 * Blueprint
 ** http://aries.apache.org/modules/blueprint.html
 ** http://www.ibm.com/developerworks/opensource/library/os-osgiblueprint/
@@ -744,81 +600,325 @@ The state is `Active`, indicating that the bundle is ready for program execution
 * Bundle States
 ** http://static.springsource.org/osgi/docs/1.2.1/reference/html/bnd-app-ctx.html
 
-==== UI Development Recommendations
+==== Working with Features
 
-Recommendations for developing UI components.
-//TODO: This section is empty? add content or delete.
+Features XML files group other features and/or bundle(s) for ease of installation/uninstallation.
+
+[source,xml,linenums]
+----
+<feature name="catalog-app" install="auto" version="${ddf-version}"
+    description="The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::${ddf-catalog}">
+    <feature>platform-app</feature>
+    <feature>catalog-core</feature>
+    <feature>catalog-core-metricsplugin</feature>
+    <feature>catalog-core-sourcemetricsplugin</feature>
+    <feature>catalog-transformer-thumbnail</feature>
+    <feature>catalog-transformer-metadata</feature>
+    <feature>catalog-transformer-xsltengine</feature>
+    <feature>catalog-transformer-resource</feature>
+    <feature>catalog-rest-endpoint</feature>
+    <feature>catalog-opensearch-endpoint</feature>
+    <feature>catalog-opensearch-source</feature>
+    <feature>catalog-transformer-json</feature>
+    <feature>catalog-transformer-atom</feature>
+    <feature>catalog-transformer-geoformatter</feature>
+    <feature>catalog-transformer-xml</feature>
+    <feature>catalog-transformer-tika</feature>
+    <feature>catalog-security-plugin</feature>
+    <feature>catalog-admin-module-sources</feature>
+    <feature>catalog-core-backupplugin</feature>
+    <feature>catalog-plugin-jpeg2000</feature>
+</feature>
+
+<feature name="catalog-core" install="manual" version="${ddf-version}"
+    description="Catalog Core feature containing the API, third party bundles necessary to run ${ddf-branding-lowercase}-core.">
+    <feature>catalog-core-api</feature>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commons/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-camelcomponent/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.measure/measure-api/${ddf-version}</bundle>
+    <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
+    <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
+    <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
+    <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-federationstrategy/${ddf-version}</bundle>
+    <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-eventcommands/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub-tracker/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-urlresourcereader/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/filter-proxy/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commands/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-metacardgroomerplugin/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/metacard-type-registry/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-standardframework/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-resourcesizeplugin/${ddf-version}</bundle>
+
+    <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/xml/solrconfig</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/xml/schema</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/protwords</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/stopwords_en</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/stopwords</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/synonyms</configfile>
+</feature>
+----
+
+==== Making Sure a Features File Will Display Properly in the Installer
+
+In order to ensure that the installer can correctly interpret and display application details, there are several guidelines that should be followed when creating the features file for the application.
+
+* Be sure that only one feature in the `features.xml` has the `auto-install` tag.
++
+[source]
+----
+install='auto'
+----
++
+This is the feature that the installer displays to the user (name, description, version, etc.). It is typically named after the application itself and the description provides a complete application description.
+* Be sure that the one feature specified to `auto-install` has a complete list of all of its dependencies in order to ensure the dependency tree can be constructed correctly.
+
+===== Auto-starting an Application Feature
+
+Within the `features.xml` file for an application, one feature will have the install attribute set to `auto`.
+Within this feature, refer to any dependencies of the application as well as any features that should start automatically.
+Other features should have install set to `manual`.
+
+The following example demonstrates configuring features to be auto-started. The naming convention for this feature is typically "`application name`" + "`-app`," as shown.
+
+.Auto-start features
+[source,xml,linenums]
+----
+<feature name="catalog-app" install="auto">
+    <feature>platform-app</feature>
+    <feature>catalog-core</feature>
+    <feature>catalog-core-metricsplugin</feature>
+    <feature>catalog-core-sourcemetricsplugin</feature>
+    <feature>catalog-transformer-thumbnail</feature>
+</feature>
+----
+
+
+=== Developing ${branding} Applications
+
+The ${branding} applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles.
+These features can be installed/uninstalled using the ${admin-console} or ${command-console}.
+${branding} applications also consist of one or more OSGi bundles and, possibly, supplemental external files.
+These applications are packaged as Karaf KAR files for easy download and installation.
+These applications can be stored on a file system or a Maven repository.
+
+A KAR file is a Karaf-specific archive format (*K*araf *AR*chive).
+It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files.
+The feature descriptor file identifies the application's name, the set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
+
+==== Creating a KAR File
+
+The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal.
+This goal reads all of the features specified in the feature's descriptor file.
+For each feature in this file, it resolves the bundles defined in the feature.
+All bundles are then packaged into the KAR archive.
+
+.create-kar Goal Example
+[source,xml,linenums]
+----
+<plugin>
+<groupId>org.apache.karaf.tooling</groupId>
+<artifactId>features-maven-plugin</artifactId>
+<version>2.2.5</version>
+	<executions>
+	    <execution>
+	        <id>create-kar</id>
+	        <goals>
+	            <goal>create-kar</goal>
+	        </goals>
+	        <configuration>
+	            <descriptors>
+	                <!-- Add any other <descriptor> that the features file may reference here -->
+	            </descriptors>
+	            <!--
+	            Workaround to prevent the target/classes/features.xml file from being included in the
+	            kar file since features.xml already included in kar's repository directory tree.
+	            Otherwise, features.xml would appear twice in the kar file, hence installing the
+	            same feature twice.
+	            Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
+	            -->
+	            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
+
+	            <!--
+	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
+	            filtered by the maven-resources-plugin.
+	            -->
+	            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+
+	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${project.build.finalName} -->
+	            <finalName>${ddf-branding-lowercase}-ifis-${project.version}</finalName>
+	        </configuration>
+	    </execution>
+    </executions>
+</plugin>
+----
+
+Examples of how KAR files are created for ${branding} components can be found in the ${branding} source code under the ${branding-lowercase}/distribution/${branding-lowercase}-kars directory.
+
+The `.kar` file generated should be deployed to the application author's maven repository.
+The URL to the application's KAR file in this Maven repository should be the installation URL that is used.
+
+==== Including Data Files in a KAR File
+
+The developer may need to include data or configuration file(s) in a KAR file.
+An example of this is a properties file for the JDBC connection properties of a catalog provider.
+
+It is recommended that:
+
+* Any `data/configuration` files be placed under the `src/main/resources` directory of the maven project.
+Sub-directories under `src/main/resources` can be used, e.g., `etc/security`.
+* The Maven project's pom file should be updated to attach each `data/configuration` file as an artifact (using the `build-helper-maven-plugin`).
+* Add each `data/configuration` file to the KAR file using the `<configfile>` tag in the KAR's `features.xml` file.
+
+==== Installing a KAR File
+
+When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
+To install manually, the KAR file can be placed in the `<${branding}_INSTALL_DIR>/deploy` directory of the running ${branding} instance. ${branding} then detects that a file with a `.kar` file extension has been placed in this monitored directory, unzips the KAR file into the `<${branding}_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
+To install via the ${admin-console}:
+. Navigate to https://localhost:8993/admin
+. Click the *Manage* button in the upper right
+. Click the *Add an Application* tile
+. Upload the KAR file via the popup window
+. Click *Save Changes* to activate
+The new application can be viewed via the ${admin-console}'s Active Applications list.
+
+===== Developing Application Configuration Modules
+
+An application within ${branding} is a collection of bundles contained in a KAR file that may or may not have configurations associated with it.
+Plugins are used to advertise applications.
+These configuration module plugins are often used to add user interface elements to make the use of the ${branding} simpler and/or more intuitive.
+
+====== Creating an Application Configuration Module
+
+This example demonstrates a plugin that allows the ${branding} to use the Admin UI.
+
+. Create an application plugin to advertise your configuration by extending `AbstractApplicationPlugin`.
++
+[source,java,linenums]
+----
+import org.codice.${ddf-branding-lowercase}.admin.application.plugin.AbstractApplicationPlugin;
+
+public class SourcesPlugin extends AbstractApplicationPlugin {
+    /**
+     * Constructor.
+     */
+
+    public SourcesPlugin() {
+        this.displayName = "Sources";
+        this.iframeLocation = URI.create("/admin/sources/index.html");
+        List<String> apps = new ArrayList<String>();
+        apps.add("catalog-app");
+        this.setAssociations(apps);
+    }
+}
+----
++
+. Configure as shown with a name, URI, and any dependency applications.
+. Register the application with Blueprint through a `blueprint.xml` file.
++
+.`blueprint.xml`
+[source,xml,linenums]
+----
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="
+  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <bean id="appModule" class="org.codice.ui.admin.applications.ApplicationModule"></bean>
+
+    <service interface="org.codice.ddf.ui.admin.api.module.AdminModule" ref="appModule" />
+
+</blueprint>
+----
++
+. Create application to use this configuration.
+
+===== Including KAR Files
+
+Sometimes a developer may need to include data or configuration file(s) in a KAR file.
+An example of this would be a properties file for the JDBC connection properties of a catalog provider.
+
+It is recommended that:
+
+* Any data/configuration files be placed under the `src/main/resources` directory of the maven project.
+(Sub-directories under `src/main/resources` can also be used, e.g., `etc/security`)
+* The maven project's pom file should be updated to attach each data/configuration file as an artifact (using the `build-helper-maven-plugin`)
+* Add each data/configuration file to the KAR file by using the `<configfile>` tag in the KAR's `features.xml` file
 
 === Web Service Security Architecture
 
-The Web Service Security (WSS) functionality that comes with {branding} is integrated throughout the system.
+The Web Service Security (WSS) functionality that comes with ${branding} is integrated throughout the system.
 This is a central resource describing how all of the pieces work together and where they are located within the system.
 
-{branding} comes with a Security Framework and Security Services.
-The Security Framework is the set of APIs that define the integration with the {branding} framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
+${branding} comes with a *Security Framework* and *Security Services*.
+The Security Framework is the set of APIs that define the integration with the ${branding} framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
 
 ==== Security Framework
-The {branding} Security Framework utilizes http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
-The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by {branding}.
+
+The ${branding} Security Framework uses http://shiro.apache.org/[Apache Shiro] as the underlying security framework.
+The classes mentioned in this section will have their full package name listed, to make it easy to tell which classes come with the core Shiro framework and which are added by ${branding}.
 
 ===== Subject
 
-`ddf.security.Subject <extends> org.apache.shiro.subject.Subject`
+`${ddf-branding-lowercase}.security.Subject <extends> org.apache.shiro.subject.Subject`
 
 The Subject is the key object in the security framework.
 Most of the workflow and implementations revolve around creating and using a Subject.
-The Subject object in {branding} is a class that encapsulates all information about the user performing the current operation.
+The Subject object in ${branding} is a class that encapsulates all information about the user performing the current operation.
 The Subject can also be used to perform permission checks to see if the calling user has acceptable permission to perform a certain action (e.g., calling a service or returning a metacard).
-This class was made {branding}-specific because the Shiro interface cannot be added to the Query Request property map.
+This class was made ${branding}-specific because the Shiro interface cannot be added to the Query Request property map.
 
-====== Implementations of Subject:
-
+.Implementations of Subject:
 [cols="2" options="header"]
 |===
 
 |Classname
 |Description
 
-|ddf.security.impl.SubjectImpl
-|Extends org.apache.shiro.subject.support.DelegatingSubject
+|${ddf-branding-lowercase}.security.impl.SubjectImpl
+|Extends `org.apache.shiro.subject.support.DelegatingSubject`
 
 |===
 
 ===== Security Manager
 
-`ddf.security.service.SecurityManager`
+`${ddf-branding-lowercase}.security.service.SecurityManager`
 
 The Security Manager is a service that handles the creation of Subject objects.
-A proxy to this service should be obtained by an endpoint to create a Subject and add it to the outgoing QueryRequest.
+A proxy to this service should be obtained by an endpoint to create a Subject and add it to the outgoing `QueryRequest`.
 The Shiro framework relies on creating the subject by obtaining it from the current thread.
-Due to the multi-threaded and stateless nature of the {branding} framework, utilizing the Security Manager interface makes retrieving Subjects easier and safer.
+Due to the multi-threaded and stateless nature of the ${branding} framework, utilizing the Security Manager interface makes retrieving Subjects easier and safer.
 
-====== Implementations of Security Managers:
-[cols="2" options="header"]
+.Implementations of Security Managers:
+[cols="1m,1" options="header"]
 |===
 
 |Classname
 |Description
 
-|ddf.security.service.SecurityManagerImpl
+|${ddf-branding-lowercase}.security.service.SecurityManagerImpl
 |This implementation of the Security Manager handles taking in both `org.apache.shiro.authc`.
 AuthenticationToken and `org.apache.cxf.ws.security.tokenstore.SecurityToken` objects.
 
 |===
 
 ===== Authentication Tokens
+
 `org.apache.shiro.authc.AuthenticationToken`
 
 Authentication Tokens are used to verify authentication of a user when creating a subject.
-A common use-case is when a user is logging directly in to the {branding} framework.
+A common use-case is when a user is logging directly in to the ${branding} framework.
 
-[cols="2" options="header"]
+[cols="1m,2" options="header"]
 |===
 
 |Classname
 |Description
 
-|ddf.security.service.impl.cas.CasAuthenticationToken
+|${ddf-branding-lowercase}.security.service.impl.cas.CasAuthenticationToken
 |This Authentication Token is used for authenticating a user that has logged in with CAS.
 It takes in a proxy ticket which can be validated on the CAS server.
 
@@ -827,89 +927,92 @@ It takes in a proxy ticket which can be validated on the CAS server.
 ==== Realms
 
 ===== Authenticating Realms
+
 `org.apache.shiro.realm.AuthenticatingRealm`
+
 Authenticating Realms are used to authenticate an incoming authentication token and create a Subject on successfully authentication.
 
-====== Implementations of Authenticating Realms that come with {branding}:
+====== Implementations of Authenticating Realms that come with ${branding}:
 
-[cols="1,2" options="header"]
+[cols="1m,2" options="header"]
 |===
 
 |Classname
 |Description
 
-|ddf.security.realm.sts.StsRealm
-|This realm delegates authentication to the Secure Token Service (STS). It creates a RequestSecurityToken message from the incoming Authentication Token and converts a successful STS response into a Subject.
+|${ddf-branding-lowercase}.security.realm.sts.StsRealm
+|This realm delegates authentication to the Secure Token Service (STS). It creates a `RequestSecurityToken` message from the incoming Authentication Token and converts a successful STS response into a Subject.
 
 |===
 
 ===== Authorizing Realms
+
 `org.apache.shiro.realm.AuthorizingRealm`
 
 Authorizing Realms are used to perform authorization on the current Subject.
 These are used when performing both Service AuthZ and Filtering.
-They are passed in the AuthorizationInfo of the Subject along with the Permissions of the object wanting to be accessed. The response from these realms is a true (if the Subject has permission to access) or false (if the Subject does not).
+They are passed in the `AuthorizationInfo` of the Subject along with the Permissions of the object wanting to be accessed. The response from these realms is a true (if the Subject has permission to access) or false (if the Subject does not).
 
-====== Other implementations of the Security API that come with {branding}:
+====== Other implementations of the Security API that come with ${branding}:
 
-[cols="1,2" options="header"]
+[cols="1m,2" options="header"]
 |===
 
 |Classname
 |Description
 
-|org.codice.ddf.platform.filter.delegate.DelegateServletFilter
-|The DelegateServletFilter detects any servlet filters that have been exposed as OSGi services and places them in-order in front of any servlet or web application running on the container.
+|org.codice.${ddf-branding-lowercase}.platform.filter.delegate.DelegateServletFilter
+|The `DelegateServletFilter` detects any servlet filters that have been exposed as OSGi services and places them in-order in front of any servlet or web application running on the container.
 
-|org.codice.ddf.security.filter.websso.WebSSOFilter
+|org.codice.${ddf-branding-lowercase}.security.filter.websso.WebSSOFilter
 |This filter serves as the main security filter that works in conjunction with a number of handlers to protect a variety of contexts, each using different authentication schemes and policies.
 
-|org.codice.ddf.security.handler.saml.SAMLAssertionHandler
+|org.codice.${ddf-branding-lowercase}.security.handler.saml.SAMLAssertionHandler
 |This handler is executed by the WebSSOFilter for any contexts configured to use it.
 This handler should always come first when configured in the Web Context Policy Manager, as it provides a caching capability to web contexts that use it.
 The handler will first check for the existence of a cookie named "org.codice.websso.saml.token" to extract a Base64 + deflate SAML assertion from the request.
-If an assertion is found it will be converted to a SecurityToken.
+If an assertion is found it will be converted to a `SecurityToken`.
 Failing that, the handler will check for a JSESSIONID cookie that might relate to a current SSO session with the container.
 If the JSESSIONID is valid, the SecurityToken will be retrieved from the cache in the LoginFilter.
 
-|org.codice.ddf.security.handler.basic.BasicAuthenticationHandler
+|org.codice.${ddf-branding-lowercase}.security.handler.basic.BasicAuthenticationHandler
 |Checks for basic authentication credentials in the http request header.
-If they exist, they are retrieved and passed to the LoginFilter for exchange.
+If they exist, they are retrieved and passed to the `LoginFilter` for exchange.
 
-|org.codice.ddf.security.handler.pki.PKIHandler
+|org.codice.${ddf-branding-lowercase}.security.handler.pki.PKIHandler
 |Handler for PKI based authentication.
-X509 chain will be extracted from the HTTP request and converted to a BinarySecurityToken.
+X509 chain will be extracted from the HTTP request and converted to a `BinarySecurityToken`.
 
-|org.codice.ddf.security.handler.anonymous.AnonymousHandler
-|Handler that allows anonymous user access via a guest user account.
-The guest account credentials are configured via the org.codice.ddf.security.claims.anonymous.AnonymousClaimsHandler.
-The AnonymousHandler also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
+|org.codice.${ddf-branding-lowercase}.security.handler.anonymous.AnonymousHandler
+|Handler that allows guest user access via a guest user account.
+The guest account credentials are configured via the org.codice.${ddf-branding-lowercase}.security.claims.guest.GuestClaimsHandler.
+The `GuestHandler` also checks for the existence of basic auth credentials or PKI credentials that might be able to override the use of the anonymous user.
 
-|org.codice.ddf.security.filter.login.LoginFilter
+|org.codice.${ddf-branding-lowercase}.security.filter.login.LoginFilter
 |This filter runs immediately after the WebSSOFilter and exchanges any authentication information found in the request with a Subject via Shiro.
 
-|org.codice.ddf.security.filter.authorization.AuthorizationFilter
-|This filter runs immediately after the LoginFilter and checks any permissions assigned to the web context against the attributes of the user via Shiro.
+|org.codice.${ddf-branding-lowercase}.security.filter.authorization.AuthorizationFilter
+|This filter runs immediately after the `LoginFilter` and checks any permissions assigned to the web context against the attributes of the user via Shiro.
 
 |org.apache.shiro.realm.AuthenticatingRealm
-|This is an abstract authenticating realm that exchanges an org.apache.shiro.authc.AuthenticationToken for a ddf.security.Subject in the form of an org.apache.shiro.authc.AuthenticationInfo
+|This is an abstract authenticating realm that exchanges an `org.apache.shiro.authc.AuthenticationToken` for a `${ddf-branding-lowercase}.security.Subject` in the form of an `org.apache.shiro.authc.AuthenticationInfo`
 
-|ddf.security.realm.sts.StsRealm
-|This realm is an implementation of org.apache.shiro.realm.AuthenticatingRealm and connects to an STS (configurable) to exchange the authentication token for a Subject.
+|${ddf-branding-lowercase}.security.realm.sts.StsRealm
+|This realm is an implementation of `org.apache.shiro.realm.AuthenticatingRealm` and connects to an STS (configurable) to exchange the authentication token for a Subject.
 
-|ddf.security.service.AbstractAuthorizingRealm
-|This is an abstract authorizing realm that takes care of caching and parsing the Subject's AuthorizingInfo and should be extended to allow the implementing realm focus on making the decision.
+|${ddf-branding-lowercase}.security.service.AbstractAuthorizingRealm
+|This is an abstract authorizing realm that takes care of caching and parsing the Subject's `AuthorizingInfo` and should be extended to allow the implementing realm focus on making the decision.
 
-|ddf.security.pdp.realm.AuthZRealm
+|${ddf-branding-lowercase}.security.pdp.realm.AuthZRealm
 |This realm performs the authorization decision and may or may not delegate out to the external XACML processing engine. It uses the incoming permissions to create a decision.
-However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface.
+However, it is possible to extend this realm using the `${ddf-branding-lowercase}.security.policy.extension.PolicyExtension` interface.
 This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies.
 This approach is often easier to configure for those that are not familiar with XACML.
-Note that no PolicyExtension implementations are provided out of the box.
+Note that no `PolicyExtension` implementations are provided out of the box.
 
-|org.codice.ddf.security.validator.*
-|A number of STS validators are provided for X.509 (BinarySecurityToken), UsernameToken, SAML Assertion, and {branding} custom tokens.
-The {branding} custom tokens are all BinarySecurityTokens that may have PKI or username/password information as well as an authentication realm (correlates to JAAS realms installed in the container).
+|org.codice.${ddf-branding-lowercase}.security.validator.*
+|A number of STS validators are provided for X.509 (BinarySecurityToken), UsernameToken, SAML Assertion, and ${branding} custom tokens.
+The ${branding} custom tokens are all `BinarySecurityTokens` that may have PKI or username/password information as well as an authentication realm (correlates to JAAS realms installed in the container).
 The authentication realm allows an administrator to restrict which services they wish to use to authenticate users.
 For example: installing the `security-sts-ldaplogin` feature will enable a JAAS realm with the name "ldap".
 This realm can then be specified on any context using the Web Context Policy Manager.
@@ -933,7 +1036,7 @@ This means that it is still possible to federate and pass a machine's identity, 
 |                       /----------\          /----------------\                                               /-------------------------------------------\ |
 | /-------=--\          |          |          |          cDEF  |                                               |                 STS Server                | |
 | | External | Request  |Delegating| Request  |    Web SSO     |                                   /-------\   |  /----------\  /----------\  /----------\ | |
-| |   DDF    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
+| |   ${ddf-branding}    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
 | |  Client  |          | Filter   |          |                |                             |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
 | \----------/          |     cEEE |          | /------------\ |                             |     | Realm |   |  \----------/  \----------/  \----------/ | |
 |       ^               \----------/          | |Whitelisted?| |<-------\                    |     |       |   |                                    |      | |
@@ -999,17 +1102,19 @@ This diagram does not yet include the SAML 2.0 Web SSO integration.
 
 ==== Encryption Service
 
-The encryption service and encryption command, which are based on http://www.jasypt.org/[Jasypt], provide an easy way for developers to add encryption capabilities to {branding}.
+The encryption service and encryption command, which are based on http://www.jasypt.org/[Jasypt], provide an easy way for developers to add encryption capabilities to ${branding}.
 
 ===== Encryption Command
-An encrypt security command is provided with {branding} that allows plain text to be encrypted.
+
+An encrypt security command is provided with ${branding} that allows plain text to be encrypted.
 This is useful when displaying password fields in a GUI.
 
 Below is an example of the security:encrypt command used to encrypt the plain text "myPasswordToEncrypt".
 The output, `bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=`, is the encrypted value.
 
+[source%nowrap.java]
 ----
-ddf@local>security:encrypt myPasswordToEncrypt
+${ddf-branding-lowercase}@local>security:encrypt myPasswordToEncrypt
 
 bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 ----
@@ -1019,9 +1124,10 @@ bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
 Metacard filtering is performed in a Access plugin that occurs after a query has been performed.
 
 ===== How Filtering Works
+
 Each metacard result will contain security attributes that are populated by the CatalogFramework based on the PolicyPlugins (Not provided! You must create your own plugin for your specific metadata!) that populates this attribute.
 The security attribute is a HashMap containing a set of keys that map to lists of values.
-The metacard is then processed by a filter plugin that creates a KeyValueCollectionPermission from the metacard's security attribute.
+The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
 The decision to filter the metacard eventually relies on the PDP (`features:install security-pdp-authz`).
 The PDP returns a decision, and the metacard will either be filtered or allowed to pass through.
@@ -1030,7 +1136,7 @@ The security attributes populated on the metacard are completely dependent on th
 Each type of metacard must have its own PolicyPlugin that reads the metadata being returned and returns the metacard's security attribute.
 If the subject permissions are missing during filtering, all resources will be filtered.
 
-Example (represented as simple XML for ease of understanding):
+.Example (represented as simple XML for ease of understanding):
 [source,xml,linenums]
 ----
 <metacard>
@@ -1073,19 +1179,19 @@ In this particular case, the metacard might be allowed if the policy is configur
 ==== Filter a New Type of Metacard
 
 To enable filtering on a new type of record, implement a PolicyPlugin that is able to read the string metadata contained within the metacard record.
-Note that, in {branding}, there is no default plugin that parses a metacard.
+Note that, in ${branding}, there is no default plugin that parses a metacard.
 A plugin must be created to create a policy for the metacard.
 
 ==== Security Token Service
 
-The Security Token Service (STS) is a service running in {branding} that generates SAML v2.0 assertions.
-These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.
+The Security Token Service (STS) is a service running in ${branding} that generates SAML v2.0 assertions.
+These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to ${branding} services.
 
 The STS is an extension of Apache CXF-STS.
 It is a SOAP web service that utilizes WS-Trust.
 The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints.
-Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page.
-This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
+Specific configuration details on the bundles that come with ${branding} can be found on the Security STS application page.
+This page details all of the STS components that come out of the box with ${branding}, along with configuration options, installation help, and which services they import and export.
 
 The STS server contains validators, claim handlers, and token issuers to process incoming requests.
 When a request is received, the validators first ensure that it is valid.
@@ -1102,6 +1208,7 @@ Out of the box, the STS supports authentication from existing SAML tokens, CAS p
 It also supports retrieving claims using LDAP and properties files.
 
 ===== STS Claims Handlers
+
 Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
 An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
 These attributes are then mapped and added to the SAML assertion being created.
@@ -1110,16 +1217,19 @@ Integrators and developers can add more claims handlers that can handle other ty
 ====== Add a Custom Claims Handler
 
 ====== Description
+
 A claim is an additional piece of data about a subject that can be included in a token along with basic token data.
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
 
 ====== Motivation
+
 A developer may want to add a custom claims handler to retrieve attributes from an external attribute store.
 
 ====== Steps
+
 The following steps define the procedure for adding a custom claims handler to the STS.
 
-. The new claims handler must implement the org.apache.cxf.sts.claims.ClaimsHander interface.
+. The new claims handler must implement the `org.apache.cxf.sts.claims.ClaimsHander` interface.
 +
 [source,java,linenums]
 ----
@@ -1174,14 +1284,13 @@ public interface ClaimsHandler {
 ----
 . Deploy the bundle.
 
-If the new claims handler is hitting an external service that is secured with SSL/TLS, a developer may need to add the root CA of the external site to the {branding} trustStore and add a valid certificate into the {branding} keyStore. For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
-
+If the new claims handler is hitting an external service that is secured with SSL/TLS, a developer may need to add the root CA of the external site to the ${branding} trustStore and add a valid certificate into the ${branding} keyStore. For more information on certificates, refer to <<Configuring a Java Keystore for Secure Communications>>.
 
 ===== STS WS-Trust WSDL Document
 
 [NOTE]
 ====
-This XML file is found inside of the STS bundle and is named ws-trust-1.4-service.wsdl.
+This XML file is found inside of the STS bundle and is named `ws-trust-1.4-service.wsdl`.
 ====
 
 [source,xml,linenums]
@@ -1420,12 +1529,13 @@ This XML file is found inside of the STS bundle and is named ws-trust-1.4-servic
 ----
 
 ==== Example Request and Responses for a SAML Assertion
-A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion.
-The {branding} STS offers several different ways to request a SAML assertion.
+
+A client performs a `RequestSecurityToken` operation against the STS to receive a SAML assertion.
+The ${branding} STS offers several different ways to request a SAML assertion.
 For help in understanding the various request and response formats, samples have been provided.
 The samples are divided out into different request token types.
 
-Most endpoints that have been used in {branding} require the X.509 PublicKey SAML assertion.
+Most endpoints that have been used in ${branding} require the X.509 PublicKey SAML assertion.
 
 ==== BinarySecurityToken (CAS) SAML Security Token Request/Response
 
@@ -1646,7 +1756,7 @@ L6tQ</ds:X509Certificate>
 
 ===== UsernameToken Bearer SAML Security Token Request/Response
 
-To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
+To obtain a SAML assertion to use in secure communication to ${branding}, a RequestSecurityToken (RST) request has to be made to the STS.
 
 A Bearer SAML assertion is automatically trusted by the endpoint.
 The client doesn't have to prove it can own that SAML assertion.
@@ -1660,7 +1770,7 @@ It is the simplest way to request a SAML assertion, but many endpoints won't acc
 * Username Token containing a username and password that the STS will authenticate
 * Issued over HTTPS
 * KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer
-* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
+* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the `RequestSecurityToken` must specify which ones to include.
 
 .Sample Request
 [source,xml,linenums]
@@ -1709,6 +1819,7 @@ It is the simplest way to request a SAML assertion, but many endpoints won't acc
 ----
 
 ====== Response
+
 This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:
 
 The `saml2:Assertion` block contains the entire SAML assertion.
@@ -1844,16 +1955,17 @@ HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
 
 ===== X.509 PublicKey SAML Security Token Request/Response
 
-In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.
+In order to obtain a SAML assertion to use in secure communication to ${branding}, a `RequestSecurityToken` (RST) request has to be made to the STS.
 
 An endpoint's policy will specify the type of security token needed.
-Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.
-This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.
+Most of the endpoints that have been used with ${branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.
+This means that the SAML assertion provided by the client to a ${branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.
 This is used to prove that the client can possess the SAML assertion returned by the STS.
 
 ====== Request
+
 *Explanation*
-The STS that comes with {branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.
+The STS that comes with ${branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.
 See the request block below for an example of how these components should be populated.
 
 * WS-Addressing header containing Action, To, and MessageID blocks
@@ -2113,7 +2225,8 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 ----
 
 === Expansion Service
-The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to {branding} during user attribute and metadata card processing.
+
+The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to ${branding} during user attribute and metadata card processing.
 In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
 
 Each instance of the expansion service consists of a collection of rule sets.
@@ -2122,7 +2235,7 @@ Callers of the expansion service provide a key and an original value to be expan
 The expansion service then looks up the set of rules for the specified key.
 The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
 
-[cols="3" options="header"]
+[cols="3m" options="header"]
 |===
 
 |Key (Attribute)
@@ -2148,7 +2261,7 @@ The expansion service then cumulatively applies each of the rules in the set sta
 |===
 The examples below use the following collection of rule sets:
 
-[cols="3" options="header"]
+[cols="3m" options="header"]
 |===
 
 |Key (Attribute)
@@ -2252,236 +2365,10 @@ If the client receives the token, it makes a secure call to the endpoint and rec
 
 ==== Dumb SOAP Client
 
-If calling endpoint from a non-secure client, at the point the of the initial call, the Anonymous Interceptor catches the request and prepares it to be accepted by the endpoint.
+If calling endpoint from a non-secure client, at the point the of the initial call, the Guest Interceptor catches the request and prepares it to be accepted by the endpoint.
 
 First, the interceptor reads the configured policy, builds a security header, and gets an anonymous SAML assertion.
 Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm.
 Upon success, the STS realm returns the subject and the call is made to the endpoint.
 
-=== Utilities
-
-In addition to the applications, there are other utilities that are available in other code repositories on Github.
-These utilities are deployed into Nexus for easier accessibility.
-
-==== {branding}-libs
-{branding}-libs is a repository for library modules in {branding}.
-Typically, the modules in this repository are re-usable across different components of {branding}.
-
-==== {branding} Load Balancer
-Provides utility that allows incoming traffic to be distributed over multiple instances of {branding}, via HTTP or HTTPS
-
-Contained within {branding} is a Load Balancer utility that allows incoming traffic to be distributed over multiple instances of {branding}.
-The {branding} Load Balancer supports two protocols: HTTP and HTTPS.
-The Load Balancer can be configured to run one protocol or both at the same time.
-The {branding} Load Balancer has been configured to utilize a "Round Robin" algorithm to distribute transactions.
-The load balancer is also equipped with a failover mechanism. When the load balancer attempts to access a server that is non-functional, it will receive an exception and move on to the next server on the list to complete the transaction.
-The action will try to be replayed on every server once before failing back to the client.
-
-// move to configuring? or delete altogether?
-==== Set up the {branding} Load Balancer
-The main method for installing the {branding} Load Balancer is to install the application (.kar) file into the hot deploy folder of a full {branding} distribution.
-
-===== Prerequisites
-Before the {branding} Load Balancer can be installed:
-
-* the {branding} Kernel must be running
-* the {branding} Platform Application must be installed
-
-===== Install
-Complete the following procedure to install the {branding} Load Balancer.
-
-. Download the application (.kar) file from the artifacts repo (http://artifacts.codice.org/).
-. Copy the KAR file into the <INSTALL_DIRECTORY>/deploy folder of a currently running {branding} distribution.
-. Uninstall the included jetty feature. *Note: This is due to a bug in the current version of jetty being delivered with {branding}, this step will be removed once that version is updated*.
-
-----
-features:uninstall jetty
-----
-
-===== Verify
-
-. Verify all of the Load Balancer's appropriate features have been successfully installed.
-+
-.{branding} Load Balancer installed features
-----
-ddf@local>features:list | grep -i loadbalancer-app
-[installed  ] [1.0.0                ] codice-load-balancer      loadbalancer-app-1.0.0                    Load Balancer
-[installed  ] [7.6.12.v20130726     ] loadbalancer-jetty        loadbalancer-app-1.0.0                    Provide Jetty engine support
-----
-+
-. Verify the {branding} Load Balancer bundles are Active.
-+
-.{branding} Load Balancer active bundles
-----
-[ 223] [Active     ] [            ] [       ] [   50] camel-http (2.12.1)
-[ 224] [Active     ] [            ] [       ] [   50] camel-jetty (2.12.1)
-[ 258] [Active     ] [            ] [       ] [   80] Jetty :: Utilities (7.6.12.v20130726)
-[ 259] [Active     ] [            ] [       ] [   80] Jetty :: IO Utility (7.6.12.v20130726)
-[ 260] [Active     ] [            ] [       ] [   80] Jetty :: Http Utility (7.6.12.v20130726)
-[ 261] [Active     ] [            ] [       ] [   80] Jetty :: Asynchronous HTTP Client (7.6.12.v20130726)
-[ 262] [Active     ] [            ] [       ] [   80] Jetty :: Continuation (7.6.12.v20130726)
-[ 263] [Active     ] [            ] [       ] [   80] Jetty :: JMX Management (7.6.12.v20130726)
-[ 264] [Active     ] [            ] [       ] [   80] Jetty :: Server Core (7.6.12.v20130726)
-[ 265] [Active     ] [            ] [       ] [   80] Jetty :: Security (7.6.12.v20130726)
-[ 266] [Active     ] [            ] [       ] [   80] Jetty :: Servlet Handling (7.6.12.v20130726)
-[ 267] [Active     ] [            ] [       ] [   80] Jetty :: Utility Servlets and Filters (7.6.12.v20130726)
-[ 268] [Active     ] [            ] [       ] [   80] Jetty :: XML utilities (7.6.12.v20130726)
-[ 269] [Active     ] [            ] [       ] [   80] Jetty :: Webapp Application Support (7.6.12.v20130726)
-[ 270] [Active     ] [            ] [       ] [   80] Jetty :: JNDI Naming (7.6.12.v20130726)
-[ 271] [Active     ] [            ] [       ] [   80] Jetty :: Plus (7.6.12.v20130726)
-[ 272] [Active     ] [            ] [       ] [   80] Jetty :: Websocket (7.6.12.v20130726)
-[ 273] [Active     ] [Created     ] [       ] [   80] Codice :: Loadbalancer :: Camel (1.0.0)
-----
-
-===== Uninstall
-
-[WARNING]
-====
-It is very important to save the KAR file for the application prior to an uninstall so that the uninstall can be reverted if necessary.
-====
-
-Complete the following procedure to uninstall the {branding} Load Balancer.
-
-. Delete the KAR file (loadbalancer-app-X.Y.kar) from the <INSTALL_DIRECTORY>/deploy directory.
-. Re-install the jetty feature.
-+
-----
-features:install jetty
-----
-+
-. Restart {branding} to ensure that all of the Jetty bundles are refreshed properly.
-
-===== Configure the {branding} Load Balancer
-The {branding} Load Balancer can be configured to allow multiple {branding} nodes to be balanced.
-It can also be configured with a port on which to accept connections.
-Configurations differ slightly between the HTTP- and HTTPS-based load balancers.
-All configurations are dynamic in that configuration settings are immediately applied, and it is not necessary to restart {branding}.
-
-===== Configure the HTTP Load Balancer
-Complete the following procedure to access the load balancer configuration.
-
-. Click the Configuration tab in the {branding} management console.
-. Scroll down to the configuration entry that is labeled Platform *HTTP Load Balancer*.
-The configuration for the load balancer contains two fields: *Load Balancer Port* and *IP Address and Port*.
-. In the *Load Balancer Port* field, enter the port number to be accessed when reaching other systems.
-. In the IP Address and Port field, enter a comma-delimited list of IP addresses and ports for each {branding} node to be balanced. The format for IP address and port is <IP_ADDRESS>:<PORT> (e.g., 192.168.1.123:8181,192.168.1.22:8181).
-. Select the *Save* button when all configuration have been added.
-
-At this point, the load balancer is reset and ready to accept requests.
-These configurations can be updated at any time without starting the host {branding} instance.
-
-===== Configure the HTTPS Load Balancer
-It is possible to run the HTTPS load balancer by itself or run it in parallel with the HTTP load balancer.
-The HTTPS load balancer utilizes the centralized SSL configurations within {branding}, along with the load balancer configurations.
-Complete the following procedure to configure the HTTPS load balancer.
-
-. Find the SSL configurations and verify that the values are correct.
-. Click the Configuration tab in the {branding} management console.
-. Scroll down to the configuration entry that is labeled *Pax Web Runtime*.
-. Select *Pax Web Runtime*.
-. Ensure that the displayed settings match what is configured in the {branding} nodes to be balanced.
-. Save the updated settings or close the window, as applicable.
-. In the configuration table, scroll down to the configuration entry labeled *Platform HTTPS Load Balancer*.
-. The configuration for the load balancer contains three fields: *Load Balancer Host*, *Load Balancer Port*, and *IP Address and Port*.
-. In the *Load Balancer Host* field, enter the host name or IP address to be used for the host load balancer machine.
-. In the *Load Balancer Port* field, enter the port number to be accessed on the load balancer to reach the other systems.
-. In the *IP Address and Port* field, enter a comma delimited list of IP address and port for each {branding} node that will be balanced. The format for IP address and port is <IP_ADDRESS>:<PORT> (e.g. 192.168.1.123:8993,192.168.1.22:8993)
-. Select the *Save* button when all configuration have been added.
-
-Since SSL requests will be coming from a client into the load balancer, it is essential that the nodes being balanced have the same security policy and settings.
-The client has no idea which {branding} server it will be connecting with behind the load balancer.
-The client is responsible for connecting securely with the load balancer, and the load balancer is responsible for connecting securely and consistently with all {branding} nodes.
-
-[WARNING]
-====
-The {branding} Load Balancer cannot run on the same port as the {branding} Admin Console or other web services.
-If you would like the load balancer to run on this port, change the web console port to a different port number.
-This configuration parameter can be found in the *Pax Web Runtime configuration*.
-====
-
-=== Developing {branding} Applications
-The {branding} applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles.
-These features can be installed/uninstalled using the Admin Console or command line console.
-{branding} applications also consist of one or more OSGi bundles and, possibly, supplemental external files.
-These applications are packaged as Karaf KAR files for easy download and installation.
-These applications can be stored on a file system or a Maven repository.
-
-A KAR file is a Karaf-specific archive format (Karaf ARchive).
-It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files.
-The feature descriptor file identifies the application's name, the set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
-
-==== Creating a KAR File
-The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal.
-This goal reads all of the features specified in the features descriptor file.
-For each feature in this file, it resolves the bundles defined in the feature.
-All bundles are then packaged into the KAR archive.
-
-An example of using the create-kar goal is shown below:
-
-.create-kar goal
-[source,xml,linenums]
-----
-<plugin>
-<groupId>org.apache.karaf.tooling</groupId>
-<artifactId>features-maven-plugin</artifactId>
-<version>2.2.5</version>
-	<executions>
-	    <execution>
-	        <id>create-kar</id>
-	        <goals>
-	            <goal>create-kar</goal>
-	        </goals>
-	        <configuration>
-	            <descriptors>
-	                <!-- Add any other <descriptor> that the features file may reference here -->
-	            </descriptors>
-	            <!--
-	            Workaround to prevent the target/classes/features.xml file from being included in the
-	            kar file since features.xml already included in kar's repository directory tree.
-	            Otherwise, features.xml would appear twice in the kar file, hence installing the
-	            same feature twice.
-	            Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
-	            -->
-	            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
-
-	            <!--
-	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
-	            filtered by the maven-resources-plugin.
-	            -->
-	            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-
-	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${project.build.finalName} -->
-	            <finalName>ddf-ifis-${project.version}</finalName>
-	        </configuration>
-	    </execution>
-    </executions>
-</plugin>
-----
-
-Examples of how KAR files are created for {branding} components can be found in the {branding} source code under the ddf/distribution/ddf-kars directory.
-
-The .kar file generated should be deployed to the application author's maven repository.
-The URL to the application's KAR file in this Maven repository should be the installation URL that is used.
-
-==== Including Data Files in a KAR File
-The developer may need to include data or configuration file(s) in a KAR file.
-An example of this is a properties file for the JDBC connection properties of a catalog provider.
-
-It is recommended that:
-
-* Any data/configuration files be placed under the src/main/resources directory of the maven project.
-Sub-directories under src/main/resources can be used, e.g., etc/security.
-* The Maven project's pom file should be updated to attach each data/configuration file as an artifact (using the build-helper-maven-plugin).
-* Add each data/configuration file to the KAR file using the <configfile> tag in the KAR's features.xml file.
-
-==== Installing a KAR File
-When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded.
-To install manually, the KAR file can be placed in the `<DDF_INSTALL_DIR>/deploy` directory of the running {branding} instance. {branding} then detects that a file with a .kar file extension has been placed in this monitored directory, unzips the KAR file into the `<DDF_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file.
-To install via the Admin Console:
-. Navigate to https://localhost:8993/admin
-. Click the *Manage* button in the upper right
-. Click the *Add an Application* tile
-. Upload the KAR file via the popup window
-. Click *Save Changes* to activate
-The new application can be viewed via the Admin Console's Active Applications list.
-
+---

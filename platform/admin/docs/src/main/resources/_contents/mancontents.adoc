@@ -23,9 +23,6 @@ The {branding} Admin application is installed by default with a standard install
 |`org.codice.admin.ui.configuration`
 |Customization options for Admin Console elements.
 
-|Configuration Admin JMX Bridge
-|`ddf.ui.admin.api`
-|List of Configuration Filters
 |===
 
 ==== Defining Platform Settings

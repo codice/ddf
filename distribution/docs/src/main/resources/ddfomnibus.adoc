@@ -137,6 +137,7 @@ include::${project.build.directory}/apps/ui/_contents/intcontents.adoc[]
 
 == Extending ${branding}
 
+include::./_contents/building-ddf-contents.adoc[]
 include::./_contents/extendingcontents.adoc[]
 
 <<<
