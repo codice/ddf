@@ -242,6 +242,9 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");
 
+    public static final DynamicUrl CSW_SUBSCRIPTION_PATH = new DynamicUrl(SERVICE_ROOT,
+            "/csw/subscription");
+
     public static final DynamicUrl ADMIN_ALL_SOURCES_PATH = new DynamicUrl(SECURE_ROOT,
             HTTPS_PORT,
             "/jolokia/exec/org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean:service=admin-source-poller-service/allSourceInfo");

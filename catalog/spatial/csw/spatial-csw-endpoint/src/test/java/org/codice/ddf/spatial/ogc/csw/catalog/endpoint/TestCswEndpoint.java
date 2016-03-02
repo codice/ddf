@@ -28,6 +28,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -51,9 +53,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -76,11 +80,12 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscription;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.SubscriptionManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -118,11 +123,13 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import ch.qos.logback.classic.Level;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.event.Subscription;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -153,6 +160,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
+import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -196,6 +204,8 @@ import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 
 public class TestCswEndpoint {
+    private static final ch.qos.logback.classic.Logger CSW_LOGGER =
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(CswEndpoint.class);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswEndpoint.class);
 
@@ -294,6 +304,8 @@ public class TestCswEndpoint {
 
     private static final String CQL_DURING_OR_AFTER = "during OR after";
 
+    private static final String RESPONSE_HANDLER_URL = "https://somehost:12345/test";
+
     private static UriInfo mockUriInfo = mock(UriInfo.class);
 
     private static Bundle mockBundle = mock(Bundle.class);
@@ -328,8 +340,10 @@ public class TestCswEndpoint {
 
     private static final long TOTAL_COUNT = 10;
 
-    @BeforeClass
-    public static void setUpBeforeClass()
+    private static SubscriptionManager subscriptionManager;
+
+    @org.junit.Before
+    public void setUpBeforeClass()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
             FederationException, ParseException, IngestException {
         URI mockUri = new URI("http://example.com/services/csw");
@@ -342,17 +356,18 @@ public class TestCswEndpoint {
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
 
+        subscriptionManager = mock(SubscriptionManager.class);
         filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
         csw = new CswEndpoint(mockContext,
                 catalogFramework,
                 filterBuilder,
                 filterAdapter,
-                mockUriInfo,
                 mockMimeTypeManager,
                 mockSchemaManager,
-                mockInputManager);
-
+                mockInputManager,
+                subscriptionManager);
+        csw.setUri(mockUriInfo);
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
@@ -363,12 +378,7 @@ public class TestCswEndpoint {
         when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
                 mockTransformer);
         when(mockInputManager.getAvailableIds()).thenReturn(Arrays.asList(CswConstants.CSW_RECORD));
-    }
 
-    @org.junit.Before
-    public void before()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            IngestException {
         QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
         argument = ArgumentCaptor.forClass(QueryRequest.class);
         reset(catalogFramework);
@@ -3213,4 +3223,162 @@ public class TestCswEndpoint {
         when(catalogFramework.getLocalResource(any(ResourceRequest.class))).thenReturn(
                 resourceResponse);
     }
+
+    @Test
+    public void testDeleteRecordsSubscription() throws Exception {
+        String requestId = "requestId";
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler("blah");
+        getRecordsRequest.setRequestId(requestId);
+        CswSubscription cswSubScription = mock(CswSubscription.class);
+        when(cswSubScription.getOriginalRequest()).thenReturn(getRecordsRequest.get202RecordsType());
+        when(subscriptionManager.getSubscription(eq(mockContext), eq(requestId))).thenReturn(
+                cswSubScription);
+        Response response = csw.deleteRecordsSubscription(requestId);
+        assertEquals(Response.Status.OK.getStatusCode(),
+                response.getStatusInfo()
+                        .getStatusCode());
+        verify(subscriptionManager).deleteSubscription(eq(mockContext), eq(requestId));
+
+    }
+
+    @Test
+    public void testDeleteRecordsSubscriptionNoSubscription() throws Exception {
+        String requestId = "requestId";
+        Response response = csw.deleteRecordsSubscription(requestId);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(),
+                response.getStatusInfo()
+                        .getStatusCode());
+
+    }
+
+    @Test
+    public void testGetRecordsSubscriptionNoSubscription() throws Exception {
+        String requestId = "requestId";
+        Response response = csw.getRecordsSubscription(requestId);
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(),
+                response.getStatusInfo()
+                        .getStatusCode());
+
+    }
+
+    @Test
+    public void testGetRecordsSubscription() throws Exception {
+        String requestId = "requestId";
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler("blah");
+        getRecordsRequest.setRequestId(requestId);
+        CswSubscription cswSubScription = mock(CswSubscription.class);
+        when(cswSubScription.getOriginalRequest()).thenReturn(getRecordsRequest.get202RecordsType());
+        when(subscriptionManager.getSubscription(eq(mockContext), eq(requestId))).thenReturn(
+                cswSubScription);
+
+        Response response = csw.getRecordsSubscription(requestId);
+        AcknowledgementType getAck = (AcknowledgementType) response.getEntity();
+        assertEquals(getRecordsRequest.get202RecordsType(),
+                ((JAXBElement<GetRecordsType>) getAck.getEchoedRequest()
+                        .getAny()).getValue());
+
+    }
+
+    @Test
+    public void testUpdateRecordsSubscription() throws Exception {
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler(RESPONSE_HANDLER_URL);
+        Response response = csw.createRecordsSubscription(getRecordsRequest);
+        AcknowledgementType createAck = (AcknowledgementType) response.getEntity();
+        getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler(RESPONSE_HANDLER_URL);
+        getRecordsRequest.setResultType(ResultType.HITS.value());
+        response = csw.updateRecordsSubscription(createAck.getRequestId(),
+                getRecordsRequest.get202RecordsType());
+        AcknowledgementType updateAck = (AcknowledgementType) response.getEntity();
+        assertEquals(((GetRecordsType) ((JAXBElement) updateAck.getEchoedRequest()
+                .getAny()).getValue()).getResultType(), ResultType.HITS);
+
+    }
+
+    @Test
+    public void testCreateRecordsSubscriptionGET() throws Exception {
+        String subscriptionId = "1234";
+        when(subscriptionManager.addOrUpdateSubscription(eq(mockContext),
+                any(Subscription.class),
+                isNull(String.class),
+                eq(RESPONSE_HANDLER_URL))).thenReturn(subscriptionId);
+
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler(RESPONSE_HANDLER_URL);
+        getRecordsRequest.setVersion("");
+        Response response = csw.createRecordsSubscription(getRecordsRequest);
+        AcknowledgementType createAck = (AcknowledgementType) response.getEntity();
+        assertNotNull(createAck);
+        assertEquals(String.format("Expected a requestId of {} got {}",
+                subscriptionId,
+                createAck.getRequestId()), subscriptionId, createAck.getRequestId());
+
+    }
+
+    @Test
+    public void testCreateRecordsSubscriptionPOST() throws Exception {
+        String subscriptionId = "1234";
+        when(subscriptionManager.addOrUpdateSubscription(eq(mockContext),
+                any(Subscription.class),
+                isNull(String.class),
+                eq(RESPONSE_HANDLER_URL))).thenReturn(subscriptionId);
+        CSW_LOGGER.setLevel(Level.DEBUG);
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler(RESPONSE_HANDLER_URL);
+        Response response = csw.createRecordsSubscription(getRecordsRequest.get202RecordsType());
+        AcknowledgementType createAck = (AcknowledgementType) response.getEntity();
+        assertNotNull(createAck);
+        assertNotNull(createAck.getRequestId());
+        CSW_LOGGER.setLevel(Level.INFO);
+
+    }
+
+    @Test(expected = CswException.class)
+    public void testCreateRecordsSubscriptionPOSTwithoutResponseHandler() throws Exception {
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler(null);
+        csw.createRecordsSubscription(getRecordsRequest.get202RecordsType());
+
+    }
+
+    @Test(expected = CswException.class)
+    public void testCreateRecordsSubscriptionGETNullRequest() throws CswException {
+        csw.createRecordsSubscription((GetRecordsRequest) null);
+
+    }
+
+    @Test(expected = CswException.class)
+    public void testCreateRecordsSubscriptionPOSTNullRequest() throws CswException {
+        csw.createRecordsSubscription((GetRecordsType) null);
+
+    }
+
+    @Test
+    public void testCreateRecordsSubscriptionDeleteNullRequest() throws Exception {
+        Response response = csw.deleteRecordsSubscription(UUID.randomUUID()
+                .toString());
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(),
+                response.getStatusInfo()
+                        .getStatusCode());
+    }
+
+    @Test(expected = CswException.class)
+    public void testCreateRecordsSubscriptionPOSTBadResponseHandler() throws CswException {
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setResponseHandler("[]@!$&'()*+,;=");
+        csw.createRecordsSubscription(getRecordsRequest.get202RecordsType());
+
+    }
+
+    @Test(expected = CswException.class)
+    public void testCreateRecordsSubscriptionPOSTNoVersion() throws CswException {
+        GetRecordsRequest getRecordsRequest = createDefaultGetRecordsRequest();
+        getRecordsRequest.setVersion(null);
+
+        csw.createRecordsSubscription(getRecordsRequest.get202RecordsType());
+    }
+
 }
