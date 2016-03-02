@@ -60,8 +60,9 @@ public class PdfInputTransformer implements InputTransformer {
     @Override
     public Metacard transform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
-        PDDocument pdfDocument = PDDocument.load(input);
+        PDDocument pdfDocument = null;
         try {
+            pdfDocument = PDDocument.load(input);
             return transformPdf(id, pdfDocument);
         } finally {
             if (pdfDocument != null) {
