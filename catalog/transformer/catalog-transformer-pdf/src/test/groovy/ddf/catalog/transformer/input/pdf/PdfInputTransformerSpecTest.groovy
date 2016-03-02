@@ -81,7 +81,7 @@ class PdfInputTransformerSpecTest extends Specification {
 
     def "Generate thumbnail only encrypted"() {
         when:
-        byte[] thumbnail = pdfInputTransformer.generatePdfThumbnail(getEncryptedInputStream)
+        byte[] thumbnail = pdfInputTransformer.generatePdfThumbnail(getEncryptedInputStream())
 
         then:
         thrown(IOException)
