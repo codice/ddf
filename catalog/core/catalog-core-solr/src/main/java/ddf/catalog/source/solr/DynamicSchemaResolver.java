@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -52,8 +54,6 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -62,6 +62,7 @@ import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import lux.Config;
 import lux.xml.SaxonDocBuilder;
@@ -107,15 +108,7 @@ public class DynamicSchemaResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
-    // Mapping between Metacard any* attributes to Solr index fields
-    private static final Map<String, String> ANY_FIELD_MAP;
-
     static {
-        ANY_FIELD_MAP = ImmutableMap.of(Metacard.ANY_TEXT,
-                Metacard.METADATA + "_txt_tokenized",
-                Metacard.ANY_GEO,
-                Metacard.GEOGRAPHY + "_geo_index");
-
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         try {
@@ -137,6 +130,8 @@ public class DynamicSchemaResolver {
 
     protected Set<String> fieldsCache = new HashSet<>();
 
+    protected Set<String> anyTextFieldsCache = new HashSet<>();
+
     protected SchemaFields schemaFields;
 
     protected Map<String, MetacardType> metacardTypesCache = new HashMap<>();
@@ -153,6 +148,14 @@ public class DynamicSchemaResolver {
         fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED
                 + SchemaFields.HAS_CASE);
         fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
+
+        anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
+        Set<String> basicTextAttributes = BasicTypes.BASIC_METACARD.getAttributeDescriptors()
+                .stream()
+                .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
+                .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
+                .collect(Collectors.toSet());
+        anyTextFieldsCache.addAll(basicTextAttributes);
     }
 
     /**
@@ -185,6 +188,9 @@ public class DynamicSchemaResolver {
             for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse()
                     .get(FIELDS_KEY)))) {
                 fieldsCache.add(e.getKey());
+                if (e.getKey().endsWith(SchemaFields.TEXT_SUFFIX)) {
+                    anyTextFieldsCache.add(e.getKey());
+                }
             }
         } catch (SolrServerException | SolrException | IOException e) {
             LOGGER.warn("Could not update cache for field names.", e);
@@ -253,8 +259,11 @@ public class DynamicSchemaResolver {
                         attributeValues = byteArrays;
                     }
                     solrInputDocument.addField(formatIndexName, attributeValues);
-                    solrInputDocument.addField(formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
-                            attributeValues.get(0));
+                    if (!(formatIndexName.endsWith(SchemaFields.BINARY_SUFFIX)
+                            || formatIndexName.endsWith(SchemaFields.OBJECT_SUFFIX))) {
+                        solrInputDocument.addField(formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
+                                attributeValues.get(0));
+                    }
                 }
             }
         }
@@ -431,8 +440,8 @@ public class DynamicSchemaResolver {
     public String getField(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactValue) {
 
-        if (ANY_FIELD_MAP.containsKey(propertyName)) {
-            return ANY_FIELD_MAP.get(propertyName);
+        if (Metacard.ANY_GEO.equals(propertyName)) {
+            return Metacard.GEOGRAPHY + "_geo_index";
         }
 
         String fieldName = propertyName + schemaFields.getFieldSuffix(format) + (
@@ -552,6 +561,7 @@ public class DynamicSchemaResolver {
                 fieldsCache.add(
                         ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(
                                 format) + SchemaFields.HAS_CASE);
+                anyTextFieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
             }
 
             if (format.equals(AttributeFormat.XML)) {
@@ -710,5 +720,9 @@ public class DynamicSchemaResolver {
             field = field + SchemaFields.SORT_KEY_SUFFIX;
         }
         return field;
+    }
+
+    public Stream<String> anyTextFields() {
+        return anyTextFieldsCache.stream();
     }
 }

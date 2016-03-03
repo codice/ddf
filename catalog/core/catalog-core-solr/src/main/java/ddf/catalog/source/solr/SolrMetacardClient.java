@@ -230,7 +230,10 @@ public class SolrMetacardClient {
 
                 if (!resolvedProperties.isEmpty()) {
                     for (String sortField : resolvedProperties) {
-                        query.addSort(resolver.getSortKey(sortField), order);
+                        if (!(sortField.endsWith(SchemaFields.BINARY_SUFFIX) || sortField.endsWith(
+                                SchemaFields.OBJECT_SUFFIX))) {
+                            query.addSort(resolver.getSortKey(sortField), order);
+                        }
                     }
 
                     query.add("fl", "*," + RELEVANCE_SORT_FIELD);

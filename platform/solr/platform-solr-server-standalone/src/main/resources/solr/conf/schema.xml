@@ -205,19 +205,16 @@
     <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
 
     <!-- sort keys for the multivalued fields -->
-    <dynamicField name="*_int_sk" type="tint" indexed="true" stored="true"/>
-    <dynamicField name="*_lng_sk" type="tlong" indexed="true" stored="true"/>
-    <dynamicField name="*_shr_sk" type="tint" indexed="true" stored="true"/>
-    <dynamicField name="*_flt_sk" type="tfloat" indexed="true" stored="true"/>
-    <dynamicField name="*_dbl_sk" type="tdouble" indexed="true" stored="true"/>
-    <dynamicField name="*_tdt_sk" type="tdate" indexed="true" stored="true"/>
-    <dynamicField name="*_bln_sk" type="boolean" indexed="true" stored="true"/>
-    <dynamicField name="*_geo_sk" type="string" indexed="false" stored="true"/>
-    <dynamicField name="*_geo_index_sk" type="geohash" indexed="true" stored="false"/>
-    <dynamicField name="*_txt_sk" type="string" indexed="true" stored="true"/>
-    <dynamicField name="*_xml_sk" type="string" indexed="false" stored="true"/>
-    <dynamicField name="*_bin_sk" type="binary" indexed="false" stored="true"/>
-    <dynamicField name="*_obj_sk" type="binary" indexed="false" stored="true"/>
+    <dynamicField name="*_int_sk" type="tint" indexed="true" stored="false"/>
+    <dynamicField name="*_lng_sk" type="tlong" indexed="true" stored="false"/>
+    <dynamicField name="*_shr_sk" type="tint" indexed="true" stored="false"/>
+    <dynamicField name="*_flt_sk" type="tfloat" indexed="true" stored="false"/>
+    <dynamicField name="*_dbl_sk" type="tdouble" indexed="true" stored="false"/>
+    <dynamicField name="*_tdt_sk" type="tdate" indexed="true" stored="false"/>
+    <dynamicField name="*_bln_sk" type="boolean" indexed="true" stored="false"/>
+    <dynamicField name="*_geo_sk" type="text_general" indexed="true" stored="false"/>
+    <dynamicField name="*_txt_sk" type="text_general" indexed="true" stored="false"/>
+    <dynamicField name="*_xml_sk" type="text_general" indexed="true" stored="false"/>
 
     <!-- DEPRECATED: The defaultSearchField is consulted by various query parsers when
      parsing a query string that isn't explicit about the field.  Machine (non-user)

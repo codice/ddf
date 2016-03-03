@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -205,59 +207,48 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     @Override
     public SolrQuery propertyIsFuzzy(String propertyName, String searchPhrase) {
-        String mappedPropertyName = getMappedPropertyName(propertyName,
-                AttributeFormat.STRING,
-                false);
+        // On fuzzy searches, no text analysis is performed on the search phrase. Expect fuzzy
+        // terms to be case insensitive.
+        String fuzzyPhrase = Stream.of(StringUtils.split(searchPhrase))
+                .map(String::toLowerCase)
+                .collect(Collectors.joining("~ +", "(+", "~)"));
 
-        StringBuilder phraseBuilder = new StringBuilder();
-        for (String term : StringUtils.split(searchPhrase)) {
-            // On fuzzy searches, no text analysis is performed on the search phrase. Expect fuzzy
-            // terms to be
-            // case insensitive.
-            phraseBuilder.append("+")
-                    .append(mappedPropertyName)
-                    .append(":")
-                    .append(term.toLowerCase())
-                    .append("~ ");
+        if (Metacard.ANY_TEXT.equals(propertyName)) {
+            return new SolrQuery(anyTextSolrQuery(fuzzyPhrase, false));
+        } else {
+            String mappedPropertyName = getMappedPropertyName(propertyName,
+                    AttributeFormat.STRING,
+                    false);
+
+            return new SolrQuery(mappedPropertyName + ":" + fuzzyPhrase);
         }
-
-        return new SolrQuery(phraseBuilder.toString());
     }
 
     @Override
     public SolrQuery propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         verifyInputData(propertyName, pattern);
 
-        String mappedPropertyName = getMappedPropertyName(propertyName,
-                AttributeFormat.STRING,
-                false);
-        if (isCaseSensitive) {
-            mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
-        }
         String searchPhrase = escapeSpecialCharacters(pattern);
         if (!searchPhrase.contains(SOLR_WILDCARD_CHAR) && !searchPhrase.contains(
                 SOLR_SINGLE_WILDCARD_CHAR)) {
             // Not an exact phrase
             searchPhrase = QUOTE + searchPhrase + QUOTE;
-
-            return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
         } else {
-            if (Metacard.ANY_TEXT.equals(propertyName)) {
-                String whitespaceTokenizedMetadataField = resolver.getWhitespaceTokenizedField(
-                        resolver.getField(Metacard.METADATA, AttributeFormat.STRING, true));
-                if (isCaseSensitive) {
-                    return new SolrQuery(
-                            resolver.getCaseSensitiveField(whitespaceTokenizedMetadataField) + ":("
-                                    + searchPhrase + ")");
-                } else {
-                    return new SolrQuery(
-                            whitespaceTokenizedMetadataField + ":(" + searchPhrase + ")");
-                }
-            } else {
-                return new SolrQuery(mappedPropertyName + ":(" + searchPhrase + ")");
-            }
+            searchPhrase = "(" + searchPhrase + ")";
         }
 
+        if (Metacard.ANY_TEXT.equals(propertyName)) {
+            return new SolrQuery(anyTextSolrQuery(searchPhrase, isCaseSensitive));
+        } else {
+            String mappedPropertyName = getMappedPropertyName(propertyName,
+                    AttributeFormat.STRING,
+                    false);
+            if (isCaseSensitive) {
+                mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
+            }
+
+            return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
+        }
     }
 
     @Override
@@ -269,11 +260,31 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
         verifyInputData(propertyName, literal);
 
-        String mappedPropertyName = getMappedPropertyName(propertyName,
-                AttributeFormat.STRING,
-                true);
-        return new SolrQuery(
-                mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literal) + QUOTE);
+        String searchPhrase = QUOTE + escapeSpecialCharacters(literal) + QUOTE;
+
+        if (Metacard.ANY_TEXT.equals(propertyName)) {
+            return new SolrQuery(anyTextSolrQuery(searchPhrase, true));
+        } else {
+            String mappedPropertyName = getMappedPropertyName(propertyName,
+                    AttributeFormat.STRING,
+                    true);
+            return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
+        }
+    }
+
+    private String anyTextSolrQuery(String searchPhrase, boolean isCaseSensitive) {
+        String solrQuery = resolver.anyTextFields()
+                .map(resolver::getWhitespaceTokenizedField)
+                .map((whitespaceField) -> {
+                    if (isCaseSensitive) {
+                        return resolver.getCaseSensitiveField(whitespaceField);
+                    } else {
+                        return whitespaceField;
+                    }
+                })
+                .map((field) -> field + ":" + searchPhrase)
+                .collect(Collectors.joining(" "));
+        return "(" + solrQuery + ")";
     }
 
     @Override
