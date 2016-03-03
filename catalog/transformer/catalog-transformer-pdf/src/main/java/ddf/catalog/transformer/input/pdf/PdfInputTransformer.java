@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.pdfbox.util.ImageIOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
 public class PdfInputTransformer implements InputTransformer {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfInputTransformer.class);
 
     private static final int RESOLUTION_DPI = 44;
@@ -49,8 +51,8 @@ public class PdfInputTransformer implements InputTransformer {
 
     private static final String FORMAT_NAME = "jpg";
 
-    public PdfInputTransformer() {
-    }
+    private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance(
+            "yyyy-MM-dd'T'HH:mm:ssZZ");
 
     @Override
     public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
@@ -60,14 +62,8 @@ public class PdfInputTransformer implements InputTransformer {
     @Override
     public Metacard transform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
-        PDDocument pdfDocument = null;
-        try {
-            pdfDocument = PDDocument.load(input);
+        try (PDDocument pdfDocument = PDDocument.load(input)) {
             return transformPdf(id, pdfDocument);
-        } finally {
-            if (pdfDocument != null) {
-                pdfDocument.close();
-            }
         }
     }
 
@@ -75,7 +71,6 @@ public class PdfInputTransformer implements InputTransformer {
         MetacardImpl metacard = new MetacardImpl();
 
         metacard.setId(id);
-        metacard.setMetadata("");
         metacard.setContentTypeName(MediaType.PDF.subtype());
 
         if (pdfDocument.isEncrypted()) {
@@ -83,23 +78,36 @@ public class PdfInputTransformer implements InputTransformer {
             return metacard;
         }
 
-        extractPdfMetadata(pdfDocument.getDocumentInformation(), metacard);
+        extractPdfMetadata(pdfDocument, metacard);
 
         metacard.setThumbnail(generatePdfThumbnail(pdfDocument));
         return metacard;
     }
 
     /**
-     * @param documentInformation PDF document information
-     * @param metacard            A mutable metacard to add the extracted data to
+     * @param pdfDocument PDF document
+     * @param metacard    A mutable metacard to add the extracted data to
      */
-    private void extractPdfMetadata(PDDocumentInformation documentInformation,
-            MetacardImpl metacard) {
+    private void extractPdfMetadata(PDDocument pdfDocument, MetacardImpl metacard) {
+        StringBuilder metadataField = new StringBuilder("<pdf>");
+
+        PDMetadata documentCatalogMetadata = pdfDocument.getDocumentCatalog()
+                .getMetadata();
+        if (documentCatalogMetadata != null) {
+            try (InputStream inputStream = documentCatalogMetadata.createInputStream()) {
+                metadataField.append(IOUtils.toString(inputStream));
+            } catch (IOException e) {
+                LOGGER.warn("Couldn't read the PDF document catalog's metadata", e);
+            }
+        }
+
+        PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
 
         try {
             Calendar creationDate = documentInformation.getCreationDate();
             if (creationDate != null) {
                 metacard.setCreatedDate(creationDate.getTime());
+                addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
             }
             LOGGER.info("PDF Creation date was: {}", creationDate);
         } catch (IOException e) {
@@ -109,10 +117,12 @@ public class PdfInputTransformer implements InputTransformer {
         try {
             Calendar modificationDate = documentInformation.getModificationDate();
             if (modificationDate != null) {
-                metacard.setCreatedDate(modificationDate.getTime());
+                metacard.setModifiedDate(modificationDate.getTime());
+                addXmlElement("modificationDate",
+                        DATE_FORMAT.format(modificationDate),
+                        metadataField);
             }
             LOGGER.info("PDF Modification date was: {}", modificationDate);
-
         } catch (IOException e) {
             LOGGER.debug("Could not create date object", e);
         }
@@ -120,12 +130,27 @@ public class PdfInputTransformer implements InputTransformer {
         String title = documentInformation.getTitle();
         if (StringUtils.isNotBlank(title)) {
             metacard.setTitle(title);
-            // TODO (DDF-1887) - remove hardcoded setting when groomer plugin is updated
-            String escapedTitle = HtmlEscapers.htmlEscaper()
-                    .escape(title);
-            metacard.setMetadata("<pdf><title>" + escapedTitle + "</title></pdf>");
-        } else {
-            metacard.setMetadata("<pdf><title></title></pdf>");
+            addXmlElement("title", title, metadataField);
+        }
+
+        addXmlElement("author", documentInformation.getAuthor(), metadataField);
+        addXmlElement("creator", documentInformation.getCreator(), metadataField);
+        addXmlElement("keywords", documentInformation.getKeywords(), metadataField);
+        addXmlElement("producer", documentInformation.getProducer(), metadataField);
+        addXmlElement("subject", documentInformation.getSubject(), metadataField);
+        addXmlElement("pageCount", String.valueOf(pdfDocument.getNumberOfPages()), metadataField);
+
+        metadataField.append("</pdf>");
+        metacard.setMetadata(metadataField.toString());
+    }
+
+    private void addXmlElement(String name, String value, StringBuilder metadata) {
+        if (StringUtils.isNotBlank(value)) {
+            metadata.append(String.format("<%s>%s</%s>",
+                    name,
+                    HtmlEscapers.htmlEscaper()
+                            .escape(value),
+                    name));
         }
     }
 
@@ -157,17 +182,13 @@ public class PdfInputTransformer implements InputTransformer {
         graphics.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
         graphics.dispose();
 
-        byte[] thumbnail = null;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ImageIOUtil.writeImage(scaledImage,
                     FORMAT_NAME,
                     outputStream,
                     RESOLUTION_DPI,
                     IMAGE_QUALITY);
-
-            thumbnail = outputStream.toByteArray();
+            return outputStream.toByteArray();
         }
-        return thumbnail;
     }
-
 }
