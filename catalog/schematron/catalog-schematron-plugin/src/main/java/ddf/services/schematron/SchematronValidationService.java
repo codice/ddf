@@ -115,7 +115,7 @@ public class SchematronValidationService implements MetacardValidator, Describab
         Templates template;
         File schematronFile = new File(schematronFileName);
         if (!schematronFile.exists()) {
-            throw new SchematronInitializationException("Could not locate schematron file" + schematronFileName);
+            throw new SchematronInitializationException("Could not locate schematron file " + schematronFileName);
         }
 
         try {
@@ -135,8 +135,9 @@ public class SchematronValidationService implements MetacardValidator, Describab
             DOMResult stage3Result = performStage(stage2Output, getClass().getClassLoader().getResource("iso-schematron/iso_svrl_for_xslt2.xsl"));
             DOMSource stage3Output = new DOMSource(stage3Result.getNode());
 
-            // Setting the system ID let's us resolve relative paths in the schematron files.
-            stage3Output.setSystemId(schematronFileName);
+            // Setting the system ID lets us resolve relative paths in the schematron files.
+            // We need the URI string so that the string is properly formatted (e.g. space = %20).
+            stage3Output.setSystemId(schematronFile.toURI().toString());
             template = transformerFactory.newTemplates(stage3Output);
         } catch (Exception e) {
             throw new SchematronInitializationException(
