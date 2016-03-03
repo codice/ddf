@@ -15,7 +15,6 @@ package org.codice.ddf.spatial.ogc.catalog.common;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 /**
  * Extracts list of content types from filter
@@ -31,26 +30,15 @@ import ddf.catalog.filter.FilterDelegate;
  * @author Jason Smith
  * @author ddf.isgs@lmco.com
  */
-public class ContentTypeFilterDelegate extends FilterDelegate<List<ContentType>> {
+public class ContentTypeFilterDelegate extends SimpleFilterDelegate<List<ContentType>> {
+
+    @Override
+    public <S> List<ContentType> defaultOperation(Object property, S literal, Class<S> literalClass,
+            Enum operation) {
+        return Collections.<ContentType>emptyList();
+    }
 
     // Logical operators
-    @Override
-    public List<ContentType> include() {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> exclude() {
-        return Collections.<ContentType>emptyList();
-
-    }
-
-    @Override
-    public List<ContentType> not(List<ContentType> operand) {
-        return Collections.<ContentType>emptyList();
-
-    }
-
     @Override
     public List<ContentType> and(List<List<ContentType>> operands) {
         return combineLists(operands);
@@ -59,11 +47,6 @@ public class ContentTypeFilterDelegate extends FilterDelegate<List<ContentType>>
     @Override
     public List<ContentType> or(List<List<ContentType>> operands) {
         return combineLists(operands);
-    }
-
-    @Override
-    public List<ContentType> propertyIs(String propertyName, Object literal, PropertyOperation operation) {
-        return Collections.<ContentType>emptyList();
     }
 
     // PropertyIsLike
@@ -90,78 +73,6 @@ public class ContentTypeFilterDelegate extends FilterDelegate<List<ContentType>>
         }
 
         return types;
-    }
-
-    // Spatial filters
-    @Override
-    public List<ContentType> beyond(String propertyName, String wkt, double distance) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> contains(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> dwithin(String propertyName, String wkt, double distance) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> intersects(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> nearestNeighbor(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> within(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> crosses(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> disjoint(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> overlaps(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> touches(String propertyName, String wkt) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    // Temporal filters
-    @Override
-    public List<ContentType> after(String propertyName, Date date) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> before(String propertyName, Date date) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> during(String propertyName, Date startDate, Date endDate) {
-        return Collections.<ContentType>emptyList();
-    }
-
-    @Override
-    public List<ContentType> relative(String propertyName, long duration) {
-        return Collections.<ContentType>emptyList();
     }
 
     private void verifyInputData(String propertyName, String pattern) {

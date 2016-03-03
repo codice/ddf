@@ -57,8 +57,8 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterDelegate;
 
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import net.opengis.filter.v_2_0_0.AbstractIdType;
 import net.opengis.filter.v_2_0_0.BBOXType;
 import net.opengis.filter.v_2_0_0.BinaryComparisonOpType;
@@ -113,7 +113,7 @@ import net.opengis.ows.v_1_1_0.ValueType;
  * class will return an "Invalid"(null) filter if a translation could not be made. It will return an
  * "Empty" filter, meaning no filters are set, only if it is a Content Type filter.
  */
-public class WfsFilterDelegate extends FilterDelegate<FilterType> {
+public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
 
@@ -573,31 +573,36 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName, Integer.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Integer.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName, Short.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Short.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName, Long.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Long.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName, Float.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Float.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, double literal) {
-        return buildPropertyIsFilterType(propertyName, Double.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Double.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 

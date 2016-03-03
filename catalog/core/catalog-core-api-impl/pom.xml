@@ -46,6 +46,10 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -88,7 +92,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.42</minimum>
+                                            <minimum>0.38</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -98,12 +102,12 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.33</minimum>
+                                            <minimum>0.32</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.43</minimum>
+                                            <minimum>0.42</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

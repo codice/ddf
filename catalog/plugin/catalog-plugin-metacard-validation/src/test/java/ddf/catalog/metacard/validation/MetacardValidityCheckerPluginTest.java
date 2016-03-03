@@ -517,8 +517,8 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testPropertyIsBetweenDate() throws UnsupportedQueryException {
         assertThat(testValidationQueryDelegate.propertyIsBetween(Metacard.ANY_TEXT,
-                mock(Date.class),
-                mock(Date.class)), is(false));
+                new Date(),
+                new Date()), is(false));
     }
 
     @Test
@@ -695,8 +695,8 @@ public class MetacardValidityCheckerPluginTest {
     @Test
     public void testDuring() {
         assertThat(testValidationQueryDelegate.during(Metacard.ANY_TEXT,
-                mock(Date.class),
-                mock(Date.class)), is(false));
+                new Date(),
+                new Date()), is(false));
     }
 
     @Test

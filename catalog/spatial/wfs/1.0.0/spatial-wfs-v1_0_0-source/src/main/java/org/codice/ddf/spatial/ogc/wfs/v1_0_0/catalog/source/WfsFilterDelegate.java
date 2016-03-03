@@ -52,7 +52,7 @@ import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import ogc.schema.opengis.filter.v_1_0_0.BBOXType;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryComparisonOpType;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryLogicOpType;
@@ -89,7 +89,7 @@ import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
  * class will return an "Invalid"(null) filter if a translation could not be made. It will return an
  * "Empty" filter, meaning no filters are set, only if it is a Content Type filter.
  */
-public class WfsFilterDelegate extends FilterDelegate<FilterType> {
+public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
 
@@ -305,31 +305,36 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, int literal) {
-        return buildPropertyIsFilterType(propertyName, Integer.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Integer.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, short literal) {
-        return buildPropertyIsFilterType(propertyName, Short.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Short.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, long literal) {
-        return buildPropertyIsFilterType(propertyName, Long.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Long.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, float literal) {
-        return buildPropertyIsFilterType(propertyName, Float.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Float.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
     @Override
     public FilterType propertyIsEqualTo(String propertyName, double literal) {
-        return buildPropertyIsFilterType(propertyName, Double.valueOf(literal),
+        return buildPropertyIsFilterType(propertyName,
+                Double.valueOf(literal),
                 PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
@@ -1323,9 +1328,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     /**
      * This method approximates the degrees in latitude for the given distance (in meters) using the
      * formula for the meridian distance on Earth.
-     * <p/>
+     * <p>
      * degrees = distance in meters/radius of Earth in meters * 180.0/pi
-     * <p/>
+     * <p>
      * The approximate degrees in latitude can be used to compute a buffer around a given geometry
      * (see bufferGeometry()).
      */

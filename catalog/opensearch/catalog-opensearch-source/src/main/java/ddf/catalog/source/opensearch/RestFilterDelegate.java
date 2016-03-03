@@ -14,11 +14,10 @@
 
 package ddf.catalog.source.opensearch;
 
-import java.util.Date;
 import java.util.List;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 /**
  * Used to find Filter objects that can be fulfilled by a DDF REST request.
@@ -26,7 +25,7 @@ import ddf.catalog.filter.FilterDelegate;
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
  */
-public class RestFilterDelegate extends FilterDelegate<RestUrl> {
+public class RestFilterDelegate extends SimpleFilterDelegate<RestUrl> {
 
     private RestUrl restUrl;
 
@@ -41,6 +40,12 @@ public class RestFilterDelegate extends FilterDelegate<RestUrl> {
 
     public RestUrl getRestUrl() {
         return restUrl;
+    }
+
+    @Override
+    public <S> RestUrl defaultOperation(Object property, S literal, Class<S> literalClass,
+            Enum operation) {
+        return null;
     }
 
     @Override
@@ -68,96 +73,6 @@ public class RestFilterDelegate extends FilterDelegate<RestUrl> {
                 return restUrl;
             }
         }
-        return null;
-    }
-
-    @Override
-    public RestUrl nearestNeighbor(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl beyond(String propertyName, String wkt, double distance) {
-        return null;
-    }
-
-    @Override
-    public RestUrl contains(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl crosses(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl disjoint(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl dwithin(String propertyName, String wkt, double distance) {
-        return null;
-    }
-
-    @Override
-    public RestUrl intersects(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl overlaps(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl touches(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl within(String propertyName, String wkt) {
-        return null;
-    }
-
-    @Override
-    public RestUrl not(RestUrl operand) {
-        return null;
-    }
-
-    @Override
-    public RestUrl include() {
-        return null;
-    }
-
-    @Override
-    public RestUrl exclude() {
-        return null;
-    }
-
-    @Override
-    public RestUrl propertyIs(String propertyName, Object literal, PropertyOperation operation) {
-        return null;
-    }
-
-    @Override
-    public RestUrl after(String propertyName, Date date) {
-        return null;
-    }
-
-    @Override
-    public RestUrl before(String propertyName, Date date) {
-        return null;
-    }
-
-    @Override
-    public RestUrl during(String propertyName, Date startDate, Date endDate) {
-        return null;
-    }
-
-    @Override
-    public RestUrl relative(String propertyName, long duration) {
         return null;
     }
 }

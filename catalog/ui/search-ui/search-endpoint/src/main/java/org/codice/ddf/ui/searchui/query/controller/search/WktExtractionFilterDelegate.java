@@ -13,65 +13,26 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller.search;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
-public class WktExtractionFilterDelegate extends FilterDelegate<String> {
+public class WktExtractionFilterDelegate extends SimpleFilterDelegate<String> {
 
     // spatial operators
 
     @Override
-    public String nearestNeighbor(String propertyName, String wkt) {
-        return wkt;
+    public <S> String defaultOperation(Object property, S literal, Class<S> literalClass,
+            Enum operation) {
+        return "";
     }
 
     @Override
-    public String beyond(String propertyName, String wkt, double distance) {
-        return wkt;
-    }
-
-    @Override
-    public String contains(String propertyName, String wkt) {
-        return wkt;
-    }
-
-    @Override
-    public String crosses(String propertyName, String wkt) {
-        return wkt;
-    }
-
-    @Override
-    public String disjoint(String propertyName, String wkt) {
-        return wkt;
-    }
-
-    @Override
-    public String dwithin(String propertyName, String wkt, double distance) {
-        return wkt;
-    }
-
-    @Override
-    public String intersects(String propertyName, String wkt) {
-        return wkt;
-    }
-
-    @Override
-    public String overlaps(String propertyName, String wkt) {
-        return wkt;
-    }
-
-    @Override
-    public String touches(String propertyName, String wkt) {
-        return wkt;
-    }
-
-    @Override
-    public String within(String propertyName, String wkt) {
-        return wkt;
+    public <S> String spatialOperation(String propertyName, S wkt, Class<S> wktClass,
+            SpatialPropertyOperation spatialPropertyOperation) {
+        return (String) wkt;
     }
 
     // pass-through
@@ -92,46 +53,6 @@ public class WktExtractionFilterDelegate extends FilterDelegate<String> {
                 return operand;
             }
         }
-        return "";
-    }
-
-    @Override
-    public String not(String operand) {
-        return "";
-    }
-
-    @Override
-    public String include() {
-        return "";
-    }
-
-    @Override
-    public String exclude() {
-        return "";
-    }
-
-    @Override
-    public String propertyIs(String propertyName, Object literal, PropertyOperation operation) {
-        return "";
-    }
-
-    @Override
-    public String after(String propertyName, Date date) {
-        return "";
-    }
-
-    @Override
-    public String before(String propertyName, Date date) {
-        return "";
-    }
-
-    @Override
-    public String during(String propertyName, Date startDate, Date endDate) {
-        return "";
-    }
-
-    @Override
-    public String relative(String propertyName, long duration) {
         return "";
     }
 }

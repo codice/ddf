@@ -14,18 +14,23 @@
 
 package ddf.catalog.registry.common.filter;
 
-import java.util.Date;
 import java.util.List;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import ddf.catalog.registry.common.RegistryConstants;
 
-public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
+public class RegistryQueryDelegate extends SimpleFilterDelegate<Boolean> {
     /*
     Returns false if this is a query that should not return registry metacards
     Return true if this is a query that should return registry metacards
      */
+
+    @Override
+    public <S> Boolean defaultOperation(Object property, S literal, Class<S> literalClass,
+            Enum operation) {
+        return false;
+    }
 
     @Override
     public Boolean and(List<Boolean> operands) {
@@ -45,26 +50,6 @@ public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean nearestNeighbor(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean include() {
-        return false;
-    }
-
-    @Override
-    public Boolean exclude() {
-        return false;
-    }
-
-    @Override
-    public Boolean propertyIs(String propertyName, Object literal, PropertyOperation operation) {
-        return false;
-    }
-
-    @Override
     public Boolean propertyIsEqualTo(String propertyName, String pattern, boolean isCaseSensitive) {
         return propertyName.equals(Metacard.CONTENT_TYPE)
                 && pattern.startsWith(RegistryConstants.REGISTRY_TAG);
@@ -75,70 +60,4 @@ public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
         return propertyName.equals(Metacard.CONTENT_TYPE)
                 && pattern.startsWith(RegistryConstants.REGISTRY_TAG);
     }
-
-    @Override
-    public Boolean beyond(String propertyName, String wkt, double distance) {
-        return false;
-    }
-
-    @Override
-    public Boolean contains(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean crosses(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean disjoint(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean dwithin(String propertyName, String wkt, double distance) {
-        return false;
-    }
-
-    @Override
-    public Boolean intersects(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean overlaps(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean touches(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean within(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean after(String propertyName, Date date) {
-        return false;
-    }
-
-    @Override
-    public Boolean before(String propertyName, Date date) {
-        return false;
-    }
-
-    @Override
-    public Boolean during(String propertyName, Date startDate, Date endDate) {
-        return false;
-    }
-
-    @Override
-    public Boolean relative(String propertyName, long duration) {
-        return false;
-    }
-
 }
