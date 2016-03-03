@@ -86,10 +86,31 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static final String INVALID_CONFIG_FILE_2 =
             "ddf.test.itests.platform.TestPlatform.startup.invalid.config";
 
-    private static final String VALID_CONFIG_FILE_1 =
-            "ddf.test.itests.platform.TestPlatform.startup.config";
+    private static final String VALID_CONFIG_FILE_1 = "ddf.test.itests.platform.TestPlatform.startup.config";
 
-    private static final String CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE = "/encryption.properties";
+    private static final String CRL_PEM = "crl.pem";
+
+    private static final String CRL_ENABLED_SERVER_ENCRYPTION_PROPERTIES_FILE = "/serverencryption.properties";
+
+    private static final String CRL_ENABLED_SERVER_SIGNATURE_PROPERTIES_FILE = "/serversignature.properties";
+
+    private static final String CRL_ENABLED_ISSUER_ENCRYPTION_PROPERTIES_FILE = "/issuerencryption.properties";
+
+    private static final String CRL_ENABLED_ISSUER_SIGNATURE_PROPERTIES_FILE = "/issuersignature.properties";
+
+    private static final String SERVER_SIGNATURE_DIR = "serversignature";
+
+    private static final Path SERVER_SIGNATURE_DIR_PATH = Paths.get("etc", SERVER_SIGNATURE_DIR);
+
+    private static final String ISSUER_SIGNATURE_DIR = "issuersignature";
+
+    private static final Path ISSUER_SIGNATURE_DIR_PATH = Paths.get("etc", ISSUER_SIGNATURE_DIR);
+
+    private static final String ISSUER_ENCRYPTION_DIR = "issuerencryption";
+
+    private static final Path ISSUER_ENCRYPTION_DIR_PATH = Paths.get("etc", ISSUER_ENCRYPTION_DIR);
+
+    private static final Path DEMO_CA_CRL_PATH = Paths.get("certs", "demoCA", "crl");
 
     private static final String TEST_FILE = "../cat.txt";
 
@@ -109,10 +130,29 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     private static final Path PDP_COPY = Paths.get("etc", "pdp-copy");
 
-    private static final Path ENCRYPTION_PROPERTIES = Paths.get("etc",
-            "ws-security",
-            "server",
-            "encryption.properties");
+    private static final Path SERVER_ENCRYPTION_PROPERTIES = Paths.get("etc", "ws-security",
+            "server", "encryption.properties");
+
+    private static final Path SERVER_ENCRYPTION_PROPERTIES_COPY = Paths
+            .get("server.encryption.properties.copy");
+
+    private static final Path SERVER_SIGNATURE_PROPERTIES = Paths.get("etc", "ws-security",
+            "server", "signature.properties");
+
+    private static final Path SERVER_SIGNATURE_PROPERTIES_COPY = Paths
+            .get("server.signature.properties.copy");
+
+    private static final Path ISSUER_ENCRYPTION_PROPERTIES = Paths.get("etc", "ws-security",
+            "issuer", "encryption.properties");
+
+    private static final Path ISSUER_ENCRYPTION_PROPERTIES_COPY = Paths
+            .get("issuer.encryption.properties.copy");
+
+    private static final Path ISSUER_SIGNATURE_PROPERTIES = Paths.get("etc", "ws-security",
+            "issuer", "signature.properties");
+
+    private static final Path ISSUER_SIGNATURE_PROPERTIES_COPY = Paths
+            .get("issuer.signature.properties.copy");
 
     private static final String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
 
@@ -158,23 +198,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
             console = new KarafConsole(bundleCtx, features, sessionFactory);
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
-            enableCrlInEncyptionPropertiesFile();
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
         }
-    }
-
-    private void enableCrlInEncyptionPropertiesFile() throws IOException {
-        File encryptionPropertiesLocation = Paths.get(ddfHome)
-                .resolve(ENCRYPTION_PROPERTIES)
-                .toFile();
-        encryptionPropertiesLocation.delete();
-        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(
-                CRL_ENABLED_ENCRYPTION_PROPERTIES_FILE),
-                Paths.get(ddfHome)
-                        .resolve(ENCRYPTION_PROPERTIES)
-                        .toFile());
     }
 
     public void resetInitialState() throws Exception {
@@ -191,8 +218,10 @@ public class TestConfiguration extends AbstractIntegrationTest {
         restoreBackup(WS_SECURITY_COPY, WS_SECURITY);
         restoreBackup(PDP_COPY, PDP);
 
-        System.setProperty(KEYSTORE_PROPERTY,
-                "etc" + File.separator + "keystores" + File.separator + "serverKeystore.jks");
+        System.setProperty(KEYSTORE_PROPERTY, "etc" + File.separator + "keystores" + File.separator
+                + "serverKeystore.jks");
+
+        disableCrls();
     }
 
     /**
@@ -497,9 +526,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
     /**
-     * Tests that when system properties file is missing, export fails
-     *
-     * @throws Exception
+     * Tests that when ws-security directory is missing, export fails
      */
     @Test
     public void testExportFailureWithoutWSSecurityDirectory() throws Exception {
@@ -510,9 +537,21 @@ public class TestConfiguration extends AbstractIntegrationTest {
         String response = console.runCommand(EXPORT_COMMAND);
 
         assertThat(String.format("Should not have been able to export to %s.",
-                getDefaultExportDirectory()),
-                response,
+                getDefaultExportDirectory()), response,
                 containsString("An error was encountered while executing this command."));
+    }
+
+    /**
+     * Tests that when CRLs are enabled, they get exported
+     */
+    @Test
+    public void testExportCrlsEnabled() throws Exception {
+        resetInitialState();
+        enableCrls();
+        
+        console.runCommand(EXPORT_COMMAND);
+        
+        assertExportContentsWithCrlsEnabled(getDefaultExportDirectory());
     }
 
     /**
@@ -624,9 +663,54 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 is(true));
     }
 
+    private void enableCrls() throws IOException {
+        backupCrl(SERVER_ENCRYPTION_PROPERTIES, SERVER_ENCRYPTION_PROPERTIES_COPY);
+        copyCrlEnabledPropertiesFile(CRL_ENABLED_SERVER_ENCRYPTION_PROPERTIES_FILE,
+                SERVER_ENCRYPTION_PROPERTIES);
+
+        backupCrl(SERVER_SIGNATURE_PROPERTIES, SERVER_SIGNATURE_PROPERTIES_COPY);
+        copyCrlEnabledPropertiesFile(CRL_ENABLED_SERVER_SIGNATURE_PROPERTIES_FILE,
+                SERVER_SIGNATURE_PROPERTIES);
+        copyCrl(SERVER_SIGNATURE_DIR_PATH);
+
+        backupCrl(ISSUER_ENCRYPTION_PROPERTIES, ISSUER_ENCRYPTION_PROPERTIES_COPY);
+        copyCrlEnabledPropertiesFile(CRL_ENABLED_ISSUER_ENCRYPTION_PROPERTIES_FILE,
+                ISSUER_ENCRYPTION_PROPERTIES);
+        copyCrl(ISSUER_ENCRYPTION_DIR_PATH);
+
+        backupCrl(ISSUER_SIGNATURE_PROPERTIES, ISSUER_SIGNATURE_PROPERTIES_COPY);
+        copyCrlEnabledPropertiesFile(CRL_ENABLED_ISSUER_SIGNATURE_PROPERTIES_FILE,
+                ISSUER_SIGNATURE_PROPERTIES);
+        copyCrl(ISSUER_SIGNATURE_DIR_PATH);
+    }
+
+    private void backupCrl(Path source, Path destination) throws IOException {
+        FileUtils.moveFile(source.toFile(), destination.toFile());
+    }
+
+    private void copyCrlEnabledPropertiesFile(String source, Path destination) throws IOException {
+        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream(source), Paths.get(ddfHome)
+                .resolve(destination).toFile());
+    }
+
+    private void copyCrl(Path destinationDir) throws IOException {
+        FileUtils.forceMkdir(Paths.get(ddfHome).resolve(destinationDir).toFile());
+        FileUtils.copyInputStreamToFile(getClass().getResourceAsStream("/" + CRL_PEM),
+                Paths.get(ddfHome).resolve(destinationDir).resolve(CRL_PEM).toFile());
+    }
+
+    private void disableCrls() throws IOException {
+        restoreBackup(SERVER_ENCRYPTION_PROPERTIES_COPY, SERVER_ENCRYPTION_PROPERTIES);
+        restoreBackup(SERVER_SIGNATURE_PROPERTIES_COPY, SERVER_SIGNATURE_PROPERTIES);
+        restoreBackup(ISSUER_ENCRYPTION_PROPERTIES_COPY, ISSUER_ENCRYPTION_PROPERTIES);
+        restoreBackup(ISSUER_SIGNATURE_PROPERTIES_COPY, ISSUER_SIGNATURE_PROPERTIES);
+        FileUtils.deleteQuietly(Paths.get(ddfHome).resolve(SERVER_SIGNATURE_DIR_PATH).toFile());
+        FileUtils.deleteQuietly(Paths.get(ddfHome).resolve(ISSUER_ENCRYPTION_DIR_PATH).toFile());
+        FileUtils.deleteQuietly(Paths.get(ddfHome).resolve(ISSUER_SIGNATURE_DIR_PATH).toFile());
+    }
+
     private Path getPathToConfigDirectory() {
-        return Paths.get(ddfHome)
-                .resolve("etc");
+        return Paths.get(ddfHome).resolve("etc");
     }
 
     private Path getPathToProcessedDirectory() {
@@ -689,6 +773,18 @@ public class TestConfiguration extends AbstractIntegrationTest {
         assertThatDirectoryContains(getExportSubDirectory(exportDirectory, "ws-security", "server"),
                 "encryption.properties",
                 "signature.properties");
+    }
+
+    private void assertExportContentsWithCrlsEnabled(Path exportDirectory) {
+        assertExportContents(exportDirectory);
+        assertThatDirectoryContains(
+                getExportSubDirectory(exportDirectory, DEMO_CA_CRL_PATH.toString()), CRL_PEM);
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, SERVER_SIGNATURE_DIR),
+                CRL_PEM);
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, ISSUER_ENCRYPTION_DIR),
+                CRL_PEM);
+        assertThatDirectoryContains(getExportSubDirectory(exportDirectory, ISSUER_SIGNATURE_DIR),
+                CRL_PEM);
     }
 
     private void addConfigurationFile(String fileName, InputStream inputStream) throws IOException {

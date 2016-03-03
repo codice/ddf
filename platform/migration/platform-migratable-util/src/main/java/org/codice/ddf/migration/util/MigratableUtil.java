@@ -192,6 +192,24 @@ public class MigratableUtil {
                         warnings));
     }
 
+    /**
+     * Reads a java properties file and returns the value of the specified property.
+     * 
+     * @param propertyFilePath path to the Java properties file that contains the path to the
+     *                         source file to copy
+     * @param javaProperty     name of the property inside the Java properties file that contains
+     *                         the path to the source file
+     * @return                 the value of the property if found, null otherwise
+     * @throws MigrationException thrown when the supplied properties file cannot be read
+     */
+    public String getJavaPropertyValue(@NotNull Path propertyFilePath, @NotNull String javaProperty) throws MigrationException {
+        notNull(propertyFilePath, "Java properties file cannot be null");
+        notNull(javaProperty, "Property cannot be null");
+        Properties properties = readPropertiesFile(ddfHome.resolve(propertyFilePath));
+        String value = (String) properties.get(javaProperty);
+        return value;
+    }
+
     private String getSystemProperty(String property) throws MigrationException {
         String prop = System.getProperty(property);
 

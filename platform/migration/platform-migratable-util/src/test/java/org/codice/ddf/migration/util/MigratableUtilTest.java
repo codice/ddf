@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -522,6 +523,33 @@ public class MigratableUtilTest {
                 warnings);
 
         assertWarnings("does not exist or cannot be read");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetJavaPropertyValueNullPropertyFilePath() throws Exception {
+        MigratableUtil migratableUtil = new MigratableUtil();
+        migratableUtil.getJavaPropertyValue(null, SOURCE_PATH_PROPERTY_NAME);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetJavaPropertyValueNullPropertyPropertyName() throws Exception {
+        MigratableUtil migratableUtil = new MigratableUtil();
+        migratableUtil.getJavaPropertyValue(JAVA_PROPERTIES_FILE, null);
+    }
+
+    @Test
+    public void testGetJavaPropertyValuePropetyExists() throws Exception {
+        MigratableUtil migratableUtil = new MigratableUtil();
+        String value = migratableUtil.getJavaPropertyValue(JAVA_PROPERTIES_FILE,
+                SOURCE_PATH_PROPERTY_NAME);
+        assertThat(value, is(VALID_SOURCE_FILE.toString()));
+    }
+
+    @Test
+    public void testGetJavaPropertyValuePropetyDoesNotExist() throws Exception {
+        MigratableUtil migratableUtil = new MigratableUtil();
+        String value = migratableUtil.getJavaPropertyValue(JAVA_PROPERTIES_FILE, "nonexistent");
+        assertThat(value, is(nullValue()));
     }
 
     private void createTempPropertiesFiles() throws IOException {

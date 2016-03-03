@@ -17,14 +17,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.migration.AbstractMigratable;
+import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.util.MigratableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * This class handles the export process for all Security system files
@@ -35,14 +40,15 @@ public class SecurityMigratable extends AbstractMigratable {
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final Path FILE_CONTAINING_CRL_LOCATION = Paths.get("etc",
-            "ws-security",
-            "server",
-            "encryption.properties");
-
+    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(
+            Paths.get("etc", "ws-security", "server", "encryption.properties"),
+            Paths.get("etc", "ws-security", "server", "signature.properties"),
+            Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
+            Paths.get("etc", "ws-security", "issuer", "signature.properties"));
+            
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
-    private MigratableUtil migratableUtil;
+    private final MigratableUtil migratableUtil;
 
     public SecurityMigratable(String description, boolean isOptional,
             MigratableUtil migratableUtil) {
@@ -52,20 +58,37 @@ public class SecurityMigratable extends AbstractMigratable {
 
     public MigrationMetadata export(Path exportPath) throws MigrationException {
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
-        exportCrlFile(exportPath, migrationWarnings);
+        exportCrlFiles(exportPath, migrationWarnings);
         exportPdpDirectory(exportPath, migrationWarnings);
         return new MigrationMetadata(migrationWarnings);
     }
 
-    private void exportCrlFile(Path exportDirectory, Collection<MigrationWarning> migrationWarnings)
-            throws MigrationException {
-        LOGGER.debug("Exporting CRL from property [{}] in file [{}]...",
-                CRL_PROP_KEY,
-                FILE_CONTAINING_CRL_LOCATION.toString());
-        migratableUtil.copyFileFromJavaPropertyValue(FILE_CONTAINING_CRL_LOCATION,
-                CRL_PROP_KEY,
-                exportDirectory,
-                migrationWarnings);
+    private void exportCrlFiles(Path exportDirectory, Collection<MigrationWarning> migrationWarnings)
+        throws MigrationException {
+        for (Path propertiesPath : PROPERTIES_FILES) {
+            exportCrlFile(propertiesPath, exportDirectory, migrationWarnings);
+        }
+    }
+
+    private void exportCrlFile(Path propertiesPath, Path exportDirectory,
+            Collection<MigrationWarning> migrationWarnings) throws MigrationException {
+        LOGGER.debug("Exporting CRL from property [{}] in file [{}]...", CRL_PROP_KEY,
+                propertiesPath.toString());
+        String crlPathStr = migratableUtil.getJavaPropertyValue(propertiesPath, CRL_PROP_KEY);
+
+        if (crlPathStr == null) {
+            return;
+        }
+
+        if (StringUtils.isWhitespace(crlPathStr)) {
+            String error = String
+                    .format("Failed to export CRL. No CRL path found in file [%s]. Property [%s] from properties file [%s] has a blank value.",
+                            propertiesPath, CRL_PROP_KEY, propertiesPath);
+            throw new ExportMigrationException(error);
+        }
+
+        Path crlPath = Paths.get(crlPathStr);
+        migratableUtil.copyFile(crlPath, exportDirectory, migrationWarnings);
     }
 
     private void exportPdpDirectory(Path exportDirectory,
