@@ -268,7 +268,7 @@ No pre/post plugins are executed and no message validation is performed if the `
 ----
 catalog:describe     catalog:dump         catalog:envlist      catalog:ingest       catalog:inspect
 catalog:latest       catalog:migrate      catalog:range        catalog:remove       catalog:removeall
-catalog:replicate    catalog:search       catalog:spatial
+catalog:replicate    catalog:search       catalog:spatial      catalog:validate
 ----
 
 .Command Descriptions
@@ -321,6 +321,9 @@ Provides a list of environment variables.
 
 |`spatial`
 |Searches spatially the local Catalog.
+
+|`validate`
+|Validates an XML file against all installed validators and prints out human readable errors and warnings.
 
 |===
 
