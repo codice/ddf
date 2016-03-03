@@ -13,12 +13,11 @@
  */
 package org.codice.ddf.persistence.attributes.internal;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -54,6 +53,15 @@ public class TestAttributesStoreImpl {
     private static final String DATA_USAGE_LONG =
             AttributesStore.DATA_USAGE_KEY + PersistentItem.LONG_SUFFIX;
 
+    private static final String DATA_LIMIT_LONG =
+            AttributesStore.DATA_USAGE_LIMIT_KEY + PersistentItem.LONG_SUFFIX;
+
+    private static final Long LONG_1 = 100L;
+
+    private static final Long LONG_2 = 200L;
+
+    private static final Long LONG_5 = 500L;
+
     @Before
     public void setup() {
         attributesStore = new AttributesStoreImpl(persistentStore);
@@ -63,13 +71,13 @@ public class TestAttributesStoreImpl {
     public void testGetDataUsage() throws PersistenceException {
         attributesList = new ArrayList<>();
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put(DATA_USAGE_LONG, 100L);
+        attributes.put(DATA_USAGE_LONG, LONG_1);
         attributesList.add(attributes);
-        when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
+        when(persistentStore.get(anyString(), anyString())).thenReturn(attributesList);
 
         long usage = attributesStore.getCurrentDataUsageByUser(USER);
 
-        assertThat(usage, is(equalTo(100L)));
+        assertThat(usage, is(LONG_1));
     }
 
     @Test
@@ -81,36 +89,37 @@ public class TestAttributesStoreImpl {
 
         attributesList = new ArrayList<>();
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put(DATA_USAGE_LONG, 100L);
+        attributes.put(DATA_USAGE_LONG, LONG_1);
+        attributes.put(DATA_LIMIT_LONG, LONG_1);
         attributesList.add(attributes);
-        when(persistentStore.get(any(String.class), any(String.class))).thenReturn(attributesList);
+        when(persistentStore.get(anyString(), anyString())).thenReturn(attributesList);
 
-        attributesStore.updateUserDataUsage(USER, 500L);
+        attributesStore.updateUserDataUsage(USER, LONG_5);
 
-        verify(persistentStore).get(keyArg1.capture(), cqlArg.capture());
+        verify(persistentStore, atLeast(2)).get(keyArg1.capture(), cqlArg.capture());
         verify(persistentStore).add(keyArg2.capture(), itemArg.capture());
 
-        assertThat(keyArg1.getValue(), is(equalTo(PersistentStore.USER_ATTRIBUTE_TYPE)));
-        assertThat(keyArg2.getValue(), is(equalTo(PersistentStore.USER_ATTRIBUTE_TYPE)));
+        assertThat(keyArg1.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+        assertThat(keyArg2.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
 
         assertThat(itemArg.getValue()
-                .getLongProperty(AttributesStore.DATA_USAGE_KEY), is(equalTo(600L)));
+                .getLongProperty(AttributesStore.DATA_USAGE_KEY), is(600L));
 
-        assertThat(cqlArg.getValue(), is(equalTo(CQL)));
+        assertThat(cqlArg.getValue(), is(CQL));
     }
 
     @Test
     public void testSetDataUsage() throws PersistenceException {
 
-        final long DATA_USAGE = 500L;
+        final long DATA_USAGE = LONG_5;
         ArgumentCaptor<String> keyArg = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
         attributesStore.setDataUsage(USER, DATA_USAGE);
         verify(persistentStore).add(keyArg.capture(), itemArg.capture());
-        assertThat(keyArg.getValue(), is(equalTo(PersistentStore.USER_ATTRIBUTE_TYPE)));
+        assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
 
         assertThat(itemArg.getValue()
-                .getLongProperty(AttributesStore.DATA_USAGE_KEY), is(equalTo(DATA_USAGE)));
+                .getLongProperty(AttributesStore.DATA_USAGE_KEY), is(DATA_USAGE));
     }
 
     @Test
@@ -132,45 +141,113 @@ public class TestAttributesStoreImpl {
     @Test(expected = PersistenceException.class)
     public void testSetDataUsageNullUsername() throws PersistenceException {
 
-        attributesStore.setDataUsage(null, 500L);
+        attributesStore.setDataUsage(null, LONG_5);
     }
 
     @Test(expected = PersistenceException.class)
     public void testUpdateDataUsageNullUsername() throws PersistenceException {
-
-        attributesStore.updateUserDataUsage(null, 500L);
+        attributesStore.updateUserDataUsage(null, LONG_5);
     }
 
     @Test(expected = PersistenceException.class)
     public void testGetDataUsageNullUsername() throws PersistenceException {
-
         attributesStore.getCurrentDataUsageByUser(null);
     }
 
     @Test
     public void testPersistenceStoreReturnsNull() throws PersistenceException {
-
-        when(persistentStore.get(any(String.class), any(String.class))).thenReturn(null);
-
-        assertThat(attributesStore.getCurrentDataUsageByUser(USER), is(equalTo(0L)));
+        when(persistentStore.get(anyString(), anyString())).thenReturn(null);
+        assertThat(attributesStore.getCurrentDataUsageByUser(USER), is(0L));
     }
 
     @Test
     public void testPersistenceStoreReturnsEmptyList() throws PersistenceException {
-
-        when(persistentStore.get(any(String.class),
-                any(String.class))).thenReturn(new ArrayList<Map<String, Object>>());
-        assertThat(attributesStore.getCurrentDataUsageByUser(USER), is(equalTo(0L)));
+        when(persistentStore.get(anyString(),
+                anyString())).thenReturn(new ArrayList<>());
+        assertThat(attributesStore.getCurrentDataUsageByUser(USER), is(0L));
     }
 
     @Test(expected = PersistenceException.class)
     public void testPersistenceStoreThrowsExceptionOnGet() throws PersistenceException {
+        when(persistentStore.get(anyString(),
+                anyString())).thenThrow(new PersistenceException());
 
-        when(persistentStore.get(any(String.class),
-                any(String.class))).thenThrow(new PersistenceException());
-
-        attributesStore.updateUserDataUsage(USER, 500L);
-
+        attributesStore.updateUserDataUsage(USER, LONG_5);
     }
 
+    @Test
+    public void testGetAllUsers() throws PersistenceException {
+        List<Map<String, Object>> mapList = attributesStore.getAllUsers();
+        assertThat(mapList.isEmpty(), is(true));
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testGetAllUsersThrowsException() throws PersistenceException {
+        when(persistentStore.get(anyString())).thenThrow(new PersistenceException());
+        attributesStore.getAllUsers();
+    }
+
+    @Test
+    public void testSetDataLimit() throws PersistenceException {
+        final long DATA_LIMIT = LONG_5;
+        ArgumentCaptor<String> keyArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
+        attributesStore.setDataLimit(USER, DATA_LIMIT);
+        verify(persistentStore).add(keyArg.capture(), itemArg.capture());
+        assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+
+        assertThat(itemArg.getValue()
+                .getLongProperty(AttributesStore.DATA_USAGE_LIMIT_KEY), is(DATA_LIMIT));
+    }
+
+    @Test
+    public void testSetDataLimitSizeLessThanZero() throws PersistenceException {
+        long dataUsage = -1L;
+        attributesStore.setDataLimit(USER, dataUsage);
+        verify(persistentStore, never()).add(anyString(), anyMap());
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testSetDataLimitNullUsername() throws PersistenceException {
+        attributesStore.setDataLimit(null, LONG_5);
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void testGetDataLimitNullUsername() throws PersistenceException {
+        attributesStore.getDataLimitByUser(null);
+    }
+
+    @Test
+    public void testGetDataLimit() throws PersistenceException {
+        attributesList = new ArrayList<>();
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(DATA_USAGE_LONG, LONG_2);
+        attributes.put(DATA_LIMIT_LONG, LONG_1);
+        attributesList.add(attributes);
+        when(persistentStore.get(anyString(), anyString())).thenReturn(attributesList);
+        long usage = attributesStore.getDataLimitByUser(USER);
+        assertThat(usage, is(LONG_1));
+    }
+
+    @Test
+    public void resetUserDataUsages() throws PersistenceException {
+        attributesList = new ArrayList<>();
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(DATA_USAGE_LONG, LONG_2);
+        attributes.put(DATA_LIMIT_LONG, LONG_1);
+        attributesList.add(attributes);
+        when(persistentStore.get(anyString())).thenReturn(attributesList);
+
+        ArgumentCaptor<String> keyArg = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
+        attributesStore.resetUserDataUsages();
+        verify(persistentStore).add(keyArg.capture(), itemArg.capture());
+        assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+
+        assertThat(itemArg.getValue()
+                .getLongProperty(AttributesStore.DATA_USAGE_KEY), is(0L));
+        assertThat(itemArg.getValue()
+                .getLongProperty(AttributesStore.DATA_USAGE_LIMIT_KEY), is(LONG_1));
+
+    }
 }

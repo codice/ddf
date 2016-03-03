@@ -62,6 +62,26 @@ public class AttributesStoreImpl implements AttributesStore {
     }
 
     @Override
+    public long getDataLimitByUser(final String username) throws PersistenceException {
+        long dataLimit = DEFAULT_DATA_USAGE_LIMIT;
+
+        if (StringUtils.isEmpty(username)) {
+            throw new PersistenceException(EMPTY_USERNAME_ERROR);
+        }
+
+        try {
+            readWriteLock.readLock()
+                    .lock();
+            dataLimit = getDataLimitByUserNoLock(username);
+        } finally {
+            readWriteLock.readLock()
+                    .unlock();
+        }
+
+        return dataLimit;
+    }
+
+    @Override
     public void updateUserDataUsage(final String username, final long newDataUsage)
             throws PersistenceException {
         if (StringUtils.isEmpty(username)) {
@@ -76,7 +96,9 @@ public class AttributesStoreImpl implements AttributesStore {
                 dataUsage += newDataUsage;
 
                 LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username, dataUsage));
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
+                        dataUsage,
+                        getDataLimitByUser(username)));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -98,7 +120,9 @@ public class AttributesStoreImpl implements AttributesStore {
                         .lock();
 
                 LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
-                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username, dataUsage));
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
+                        dataUsage,
+                        DEFAULT_DATA_USAGE_LIMIT));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -107,12 +131,78 @@ public class AttributesStoreImpl implements AttributesStore {
         }
     }
 
-    private PersistentItem toPersistentItem(final String username, final long dataUsage) {
+    @Override
+    public void setDataLimit(final String username, final long dataLimit)
+            throws PersistenceException {
+
+        if (StringUtils.isEmpty(username)) {
+            throw new PersistenceException(EMPTY_USERNAME_ERROR);
+        }
+        if (dataLimit >= 0) {
+            try {
+                readWriteLock.writeLock()
+                        .lock();
+
+                LOGGER.debug("Updating user {} data limit to {}", username, dataLimit);
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
+                        getCurrentDataUsageByUser(username),
+                        dataLimit));
+            } finally {
+                readWriteLock.writeLock()
+                        .unlock();
+
+            }
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getAllUsers() throws PersistenceException {
+        List<Map<String, Object>> userMap;
+        try {
+            readWriteLock.readLock()
+                    .lock();
+            userMap = persistentStore.get(PersistentStore.USER_ATTRIBUTE_TYPE);
+        } finally {
+            readWriteLock.readLock()
+                    .unlock();
+        }
+        return userMap;
+    }
+
+    @Override
+    public void resetUserDataUsages() throws PersistenceException {
+        List<Map<String, Object>> users = getAllUsers();
+        for (Map<String, Object> user : users) {
+            String username = (String) user.get(AttributesStore.USER_KEY + "_txt");
+            long dataLimit = (long) user.get(AttributesStore.DATA_USAGE_LIMIT_KEY + "_lng");
+            try {
+                readWriteLock.writeLock()
+                        .lock();
+
+                LOGGER.debug("Resetting Data usage for user : {}", username);
+                persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
+                        0L,
+                        dataLimit));
+            } finally {
+                readWriteLock.writeLock()
+                        .unlock();
+            }
+        }
+    }
+
+    private PersistentItem toPersistentItem(final String username, final long dataUsage,
+            final long dataLimit) throws PersistenceException {
         // add to usage and store
         PersistentItem item = new PersistentItem();
         item.addIdProperty(username);
         item.addProperty(USER_KEY, username);
         item.addProperty(DATA_USAGE_KEY, dataUsage);
+        item.addProperty(DATA_USAGE_LIMIT_KEY, dataLimit);
+
+        LOGGER.debug("Created PersistentItem : User {} Usage {} Limit {}",
+                username,
+                dataUsage,
+                dataLimit);
         return item;
     }
 
@@ -133,6 +223,23 @@ public class AttributesStoreImpl implements AttributesStore {
         }
         return currentDataUsage;
 
+    }
+
+    private long getDataLimitByUserNoLock(final String username) throws PersistenceException {
+        long dataLimit = DEFAULT_DATA_USAGE_LIMIT;
+        List<Map<String, Object>> attributesList;
+        attributesList = persistentStore.get(PersistentStore.USER_ATTRIBUTE_TYPE, String.format(
+                "%s = '%s'",
+                USER_KEY,
+                username));
+
+        if (attributesList != null && attributesList.size() == 1) {
+            Map<String, Object> attributes = PersistentItem.stripSuffixes(attributesList.get(0));
+            dataLimit = (long) attributes.get(DATA_USAGE_LIMIT_KEY);
+
+            LOGGER.debug("User {} data limit {} ", username, String.valueOf(dataLimit));
+        }
+        return dataLimit;
     }
 
 }

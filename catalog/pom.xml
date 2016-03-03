@@ -517,6 +517,7 @@
         <module>ui</module>
         <module>spatial</module>
         <module>docs</module>
+        <module>resourcemanagement</module>
     </modules>
     <build>
         <plugins>

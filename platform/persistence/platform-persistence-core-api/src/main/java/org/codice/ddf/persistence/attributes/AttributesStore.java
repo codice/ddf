@@ -14,12 +14,19 @@
 
 package org.codice.ddf.persistence.attributes;
 
+import java.util.List;
+import java.util.Map;
+
 import org.codice.ddf.persistence.PersistenceException;
 
 public interface AttributesStore {
-    public static final String DATA_USAGE_KEY = "data_usage";
+    String DATA_USAGE_KEY = "data_usage";
 
-    public static final String USER_KEY = "user";
+    String DATA_USAGE_LIMIT_KEY = "data_limit";
+
+    String USER_KEY = "user";
+
+    long DEFAULT_DATA_USAGE_LIMIT = 750L * 1000L * 1000L;
 
     /**
      * Returns the user's current data usage from the persistent store
@@ -28,7 +35,16 @@ public interface AttributesStore {
      * @return data usage
      * @throws PersistenceException
      */
-    public long getCurrentDataUsageByUser(String username) throws PersistenceException;
+    long getCurrentDataUsageByUser(String username) throws PersistenceException;
+
+    /**
+     * Returns the user's current data limit from the persistent store
+     *
+     * @param username
+     * @return
+     * @throws PersistenceException
+     */
+    long getDataLimitByUser(final String username) throws PersistenceException;
 
     /**
      * Adds the specified data usage in bytes to the user's data usage in the persistent store
@@ -37,7 +53,7 @@ public interface AttributesStore {
      * @param dataUsage
      * @throws PersistenceException
      */
-    public void updateUserDataUsage(String username, long dataUsage) throws PersistenceException;
+    void updateUserDataUsage(String username, long dataUsage) throws PersistenceException;
 
     /**
      * Resets the user's data usage in the persistent store to the usage specified in bytes
@@ -46,6 +62,29 @@ public interface AttributesStore {
      * @param dataUsage
      * @throws PersistenceException
      */
-    public void setDataUsage(String username, long dataUsage) throws PersistenceException;
+    void setDataUsage(String username, long dataUsage) throws PersistenceException;
 
+    /**
+     * Resets the user's data limit in the persistent store to the size specified in bytes
+     *
+     * @param username
+     * @param dataLimit
+     * @throws PersistenceException
+     */
+    void setDataLimit(String username, long dataLimit) throws PersistenceException;
+
+    /**
+     * Gets a list of all users and their attributes
+     *
+     * @return a list of users and their data usage properties
+     * @throws PersistenceException
+     */
+    List<Map<String, Object>> getAllUsers() throws PersistenceException;
+
+    /**
+     * Resets all known user's data usages to 0.
+     *
+     * @throws PersistenceException
+     */
+    void resetUserDataUsages() throws PersistenceException;
 }
