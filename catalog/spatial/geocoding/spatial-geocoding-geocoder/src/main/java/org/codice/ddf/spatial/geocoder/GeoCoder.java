@@ -13,22 +13,22 @@
  **/
 package org.codice.ddf.spatial.geocoder;
 
+import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 
 public interface GeoCoder {
     /**
      * Takes a query for a place and returns the most relevant result.
      *
-     * @param location  a string representing a simple placename query, such as "Washington, D.C."
-     *                  or "France" (i.e. the string just contains search terms, not query logic)
+     * @param location a string representing a simple placename query, such as "Washington, D.C."
+     *                 or "France" (i.e. the string just contains search terms, not query logic)
      * @return the {@link GeoResult} most relevant to the query, null if no results were found
      */
     GeoResult getLocation(String location);
 
     /**
-     *
      * @param locationWKT - a WKT string describing the area to search
      * @return a description of the "nearest city"
      */
-    NearbyLocation getNearbyCity(String locationWKT);
+    NearbyLocation getNearbyCity(String locationWKT) throws GeoEntryQueryException;
 }
