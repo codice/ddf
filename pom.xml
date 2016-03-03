@@ -94,7 +94,7 @@
         <ddf-branding>DDF</ddf-branding>
         <ddf-branding-lowercase>ddf</ddf-branding-lowercase>
         <ddf-branding-expanded>Distributed Data Framework</ddf-branding-expanded>
-        <ddf-version>${project.version}</ddf-version>
+        <ddf.version>${project.version}</ddf.version>
         <!--Needed for documentation formatting-->
         <at-symbol>@</at-symbol>
         <variable-prefix>${</variable-prefix>
@@ -109,7 +109,6 @@
         <ddf-solr>DDF Solr</ddf-solr>
         <ddf-spatial>DDF Spatial</ddf-spatial>
         <ddf-ui>DDF Search UI</ddf-ui>
-        <ddf-version>${project.version}</ddf-version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined

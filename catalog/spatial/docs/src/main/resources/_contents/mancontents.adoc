@@ -71,7 +71,7 @@ feature:install <Application's main feature>
 
 .Example
 ----
-ddf@local>feature:repo-add mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+ddf@local>feature:repo-add mvn:ddf.catalog/catalog-app/${ddf.version}/xml/features
 ddf@local>feature:install catalog-app
 ----
 
