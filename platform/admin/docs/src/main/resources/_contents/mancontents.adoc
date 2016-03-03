@@ -79,7 +79,7 @@ As applications are selected or deselected, the corresponding dependent applicat
 ====== Set Up the Installer Module
 
 . Install the module if it is not already pre-installed. +
-`features:install admin-modules-installer`
+`feature:install admin-modules-installer`
 
 . Open a web browser and navigate to the Installation page. +
 `http://DDF_HOST:DDF_PORT/admin`
@@ -174,7 +174,7 @@ The configuration module allows administrators to change bundle and service conf
 ===== Set Up the Module
 
 . Install the module if it is not pre-installed.
-`features:install admin-modules-configuration`
+`feature:install admin-modules-configuration`
 
 . Open a web browser and navigate to the Admin Console page.
 

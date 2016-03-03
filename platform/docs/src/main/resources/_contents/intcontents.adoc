@@ -962,7 +962,7 @@ The compression services are not installed by default within the platform applic
 
 [source]
 ----
-features:install compression-[DESIRED COMPRESSION SERVICE]
+feature:install compression-[DESIRED COMPRESSION SERVICE]
 ----
 
 Where [DESIRED COMPRESSION SERVICE] is one of the following:

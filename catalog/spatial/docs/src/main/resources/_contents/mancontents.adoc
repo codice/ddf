@@ -1,10 +1,10 @@
 
-The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+The ${ddf-branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
 This page describes:
 
 * which applications must be installed prior to installing this application.
-* how to install the {branding} Spatial Application.
+* how to install the ${ddf-branding} Spatial Application.
 * how to verify if the application was successfully installed.
 * how to uninstall the application.
 * how to upgrade the application.
@@ -13,23 +13,22 @@ This page describes:
 
 === Prerequisites
 
-Before the {branding} Spatial Application can be installed:
+Before the ${ddf-branding} Spatial Application can be installed:
 
-* the {branding} Kernel must be running
-* the {branding} Platform Application must be installed
-* the {branding} Catalog Application must be installed
+* the ${ddf-branding} Platform Application and
+* the ${ddf-branding} Catalog Application must be installed
 
 === Installing
-. Before installing a {branding} application, verify that its prerequisites have been met.
-. Copy the {branding} application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+. Before installing a ${branding} application, verify that its prerequisites have been met.
+. Copy the ${branding} application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
 
 [NOTE]
 ====
-These Installation steps are the same whether {branding} was installed from a distribution zip or a custom installation using the {branding} Kernel zip.
+These Installation steps are the same whether ${branding} was installed from a distribution zip or a custom installation using the ${branding} Kernel zip.
 ====
 
 ==== Verifying
-. Verify the appropriate features for the {branding} application have been installed using the `features:list` command to view the KAR file's features.
+. Verify the appropriate features for the ${branding} application have been installed using the `feature:list` command to view the KAR file's features.
 . Verify that the bundles within the installed features are in an active state.
 
 ==== Uninstalling
@@ -38,42 +37,42 @@ These Installation steps are the same whether {branding} was installed from a di
 It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
 ====
 
-If the {branding} application is deployed on the {branding} Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+If the ${branding} application is deployed on the ${branding} Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
 
-Otherwise, if the {branding} application is running as part of the {branding} distribution zip, it is uninstalled the first time and only the first time using the `features:removeurl` command:
+Otherwise, if the ${branding} application is running as part of the ${branding} distribution zip, it is uninstalled the first time and only the first time using the `feature:repo-remove` command:
 
-.Uninstall {branding} application from {branding} distribution
+.Uninstall ${branding} application from ${branding} distribution
 ----
-features:removeurl -u <Application's feature repository URL>
+feature:repo-remove -u <Application's feature repository URL>
 
-Example:   features:removeurl -u mvn:org.codice.ddf.spatial/spatial-app/2.5.0/xml/features
+Example:   feature:repo-remove -u mvn:org.codice.ddf.spatial/spatial-app/2.5.0/xml/features
 ----
 
-The uninstall of the application can be verified by the absence of any of the {branding} application's features in the `features:list` command output.
+The uninstall of the application can be verified by the absence of any of the ${branding} application's features in the `feature:list` command output.
 
 [NOTE]
 ====
 The repository URLs for installed applications can be obtained by entering:
-      `features:listrepositories -u`
+      `feature:repo-list -u`
 ====
 
 ==== Reverting the Uninstall
 
-If the uninstall of the {branding} application needs to be reverted, this is accomplished by either:
+If the uninstall of the ${branding} application needs to be reverted, this is accomplished by either:
 
 * copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR
-* adding the application's feature repository back into {branding} and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+* adding the application's feature repository back into ${branding} and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
 
-.Reverting {branding} application's uninstall
+.Reverting ${branding} application's uninstall
 ----
-features:addurl <Application's feature repository URL>
-features:install <Application's main feature>
+feature:repo-add <Application's feature repository URL>
+feature:install <Application's main feature>
 ----
 
 .Example
 ----
-ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
-ddf@local>features:install catalog-app
+ddf@local>feature:repo-add mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+ddf@local>feature:install catalog-app
 ----
 
 ==== Upgrading
@@ -104,7 +103,7 @@ To do so, you'll need to use the `geonames:update` command which is explained in
 |Namespace
 |Description
 
-|{branding} :: Spatial :: Commands
+|${branding} :: Spatial :: Commands
 |`geonames`
 |The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
 |===
@@ -125,7 +124,7 @@ geonames:update
 |Adds new entries to an existing local GeoNames index.  Entries can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip).  Currently .txt and .zip files are supported for manual entries.  Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country to the local GeoNames index.  The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt.  Using the argument "all" will download all of the current country codes (this process may take some time).  In addition to country codes, GeoNames also provides entries for cities based on their population sizes.  The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
 
 The index location can be configured via the Admin UI or the Felix Web Console. By default, the index location is `data/geonames-index`. If you specify a relative path, it is relative to the location of the unzipped
-{branding} distribution. You may specify an absolute path if you want the index to be located somewhere else.
+${branding} distribution. You may specify an absolute path if you want the index to be located somewhere else.
 
 The `-c` or `--create` flag can be added to create a new GeoNames index. This will overwrite any existing index at the location specified in the Admin UI or Felix Web Console. The new index will be filled with the entries in the file you pass to the command. You must create an index before you can add additional entries to it (i.e. running the command without the `-c` or `--create` flag).
 |===
