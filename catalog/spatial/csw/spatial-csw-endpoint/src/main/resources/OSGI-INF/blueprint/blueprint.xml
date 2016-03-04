@@ -15,7 +15,8 @@
 <blueprint xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
+           xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
@@ -30,6 +31,7 @@
                 <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
                 <value>net.opengis.cat.csw.v_2_0_2.CapabilitiesType</value>
                 <value>net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType</value>
+                <value>net.opengis.cat.csw.v_2_0_2.AcknowledgementType</value>
             </list>
         </property>
         <property name="marshallAsJaxbElement" value="true"/>
@@ -58,6 +60,12 @@
                         <value>net.opengis.cat.csw.v_2_0_2.TransactionResponseType</value>
                     </key>
                     <value>{http://www.opengis.net/cat/csw/2.0.2}TransactionResponse</value>
+                </entry>
+                <entry>
+                    <key>
+                        <value>net.opengis.cat.csw.v_2_0_2.AcknowledgementType</value>
+                    </key>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}Acknowledgement</value>
                 </entry>
             </map>
         </property>
@@ -125,16 +133,11 @@
     <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint">
         <argument ref="blueprintBundleContext"/>
         <argument ref="catalogFramework"/>
-        <argument ref="filterBuilder"/>
-        <argument ref="filterAdapter"/>
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
         <argument ref="inputTransformerManager"/>
-        <property name="schemaToTagsMapping">
-            <array value-type="java.lang.String">
-                <value type="java.lang.String">http://www.opengis.net/cat/wrs/1.0=registry</value>
-            </array>
-        </property>
+        <argument ref="validator"/>
+        <argument ref="cswFilterFactory"/>
     </bean>
 
     <bean id="ddf.catalog.endpoint.csw" class="ddf.catalog.endpoint.impl.CatalogEndpointImpl">
@@ -147,11 +150,36 @@
         <property name="description" value="The endpoint used for csw."/>
         <property name="bindingType" value="Csw_Federated_Source"/>
     </bean>
+
+    <bean id="validator"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">
+    </bean>
+
+    <bean id="cswFilterFactory"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
+        <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <property name="schemaToTagsMapping">
+            <array value-type="java.lang.String">
+                <value type="java.lang.String">http://www.opengis.net/cat/wrs/1.0=registry</value>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="CswSubscriptionSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="queryResponseTransformerManager"/>
+        <argument ref="metacardTransformerManager"/>
+        <argument ref="validator"/>
+        <argument ref="cswFilterFactory"/>
+    </bean>
+
     <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>
 
     <jaxrs:server id="CswService" address="/csw">
         <jaxrs:serviceBeans>
             <ref component-id="CswSvc"/>
+            <ref component-id="CswSubscriptionSvc"/>
         </jaxrs:serviceBeans>
         <jaxrs:resourceComparator>
             <ref component-id="CswResourceComparator"/>
@@ -163,5 +191,19 @@
             <ref component-id="cswRecordCollectionWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
+
+
+    <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
+                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory">
+
+        <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory">
+            <argument ref="CswSubscriptionSvc"/>
+            <property name="filterXml" value=""/>
+            <property name="subscriptionId" value=""/>
+            <property name="deliveryMethodUrl" value=""/>
+            <cm:managed-properties persistent-id="" update-strategy="container-managed"/>
+        </cm:managed-component>
+
+    </cm:managed-service-factory>
 
 </blueprint>

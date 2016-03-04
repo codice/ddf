@@ -96,8 +96,7 @@ public class CswRecordCollectionMessageBodyWriter
         if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils.isNotBlank(
                 mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
             transformer = transformerManager.getTransformerByMimeType(mimeType);
-        } else if (recordCollection.getOutputSchema()
-                .equals(OCTET_STREAM_OUTPUT_SCHEMA)) {
+        } else if (OCTET_STREAM_OUTPUT_SCHEMA.equals(recordCollection.getOutputSchema())) {
             Resource resource = recordCollection.getResource();
             httpHeaders.put(HttpHeaders.CONTENT_TYPE, Arrays.asList(resource.getMimeType()));
             httpHeaders.put(HttpHeaders.CONTENT_DISPOSITION,

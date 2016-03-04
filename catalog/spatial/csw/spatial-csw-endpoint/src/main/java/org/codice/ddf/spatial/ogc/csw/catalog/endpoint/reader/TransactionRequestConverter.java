@@ -41,7 +41,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.XStreamAttributeCopier;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -319,7 +319,7 @@ public class TransactionRequestConverter implements Converter {
         JAXBElement<T> root;
 
         try {
-            JAXBContext jaxbContext = CswEndpoint.getJaxBContext();
+            JAXBContext jaxbContext = CswQueryFactory.getJaxBContext();
             InputStream xmlInputStream = IOUtils.toInputStream(xml, StandardCharsets.UTF_8.name());
             StreamSource xmlStreamSource = new StreamSource(xmlInputStream);
             root = jaxbContext.createUnmarshaller()

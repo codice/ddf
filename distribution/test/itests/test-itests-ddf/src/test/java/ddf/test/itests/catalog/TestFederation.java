@@ -18,20 +18,34 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.path.json.JsonPath.with;
+import static com.xebialabs.restito.builder.stub.StubHttp.whenHttp;
+import static com.xebialabs.restito.semantics.Action.success;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.karaf.bundle.core.BundleService;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -40,15 +54,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.http.Method;
+import com.jayway.restassured.path.xml.XmlPath;
+import com.xebialabs.restito.semantics.Call;
+import com.xebialabs.restito.semantics.Condition;
+import com.xebialabs.restito.server.StubServer;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
@@ -71,6 +92,12 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String SAMPLE_DATA = "sample data";
 
+    private static final String SUBSCRIBER = "/subscriber";
+
+    private static final int EVENT_UPDATE_WAIT_INTERVAL = 200;
+
+    private static boolean fatalError = false;
+
     private static final int XML_RECORD_INDEX = 1;
 
     private static final int GEOJSON_RECORD_INDEX = 0;
@@ -89,6 +116,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
 
+    private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
+
     private static String[] metacardIds = new String[2];
 
     private List<String> metacardsToDelete = new ArrayList<>();
@@ -96,6 +125,15 @@ public class TestFederation extends AbstractIntegrationTest {
     private List<String> resourcesToDelete = new ArrayList<>();
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
+
+    public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("http://localhost:",
+            RESTITO_STUB_SERVER_PORT,
+            SUBSCRIBER);
+
+    private static StubServer server;
+
+    @Inject
+    BundleService bundleService;
 
     @Rule
     public TestName testName = new TestName();
@@ -152,6 +190,15 @@ public class TestFederation extends AbstractIntegrationTest {
     @Before
     public void setup() {
         urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
+
+        if (fatalError) {
+            server.stop();
+
+            fail("An unrecoverable error occurred from previous test");
+        }
+
+        server = new StubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
+        server.start();
     }
 
     @After
@@ -171,6 +218,10 @@ public class TestFederation extends AbstractIntegrationTest {
             }
 
             resourcesToDelete.clear();
+        }
+
+        if (server != null) {
+            server.stop();
         }
     }
 
@@ -675,6 +726,220 @@ public class TestFederation extends AbstractIntegrationTest {
         }
     }
 
+    @Test
+    public void testCswSubscriptionByWildCardSearchPhrase() throws Exception {
+        whenHttp(server).match(Condition.post(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.get(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.delete(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.put(SUBSCRIBER))
+                .then(success());
+
+        String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
+
+        // @formatter:off
+        String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+        // @formatter:on
+
+        // @formatter:off
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+        // @formatter:on
+
+        String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+
+        metacardsToDelete.add(metacardId);
+
+        String[] subscrptionIds = {subscriptionId};
+
+        verifyEvents(new HashSet(Arrays.asList(metacardId)),
+                new HashSet(0),
+                new HashSet(Arrays.asList(subscrptionIds)));
+
+        // @formatter:off
+        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+        // @formatter:on
+
+        // @formatter:off
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat().statusCode(404);
+        // @formatter:on
+
+    }
+
+    @Test
+    public void testCswDurableSubscription() throws Exception {
+        whenHttp(server).match(Condition.post(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.get(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.delete(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.put(SUBSCRIBER))
+                .then(success());
+
+        String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
+
+        //Subscribe
+        // @formatter:off
+        String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+        // @formatter:on
+
+        Bundle bundle = bundleService.getBundle("spatial-csw-endpoint");
+        bundle.stop();
+        while (bundle.getState() != Bundle.RESOLVED) {
+            Thread.sleep(1000);
+        }
+        bundle.start();
+        while (bundle.getState() != Bundle.ACTIVE) {
+            Thread.sleep(1000);
+        }
+        getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
+        //get subscription
+        // @formatter:off
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+        // @formatter:on
+
+        String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
+
+        metacardsToDelete.add(metacardId);
+
+        String[] subscrptionIds = {subscriptionId};
+
+        verifyEvents(new HashSet(Arrays.asList(metacardId)),
+                new HashSet(0),
+                new HashSet(Arrays.asList(subscrptionIds)));
+
+        // @formatter:off
+        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+        // @formatter:on
+
+        // @formatter:off
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat().statusCode(404);
+        // @formatter:on
+
+    }
+
+    private void verifyEvents(Set<String> metacardIdsExpected, Set<String> metacardIdsNotExpected,
+            Set<String> subscriptionIds) {
+        long millis = 0;
+
+        boolean isAllEventsReceived = false;
+        boolean isUnexpectedEventReceived = false;
+
+        while (!isAllEventsReceived && !isUnexpectedEventReceived
+                && millis < TimeUnit.MINUTES.toMillis(2)) {
+
+            Set<String> foundIds = null;
+
+            try {
+                Thread.sleep(EVENT_UPDATE_WAIT_INTERVAL);
+                millis += EVENT_UPDATE_WAIT_INTERVAL;
+            } catch (InterruptedException e) {
+                LOGGER.info("Interrupted exception while trying to sleep for events", e);
+            }
+            if ((millis % 1000) == 0) {
+                LOGGER.info("Waiting for events to be received...{}ms", millis);
+            }
+            for (String id : subscriptionIds) {
+                foundIds = getEvents(id);
+                isAllEventsReceived = foundIds.containsAll(metacardIdsExpected);
+
+                isUnexpectedEventReceived = foundIds.removeAll(metacardIdsNotExpected);
+            }
+        }
+        assertTrue(isAllEventsReceived);
+        assertFalse(isUnexpectedEventReceived);
+    }
+
+    private Set<String> getEvents(String subscriptionId) {
+
+        HashSet<String> foundIds = new HashSet<String>();
+        List<Call> calls = new ArrayList<>(server.getCalls());
+
+        if (CollectionUtils.isNotEmpty(calls)) {
+            for (Call call : calls) {
+
+                if (call.getMethod()
+                        .matchesMethod(Method.POST.name())
+                        && StringUtils.isNotEmpty(call.getPostBody())) {
+                    LOGGER.debug("Event received '{}'", call.getPostBody());
+
+                    XmlPath xmlPath = new XmlPath(call.getPostBody());
+                    String id;
+                    try {
+                        String foundSubscriptionId = xmlPath.get("GetRecordsResponse.RequestId");
+
+                        if (StringUtils.isNotBlank(foundSubscriptionId) && subscriptionId.equals(
+                                foundSubscriptionId)) {
+                            id = xmlPath.get("GetRecordsResponse.SearchResults.Record.identifier");
+
+                            if (StringUtils.isNotEmpty(id)) {
+                                foundIds.add(StringUtils.trim(id));
+
+                            }
+                        } else {
+                            LOGGER.info("event for id {} not found.", subscriptionId);
+                        }
+                    } catch (ClassCastException e) {
+                        // not necessarily a problem that an particular path (event) wasn't found
+                        LOGGER.info("Unable to evaluate path for event {}", subscriptionId);
+                    }
+                }
+            }
+
+            LOGGER.debug("Id {}, Event Found Ids: {}",
+                    subscriptionId,
+                    Arrays.toString(foundIds.toArray()));
+        }
+        return foundIds;
+
+    }
+
     public void setupConnectedSources() throws IOException {
         CswConnectedSourceProperties connectedSourceProperties = new CswConnectedSourceProperties(
                 CONNECTED_SOURCE_ID);
@@ -694,6 +959,16 @@ public class TestFederation extends AbstractIntegrationTest {
         LOGGER.debug("File Location: {}", fileLocation);
         String metacardId = TestCatalog.ingest(Library.getSimpleXml(fileLocation), "text/xml");
         return metacardId;
+    }
+
+    @Override
+    protected Option[] configureCustom() {
+
+        return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    }
+
+    public void setBundleService(BundleService bundleService) {
+        this.bundleService = bundleService;
     }
 
 }
