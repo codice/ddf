@@ -43,6 +43,8 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
+
 /**
  * Implementation of the {@link ConfigurationMigrationService} that allows migration of
  * {@link org.osgi.service.cm.Configuration} objects as well as any other configuration files
@@ -135,9 +137,24 @@ public class ConfigurationMigrationManager
         List<MigrationWarning> warnings = new LinkedList<>();
 
         for (ServiceReference<Migratable> serviceReference : getMigratableServiceReferences()) {
-
             Migratable migratable = getBundleContext().getService(serviceReference);
+
+            LOGGER.debug("Exporting {}", migratable.getDescription());
+
+            Stopwatch stopwatch = null;
+
+            if (LOGGER.isDebugEnabled()) {
+                stopwatch = Stopwatch.createStarted();
+            }
+
             MigrationMetadata migrationMetadata = migratable.export(exportDirectory);
+
+            if (LOGGER.isDebugEnabled() && stopwatch != null) {
+                LOGGER.debug("Export time: {}",
+                        stopwatch.stop()
+                                .toString());
+            }
+
             warnings.addAll(migrationMetadata.getMigrationWarnings());
         }
 

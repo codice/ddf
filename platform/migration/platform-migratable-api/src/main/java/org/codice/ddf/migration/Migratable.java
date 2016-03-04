@@ -29,29 +29,30 @@ import javax.validation.constraints.NotNull;
 public interface Migratable {
 
     /**
-     * Export all migratable data to the specified directory
+     * Exports all migratable data to the specified directory
      *
-     * @param exportPath Path where {@link Migratable} specific data must be exported.
-     *                   exportPath will never be null.
-     *
-     * @return Metadata describing the results of the migration
+     * @param exportPath path where {@link Migratable} specific data must be exported.
+     *                   Will never be {@code null}.
+     * @return metadata describing the results of the migration
      */
     @NotNull
-    public MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
+    MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
 
     /**
-     * Get a description of the migratable data. This description will be
+     * Gets a description of the migratable data. This description will be
      * used for display purposes by consumers of {@link Migratable} services.
-     * @return A short description of the migratable data
+     *
+     * @return short description of the migratable data
      */
     @NotNull
-    public String getDescription();
+    String getDescription();
 
     /**
      * Determines if the exported data from this {@link Migratable} is optional or required.
      * This can be used by consumers of {@link Migratable} services to determine if the data
      * of this export is necessary when importing into a new system.
-     * @return Status of whether or not the export is optional
+     *
+     * @return status of whether or not the export is optional
      */
-    public boolean isOptional();
+    boolean isOptional();
 }

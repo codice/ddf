@@ -109,5 +109,6 @@
         <module>catalog-core-backupplugin</module>
         <module>catalog-core-solr</module>
         <module>catalog-core-solrcommands</module>
+        <module>catalog-core-migratable</module>
     </modules>
 </project>

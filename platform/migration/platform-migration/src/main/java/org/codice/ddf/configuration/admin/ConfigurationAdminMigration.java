@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.admin;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.apache.commons.lang.Validate.notNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -212,7 +213,8 @@ public class ConfigurationAdminMigration implements ChangeListener, Configuratio
 
     private Path createEtcDirectory(Path exportDirectory) throws IOException {
         Path etcDirectory = exportDirectory.resolve("etc");
-        FileUtils.forceMkdir(etcDirectory.toFile());
+        File etcDirAsFile = etcDirectory.toFile();
+        FileUtils.forceMkdir(etcDirAsFile);
         LOGGER.debug("Output directory {} created", etcDirectory.toString());
         return etcDirectory;
     }

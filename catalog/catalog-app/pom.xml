@@ -99,6 +99,11 @@
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-migratable</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
