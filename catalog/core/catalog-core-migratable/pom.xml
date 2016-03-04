@@ -116,7 +116,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl,platform-util
+                            catalog-core-api-impl,
+                            platform-util,
+                            ddf-security-common
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
