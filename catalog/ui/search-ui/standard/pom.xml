@@ -214,9 +214,16 @@
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
                 <version>1.5.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>1.5.0-alpha.6</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
-                        <id>output-html</id>
+                        <id>generate-help-html</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>process-asciidoc</goal>
@@ -225,6 +232,82 @@
                             <sourceDirectory>src/main/doc</sourceDirectory>
                             <outputDirectory>target/webapp</outputDirectory>
                             <backend>html</backend>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-help-pdf</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/doc</sourceDirectory>
+                            <outputDirectory>target/webapp</outputDirectory>
+                            <backend>pdf</backend>
+                            <attributes>
+                                <pagenums/>
+                                <toc/>
+                                <idprefix/>
+                                <idseparator>-</idseparator>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>include-help-adocs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                            <outputDirectory>${project.build.directory}/adoc-files
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>include-help-images</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            <outputDirectory>${project.build.directory}/images
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>attach-help-page</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/webapp/help.html</file>
+                                    <type>html</type>
+                                    <classifier>Help</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/webapp/help.pdf</file>
+                                    <type>pdf</type>
+                                    <classifier>Help</classifier>
+                                </artifact>
+                            </artifacts>
                         </configuration>
                     </execution>
                 </executions>

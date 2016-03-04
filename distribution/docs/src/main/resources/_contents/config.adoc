@@ -4,9 +4,9 @@ Version ${version}. Copyright (c) Codice Foundation
 :icons: font
 :example-caption!:
 :source-highlighter: coderay
-:data-uri:
 :sectlinks:
 :sectanchors:
+:data-uri:
 :sectnums:
 :title-logo: logo_ddf.png
 :last-update-label: Copyright (c) Codice Foundation. +

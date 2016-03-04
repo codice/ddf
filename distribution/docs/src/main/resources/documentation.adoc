@@ -33,6 +33,13 @@ include::./_contents/troubleshooting-contents.adoc[]
 
 <<<
 
+== Using ${branding}
+[small]#Version: ${project.version}#
+
+include::./ui-help/standard-${project.version}/help-contents.adoc[]
+
+<<<
+
 == Managing ${ddf-admin}
 [small]#Version: ${project.version}#
 

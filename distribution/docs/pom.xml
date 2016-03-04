@@ -94,6 +94,40 @@
                 <defaultGoal>process-resources</defaultGoal>
                     <plugins>
                         <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-dependency-plugin</artifactId>
+                            <version>2.10</version>
+                            <executions>
+                                <execution>
+                                    <id>unpack</id>
+                                    <phase>validate</phase>
+                                    <goals>
+                                        <goal>unpack</goal>
+                                    </goals>
+                                    <configuration>
+                                        <artifactItems>
+                                            <artifactItem>
+                                                <groupId>ddf.ui.search</groupId>
+                                                <artifactId>standard</artifactId>
+                                                <classifier>adoc-files</classifier>
+                                                <version>${project.version}</version>
+                                                <type>zip</type>
+                                                <outputDirectory>${project.build.directory}/adoc/ui-help</outputDirectory>
+                                            </artifactItem>
+                                            <artifactItem>
+                                                <groupId>ddf.ui.search</groupId>
+                                                <artifactId>standard</artifactId>
+                                                <classifier>images</classifier>
+                                                <version>${project.version}</version>
+                                                <type>zip</type>
+                                                <outputDirectory>${project.build.directory}/images</outputDirectory>
+                                            </artifactItem>
+                                        </artifactItems>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
                             <artifactId>maven-resources-plugin</artifactId>
                             <version>2.5</version>
                             <executions>
@@ -126,6 +160,26 @@
                                                 <includes>
                                                     <include>**/*.adoc</include>
                                                 </includes>
+                                            </resource>
+                                        </resources>
+                                    </configuration>
+                                </execution>
+                                <execution>
+                                    <id>copy-images</id>
+                                    <phase>initialize</phase>
+                                    <goals>
+                                        <goal>copy-resources</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>${project.build.directory}/doc-contents/images
+                                        </outputDirectory>
+                                        <resources>
+                                            <resource>
+                                                <directory>${project.build.directory}/images/standard-${project.version}</directory>
+                                                <filtering>false</filtering>
+                                                <excludes>
+                                                    <exclude>**/*.adoc</exclude>
+                                                </excludes>
                                             </resource>
                                         </resources>
                                     </configuration>
@@ -221,6 +275,17 @@
                                         <outputDirectory>${project.build.directory}/adoc-files</outputDirectory>
                                     </configuration>
                                     <id>include-adocs</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                </execution>
+                                <execution>
+                                    <configuration>
+                                        <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                                        <outputDirectory>${project.build.directory}/images</outputDirectory>
+                                    </configuration>
+                                    <id>include-images</id>
                                     <phase>package</phase>
                                     <goals>
                                         <goal>single</goal>
@@ -340,4 +405,11 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>standard</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
