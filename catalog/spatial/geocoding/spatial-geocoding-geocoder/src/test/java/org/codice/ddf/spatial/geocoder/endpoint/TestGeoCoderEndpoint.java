@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
+import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class TestGeoCoderEndpoint {
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
 
     @Before
-    public void setUp() {
+    public void setUp() throws GeoEntryQueryException {
         this.mockGeoCoderFactory = buildMockGeoCoderFactory();
         this.mockGeoCoder = buildMockGeoCoder();
         this.geoResult = buildGeoResult("Phoenix", 0, 0.389, "ADM3", 100000);

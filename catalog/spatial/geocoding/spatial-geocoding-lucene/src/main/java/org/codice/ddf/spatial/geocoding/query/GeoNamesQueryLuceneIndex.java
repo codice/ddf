@@ -111,6 +111,10 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
             throw new IllegalArgumentException("maxResults must be positive.");
         }
 
+        if (directory == null) {
+            return Collections.emptyList();
+        }
+
         try (final IndexReader indexReader = createIndexReader(directory)) {
             final IndexSearcher indexSearcher = createIndexSearcher(indexReader);
 
@@ -225,6 +229,10 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         if (maxResults <= 0) {
             throw new IllegalArgumentException(
                     "GeoNamesQueryLuceneIndex.doGetNearestCities(): maxResults must be positive.");
+        }
+
+        if (directory == null) {
+            return Collections.emptyList();
         }
 
         try (final IndexReader indexReader = createIndexReader(directory)) {

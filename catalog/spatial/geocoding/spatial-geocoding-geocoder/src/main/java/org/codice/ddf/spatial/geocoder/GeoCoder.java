@@ -29,6 +29,7 @@ public interface GeoCoder {
     /**
      * @param locationWKT - a WKT string describing the area to search
      * @return a description of the "nearest city"
+     * @throws GeoEntryQueryException if an exception occurs while querying the GeoNames resource
      */
     NearbyLocation getNearbyCity(String locationWKT) throws GeoEntryQueryException;
 }

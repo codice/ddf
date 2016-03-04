@@ -68,7 +68,7 @@ public class TestGeoNamesLocalIndex {
     }
 
     @Test
-    public void testWithResults() {
+    public void testWithResults() throws GeoEntryQueryException {
         final List<GeoEntry> topResults = Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2);
         doReturn(topResults).when(geoEntryQueryable)
                 .query("Phoenix", 1);
@@ -82,7 +82,7 @@ public class TestGeoNamesLocalIndex {
     }
 
     @Test
-    public void testWithNoResults() {
+    public void testWithNoResults() throws GeoEntryQueryException {
         final List<GeoEntry> noResults = Collections.emptyList();
         doReturn(noResults).when(geoEntryQueryable)
                 .query("Tempe", 1);
@@ -92,7 +92,7 @@ public class TestGeoNamesLocalIndex {
     }
 
     @Test
-    public void testExceptionInQuery() {
+    public void testExceptionInQuery() throws GeoEntryQueryException {
         doThrow(GeoEntryQueryException.class).when(geoEntryQueryable)
                 .query("Arizona", 1);
 
@@ -101,7 +101,7 @@ public class TestGeoNamesLocalIndex {
     }
 
     @Test
-    public void testGetNearbyCities() throws ParseException {
+    public void testGetNearbyCities() throws ParseException, GeoEntryQueryException {
         NearbyLocation mockNearbyLocation = mock(NearbyLocation.class);
         when(mockNearbyLocation.getCardinalDirection()).thenReturn("W");
         when(mockNearbyLocation.getDistance()).thenReturn(10.24);

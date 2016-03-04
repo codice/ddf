@@ -60,8 +60,7 @@ public class GeoNamesLocalIndex implements GeoCoder {
                         population);
             }
         } catch (GeoEntryQueryException e) {
-            LOGGER.error(
-                    "Error querying the local GeoNames index", e);
+            LOGGER.error("Error querying the local GeoNames index", e);
         }
 
         return null;

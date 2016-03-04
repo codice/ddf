@@ -28,17 +28,17 @@ import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesQueryLuceneDirectoryIndex.class);
-
     private String indexLocation;
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GeoNamesQueryLuceneDirectoryIndex.class);
 
     public void setIndexLocation(final String indexLocation) {
         this.indexLocation = indexLocation;
@@ -56,8 +56,9 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
             directory = openDirectory();
             if (!indexExists(directory)) {
                 directory.close();
-                LOGGER.error("There is no index at " + indexLocation
+                LOGGER.warn("There is no index at " + indexLocation
                         + ". Load a Geonames file into the offline gazetteer");
+                return null;
             }
 
             return directory;

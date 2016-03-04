@@ -101,6 +101,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
 
     private static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 
+    private static final String TEST_POINT = "POINT (56.78 1.5)";
+
     private SpatialStrategy strategy;
 
     private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder().name(NAME_1)
@@ -193,7 +195,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testQueryWithExactlyMaxResults() throws IOException, ParseException, GeoEntryQueryException {
+    public void testQueryWithExactlyMaxResults()
+            throws IOException, ParseException, GeoEntryQueryException {
         final int requestedMaxResults = 2;
         final String queryString = "phoenix";
 
@@ -212,7 +215,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testQueryWithLessThanMaxResults() throws IOException, ParseException, GeoEntryQueryException {
+    public void testQueryWithLessThanMaxResults()
+            throws IOException, ParseException, GeoEntryQueryException {
         final int requestedMaxResults = 2;
         final int actualResults = 1;
         final String queryString = "glendale";
@@ -226,7 +230,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testQueryWithNoResults() throws IOException, ParseException, GeoEntryQueryException {
+    public void testQueryWithNoResults()
+            throws IOException, ParseException, GeoEntryQueryException {
         final int requestedMaxResults = 2;
         final int actualResults = 0;
         final String queryString = "another place";
@@ -253,13 +258,6 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     @Test(expected = IllegalArgumentException.class)
     public void testQueryNegativeMaxResults() throws GeoEntryQueryException {
         directoryIndex.query("phoenix", -1);
-    }
-
-    @Test(expected = GeoEntryQueryException.class)
-    public void testQueryNoExistingIndex() throws IOException, GeoEntryQueryException {
-        doReturn(false).when(directoryIndex)
-                .indexExists(directory);
-        directoryIndex.query("phoenix", 1);
     }
 
     @Test
@@ -311,22 +309,26 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNearestCitiesNullMetacard() throws java.text.ParseException, GeoEntryQueryException {
+    public void testNearestCitiesNullMetacard()
+            throws java.text.ParseException, GeoEntryQueryException {
         directoryIndex.getNearestCities(null, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNearestCitiesNegativeRadius() throws java.text.ParseException, GeoEntryQueryException {
-        directoryIndex.getNearestCities("POINT (56.78 1.5)", -1, 1);
+    public void testNearestCitiesNegativeRadius()
+            throws java.text.ParseException, GeoEntryQueryException {
+        directoryIndex.getNearestCities(TEST_POINT, -1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNearestCitiesNegativeMaxResults() throws java.text.ParseException, GeoEntryQueryException {
-        directoryIndex.getNearestCities("POINT (56.78 1.5)", 1, -1);
+    public void testNearestCitiesNegativeMaxResults()
+            throws java.text.ParseException, GeoEntryQueryException {
+        directoryIndex.getNearestCities(TEST_POINT, 1, -1);
     }
 
     @Test
-    public void testNearestCitiesWithMaxResults() throws java.text.ParseException, GeoEntryQueryException {
+    public void testNearestCitiesWithMaxResults()
+            throws java.text.ParseException, GeoEntryQueryException {
         String testPoint = "POINT (56.78 1)";
 
         final int requestedMaxResults = 2;
@@ -361,7 +363,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testNearestCitiesWithLessThanMaxResults() throws java.text.ParseException, GeoEntryQueryException {
+    public void testNearestCitiesWithLessThanMaxResults()
+            throws java.text.ParseException, GeoEntryQueryException {
         String testPoint = "POINT (56.78 1.5)";
 
         final int requestedMaxResults = 2;
@@ -387,7 +390,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test
-    public void testNearestCitiesWithNoResults() throws java.text.ParseException, GeoEntryQueryException {
+    public void testNearestCitiesWithNoResults()
+            throws java.text.ParseException, GeoEntryQueryException {
         String testPoint = "POINT (0 1)";
 
         final int requestedMaxResults = 2;
@@ -400,7 +404,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test(expected = java.text.ParseException.class)
-    public void testNearestCitiesWithBadWKT() throws java.text.ParseException, GeoEntryQueryException {
+    public void testNearestCitiesWithBadWKT()
+            throws java.text.ParseException, GeoEntryQueryException {
         String testPoint = "POINT 56.78 1.5)";
 
         final int requestedMaxResults = 2;
@@ -411,7 +416,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test(expected = java.text.ParseException.class)
-    public void testNearestCitiesWithBlankWKT() throws java.text.ParseException, GeoEntryQueryException {
+    public void testNearestCitiesWithBlankWKT()
+            throws java.text.ParseException, GeoEntryQueryException {
         String testPoint = "";
 
         final int requestedMaxResults = 2;
@@ -423,13 +429,6 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
         assertThat(nearestCities.size(), is(actualResults));
     }
 
-    @Test(expected = GeoEntryQueryException.class)
-    public void testNearestCitiesNoExistingIndex() throws IOException, java.text.ParseException, GeoEntryQueryException {
-        doReturn(false).when(directoryIndex)
-                .indexExists(directory);
-        directoryIndex.getNearestCities("POINT (56.78 1.5)", 5, 5);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testDoGetNearestCitiesNullShape() throws GeoEntryQueryException {
         List<NearbyLocation> nearestCities = directoryIndex.doGetNearestCities(null,
@@ -439,7 +438,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     }
 
     @Test(expected = GeoEntryQueryException.class)
-    public void testDoGetNearestCitiesIOExceptionBranch() throws IOException, GeoEntryQueryException {
+    public void testDoGetNearestCitiesIOExceptionBranch()
+            throws IOException, GeoEntryQueryException {
         doThrow(IOException.class).when(directoryIndex)
                 .createIndexReader(directory);
         Shape shape = mock(Shape.class);

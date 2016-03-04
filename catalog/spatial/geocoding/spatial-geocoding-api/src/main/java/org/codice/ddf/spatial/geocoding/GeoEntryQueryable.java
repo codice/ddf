@@ -51,6 +51,7 @@ public interface GeoEntryQueryable {
      * @throws IllegalArgumentException if {@code metacard} is null, or if {@code radiusInKm} or
      *                                  {@code maxResults} is not a positive integer
      * @throws GeoEntryQueryException   if an exception occurs while querying the GeoNames resource
+     * @throws ParseException           if an exceptions occurs while parsing {@code location}
      */
     List<NearbyLocation> getNearestCities(String location, int radiusInKm, int maxResults)
             throws ParseException, GeoEntryQueryException;
