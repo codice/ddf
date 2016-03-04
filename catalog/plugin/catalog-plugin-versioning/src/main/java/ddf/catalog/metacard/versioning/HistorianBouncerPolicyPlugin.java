@@ -19,8 +19,12 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.HistoryMetacardImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -31,7 +35,10 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
 public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
     private final Predicate<Metacard> isMetacardHistory = (tags) -> tags.getTags()
-            .contains(Metacard.HISTORY_TAG);
+            .contains(HistoryMetacardImpl.HISTORY_TAG);
+
+    private final Predicate<Subject> isAdminSubject = (subject) -> SecurityUtils.getSubject()
+            .hasRole("codice-history");
 
     private final Supplier<StopProcessingException> exceptionSupplier =
             () -> new StopProcessingException(
@@ -40,26 +47,44 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        if (isMetacardHistory.test(input)) {
+        if (!isMetacardHistory.test(input)) {
+            /* not modifying history, proceed */
+            return new PolicyResponseImpl();
+        }
+
+        if (!isAdminSubject.test(SecurityUtils.getSubject())) {
+            /* trying to modify history without codice-history role, deny */
             throw exceptionSupplier.get();
         }
+
         return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreUpdate(Metacard newMetacard,
             Map<String, Serializable> properties) throws StopProcessingException {
-        if (isMetacardHistory.test(newMetacard)) {
+        if (!isMetacardHistory.test(newMetacard)) {
+            /* not modifying history, proceed */
+            return new PolicyResponseImpl();
+        }
+        if (!isAdminSubject.test(SecurityUtils.getSubject())) {
+            /* trying to modify history without codice-history role, deny */
             throw exceptionSupplier.get();
         }
+
         return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
-        if (metacards.stream()
-                .allMatch(isMetacardHistory)) {
+        if (!metacards.stream()
+                .anyMatch(isMetacardHistory)) {
+            /* not modifying history, proceed */
+            return new PolicyResponseImpl();
+        }
+        if (!isAdminSubject.test(SecurityUtils.getSubject())) {
+            /* trying to modify history without codice-history role, deny */
             throw exceptionSupplier.get();
         }
         return new PolicyResponseImpl();

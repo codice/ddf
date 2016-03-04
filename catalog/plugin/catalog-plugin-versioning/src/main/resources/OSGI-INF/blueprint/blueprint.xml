@@ -19,8 +19,10 @@
 
     <reference id="catalogProvider" interface="ddf.catalog.source.CatalogProvider" />
 
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
+
     <bean id="historian" class="ddf.catalog.metacard.versioning.HistorianPlugin">
-        <argument ref="catalogProvider" />
+        <argument ref="catalogFramework" />
     </bean>
 
     <service ref="historian" interface="ddf.catalog.plugin.PostIngestPlugin" />
