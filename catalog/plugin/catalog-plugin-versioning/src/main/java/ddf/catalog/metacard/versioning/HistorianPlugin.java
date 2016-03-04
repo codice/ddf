@@ -13,20 +13,16 @@
  */
 package ddf.catalog.metacard.versioning;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.shiro.SecurityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.HistoryMetacardImpl;
+import ddf.catalog.data.impl.HistoryMetacardImpl.Action;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
@@ -34,52 +30,23 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
-import ddf.security.SubjectUtils;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.security.Subject;
+import ddf.security.common.util.Security;
 
 public class HistorianPlugin implements PostIngestPlugin {
-    private final CatalogProvider catalogProvider;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HistorianPlugin.class);
 
-    public HistorianPlugin(CatalogProvider catalogProvider) {
-        this.catalogProvider = catalogProvider;
-    }
+    private final CatalogFramework catalogFramework;
 
-    // TODO (RCZ) - Move this enum.... somewhere. or just forget the enum?
-    private enum Action {
-        CREATED("Created"),
-        UPDATED("Updated"),
-        DELETED("Deleted");
-
-        private String key;
-
-        Action(String key) {
-            this.key = key;
-        }
-
-        String getKey() {
-            return this.key;
-        }
-
-        private static Map<String, Action> keyMap = new HashMap<>();
-
-        static {
-            for (Action action : Action.values()) {
-                keyMap.put(action.getKey(), action);
-            }
-        }
-
-        Action getKey(String key) {
-            return keyMap.get(key);
-        }
+    public HistorianPlugin(CatalogFramework catalogFramework) {
+        this.catalogFramework = catalogFramework;
     }
 
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        List<Metacard> metacards = getVersionedMetacards(input.getCreatedMetacards(),
-                Action.CREATED);
-
-        store(metacards);
+        getVersionedMetacards(input.getCreatedMetacards(), Action.CREATED);
         return input;
     }
 
@@ -89,49 +56,44 @@ public class HistorianPlugin implements PostIngestPlugin {
                 .stream()
                 .map(Update::getNewMetacard)
                 .collect(Collectors.toList());
-        List<Metacard> metacards = getVersionedMetacards(inputMetacards, Action.UPDATED);
-        store(metacards);
+        getVersionedMetacards(inputMetacards, Action.UPDATED);
         return input;
     }
 
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        List<Metacard> metacards = getVersionedMetacards(input.getDeletedMetacards(),
-                Action.DELETED);
-
-        store(metacards);
+        getVersionedMetacards(input.getDeletedMetacards(), Action.DELETED);
         return input;
     }
 
-    private List<Metacard> getVersionedMetacards(List<Metacard> metacards, Action action) {
-        List<Metacard> versioned = new ArrayList<>();
+    private void getVersionedMetacards(List<Metacard> metacards, final Action action)
+            throws PluginExecutionException {
+        final List<Metacard> versionedMetacards = metacards.stream()
+                .filter(metacard -> !metacard.getMetacardType()
+                        .equals(HistoryMetacardImpl.getVersionHistoryMetacardType()))
+                .map(metacard -> new HistoryMetacardImpl(metacard, action))
+                .collect(Collectors.toList());
 
-        for (Metacard metacard : metacards) {
-            MetacardImpl versionedMetacard = new MetacardImpl(metacard,
-                    BasicTypes.VERSION_HISTORY_METACARD);
-
-            versionedMetacard.setAttribute(Metacard.STATE, action.getKey());
-            versionedMetacard.setAttribute(Metacard.EDITED_BY,
-                    SubjectUtils.getName(SecurityUtils.getSubject()));
-            versionedMetacard.setAttribute(Metacard.VERSIONED, Date.from(Instant.now()));
-            versionedMetacard.setAttribute(Metacard.METACARD_ID, metacard.getId());
-            versionedMetacard.setAttribute(Metacard.ID,
-                    UUID.randomUUID()
-                            .toString()
-                            .replace("-", ""));
-            // TODO (RCZ) - Do we want to overwrite or add?
-            versionedMetacard.setAttribute(Metacard.TAGS, Metacard.HISTORY_TAG);
-
-            versioned.add(versionedMetacard);
+        if (versionedMetacards.isEmpty()) {
+            return;
         }
 
-        return versioned;
+        Subject system = Security.getSystemSubject();
+        if (system == null) {
+            LOGGER.warn("Could not get system subject to create versioned metacards.");
+            return;
+        }
+
+        system.execute(() -> {
+            this.store(versionedMetacards);
+            return true;
+        });
     }
 
     private void store(List<Metacard> metacards) throws PluginExecutionException {
         try {
-            catalogProvider.create(new CreateRequestImpl(metacards));
-        } catch (IngestException e) {
+            catalogFramework.create(new CreateRequestImpl(metacards));
+        } catch (SourceUnavailableException | IngestException e) {
             throw new PluginExecutionException(e);
         }
     }

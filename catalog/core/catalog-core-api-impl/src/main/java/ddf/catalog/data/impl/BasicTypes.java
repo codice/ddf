@@ -35,8 +35,6 @@ public class BasicTypes {
      */
     public static final MetacardType BASIC_METACARD;
 
-    public static final MetacardType VERSION_HISTORY_METACARD;
-
     /**
      * A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE} .
      */
@@ -409,37 +407,6 @@ public class BasicTypes {
         basic = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, descriptors);
 
         BASIC_METACARD = basic;
-
-        // TODO (RCZ) - Where should these go?
-        HashSet<AttributeDescriptor> historyDescriptors = new HashSet<AttributeDescriptor>(
-                descriptors);
-        historyDescriptors.add(new AttributeDescriptorImpl(Metacard.STATE,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                STRING_TYPE));
-        historyDescriptors.add(new AttributeDescriptorImpl(Metacard.EDITED_BY,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                STRING_TYPE));
-        historyDescriptors.add(new AttributeDescriptorImpl(Metacard.VERSIONED,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                DATE_TYPE));
-        historyDescriptors.add(new AttributeDescriptorImpl(Metacard.METACARD_ID,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                STRING_TYPE));
-
-        VERSION_HISTORY_METACARD =
-                new MetacardTypeImpl("ddf.history.metacard", historyDescriptors);
     }
 
     /**

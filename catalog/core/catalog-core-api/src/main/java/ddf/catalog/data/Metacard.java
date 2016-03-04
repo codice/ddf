@@ -194,39 +194,6 @@ public interface Metacard extends Serializable {
      */
     public static final String DESCRIPTION = "description";
 
-    // TODO (RCZ) - These are bad, and I should feel bad. put these in HistoryMetacardImpl
-    static final String HISTORY_TAG = "history";
-
-    /**
-     * {@link Attribute} name for state of the current {@link Metacard}.
-     * Can be one of <code>Active</code>, <code>Inactive</code>, or <code>Deleted</code>.
-     * Default value is <code>Inactive</code>.
-     *
-     * @since DDF-2.9.0
-     */
-    static final String STATE = "state";
-
-    /**
-     * {@link Attribute} name for the editor of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    static final String EDITED_BY = "edited-by";
-
-    /**
-     * {@link Attribute} name for version date of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    static final String VERSIONED = "versioned";
-
-    /**
-     * {@link Attribute} name for metacard ID on a history item of this {@link Metacard} revision.
-     *
-     * @since DDF-2.9.0
-     */
-    static final String METACARD_ID = "history-id";
-
     /**
      * The default tag type for all metacards
      */

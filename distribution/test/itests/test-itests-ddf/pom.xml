@@ -128,6 +128,11 @@
             <artifactId>org.apache.karaf.bundle.core</artifactId>
             <version>${karaf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.fastjson</groupId>
+            <artifactId>boon</artifactId>
+            <version>0.33</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
