@@ -773,7 +773,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         ValidatableResponse response = executeOpenSearch("xml", "q=*");
         response.body(hasXPath(xPath));
 
-        getServiceManager().startFeature(true, "sample-filter", "catalog-security-filter");
+        getServiceManager().startFeature(true, "sample-filter");
 
         try {
             // Configure the PDP
@@ -798,7 +798,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     null);
             Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
             config.update(configProps);
-            getServiceManager().stopFeature(true, "sample-filter", "catalog-security-filter");
+            getServiceManager().stopFeature(true, "sample-filter");
             deleteMetacard(id1);
         }
     }
@@ -1342,6 +1342,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             deleteMetacard(id1);
+            deleteMetacard(id2);
         } finally {
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
@@ -1361,6 +1362,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     private void persistToWorkspace(int size) throws Exception {
+        getServiceManager().waitForRequiredApps("search-ui-app");
         // Generate very large data block
         Map<String, String> map = Maps.newHashMap();
         for (int i = 0; i < size; i++) {

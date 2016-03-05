@@ -23,6 +23,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -47,11 +48,19 @@ public class VideoInputTransformer implements InputTransformer {
     private Templates templates = null;
 
     public VideoInputTransformer() {
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
         try {
-            templates = new TransformerFactoryImpl().newTemplates(new StreamSource(
-                    TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")));
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            templates = TransformerFactory.newInstance(TransformerFactoryImpl.class.getName(),
+                    this.getClass()
+                            .getClassLoader())
+                    .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
+                            "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
             LOGGER.warn("Couldn't create XML transformer", e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
         }
     }
 

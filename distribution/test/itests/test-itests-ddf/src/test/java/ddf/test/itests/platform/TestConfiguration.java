@@ -211,7 +211,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
-            console = new KarafConsole(bundleCtx, features, sessionFactory);
+            console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
             symbolicLink = Paths.get(ddfHome)
                     .resolve("link");
         } catch (Exception e) {

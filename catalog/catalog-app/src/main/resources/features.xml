@@ -85,57 +85,35 @@
         </configfile>
     </feature>
 
-    <feature name="catalog-core-migratable" install="manual" version="${project.version}"
+    <feature name="catalog-core-migratable" install="auto" version="${project.version}"
              description="Catalog Core feature to enable metacard export.">
-        <feature prerequisite="true">catalog-core</feature>
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-migratable/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-metrics" install="manual" version="${project.version}">
-        <feature prerequisite="true">catalog-core</feature>
-        <feature>catalog-core-metricsplugin</feature>
-        <feature>catalog-core-sourcemetricsplugin</feature>
-    </feature>
-
-    <feature name="catalog-transformers" install="manual" version="${project.version}">
-        <feature prerequisite="true">catalog-core</feature>
-        <feature>catalog-transformer-thumbnail</feature>
-        <feature>catalog-transformer-metadata</feature>
-        <feature>catalog-transformer-xsltengine</feature>
-        <feature>catalog-transformer-resource</feature>
-        <feature>catalog-transformer-json</feature>
-        <feature>catalog-transformer-atom</feature>
-        <feature>catalog-transformer-geoformatter</feature>
-        <feature>catalog-transformer-xml</feature>
-        <feature>catalog-transformer-tika</feature>
-        <feature>catalog-transformer-video</feature>
-    </feature>
-
-    <feature name="catalog-rest" install="manual" version="${project.version}">
-        <feature prerequisite="true">catalog-core</feature>
-        <feature>catalog-rest-endpoint</feature>
-        <feature>catalog-opensearch-endpoint</feature>
-        <feature>catalog-opensearch-source</feature>
-    </feature>
-
-    <feature name="catalog-core-metricsplugin" install="manual" version="${project.version}"
-             description="Catalog plug-in to capture metrics about catalog operations.">
+    <feature name="catalog-metrics" install="auto" version="${project.version}">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-core-backupplugin" install="manual" version="${project.version}"
-             description="Catalog post ingest plug-in to backup metacards to a file system.">
-        <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-core-sourcemetricsplugin" install="manual" version="${project.version}"
-             description="Capture metrics about individual source operations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-schematron-plugin" install="manual" version="${project.version}"
+    <feature name="catalog-core-backupplugin" install="auto" version="${project.version}"
+             description="Catalog post ingest plug-in to backup metacards to a file system.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-schematron-plugin" install="auto" version="${project.version}"
              description="Schematron pre-ingest validation plugin.">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.schematron/catalog-schematron-plugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-rest" install="auto" version="${project.version}">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature>catalog-rest-endpoint</feature>
+        <feature>catalog-opensearch-endpoint</feature>
+        <feature>catalog-opensearch-source</feature>
     </feature>
 
     <feature name="catalog-rest-endpoint" install="manual" version="${project.version}"
@@ -186,47 +164,56 @@
 
     <feature name="catalog-plugin-federationreplication" install="manual"
              version="${project.version}" description="">
+            <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-plugin-jpeg2000" install="manual" version="${project.version}"
+    <feature name="catalog-plugin-jpeg2000" install="auto" version="${project.version}"
              description="">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/jpeg2000-thumbnail-converter/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-metadata" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-metadata" install="auto" version="${project.version}"
              description="Retrieves the attribute, Metadata, from the Metacard.">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-metadata/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-thumbnail" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-thumbnail" install="auto" version="${project.version}"
              description="Retrieves the attribute, Thumbnail, from the Metacard.">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-thumbnail/${project.version}
         </bundle>
     </feature>
 
-    <feature name="catalog-transformer-xsltengine" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-xsltengine" install="auto" version="${project.version}"
              description="Provides XSLT transformer engine.">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/service-xslt-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-resource" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-resource" install="auto" version="${project.version}"
              description="Resource MetacardTransformer and InputTransformer">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-resource/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-tika" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-tika" install="auto" version="${project.version}"
              description="DDF default Input Transformer.">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-video" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-video" install="auto" version="${project.version}"
              description="Input transformer that handles video files.">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/video-input-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-json" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-json" install="auto" version="${project.version}"
              description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
+        <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}
@@ -234,8 +221,9 @@
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-atom" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-atom" install="auto" version="${project.version}"
              description="Atom Query Response Transformer.">
+        <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">catalog-transformer-geoformatter</feature>
         <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
@@ -252,8 +240,9 @@
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-xml" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-xml" install="auto" version="${project.version}"
              description="XML MetacardTransformer and InputTransformer">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
@@ -264,71 +253,79 @@
         <bundle>mvn:commons-collections/commons-collections/3.2.1</bundle>
     </feature>
 
-    <feature name="catalog-security-filter" install="manual" version="${project.version}"
+    <feature name="catalog-security-filter" install="auto" version="${project.version}"
              description="DDF Catalog Security Filtering">
+        <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-operationplugin" install="manual" version="${project.version}"
+    <feature name="catalog-security-operationplugin" install="auto" version="${project.version}"
              description="DDF Catalog Security Operation Plugin">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-operationplugin/${project.version}
         </bundle>
     </feature>
 
-    <feature name="catalog-security-plugin" install="manual" version="${project.version}"
+    <feature name="catalog-security-plugin" install="auto" version="${project.version}"
              description="DDF Security Plugins">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-logging" install="manual" version="${project.version}"
              description="DDF Security Logging">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-auditplugin" install="manual" version="${project.version}"
              description="DDF Security Audit Plugins">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-auditplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-policyplugin" install="manual" version="${project.version}"
-             description="DDF Catalog Policy Plugin">
+    <feature name="catalog-security-policyplugin" install="auto" version="${project.version}"
+             description="DDF Catalog Policy Plugins">
+        <feature prerequisite="true">catalog-app</feature>
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-metacardattributeplugin" install="manual" version="${project.version}"
+    <feature name="catalog-security-metacardattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog Metacard Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-xmlattributeplugin" install="manual" version="${project.version}"
+    <feature name="catalog-security-xmlattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog XML Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-admin-module-sources" install="manual" version="${project.version}"
+    <feature name="catalog-admin-module-sources" install="auto" version="${project.version}"
              description="DDF Admin Module">
-        <feature prerequisite="true">catalog-core</feature>
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
     
     <feature name="catalog-plugin-resource-usage" install="manual" version="${project.version}"
              description="DDF Resource Plugin tracking data usage ">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/resource-usage-plugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-registry" install="manual" version="${project.version}"
              description="DDF Registry">
-        <feature prerequisite="true">catalog-core</feature>
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-policyplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-streaming" install="manual" version="${project.version}"
              description="DDF Generic Input Transformer API">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-streaming-api/${project.version}
         </bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-streaming-impl/${project.version}
@@ -337,12 +334,13 @@
 
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
              description="DDF Metacard Validator Plugins">
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-pdf" install="manual" version="${project.version}"
+    <feature name="catalog-transformer-pdf" install="auto" version="${project.version}"
              description="DDF PDF Input Transformer">
-        <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pdf/${project.version}</bundle>
     </feature>
 
@@ -350,22 +348,8 @@
              description="The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog">
         <feature prerequisite="true">security-services-app</feature>
         <feature prerequisite="true">admin-app</feature>
+        <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
-        <feature>catalog-metrics</feature>
-        <feature>catalog-transformers</feature>
-        <feature>catalog-rest</feature>
-        <feature>catalog-security-plugin</feature>
-        <feature>catalog-security-policyplugin</feature>
-        <feature>catalog-security-operationplugin</feature>
-        <feature>catalog-admin-module-sources</feature>
-        <feature>catalog-core-backupplugin</feature>
-        <feature>catalog-plugin-jpeg2000</feature>
-        <feature>catalog-schematron-plugin</feature>
-        <feature>catalog-security-filter</feature>
-        <feature>catalog-transformer-pdf</feature>
-        <feature>catalog-security-metacardattributeplugin</feature>
-        <feature>catalog-security-xmlattributeplugin</feature>
-        <feature>catalog-core-migratable</feature>
     </feature>
 
 

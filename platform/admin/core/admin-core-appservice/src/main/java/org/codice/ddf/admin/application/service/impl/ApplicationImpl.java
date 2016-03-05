@@ -13,17 +13,16 @@
  */
 package org.codice.ddf.admin.application.service.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
@@ -44,6 +43,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     private Set<Feature> features;
 
+    private Set<Feature> autoInstallFeatures;
+
     private Feature mainFeature;
 
     private String name;
@@ -63,48 +64,57 @@ public class ApplicationImpl implements Application, Comparable<Application> {
     public ApplicationImpl(Repository repo) {
         location = repo.getURI();
         try {
+            String[] parts = repo.getName().split("-[0-9]");
+            if (parts.length != 0){
+                name = parts[0];
+                version = repo.getName().substring(name.length()+1);
+            } else {
+                name = repo.getName();
+                version = "0.0.0";
+            }
             features = new HashSet<>(Arrays.asList(repo.getFeatures()));
         } catch (Exception e) {
             logger.warn(
                     "Error occured while trying to parse information for application. Application created but may have missing information.");
             features = new HashSet<>();
         }
-        List<Feature> autoFeatures = new ArrayList<>();
+        autoInstallFeatures = new HashSet<>();
         if (features.size() == 1) {
-            autoFeatures.add(features.iterator()
+            autoInstallFeatures.add(features.iterator()
                     .next());
         } else {
-            for (Feature curFeature : features) {
-                if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE,
-                        curFeature.getInstall())) {
-                    autoFeatures.add(curFeature);
-                }
-            }
+            autoInstallFeatures.addAll(features.stream()
+                    .filter(curFeature -> StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE,
+                            curFeature.getInstall()))
+                    .collect(Collectors.toList()));
         }
-        if (autoFeatures.size() == 1) {
-            mainFeature = autoFeatures.get(0);
+        // Determine mainFeature
+        if (autoInstallFeatures.size() == 1) {
+            mainFeature = autoInstallFeatures.iterator()
+                    .next();
             name = mainFeature.getName();
             version = mainFeature.getVersion();
             description = mainFeature.getDescription();
         } else {
-            try {
-                if (repo.getName() == null) {
-                    logger.warn(
-                            "No information available inside the repository, cannot create application instance.");
-                    throw new IllegalArgumentException(
-                            "No identifying information available inside the repository, cannot create application instance.");
-                }
-                logger.debug(
-                        "Could not determine main feature in {}, using defaults. Each application should have only 1 auto install feature but {} were found in this application.",
-                        repo.getName(),
-                        autoFeatures.size());
-                name = repo.getName();
-                version = "0.0.0";
-            } catch (IOException e) {
-                logger.warn("Unable to get Repository Name.", e);
+            Optional<Feature> first = autoInstallFeatures.stream()
+                    .filter(f -> name.equals(f.getName()))
+                    .findFirst();
+            if (first.isPresent()) {
+                mainFeature = first.get();
+                name = mainFeature.getName();
+                version = mainFeature.getVersion();
+                description = mainFeature.getDescription();
             }
         }
 
+        if (mainFeature == null) {
+            logger.debug(
+                    "Could not determine main feature in {}, using defaults. Each application "
+                            + "should have 1 feature with the same name as the repository or 1 auto"
+                            + " install feature. This Application will take no action when started"
+                            + " or stopped.",
+                    name);
+        }
     }
 
     @Override
@@ -130,6 +140,10 @@ public class ApplicationImpl implements Application, Comparable<Application> {
             throw new ApplicationServiceException("No features found in application " + name
                     + " check the feature definition and log for errors.");
         }
+    }
+
+    public Set<Feature> getAutoInstallFeatures() {
+        return autoInstallFeatures;
     }
 
     @Override

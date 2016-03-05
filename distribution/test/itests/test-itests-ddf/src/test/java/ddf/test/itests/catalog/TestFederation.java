@@ -60,7 +60,6 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -712,18 +711,12 @@ public class TestFederation extends AbstractIntegrationTest {
         expectedEndpoints.add("openSearchUrl");
         expectedEndpoints.add("cswUrl");
 
-        String catalogEndpointClassName = ddf.catalog.endpoint.CatalogEndpoint.class.getName();
+        CatalogEndpoint endpoint = getServiceManager().getService(CatalogEndpoint.class);
+        String urlBindingName = endpoint.getEndpointProperties()
+                .get(CatalogEndpointImpl.URL_BINDING_NAME_KEY);
 
-        ServiceReference[] refs = bundleCtx.getAllServiceReferences(catalogEndpointClassName, null);
-
-        for (ServiceReference ref : refs) {
-            CatalogEndpoint endpoint = (CatalogEndpoint) bundleCtx.getService(ref);
-            String urlBindingName = endpoint.getEndpointProperties()
-                    .get(CatalogEndpointImpl.URL_BINDING_NAME_KEY);
-
-            assertTrue("Catalog endpoint url binding name: '" + urlBindingName + "' is expected.",
-                    expectedEndpoints.contains(urlBindingName));
-        }
+        assertTrue("Catalog endpoint url binding name: '" + urlBindingName + "' is expected.",
+                expectedEndpoints.contains(urlBindingName));
     }
 
     @Test

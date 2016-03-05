@@ -28,48 +28,43 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="spatial-ogc-api" install="manual" version="${project.version}">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
-    </feature>
-
-    <feature name="spatial-kml" install="manual" version="${project.version}"
+    <feature name="spatial-kml" install="auto" version="${project.version}"
              description="KML Transformer transforms metacards and query results into KML and KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
+        <feature prerequisite="true">spatial-app</feature>
+        <feature prerequisite="true">simple-search-ui</feature>
         <bundle>mvn:ddf.spatial.kml/spatial-kml-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-wfs-core" install="manual" version="${project.version}"
+    <feature name="spatial-wfs-core" install="auto" version="${project.version}"
              description="Web Feature Service (WFS).">
-        <feature prerequisite="true">spatial-ogc-api</feature>
+        <feature prerequisite="true">spatial-app</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-urlresourcereader/${project.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-wfs-v1_0_0" install="manual" version="${project.version}"
+    <feature name="spatial-wfs-v1_0_0" install="auto" version="${project.version}"
              description="Web Feature Service (WFS) v1.0.0 Source.">
+        <feature prerequisite="true">spatial-app</feature>
         <feature prerequisite="true">spatial-wfs-core</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-source/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-schema-webapp/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-wfs-v2_0_0" install="manual" version="${project.version}"
+    <feature name="spatial-wfs-v2_0_0" install="auto" version="${project.version}"
              description="Web Feature Service (WFS) v2.0.0 Source.">
+        <feature prerequisite="true">spatial-app</feature>
         <feature prerequisite="true">spatial-wfs-core</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-source/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-wfs" install="manual" version="${project.version}">
-        <feature>spatial-wfs-v1_0_0</feature>
-        <feature>spatial-wfs-v2_0_0</feature>
-    </feature>
-
-    <feature name="spatial-csw" install="manual" version="${project.version}"
+    <feature name="spatial-csw" install="auto" version="${project.version}"
              description="Catalogue Service for Web (CSW) v2.0.2 Source and Endpoint.">
-        <feature prerequisite="true">spatial-ogc-api</feature>
+        <feature prerequisite="true">spatial-app</feature>
+        <feature prerequisite="true">catalog-transformer-xml</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-schema-bindings/${project.version}</bundle>
@@ -78,16 +73,16 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="webservice-gazetteer" install="manual" version="${project.version}"
+    <feature name="webservice-gazetteer" install="auto" version="${project.version}"
              description="Gazetteer service utilizing the Geonames.org web service.">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
+        <feature prerequisite="true">spatial-app</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-websearch/${project.version}</bundle>
     </feature>
 
     <feature name="offline-gazetteer" install="manual" version="${project.version}"
              description="Offline gazetteer service utilizing a local GeoNames index.">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
+        <feature prerequisite="true">spatial-app</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-lucene/${project.version}</bundle>
@@ -100,11 +95,9 @@
     <feature name="spatial-app" install="auto" version="${project.version}"
              description="DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial">
         <feature prerequisite="true">catalog-app</feature>
-        <feature prerequisite="true">search-ui-app</feature>
-        <feature>spatial-kml</feature>
-        <feature>spatial-wfs</feature>
-        <feature>spatial-csw</feature>
-        <feature>webservice-gazetteer</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-ogc-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-api/${project.version}</bundle>
     </feature>
 
 </features>
