@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -77,8 +78,7 @@ public class TestGetRecordsMessageBodyReader {
         when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
@@ -102,20 +102,17 @@ public class TestGetRecordsMessageBodyReader {
         // Assert the properties needed for CswRecordConverter
         assertThat(context.get(CswConstants.CSW_MAPPING), notNullValue());
         Object cswMapping = context.get(CswConstants.CSW_MAPPING);
-        assertThat(cswMapping, is(Map.class));
-        assertThat(context.get(Metacard.RESOURCE_URI), is(String.class));
-        assertThat((String) context.get(Metacard.RESOURCE_URI),
-                is(CswRecordMetacardType.CSW_SOURCE));
-        assertThat(context.get(Metacard.THUMBNAIL), is(String.class));
-        assertThat((String) context.get(Metacard.THUMBNAIL),
-                is(CswRecordMetacardType.CSW_REFERENCES));
-        assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.class));
-        assertThat((CswAxisOrder) context.get(CswConstants.AXIS_ORDER_PROPERTY),
-                is(CswAxisOrder.LAT_LON));
+        assertThat(cswMapping, instanceOf(Map.class));
+        assertThat(context.get(Metacard.RESOURCE_URI), instanceOf(String.class));
+        assertThat(context.get(Metacard.RESOURCE_URI), is(CswRecordMetacardType.CSW_SOURCE));
+        assertThat(context.get(Metacard.THUMBNAIL), instanceOf(String.class));
+        assertThat(context.get(Metacard.THUMBNAIL), is(CswRecordMetacardType.CSW_REFERENCES));
+        assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), instanceOf(CswAxisOrder.class));
+        assertThat(context.get(CswConstants.AXIS_ORDER_PROPERTY), is(CswAxisOrder.LAT_LON));
 
         // Assert the output Schema is set.
-        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(String.class));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), instanceOf(String.class));
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
@@ -202,8 +199,7 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testGetMultipleMetacardsWithForeignText() throws Exception {
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
@@ -226,8 +222,7 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testReadProductData() throws Exception {
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
 
@@ -235,8 +230,8 @@ public class TestGetRecordsMessageBodyReader {
         ByteArrayInputStream dataInputStream = new ByteArrayInputStream(data);
         MultivaluedMap<String, String> httpHeaders = new MultivaluedHashMap<>();
         httpHeaders.add(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, "TRUE");
-        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION,
-                String.format("inline; filename=%s", "ResourceName"));
+        httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=%s",
+                "ResourceName"));
         MediaType mediaType = new MediaType("text", "plain");
 
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class,
@@ -279,7 +274,7 @@ public class TestGetRecordsMessageBodyReader {
         assertListStringAttribute(mc,
                 CswRecordMetacardType.CSW_LANGUAGE,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_LANGUAGE));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
+        assertThat(mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
                 .getValue(), equalTo((String) expectedValues.get(CswRecordMetacardType.CSW_TYPE)));
         assertListStringAttribute(mc,
                 CswRecordMetacardType.CSW_FORMAT,
@@ -291,12 +286,12 @@ public class TestGetRecordsMessageBodyReader {
     }
 
     private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
-        List<?> values = (List<?>) mc.getAttribute(attrName)
+        List<?> values = mc.getAttribute(attrName)
                 .getValues();
         assertThat(values, not(nullValue()));
         assertThat(values.size(), equalTo(expectedValues.length));
 
-        List<String> valuesList = new ArrayList<String>();
+        List<String> valuesList = new ArrayList<>();
         valuesList.addAll((List<? extends String>) values);
         assertThat(valuesList, hasItems(expectedValues));
     }
@@ -304,7 +299,7 @@ public class TestGetRecordsMessageBodyReader {
     private Map<String, Object> getExpectedMap(String id, String title, String dateString,
             String[] subject, String description, String[] rights, String dataset, String format,
             String poly) {
-        Map<String, Object> expectedValues = new HashMap<String, Object>();
+        Map<String, Object> expectedValues = new HashMap<>();
         expectedValues.put(Metacard.ID, id);
         expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER, new String[] {id});
         expectedValues.put(Metacard.TITLE, title);

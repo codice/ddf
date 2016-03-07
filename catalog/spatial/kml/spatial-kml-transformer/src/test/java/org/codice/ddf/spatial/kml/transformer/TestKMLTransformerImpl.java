@@ -13,6 +13,7 @@
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -79,10 +80,6 @@ public class TestKMLTransformerImpl {
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static ActionProvider mockActionProvider;
-
-    private static Action mockAction;
-
     @BeforeClass
     public static void setUp() throws IOException {
         when(mockContext.getBundle()).thenReturn(mockBundle);
@@ -90,8 +87,8 @@ public class TestKMLTransformerImpl {
         when(mockBundle.getResource(any(String.class))).thenReturn(url);
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        mockActionProvider = mock(ActionProvider.class);
-        mockAction = mock(Action.class);
+        ActionProvider mockActionProvider = mock(ActionProvider.class);
+        Action mockAction = mock(Action.class);
         when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
         kmlTransformer = new KMLTransformerImpl(mockContext,
@@ -116,10 +113,10 @@ public class TestKMLTransformerImpl {
         assertThat(placemark.getStyleSelector()
                 .isEmpty(), is(true));
         assertThat(placemark.getStyleUrl(), nullValue());
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(Point.class));
+        assertThat(placemark.getGeometry(), instanceOf(Point.class));
     }
 
     @Test
@@ -130,17 +127,17 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(MultiGeometry.class));
+        assertThat(placemark.getGeometry(), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
         assertThat(multiGeo.getGeometry()
                 .size(), is(2));
         assertThat(multiGeo.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo.getGeometry()
-                .get(1), is(LineString.class));
+                .get(1), instanceOf(LineString.class));
     }
 
     @Test
@@ -151,17 +148,17 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(MultiGeometry.class));
+        assertThat(placemark.getGeometry(), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
         assertThat(multiGeo.getGeometry()
                 .size(), is(2));
         assertThat(multiGeo.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo.getGeometry()
-                .get(1), is(Polygon.class));
+                .get(1), instanceOf(Polygon.class));
     }
 
     @Test
@@ -172,27 +169,27 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(MultiGeometry.class));
+        assertThat(placemark.getGeometry(), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
         assertThat(multiGeo.getGeometry()
                 .size(), is(2));
         assertThat(multiGeo.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo.getGeometry()
-                .get(1), is(MultiGeometry.class));
+                .get(1), instanceOf(MultiGeometry.class));
         MultiGeometry multiPoint = (MultiGeometry) multiGeo.getGeometry()
                 .get(1);
         assertThat(multiPoint.getGeometry()
                 .size(), is(3));
         assertThat(multiPoint.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiPoint.getGeometry()
-                .get(1), is(Point.class));
+                .get(1), instanceOf(Point.class));
         assertThat(multiPoint.getGeometry()
-                .get(2), is(Point.class));
+                .get(2), instanceOf(Point.class));
     }
 
     @Test
@@ -203,25 +200,25 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(MultiGeometry.class));
+        assertThat(placemark.getGeometry(), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
         assertThat(multiGeo.getGeometry()
                 .size(), is(2));
         assertThat(multiGeo.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo.getGeometry()
-                .get(1), is(MultiGeometry.class));
+                .get(1), instanceOf(MultiGeometry.class));
         MultiGeometry multiLineString = (MultiGeometry) multiGeo.getGeometry()
                 .get(1);
         assertThat(multiLineString.getGeometry()
                 .size(), is(2));
         assertThat(multiLineString.getGeometry()
-                .get(0), is(LineString.class));
+                .get(0), instanceOf(LineString.class));
         assertThat(multiLineString.getGeometry()
-                .get(1), is(LineString.class));
+                .get(1), instanceOf(LineString.class));
     }
 
     @Test
@@ -232,25 +229,25 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(MultiGeometry.class));
+        assertThat(placemark.getGeometry(), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
         assertThat(multiGeo.getGeometry()
                 .size(), is(2));
         assertThat(multiGeo.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo.getGeometry()
-                .get(1), is(MultiGeometry.class));
+                .get(1), instanceOf(MultiGeometry.class));
         MultiGeometry multiPolygon = (MultiGeometry) multiGeo.getGeometry()
                 .get(1);
         assertThat(multiPolygon.getGeometry()
                 .size(), is(2));
         assertThat(multiPolygon.getGeometry()
-                .get(0), is(Polygon.class));
+                .get(0), instanceOf(Polygon.class));
         assertThat(multiPolygon.getGeometry()
-                .get(1), is(Polygon.class));
+                .get(1), instanceOf(Polygon.class));
     }
 
     @Test
@@ -261,27 +258,27 @@ public class TestKMLTransformerImpl {
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
         assertThat(placemark.getId(), is("Placemark-" + ID));
         assertThat(placemark.getName(), is(TITLE));
-        assertThat(placemark.getTimePrimitive(), is(TimeSpan.class));
+        assertThat(placemark.getTimePrimitive(), instanceOf(TimeSpan.class));
         TimeSpan timeSpan = (TimeSpan) placemark.getTimePrimitive();
         assertThat(timeSpan.getBegin(), is(dateFormat.format(metacard.getEffectiveDate())));
-        assertThat(placemark.getGeometry(), is(MultiGeometry.class));
+        assertThat(placemark.getGeometry(), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo = (MultiGeometry) placemark.getGeometry();
         assertThat(multiGeo.getGeometry()
                 .size(), is(2));
         assertThat(multiGeo.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo.getGeometry()
-                .get(1), is(MultiGeometry.class));
+                .get(1), instanceOf(MultiGeometry.class));
         MultiGeometry multiGeo2 = (MultiGeometry) multiGeo.getGeometry()
                 .get(1);
         assertThat(multiGeo2.getGeometry()
                 .size(), is(3));
         assertThat(multiGeo2.getGeometry()
-                .get(0), is(Point.class));
+                .get(0), instanceOf(Point.class));
         assertThat(multiGeo2.getGeometry()
-                .get(1), is(LineString.class));
+                .get(1), instanceOf(LineString.class));
         assertThat(multiGeo2.getGeometry()
-                .get(2), is(Polygon.class));
+                .get(2), instanceOf(Polygon.class));
     }
 
     @Test
@@ -291,8 +288,7 @@ public class TestKMLTransformerImpl {
         metacard.setLocation(POINT_WKT);
         BinaryContent content = kmlTransformer.transform(metacard, null);
         assertThat(content.getMimeTypeValue(), is(KMLTransformerImpl.KML_MIMETYPE.toString()));
-        String kml = IOUtils.toString(content.getInputStream());
-        // TODO - validate the style is there
+        IOUtils.toString(content.getInputStream());
     }
 
     private MetacardImpl createMockMetacard() {

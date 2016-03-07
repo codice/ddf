@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -312,7 +313,7 @@ public class TestGetRecordsResponseConverter {
         UnmarshallingContext context = captor.getValue();
 
         assertThat(context, notNullValue());
-        assertThat(context.get(CswConstants.NAMESPACE_DECLARATIONS), is(Map.class));
+        assertThat(context.get(CswConstants.NAMESPACE_DECLARATIONS), instanceOf(Map.class));
         Map<String, String> namespaces = (Map) context.get(CswConstants.NAMESPACE_DECLARATIONS);
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
                 + CswConstants.CSW_NAMESPACE_PREFIX), is(CswConstants.CSW_OUTPUT_SCHEMA));

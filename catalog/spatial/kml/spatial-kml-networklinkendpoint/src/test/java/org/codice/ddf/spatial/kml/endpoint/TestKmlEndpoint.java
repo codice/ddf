@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.kml.endpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
@@ -80,7 +81,7 @@ public class TestKmlEndpoint {
 
     private static SourceInfoResponse mockSourceInfoResponse = mock(SourceInfoResponse.class);
 
-    private static Set<SourceDescriptor> descriptors = new HashSet<SourceDescriptor>();
+    private static Set<SourceDescriptor> descriptors = new HashSet<>();
 
     private static BrandingPlugin mockBranding = mock(BrandingPlugin.class);
 
@@ -132,7 +133,7 @@ public class TestKmlEndpoint {
         kmlEndpoint.setWebSite("https://tools.codice.org/wiki/display/DDF/DDF+Home");
         Kml response = kmlEndpoint.getKmlNetworkLink(mockUriInfo);
         assertThat(response, notNullValue());
-        assertThat(response.getFeature(), is(NetworkLink.class));
+        assertThat(response.getFeature(), instanceOf(NetworkLink.class));
         NetworkLink networkLink = (NetworkLink) response.getFeature();
         Link link = networkLink.getLink();
         assertThat(link, notNullValue());
@@ -153,15 +154,15 @@ public class TestKmlEndpoint {
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
-        assertThat(response.getFeature(), is(Folder.class));
+        assertThat(response.getFeature(), instanceOf(Folder.class));
         Folder folder = (Folder) response.getFeature();
         assertThat(folder.getFeature(), notNullValue());
         assertThat(folder.getFeature()
                 .size(), is(2));
         assertThat(folder.getFeature()
-                .get(0), is(NetworkLink.class));
+                .get(0), instanceOf(NetworkLink.class));
         assertThat(folder.getFeature()
-                .get(1), is(NetworkLink.class));
+                .get(1), instanceOf(NetworkLink.class));
         NetworkLink nl1 = (NetworkLink) folder.getFeature()
                 .get(0);
         assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
@@ -178,15 +179,15 @@ public class TestKmlEndpoint {
         KmlEndpoint kmlEndpoint = new KmlEndpoint(mockBranding, mockFramework);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
-        assertThat(response.getFeature(), is(Folder.class));
+        assertThat(response.getFeature(), instanceOf(Folder.class));
         Folder folder = (Folder) response.getFeature();
         assertThat(folder.getFeature(), notNullValue());
         assertThat(folder.getFeature()
                 .size(), is(2));
         assertThat(folder.getFeature()
-                .get(0), is(NetworkLink.class));
+                .get(0), instanceOf(NetworkLink.class));
         assertThat(folder.getFeature()
-                .get(1), is(NetworkLink.class));
+                .get(1), instanceOf(NetworkLink.class));
         NetworkLink nl1 = (NetworkLink) folder.getFeature()
                 .get(0);
         assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));
@@ -206,15 +207,15 @@ public class TestKmlEndpoint {
         kmlEndpoint.setMaxResults(250);
         Kml response = kmlEndpoint.getAvailableSources(mockUriInfo);
         assertThat(response, notNullValue());
-        assertThat(response.getFeature(), is(Folder.class));
+        assertThat(response.getFeature(), instanceOf(Folder.class));
         Folder folder = (Folder) response.getFeature();
         assertThat(folder.getFeature(), notNullValue());
         assertThat(folder.getFeature()
                 .size(), is(2));
         assertThat(folder.getFeature()
-                .get(0), is(NetworkLink.class));
+                .get(0), instanceOf(NetworkLink.class));
         assertThat(folder.getFeature()
-                .get(1), is(NetworkLink.class));
+                .get(1), instanceOf(NetworkLink.class));
         NetworkLink nl1 = (NetworkLink) folder.getFeature()
                 .get(0);
         assertThat(nl1.getName(), anyOf(is(REMOTE_SITE_NAME), is(LOCAL_SITE_NAME)));

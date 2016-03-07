@@ -14,7 +14,7 @@
 package org.codice.ddf.security.idp.server;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.text.StringContains.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
