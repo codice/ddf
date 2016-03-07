@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -399,9 +400,15 @@ public class TestWfsFilterDelegate {
         assertThat(timePeriod.getEndPosition()
                 .getValue()
                 .get(0), is("2014-01-02T08:01:01Z"));
-        assertThat("Strings matches expected pattern", is(timePeriod.getId()
-                .matches(mockFeatureType + "\\.\\d+")));
+        assertThat("Strings matches expected pattern",
+                timePeriod.getId()
+                        .matches(getRegEx(mockFeatureType)),
+                equalTo(true));
 
+    }
+
+    private String getRegEx(String mockFeatureType) {
+        return mockFeatureType + "\\.\\d+";
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -476,8 +483,9 @@ public class TestWfsFilterDelegate {
                 .get(0), is(ISODateTimeFormat.dateTimeNoMillis()
                 .withZone(DateTimeZone.UTC)
                 .print(now)));
-        assertThat("Strings matches expected pattern", is(timePeriod.getId()
-                .matches(mockFeatureType + "\\.\\d+")));
+        assertThat("Strings matches expected pattern", timePeriod.getId()
+                .matches(getRegEx(mockFeatureType)), equalTo(true));
+
 
         // Reset the System time
         DateTimeUtils.setCurrentMillisSystem();
@@ -572,8 +580,8 @@ public class TestWfsFilterDelegate {
                 .withZone(DateTimeZone.UTC)
                 .print(date)));
 
-        assertThat("Strings matches expected pattern", is(timeInstant.getId()
-                .matches(mockFeatureType + "\\.\\d+")));
+        assertThat("Strings matches expected pattern", timeInstant.getId()
+                .matches(getRegEx(mockFeatureType)), equalTo(true));
 
     }
 
