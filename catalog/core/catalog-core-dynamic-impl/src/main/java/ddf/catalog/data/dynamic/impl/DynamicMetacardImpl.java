@@ -581,7 +581,7 @@ public class DynamicMetacardImpl implements DynamicMetacard {
             if (dynaProperty == null) {
                 attributesBean.set(name, value);
             } else {
-                if ((dynaProperty.getType() == Byte[].class) || !dynaProperty.isIndexed()) {
+                if ((dynaProperty.getType() == byte[].class) || !dynaProperty.isIndexed()) {
                     attributesBean.set(name, value);
                 } else {
                     if (value instanceof Collection<?>) {

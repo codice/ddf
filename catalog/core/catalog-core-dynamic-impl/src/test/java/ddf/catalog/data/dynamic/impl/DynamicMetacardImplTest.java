@@ -68,7 +68,7 @@ public class DynamicMetacardImplTest {
                 new DynaProperty(LONG, Long.class),
                 new DynaProperty(FLOAT, Float.class),
                 new DynaProperty(DOUBLE, Double.class),
-                new DynaProperty(BINARY, Byte[].class, Byte.class),
+                new DynaProperty(BINARY, byte[].class, byte.class),
                 new DynaProperty(XML, String.class),
                 new DynaProperty(OBJECT, Object.class),
                 new DynaProperty(STRING_LIST, List.class, String.class)
@@ -114,7 +114,7 @@ public class DynamicMetacardImplTest {
         metacard.setAttribute(attribute);
         assertEquals(Double.MAX_VALUE, baseBean.get(DOUBLE));
 
-        Byte[] bytes = new Byte[] {0x00, 0x01, 0x02, 0x03};
+        byte[] bytes = new byte[] {0x00, 0x01, 0x02, 0x03};
         attribute = new AttributeImpl(BINARY, bytes);
         metacard.setAttribute(attribute);
         assertEquals(bytes, baseBean.get(BINARY));
@@ -164,7 +164,8 @@ public class DynamicMetacardImplTest {
         metacard.setAttribute(DOUBLE, Double.MAX_VALUE);
         assertEquals(Double.MAX_VALUE, baseBean.get(DOUBLE));
 
-        Byte[] bytes = new Byte[] {0x00, 0x01, 0x02, 0x03};
+        //Byte[] bytes = new Byte[] {0x00, 0x01, 0x02, 0x03};
+        byte[] bytes = new byte[] {0x00, 0x01, 0x02, 0x03};
         metacard.setAttribute(BINARY, bytes);
         assertEquals(bytes, baseBean.get(BINARY));
 
@@ -271,7 +272,7 @@ public class DynamicMetacardImplTest {
         attribute = metacard.getAttribute(DOUBLE);
         assertEquals(Double.MAX_VALUE, attribute.getValue());
 
-        Byte[] bytes = new Byte[] {0x00, 0x01, 0x02, 0x03};
+        byte[] bytes = new byte[] {0x00, 0x01, 0x02, 0x03};
         baseBean.set(BINARY, bytes);
         attribute = metacard.getAttribute(BINARY);
         assertEquals(bytes, attribute.getValue());
