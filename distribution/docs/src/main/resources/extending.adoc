@@ -3,4 +3,4 @@ include::./_contents/config.adoc[]
 
 == Overview
 include::./_contents/building-ddf-contents.adoc[]
-include::./_contents/extendingcontents.adoc[]
+include::./_contents/extending-contents.adoc[]

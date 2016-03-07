@@ -3,19 +3,19 @@ include::./_contents/config.adoc[]
 
 == Introduction
 
-include::./_contents/introductioncontents.adoc[]
+include::./_contents/introduction-contents.adoc[]
 
 <<<
 
 === Documentation Guide
 
-include::./_contents/documentationnotescontents.adoc[]
+include::./_contents/documentation-notes-contents.adoc[]
 
 <<<
 
 === ${branding} Quick Start
 
-include::./_contents/quickstartcontents.adoc[]
+include::./_contents/quickstart-contents.adoc[]
 
 <<<
 
@@ -83,7 +83,7 @@ include::${project.build.directory}/apps/ui/_contents/mancontents.adoc[]
 
 == Integrating ${branding}
 
-include::./_contents/integratingcontents.adoc[]
+include::./_contents/integrating-contents.adoc[]
 
 <<<
 
@@ -138,7 +138,7 @@ include::${project.build.directory}/apps/ui/_contents/intcontents.adoc[]
 == Extending ${branding}
 
 include::./_contents/building-ddf-contents.adoc[]
-include::./_contents/extendingcontents.adoc[]
+include::./_contents/extending-contents.adoc[]
 
 <<<
 

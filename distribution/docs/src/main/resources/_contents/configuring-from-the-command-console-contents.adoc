@@ -84,7 +84,7 @@ Applications can be installed from the {command-console} using the following com
 ===== Managing Features From the {command-console}
 
 . Determine which feature to install by viewing the available features on ${branding}. +
-`${branding-lowercase}${at-symbol}local>features:list`
+`${branding-lowercase}${at-symbol}local>feature:list`
 . The console outputs a list of all features available (installed and uninstalled). A snippet of the list output is shown below (the versions may differ):
 
 ----
@@ -115,7 +115,7 @@ The console output should show an entry similar to the following:
 ====== Uninstall Features
 
 . Check the feature list to verify the feature is installed properly. +
-`${branding-lowercase}${at-symbol}local>features:list`
+`${branding-lowercase}${at-symbol}local>feature:list`
 
 ----
 State         Version          Name                          Repository  		   Description
@@ -127,7 +127,7 @@ State         Version          Name                          Repository  		   De
 ----
 
 . Uninstall the feature. +
-`${branding-lowercase}${at-symbol}local>features:uninstall ${branding-lowercase}-source-dummy`
+`${branding-lowercase}${at-symbol}local>feature:uninstall ${branding-lowercase}-source-dummy`
 
 [WARNING]
 ====
@@ -135,7 +135,7 @@ Dependencies that were auto-installed by the feature are not automatically unins
 ====
 
 . Verify that the feature has uninstalled properly. +
-`${branding-lowercase}${at-symbol}local>features:list`
+`${branding-lowercase}${at-symbol}local>feature:list`
 
 ----
 State         Version          Name                          Repository  Description
@@ -156,4 +156,4 @@ State         Version          Name                          Repository  Descrip
 If ${branding} has not been installed, use the <<How to install this feature using the Admin Console>> guide.
 ====
 
-. Type the command `features:install platform-http-proxy`
+. Type the command `feature:install platform-http-proxy`

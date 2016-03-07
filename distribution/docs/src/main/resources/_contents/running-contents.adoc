@@ -71,7 +71,7 @@ Because ${branding} is built on top of Apache Karaf, ${branding} can use the Kar
 +
 .Within the ${branding} console
 ----
-${branding-lowercase}${at-symbol}local> features:install wrapper
+${branding-lowercase}${at-symbol}local> feature:install wrapper
 ${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${ddf-branding-lowercase}-d ${ddf-branding-lowercase}-D "${branding} Service"
 ----
 +
@@ -232,10 +232,12 @@ For more information on how to use the `client` scripts or how to remote into th
 ===== Example Commands
 
 ====== View Bundle Status
-Call `osgi:list` on the console to view the status of the bundles loaded in the distribution.
+
+Call `bundle:list` on the console to view the status of the bundles loaded in the distribution.
 
 ====== View Installed Features
-Execute `features:list` to view the features installed in the distribution.
+
+Execute `feature:list` to view the features installed in the distribution.
 
 [NOTE]
 ====

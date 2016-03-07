@@ -66,7 +66,7 @@ IdP and SP are used for SSO authentication purposes.
 The IdP bundles are not installed by default.
 They can be started by installing the `security-idp` feature.
 
-. Install the `security-idp` feature either by command line: `features:install security-idp`, or by the {admin-console}: *${ddf-branding} Security* -> *Features* -> `security-idp`
+. Install the `security-idp` feature either by command line: `feature:install security-idp`, or by the ${admin-console}: *${ddf-branding} Security* -> *Features* -> `security-idp`
 
 ===== Security IdP Service Provider (SP)
 
@@ -909,8 +909,7 @@ etc/ws-security/issuer/signature.properties
 
 etc/system.properties
 |Used to secure (SSL) all of the endpoints for ${branding}, to perform outgoing SSL requests, and sign STS SAML assertions.
-This also includes the {admin-
-console} and any other web service that is hosted by ${branding}.
+This also includes the ${admin-console} and any other web service that is hosted by ${branding}.
 
 |===
 
@@ -1265,9 +1264,9 @@ Key Store: `$INSTALL_LOCATION/etc/keystores/serverKeystore.jks`
 These files come included with the distribution and are loaded with self-signed certificates for the `localhost` hostname.
 Certificates can be added and removed from these java keystores by using the keytool application that comes with java.
 
-====== Updating Key Store / Trust Store via the {admin-console}
+====== Updating Key Store / Trust Store via the ${admin-console}
 
-. Open the {admin-console}.
+. Open the ${admin-console}.
 . Select the *${ddf-branding} Security* application.
 . Select the *Certificates* tab.
 . Add and remove certificates and private keys as necessary.
@@ -1295,8 +1294,8 @@ SSL/TLS is enabled out of the box for ${branding}.
 // Still an issue?
 [IMPORTANT]
 ====
-Do not use the {admin-console} to SSL enable the ${branding} services.
-While the {admin-console} offers this configuration option, it has proven to be unreliable and may crash the system.
+Do not use the ${admin-console} to SSL enable the ${branding} services.
+While the ${admin-console} offers this configuration option, it has proven to be unreliable and may crash the system.
 ====
 
 Edit the provided configuration file `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` with the settings for the desired configuration.
@@ -1495,7 +1494,7 @@ Each metacard result can contain security attributes that are pulled from the me
 The security attribute is a Map containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
-The decision to filter the metacard eventually relies on the installed PDP (`features:install security-pdp-authz`).
+The decision to filter the metacard eventually relies on the installed PDP (`feature:install security-pdp-authz`).
 The PDP that is being used returns a decision, and the metacard will either be filtered or allowed to pass through.
 
 How a metacard gets filtered is left up to any number of FilterStrategy implementations that might be installed.
@@ -1913,13 +1912,14 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |===
 
 [cols="2m,5"]
+|===
 |Command
 |Description
-|===
-|security:expand
-|security:expansions
 
+|security:expand
 |Runs the expansion service on the provided data returning the expanded value.
+
+|security:expansions
 |Dumps the ruleset for each active expansion service.
 |===
 
@@ -2003,7 +2003,7 @@ The STS can use an LDAP server as an attribute store and convert those attribute
 
 . Start the ${branding} distribution.
 . Run the installer at https://localhost:8993/admin (default username/password is `admin`/`admin`)
-. After the installer completes, Click the *Manage* button in the upper right hand corner of the {admin-console}
+. After the installer completes, Click the *Manage* button in the upper right hand corner of the ${admin-console}
 . Click the *Play* button on the *Opendj Embedded* tile to install the application.
 
 ===== STS
@@ -2109,7 +2109,7 @@ ${ddf-branding} provides an optional *Audit Plugin* that logs all catalog transa
 Information captured includes user identity, query information, and resources retrieved.
 
 The Audit plugin is not enabled by default.
-To enable, sign into the {admin-console}.
+To enable, sign into the ${admin-console}.
 
 . Select ${ddf-branding} Catalog
 . Select *Features* tab

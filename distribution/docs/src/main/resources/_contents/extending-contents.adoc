@@ -225,11 +225,6 @@ if (LOGGER.isTraceEnabled()) {
 LOGGER.trace("Executing search: {}", search);
 ----
 
-==== UI Development Recommendations
-
-Recommendations for developing UI components.
-//TODO: This section is empty? add content or delete. DDF-1867
-
 === Building ${ddf-branding}
 include::building-ddf-contents.adoc[]
 
@@ -493,7 +488,6 @@ Good bundle definition and usage leads to a more flexible environment.
 Below is a code snippet from a Maven `pom.xml` for creating an OSGi Bundle using the Maven Bundle plugin.
 
 .Maven `pom.xml`
-
 [source,xml,linenums]
 ----
 ...
@@ -1129,7 +1123,7 @@ Each metacard result will contain security attributes that are populated by the 
 The security attribute is a HashMap containing a set of keys that map to lists of values.
 The metacard is then processed by a filter plugin that creates a `KeyValueCollectionPermission` from the metacard's security attribute.
 This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard.
-The decision to filter the metacard eventually relies on the PDP (`features:install security-pdp-authz`).
+The decision to filter the metacard eventually relies on the PDP (`feature:install security-pdp-authz`).
 The PDP returns a decision, and the metacard will either be filtered or allowed to pass through.
 
 The security attributes populated on the metacard are completely dependent on the type of the metacard.
@@ -2371,4 +2365,3 @@ First, the interceptor reads the configured policy, builds a security header, an
 Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm.
 Upon success, the STS realm returns the subject and the call is made to the endpoint.
 
----
