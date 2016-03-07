@@ -14,11 +14,13 @@
 package ddf.security.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.AuthorizationException;
@@ -32,6 +34,9 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +56,26 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
 
     private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
-    private List<Expansion> expansionServiceList;
+    protected Map<ServiceReference, Expansion> expansionServices = new ConcurrentHashMap<>();
+
+    public void addExpansion(ServiceReference<Expansion> expansionServiceRef) {
+        Bundle bundle = FrameworkUtil.getBundle(AbstractAuthorizingRealm.class);
+        if (bundle != null) {
+            Expansion expansion = bundle.getBundleContext()
+                    .getService(expansionServiceRef);
+            addExpansion(expansionServiceRef, expansion);
+        }
+    }
+
+    public void addExpansion(ServiceReference<Expansion> expansionServiceRef, Expansion expansion) {
+        if (expansionServiceRef != null) {
+            expansionServices.put(expansionServiceRef, expansion);
+        }
+    }
+
+    public void removeExpansion(ServiceReference<Expansion> expansionServiceRef) {
+        expansionServices.remove(expansionServiceRef);
+    }
 
     public AbstractAuthorizingRealm() {
         setAuthorizationCachingEnabled(false);
@@ -82,10 +106,10 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         Set<String> roles = new HashSet<>();
 
         Map<String, Set<String>> permissionsMap = new HashMap<>();
-        List<Expansion> copiedExpansionServiceList = getCopiedExpansionServiceList();
+        Collection<Expansion> expansionServices = getExpansionServices();
         for (AttributeStatement curStatement : attributeStatements) {
             addAttributesToMap(curStatement.getAttributes(), permissionsMap,
-                    copiedExpansionServiceList);
+                    expansionServices);
         }
 
         for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
@@ -111,7 +135,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     }
 
     private void addAttributesToMap(List<Attribute> attributes,
-            Map<String, Set<String>> permissionsMap, List<Expansion> expansions) {
+            Map<String, Set<String>> permissionsMap, Collection<Expansion> expansions) {
         Set<String> attributeSet;
         for (Attribute curAttribute : attributes) {
             attributeSet = expandAttributes(curAttribute, expansions);
@@ -137,7 +161,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      * @param attribute current attribute whose values are to be potentially expanded
      * @return a set of potentially expanded values
      */
-    private Set<String> expandAttributes(Attribute attribute, List<Expansion> expansions) {
+    private Set<String> expandAttributes(Attribute attribute, Collection<Expansion> expansions) {
         Set<String> attributeSet = new HashSet<>();
         String attributeName = attribute.getName();
         for (XMLObject curValue : attribute.getAttributeValues()) {
@@ -159,14 +183,14 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     }
 
     protected List<Permission> expandPermissions(List<Permission> permissions) {
-        List<Expansion> copiedExpansionServiceList = getCopiedExpansionServiceList();
-        if (CollectionUtils.isEmpty(copiedExpansionServiceList)) {
+        Collection<Expansion> expansionServices = getExpansionServices();
+        if (CollectionUtils.isEmpty(expansionServices)) {
             return permissions;
         }
         List<Permission> expandedPermissions = new ArrayList<>(permissions.size());
         for (Permission permission : permissions) {
             if (permission instanceof KeyValuePermission) {
-                for (Expansion expansionService : copiedExpansionServiceList) {
+                for (Expansion expansionService : expansionServices) {
                     Set<String> expandedSet = expansionService.expand(
                             ((KeyValuePermission) permission).getKey(),
                             new HashSet<>(((KeyValuePermission) permission).getValues()));
@@ -189,18 +213,12 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         return expandedPermissions;
     }
 
-    private List<Expansion> getCopiedExpansionServiceList() {
-        if (expansionServiceList != null) {
-            return new ArrayList<>(expansionServiceList);
-        }
-        return new ArrayList<>();
+    private Collection<Expansion> getExpansionServices() {
+        return expansionServices.values();
     }
 
     private <T> List<T> castToKeyValueList(List<Permission> permissionList) {
         return (List<T>) permissionList;
     }
 
-    public void setExpansionServiceList(List<Expansion> expansionServiceList) {
-        this.expansionServiceList = expansionServiceList;
-    }
 }

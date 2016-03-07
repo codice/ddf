@@ -23,7 +23,6 @@
                                update-strategy="container-managed"/>
         <argument value="etc/pdp/policies"/>
         <argument ref="xmlParser"/>
-        <property name="expansionServiceList" ref="userAttributeExpansionList"/>
         <property name="matchOneMappings">
             <list>
                 <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state</value>
@@ -32,7 +31,10 @@
     </bean>
 
     <reference-list id="userAttributeExpansionList" interface="ddf.security.expansion.Expansion"
-                    filter="(mapping=security.user.attribute.mapping)" availability="optional"/>
+                    filter="(mapping=security.user.attribute.mapping)" availability="optional">
+        <reference-listener bind-method="addExpansion"
+                            unbind-method="removeExpansion" ref="pdpAuthzRealm"/>
+    </reference-list>
 
     <reference-list id="policyExtensionList" interface="ddf.security.policy.extension.PolicyExtension" availability="optional">
         <reference-listener bind-method="addPolicyExtension" unbind-method="removePolicyExtension" ref="pdpAuthzRealm"/>
