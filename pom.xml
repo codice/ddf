@@ -89,17 +89,17 @@
         <pax.web.version>4.2.4</pax.web.version>
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
-        <!--Documentation Properties-->
+        <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>
         <branding-expanded>Distributed Data Framework</branding-expanded>
         <ddf-branding>DDF</ddf-branding>
         <ddf-branding-lowercase>ddf</ddf-branding-lowercase>
         <ddf-branding-expanded>Distributed Data Framework</ddf-branding-expanded>
-        <ddf.version>${project.version}</ddf.version>
         <!--Needed for documentation formatting-->
         <at-symbol>@</at-symbol>
         <variable-prefix>${</variable-prefix>
+        <image-width>500</image-width>
         <!--Individual application names-->
         <ddf-admin>DDF Admin</ddf-admin>
         <admin-console>Admin Console</admin-console>
@@ -634,6 +634,13 @@
                                                 <excludes>
                                                     <exclude>**/*.adoc</exclude>
                                                 </excludes>
+                                            </resource>
+                                            <resource>
+                                                <directory>${project.build.directory}/adoc</directory>
+                                                <filtering>true</filtering>
+                                                <includes>
+                                                    <include>**/*.adoc</include>
+                                                </includes>
                                             </resource>
                                         </resources>
                                     </configuration>

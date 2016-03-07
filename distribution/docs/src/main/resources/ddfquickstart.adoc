@@ -2,4 +2,4 @@
 include::./_contents/config.adoc[]
 
 == Overview
-include::./_contents/quickstartcontents.adoc[]
+include::./_contents/quickstart-contents.adoc[]

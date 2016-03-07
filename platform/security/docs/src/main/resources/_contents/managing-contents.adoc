@@ -1,23 +1,23 @@
 
-The Security application provides authentication, authorization, and auditing services for the {branding}.
+The Security application provides authentication, authorization, and auditing services for the ${branding}.
 They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements.
 
 This section documents the installation, maintenance, and support of this application.
 
-=== Installing {branding} Security
+=== Installing ${ddf-security}
 
 ==== Prerequisites
 
-Before the {branding} Security application can be installed:
+Before the ${ddf-security} application can be installed:
 
-* the {branding} must be running
-* the {branding} Platform Application must be installed
+* the ${branding} must be running
+* the ${ddf-platform} Application must be installed
 
-==== Installing
+==== Installing ${ddf-security}
 
-{branding} Security is included with a standard installation.
+${ddf-security} is included with a standard installation.
 
-==== Configuring {branding} Security
+==== Configuring ${ddf-security}
 
 From the Web Admin Console, the following configurations are available from a standard installation.
 
@@ -28,68 +28,68 @@ From the Web Admin Console, the following configurations are available from a st
 |Description
 
 |Login Page
-|`org.codice.ddf.security.handler.guest.configuration`
+|`org.codice.${ddf-branding-lowercase}security.handler.guest.configuration`
 |Options for customizing the Login page, such as header, footer, text style
 
 |SAML NameID Policy
-|`ddf.security.service.SecurityManager`
+|`${ddf-branding-lowercase}security.service.SecurityManager`
 |Customize attributes to replace username of logged-in user.
 
 |STS Server Token Endpoint
-|`ddf.security.sts.StsStaticService`
+|`${ddf-branding-lowercase}security.sts.StsStaticService`
 |Add or update addresses to use with STS service.
 
 |Security SOAP Guest Interceptor
-|`org.codice.ddf.security.interceptor.GuestInterceptor`
+|`org.codice.${ddf-branding-lowercase}security.interceptor.GuestInterceptor`
 |Settings for allowing Guest access.
 
 |Security STS Address Provider
-|`ddf.security.sts.address.provider`
+|`${ddf-branding-lowercase}security.sts.address.provider`
 |Configure use of alternate STS address provider
 
 |Security STS Client
-|`ddf.security.sts.client.configuration`
+|`${ddf-branding-lowercase}security.sts.client.configuration`
 |Settings for STS client
 
 |Security STS Guest Claims Handler
-|`ddf.security.sts.guestclaims`
+|`${ddf-branding-lowercase}security.sts.guestclaims`
 |Add or remove attributes to be attached to claims for guest users.
 
 |Security STS Guest Validator
-|`ddf.security.sts.guestvalidator`
+|`${ddf-branding-lowercase}security.sts.guestvalidator`
 |Configure realms to use with Guest Validator
 
 |Security STS PKI Token Validator
-|`org.codice.ddf.security.validator.pki`
+|`org.codice.${ddf-branding-lowercase}security.validator.pki`
 |Configure realms to use with PKI Token Validator
 
 |Security STS Property File Claims Handler
-|`org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler`
+|`org.codice.${ddf-branding-lowercase}security.sts.claims.property.PropertyFileClaimsHandler`
 |Settings for retrieving claims from properties file
 
 |Security STS Server
-|`ddf.security.sts`
+|`${ddf-branding-lowercase}security.sts`
 |Settings for STS Server
 
 |Security STS WSS
-|`ddf.security.sts.wss.configuration`
+|`${ddf-branding-lowercase}security.sts.wss.configuration`
 |WSS-enabled version of STS
 
 |Security AuthZ Realm
-|`ddf.security.pdp.realm.AuthzRealm`
+|`${ddf-branding-lowercase}security.pdp.realm.AuthzRealm`
 |Configuration of Match-One and/or Match-All mappings in SimpleAuthz realme
 
 |Session
-|`org.codice.ddf.security.filter.login.Session`
+|`org.codice.${ddf-branding-lowercase}security.filter.login.Session`
 |Set session timeout
 
 |Web Context Policy Manager
-|`org.codice.ddf.security.policy.context.impl.PolicyManager`
+|`org.codice.${ddf-branding-lowercase}security.policy.context.impl.PolicyManager`
 |Configure Realms, Auth types, and Attributes for different contexts.
 
 |===
 
-==== Applications Included in {branding} Security
+==== Applications Included in ${ddf-security}
 
 * Security CAS
 * Security Core

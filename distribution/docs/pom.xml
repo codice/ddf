@@ -137,7 +137,7 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/admin</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/admin</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.catalog</groupId>
@@ -145,15 +145,15 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/catalog</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/catalog</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.content</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
                                             <type>jar</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/content</outputDirectory>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/adoc/content</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.platform</groupId>
@@ -161,7 +161,7 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/platform</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/platform</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.platform.security</groupId>
@@ -169,7 +169,7 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/security</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/security</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.catalog.solr</groupId>
@@ -177,7 +177,7 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/solr</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/solr</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.codice.ddf.spatial</groupId>
@@ -185,7 +185,7 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/spatial</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/spatial</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>ddf.ui</groupId>
@@ -193,7 +193,7 @@
                                             <version>${project.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.directory}/apps/ui</outputDirectory>
+                                            <outputDirectory>${project.build.directory}/adoc/ui</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>

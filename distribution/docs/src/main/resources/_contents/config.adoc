@@ -1,14 +1,13 @@
 Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: target/docs/images
 :toc: left
-:admin-console: Admin Console
-:command-console: Command Console
 :icons: font
 :example-caption!:
 :source-highlighter: coderay
 :data-uri:
 :sectlinks:
 :sectanchors:
+:sectnums:
 :branding: DDF
 :title-logo: logo_ddf.png
 :last-update-label: Copyright (c) Codice Foundation. +

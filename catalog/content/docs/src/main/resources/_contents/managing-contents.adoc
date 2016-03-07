@@ -3,21 +3,20 @@ This section documents the installation, maintenance, and support of this applic
 
 === Prerequisites
 
-Before the {branding} Content application can be installed, the following prerequisites must be met:
+Before the ${ddf-content} application can be installed, the following prerequisites must be met:
 
-* the {branding} Kernel must be running,
-* the {branding} Platform Application must be installed, and
-* the {branding} Catalog Application must be installed. 
+* the ${ddf-platform} Application and
+* the ${ddf-catalog} Application must be installed. 
 
 The Content application will continue to function properly as a content store without the Catalog application.
 However, the Content application will not support creating metacards for ingested content.
 Additionally, without the Catalog application, the Content application will be displayed as `FAILED` by the Platform Status Service and the Application Commands.
 
-=== Installing {branding} Content
+=== Installing ${ddf-content}
 
 The Content application is installed by default with a standard installation.
 
-=== Configuring {branding} Content
+=== Configuring ${ddf-content}
 
 [cols="1,2,2" options="header"]
 |===

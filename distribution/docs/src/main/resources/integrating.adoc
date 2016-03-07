@@ -1,4 +1,4 @@
-= Integrating {branding}
+= Integrating ${branding}
 include::./_contents/config.adoc[]
 
 == Overview

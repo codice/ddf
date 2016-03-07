@@ -3,10 +3,43 @@
 
 ${branding} can be configured in several ways, depending on need:
 
-* Using the browser and the {admin-console}. <<Configuring ${branding} From the {admin-console}>>
-* Using a terminal and the {command-console}. <<Configuring ${branding} From the {command-console}>>
-* Editing configuration files. <<Configuring ${branding} From Configuration Files>>
-* Importing the configurations from an existing ${branding} instance. <<Importing / Exporting Configurations>>
+[NOTE]
+====
+While there are multiple ways to configure ${branding} for use, the recommended method is to use the ${admin-console}.
+====
+
+* RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_${branding-lowercase}_from_the_admin_console>>
+* Using a terminal and the {command-console}. <<_configuring_${branding-lowercase}_from_the_command_console>>
+* Editing configuration files. <<_configuring_${branding-lowercase}_from_configuration_files>>
+* Importing the configurations from an existing ${branding} instance. <<_importing_configurations>>
+
+////
+ADMIN CONSOLE
+////
+
+==== Configuring ${branding} From the ${admin-console}
+include::configuring-from-the-admin-console-contents.adoc[]
+
+////
+COMMAND CONSOLE SECTION
+////
+
+==== Configuring ${branding} From the ${command-console}
+include::configuring-from-the-command-console-contents.adoc[]
+
+////
+CONFIGURATION FILES
+////
+
+==== Configuring ${branding} From Configuration Files
+include::configuring-from-configuration-files-contents.adoc[]
+
+////
+IMPORTING / EXPORTING
+////
+
+==== Importing Configurations
+include::configuring-from-import-contents.adoc[]
 
 ==== Managing Features
 
@@ -155,7 +188,7 @@ To install a certificate signed by a different Certificate Authority, see <<Impo
 ===== Restart and Test
 
 Finally, restart the ${branding} instance.
-Browse the {admin-console} at \https://<FQDN>:8993/admin to test changes.
+Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
 
 [WARNING]
 ====
@@ -198,7 +231,7 @@ You will see errors in `<${branding-lowercase}-home>/etc/org.codice.opendj/ldap/
 A workaround is to modify `config.ldif` as seen in the steps below and hot deploy `opendj-embedded-app-<version>.kar.`
 ====
 
-** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`.  This needs to be modified.
+** The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
 *** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
 *** `ds-cfg-key-store-type: JKS`
 *** `ds-cfg-key-store-pin: password`
@@ -242,31 +275,3 @@ Integrators and developers can add more claims handlers that can handle other ty
 
 A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
-
-////
-ADMIN CONSOLE
-////
-
-==== Configuring ${branding} from the {admin-console}
-include::configuring-from-the-admin-console-contents.adoc[]
-
-////
-COMMAND CONSOLE SECTION
-////
-
-==== Configuring ${branding} from the {command-console}
-include::configuring-from-the-command-console-contents.adoc[]
-
-////
-CONFIGURATION FILES
-////
-
-==== Configuring ${branding} from Configuration Files
-include::configuring-from-configuration-files-contents.adoc[]
-
-////
-IMPORTING / EXPORTING
-////
-
-==== Importing / Exporting Configurations
-include::configuring-from-import-contents.adoc[]

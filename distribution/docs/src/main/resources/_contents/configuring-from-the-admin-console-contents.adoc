@@ -5,7 +5,7 @@
 
 ===== Initial Configuration
 
-The first time the ${branding} {admin-portal} runs, the initial configuration steps appear.
+The first time the ${branding} ${admin-console} runs, the initial configuration steps appear.
 
 . Click *Start* to begin.
 . On the next screen, general configuration settings such as host address, port and site name can all be configured. (See <<Configuring ${branding} Global Settings>> for important settings to configure)

@@ -1,5 +1,5 @@
 
-The Admin Application is a service that allows components to perform operations on applications.
+The ${ddf-admin} Application is a service that allows components to perform operations on applications.
 This includes adding, removing, starting, stopping, and viewing status.
 
 === API
@@ -10,7 +10,7 @@ For more information on these interfaces, see Application Service Interfaces.
 ==== JMX Managed Bean
 
 Some of the Application service API is exposed via JMX.
-It can either be accessed using the JMX API or from a REST-based interface created by http://jolokia.org[Jolokia] that comes with {branding}.
+It can either be accessed using the JMX API or from a REST-based interface created by http://jolokia.org[Jolokia] that comes with ${branding}.
 Here are the interfaces that are exposed in the Managed Bean:
 
 getApplicationTree:: Creates an application hierarchy tree that shows relationships between applications.
@@ -29,13 +29,13 @@ Support for configuration files was added to allow for an initial installation o
 This application list configuration file is only read on first start.
 ====
 
-To minimize the chance of accidentally installing and uninstalling applications, the configuration file for installing the initial applications is only read the first time that {branding} is started.
+To minimize the chance of accidentally installing and uninstalling applications, the configuration file for installing the initial applications is only read the first time that ${branding} is started.
 The only way to change what applications are active on startup is to use the console commands.
-Operations can also be done with the administrator web console that comes with {branding} using the Features tab and installing the main feature for the desired application.
+Operations can also be done with the administrator web console that comes with ${branding} using the Features tab and installing the main feature for the desired application.
 
-The application list file is located at `DDF_HOME/etc/org.codice.ddf.admin.applicationlist.properties`
+The application list file is located at `${ddf-branding}_HOME/etc/org.codice.${ddf-branding-lowercase}.admin.applicationlist.properties`
 
-Applications should be defined in a `<name>=<format>` syntax where location may be empty for applications that have already been added to {branding} or were prepackaged with the distribution.
+Applications should be defined in a `<name>=<format>` syntax where location may be empty for applications that have already been added to ${branding} or were prepackaged with the distribution.
 
 .Examples:
 [source]
@@ -51,7 +51,7 @@ opendj-embedded=file:/location/to/opendj-embedded-app-1.0.1-SNAPSHOT.kar
 ----
 
 Applications will be started in the order they are listed in the file.
-If an application is listed, {branding} will also attempt to install all dependencies for that application.
+If an application is listed, ${branding} will also attempt to install all dependencies for that application.
 
 ==== Interface Details
 
@@ -128,8 +128,8 @@ Information about how to use it is available on the Application Commands page.
 |Implementation Class
 |Notes
 
-|`org.codice.ddf.admin.application.service.ApplicationService`
-|`org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl`
+|`org.codice.${ddf-branding-lowercase}.admin.application.service.ApplicationService`
+|`org.codice.${ddf-branding-lowercase}.admin.application.service.impl.ApplicationServiceImpl`
 |
 
 |===

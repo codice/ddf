@@ -1,5 +1,5 @@
-= Extending {branding} Content Application
+= Extending ${ddf-content} Application
 include::./_contents/config.adoc[]
 
 == Overview
-include::./_contents/extcontents.adoc[]
+include::./_contents/extending-contents.adoc[]

@@ -1,5 +1,5 @@
-= Integrating with the {branding} Admin Application
+= Integrating ${ddf-admin} Application
 include::./_contents/config.adoc[]
 
 == Overview
-include::./_contents/intcontents.adoc[]
+include::./_contents/integrating-contents.adoc[]
