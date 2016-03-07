@@ -421,6 +421,11 @@ public class RegistryPackageConverter {
                 }
             }
         }
+
+        if (registryObject.isSetHome()) {
+            metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_BASE_URL,
+                    registryObject.getHome());
+        }
     }
 
     private static boolean isAttributeMultiValued(String attribute, MetacardImpl metacard) {

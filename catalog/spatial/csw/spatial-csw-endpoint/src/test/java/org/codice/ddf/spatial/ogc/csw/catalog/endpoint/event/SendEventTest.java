@@ -26,7 +26,7 @@ import java.net.URI;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;

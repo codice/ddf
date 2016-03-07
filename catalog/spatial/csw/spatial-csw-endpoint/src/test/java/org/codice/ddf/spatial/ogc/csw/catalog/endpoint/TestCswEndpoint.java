@@ -69,7 +69,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionR
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.osgi.framework.Bundle;

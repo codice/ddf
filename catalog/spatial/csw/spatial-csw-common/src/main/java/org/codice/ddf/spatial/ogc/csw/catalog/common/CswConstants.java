@@ -89,6 +89,10 @@ public interface CswConstants {
 
     String OUTPUT_SCHEMA_PARAMETER = "OutputSchema";
 
+    String TRANSFORMER_LOOKUP_KEY = "TransformerLookupKey";
+
+    String TRANSFORMER_LOOKUP_VALUE = "TransformerLookupValue";
+
     String CONSTRAINT_LANGUAGE_PARAMETER = "ConstraintLanguage";
 
     String CONSTRAINT_LANGUAGE_FILTER = "Filter";

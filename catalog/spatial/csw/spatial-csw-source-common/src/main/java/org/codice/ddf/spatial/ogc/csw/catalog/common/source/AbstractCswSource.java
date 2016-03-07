@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.MessageBodyWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -68,7 +69,13 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader.GetRecordsMessageBodyReader;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -90,22 +97,34 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.service.ConfiguredService;
+import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -115,16 +134,21 @@ import ddf.security.Subject;
 import ddf.security.common.util.Security;
 import ddf.security.service.SecurityManager;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
+import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.InsertResultType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
+import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
 import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.PropertyNameType;
@@ -144,7 +168,7 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
  * services.
  */
 public abstract class AbstractCswSource extends MaskableImpl
-        implements FederatedSource, ConnectedSource, ConfiguredService {
+        implements CatalogStore, FederatedSource, ConnectedSource, ConfiguredService {
 
     protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
 
@@ -236,15 +260,17 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     protected Converter cswTransformConverter;
 
+    protected MessageBodyWriter<CswTransactionRequest> cswTransactionWriter;
+
     protected String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
 
     protected ScheduledFuture<?> availabilityPollFuture;
 
     protected SecurityManager securityManager;
 
-    private FilterBuilder filterBuilder;
+    protected FilterBuilder filterBuilder;
 
-    private FilterAdapter filterAdapter;
+    protected FilterAdapter filterAdapter;
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<>();
 
@@ -285,6 +311,8 @@ public abstract class AbstractCswSource extends MaskableImpl
     protected String filterlessSubscriptionId = null;
 
     private List<MetacardType> metacardTypes;
+
+    protected TransformerManager schemaTransformerManager;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -574,7 +602,11 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(cswTransformProvider,
                 cswSourceConfiguration);
-        return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
+
+        return Arrays.asList(getRecordsTypeProvider,
+                new CswResponseExceptionMapper(),
+                grmbr,
+                cswTransactionWriter);
     }
 
     /**
@@ -754,7 +786,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         Set<String> tags = cswSourceConfiguration.getSchemaToTagsMapping()
                 .get(cswSourceConfiguration.getOutputSchema());
         if (!CollectionUtils.isEmpty(tags) && !tags.contains(Metacard.DEFAULT_TAG)
-                && !filterAdapter.adapt(query, new TagsFilterDelegate(tags))) {
+                && !filterAdapter.adapt(query, new TagsFilterDelegate(tags, true))) {
             return new SourceResponseImpl(queryRequest, Collections.emptyList());
         }
 
@@ -999,6 +1031,15 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     public void setPollInterval(Integer interval) {
         this.cswSourceConfiguration.setPollIntervalMinutes(interval);
+    }
+
+    public MessageBodyWriter<CswTransactionRequest> getCswTransactionWriter() {
+        return cswTransactionWriter;
+    }
+
+    public void setCswTransactionWriter(
+            MessageBodyWriter<CswTransactionRequest> cswTransactionWriter) {
+        this.cswTransactionWriter = cswTransactionWriter;
     }
 
     public Converter getCswTransformConverter() {
@@ -1642,6 +1683,237 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     public void setMetacardTypes(List<MetacardType> types) {
         this.metacardTypes = types;
+    }
+
+    /**
+     * If a source is flagged as registry type, use the following methods for CRUD
+     * operations
+     */
+
+    @Override
+    public CreateResponse create(CreateRequest createRequest) throws IngestException {
+        Map<String, Serializable> properties = new HashMap<>();
+
+        Subject subject =
+                (Subject) createRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+        Csw csw = factory.getClientForSubject(subject);
+        CswTransactionRequest transactionRequest = new CswTransactionRequest();
+        transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
+        transactionRequest.setService(CswConstants.CSW);
+        transactionRequest.setVerbose(true);
+
+        List<Metacard> metacards = createRequest.getMetacards();
+        ArrayList<Metacard> createdMetacards = new ArrayList<>();
+        ArrayList<Filter> createdMetacardFilters = new ArrayList<>();
+
+        String insertTypeName = schemaTransformerManager.getTransformerIdForSchema(
+                cswSourceConfiguration.getOutputSchema());
+
+        if (insertTypeName == null) {
+            insertTypeName = CswConstants.CSW_RECORD;
+        }
+
+        transactionRequest.getInsertActions()
+                .add(new InsertAction(insertTypeName, null, metacards));
+        try {
+            TransactionResponseType response = csw.transaction(transactionRequest);
+            if (response.getTransactionSummary()
+                    .getTotalInserted()
+                    .longValue() != createRequest.getMetacards()
+                    .size()) {
+                throw new CswException("One or more inserts failed");
+            }
+
+            //dive down into the response to get the created ID's. We need these so we can query
+            //the source again to get the created metacards and put them in the result
+            for (InsertResultType record : response.getInsertResult()) {
+                for (BriefRecordType breif : record.getBriefRecord()) {
+                    for (JAXBElement<SimpleLiteral> identifier : breif.getIdentifier()) {
+                        for (String id : identifier.getValue()
+                                .getContent()) {
+                            createdMetacardFilters.add(filterBuilder.attribute(Metacard.ID)
+                                    .is()
+                                    .equalTo()
+                                    .text(id));
+                        }
+                    }
+                }
+            }
+
+        } catch (CswException e) {
+            LOGGER.debug("Csw Transaction Failed. ", e);
+            throw new IngestException("Csw Transaction Failed : " + e.getMessage());
+        }
+
+        try {
+            createdMetacards.addAll(transactionQuery(createdMetacardFilters));
+        } catch (UnsupportedQueryException e) {
+            LOGGER.debug("Unsupported Query when querying for transaction results. ", e);
+            throw new IngestException("Unsupported Query when querying for transaction results. ",
+                    e);
+        }
+
+        return new CreateResponseImpl(createRequest, properties, createdMetacards);
+    }
+
+    @Override
+    public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
+        Map<String, Serializable> properties = new HashMap<>();
+
+        Subject subject =
+                (Subject) updateRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+        Csw csw = factory.getClientForSubject(subject);
+        CswTransactionRequest transactionRequest = new CswTransactionRequest();
+        transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
+        transactionRequest.setService(CswConstants.CSW);
+        transactionRequest.setVerbose(true);
+
+        OperationTransaction opTrans = (OperationTransaction) updateRequest.getPropertyValue(
+                Constants.OPERATION_TRANSACTION_KEY);
+
+        String insertTypeName = schemaTransformerManager.getTransformerIdForSchema(
+                cswSourceConfiguration.getOutputSchema());
+
+        if (insertTypeName == null) {
+            insertTypeName = CswConstants.CSW_RECORD;
+        }
+
+        ArrayList<Metacard> updatedMetacards = new ArrayList<>();
+
+        ArrayList<Filter> updatedMetacardFilters = new ArrayList<>();
+
+        for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
+            Metacard metacard = update.getValue();
+            properties.put(metacard.getId(), metacard);
+            updatedMetacardFilters.add(filterBuilder.attribute(updateRequest.getAttributeName())
+                    .is()
+                    .equalTo()
+                    .text(metacard.getAttribute(updateRequest.getAttributeName())
+                            .getValue()
+                            .toString()));
+            transactionRequest.getUpdateActions()
+                    .add(new UpdateAction(metacard, insertTypeName, null));
+        }
+        try {
+            TransactionResponseType response = csw.transaction(transactionRequest);
+            if (response.getTransactionSummary()
+                    .getTotalUpdated()
+                    .longValue() != updateRequest.getUpdates()
+                    .size()) {
+                throw new CswException("One or more updates failed");
+            }
+
+        } catch (CswException e) {
+            LOGGER.debug("Csw Transaction Failed : " + e.getMessage());
+            throw new IngestException("Csw Transaction Failed : " + e.getMessage());
+        }
+
+        try {
+            updatedMetacards.addAll(transactionQuery(updatedMetacardFilters));
+        } catch (UnsupportedQueryException e) {
+            LOGGER.debug("Unsupported Query when querying for transaction results. ", e);
+            throw new IngestException("Unsupported Query when querying for transaction results. ",
+                    e);
+        }
+        return new UpdateResponseImpl(updateRequest,
+                properties,
+                updatedMetacards,
+                new ArrayList(opTrans.getPreviousStateMetacards()));
+    }
+
+    @Override
+    public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
+        Map<String, Serializable> properties = new HashMap<>();
+        Subject subject =
+                (Subject) deleteRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+        Csw csw = factory.getClientForSubject(subject);
+        CswTransactionRequest transactionRequest = new CswTransactionRequest();
+        transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
+        transactionRequest.setService(CswConstants.CSW);
+        transactionRequest.setVerbose(true);
+        OperationTransaction opTrans = (OperationTransaction) deleteRequest.getPropertyValue(
+                Constants.OPERATION_TRANSACTION_KEY);
+        String typeName =
+                schemaTransformerManager.getTransformerIdForSchema(cswSourceConfiguration.getOutputSchema());
+
+        if (typeName == null) {
+            typeName = CswConstants.CSW_RECORD;
+        }
+
+        for (Serializable itemToDelete : deleteRequest.getAttributeValues()) {
+            DeleteType deleteType = new DeleteType();
+            deleteType.setTypeName(typeName);
+            QueryConstraintType queryConstraintType = new QueryConstraintType();
+            Filter filter;
+            FilterType filterType;
+            try {
+                filter = filterBuilder.attribute(deleteRequest.getAttributeName())
+                        .is()
+                        .equalTo()
+                        .text(itemToDelete.toString());
+                filterType = filterAdapter.adapt(filter, cswFilterDelegate);
+                queryConstraintType.setCqlText(CswCqlTextFilter.getInstance()
+                        .getCqlText(filterType));
+                deleteType.setConstraint(queryConstraintType);
+
+                DeleteAction deleteAction = new DeleteAction(deleteType,
+                        DefaultCswRecordMap.getPrefixToUriMapping());
+                transactionRequest.getDeleteActions()
+                        .add(deleteAction);
+            } catch (UnsupportedQueryException e) {
+                LOGGER.debug("Unable to convert parameters into CSW request. Unsupported Query : "
+                        + e.getMessage());
+                throw new IngestException("Unsupported Query : " + e.getMessage());
+            }
+
+        }
+
+        try {
+            csw.transaction(transactionRequest);
+        } catch (CswException e) {
+            LOGGER.debug("Csw Transaction Failed : " + e.getMessage());
+            throw new IngestException("Csw Transaction Failed : " + e.getMessage());
+        }
+
+        return new DeleteResponseImpl(deleteRequest,
+                properties,
+                new ArrayList(opTrans.getPreviousStateMetacards()));
+    }
+
+    private List<Metacard> transactionQuery(List<Filter> idFilters)
+            throws UnsupportedQueryException {
+        List<Metacard> transactionMetacards = new ArrayList<>();
+        Filter createFilter;
+
+        Set<String> tags = cswSourceConfiguration.getSchemaToTagsMapping()
+                .get(cswSourceConfiguration.getOutputSchema());
+        if (!CollectionUtils.isEmpty(tags)) {
+            List<Filter> tagsFilter = new ArrayList(tags.size());
+            for (String tag : tags) {
+                tagsFilter.add(filterBuilder.attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(tag));
+            }
+            createFilter = filterBuilder.allOf(filterBuilder.anyOf(tagsFilter),
+                    filterBuilder.anyOf(idFilters));
+        } else {
+            createFilter = filterBuilder.anyOf(idFilters);
+        }
+
+        Query query = new QueryImpl(createFilter);
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+
+        SourceResponse sourceResponse = query(queryRequest);
+        List<Result> results = sourceResponse.getResults();
+        transactionMetacards.addAll(results.stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList()));
+        return transactionMetacards;
+    }
+
+    public void setSchemaTransformerManager(TransformerManager schemaTransformerManager) {
+        this.schemaTransformerManager = schemaTransformerManager;
     }
 
     /**

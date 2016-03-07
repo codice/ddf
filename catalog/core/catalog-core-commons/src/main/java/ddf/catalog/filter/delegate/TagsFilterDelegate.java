@@ -15,10 +15,12 @@
 package ddf.catalog.filter.delegate;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
@@ -32,11 +34,18 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
     }
 
     public TagsFilterDelegate(String type) {
-        this(Collections.singleton(type));
+        this(Collections.singleton(type), false);
     }
 
     public TagsFilterDelegate(Set<String> types) {
-        this.tags = types;
+        this(types, false);
+    }
+
+    public TagsFilterDelegate(Set<String> types, boolean wildcardMatches) {
+        this.tags = new HashSet<>(types);
+        if (wildcardMatches) {
+            this.tags.add(FilterDelegate.WILDCARD_CHAR);
+        }
     }
 
     @Override
@@ -70,7 +79,7 @@ public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     @Override
     public Boolean propertyIsNull(String propertyName) {
-        return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(NULL_TAGS));
+        return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(NULL_TAGS) || tags.contains(FilterDelegate.WILDCARD_CHAR));
     }
 
     @Override

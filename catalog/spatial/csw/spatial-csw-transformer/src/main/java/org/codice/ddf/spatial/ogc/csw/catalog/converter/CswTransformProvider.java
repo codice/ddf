@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
@@ -74,7 +74,8 @@ public class CswTransformProvider implements Converter {
      * @param o       - metacard to transform.
      * @param writer  - writes the XML.
      * @param context - the marshalling context. Should contain a map entry for {@link
-     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.OUTPUT_SCHEMA_PARAMETER}
+     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.TRANSFORMER_LOOKUP_KEY}
+     *                {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.TRANSFORMER_LOOKUP_VALUE}
      *                to identify which transformer to use. Also contains properties for any
      *                arguments to provide the transformer.
      */
@@ -84,12 +85,12 @@ public class CswTransformProvider implements Converter {
             return;
         }
         Metacard metacard = (Metacard) o;
-        Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        String keyArg = (String)context.get(CswConstants.TRANSFORMER_LOOKUP_KEY);
+        String valArg = (String)context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE);
         MetacardTransformer transformer = null;
 
-        if (arg != null && StringUtils.isNotBlank((String) arg)) {
-            String outputSchema = (String) arg;
-            transformer = metacardTransformerManager.getTransformerBySchema(outputSchema);
+        if (StringUtils.isNotBlank((String) keyArg) && StringUtils.isNotBlank(valArg)) {
+            transformer = metacardTransformerManager.getTransformerByProperty(keyArg, valArg);
         } else {
             transformer =
                     metacardTransformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
@@ -97,7 +98,7 @@ public class CswTransformProvider implements Converter {
 
         if (transformer == null) {
             throw new ConversionException(
-                    "Unable to locate a transformer for output schema: " + arg);
+                    String.format("Unable to locate a transformer for %s = %s", keyArg, valArg));
         }
 
         BinaryContent content = null;

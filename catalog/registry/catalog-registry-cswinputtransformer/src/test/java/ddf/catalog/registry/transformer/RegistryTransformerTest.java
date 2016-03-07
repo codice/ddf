@@ -210,11 +210,11 @@ public class RegistryTransformerTest {
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testMetacardToXmlBadContentType() throws Exception {
+    public void testMetacardToXmlBadTag() throws Exception {
         String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
         Metacard m = rit.transform(IOUtils.toInputStream(in));
 
-        m.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "JustSomeMadeUpStuf"));
+        m.setAttribute(new AttributeImpl(Metacard.TAGS, "JustSomeMadeUpStuf"));
         String out = IOUtils.toString(rit.transform(m, null)
                 .getInputStream());
         assertThat(in, is(out));

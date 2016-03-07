@@ -25,6 +25,135 @@
     <artifactId>registry</artifactId>
     <packaging>pom</packaging>
     <name>DDF :: Catalog :: Registry</name>
+    <properties>
+        <jaxb2.version>0.9.4</jaxb2.version>
+        <spatial4j.version>0.4.1</spatial4j.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-ogc-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform.security</groupId>
+                <artifactId>security-rest-cxfwrapper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v1_0_0-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v1_0_0-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-ogc-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v1_0_0-schema-webapp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-v2_0_0-schema-webapp</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.thirdparty</groupId>
+                <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
+                <version>1.1.0_2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-csw-schema-bindings</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-csw-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-csw-transformer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wcs-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf.spatial</groupId>
+                <artifactId>spatial-wfs-source</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.4.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jvnet.jaxb2_commons</groupId>
+                <artifactId>jaxb2-basics-runtime</artifactId>
+                <version>${jaxb2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-core</artifactId>
+                <version>${lucene.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.spatial4j</groupId>
+                <artifactId>spatial4j</artifactId>
+                <version>${spatial4j.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <modules>
         <module>catalog-registry-policyplugin</module>
         <module>catalog-registry-cswinputtransformer</module>
@@ -32,6 +161,7 @@
         <module>catalog-registry-schema-bindings</module>
         <module>catalog-registry-identificationplugin</module>
         <module>catalog-registry-api</module>
+        <module>catalog-registry-api-impl</module>
         <module>catalog-registry-federationadminservice</module>
         <module>catalog-registry-federationadminserviceimpl</module>
     </modules>

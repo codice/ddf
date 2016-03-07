@@ -48,7 +48,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>ddf.catalog.registry.api.metacard</Export-Package>
+                        <Export-Package>
+                            ddf.catalog.registry.api,
+                            ddf.catalog.registry.api.metacard
+                        </Export-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl
                         </Embed-Dependency>

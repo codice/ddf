@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader;
+package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +39,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionR
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.XStreamAttributeCopier;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -63,16 +61,73 @@ public class TransactionRequestConverter implements Converter {
     private static final CswRecordMetacardType CSW_RECORD_METACARD_TYPE =
             new CswRecordMetacardType();
 
-    private Converter inputTransformProvider;
+    private static JAXBContext jaxBContext;
+
+    private Converter delegatingTransformer;
 
     public TransactionRequestConverter(Converter itp) {
-        this.inputTransformProvider = itp;
+        this.delegatingTransformer = itp;
     }
 
     @Override
-    public void marshal(Object o, HierarchicalStreamWriter hierarchicalStreamWriter,
+    public void marshal(Object o, HierarchicalStreamWriter writer,
             MarshallingContext marshallingContext) {
+        if (o != null) {
+            if (CswTransactionRequest.class.isAssignableFrom(o.getClass())) {
+                CswTransactionRequest request = (CswTransactionRequest) o;
 
+                writer.addAttribute(CswConstants.SERVICE, request.getService());
+                writer.addAttribute(CswConstants.VERSION, request.getVersion());
+                writer.addAttribute(CswConstants.VERBOSE_RESPONSE,
+                        String.valueOf(request.isVerbose()));
+                writer.addAttribute(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                        + CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
+                writer.addAttribute(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                        + CswConstants.OGC_NAMESPACE_PREFIX, CswConstants.OGC_SCHEMA);
+                for (InsertAction insertAction : request.getInsertActions()) {
+                    writer.startNode("csw:Insert");
+                    writer.addAttribute(CswConstants.TYPE_NAME_PARAMETER,
+                            insertAction.getTypeName());
+                    marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_KEY,
+                            TransformerManager.ID);
+                    marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_VALUE,
+                            insertAction.getTypeName());
+                    for (Metacard metacard : insertAction.getRecords()) {
+                        marshallingContext.convertAnother(metacard, delegatingTransformer);
+                    }
+                    writer.endNode();
+                }
+                for (UpdateAction updateAction : request.getUpdateActions()) {
+                    writer.startNode("csw:Update");
+                    writer.addAttribute(CswConstants.TYPE_NAME_PARAMETER,
+                            updateAction.getTypeName());
+                    marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_KEY,
+                            TransformerManager.ID);
+                    marshallingContext.put(CswConstants.TRANSFORMER_LOOKUP_VALUE,
+                            updateAction.getTypeName());
+                    marshallingContext.convertAnother(updateAction.getMetacard(),
+                            delegatingTransformer);
+
+                    writer.endNode();
+
+                }
+                for (DeleteAction deleteAction : request.getDeleteActions()) {
+                    writer.startNode("csw:Delete");
+                    writer.addAttribute(CswConstants.TYPE_NAME_PARAMETER,
+                            deleteAction.getTypeName());
+                    writer.startNode("csw:Constraint");
+                    writer.addAttribute(CswConstants.VERSION, "2.0.0");
+                    writer.startNode("ogc:CqlText");
+                    writer.setValue(deleteAction.getConstraint()
+                            .getCqlText());
+                    writer.endNode();
+                    writer.endNode();
+
+                    writer.endNode();
+                }
+
+            }
+        }
     }
 
     @Override
@@ -103,7 +158,7 @@ public class TransactionRequestConverter implements Converter {
                     reader.moveDown(); // move down to the record's tag
                     Metacard metacard = (Metacard) context.convertAnother(null,
                             MetacardImpl.class,
-                            inputTransformProvider);
+                            delegatingTransformer);
                     if (metacard != null) {
                         metacards.add(metacard);
                     }
@@ -260,18 +315,15 @@ public class TransactionRequestConverter implements Converter {
             } else {
                 throw new ConversionException("Missing Parameter Value: missing a Constraint.");
             }
-        } else if (reader.getNodeName()
-                .contains(CswConstants.CSW_RECORD)) {
+        } else {
+            context.put(CswConstants.TYPE_NAME_PARAMETER, typeName);
             Metacard metacard = (Metacard) context.convertAnother(null,
                     MetacardImpl.class,
-                    inputTransformProvider);
+                    delegatingTransformer);
 
             updateAction = new UpdateAction(metacard, typeName, handle);
             // Move back to the <Update>.
             reader.moveUp();
-        } else {
-            throw new ConversionException(
-                    "Missing Parameter Value: missing a RecordProperty or an updated record.");
         }
 
         return updateAction;
@@ -319,7 +371,7 @@ public class TransactionRequestConverter implements Converter {
         JAXBElement<T> root;
 
         try {
-            JAXBContext jaxbContext = CswQueryFactory.getJaxBContext();
+            JAXBContext jaxbContext = getJaxBContext();
             InputStream xmlInputStream = IOUtils.toInputStream(xml, StandardCharsets.UTF_8.name());
             StreamSource xmlStreamSource = new StreamSource(xmlInputStream);
             root = jaxbContext.createUnmarshaller()
@@ -329,6 +381,15 @@ public class TransactionRequestConverter implements Converter {
         }
 
         return root.getValue();
+    }
+
+    public static synchronized JAXBContext getJaxBContext() throws JAXBException {
+        if (jaxBContext == null) {
+
+            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
+                    + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
+        }
+        return jaxBContext;
     }
 
     private Map<String, String> getXmlnsAttributeToUriMappingsFromContext(

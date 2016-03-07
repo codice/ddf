@@ -64,6 +64,11 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -78,7 +83,8 @@
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
                             platform-util-unavailableurls,
-                            platform-util
+                            platform-util,
+                            common-system
                         </Embed-Dependency>
                         <Import-Package>
                             ddf.catalog,

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.operation.impl;
+package ddf.catalog.operation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,25 +25,11 @@ import ddf.catalog.data.Metacard;
  * Class for storing operation information. This is primarily for capturing the state before an
  * operation is performed so it can be referenced later if needed.
  */
-public class OperationTransaction implements Serializable {
+public interface OperationTransaction extends Serializable {
 
-    private OperationType type;
+    public List<Metacard> getPreviousStateMetacards();
 
-    private List<Metacard> previousStateMetacards;
-
-    public OperationTransaction(OperationType type, Collection<Metacard> previousStateMetacards) {
-        this.type = type;
-        this.previousStateMetacards = Collections.unmodifiableList(new ArrayList(
-                previousStateMetacards));
-    }
-
-    public List<Metacard> getPreviousStateMetacards() {
-        return previousStateMetacards;
-    }
-
-    public OperationType getType() {
-        return type;
-    }
+    public OperationType getType();
 
     public enum OperationType {
         CREATE,
