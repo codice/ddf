@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.any;
@@ -24,10 +24,9 @@ import java.net.URI;
 
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +38,8 @@ public class AddApplicationCommandTest {
 
     private static final String CMD_ERROR_STRING = "Error while performing command.";
 
-    private static final String BUNDLE_CONTEXT_STRING =
-            "Bundle Context was closed, service reference already removed.";
+    private static final String APPLICATION_SERVICE_NOT_FOUND =
+            "ApplicationService not found";
 
     private Logger logger = LoggerFactory.getLogger(AddApplicationCommand.class);
 
@@ -52,18 +51,11 @@ public class AddApplicationCommandTest {
     @Test
     public void testAddApplicationCommand() throws Exception {
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         AddApplicationCommand addApplicationCommand = new AddApplicationCommand();
         addApplicationCommand.appName = "TestApp";
-        addApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
-
-        addApplicationCommand.doExecute();
+        addApplicationCommand.doExecute(testAppService);
         verify(testAppService).addApplication(any(URI.class));
     }
 
@@ -76,19 +68,12 @@ public class AddApplicationCommandTest {
     @Test
     public void testAddApplicationCommandInvalidURIParam() throws Exception {
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         AddApplicationCommand addApplicationCommand = new AddApplicationCommand();
         addApplicationCommand.appName = ">BadURI<";
-        addApplicationCommand.setBundleContext(bundleContext);
-
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
         //Should have a graceful recovery, if an exception is thrown, this test fails.
-        addApplicationCommand.doExecute();
+        addApplicationCommand.doExecute(testAppService);
     }
 
     /**
@@ -107,21 +92,15 @@ public class AddApplicationCommandTest {
         root.setLevel(Level.ALL);
 
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         AddApplicationCommand addApplicationCommand = new AddApplicationCommand();
         addApplicationCommand.appName = "TestApp";
-        addApplicationCommand.setBundleContext(bundleContext);
-
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
+        addApplicationCommand.setApplicationService(testAppService);
 
         doThrow(new ApplicationServiceException()).when(testAppService)
                 .addApplication(any(URI.class));
 
-        addApplicationCommand.doExecute();
+        addApplicationCommand.execute();
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
@@ -134,11 +113,11 @@ public class AddApplicationCommandTest {
 
     /**
      * Tests the {@link AddApplicationCommand} class and its contained methods
-     * for the case where the bundleContext throws an IllegalStateException
+     * for the case where the ApplicationService is null.
      *
      * @throws Exception
      */
-    @Test
+    @Test (expected = IllegalStateException.class)
     public void testAddApplicationCommandISE() throws Exception {
         ch.qos.logback.classic.Logger root =
                 (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -147,29 +126,9 @@ public class AddApplicationCommandTest {
         root.addAppender(mockAppender);
         root.setLevel(Level.ALL);
 
-        ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
-
         AddApplicationCommand addApplicationCommand = new AddApplicationCommand();
         addApplicationCommand.appName = "TestApp";
-        addApplicationCommand.setBundleContext(bundleContext);
 
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
-
-        doThrow(new IllegalStateException()).when(bundleContext)
-                .ungetService(any(ServiceReference.class));
-
-        addApplicationCommand.doExecute();
-
-        verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
-            @Override
-            public boolean matches(final Object argument) {
-                return ((LoggingEvent) argument).getFormattedMessage()
-                        .contains(BUNDLE_CONTEXT_STRING);
-            }
-        }));
+        addApplicationCommand.execute();
     }
 }

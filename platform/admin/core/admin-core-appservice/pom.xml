@@ -78,21 +78,36 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>karaf-services-maven-plugin</artifactId>
+                <version>${karaf.version}</version>
+                <executions>
+                    <execution>
+                        <id>service-metadata-generate</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>service-metadata-generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            org.apache.felix.service.command,
-                            org.apache.felix.gogo.commands,
-                            org.apache.karaf.shell.console,
-                            *
-                        </Import-Package>
                         <Export-Package>
                             org.codice.ddf.admin.application.service;version=${admin.core.appservice.api.version},
-                            org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version}
+                            org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version},
+                            org.codice.ddf.admin.application.service.command;version=${admin.core.appservice.api.version},
+                            org.codice.ddf.admin.application.service.command.completers;version=${admin.core.appservice.api.version}
                         </Export-Package>
+                        <Private-Package>
+                            org.codice.ddf.admin.application.rest,
+                            org.codice.ddf.admin.application.rest.model,
+                            org.codice.ddf.admin.application.service.impl
+                        </Private-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -129,7 +144,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

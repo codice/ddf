@@ -11,13 +11,15 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.admin.application.service.Application;
+import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
@@ -29,6 +31,7 @@ import org.fusesource.jansi.Ansi;
  *
  */
 @Command(scope = "app", name = "list", description = "Lists the applications that are in the system and gives their current state. \n\tThere are four possible states:\n\t\tACTIVE: no errors, started successfully\n\t\tFAILED: errors occurred while trying to start\n\t\tINACTIVE: nothing from the app is installed\n\t\tUNKNOWN: could not determine status.")
+@Service
 public class ListApplicationCommand extends AbstractApplicationCommand {
 
     private static final int STATUS_COLUMN_LENGTH;
@@ -46,7 +49,7 @@ public class ListApplicationCommand extends AbstractApplicationCommand {
     }
 
     @Override
-    protected void applicationCommand() throws ApplicationServiceException {
+    protected void doExecute(ApplicationService applicationService) throws ApplicationServiceException {
 
         Set<Application> applications = applicationService.getApplications();
         console.printf("%s%10s%n", "State", "Name");

@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -23,9 +23,10 @@ import java.util.TreeSet;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.admin.application.service.impl.ApplicationImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationNodeImpl;
+import org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +41,8 @@ public class TreeApplicationCommandTest {
     @Test
     public void testTreeApplicationCommand() throws Exception {
         ApplicationService testAppService = mock(ApplicationServiceImpl.class);
-        BundleContext bundleContext = mock(BundleContext.class);
-        ServiceReference<ApplicationService> mockFeatureRef;
-        mockFeatureRef = (ServiceReference<ApplicationService>) mock(ServiceReference.class);
 
         TreeApplicationCommand treeApplicationCommand = new TreeApplicationCommand();
-        treeApplicationCommand.setBundleContext(bundleContext);
 
         Set<ApplicationNode> treeSet = new TreeSet<>();
         ApplicationNode testNode1 = mock(ApplicationNodeImpl.class);
@@ -61,10 +58,8 @@ public class TreeApplicationCommandTest {
         when(testNode2.getChildren()).thenReturn(new TreeSet<ApplicationNode>());
         when(testNode1.getChildren()).thenReturn(childSet);
         when(testAppService.getApplicationTree()).thenReturn(treeSet);
-        when(bundleContext.getServiceReference(ApplicationService.class)).thenReturn(mockFeatureRef);
-        when(bundleContext.getService(mockFeatureRef)).thenReturn(testAppService);
 
-        treeApplicationCommand.doExecute();
+        treeApplicationCommand.doExecute(testAppService);
         verify(testAppService).getApplicationTree();
     }
 }

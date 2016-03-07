@@ -11,22 +11,23 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.application.service.impl;
+package org.codice.ddf.admin.application.service.command.completers;
 
-import org.apache.karaf.shell.console.Completer;
-import org.codice.ddf.admin.application.service.ApplicationService;
+import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.karaf.shell.support.completers.StringsCompleter;
+import org.codice.ddf.admin.application.service.Application;
 
 /**
  * <p>
- * Abstract Completer - base class for all Application completer implementations.
+ * Completer that returns all applications.
  * </p>
  */
-public abstract class AbstractApplicationsCompleter implements Completer {
+@Service
+public class AllApplicationsCompleter extends AbstractApplicationsCompleter {
 
-    protected ApplicationService applicationService;
-
-    public AbstractApplicationsCompleter(ApplicationService applicationService) {
-        this.applicationService = applicationService;
+    @Override
+    protected void addAppNames(Application currentApp, StringsCompleter delegate) {
+        delegate.getStrings()
+                .add(currentApp.getName());
     }
-
 }
