@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
@@ -379,7 +381,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <bottom><![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]></bottom>
+                        <bottom>
+                            <![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]></bottom>
                         <failOnError>false</failOnError>
                         <aggregate>true</aggregate>
                         <show>protected</show>
@@ -723,7 +726,8 @@
                             <executions>
                                 <execution>
                                     <configuration>
-                                        <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+                                        <descriptor>${project.basedir}/src/assembly/bin.xml
+                                        </descriptor>
                                         <outputDirectory>${project.build.directory}/documentation
                                         </outputDirectory>
                                     </configuration>
@@ -735,7 +739,8 @@
                                 </execution>
                                 <execution>
                                     <configuration>
-                                        <descriptor>${project.basedir}/src/assembly/asciidocs.xml</descriptor>
+                                        <descriptor>${project.basedir}/src/assembly/asciidocs.xml
+                                        </descriptor>
                                         <outputDirectory>${project.build.directory}/adoc-files
                                         </outputDirectory>
                                     </configuration>
@@ -986,15 +991,16 @@
       -->
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
+            <!--Hamcrest first, then JUnit, then Mockito. See http://goo.gl/e5bJA5-->
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
