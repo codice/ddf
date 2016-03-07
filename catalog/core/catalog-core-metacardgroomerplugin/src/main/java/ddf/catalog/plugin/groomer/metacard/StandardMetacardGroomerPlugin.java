@@ -42,13 +42,10 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     protected void applyCreatedOperationRules(CreateRequest createRequest, Metacard aMetacard,
             Date now) {
         LOGGER.debug("Applying standard rules on CreateRequest");
-
-        if (aMetacard.getId() == null) {
-            aMetacard.setAttribute(new AttributeImpl(Metacard.ID,
-                    UUID.randomUUID()
-                            .toString()
-                            .replaceAll("-", "")));
-        }
+        aMetacard.setAttribute(new AttributeImpl(Metacard.ID,
+                UUID.randomUUID()
+                        .toString()
+                        .replaceAll("-", "")));
 
         if (aMetacard.getCreatedDate() == null) {
             aMetacard.setAttribute(new AttributeImpl(Metacard.CREATED, now));
