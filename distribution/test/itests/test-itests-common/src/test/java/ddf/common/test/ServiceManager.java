@@ -14,11 +14,9 @@
 package ddf.common.test;
 
 import static org.apache.karaf.features.FeaturesService.Option.NoAutoRefreshBundles;
-import static org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState.ACTIVE;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.get;
-
 import static ddf.common.test.WaitCondition.expect;
 
 import java.io.File;
@@ -48,15 +46,14 @@ import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
-import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -83,19 +80,19 @@ public class ServiceManager {
 
     public static final long HTTP_ENDPOINT_TIMEOUT = TimeUnit.MINUTES.toMillis(10);
 
-    private final BundleContext bundleCtx;
-
     private final MetaTypeService metatype;
 
     private final AdminConfig adminConfig;
 
     private BundleService bundleService;
 
-    public ServiceManager(BundleContext bundleCtx, MetaTypeService metatype,
-            AdminConfig adminConfig) {
-        this.bundleCtx = bundleCtx;
+    public ServiceManager(MetaTypeService metatype, AdminConfig adminConfig) {
         this.metatype = metatype;
         this.adminConfig = adminConfig;
+    }
+
+    public BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(this.getClass()).getBundleContext();
     }
 
     /**
@@ -155,7 +152,7 @@ public class ServiceManager {
         ServiceConfigurationListener listener =
                 new ServiceConfigurationListener(sourceConfig.getPid());
 
-        bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
+        getBundleContext().registerService(ConfigurationListener.class.getName(), listener, null);
 
         waitForService(sourceConfig);
 
@@ -241,11 +238,13 @@ public class ServiceManager {
         boolean ready = false;
         long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
         while (!ready) {
-            ServiceReference<FeaturesService> featuresServiceRef = bundleCtx.getServiceReference(
-                    FeaturesService.class);
+            ServiceReference<FeaturesService> featuresServiceRef =
+                    FrameworkUtil.getBundle(this.getClass())
+                            .getBundleContext()
+                            .getServiceReference(FeaturesService.class);
             try {
                 if (featuresServiceRef != null) {
-                    featuresService = bundleCtx.getService(featuresServiceRef);
+                    featuresService = getBundleContext().getService(featuresServiceRef);
                     if (featuresService != null) {
                         ready = true;
                     }
@@ -268,9 +267,9 @@ public class ServiceManager {
 
     // TODO - we should really make this a bundle and inject this.
     private ApplicationService getApplicationService() {
-        ServiceReference<ApplicationService> applicationServiceRef = bundleCtx.getServiceReference(
+        ServiceReference<ApplicationService> applicationServiceRef = getBundleContext().getServiceReference(
                 ApplicationService.class);
-        return bundleCtx.getService(applicationServiceRef);
+        return getBundleContext().getService(applicationServiceRef);
     }
 
     /**
@@ -302,7 +301,7 @@ public class ServiceManager {
     private Map<String, Bundle> getBundlesToRestart(Set<String> bundleSymbolicNames) {
         Map<String, Bundle> bundlesToRestart = new HashMap<>();
 
-        for (Bundle bundle : bundleCtx.getBundles()) {
+        for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundleSymbolicNames.contains(bundle.getSymbolicName())) {
                 bundlesToRestart.put(bundle.getSymbolicName(), bundle);
             }
@@ -312,7 +311,7 @@ public class ServiceManager {
     }
 
     public void stopBundle(String bundleSymbolicName) throws BundleException {
-        for (Bundle bundle : bundleCtx.getBundles()) {
+        for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
                 bundle.stop();
             }
@@ -320,7 +319,7 @@ public class ServiceManager {
     }
 
     public void startBundle(String bundleSymbolicName) throws BundleException {
-        for (Bundle bundle : bundleCtx.getBundles()) {
+        for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundleSymbolicName.equals(bundle.getSymbolicName())) {
                 bundle.start();
             }
@@ -332,17 +331,9 @@ public class ServiceManager {
         if (appNames.length > 0) {
             for (String appName : appNames) {
                 try {
-                    Application app = appService.getApplication(appName);
-                    if (app != null) {
-                        ApplicationStatus status = appService.getApplicationStatus(app);
-                        if (ACTIVE != status.getState()) {
-                            appService.startApplication(appName);
-                        }
-                    } else {
-                        throw new ApplicationServiceException(
-                                "Unable to determine Application for [" + appName + "].");
-                    }
+                    appService.startApplication(appName);
                 } catch (ApplicationServiceException e) {
+                    LOGGER.error("Failed to start application", e);
                     fail("Failed to start boot feature: " + e.getMessage());
                 }
                 waitForAllBundles();
@@ -362,7 +353,7 @@ public class ServiceManager {
 
         long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
         while (!ready) {
-            List<Bundle> bundles = Arrays.asList(bundleCtx.getBundles());
+            List<Bundle> bundles = Arrays.asList(getBundleContext().getBundles());
 
             ready = true;
             for (Bundle bundle : bundles) {
@@ -407,8 +398,8 @@ public class ServiceManager {
         boolean ready = false;
 
         long timeoutLimit = System.currentTimeMillis() + REQUIRED_BUNDLES_TIMEOUT;
+        FeaturesService featuresService = getFeaturesService();
         while (!ready) {
-            FeaturesService featuresService = getFeaturesService();
             if (featuresService != null) {
                 Feature feature = featuresService.getFeature(featureName);
                 FeatureState state = featuresService.getState(feature.getName() + "/" + feature.getVersion());
@@ -575,7 +566,7 @@ public class ServiceManager {
     }
 
     private ObjectClassDefinition getObjectClassDefinition(String symbolicName, String pid) {
-        Bundle[] bundles = bundleCtx.getBundles();
+        Bundle[] bundles = getBundleContext().getBundles();
         for (Bundle bundle : bundles) {
             if (symbolicName.equals(bundle.getSymbolicName())) {
                 try {
@@ -603,7 +594,7 @@ public class ServiceManager {
     public void printInactiveBundles() {
         LOGGER.info("Listing inactive bundles");
 
-        for (Bundle bundle : bundleCtx.getBundles()) {
+        for (Bundle bundle : getBundleContext().getBundles()) {
             if (bundle.getState() != Bundle.ACTIVE) {
                 StringBuffer headerString = new StringBuffer("[ ");
                 Dictionary<String, String> headers = bundle.getHeaders();
@@ -629,22 +620,22 @@ public class ServiceManager {
     }
 
     public <S> ServiceReference<S> getServiceReference(Class<S> aClass) {
-        return bundleCtx.getServiceReference(aClass);
+        return getBundleContext().getServiceReference(aClass);
     }
 
     public <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> aClass, String s)
             throws InvalidSyntaxException {
-        return bundleCtx.getServiceReferences(aClass, s);
+        return getBundleContext().getServiceReferences(aClass, s);
     }
 
     public <S> S getService(ServiceReference<S> serviceReference) {
         expect("Service to be available: "+serviceReference.toString()).within(2, TimeUnit.MINUTES)
-                .until(() -> bundleCtx.getService(serviceReference), notNullValue());
-        return bundleCtx.getService(serviceReference);
+                .until(() -> getBundleContext().getService(serviceReference), notNullValue());
+        return getBundleContext().getService(serviceReference);
     }
 
     public <S> S getService(Class<S> aClass) {
-        return getService(bundleCtx.getServiceReference(aClass));
+        return getService(getBundleContext().getServiceReference(aClass));
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {

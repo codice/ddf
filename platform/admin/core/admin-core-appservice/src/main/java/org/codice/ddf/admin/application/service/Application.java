@@ -87,4 +87,6 @@ public interface Application {
      */
     Set<BundleInfo> getBundles() throws ApplicationServiceException;
 
+    Set<Feature> getAutoInstallFeatures();
+
 }

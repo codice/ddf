@@ -55,7 +55,6 @@ import org.apache.karaf.shell.api.console.SessionFactory;
 import org.junit.Rule;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeService;
@@ -267,9 +266,6 @@ public abstract class AbstractIntegrationTest {
     protected String logLevel = "";
 
     @Inject
-    protected BundleContext bundleCtx;
-
-    @Inject
     protected ConfigurationAdmin configAdmin;
 
     @Inject
@@ -301,7 +297,7 @@ public abstract class AbstractIntegrationTest {
     public void initFacades() {
         ddfHome = System.getProperty(DDF_HOME_PROPERTY);
         adminConfig = new AdminConfig(configAdmin);
-        serviceManager = new ServiceManager(bundleCtx, metatype, adminConfig);
+        serviceManager = new ServiceManager(metatype, adminConfig);
         catalogBundle = new CatalogBundle(serviceManager, adminConfig);
         securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
         urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
@@ -529,10 +525,10 @@ public abstract class AbstractIntegrationTest {
                 .versionAsInProject()
                 .getURL();
         return options(
-                // Need to add catalog-app since there are imports in the itests from catalog-app.
+                // Need to add catalog-core since there are imports in the itests from catalog-core.
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresBoot",
-                        "catalog-app"),
+                        "catalog-core"),
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
                         "featuresRepositories",
                         featuresUrl));

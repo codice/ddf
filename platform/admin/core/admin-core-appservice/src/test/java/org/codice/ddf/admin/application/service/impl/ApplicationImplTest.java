@@ -18,7 +18,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +43,8 @@ public class ApplicationImplTest {
 
     private static final String MAIN_FEATURE_NAME = "Main Feature Test";
 
+    private static final String TEST_APP = "test-app";
+
     /**
      * number of non-duplicate bundles in the feature file
      */
@@ -63,7 +64,7 @@ public class ApplicationImplTest {
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
-        assertEquals(repo.getName(), testApp.getName());
+        assertEquals(TEST_APP, testApp.getName());
 
         Set<Feature> appFeatures = testApp.getFeatures();
         assertNotNull(appFeatures);
@@ -76,14 +77,13 @@ public class ApplicationImplTest {
                         .size());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBadRepoNoName() throws Exception {
         Repository repo = mock(Repository.class);
+        when(repo.getURI()).thenReturn(new URI(""));
         when(repo.getFeatures()).thenThrow(new RuntimeException("Testing Exceptions."));
 
         new ApplicationImpl(repo).getFeatures();
-        fail("Should have thrown an exception.");
-
     }
 
     /**
@@ -121,17 +121,16 @@ public class ApplicationImplTest {
      */
     @Test
     public void testNoMainFeature() throws Exception {
-        String mainFeatureName = "test-app-1.0.0";
-        String mainFeatureVersion = "0.0.0";
+        String mainFeatureVersion = "1.0.0";
         String mainFeatureDescription = null;
-        String appToString = mainFeatureName + " - " + mainFeatureVersion;
+        String appToString = TEST_APP + " - " + mainFeatureVersion;
         RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
                 .getResource(FILE_NO_MAIN_FEATURES)
                 .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
-        assertEquals(mainFeatureName, testApp.getName());
+        assertEquals(TEST_APP, testApp.getName());
         assertEquals(mainFeatureVersion, testApp.getVersion());
         assertEquals(mainFeatureDescription, testApp.getDescription());
         assertNotNull(testApp.toString());

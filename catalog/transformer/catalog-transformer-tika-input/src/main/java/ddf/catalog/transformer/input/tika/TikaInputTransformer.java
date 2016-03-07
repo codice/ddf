@@ -33,6 +33,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -62,7 +63,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
-import net.sf.saxon.TransformerFactoryImpl;
 
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
@@ -70,11 +70,19 @@ public class TikaInputTransformer implements InputTransformer {
     private Templates templates = null;
 
     public TikaInputTransformer(BundleContext bundleContext) {
+        ClassLoader tccl = Thread.currentThread()
+                .getContextClassLoader();
         try {
-            templates = new TransformerFactoryImpl().newTemplates(new StreamSource(
-                    TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")));
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            templates =
+                    TransformerFactory.newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+                            net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
+                            .newTemplates(new StreamSource(TikaMetadataExtractor.class.getResourceAsStream(
+                                    "/metadata.xslt")));
         } catch (TransformerConfigurationException e) {
             LOGGER.warn("Couldn't create XML transformer", e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
         }
 
         if (bundleContext == null) {

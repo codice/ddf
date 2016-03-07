@@ -23,14 +23,12 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.options;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.karaf.features.FeatureState;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
@@ -39,7 +37,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
@@ -100,41 +97,25 @@ public class TestApplicationService extends AbstractIntegrationTest {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForAllBundles();
-            console = new KarafConsole(bundleCtx, features, sessionFactory);
-            getServiceManager().waitForFeature("admin-core", FeatureState.Started::equals);
-
+            getServiceManager().waitForRequiredApps(CONTENT_APP);
+            console = new KarafConsole(getServiceManager().getBundleContext(),
+                    features,
+                    sessionFactory);
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
         }
     }
 
-    /**
-     * Installs the configuration files needed at startup.
-     */
-    @Override
-    protected Option[] configureCustom() {
-        try {
-            return options(installStartupFile(getClass().getResourceAsStream(
-                    APP_LIST_PROPERTIES_FILE), "/etc" + APP_LIST_PROPERTIES_FILE));
-        } catch (Exception e) {
-            LOGGER.error("Could not copy app list to /etc directory", e);
-            return null;
-        }
-    }
-
     @Test
     public void aTestStartUpWithApplistPropertiesFile() throws Exception {
-        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
+        ApplicationService applicationService =
+                getServiceManager().getService(ApplicationService.class);
         // Test AppService
-        getServiceManager().waitForFeature("admin-post-install-modules",
-                p -> FeatureState.Started.equals(p));
-        getServiceManager().waitForFeature("admin-modules-installer",
-                p -> FeatureState.Uninstalled.equals(p));
         Application application = applicationService.getApplication(CONTENT_APP);
         assertNotNull("Application [" + CONTENT_APP + "] must not be null after boot", application);
         ApplicationStatus status = applicationService.getApplicationStatus(application);
-        assertThat("Application [" + CONTENT_APP + "] should be Started after boot",
+        assertThat("Application [" + CONTENT_APP + "] should be ACTIVE after boot",
                 status.getState(),
                 is(ACTIVE));
 
@@ -147,11 +128,13 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void bTestAppStatus() {
-        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
         // Test AppService
+        ApplicationService applicationService =
+                getServiceManager().getService(ApplicationService.class);
         Set<Application> apps = applicationService.getApplications();
-        List<Application> catalogList = apps.stream().filter(a -> CATALOG_APP.equals(a.getName())).collect(
-                Collectors.toList());
+        List<Application> catalogList = apps.stream()
+                .filter(a -> CATALOG_APP.equals(a.getName()))
+                .collect(Collectors.toList());
         if (catalogList.size() != 1) {
             fail("Expected to find 1 " + CATALOG_APP + " in Application list.");
         }
@@ -162,8 +145,9 @@ public class TestApplicationService extends AbstractIntegrationTest {
                 status.getState(),
                 is(ACTIVE));
 
-        List<Application> solrList = apps.stream().filter(a -> SOLR_APP.equals(a.getName())).collect(
-                Collectors.toList());
+        List<Application> solrList = apps.stream()
+                .filter(a -> SOLR_APP.equals(a.getName()))
+                .collect(Collectors.toList());
         if (catalogList.size() != 1) {
             fail("Expected to find 1 " + SOLR_APP + " in Application list.");
         }
@@ -183,8 +167,9 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void cTestAppStartStop() throws ApplicationServiceException {
-        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
         // Test AppService
+        ApplicationService applicationService =
+                getServiceManager().getService(ApplicationService.class);
         Application solr = applicationService.getApplication(SOLR_APP);
         assertNotNull("Application [" + SOLR_APP + "] must not be null", solr);
         ApplicationStatus status = applicationService.getApplicationStatus(solr);
@@ -223,7 +208,8 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     @Test
     public void dTestAppAddRemove() throws ApplicationServiceException {
-        ApplicationService applicationService = getServiceManager().getService(ApplicationService.class);
+        ApplicationService applicationService =
+                getServiceManager().getService(ApplicationService.class);
         Application sdkApp = applicationService.getApplication(SDK_APP);
         URI sdkUri = sdkApp.getURI();
 

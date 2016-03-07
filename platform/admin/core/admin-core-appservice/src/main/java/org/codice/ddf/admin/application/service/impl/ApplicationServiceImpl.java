@@ -148,6 +148,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
         return new TreeSet<>(applications);
     }
 
+    private Set<String> getApplicationNames() {
+        return getApplications().stream()
+                .map(a -> a.getName())
+                .collect(Collectors.toSet());
+    }
+
     @Override
     public Application getApplication(String applicationName) {
         for (Application curApp : getApplications()) {
@@ -161,9 +167,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
     @Override
     public boolean isApplicationStarted(Application application) {
-        ApplicationStatus status = getApplicationStatus(application);
-        return (status.getState()
-                .equals(ApplicationState.ACTIVE));
+        return application.getAutoInstallFeatures().stream().allMatch(featuresService::isInstalled);
     }
 
     @Override
@@ -175,15 +179,24 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
         // check features
         try {
-            Set<Feature> features = application.getFeatures();
-            if (features.size() == 1) {
-                requiredFeatures.addAll(getAllDependencyFeatures(features.iterator()
-                        .next()));
+            // Check Main Feature
+            Feature mainFeature = application.getMainFeature();
+            boolean isMainFeatureUninstalled = true;
+            if (mainFeature != null) {
+                isMainFeatureUninstalled = !featuresService.isInstalled(mainFeature);
+                requiredFeatures.add(mainFeature);
             } else {
-                for (Feature curFeature : features) {
-                    if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE,
-                            curFeature.getInstall())) {
-                        requiredFeatures.addAll(getAllDependencyFeatures(curFeature));
+
+                Set<Feature> features = application.getFeatures();
+                if (features.size() == 1) {
+                    requiredFeatures.addAll(getAllDependencyFeatures(features.iterator()
+                            .next()));
+                } else {
+                    for (Feature curFeature : features) {
+                        if (StringUtils.equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE,
+                                curFeature.getInstall())) {
+                            requiredFeatures.addAll(getAllDependencyFeatures(curFeature));
+                        }
                     }
                 }
             }
@@ -191,15 +204,6 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
             LOGGER.debug("{} has {} required features that must be started.",
                     application.getName(),
                     requiredFeatures.size());
-
-            uninstalledFeatures = getNotInstalledFeatures(requiredFeatures);
-            boolean isMainFeatureUninstalled = false;
-            for (Feature curFeature : uninstalledFeatures) {
-                if (curFeature.getName()
-                        .equals(application.getName())) { //check if main feature is uninstalled
-                    isMainFeatureUninstalled = true;
-                }
-            }
 
             BundleStateSet bundleStates = getCurrentBundleStates(requiredFeatures);
             errorBundles.addAll(bundleStates.getFailedBundles());
@@ -209,7 +213,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 // Any failed bundles, regardless of feature state, indicate a
                 // failed application state
                 installState = ApplicationState.FAILED;
-            } else if (isMainFeatureUninstalled || bundleStates.getNumInactiveBundles() > 0) {
+            } else if ((mainFeature != null && isMainFeatureUninstalled)
+                    || bundleStates.getNumInactiveBundles() > 0) {
                 installState = ApplicationState.INACTIVE;
             } else if (bundleStates.getNumTransitionalBundles() > 0) {
                 installState = ApplicationState.UNKNOWN;
@@ -544,11 +549,10 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
      */
     private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
         BundleStateSet bundleStateSet = new BundleStateSet();
-        BundleContext context = getContext();
 
         for (Feature curFeature : features) {
             for (BundleInfo curBundleInfo : curFeature.getBundles()) {
-                Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
+                Bundle curBundle = getContext().getBundle(curBundleInfo.getLocation());
                 if (curBundle != null && curBundle.adapt(BundleRevision.class)
                         .getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
@@ -654,25 +658,37 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     public synchronized void startApplication(Application application)
             throws ApplicationServiceException {
         try {
-            if (application.getMainFeature() != null) {
-                featuresService.installFeature(application.getMainFeature()
-                        .getName(), EnumSet.of(Option.NoAutoRefreshBundles));
-            } else {
-                LOGGER.debug(
-                        "Main feature not found when trying to start {}, going through and manually starting all features with install=auto",
-                        application.getName());
-                for (Feature curFeature : application.getFeatures()) {
-                    if (curFeature.getInstall()
-                            .equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE)) {
-                        LOGGER.debug("Installing feature {} for application {}",
-                                curFeature.getName(),
-                                application.getName());
-                        featuresService.installFeature(curFeature.getName(),
-                                EnumSet.of(Option.NoAutoRefreshBundles));
+            LOGGER.debug("Starting Application {} - {}",
+                    application.getName(),
+                    application.getVersion());
+            Set<Feature> autoInstallFeatures = application.getAutoInstallFeatures();
+            if (!autoInstallFeatures.isEmpty()) {
+                Set<String> autoFeatureNames = autoInstallFeatures.stream()
+                        .map(Feature::getName)
+                        .collect(Collectors.toSet());
+                for (Feature feature : autoInstallFeatures) {
+                    if (featuresService.isInstalled(feature)) {
+                        autoFeatureNames.remove(feature.getName());
+                    } else {
+                        for (Dependency dependency : feature.getDependencies()) {
+                            if (!application.getName()
+                                    .equals(dependency.getName()) && getApplicationNames().contains(
+                                    dependency.getName())) {
+                                if (!isApplicationStarted(getApplication(dependency.getName()))) {
+                                    startApplication(dependency.getName());
+                                }
+                                autoFeatureNames.remove(dependency.getName());
+                            }
+                        }
                     }
                 }
+                if (!autoFeatureNames.isEmpty()) {
+                    featuresService.installFeatures(autoFeatureNames,
+                            EnumSet.of(Option.NoAutoRefreshBundles));
+                    waitForApplication(application);
+                }
             }
-            waitForApplication(application);
+
         } catch (Exception e) {
             throw new ApplicationServiceException(
                     "Could not start application " + application.getName() + " due to errors.", e);
@@ -698,35 +714,11 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     public synchronized void stopApplication(Application application)
             throws ApplicationServiceException {
         try {
-            if (application.getMainFeature() != null) {
-                if (featuresService.isInstalled(application.getMainFeature())) {
-
-                    // uninstall dependency features
-                    Set<Feature> features = getAllDependencyFeatures(application.getMainFeature());
-                    for (Feature curFeature : features) {
-                        if (application.getFeatures()
-                                .contains(curFeature) && featuresService.isInstalled(curFeature)) {
-                            featuresService.uninstallFeature(curFeature.getName(),
-                                    curFeature.getVersion(),
-                                    EnumSet.of(Option.NoAutoRefreshBundles));
-                        }
-                    }
-                } else {
-                    throw new ApplicationServiceException(
-                            "Application " + application.getName() + " is already stopped.");
-                }
-            } else {
-                LOGGER.debug(
-                        "Main feature not found when trying to stop {}, going through and manually stop all features that are installed.",
-                        application.getName());
-                for (Feature curFeature : application.getFeatures()) {
-                    if (featuresService.isInstalled(curFeature)) {
-                        LOGGER.debug("Uninstalling feature {} for application {}",
-                                curFeature.getName(),
-                                application.getName());
-                        featuresService.uninstallFeature(curFeature.getName(),
-                                EnumSet.of(Option.NoAutoRefreshBundles));
-                    }
+            for (Feature feature : application.getFeatures()) {
+                if (featuresService.isInstalled(feature)) {
+                    featuresService.uninstallFeature(feature.getName(),
+                            feature.getVersion(),
+                            EnumSet.of(Option.NoAutoRefreshBundles));
                 }
             }
             waitForApplication(application);

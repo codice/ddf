@@ -61,7 +61,7 @@ public class TestSolrCommands extends AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-            console = new KarafConsole(bundleCtx, features, sessionFactory);
+            console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
         } catch (Exception e) {
             LOGGER.error("Failed in @BeforeExam: ", e);
             fail("Failed in @BeforeExam: " + e.getMessage());
