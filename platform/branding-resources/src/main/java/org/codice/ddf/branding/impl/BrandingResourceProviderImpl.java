@@ -28,7 +28,7 @@ public class BrandingResourceProviderImpl implements BrandingResourceProvider {
     public byte[] getResourceAsBytes(String path) throws IOException {
         Bundle bundle = getBundle(WebConsoleUtil.class);
         if (bundle != null) {
-            URL entry = bundle.getEntry(path);
+            URL entry = bundle.getResource(path);
             if (entry != null) {
                 return IOUtils.toByteArray(entry.openConnection()
                         .getInputStream());

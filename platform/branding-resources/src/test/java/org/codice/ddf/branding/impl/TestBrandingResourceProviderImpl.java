@@ -53,7 +53,7 @@ public class TestBrandingResourceProviderImpl {
         Bundle bundle = mock(Bundle.class);
         URL url = this.getClass()
                 .getResource("/logo.png");
-        when(bundle.getEntry(TEST_PATH)).thenReturn(url);
+        when(bundle.getResource(TEST_PATH)).thenReturn(url);
         TestImpl impl = new TestImpl(bundle);
         assertThat(impl.getResourceAsBytes(TEST_PATH).length, is(equalTo(22490)));
     }
