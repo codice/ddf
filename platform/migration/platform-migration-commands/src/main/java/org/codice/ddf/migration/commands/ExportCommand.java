@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,18 +19,23 @@ import java.util.Collection;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationWarning;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.security.common.util.Security;
 
 /**
- * Executes the export method in {@link ConfigurationMigrationService}.  Configurations
- * are exported to the directory specified in the implementation of the service
- * (see {@link ConfigurationFileDirectory} for an example).
+ * Command class used to export the system configuration and data.
  */
 @Command(scope = MigrationCommands.NAMESPACE, name = "export", description =
         "The export command delegates to all "
                 + "registered Migratable services to export bundle specific configuration and data.")
 public class ExportCommand extends MigrationCommands {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportCommand.class);
 
     private static final String STARTING_EXPORT_MESSAGE = "Exporting current configurations to %s.";
 
@@ -43,9 +48,9 @@ public class ExportCommand extends MigrationCommands {
     private static final String ERROR_EXPORT_MESSAGE =
             "An error was encountered while executing this command. %s";
 
-    protected final ConfigurationMigrationService configurationMigrationService;
+    private final ConfigurationMigrationService configurationMigrationService;
 
-    protected final Path defaultExportDirectory;
+    private final Path defaultExportDirectory;
 
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory to store export", required = false, multiValued = false)
     String exportDirectoryArgument;
@@ -59,6 +64,7 @@ public class ExportCommand extends MigrationCommands {
     @Override
     protected Object doExecute() {
         Path exportDirectory;
+
         if (exportDirectoryArgument == null || exportDirectoryArgument.isEmpty()) {
             exportDirectory = defaultExportDirectory;
         } else {
@@ -66,9 +72,12 @@ public class ExportCommand extends MigrationCommands {
         }
 
         outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, exportDirectory));
+
         try {
-            Collection<MigrationWarning> migrationWarnings = configurationMigrationService.export(
-                    exportDirectory);
+            Subject subject = getSubject();
+
+            Collection<MigrationWarning> migrationWarnings =
+                    subject.execute(() -> configurationMigrationService.export(exportDirectory));
 
             if (migrationWarnings.isEmpty()) {
                 outputSuccessMessage(String.format(SUCCESSFUL_EXPORT_MESSAGE));
@@ -76,12 +85,37 @@ public class ExportCommand extends MigrationCommands {
                 for (MigrationWarning migrationWarning : migrationWarnings) {
                     outputWarningMessage(migrationWarning.getMessage());
                 }
+
                 outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, exportDirectory));
             }
         } catch (Exception e) {
             outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e.getMessage()));
         }
+
         return null;
     }
 
+    private Subject getSubject() {
+        Subject subject;
+
+        try {
+            subject = org.apache.shiro.SecurityUtils.getSubject();
+        } catch (IllegalStateException | ShiroException e) {
+            LOGGER.debug("No shiro subject available for running command");
+
+            if (!Security.javaSubjectHasAdminRole()) {
+                throw new IllegalStateException(
+                        "Current user doesn't have sufficient privileges to run this command");
+            }
+
+            subject = Security.getSystemSubject();
+
+            if (subject == null) {
+                throw new IllegalStateException(
+                        "Current user doesn't have sufficient privileges to run this command");
+            }
+        }
+
+        return subject;
+    }
 }

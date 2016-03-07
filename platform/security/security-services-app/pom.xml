@@ -12,9 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.platform.security</groupId>
@@ -331,6 +331,16 @@
         <dependency>
             <groupId>ddf.security.migration</groupId>
             <artifactId>security-migratable</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--
+            Since platform-migration-commands has been temporarily added to security-services-app
+            for the time being, it needs to be listed as a dependency. It will be moved to a more
+            appropriate location once DDF-1928 has been fully implemented.
+        -->
+        <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migration-commands</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
