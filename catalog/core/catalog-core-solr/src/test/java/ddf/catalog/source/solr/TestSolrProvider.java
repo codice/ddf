@@ -4724,8 +4724,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-        assertEquals(sourceResponse.getResults()
-                .size(), 1);
+        assertEquals(1, sourceResponse.getResults()
+                .size());
     }
 
     @Test
