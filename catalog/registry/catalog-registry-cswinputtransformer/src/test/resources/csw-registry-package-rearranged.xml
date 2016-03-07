@@ -12,11 +12,11 @@
  *
  **/
 -->
-<rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" home="https://somehost:someport"
-                     objectType="urn:catalog.service"
-                     xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
-                     xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
-                     xmlns:gml="http://www.opengis.net/gml">
+<rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
+                     xmlns:gml="http://www.opengis.net/gml"
+                     id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
+                     home="https://somehost:someport"
+                     objectType="urn:catalog.service">
     <!--Optional: Date indicating when this instance when live or operational-->
     <rim:Slot name="liveDate" slotType="xs:dateTime">
         <rim:ValueList>
@@ -226,7 +226,6 @@
             <rim:TelephoneNumber areaCode="555" number="555-5555" extension="1234"/>
             <rim:EmailAddress address="emailaddress@something.com"/>
         </rim:Organization>
-
 
 
         <rim:Person id="urn:node:contact:person1">

@@ -12,15 +12,15 @@
  *
  **/
 -->
-<rim:Organization id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:catalog.service"
-             xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+<rim:Organization xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
+                  objectType="urn:catalog.service">
 
-        <rim:Name>
-            <rim:LocalizedString xml:lang="en-US" charset="UTF-8" value="Codice"/>
-        </rim:Name>
-        <rim:Address city="Phoenix" country="USA" postalCode="85037"
-                     stateOrProvince="AZ" street="1234 Some Street"/>
-        <rim:TelephoneNumber areaCode="555" number="555-5555" extension="1234"/>
-        <rim:EmailAddress address="emailaddress@something.com"/>
+    <rim:Name>
+        <rim:LocalizedString xml:lang="en-US" charset="UTF-8" value="Codice"/>
+    </rim:Name>
+    <rim:Address city="Phoenix" country="USA" postalCode="85037"
+                 stateOrProvince="AZ" street="1234 Some Street"/>
+    <rim:TelephoneNumber areaCode="555" number="555-5555" extension="1234"/>
+    <rim:EmailAddress address="emailaddress@something.com"/>
 
 </rim:Organization>

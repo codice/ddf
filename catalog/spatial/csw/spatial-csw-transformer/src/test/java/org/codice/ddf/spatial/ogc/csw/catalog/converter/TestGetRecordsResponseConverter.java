@@ -398,9 +398,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.BRIEF));
 
         JAXBElement<GetRecordsResponseType> jaxb =
@@ -448,9 +448,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.SUMMARY));
 
         JAXBElement<GetRecordsResponseType> jaxb =
@@ -498,9 +498,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.FULL));
 
         JAXBElement<GetRecordsResponseType> jaxb =
@@ -590,9 +590,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(notNullValue()));
         List<QName> qnames = (List<QName>) context.get(CswConstants.ELEMENT_NAMES);
         assertThat(qnames.contains(CswRecordMetacardType.CSW_TITLE_QNAME), is(true));
@@ -684,9 +684,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(nullValue()));
 
         JAXBElement<GetRecordByIdResponseType> jaxb =
@@ -803,7 +803,7 @@ public class TestGetRecordsResponseConverter {
         assertListStringAttribute(mc,
                 CswRecordMetacardType.CSW_LANGUAGE,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_LANGUAGE));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
+        assertThat(mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
                 .getValue(), equalTo((String) expectedValues.get(CswRecordMetacardType.CSW_TYPE)));
         assertListStringAttribute(mc,
                 CswRecordMetacardType.CSW_FORMAT,
@@ -816,7 +816,7 @@ public class TestGetRecordsResponseConverter {
 
     private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
         if (mc.getAttribute(attrName) != null) {
-            List<?> values = (List<?>) mc.getAttribute(attrName)
+            List<?> values = mc.getAttribute(attrName)
                     .getValues();
             assertThat(values, not(nullValue()));
             assertThat(values.size(), equalTo(expectedValues.length));

@@ -153,11 +153,11 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
 
         this.configurator =
                 parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
-                                .getName(),
-                        net.opengis.ogc.ObjectFactory.class.getPackage()
-                                .getName(),
-                        net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
-                                .getName()),
+                                        .getName(),
+                                net.opengis.ogc.ObjectFactory.class.getPackage()
+                                        .getName(),
+                                net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
+                                        .getName()),
                         this.getClass()
                                 .getClassLoader());
 

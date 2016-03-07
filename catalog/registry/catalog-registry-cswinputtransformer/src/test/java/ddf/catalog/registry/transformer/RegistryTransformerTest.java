@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -300,8 +299,8 @@ public class RegistryTransformerTest {
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValue(), is("Node Name"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                        .getValue(), is(
-                        "A little something describing this node in less than 1024 characters"));
+                .getValue(), is(
+                "A little something describing this node in less than 1024 characters"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE_VERSION)
                 .getValue(), is("2.9.x"));
 
@@ -327,8 +326,8 @@ public class RegistryTransformerTest {
                 .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
-                        .getValue(), is(
-                        "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                .getValue(), is(
+                "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
     }
 
     @Test
@@ -381,8 +380,8 @@ public class RegistryTransformerTest {
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValue(), is("Node Name"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                        .getValue(), is(
-                        "A little something describing this node in less than 1024 characters"));
+                .getValue(), is(
+                "A little something describing this node in less than 1024 characters"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE_VERSION)
                 .getValue(), is("2.9.x"));
 
@@ -408,8 +407,8 @@ public class RegistryTransformerTest {
                 .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
-                        .getValue(), is(
-                        "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                .getValue(), is(
+                "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
     }
 
     @Test
