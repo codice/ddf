@@ -12,4 +12,10 @@
  *
  **/
 -->
-<rim:Service xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"></rim:Service>
+<rim:Service id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:catalog.service" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+
+    <!-- each service binding should have at least one slot for bindingType -->
+    <rim:ServiceBinding id="registry.federation.method.csw"
+                        service="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
+
+</rim:Service>

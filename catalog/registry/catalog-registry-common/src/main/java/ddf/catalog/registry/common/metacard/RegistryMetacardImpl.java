@@ -13,6 +13,7 @@
  **/
 package ddf.catalog.registry.common.metacard;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 
@@ -32,23 +33,29 @@ public class RegistryMetacardImpl extends MetacardImpl {
     }
 
     private String getValue(String key) {
-        return (String) getAttribute(key).getValue();
+        String value = null;
+        Attribute attribute = getAttribute(key);
+
+        if (attribute != null) {
+            value = (String) attribute.getValue();
+        }
+        return value;
     }
 
     public String getOrgName() {
-        return getValue(RegistryServiceMetacardType.ORGANIZATION_NAME);
+        return getValue(RegistryObjectMetacardType.ORGANIZATION_NAME);
     }
 
     public String getOrgAddress() {
-        return getValue(RegistryServiceMetacardType.ORGANIZATION_ADDRESS);
+        return getValue(RegistryObjectMetacardType.ORGANIZATION_ADDRESS);
     }
 
     public String getOrgPhoneNumber() {
-        return getValue(RegistryServiceMetacardType.ORGANIZATION_PHONE_NUMBER);
+        return getValue(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER);
     }
 
     public String getOrgEmail() {
-        return getValue(RegistryServiceMetacardType.ORGANIZATION_EMAIL);
+        return getValue(RegistryObjectMetacardType.ORGANIZATION_EMAIL);
     }
 
 }

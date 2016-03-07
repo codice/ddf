@@ -16,46 +16,39 @@ package ddf.catalog.registry.transformer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.xml.bind.JAXBElement;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.io.xml.Xpp3Driver;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
+import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
 import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
-import ddf.catalog.registry.common.metacard.RegistryServiceMetacardType;
+import ddf.catalog.registry.converter.RegistryConversionException;
+import ddf.catalog.registry.converter.RegistryPackageConverter;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
 public class RegistryTransformer implements InputTransformer, MetacardTransformer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryTransformer.class);
+    private Parser parser;
 
-    private final Gml3ToWkt gml3ToWkt;
-
-    private final XStream xstream;
-
-    public RegistryTransformer(Gml3ToWkt gml3ToWkt) {
-        this.gml3ToWkt = gml3ToWkt;
-
-        xstream = new XStream(new Xpp3Driver());
-        xstream.setClassLoader(this.getClass()
-                .getClassLoader());
-        xstream.registerConverter(new RegistryServiceConverter(gml3ToWkt));
-        xstream.alias("rim:Service", Metacard.class);
-
-    }
+    private ParserConfigurator configurator;
 
     @Override
     public Metacard transform(InputStream inputStream)
@@ -68,27 +61,52 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
             throws IOException, CatalogTransformerException {
 
         RegistryMetacardImpl metacard;
-        String xml = IOUtils.toString(inputStream);
-        IOUtils.closeQuietly(inputStream);
 
-        try {
-            metacard = (RegistryMetacardImpl) xstream.fromXML(xml);
-        } catch (XStreamException e) {
+        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
+
+            try {
+                IOUtils.copy(inputStream, fileBackedOutputStream);
+
+            } catch (IOException e) {
+                throw new CatalogTransformerException(
+                        "Unable to transform from CSW RIM Service Record to Metacard. Error reading input stream.",
+                        e);
+            } finally {
+                IOUtils.closeQuietly(inputStream);
+            }
+
+            try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
+                    .openStream()) {
+                metacard = (RegistryMetacardImpl) unmarshal(inputStreamCopy);
+            } catch (ParserException e) {
+                throw new CatalogTransformerException(
+                        "Unable to transform from CSW RIM Service Record to Metacard. Parser exception caught",
+                        e);
+            } catch (RegistryConversionException e) {
+                throw new CatalogTransformerException(
+                        "Unable to transform from CSW RIM Service Record to Metacard. Conversion exception caught",
+                        e);
+            }
+
+            if (metacard == null) {
+                throw new CatalogTransformerException(
+                        "Unable to transform from CSW RIM Service Record to Metacard.");
+            } else if (StringUtils.isNotEmpty(id)) {
+                metacard.setAttribute(Metacard.ID, id);
+            }
+
+            String xml = CharStreams.toString(fileBackedOutputStream.asByteSource()
+                    .asCharSource(Charsets.UTF_8)
+                    .openStream());
+
+            metacard.setAttribute(Metacard.METADATA, xml);
+            metacard.setTags(Collections.singleton(RegistryObjectMetacardType.REGISTRY_TAG));
+
+        } catch (IOException e) {
             throw new CatalogTransformerException(
-                    "Unable to transform from CSW RIM Service Record to Metacard.",
+                    "Unable to transform from CSW RIM Service Record to Metacard. Error using file-backed stream.",
                     e);
         }
-
-        if (metacard == null) {
-            throw new CatalogTransformerException(
-                    "Unable to transform from CSW RIM Service Record to Metacard.");
-        } else if (StringUtils.isNotEmpty(id)) {
-            metacard.setAttribute(Metacard.ID, id);
-        }
-
-        metacard.setAttribute(Metacard.METADATA, xml);
-        metacard.setTags(Collections.singleton(RegistryObjectMetacardType.REGISTRY_TAG));
-        metacard.setContentTypeName(RegistryServiceMetacardType.SERVICE_REGISTRY_METACARD_TYPE_NAME);
 
         return metacard;
     }
@@ -105,6 +123,45 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
                     "Can't transform metacard of content type " + metacard.getContentTypeName()
                             + " to csw-ebrim xml");
         }
+    }
+
+    private Metacard unmarshal(InputStream xmlStream)
+            throws ParserException, RegistryConversionException {
+        RegistryMetacardImpl metacard = null;
+
+        JAXBElement<RegistryObjectType> registryObjectTypeJAXBElement = parser.unmarshal(
+                configurator,
+                JAXBElement.class,
+                xmlStream);
+        if (registryObjectTypeJAXBElement != null) {
+
+            RegistryObjectType registryObjectType = registryObjectTypeJAXBElement.getValue();
+
+            if (registryObjectType != null) {
+
+                metacard =
+                        (RegistryMetacardImpl) RegistryPackageConverter.getRegistryObjectMetacard(
+                                registryObjectType);
+
+            }
+        }
+
+        return metacard;
+    }
+
+    public void setParser(Parser parser) {
+
+        this.configurator =
+                parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
+                                .getName(),
+                        net.opengis.ogc.ObjectFactory.class.getPackage()
+                                .getName(),
+                        net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
+                                .getName()),
+                        this.getClass()
+                                .getClassLoader());
+
+        this.parser = parser;
     }
 
 }

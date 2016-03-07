@@ -23,7 +23,7 @@ describes what kind of a registry service entry this is. For federation purposes
 all registry services that have objectType equal to urn:service:catalog will be
 made available.
 -->
-<rim:Service id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:service:catalog" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+<rim:Service id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:catalog.service" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
 
     <rim:Name>
         <rim:LocalizedString xml:lang="en-US" charset="UTF-8" value="my service"/>

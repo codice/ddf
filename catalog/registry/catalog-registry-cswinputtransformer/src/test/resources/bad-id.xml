@@ -12,16 +12,4 @@
  *
  **/
 -->
-<rim:Service id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:catalog.service" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
-
-    <rim:ServiceBinding id="registry.federation.method.csw" service="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
-
-        <rim:Slot name="bindingType" slotType="xs:string">
-            <rim:ValueList>
-                <rim:Value>csw</rim:Value>
-            </rim:ValueList>
-        </rim:Slot>
-
-    </rim:ServiceBinding>
-
-</rim:Service>
+<rim:RegistryObject xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"></rim:RegistryObject>
