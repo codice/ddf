@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.content.endpoint.directorymonitor;
+package ddf.content.core.directorymonitor;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.component.mock.MockComponent;
 import org.apache.camel.model.FromDefinition;
@@ -36,8 +37,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.content.core.directorymonitor.ContentDirectoryMonitor;
-
 public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitorTest.class);
 
@@ -48,6 +47,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private ModelCamelContext camelContext;
 
     private ContentDirectoryMonitor contentDirectoryMonitor;
+
+    private Processor noOpProcessor = exchange -> {};
 
     @After
     public void tearDown() throws Exception {
@@ -101,6 +102,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         camelContext.addComponent("content", new MockComponent());
 
         contentDirectoryMonitor = new ContentDirectoryMonitor(camelContext);
+        contentDirectoryMonitor.systemSubjectBinder = noOpProcessor;
         contentDirectoryMonitor.setMonitoredDirectoryPath(monitoredDirectory);
         contentDirectoryMonitor.setDirective(directive);
         contentDirectoryMonitor.setCopyIngestedFiles(copyIngestedFiles);
@@ -127,6 +129,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         camelContext.addComponent("content", new MockComponent());
 
         contentDirectoryMonitor = new ContentDirectoryMonitor(camelContext);
+        contentDirectoryMonitor.systemSubjectBinder = noOpProcessor;
         contentDirectoryMonitor.setMonitoredDirectoryPath(monitoredDirectory);
         contentDirectoryMonitor.setDirective(directive);
         contentDirectoryMonitor.setCopyIngestedFiles(copyIngestedFiles);
@@ -352,6 +355,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         camelContext.start();
 
         contentDirectoryMonitor = new ContentDirectoryMonitor(camelContext);
+        contentDirectoryMonitor.systemSubjectBinder = noOpProcessor;
         contentDirectoryMonitor.setMonitoredDirectoryPath(monitoredDirectory);
         contentDirectoryMonitor.setDirective(directive);
         contentDirectoryMonitor.setCopyIngestedFiles(copyIngestedFiles);
@@ -420,6 +424,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // camelContext.addComponent(ContentComponent.NAME, contentComponent);
 
         contentDirectoryMonitor = new ContentDirectoryMonitor(camelContext);
+        contentDirectoryMonitor.systemSubjectBinder = noOpProcessor;
         contentDirectoryMonitor.setMonitoredDirectoryPath(monitoredDirectory);
         contentDirectoryMonitor.setDirective(directive);
         contentDirectoryMonitor.setCopyIngestedFiles(copyIngestedFiles);
@@ -453,7 +458,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
         // expect 4 outputs: SetHeader(operation), SetHeader(directive), SetHeader(contentUri),
         // To(content:framework)
-        assertThat(processorDefinitions.size(), is(4));
+        assertThat(processorDefinitions.size(), is(5));
 
         ProcessorDefinition<?> pd = processorDefinitions.get(0);
         LOGGER.debug("ProcessorDefinition: {}", pd);

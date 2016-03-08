@@ -107,7 +107,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     createdContentItem.getUri(),
                     stream,
                     input.getProperties());
-            String catalogId = cataloger.createMetacard(metacard);
+            String catalogId = cataloger.createMetacard(input, metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
@@ -164,7 +164,7 @@ public class CatalogContentPlugin implements ContentPlugin {
                     updatedContentItem.getUri(),
                     stream,
                     input.getProperties());
-            String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
+            String catalogId = cataloger.updateMetacard(input, updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
@@ -204,8 +204,7 @@ public class CatalogContentPlugin implements ContentPlugin {
 
         DeleteResponseImpl response = new DeleteResponseImpl(input);
 
-        String catalogId = cataloger.deleteMetacard(input.getContentItem()
-                .getUri());
+        String catalogId = cataloger.deleteMetacard(input);
         if (catalogId != null && !catalogId.isEmpty()) {
             // Create response indicating file (actually, catalog entry) was deleted
             response = new DeleteResponseImpl(input.getRequest(),

@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ import ddf.content.plugin.PreCreateStoragePlugin;
 import ddf.content.plugin.PreUpdateStoragePlugin;
 import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
+import ddf.security.SecurityConstants;
 
 /**
  * ContentFrameworkImpl is the core class of the DDF Content Framework. It is used for create,
@@ -138,6 +141,13 @@ public class ContentFrameworkImpl implements ContentFramework {
         LOGGER.trace("ENTERING: create");
 
         LOGGER.debug("directive = " + directive);
+
+        Subject subject = SecurityUtils.getSubject();
+
+        if (subject instanceof ddf.security.Subject) {
+            createRequest.getProperties()
+                    .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
+        }
 
         CreateResponse createResponse = null;
 
@@ -288,6 +298,13 @@ public class ContentFrameworkImpl implements ContentFramework {
             throws ContentFrameworkException {
         LOGGER.trace("ENTERING: update");
 
+        Subject subject = SecurityUtils.getSubject();
+
+        if (subject instanceof ddf.security.Subject) {
+            updateRequest.getProperties()
+                    .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
+        }
+
         UpdateResponse updateResponse = null;
 
         // If directive includes processing and there are no ContentPlugins currently installed to
@@ -393,6 +410,13 @@ public class ContentFrameworkImpl implements ContentFramework {
     public DeleteResponse delete(DeleteRequest deleteRequest, Request.Directive directive)
             throws ContentFrameworkException {
         LOGGER.trace("ENTERING: delete");
+
+        Subject subject = SecurityUtils.getSubject();
+
+        if (subject instanceof ddf.security.Subject) {
+            deleteRequest.getProperties()
+                    .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
+        }
 
         DeleteResponse deleteResponse = null;
 
