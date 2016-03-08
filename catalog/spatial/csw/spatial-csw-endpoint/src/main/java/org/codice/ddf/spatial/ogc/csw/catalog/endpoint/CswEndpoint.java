@@ -34,6 +34,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -72,6 +73,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Splitter;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -413,8 +415,8 @@ public class CswEndpoint implements Csw {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request)
-            throws CswException {
+    public CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request,
+            @HeaderParam(CswConstants.RANGE_HEADER) String rangeValue) throws CswException {
         if (request == null) {
             throw new CswException("GetRecordByIdRequest request is null");
         }
@@ -427,14 +429,18 @@ public class CswEndpoint implements Csw {
         if (StringUtils.isNotBlank(request.getId())) {
             List<String> ids = Arrays.asList(request.getId()
                     .split(CswConstants.COMMA));
+            String id = ids.get(0);
             // Check if the request wants to retrieve a product.
             if (isProductRetrieval(ids, outputFormat, outputSchema)) {
                 LOGGER.debug("{} is attempting to retrieve product for ID: {}",
                         request.getService(),
-                        ids.get(0));
-                return queryProductById(ids.get(0));
+                        id);
+                try {
+                    return queryProductById(id, rangeValue);
+                } catch (UnsupportedQueryException e) {
+                    throw new CswException(String.format(ERROR_ID_PRODUCT_RETRIEVAL, id), e);
+                }
             }
-
             LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
             CswRecordCollection response = queryById(ids, outputSchema);
             response.setOutputSchema(outputSchema);
@@ -458,7 +464,8 @@ public class CswEndpoint implements Csw {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public CswRecordCollection getRecordById(GetRecordByIdType request) throws CswException {
+    public CswRecordCollection getRecordById(GetRecordByIdType request,
+            @HeaderParam(CswConstants.RANGE_HEADER) String rangeValue) throws CswException {
         if (request == null) {
             throw new CswException("GetRecordByIdRequest request is null");
         }
@@ -470,12 +477,17 @@ public class CswEndpoint implements Csw {
 
         List<String> ids = request.getId();
         if (!ids.isEmpty()) {
+            String id = ids.get(0);
             // Check if the request wants to retrieve a product.
             if (isProductRetrieval(ids, outputFormat, outputSchema)) {
                 LOGGER.debug("{} is attempting to retrieve product for: {}",
                         request.getService(),
-                        ids.get(0));
-                return queryProductById(ids.get(0));
+                        id);
+                try {
+                    return queryProductById(id, rangeValue);
+                } catch (UnsupportedQueryException e) {
+                    throw new CswException(String.format(ERROR_ID_PRODUCT_RETRIEVAL, id), e);
+                }
             }
 
             LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
@@ -1285,16 +1297,24 @@ public class CswEndpoint implements Csw {
         return false;
     }
 
-    private CswRecordCollection queryProductById(String id) throws CswException {
+    private CswRecordCollection queryProductById(String id, String rangeValue)
+            throws CswException, UnsupportedQueryException {
 
         final ResourceRequestById resourceRequest = new ResourceRequestById(id);
 
+        long bytesToSkip = getRange(rangeValue);
+        if (bytesToSkip > 0) {
+            LOGGER.debug("Bytes to skip: {}", String.valueOf(bytesToSkip));
+            resourceRequest.getProperties()
+                    .put(CswConstants.BYTES_TO_SKIP, bytesToSkip);
+        }
         ResourceResponse resourceResponse;
         try {
             resourceResponse = framework.getLocalResource(resourceRequest);
         } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
             throw new CswException(String.format(ERROR_ID_PRODUCT_RETRIEVAL, id), e);
         }
+
         Resource resource = resourceResponse.getResource();
         MimeType mimeType = resource.getMimeType();
         if (mimeType == null) {
@@ -1314,6 +1334,23 @@ public class CswEndpoint implements Csw {
         cswRecordCollection.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
         LOGGER.debug("{} successfully retrieved product for ID: {}", id);
         return cswRecordCollection;
+    }
+
+    protected long getRange(String rangeValue) throws UnsupportedQueryException {
+        long response = -1;
+
+        if (StringUtils.isBlank(rangeValue)) {
+            return response;
+        }
+        if (rangeValue.startsWith(CswConstants.BYTES_EQUAL)) {
+            String tempString = rangeValue.substring(CswConstants.BYTES_EQUAL.length());
+            List<String> range = Splitter.on('-')
+                    .splitToList(tempString);
+            if (!range.isEmpty() && range.size() <= 2 && StringUtils.isNumeric(range.get(0))) {
+                return Long.parseLong(range.get(0));
+            }
+        }
+        throw new UnsupportedQueryException(String.format("Invalid range header: %s", rangeValue));
     }
 
     /* For unit testing */

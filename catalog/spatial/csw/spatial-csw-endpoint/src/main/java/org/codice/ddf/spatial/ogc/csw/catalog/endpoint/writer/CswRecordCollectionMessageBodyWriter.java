@@ -101,8 +101,10 @@ public class CswRecordCollectionMessageBodyWriter
             httpHeaders.put(HttpHeaders.CONTENT_TYPE, Arrays.asList(resource.getMimeType()));
             httpHeaders.put(HttpHeaders.CONTENT_DISPOSITION,
                     Arrays.asList(String.format("inline; filename=\"%s\"", resource.getName())));
-            // Custom HTTP header to represent that the product data will be returned in the response
+            // Custom HTTP header to represent that the product data will be returned in the response.
             httpHeaders.put(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER, Arrays.asList("true"));
+            // Accept-ranges header to represent that ranges in bytes are accepted.
+            httpHeaders.put(CswConstants.ACCEPT_RANGES_HEADER, Arrays.asList(CswConstants.BYTES));
             ByteArrayInputStream in = new ByteArrayInputStream(resource.getByteArray());
             IOUtils.copy(in, outStream);
             return;

@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -84,6 +85,7 @@ public interface Csw {
     DescribeRecordResponseType describeRecord(DescribeRecordType request) throws CswException;
 
     /**
+     * '
      * GetRecords - HTTP GET
      *
      * @param request
@@ -113,8 +115,8 @@ public interface Csw {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request)
-            throws CswException;
+    CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request,
+            @HeaderParam(CswConstants.RANGE_HEADER) String rangeValue) throws CswException;
 
     /**
      * GetRecordById - HTTP POST
@@ -125,7 +127,8 @@ public interface Csw {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    CswRecordCollection getRecordById(GetRecordByIdType request) throws CswException;
+    CswRecordCollection getRecordById(GetRecordByIdType request,
+            @HeaderParam(CswConstants.RANGE_HEADER) String rangeValue) throws CswException;
 
     /**
      * Transaction - HTTP POST

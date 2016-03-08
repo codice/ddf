@@ -555,6 +555,7 @@ The client sets the output schema to `http://www.iana.org/assignments/media-type
 The endpoint will do the following: check that only one Id is provided, otherwise an error will occur as multiple products cannot be retrieved.
 If both output format and output schema are set to values mentioned above, the catalog framework will retrieve the resource for that Id.
 The HTTP content type is then set to the resource's MIME type and the data is sent out.
+The endpoint also supports the resumption of partial downloads. This would typically occur at the request of a browser when a download was prematurely terminated.
 
 There are two request types: one for `GET` and one for `POST`.
 Each request has the following common data parameters:

@@ -161,6 +161,8 @@ public class TestCswEndpoint {
     private static final String CQL_CONTEXTUAL_LIKE_QUERY =
             CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
+    private static final String RANGE_VALUE = "bytes=100-";
+
     private static UriInfo mockUriInfo = mock(UriInfo.class);
 
     private static Bundle mockBundle = mock(Bundle.class);
@@ -1138,7 +1140,8 @@ public class TestCswEndpoint {
         doReturn(queryResponse).when(catalogFramework)
                 .query(any(QueryRequest.class));
 
-        final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest);
+        final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest,
+                null);
         verifyCswRecordCollection(cswRecordCollection, metacard);
 
         assertThat(cswRecordCollection.getElementSetType(), is(ElementSetType.FULL));
@@ -1164,7 +1167,7 @@ public class TestCswEndpoint {
         doReturn(queryResponse).when(catalogFramework)
                 .query(any(QueryRequest.class));
 
-        final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType);
+        final CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType, null);
         verifyCswRecordCollection(cswRecordCollection, metacard1, metacard2);
 
         // "summary" is the default if none is specified in the request.
@@ -1181,9 +1184,37 @@ public class TestCswEndpoint {
         getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
         setUpMocksForProductRetrieval(true);
 
-        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest);
+        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest, null);
 
         assertThat(cswRecordCollection.getResource(), is(notNullValue()));
+    }
+
+    @Test
+    public void testRetrieveProductGetRecordByIdWithRange()
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException,
+            CswException {
+        final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+        getRecordByIdRequest.setId("123");
+        getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
+        getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
+        setUpMocksForProductRetrieval(true);
+
+        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdRequest,
+                RANGE_VALUE);
+        assertThat(cswRecordCollection.getResource(), is(notNullValue()));
+    }
+
+    @Test(expected = CswException.class)
+    public void testRetrieveProductGetRecordByIdWithInvalidRangeHeader()
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException,
+            CswException {
+        final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+        getRecordByIdRequest.setId("123");
+        getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
+        getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
+        setUpMocksForProductRetrieval(true);
+
+        csw.getRecordById(getRecordByIdRequest, "100");
     }
 
     @Test
@@ -1196,9 +1227,37 @@ public class TestCswEndpoint {
         getRecordByIdType.setId(Collections.singletonList("123"));
         setUpMocksForProductRetrieval(true);
 
-        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType);
+        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType, null);
 
         assertThat(cswRecordCollection.getResource(), is(notNullValue()));
+    }
+
+    @Test
+    public void testPostRetrieveProductGetRecordByIdWithRange()
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException,
+            CswException {
+        final GetRecordByIdType getRecordByIdType = new GetRecordByIdType();
+        getRecordByIdType.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
+        getRecordByIdType.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
+        getRecordByIdType.setId(Collections.singletonList("123"));
+        setUpMocksForProductRetrieval(true);
+
+        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType, RANGE_VALUE);
+
+        assertThat(cswRecordCollection.getResource(), is(notNullValue()));
+    }
+
+    @Test(expected = CswException.class)
+    public void testPostRetrieveProductGetRecordByIdWithInvalidRange()
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException,
+            CswException {
+        final GetRecordByIdType getRecordByIdType = new GetRecordByIdType();
+        getRecordByIdType.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
+        getRecordByIdType.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
+        getRecordByIdType.setId(Collections.singletonList("123"));
+        setUpMocksForProductRetrieval(true);
+
+        csw.getRecordById(getRecordByIdType, "100");
     }
 
     @Test
@@ -1211,7 +1270,7 @@ public class TestCswEndpoint {
         getRecordByIdType.setId(Collections.singletonList("123"));
         setUpMocksForProductRetrieval(false);
 
-        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType);
+        CswRecordCollection cswRecordCollection = csw.getRecordById(getRecordByIdType, null);
 
         assertThat(cswRecordCollection.getResource(), is(notNullValue()));
         assertThat(cswRecordCollection.getResource()
@@ -1232,7 +1291,7 @@ public class TestCswEndpoint {
         when(catalogFramework.getLocalResource(any(ResourceRequest.class))).thenThrow(
                 ResourceNotFoundException.class);
 
-        csw.getRecordById(getRecordByIdType);
+        csw.getRecordById(getRecordByIdType, null);
     }
 
     @Test(expected = CswException.class)
@@ -1245,7 +1304,7 @@ public class TestCswEndpoint {
         getRecordByIdType.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
         getRecordByIdType.setId(Arrays.asList("123", "124"));
 
-        csw.getRecordById(getRecordByIdType);
+        csw.getRecordById(getRecordByIdType, null);
     }
 
     @Test(expected = CswException.class)
@@ -1258,7 +1317,7 @@ public class TestCswEndpoint {
         getRecordByIdType.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
         getRecordByIdType.setId(Collections.singletonList("123"));
 
-        csw.getRecordById(getRecordByIdType);
+        csw.getRecordById(getRecordByIdType, null);
     }
 
     @Test(expected = CswException.class)
@@ -1271,7 +1330,7 @@ public class TestCswEndpoint {
         getRecordByIdType.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         getRecordByIdType.setId(Collections.singletonList("123"));
 
-        csw.getRecordById(getRecordByIdType);
+        csw.getRecordById(getRecordByIdType, null);
     }
 
     private void verifyCswRecordCollection(final CswRecordCollection cswRecordCollection,
@@ -1301,21 +1360,21 @@ public class TestCswEndpoint {
     }
 
     @Test(expected = CswException.class)
-    public void testGetRecordByIdNoId() throws CswException {
+    public void testGetRecordByIdWithNoId() throws CswException {
         final GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
         getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_XML);
         getRecordByIdRequest.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
 
-        csw.getRecordById(getRecordByIdRequest);
+        csw.getRecordById(getRecordByIdRequest, null);
     }
 
     @Test(expected = CswException.class)
-    public void testPostGetRecordByIdNoId() throws CswException {
+    public void testPostGetRecordByWithIdNoId() throws CswException {
         final GetRecordByIdType getRecordByIdType = new GetRecordByIdType();
         getRecordByIdType.setOutputFormat(MediaType.APPLICATION_XML);
         getRecordByIdType.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
 
-        csw.getRecordById(getRecordByIdType);
+        csw.getRecordById(getRecordByIdType, null);
     }
 
     @Test(expected = CswException.class)
@@ -1338,6 +1397,39 @@ public class TestCswEndpoint {
     @Test(expected = CswException.class)
     public void testPostUnknownOperation() throws CswException {
         csw.unknownOperation();
+    }
+
+    @Test
+    public void testGetRange() throws UnsupportedQueryException {
+        String validOffset = "bytes=100-";
+        String validRange = "bytes=200-3000";
+
+        long bytesToSkipOffset = csw.getRange(validOffset);
+        long bytesToSkipRange = csw.getRange(validRange);
+
+        assertThat(bytesToSkipOffset, is(equalTo(100L)));
+        assertThat(bytesToSkipRange, is(equalTo(200L)));
+    }
+
+    @Test(expected = UnsupportedQueryException.class)
+    public void testGetRangeInvalidRangeHeader() throws UnsupportedQueryException {
+        String invalidRange = "100";
+
+        csw.getRange(invalidRange);
+    }
+
+    @Test(expected = UnsupportedQueryException.class)
+    public void testGetRangeInvalidRangeOffset() throws UnsupportedQueryException {
+        String invalidRange = "bytes=100-200-300";
+
+        csw.getRange(invalidRange);
+    }
+
+    @Test(expected = UnsupportedQueryException.class)
+    public void testGetRangeInvalidRangeOffsetNotNumeric() throws UnsupportedQueryException {
+        String invalidRange = "bytes=NotNumeric";
+
+        csw.getRange(invalidRange);
     }
 
     /**
