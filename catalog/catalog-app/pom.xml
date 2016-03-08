@@ -364,11 +364,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-metacard-filter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
             <artifactId>catalog-registry-cswinputtransformer</artifactId>
             <version>${project.version}</version>
         </dependency>
