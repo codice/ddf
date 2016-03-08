@@ -30,5 +30,6 @@
         <module>catalog-registry-cswinputtransformer</module>
         <module>catalog-registry-common</module>
         <module>catalog-registry-schema-bindings</module>
+        <module>catalog-registry-identificationplugin</module>
     </modules>
 </project>

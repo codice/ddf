@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -11,13 +12,8 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+<rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
+                     xmlns:gml="http://www.opengis.net/gml"
+                     id="NoExtId">
 
-	<!-- PreIngest Plugin -->
-    <bean id="plugin" class="ddf.catalog.plugin.groomer.metacard.StandardMetacardGroomerPlugin"/>
-
-    <!-- Register in the OSGi Service Registry -->
-    <service ref="plugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="1000"/>
-
-</blueprint>
+</rim:RegistryPackage>

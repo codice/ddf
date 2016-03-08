@@ -118,7 +118,7 @@ public class RegistryTransformerTest {
         RegistryMetacardImpl meta = convert("/csw-basic-info.xml");
         assertRegistryMetacard(meta);
 
-        assertThat(meta.getId(), is("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.REGISTRY_ID).getValue(), is("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
         assertThat(meta.getTitle(), is("my service"));
         assertThat(meta.getDescription(), is("something"));
         assertThat(meta.getContentTypeVersion(), is("0.0.0"));
