@@ -45,7 +45,7 @@ public class PaxWebCfgFileValidatorTest {
         assertThat(alerts.get(0)
                         .getMessage(),
                 is(String.format(PaxWebCfgFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        FAKE_PAX_WEB_CFG_FILE)));
+                        Paths.get(FAKE_PAX_WEB_CFG_FILE))));
     }
 
     @Test

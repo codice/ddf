@@ -43,11 +43,12 @@ public class XMLUtilsTest {
 
     private static final String XML = "<node>Valid-XML</node>";
 
-    private static final String PRETTY_XML_SOURCE =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><node>Valid-XML</node>\n";
+    private static final String PRETTY_XML_SOURCE = String.format(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><node>Valid-XML</node>%n");
 
-    private static final String PRETTY_XML_NODE =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<node>Valid-XML</node>\n";
+    private static final String PRETTY_XML_NODE = String.format(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>%n"
+                    + "<node>Valid-XML</node>%n");
 
     private static final String XML_WITH_NAMESPACE =
             "<?xml version=\"1.0\"?><dog:Dog xmlns:dog=\"doggy-namespace\"></dog:Dog>";

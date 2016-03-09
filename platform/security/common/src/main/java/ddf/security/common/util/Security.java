@@ -14,6 +14,7 @@
 
 package ddf.security.common.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -187,7 +188,9 @@ public class Security {
                     e);
             return null;
         }
-        Path keyStoreFile = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+
+        String propValue = System.getProperty("javax.net.ssl.keyStore");
+        Path keyStoreFile = new File(propValue).toPath();
 
         Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
         if (!keyStoreFile.isAbsolute()) {

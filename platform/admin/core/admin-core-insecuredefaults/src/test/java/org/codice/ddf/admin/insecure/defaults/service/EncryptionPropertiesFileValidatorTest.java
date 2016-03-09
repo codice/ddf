@@ -73,7 +73,10 @@ public class EncryptionPropertiesFileValidatorTest {
         // Setup
         EncryptionPropertiesFileValidator propertiesFileValidator =
                 new EncryptionPropertiesFileValidator();
-        propertiesFileValidator.setPath(Paths.get(FAKE_ENCRYPTION_PROPERTIES_FILE));
+
+        Path fakeEncrypPropsFilePath = Paths.get(FAKE_ENCRYPTION_PROPERTIES_FILE);
+
+        propertiesFileValidator.setPath(fakeEncrypPropsFilePath);
         propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
 
@@ -85,7 +88,7 @@ public class EncryptionPropertiesFileValidatorTest {
         assertThat(alerts.get(0)
                         .getMessage(),
                 is(String.format(EncryptionPropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        FAKE_ENCRYPTION_PROPERTIES_FILE)));
+                        fakeEncrypPropsFilePath)));
     }
 
     @Test

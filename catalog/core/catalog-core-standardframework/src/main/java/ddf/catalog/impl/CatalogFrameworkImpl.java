@@ -1037,7 +1037,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 idFilters.add(filterBuilder.attribute(Metacard.ID)
                         .is()
                         .equalTo()
-                        .text(update.getKey().toString()));
+                        .text(update.getKey()
+                                .toString()));
             }
 
             QueryImpl queryImpl = new QueryImpl(filterBuilder.anyOf(idFilters));
@@ -1467,7 +1468,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing query", re);
             throw new UnsupportedQueryException("Exception during runtime while performing query");
-
         } finally {
             LOGGER.exit(methodName);
         }

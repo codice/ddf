@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -348,7 +349,8 @@ public class ResourceReaderTest {
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
 
-        uri = new URI(FILE_SCHEME_PLUS_SEP + ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1);
+        Path pathForUri = Paths.get(ABSOLUTE_PATH, TEST_PATH, JPEG_FILE_NAME_1);
+        uri = pathForUri.toUri();
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
     }

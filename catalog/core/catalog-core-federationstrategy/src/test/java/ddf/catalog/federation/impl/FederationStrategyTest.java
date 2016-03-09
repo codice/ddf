@@ -34,8 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.geotools.filter.FilterFactoryImpl;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -85,21 +88,32 @@ public class FederationStrategyTest {
 
     private static final long LONG_TIMEOUT = 100;
 
-    private static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
-
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
-
     private static final Logger LOGGER =
             LoggerFactory.getLogger(FederationStrategyTest.class.getName());
 
+    private FilterFactory filterFactory;
+
+    private ExecutorService executor;
+
     @Rule
     public PowerMockRule rule = new PowerMockRule();
+
+    @Before
+    public void setup() throws Exception {
+        filterFactory = new FilterFactoryImpl();
+        refreshExecutor();
+    }
+
+    @After
+    public void finish() throws Exception {
+        killAndWaitForExecutor();
+    }
 
     /**
      * Tests that the framework properly times out using the default federation strategy.
      */
     @Test
-    public void testQueryTimeout() {
+    public void testQueryTimeout() throws Exception {
         long queryDelay = 100;
 
         MockDelayProvider provider = new MockDelayProvider("Provider",
@@ -117,7 +131,7 @@ public class FederationStrategyTest {
         runner.bind(provider);
 
         // Must have more than one thread or sleeps will block the monitor
-        SortedFederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR,
+        SortedFederationStrategy fedStrategy = new SortedFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
@@ -137,21 +151,23 @@ public class FederationStrategyTest {
         metacards.add(newCard);
 
         CreateResponse createResponse = null;
+
         try {
             createResponse = framework.create(new CreateRequestImpl(metacards, null));
-        } catch (IngestException e1) {
+        } catch (IngestException e) {
             fail();
-        } catch (SourceUnavailableException e1) {
+        } catch (SourceUnavailableException e) {
             fail();
         }
+
         assertEquals(createResponse.getCreatedMetacards()
                 .size(), provider.size());
         for (Metacard curCard : createResponse.getCreatedMetacards()) {
             assertNotNull(curCard.getId());
         }
 
-        QueryImpl query = new QueryImpl(FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.ID),
-                FILTER_FACTORY.literal(createResponse.getCreatedMetacards()
+        QueryImpl query = new QueryImpl(filterFactory.equals(filterFactory.property(Metacard.ID),
+                filterFactory.literal(createResponse.getCreatedMetacards()
                         .get(0)
                         .getId())));
         query.setTimeoutMillis(SHORT_TIMEOUT);
@@ -193,7 +209,7 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>();
         sources.add(mockProvider);
 
-        SortedFederationStrategy sortedStrategy = new SortedFederationStrategy(EXECUTOR,
+        SortedFederationStrategy sortedStrategy = new SortedFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
@@ -202,7 +218,7 @@ public class FederationStrategyTest {
                 fedResponse.getResults()
                         .size());
 
-        FifoFederationStrategy fifoStrategy = new FifoFederationStrategy(EXECUTOR,
+        FifoFederationStrategy fifoStrategy = new FifoFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
         fedResponse = fifoStrategy.federate(sources, fedQueryRequest);
@@ -323,12 +339,15 @@ public class FederationStrategyTest {
                 .withArguments(queryRequest, (Map<String, Serializable>) null)
                 .thenReturn(mockOriginalResults, offsetResultQueue);
 
-        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
+        SortedFederationStrategy strategy = new SortedFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
         // Run Test
         QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
+
+        // Make sure we've finished running the test
+        killAndWaitForExecutor();
 
         // Verification
         assertNotNull(federatedResponse);
@@ -431,7 +450,7 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>(1);
         sources.add(mockSource1);
 
-        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
+        SortedFederationStrategy strategy = new SortedFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
@@ -544,7 +563,7 @@ public class FederationStrategyTest {
         sources.add(mockSource1);
         sources.add(mockSource2);
 
-        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
+        SortedFederationStrategy strategy = new SortedFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
@@ -644,7 +663,7 @@ public class FederationStrategyTest {
         List<Source> sources = new ArrayList<Source>(1);
         sources.add(mockSource1);
 
-        SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
+        SortedFederationStrategy strategy = new SortedFederationStrategy(executor,
                 new ArrayList<PreFederatedQueryPlugin>(),
                 new ArrayList<PostFederatedQueryPlugin>());
 
@@ -686,6 +705,18 @@ public class FederationStrategyTest {
                 "####### MOCK SOURCE 1.2 #######");
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
         assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
+    }
+
+    private void killAndWaitForExecutor() throws Exception {
+        if (executor != null && !executor.isShutdown()) {
+            executor.shutdown();
+            executor.awaitTermination(1L, TimeUnit.MINUTES);
+        }
+    }
+
+    private void refreshExecutor() throws Exception {
+        killAndWaitForExecutor();
+        executor = Executors.newFixedThreadPool(2);
     }
 
 }

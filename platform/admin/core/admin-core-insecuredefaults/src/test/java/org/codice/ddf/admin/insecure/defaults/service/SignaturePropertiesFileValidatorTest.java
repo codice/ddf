@@ -57,7 +57,7 @@ public class SignaturePropertiesFileValidatorTest {
         assertThat(alerts.get(0)
                         .getMessage(),
                 is(String.format(SignaturePropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        FAKE_SIGNATURE_PROPERTIES_FILE)));
+                        Paths.get(FAKE_SIGNATURE_PROPERTIES_FILE))));
     }
 
     @Test

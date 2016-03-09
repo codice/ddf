@@ -15,13 +15,13 @@ package org.codice.ddf.admin.application.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.net.URI;
 
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.junit.Before;
@@ -81,10 +81,7 @@ public class ApplicationFileInstallerTest {
         File testFile = new File(File.class.getResource(TEST_FILE_NAME)
                 .getPath());
 
-        assertTrue("Returned URI should have a unix-style path",
-                testInstaller.install(testFile)
-                        .getPath()
-                        .matches("(/.+)+"));
+        URI appResource = ApplicationFileInstaller.install(testFile);
 
         verify(mockAppender).doAppend(argThat(new ArgumentMatcher() {
             @Override
