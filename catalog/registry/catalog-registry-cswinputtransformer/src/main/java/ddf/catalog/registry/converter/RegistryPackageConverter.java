@@ -331,7 +331,7 @@ public class RegistryPackageConverter {
             if (StringUtils.isNotBlank(id)) {
                 Matcher matcher = ID_PATTERN.matcher(id);
                 if (matcher.find()) {
-                    metacard.setId(matcher.group(1));
+                    metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, matcher.group(1));
                 }
             }
         }
