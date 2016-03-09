@@ -75,6 +75,11 @@
             <artifactId>org.apache.felix.utils</artifactId>
             <version>1.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.fastjson</groupId>
+            <artifactId>boon</artifactId>
+            <version>0.33</version>
+        </dependency>
     </dependencies>
     <artifactId>admin-core-api</artifactId>
     <build>
@@ -88,8 +93,13 @@
                         <Embed-Dependency>
                             type-parser,
                             org.apache.felix.utils,
-                            common-system
+                            common-system,
+                            boon
                         </Embed-Dependency>
+                        <Import-Package>
+                            !com.sun.management,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -116,12 +126,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.73</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.66</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

@@ -18,7 +18,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -41,6 +43,8 @@ public class SystemPropertiesAdminTest {
     File systemPropsFile = null;
 
     File userPropsFile = null;
+
+    File userAttrsFile = null;
 
     int expectedSystemPropertiesCount = 0;
 
@@ -72,6 +76,7 @@ public class SystemPropertiesAdminTest {
 
         systemPropsFile = new File(etcFolder, "system.properties");
         userPropsFile = new File(etcFolder, "users.properties");
+        userAttrsFile = new File(etcFolder, "users.attributes");
     }
 
     @Test
@@ -117,6 +122,12 @@ public class SystemPropertiesAdminTest {
             userProps.store(outProps, null);
         }
 
+        try (FileOutputStream outAttrs = new FileOutputStream(userAttrsFile)) {
+            String json = "{\n" + "    \"admin\" : {\n" + "\n" + "    },\n"
+                    + "    \"host\" : {\n" + "\n" + "    }\n" + "}";
+            outAttrs.write(json.getBytes());
+        }
+
         SystemPropertiesAdmin spa = new SystemPropertiesAdmin();
         Map<String, String> map = new HashMap<>();
         map.put(SystemBaseUrl.HOST, "newhost");
@@ -158,6 +169,18 @@ public class SystemPropertiesAdminTest {
             assertThat(userProps.getProperty("anotherhost"), equalTo("host,group,somethingelse"));
             assertNull(userProps.getProperty("newhost"));
             assertNull(userProps.getProperty("host"));
+        }
+        try (BufferedReader userAttrsReader = new BufferedReader(new FileReader(userAttrsFile))) {
+            String line = null;
+            boolean hasHost = false;
+            while ((line = userAttrsReader.readLine()) != null) {
+                if (line.contains("anotherhost")) {
+                    hasHost = true;
+                }
+            }
+            if (!hasHost) {
+                fail("User attribute file did not get updated.");
+            }
         }
     }
 
