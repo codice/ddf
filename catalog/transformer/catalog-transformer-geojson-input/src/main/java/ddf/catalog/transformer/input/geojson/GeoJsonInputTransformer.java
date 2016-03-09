@@ -16,14 +16,13 @@ package ddf.catalog.transformer.input.geojson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.boon.json.JsonFactory;
+import org.boon.json.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +44,9 @@ import ddf.geo.formatter.CompositeGeometry;
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 
-    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static final ObjectMapper MAPPER = JsonFactory.create();
 
-    private static final JSONParser PARSER = new JSONParser();
+    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
@@ -73,16 +72,6 @@ public class GeoJsonInputTransformer implements InputTransformer {
         return transform(input, null);
     }
 
-    private static synchronized JSONObject parse(InputStream input)
-            throws CatalogTransformerException, IOException {
-        try {
-            return (JSONObject) PARSER.parse(IOUtils.toString(input));
-        } catch (ParseException e) {
-            LOGGER.error("Parse exception while trying to transform input", e);
-            throw new CatalogTransformerException("Could not parse json text:", e);
-        }
-    }
-
     @Override
     public Metacard transform(InputStream input, String id)
             throws IOException, CatalogTransformerException {
@@ -91,7 +80,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Cannot transform null input.");
         }
 
-        JSONObject rootObject = parse(input);
+        Map<String, Object> rootObject = MAPPER.parser()
+                .parseMap(input);
 
         Object typeValue = rootObject.get(CompositeGeometry.TYPE_KEY);
         if (typeValue == null || !typeValue.equals("Feature")) {
@@ -99,7 +89,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
                     "Only supported type is Feature, not [" + typeValue + "]"));
         }
 
-        JSONObject properties = (JSONObject) rootObject.get(CompositeGeometry.PROPERTIES_KEY);
+        Map<String, Object> properties =
+                (Map<String, Object>) rootObject.get(CompositeGeometry.PROPERTIES_KEY);
 
         if (properties == null) {
             throw new CatalogTransformerException("Properties are required to create a Metacard.");
@@ -130,7 +121,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
         LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
         // retrieve geometry
-        JSONObject geometryJson = (JSONObject) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
+        Map<String, Object> geometryJson =
+                (Map<String, Object>) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
             if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && geometryJson.get(
