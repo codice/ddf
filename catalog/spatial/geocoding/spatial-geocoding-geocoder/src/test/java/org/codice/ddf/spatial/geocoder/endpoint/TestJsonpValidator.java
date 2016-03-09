@@ -24,12 +24,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class TestJSONPValidator {
+public class TestJsonpValidator {
     private String inputJsonp;
 
     private Boolean expectedResult;
 
-    public TestJSONPValidator(String inputJsonp, Boolean expectedResult) {
+    public TestJsonpValidator(String inputJsonp, Boolean expectedResult) {
         this.inputJsonp = inputJsonp;
         this.expectedResult = expectedResult;
     }
@@ -50,6 +50,6 @@ public class TestJSONPValidator {
 
     @Test
     public void testIsValidJSONP() {
-        assertEquals(expectedResult, JSONPValidator.isValidJSONP(inputJsonp));
+        assertEquals(expectedResult, JsonpValidator.isValidJsonp(inputJsonp));
     }
 }

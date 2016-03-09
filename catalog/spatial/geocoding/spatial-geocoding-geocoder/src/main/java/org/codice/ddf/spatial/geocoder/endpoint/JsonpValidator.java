@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class JSONPValidator {
+public class JsonpValidator {
 
     private static final Pattern JSONP_VALID_PATTERN;
 
@@ -94,7 +94,7 @@ public class JSONPValidator {
                 }
             });
 
-    public static boolean isValidJSONP(String jsonp) {
+    public static boolean isValidJsonp(String jsonp) {
         String[] jsonpPortions = jsonp.split("\\.");
         if (jsonpPortions.length == 0) {
             return false;
