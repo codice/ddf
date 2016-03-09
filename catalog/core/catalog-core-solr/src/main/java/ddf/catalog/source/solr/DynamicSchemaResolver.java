@@ -156,6 +156,8 @@ public class DynamicSchemaResolver {
                 .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
                 .collect(Collectors.toSet());
         anyTextFieldsCache.addAll(basicTextAttributes);
+        fieldsCache.add(BasicTypes.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
+        fieldsCache.add(BasicTypes.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
     }
 
     /**
@@ -320,8 +322,7 @@ public class DynamicSchemaResolver {
     /**
      * Returns the best approximation as to what {@link AttributeFormat} this Solr Field is.
      *
-     * @param solrFieldName
-     *            name of the Solr field
+     * @param solrFieldName name of the Solr field
      * @return the {@link AttributeFormat} associated with the Solr field
      */
     public AttributeFormat getType(String solrFieldName) {
@@ -382,7 +383,7 @@ public class DynamicSchemaResolver {
 
     /**
      * PRE-CONDITION is that fieldname cannot be null.
-     *
+     * <p>
      * The convention is that we add a suffix starting with an underscore, so if we find the last
      * underscore, then we can return the original field name.
      *
@@ -406,10 +407,9 @@ public class DynamicSchemaResolver {
     /**
      * Attempts to resolve the name of a field without being given an {@link AttributeFormat}
      *
-     * @param field
-     *            user given field name
+     * @param field user given field name
      * @return a list of possible Solr field names that match the given field. If none are found,
-     *         then an empty list is returned
+     * then an empty list is returned
      */
     public List<String> getAnonymousField(String field) {
         ArrayList<String> list = new ArrayList<>();
@@ -428,14 +428,11 @@ public class DynamicSchemaResolver {
     /**
      * Attempts to find the fieldName for the given propertyName value.
      *
-     * @param propertyName
-     *            property name provided by user
-     * @param format
-     *            {@link AttributeFormat} that describes the type of {@link ddf.catalog.data.Attribute} the field is
-     * @param isSearchedAsExactValue
-     *            specifies if any special index suffixes need to be added to the field
+     * @param propertyName           property name provided by user
+     * @param format                 {@link AttributeFormat} that describes the type of {@link ddf.catalog.data.Attribute} the field is
+     * @param isSearchedAsExactValue specifies if any special index suffixes need to be added to the field
      * @return the proper schema field name. If a schema name cannot be found in cache, returns a
-     *         schema field name that matches the dynamic field type formatting.
+     * schema field name that matches the dynamic field type formatting.
      */
     public String getField(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactValue) {

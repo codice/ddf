@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
@@ -288,15 +289,15 @@ public class RemoveAllCommand extends CatalogCommands {
     private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ID)
+        Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ID)
                 .is()
                 .like()
-                .text(WILDCARD);
+                .text(WILDCARD), filterBuilder);
 
         if (expired) {
-            filter = filterBuilder.attribute(Metacard.EXPIRATION)
+            filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.EXPIRATION)
                     .before()
-                    .date(new Date());
+                    .date(new Date()), filterBuilder);
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -314,19 +315,19 @@ public class RemoveAllCommand extends CatalogCommands {
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
             throws InterruptedException {
 
-        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+        Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
                 .like()
-                .text(WILDCARD);
+                .text(WILDCARD), filterBuilder);
 
         if (expired) {
             DateTime twoThousandYearsAgo = new DateTime().minusYears(2000);
 
             // less accurate than a Before filter, this is only used for those
             // Sources who cannot understand the Before filter.
-            filter = filterBuilder.attribute(Metacard.EXPIRATION)
+            filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.EXPIRATION)
                     .during()
-                    .dates(twoThousandYearsAgo.toDate(), new Date());
+                    .dates(twoThousandYearsAgo.toDate(), new Date()), filterBuilder);
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -339,6 +340,24 @@ public class RemoveAllCommand extends CatalogCommands {
         properties.put("mode", "native");
 
         return new QueryRequestImpl(query, properties);
+    }
+
+    private Filter addValidationAttributeToQuery(Filter filter, FilterBuilder filterBuilder) {
+        return filterBuilder.allOf(filter,
+                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(BasicTypes.VALIDATION_ERRORS)
+                                .is()
+                                .like()
+                                .text(WILDCARD)),
+                filterBuilder.anyOf(filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                                .is()
+                                .empty(),
+                        filterBuilder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                                .is()
+                                .like()
+                                .text(WILDCARD)));
     }
 
 }
