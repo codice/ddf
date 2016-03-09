@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -75,27 +74,19 @@ public class MigrationFileWriter {
         }
 
         try (
-                FileOutputStream fileStream = createFileStream(exportFile);
-                BufferedOutputStream bufferedStream = createBufferedStream(fileStream);
-                ObjectOutputStream objectStream = createObjectStream(bufferedStream);
+                ObjectOutputStream objectStream = createStream(exportFile);
         ) {
             for (final Result result : results) {
                 Metacard metacard = new MetacardImpl(result.getMetacard());
                 objectStream.writeObject(metacard);
             }
-            bufferedStream.flush();
+            objectStream.flush();
         }
     }
 
-    ObjectOutputStream createObjectStream(OutputStream source) throws IOException {
-        return new ObjectOutputStream(source);
-    }
-
-    BufferedOutputStream createBufferedStream(OutputStream source) throws IOException {
-        return new BufferedOutputStream(source);
-    }
-
-    FileOutputStream createFileStream(File file) throws IOException {
-        return new FileOutputStream(file);
+    private ObjectOutputStream createStream(File inputFile) throws IOException {
+        FileOutputStream fileStream = new FileOutputStream(inputFile);
+        BufferedOutputStream bufferedStream = new BufferedOutputStream(fileStream);
+        return new ObjectOutputStream(bufferedStream);
     }
 }

@@ -19,7 +19,9 @@ import javax.validation.constraints.NotNull;
 
 /**
  * This interface provides the mechanism for implementers to define how their data shall be
- * exported for later import into a new system.
+ * exported for later import into a new system. The framework that handles the Migratables
+ * ensures that no two Migratable's methods are running at the same time. Implementors do not
+ * need to program exports and imports with regard to reflexive thread-safety.
  *
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be

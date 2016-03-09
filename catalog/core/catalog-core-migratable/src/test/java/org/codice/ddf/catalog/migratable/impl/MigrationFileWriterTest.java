@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,9 +40,8 @@ import org.codice.ddf.migration.MigrationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
@@ -51,8 +49,6 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 
-//@RunWith(PowerMockRunner.class)
-@RunWith(MockitoJUnitRunner.class)
 @PrepareForTest({MigrationFileWriter.class, File.class, FileUtils.class})
 public class MigrationFileWriterTest {
 
@@ -63,41 +59,24 @@ public class MigrationFileWriterTest {
     @Rule
     public PowerMockRule rule = new PowerMockRule();
 
-    //@Mock
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
+
     private Path mockPath;
 
-    //@Mock
     private File mockFile;
 
-    //@Mock
     private FileOutputStream mockFileOutputStream;
 
-    //@Mock
     private BufferedOutputStream mockBufferedOutputStream;
 
-    //@Mock
     private ObjectOutputStream mockObjectOutputStream;
 
     private MigrationFileWriter fileWriter;
 
     @Before
     public void setup() throws Exception {
-        fileWriter = new MigrationFileWriter() {
-            @Override
-            ObjectOutputStream createObjectStream(OutputStream source) {
-                return mockObjectOutputStream;
-            }
-
-            @Override
-            BufferedOutputStream createBufferedStream(OutputStream source) {
-                return mockBufferedOutputStream;
-            }
-
-            @Override
-            FileOutputStream createFileStream(File file) {
-                return mockFileOutputStream;
-            }
-        };
+        fileWriter = new MigrationFileWriter();
 
         mockPath = mock(Path.class);
         mockFile = mock(File.class);
@@ -106,16 +85,11 @@ public class MigrationFileWriterTest {
         mockObjectOutputStream = mock(ObjectOutputStream.class);
 
         when(mockPath.toFile()).thenReturn(mockFile);
-    }
 
-    private List<Result> loadList() {
-        final List<Result> results = new ArrayList<>();
-        for (int i = 0; i < RESULT_COUNT; i++) {
-            MetacardImpl metacard = new MetacardImpl();
-            metacard.setId("id" + String.valueOf(i));
-            results.add(new ResultImpl(metacard));
-        }
-        return results;
+        whenNew(FileOutputStream.class).withAnyArguments()
+                .thenReturn(mockFileOutputStream);
+        whenNew(BufferedOutputStream.class).withAnyArguments()
+                .thenReturn(mockBufferedOutputStream);
     }
 
     @Test
@@ -133,6 +107,9 @@ public class MigrationFileWriterTest {
 
     @Test
     public void testWriteSuccess() throws Exception {
+        whenNew(ObjectOutputStream.class).withAnyArguments()
+                .thenReturn(mockObjectOutputStream);
+
         ArgumentCaptor<MetacardImpl> arg = ArgumentCaptor.forClass(MetacardImpl.class);
         final List<Result> results = loadList();
         when(mockFile.exists()).thenReturn(true);
@@ -149,11 +126,14 @@ public class MigrationFileWriterTest {
                             .getId());
         }
 
-        verify(mockBufferedOutputStream, times(1)).flush();
+        verify(mockObjectOutputStream, times(1)).flush();
     }
 
     @Test
     public void testWriteMakesFile() throws Exception {
+        whenNew(ObjectOutputStream.class).withAnyArguments()
+                .thenReturn(mockObjectOutputStream);
+
         final List<Result> results = loadList();
         when(mockFile.exists()).thenReturn(false);
 
@@ -164,18 +144,22 @@ public class MigrationFileWriterTest {
 
     @Test
     public void testStreamsClosed() throws Exception {
+        whenNew(ObjectOutputStream.class).withAnyArguments()
+                .thenReturn(mockObjectOutputStream);
+
         final List<Result> results = loadList();
         when(mockFile.exists()).thenReturn(false);
 
         fileWriter.writeMetacards(mockFile, results);
 
         verify(mockObjectOutputStream).close();
-        verify(mockBufferedOutputStream).close();
-        verify(mockFileOutputStream).close();
     }
 
     @Test(expected = IOException.class)
     public void testWriteMetacardsBadDirectory() throws Exception {
+        whenNew(ObjectOutputStream.class).withAnyArguments()
+                .thenReturn(mockObjectOutputStream);
+
         File uncreatedFile = DDF_BASE_PATH.resolve("notRealDirectory")
                 .toFile();
 
@@ -184,24 +168,14 @@ public class MigrationFileWriterTest {
 
     @Test(expected = IOException.class)
     public void testWriteMetacardsObjectStreamFails() throws Exception {
-        fileWriter = new MigrationFileWriter();
-        whenNew(FileOutputStream.class).withAnyArguments()
-                .thenReturn(mockFileOutputStream);
-        whenNew(BufferedOutputStream.class).withAnyArguments()
-                .thenReturn(mockBufferedOutputStream);
         whenNew(ObjectOutputStream.class).withAnyArguments()
                 .thenThrow(IOException.class);
-
+        fileWriter = new MigrationFileWriter();
         fileWriter.writeMetacards(mockFile, Collections.emptyList());
     }
 
     @Test(expected = IOException.class)
     public void testWriteMetacardsWriteObjectFails() throws Exception {
-        fileWriter = new MigrationFileWriter();
-        whenNew(FileOutputStream.class).withAnyArguments()
-                .thenReturn(mockFileOutputStream);
-        whenNew(BufferedOutputStream.class).withAnyArguments()
-                .thenReturn(mockBufferedOutputStream);
         whenNew(ObjectOutputStream.class).withAnyArguments()
                 .thenReturn(mockObjectOutputStream);
         doThrow(IOException.class).when(mockObjectOutputStream)
@@ -210,6 +184,17 @@ public class MigrationFileWriterTest {
         List<Result> results = new ArrayList<>();
         results.add(new ResultImpl(new MetacardImpl()));
 
+        mockFile = testFolder.newFile("mockFile");
         fileWriter.writeMetacards(mockFile, results);
+    }
+
+    private List<Result> loadList() {
+        final List<Result> results = new ArrayList<>();
+        for (int i = 0; i < RESULT_COUNT; i++) {
+            MetacardImpl metacard = new MetacardImpl();
+            metacard.setId("id" + String.valueOf(i));
+            results.add(new ResultImpl(metacard));
+        }
+        return results;
     }
 }

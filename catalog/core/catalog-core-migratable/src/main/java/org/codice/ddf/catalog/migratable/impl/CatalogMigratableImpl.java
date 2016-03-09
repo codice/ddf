@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,10 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.validation.constraints.NotNull;
 
@@ -70,10 +66,10 @@ public class CatalogMigratableImpl extends AbstractMigratable {
 
     private final CatalogMigratableConfig config;
 
-    private MigrationTaskManager taskManager;
+    private final MigrationTaskManager taskManager;
 
     /**
-     * Constructor.
+     * Basic constructor with minimum required components.
      *
      * @param description   description of this migratable
      * @param framework     framework used to retrieve the metacards to export
@@ -84,26 +80,49 @@ public class CatalogMigratableImpl extends AbstractMigratable {
     public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogFramework framework,
             @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
             @NotNull CatalogMigratableConfig config) {
+        this(description,
+                framework,
+                filterBuilder,
+                fileWriter,
+                config,
+                new MigrationTaskManager(config, fileWriter));
+    }
+
+    /**
+     * Constructor that allows the caller choice of {@link MigrationTaskManager} to be injected.
+     *
+     * @param description   description of this migratable
+     * @param framework     framework used to retrieve the metacards to export
+     * @param filterBuilder builder used to create query filters
+     * @param fileWriter    object used to write metacards to disk
+     * @param config        export configuration information
+     * @param taskManager   the manager responsible for submitting file writing jobs during export
+     */
+    public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogFramework framework,
+            @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
+            @NotNull CatalogMigratableConfig config, @NotNull MigrationTaskManager taskManager) {
         super(description, true);
 
         notNull(framework, "CatalogFramework cannot be null");
         notNull(filterBuilder, "FilterBuilder cannot be null");
         notNull(fileWriter, "FileWriter cannot be null");
         notNull(config, "Configuration object cannot be null");
+        notNull(taskManager, "Task manager cannot be null");
 
         this.framework = framework;
         this.filterBuilder = filterBuilder;
         this.fileWriter = fileWriter;
         this.config = config;
+
+        this.taskManager = taskManager;
     }
 
     /**
      * Exports all the metacards currently stored in the catalog framework.
-     * <p/>
+     * <p>
      * {@inheritDoc}
      */
     public MigrationMetadata export(Path exportPath) throws MigrationException {
-        taskManager = createTaskManager(config, createExecutorService(config));
         config.setExportPath(exportPath.resolve(CATALOG_EXPORT_DIRECTORY));
         fileWriter.createExportDirectory(config.getExportPath());
 
@@ -123,28 +142,25 @@ public class CatalogMigratableImpl extends AbstractMigratable {
         try {
             executeQueryLoop(exportQuery, exportQueryRequest);
         } catch (Exception e) {
-            LOGGER.error("Internal error occurred when exporting catalog: {}", e.getMessage(), e);
+            LOGGER.error("Internal error occurred when exporting catalog: {}", e);
             throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
         } finally {
-            taskManager.exportFinish();
+            cleanup();
         }
 
         return new MigrationMetadata(warnings);
     }
 
-    // Factory method for unit testing purposes
-    MigrationTaskManager createTaskManager(CatalogMigratableConfig config,
-            ExecutorService executorService) {
-        return new MigrationTaskManager(config, fileWriter, executorService);
-    }
-
-    private ExecutorService createExecutorService(CatalogMigratableConfig config) {
-        return new ThreadPoolExecutor(Math.max(1, config.getExportThreadCount() / 2),
-                config.getExportThreadCount(),
-                0L,
-                TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(config.getExportThreadCount()),
-                new ThreadPoolExecutor.CallerRunsPolicy());
+    private void cleanup() throws MigrationException {
+        try {
+            taskManager.close();
+        } catch (MigrationException e) {
+            LOGGER.error("Migration exception when closing the task manager: {}", e);
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("Internal error when closing the task manager: {}", e);
+            throw new MigrationException("Error closing task manager: {}", e);
+        }
     }
 
     private Map<String, Serializable> createMapWithNativeQueryMode() {
