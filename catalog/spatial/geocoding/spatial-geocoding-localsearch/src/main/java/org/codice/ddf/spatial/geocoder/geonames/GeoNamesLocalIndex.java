@@ -66,7 +66,7 @@ public class GeoNamesLocalIndex implements GeoCoder {
         return null;
     }
 
-    public NearbyLocation getNearbyCity(String location) {
+    public NearbyLocation getNearbyCity(String location) throws GeoEntryQueryException {
 
         try {
             List<NearbyLocation> locations = geoEntryQueryable.getNearestCities(location,

@@ -102,13 +102,17 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     }
 
     protected List<GeoEntry> doQuery(final String queryString, final int maxResults,
-            final Directory directory) {
+            final Directory directory) throws GeoEntryQueryException {
         if (StringUtils.isBlank(queryString)) {
             throw new IllegalArgumentException("The query string cannot be null or empty.");
         }
 
         if (maxResults < 1) {
             throw new IllegalArgumentException("maxResults must be positive.");
+        }
+
+        if (directory == null) {
+            return Collections.emptyList();
         }
 
         try (final IndexReader indexReader = createIndexReader(directory)) {
@@ -210,7 +214,7 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
     }
 
     protected List<NearbyLocation> doGetNearestCities(final Shape shape, final int radiusInKm,
-            final int maxResults, final Directory directory) {
+            final int maxResults, final Directory directory) throws GeoEntryQueryException {
 
         if (shape == null) {
             throw new IllegalArgumentException(
@@ -225,6 +229,10 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
         if (maxResults <= 0) {
             throw new IllegalArgumentException(
                     "GeoNamesQueryLuceneIndex.doGetNearestCities(): maxResults must be positive.");
+        }
+
+        if (directory == null) {
+            return Collections.emptyList();
         }
 
         try (final IndexReader indexReader = createIndexReader(directory)) {

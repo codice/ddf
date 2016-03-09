@@ -28,12 +28,17 @@ import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.index.GeoNamesLuceneIndexer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 
 public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex {
     private String indexLocation;
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(GeoNamesQueryLuceneDirectoryIndex.class);
 
     public void setIndexLocation(final String indexLocation) {
         this.indexLocation = indexLocation;
@@ -44,14 +49,16 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
         return FSDirectory.open(Paths.get(indexLocation));
     }
 
-    private Directory openDirectoryAndCheckForIndex() {
+    private Directory openDirectoryAndCheckForIndex() throws GeoEntryQueryException {
         Directory directory;
 
         try {
             directory = openDirectory();
             if (!indexExists(directory)) {
                 directory.close();
-                throw new GeoEntryQueryException("There is no index at " + indexLocation);
+                LOGGER.warn("There is no index at " + indexLocation
+                        + ". Load a Geonames file into the offline gazetteer");
+                return null;
             }
 
             return directory;
@@ -74,7 +81,8 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
     }
 
     @Override
-    public List<GeoEntry> query(final String queryString, final int maxResults) {
+    public List<GeoEntry> query(final String queryString, final int maxResults)
+            throws GeoEntryQueryException {
         final Directory directory = openDirectoryAndCheckForIndex();
 
         return doQuery(queryString, maxResults, directory);
@@ -82,7 +90,7 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
 
     @Override
     public List<NearbyLocation> getNearestCities(final String location, final int radiusInKm,
-            final int maxResults) throws ParseException {
+            final int maxResults) throws ParseException, GeoEntryQueryException {
 
         if (location == null) {
             throw new IllegalArgumentException(

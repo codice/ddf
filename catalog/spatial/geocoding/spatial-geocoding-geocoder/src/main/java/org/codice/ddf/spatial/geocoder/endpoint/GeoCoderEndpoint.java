@@ -24,9 +24,12 @@ import javax.ws.rs.core.Response;
 
 import org.codice.ddf.spatial.geocoder.GeoCoder;
 import org.codice.ddf.spatial.geocoder.GeoResult;
+import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.util.impl.ServiceSelector;
 import net.minidev.json.JSONArray;
@@ -36,6 +39,8 @@ import net.minidev.json.JSONObject;
 public class GeoCoderEndpoint {
 
     private ServiceSelector<GeoCoder> geoCoderFactory;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoCoderEndpoint.class);
 
     public GeoCoderEndpoint(ServiceSelector<GeoCoder> geoCoderFactory) {
 
@@ -88,16 +93,22 @@ public class GeoCoderEndpoint {
     public Response getNearbyCities(@PathParam("wkt") String wkt) {
 
         GeoCoder geoCoder = geoCoderFactory.getService();
-        NearbyLocation nearbyLocation = geoCoder.getNearbyCity(wkt);
-        if (nearbyLocation != null) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("direction", nearbyLocation.getCardinalDirection());
-            jsonObject.put("distance", nearbyLocation.getDistance());
-            jsonObject.put("name", nearbyLocation.getName());
-            return Response.ok(jsonObject.toJSONString())
-                    .build();
-        } else {
-            return Response.status(Response.Status.NO_CONTENT)
+        try {
+            NearbyLocation nearbyLocation = geoCoder.getNearbyCity(wkt);
+            if (nearbyLocation != null) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("direction", nearbyLocation.getCardinalDirection());
+                jsonObject.put("distance", nearbyLocation.getDistance());
+                jsonObject.put("name", nearbyLocation.getName());
+                return Response.ok(jsonObject.toJSONString())
+                        .build();
+            } else {
+                return Response.status(Response.Status.NO_CONTENT)
+                        .build();
+            }
+        } catch (GeoEntryQueryException e) {
+            LOGGER.error("Error querying GeoNames resource with wkt:" + wkt, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .build();
         }
     }

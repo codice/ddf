@@ -17,7 +17,7 @@ package org.codice.ddf.spatial.geocoding;
 /**
  * Thrown by a {@link GeoEntryQueryable} when an error occurs while querying a GeoNames resource.
  */
-public class GeoEntryQueryException extends RuntimeException {
+public class GeoEntryQueryException extends Exception {
     /**
      * Instantiates a new exception with the provided message.
      * @param message  the message
