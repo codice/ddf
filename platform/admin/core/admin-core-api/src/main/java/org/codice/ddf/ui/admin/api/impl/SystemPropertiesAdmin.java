@@ -15,7 +15,11 @@ package org.codice.ddf.ui.admin.api.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,8 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
 import org.apache.felix.utils.properties.Properties;
+import org.boon.json.JsonFactory;
+import org.boon.json.ObjectMapper;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.ui.admin.api.SystemPropertiesAdminMBean;
@@ -47,6 +53,8 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
     private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
 
     private static final String USERS_PROPERTIES_FILE = "users.properties";
+
+    private static final String USERS_ATTRIBUTES_FILE = "users.attributes";
 
     private static final String HOST_TITLE = "Host";
 
@@ -99,6 +107,8 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
     private static final String VERSION_DESCRIPTION = "The version of this instance.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SystemPropertiesAdmin.class);
+
+    private static final ObjectMapper MAPPER = JsonFactory.create();
 
     public SystemPropertiesAdmin() {
         configureMBean();
@@ -161,9 +171,11 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
         String etcDir = System.getProperty(KARAF_ETC);
         String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
         String userPropertiesFilename = etcDir + File.separator + USERS_PROPERTIES_FILE;
+        String userAttributesFilename = etcDir + File.separator + USERS_ATTRIBUTES_FILE;
 
         File systemPropertiesFile = new File(systemPropertyFilename);
         File userPropertiesFile = new File(userPropertiesFilename);
+        File userAttributesFile = new File(userAttributesFilename);
 
         try {
             Properties systemDotProperties = new Properties(systemPropertiesFile);
@@ -202,7 +214,24 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
         } catch (IOException e) {
             LOGGER.warn("Exception while writing to users.properties file.", e);
+        }
 
+        Map<String, Object> json = null;
+        try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
+            json = MAPPER.parser().parseMap(stream);
+            if (json.containsKey(oldHostName)) {
+                json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
+            }
+        } catch (IOException e) {
+            LOGGER.error("Unable to read system user attribute file for hostname update.", e);
+        }
+
+        if (json != null) {
+            try (OutputStream stream = Files.newOutputStream(Paths.get(userAttributesFile.toURI()))) {
+                MAPPER.writeValue(stream, json);
+            } catch (IOException e) {
+                LOGGER.error("Unable to write system user attribute file for hostname update.", e);
+            }
         }
 
     }
