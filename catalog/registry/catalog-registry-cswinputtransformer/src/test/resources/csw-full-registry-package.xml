@@ -12,11 +12,11 @@
  *
  **/
 -->
-<rim:RegistryPackage id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276" home="https://somehost:someport"
-                     objectType="urn:catalog.service"
-                     xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
-                     xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
-                     xmlns:gml="http://www.opengis.net/gml">
+<rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
+                     xmlns:gml="http://www.opengis.net/gml"
+                     id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
+                     home="https://somehost:someport"
+                     objectType="urn:catalog.service">
     <!--Optional: Date indicating when this instance when live or operational-->
     <rim:Slot name="liveDate" slotType="xs:dateTime">
         <rim:ValueList>
@@ -359,12 +359,24 @@
             </rim:ClassificationNode>
         </rim:ClassificationScheme>
 
-        <rim:Association id="urn:assoication:1" associationType="AssociatedWith" sourceObject="urn:node:contact:primary" targetObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"/>
-        <rim:Association id="urn:assoication:2" associationType="AssociatedWith" sourceObject="urn:node:organization:primary" targetObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"/>
-        <rim:Association id="urn:assoication:3" associationType="AssociatedWith" sourceObject="urn:node:contact:person1" targetObject="urn:uuid:collection:name1:2014ca7f59ac46f495e32b4a67a51276"/>
-        <rim:Association id="urn:assoication:4" associationType="AssociatedWith" sourceObject="urn:node:contact:person2" targetObject="urn:uuid:collection:name2:2014ca7f59ac46f495e32b4a67a51276"/>
-        <rim:Association id="urn:assoication:5" associationType="AssociatedWith" sourceObject="urn:registry:federation:method:csw" targetObject="urn:node:organization:myneworg"/>
-        <rim:Association id="urn:assoication:6" associationType="AssociatedWith" sourceObject="urn:uuid:collection:name1:2014ca7f59ac46f495e32b4a67a51276" targetObject="urn:node:organization:myneworg"/>
+        <rim:Association id="urn:assoication:1" associationType="AssociatedWith"
+                         sourceObject="urn:node:contact:primary"
+                         targetObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"/>
+        <rim:Association id="urn:assoication:2" associationType="AssociatedWith"
+                         sourceObject="urn:node:organization:primary"
+                         targetObject="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"/>
+        <rim:Association id="urn:assoication:3" associationType="AssociatedWith"
+                         sourceObject="urn:node:contact:person1"
+                         targetObject="urn:uuid:collection:name1:2014ca7f59ac46f495e32b4a67a51276"/>
+        <rim:Association id="urn:assoication:4" associationType="AssociatedWith"
+                         sourceObject="urn:node:contact:person2"
+                         targetObject="urn:uuid:collection:name2:2014ca7f59ac46f495e32b4a67a51276"/>
+        <rim:Association id="urn:assoication:5" associationType="AssociatedWith"
+                         sourceObject="urn:registry:federation:method:csw"
+                         targetObject="urn:node:organization:myneworg"/>
+        <rim:Association id="urn:assoication:6" associationType="AssociatedWith"
+                         sourceObject="urn:uuid:collection:name1:2014ca7f59ac46f495e32b4a67a51276"
+                         targetObject="urn:node:organization:myneworg"/>
 
     </rim:RegistryObjectList>
 </rim:RegistryPackage>

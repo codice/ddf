@@ -12,8 +12,8 @@
  *
  **/
 -->
-<rim:Person id="urn:node:contact:person1" objectType="urn:catalog.service"
-                  xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0">
+<rim:Person xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:node:contact:person1"
+            objectType="urn:catalog.service">
     <rim:PersonName firstName="Vito" lastName="Andolini"/>
     <rim:TelephoneNumber areaCode="999" number="555-2368"/>
     <rim:EmailAddress address="godfather@mafia.com"/>

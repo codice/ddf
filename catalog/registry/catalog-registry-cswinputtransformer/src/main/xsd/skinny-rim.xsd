@@ -12,8 +12,8 @@
  *
  **/
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+<schema xmlns:tns="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+        xmlns="http://www.w3.org/2001/XMLSchema"
         targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" elementFormDefault="qualified"
         attributeFormDefault="unqualified">
     <annotation>

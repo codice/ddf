@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -312,7 +313,7 @@ public class TestGetRecordsResponseConverter {
         UnmarshallingContext context = captor.getValue();
 
         assertThat(context, notNullValue());
-        assertThat(context.get(CswConstants.NAMESPACE_DECLARATIONS), is(Map.class));
+        assertThat(context.get(CswConstants.NAMESPACE_DECLARATIONS), instanceOf(Map.class));
         Map<String, String> namespaces = (Map) context.get(CswConstants.NAMESPACE_DECLARATIONS);
         assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
                 + CswConstants.CSW_NAMESPACE_PREFIX), is(CswConstants.CSW_OUTPUT_SCHEMA));
@@ -397,9 +398,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.BRIEF));
 
         JAXBElement<GetRecordsResponseType> jaxb =
@@ -447,9 +448,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.SUMMARY));
 
         JAXBElement<GetRecordsResponseType> jaxb =
@@ -497,9 +498,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.FULL));
 
         JAXBElement<GetRecordsResponseType> jaxb =
@@ -589,9 +590,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(notNullValue()));
         List<QName> qnames = (List<QName>) context.get(CswConstants.ELEMENT_NAMES);
         assertThat(qnames.contains(CswRecordMetacardType.CSW_TITLE_QNAME), is(true));
@@ -683,9 +684,9 @@ public class TestGetRecordsResponseConverter {
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat(context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(nullValue()));
 
         JAXBElement<GetRecordByIdResponseType> jaxb =
@@ -802,7 +803,7 @@ public class TestGetRecordsResponseConverter {
         assertListStringAttribute(mc,
                 CswRecordMetacardType.CSW_LANGUAGE,
                 (String[]) expectedValues.get(CswRecordMetacardType.CSW_LANGUAGE));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
+        assertThat(mc.getAttribute(CswRecordMetacardType.CSW_TYPE)
                 .getValue(), equalTo((String) expectedValues.get(CswRecordMetacardType.CSW_TYPE)));
         assertListStringAttribute(mc,
                 CswRecordMetacardType.CSW_FORMAT,
@@ -815,7 +816,7 @@ public class TestGetRecordsResponseConverter {
 
     private void assertListStringAttribute(Metacard mc, String attrName, String[] expectedValues) {
         if (mc.getAttribute(attrName) != null) {
-            List<?> values = (List<?>) mc.getAttribute(attrName)
+            List<?> values = mc.getAttribute(attrName)
                     .getValues();
             assertThat(values, not(nullValue()));
             assertThat(values.size(), equalTo(expectedValues.length));

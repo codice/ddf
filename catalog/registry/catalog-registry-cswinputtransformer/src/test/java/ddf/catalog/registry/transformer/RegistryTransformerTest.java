@@ -14,10 +14,10 @@
 package ddf.catalog.registry.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.collection.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.text.StringStartsWith.startsWith;
+import static org.hamcrest.Matchers.startsWith;
 import static org.joda.time.format.ISODateTimeFormat.dateOptionalTimeParser;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -56,8 +55,6 @@ public class RegistryTransformerTest {
 
     private Parser parser;
 
-    private ParserConfigurator configurator;
-
     private void assertRegistryMetacard(Metacard meta) {
         assertThat(meta.getContentTypeName(),
                 startsWith(RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME));
@@ -67,14 +64,6 @@ public class RegistryTransformerTest {
     public void setUp() {
         rit = new RegistryTransformer();
         parser = new XmlParser();
-        configurator = parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
-                        .getName(),
-                net.opengis.ogc.ObjectFactory.class.getPackage()
-                        .getName(),
-                net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
-                        .getName()),
-                this.getClass()
-                        .getClassLoader());
         rit.setParser(parser);
 
     }
@@ -310,8 +299,8 @@ public class RegistryTransformerTest {
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValue(), is("Node Name"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                        .getValue(),
-                is("A little something describing this node in less than 1024 characters"));
+                .getValue(), is(
+                "A little something describing this node in less than 1024 characters"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE_VERSION)
                 .getValue(), is("2.9.x"));
 
@@ -337,8 +326,8 @@ public class RegistryTransformerTest {
                 .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
-                        .getValue(),
-                is("john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                .getValue(), is(
+                "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
     }
 
     @Test
@@ -391,8 +380,8 @@ public class RegistryTransformerTest {
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValue(), is("Node Name"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                        .getValue(),
-                is("A little something describing this node in less than 1024 characters"));
+                .getValue(), is(
+                "A little something describing this node in less than 1024 characters"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE_VERSION)
                 .getValue(), is("2.9.x"));
 
@@ -418,8 +407,8 @@ public class RegistryTransformerTest {
                 .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
-                        .getValue(),
-                is("john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                .getValue(), is(
+                "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
     }
 
     @Test

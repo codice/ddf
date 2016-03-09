@@ -15,7 +15,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
-                   availability="mandatory"/>
+               availability="mandatory"/>
 
     <!-- Register the Transformers -->
     <service auto-export="interfaces">
