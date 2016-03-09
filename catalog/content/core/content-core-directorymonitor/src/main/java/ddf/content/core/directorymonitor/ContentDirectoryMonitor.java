@@ -17,15 +17,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.content.operation.Request;
+import ddf.security.common.util.Security;
 
 /**
  * @author rodgersh
@@ -42,6 +46,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     private CamelContext camelContext;
 
     private List<RouteDefinition> routeCollection;
+
+    Processor systemSubjectBinder = new SystemSubjectBinder();
 
     /**
      * Constructs a monitor for a specific directory that will ingest files into
@@ -173,6 +179,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 from(inbox).setHeader(Request.OPERATION, constant("create"))
                         .setHeader(Request.DIRECTIVE, constant(directive))
                         .setHeader(Request.CONTENT_URI, constant(""))
+                        .process(systemSubjectBinder)
                         .to("content:framework");
             }
         };
@@ -306,5 +313,19 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             }
         }
         LOGGER.debug("***************  END: {}  *****************\n\n", msg);
+    }
+
+    public static class SystemSubjectBinder implements Processor {
+
+        /**
+         * Adds the system subject to the {@link ThreadContext} to allow proper authentication
+         * with the catalog framework.
+         *
+         * @param exchange Camel {@link Exchange} object
+         */
+        @Override
+        public void process(Exchange exchange) {
+            ThreadContext.bind(Security.getSystemSubject());
+        }
     }
 }

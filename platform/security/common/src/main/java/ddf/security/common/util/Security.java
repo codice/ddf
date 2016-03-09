@@ -26,13 +26,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
@@ -45,8 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 
@@ -98,49 +92,6 @@ public class Security {
         if (subject != null) {
             return subject.getPrincipals()
                     .contains(ADMIN_ROLE);
-        }
-        return false;
-    }
-
-    /**
-     * Runs the callable in the current thread. If no subject is available it will try to run
-     * the callable as the system subject.
-     * Only call this method if using the system subject is the correct action when no other
-     * subject exists.
-     *
-     * @param callable The callable to run
-     * @return
-     * @throws Exception
-     */
-    public static <V> V runWithSystemSubjectFallback(Callable<V> callable) throws Exception {
-        //if there is no security manager then SecurityUtils.getSubject() will error out
-        //so get the system subject and use that instead
-        if (ThreadContext.getSecurityManager() == null) {
-            Subject subject = getSystemSubject();
-            if (subject != null) {
-                return subject.execute(callable);
-            }
-        } else {
-            return callable.call();
-        }
-        return null;
-    }
-
-    /**
-     * Returns true if the current subject is implied by the action/permissions passed in. Otherwise
-     * returns false. Requires there to be a shiro subject in the current ThreadContext
-     *
-     * @param action
-     * @param permissions
-     * @return
-     */
-    public static boolean authorizeCurrentUser(String action,
-            List<KeyValuePermission> permissions) {
-        if (ThreadContext.getSubject() != null || ThreadContext.getSecurityManager() != null) {
-            org.apache.shiro.subject.Subject subject = SecurityUtils.getSubject();
-            KeyValueCollectionPermission kvcp = new KeyValueCollectionPermission(action,
-                    permissions);
-            return (subject != null && subject.isPermitted(kvcp));
         }
         return false;
     }
