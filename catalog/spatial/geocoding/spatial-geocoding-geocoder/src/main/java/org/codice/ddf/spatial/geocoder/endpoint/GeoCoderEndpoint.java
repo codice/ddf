@@ -55,7 +55,7 @@ public class GeoCoderEndpoint {
     @GET
     public Response getLocation(@QueryParam("jsonp") String jsonp,
             @QueryParam("query") String query) {
-        if (JSONPValidator.isValidJSONP(jsonp)) {
+        if (JsonpValidator.isValidJsonp(jsonp)) {
             JSONObject jsonObject = doQuery(query);
             return Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")")
                     .build();

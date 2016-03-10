@@ -20,12 +20,10 @@ import org.slf4j.LoggerFactory;
 import ddf.security.encryption.EncryptionService;
 
 /**
- *
  * This class is only meant to decrypt an encrypted password that is set to the ldap/roles claims
  * handler. The decrypt code was taken from OracleCatalogProvider
  *
  * @author kimjs1
- *
  */
 public class ContextSourceDecrypt extends org.springframework.ldap.core.support.LdapContextSource {
 
@@ -40,14 +38,13 @@ public class ContextSourceDecrypt extends org.springframework.ldap.core.support.
     /**
      * Set the password (credentials) to use for getting authenticated contexts.
      *
-     * @param password
-     *            the password.
+     * @param password the password.
      */
     @Override
     public void setPassword(String password) {
         if (encryptionService == null) {
             LOGGER.error(
-                    "The ContextSourceDecrypt has a null Encryption Service.  Unable to attempt to decrypt the encrypted password: [HIDDEN].  Setting decrypted password to null.");
+                    "The ContextSourceDecrypt has a null Encryption Service.  Unable to attempt to decrypt the encrypted password: [HIDDEN].");
             this.password = password;
         } else {
             this.password = encryptionService.decryptValue(password);
