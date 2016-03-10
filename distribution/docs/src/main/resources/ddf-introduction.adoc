@@ -1,4 +1,4 @@
-= Introduction to {branding}
+= Introduction to ${branding}
 include::./_contents/config.adoc[]
 
 == Overview

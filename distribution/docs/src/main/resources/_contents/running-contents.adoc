@@ -181,7 +181,7 @@ pidtest=`$PSEXE -p $pid -o comm | grep $WRAPPER_CMD | tail -1`
 
 Because ${branding} is built on Apache Karaf, more information on operating ${branding} can be found in the http://karaf.apache.org/index/documentation.html[Karaf documentation].
 
-====  Managing Applications from {admin-console}
+====  Managing Applications from ${admin-console}
 
 The *Manage* button enables activation/deactivation and adding/removing applications.
 
@@ -220,8 +220,8 @@ It is recommended to use the *${ddf-branding} Catalog App -> Sources* tab to con
 
 ==== Console Commands
 
-Once the distribution has started, users will have access to a powerful command line console, the {command-console}.
-This {command-console} can be used to manage services, install new features and applications, and manage the state of the system.
+Once the distribution has started, users will have access to a powerful command line console, the ${command-console}.
+This ${command-console} can be used to manage services, install new features and applications, and manage the state of the system.
 
 ===== Access the System Console
 
@@ -241,7 +241,7 @@ Execute `feature:list` to view the features installed in the distribution.
 
 [NOTE]
 ====
-The majority of functionality and information available on the {admin-console} is also available on the Command Line Console.
+The majority of functionality and information available on the ${admin-console} is also available on the Command Line Console.
 ====
 
 ==== Catalog Commands
@@ -458,9 +458,9 @@ The Application Commands are installed automatically with the Admin Application.
 |Namespace
 |Description
 
-|{branding} :: Admin :: Application Service
+|${ddf-branding} :: Admin :: Application Service
 |app
-|The {branding} Application Service contains operations to work with applications.
+|The ${ddf-admin} Application Service contains operations to work with applications.
 
 |===
 
@@ -470,13 +470,13 @@ To get a list of commands, type in the namespace of the desired extension and pr
 
 [source]
 ----
-${ddf-branding-lowercase}@local>app:
+${ddf-branding-lowercase}${at-symbol}local>app:
 app:add       app:list      app:remove    app:start     app:status    app:stop      app:tree
 ----
 
 ===== Command Descriptions
 
-[cols="1,1,5" options="header"]
+[cols="1m,1m,5" options="header"]
 |===
 
 |Command
@@ -520,7 +520,7 @@ Listing all applications
 
 [source]
 ----
-${branding-lowercase}@local>app:list
+${branding-lowercase}${at-symbol}local>app:list
 State      Name
 [ACTIVE  ] catalog-app-<VERSION>
 [ACTIVE  ] distribution-<VERSION>
@@ -536,7 +536,7 @@ Getting status for a specific application
 
 [source]
 ----
-${ddf-branding-lowercase}@local>app:status catalog-app-<VERSION>
+${ddf-branding-lowercase}${at-symbol}local>app:status catalog-app-<VERSION>
 catalog-app-<VERSION>
 
 Current State is: ACTIVE
@@ -580,7 +580,7 @@ If an application is an a 'FAILED' state, it means that there is a required feat
 
 [source]
 ----
-${ddf-branding-lowercase}@local>app:list
+${ddf-branding-lowercase}${at-symbol}local>app:list
 State      Name
 [FAILED  ] catalog-app-<VERSION>
 [ACTIVE  ] distribution-<VERSION>
@@ -592,7 +592,7 @@ Checking the status of that application will show what did not start correctly.
 
 [source]
 ----
-${ddf-branding-lowercase}@local>app:status catalog-app-<VERSION>
+${ddf-branding-lowercase}${at-symbol}local>app:status catalog-app-<VERSION>
 catalog-app-<VERSION>
 
 Current State is: FAILED
@@ -640,7 +640,7 @@ Once that bundle is started by fixing its error, the catalog application will sh
 
 ==== Command Scheduler
 
-Command Scheduler is a capability exposed through the {admin-console} (\https://localhost:8993/admin) that allows administrators to schedule Command Line Commands to be run at specified intervals.
+Command Scheduler is a capability exposed through the ${admin-console} (\https://localhost:8993/admin) that allows administrators to schedule Command Line Commands to be run at specified intervals.
 
 ===== Usage
 
@@ -653,7 +653,7 @@ In addition, when the container is restarted, the commands are rescheduled and e
 
 ====== Schedule a Command
 
-. Navigate to the {admin-console} (https://localhost:8993/admin).
+. Navigate to the ${admin-console} (https://localhost:8993/admin).
 . Select *${branding} Platform*
 . Select *Platform Command Scheduler*.
 . Type the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
@@ -669,8 +669,8 @@ To update, modify the fields and click *Save*.
 
 ===== Updating a Scheduled Command
 
-. Navigate to the *{admin-console}*.
-. Click on the *${ddf-branding} Platform* application.
+. Navigate to the *${admin-console}*.
+. Click on the *${ddf-platform}* application.
 . Click on the *Configuration* tab.
 . Under the *Platform Command Scheduler* configuration are all the scheduled commands.
 Scheduled commands have the following syntax `${ddf-branding-lowercase}.platform.scheduler.Command.{GUID}` such as `${ddf-branding-lowercase}.platform.scheduler.Command.4d60c917-003a-42e8-9367-1da0f822ca6e`.
@@ -1227,7 +1227,7 @@ Edit the configuration file `[${branding-lowercase}_install_dir]/etc/org.ops4j.p
 
 The name and location of the log file can be changed with the following setting:
 
-`log4j.appender.out.file=${karaf.data}/log/${branding-lowercase}.log`
+`log4j.appender.out.file=<KARAF.DATA>/log/${branding-lowercase}.log`
 
 ====== Controlling log level
 
@@ -1266,11 +1266,11 @@ For more detail on configuring the log file and what is logged to the console a 
 
 ==== Enabling HTTP Access Logging
 
-===== Configuration
+===== Configuring
 
-To enable access logs for our current {branding}, do the following:
+To enable access logs for the current ${branding}, do the following:
 
-* Update the jetty.xml file located in etc/ adding the following xml:
+* Update the `jetty.xml` file located in `etc/` adding the following xml:
 
 [source,xml,linenums]
 ----

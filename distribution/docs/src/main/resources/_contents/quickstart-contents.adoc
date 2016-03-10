@@ -74,9 +74,9 @@ init 6
 This installation directory will be referred to as `<DISTRIBUTION_INSTALL_DIR>`.
 (Substitute the actual directory name.)
 . Start ${branding} by running the `<DISTRIBUTION_INSTALL_DIR>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
-. The {command-console} will display.
+. The ${command-console} will display.
 
-.{command-console} Prompt
+.${command-console} Prompt
 ----
 ${branding-lowercase}${at-symbol}local>
 ----
@@ -103,7 +103,7 @@ ${branding-lowercase}${at-symbol}local>
 
 Using the Content framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
 
-. In the {admin-console}, select the *${ddf-branding} Content* application.
+. In the ${admin-console}, select the *${ddf-branding} Content* application.
 . Select *Configuration* tab.
 . Select the *Content Directory Monitor*.
 . Set the directory path to `inbox`.

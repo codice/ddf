@@ -1,5 +1,0 @@
-= Managing ${ddf-platform} Application
-include::./_contents/config.adoc[]
-
-== Overview
-include::./_contents/managing-contents.adoc[]

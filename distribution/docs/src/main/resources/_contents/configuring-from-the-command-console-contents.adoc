@@ -1,11 +1,11 @@
 [NOTE]
 ====
-Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the {admin-console} prior to disabling it for hardening purposes.
-The {admin-console} can be re-enabled for additional configuration changes.
+Depending on the environment, it may be easier for integrators and administrators to configure ${branding} using the ${admin-console} prior to disabling it for hardening purposes.
+The ${admin-console} can be re-enabled for additional configuration changes.
 ====
 
-In an environment hardened for security purposes, access to the ${ddf-branding} {admin-console} might be denied.
-It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files or the {admin-console}.
+In an environment hardened for security purposes, access to the ${ddf-branding} ${admin-console} might be denied.
+It is necessary to configure ${branding} (e.g., providers, Schematron rulesets, etc.) using `.config` files or the ${admin-console}.
 Configuration via the Karaf command line console is not supported and may result in configuration errors.
 The OSGi container detects the creation of `.config` files in the `etc/` directory.
 The following sections describe how to configure each ${branding} item using both of these mechanisms.
@@ -13,8 +13,8 @@ A template file is provided for some configurable ${branding} items so that they
 
 [WARNING]
 ====
-If at a later time the {admin-console} is enabled again, all of the configuration done via `.config` files is loaded and displayed.
-However, note that the name of the `.config` file is not used in the {admin-console}.
+If at a later time the ${admin-console} is enabled again, all of the configuration done via `.config` files is loaded and displayed.
+However, note that the name of the `.config` file is not used in the ${admin-console}.
 Rather, OSGi assigns a universally unique identifier (UUID) when the ${branding} item was created and displays this UUID in the console (e.g., `OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b`)
 ====
 
@@ -47,11 +47,11 @@ The following steps define the procedure for configuring a new source or feature
 .. Consult the inline comments in the file for guidance on what to modify.
 .. The Configurable Properties tables in the Integrator's Guide for the Included Catalog Components also describe each field and its value.
 
-The new service can now be used as if it was created using the {admin-console}.
+The new service can now be used as if it was created using the ${admin-console}.
 
-===== Managing Applications From the {command-console}
+===== Managing Applications From the ${command-console}
 
-Applications can be installed from the {command-console} using the following commands:
+Applications can be installed from the ${command-console} using the following commands:
 
 .App Commands
 [cols="2,5" options="header"]
@@ -81,7 +81,7 @@ Applications can be installed from the {command-console} using the following com
 |Dependency tree view of all installed apps.
 |===
 
-===== Managing Features From the {command-console}
+===== Managing Features From the ${command-console}
 
 . Determine which feature to install by viewing the available features on ${branding}. +
 `${branding-lowercase}${at-symbol}local>feature:list`
@@ -146,10 +146,10 @@ State         Version          Name                          Repository  Descrip
 [uninstalled] [${project.version}         ] ${ddf-branding-lowercase}-source-dummy              ddf-${project.version}
 ----
 
-===== Configuring HTTP Port from the {command-console}
+===== Configuring HTTP Port from the ${command-console}
 
 
-==== Configuring HTTP to HTTPS Proxy From the {command-console}
+==== Configuring HTTP to HTTPS Proxy From the ${command-console}
 
 [NOTE]
 ====

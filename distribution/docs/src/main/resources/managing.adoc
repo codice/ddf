@@ -12,3 +12,50 @@ include::./_contents/running-contents.adoc[]
 
 include::./_contents/troubleshooting-contents.adoc[]
 
+<<<
+
+== Managing ${ddf-admin}
+[small]#Version: ${project.version}#
+include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-catalog}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-platform}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-security}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_security/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-solr}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-spatial}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-ui}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/managing-contents.adoc[]

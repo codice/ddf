@@ -3,3 +3,52 @@ include::./_contents/config.adoc[]
 
 == Overview
 include::./_contents/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-admin}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-catalog}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-platform}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-security}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_security/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-solr}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-spatial}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-ui}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/integrating-contents.adoc[]

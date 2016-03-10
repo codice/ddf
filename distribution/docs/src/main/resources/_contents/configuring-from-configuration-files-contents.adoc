@@ -1,7 +1,7 @@
 ==== Configuring ${branding} Global Settings
 
 Global configuration settings are configured via the properties file `system.properties`.
-These properties can be manually set by editing this file or set via the initial configuration from the {admin-console}.
+These properties can be manually set by editing this file or set via the initial configuration from the ${admin-console}.
 
 .Configurable Properties
 [cols="1,1,1,6,2,1"]
@@ -188,7 +188,7 @@ TLS_RSA_WITH_AES_128_CBC_SHA`
 
 |===
 
-These properties are available to be used as variable parameters in input url fields within the {admin-console}.
+These properties are available to be used as variable parameters in input url fields within the ${admin-console}.
 For example, the url for the local csw service (\https://localhost:8993/services/csw) could be defined as:
 
 [source]
@@ -230,7 +230,7 @@ Only one configuration file should exist for any given PID.
 The result of having both a `.cfg` and a `.config` file for the same PID is undefined and could cause the application to fail.
 ====
 
-The main purpose of the configuration files is to allow administrators to pre-configure ${branding} without having to use the {admin-console}.
+The main purpose of the configuration files is to allow administrators to pre-configure ${branding} without having to use the ${admin-console}.
 In order to do so, the configuration files need to be copied to the `<${branding}_HOME>/etc` directory after ${branding} zip has been extracted.
 
 Upon start up, all the `.config` files located in `<${branding}_HOME>/etc` are automatically read and processed.

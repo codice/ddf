@@ -1,0 +1,198 @@
+= Distributed Data Framework Documentation
+include::./_contents/config.adoc[]
+
+== Introduction
+
+include::./_contents/introduction-contents.adoc[]
+
+<<<
+
+=== Documentation Guide
+
+include::./_contents/documentation-notes-contents.adoc[]
+
+<<<
+
+=== ${branding} Quick Start
+
+include::./_contents/quickstart-contents.adoc[]
+
+<<<
+
+== Managing ${branding}
+
+include::./_contents/installing-contents.adoc[]
+
+include::./_contents/configuring-contents.adoc[]
+
+include::./_contents/securing-contents.adoc[]
+
+include::./_contents/running-contents.adoc[]
+
+include::./_contents/troubleshooting-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-admin}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-catalog}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-platform}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-security}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_security/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-solr}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-spatial}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Managing ${ddf-ui}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/managing-contents.adoc[]
+
+<<<
+
+== Integrating ${branding}
+[small]#Version: ${project.version}#
+
+include::./_contents/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-admin}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${branding} Catalog
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-platform}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-security}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_security/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-solr}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-spatial}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Integrating ${ddf-ui}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/integrating-contents.adoc[]
+
+<<<
+
+== Extending ${branding}
+[small]#Version: ${project.version}#
+
+=== Building ${branding}
+include::./_contents/building-ddf-contents.adoc[]
+
+=== Developing for ${branding}
+include::./_contents/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-admin}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/extending-contents.adoc[]]
+
+<<<
+
+
+== Extending ${ddf-catalog}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-platform}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-security}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_security/docs-${project.version}/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-solr}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-spatial}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/extending-contents.adoc[]
+
+<<<
+
+== Extending ${ddf-ui}
+[small]#Version: ${project.version}#
+
+include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/extending-contents.adoc[]

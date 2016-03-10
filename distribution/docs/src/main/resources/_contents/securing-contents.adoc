@@ -1,3 +1,4 @@
+=== Securing ${branding}
 
 [IMPORTANT]
 ====
@@ -55,7 +56,7 @@ As you add REST endpoints, you may need to add different types of authentication
 
 ==== IdP/SP
 
-The {branding} Security Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
+The ${ddf-security} Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
 
 ===== IdP (Identity Provider) and SP (Service Provider)
 
@@ -76,7 +77,7 @@ The IdP client that interacts with the specified Identity Provider.
 
 ===== Configuring
 
-. Navigate to Admin Console -> {branding} Security -> Configuration -> IdP Client
+. Navigate to ${admin-console} -> ${ddf-security} -> Configuration -> IdP Client
 . Populate IdP Metadata field through one of the following:
 .. An HTTPS URL (https://)
 .. A file URL (file:)
@@ -129,7 +130,7 @@ An internal Identity Provider solution.
 
 ===== Configuring IdP Server
 
-. Navigate to Admin Console -> {branding} Security -> Configuration -> IdP Server
+. Navigate to ${admin-console} -> ${ddf-security} -> Configuration -> IdP Server
 . Click the + next to SP Metadata to add a new entry
 . Populate the new entry:
 .. with an HTTPS URL (https://),
@@ -169,7 +170,7 @@ An internal Identity Provider solution.
 
 ===== Related Configuration
 
-. Navigate to Admin Console -> {branding} Security -> Configuration -> Web Context Policy Manager
+. Navigate to ${admin-console} -> ${ddf-security} -> Configuration -> Web Context Policy Manager
 . Under Authentication Types, set the IDP authentication type as necessary.
 Note that it should _only_ be used on context paths that will be accessed by users via web browsers.
 For example:
@@ -177,15 +178,12 @@ For example:
 
 [NOTE]
 ====
-If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in Search UI standard settings.
+If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in *Search UI* standard settings.
 ====
 
 ===== Limitations
 
 The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
-
-
-
 
 ===== CAS Authentication
 
@@ -376,9 +374,6 @@ SAML ASSERTION WILL BE LOCATED HERE
 10:54:22,244 | INFO  | qtp995500086-618 | securityLogger                   | rity.common.audit.SecurityLogger  143 | 245 - security-core-commons - 2.2.0.ALPHA5-SNAPSHOT | Error requesting the security token from STS at: https://server:8993/services/SecurityTokenService.
 ----
 
-
-
-
 ==== CAS SSO Configuration
 
 The Web Service Security (WSS) Implementation that comes with ${ddf-branding} was built to run independent of an SSO or authentication mechanism.
@@ -564,15 +559,15 @@ More information on configuring the LDAP and a list of users and attributes can 
 
 ===== Add cas-server-support-ldap-3.3.1_1.jar to CAS
 
-Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
+Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
 
 ===== Add spring-ldap-1.2.1_1.jar to CAS
 
-Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
+Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
 
 ===== Modify developerConfigContext.xml
 
-. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
+. In `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
 +
 .deployerConfigContext.xml
 [source,xml,linenums]
@@ -595,8 +590,8 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-wi
 </bean>
 ----
 +
-. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
-. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
+. In `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
+. In `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
 +
 .deployerConfigContext.xml
 [source,xml,linenums]
@@ -619,7 +614,7 @@ This section is a reference when Ozone is being used in conjunction with CAS.
 The following settings were used for internal testing and should only be used as a reference.
 
 . Modify OWFsecurityContext.xml
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
 +
 .OWFsecurityContext.xml
 [source]
@@ -627,7 +622,7 @@ The following settings were used for internal testing and should only be used as
 <sec:x509 subject-principal-regex="CN=(.*?)," user-service-ref="ldapUserService" />
 ----
 +
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, remove the following import:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/OWFsecurityContext.xml, remove the following import:
 +
 .OWFsecurityContext.xml
 [source]
@@ -635,7 +630,7 @@ The following settings were used for internal testing and should only be used as
 <import resource="ozone-security-beans/UserServiceBeans.xml" />
 ----
 +
-.. In `{ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml`, add the following import:
+.. In `<OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/OWFsecurityContext.xml`, add the following import:
 +
 .OWFsecurityContext.xml
 [source]
@@ -644,7 +639,7 @@ The following settings were used for internal testing and should only be used as
 ----
 +
 . Modify LdapBeans.xml
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -655,7 +650,7 @@ The following settings were used for internal testing and should only be used as
 </bean>
 ----
 +
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `authoritiesPopulator` to the following:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `authoritiesPopulator` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -667,7 +662,7 @@ The following settings were used for internal testing and should only be used as
 </bean>
 ----
 +
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `ldapUserSearch` to the following:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `ldapUserSearch` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -680,7 +675,7 @@ The following settings were used for internal testing and should only be used as
     <constructor-arg ref="contextSource" />
 </bean>
 ----
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `userDetailsMapper` to the following:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `userDetailsMapper` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -695,7 +690,7 @@ The following settings were used for internal testing and should only be used as
 ----
 +
 . Modify OWFCASBeans.xml
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/OWFCasBeans.xml, change the bean stanza with id `casAuthenticationProvider` to the following:
+.. In <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/lib/ozone-security-beans/OWFCasBeans.xml, change the bean stanza with id `casAuthenticationProvider` to the following:
 +
 .OWFCasBeans.xml
 [source,xml,linenums]
@@ -715,11 +710,11 @@ If any issues occur while configuring for newer versions, check the External Lin
 
 ===== Add the `cas-server-support-x509-3.3.1.jar` to CAS
 
-Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
+Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
 
 ===== Configure Web Flow
 
-. In apache-tomcat-{version}/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
+. In apache-tomcat-<VERSION>/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
 .. Remove the XML comments around the action-state stanza with id `startAuthenticate`.
 +
 .startAuthenticate
@@ -752,7 +747,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 </decision-state>
 ----
 +
-. In `apache-tomcat-{version}/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
+. In `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
 .. Define the x509Check bean.
 +
 .x509Check
@@ -768,7 +763,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 
 ===== Configure the Authentication Handler
 
-In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+In `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
 . In the *`list`* stanza of the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`, add the `X509CredentialAuthenticationHander` bean definition.
 +
@@ -801,7 +796,7 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
 
 ===== Configure the Credentials to the Principal Resolver
 
-In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+In `apache-tomcat-<VERSION>/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
 . In the list stanza of the property stanza with name `credentialsToPrincipalResolver` of the bean stanza with id `AuthenticationManager`, add the `X509CertificateCredentialsToIdentifierPrincipalResolver` bean definition.  The pattern in the value attribute on the property stanza can be modified to suit your needs.  The following is a simple example that uses the first CN field in the DN as the Principal.
 +
@@ -858,9 +853,9 @@ To verify certificate authentication with the default CAS files you must make su
 This has only been tested to work with Firefox.
 These certificates were provided in the Ozone Widget Framework and can be used in development environments.
 
-* The sample certificate for testUser1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testUser1.p12
+* The sample certificate for testUser1 is <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/certs/testUser1.p12
 ** password: password
-* The sample certificate for testAdmin1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testAdmin1.p12
+* The sample certificate for testAdmin1 is <OZONE-WIDGET-FRAMEWORK>/apache-tomcat-<VERSION>/certs/testAdmin1.p12
 ** password: password
 
 ===== External Links
@@ -1027,8 +1022,8 @@ Enabling CRL revocation or modifying the CRL file will require a restart of ${br
 ====
 
 ["lowerroman"]
-. Place the CRL in <ddf.home>/etc/keystores.
-. Uncomment the following line in `<ddf.home>/etc/ws-security/server/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/encryption.properties`, `<${ddf-branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/signature.properties`, and `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`  and replace the filename with the CRL file used in previous step.
+. Place the CRL in <${branding}.home>/etc/keystores.
+. Uncomment the following line in `<${branding}.home>/etc/ws-security/server/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/encryption.properties`, `<${branding-lowercase}.home>/etc/ws-security/issuer/encryption.properties`, `<${branding}_HOME>/etc/ws-security/server/signature.properties`, and `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`  and replace the filename with the CRL file used in previous step.
 
 [source]
 ----
@@ -1267,14 +1262,14 @@ Certificates can be added and removed from these java keystores by using the key
 ====== Updating Key Store / Trust Store via the ${admin-console}
 
 . Open the ${admin-console}.
-. Select the *${ddf-branding} Security* application.
+. Select the *${ddf-security}* application.
 . Select the *Certificates* tab.
 . Add and remove certificates and private keys as necessary.
 . Restart the container.
 
 [IMPORTANT]
 ====
-The default trust store and key store files for {branding} included in `etc/keystores` use self signed certificates.
+The default trust store and key store files for ${branding} included in `etc/keystores` use self signed certificates.
 Self signed certificates should never be used outside of development/testing areas.
 ====
 
@@ -1314,7 +1309,7 @@ Edit the provided configuration file `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.web.cf
 
 |org.osgi.service.http.secure.enabled
 |true
-|Set this to true to SSL enable the {branding} services
+|Set this to true to SSL enable the ${branding} services
 
 |org.osgi.service.http.port.secure
 |8993
@@ -1328,7 +1323,7 @@ For example, JBoss and other application servers use port 8443 by default)
 |Set this to the type of keystore (most likely jks)
 
 |org.ops4j.pax.web.ssl.keystore
-|/opt/ddf/keystore.jks
+|/opt/${branding-lowercase}/keystore.jks
 |Set this to the fully-qualified path to the SSL keystore file
 
 |org.ops4j.pax.web.ssl.keypassword
@@ -1369,7 +1364,7 @@ org.osgi.service.http.secure.enabled=true
 org.osgi.service.http.port.secure=8993
 
 # Fully-qualified path to the SSL keystore
-org.ops4j.pax.web.ssl.keystore=/opt/ddf/keystore.jks
+org.ops4j.pax.web.ssl.keystore=/opt/${branding-lowercase}/keystore.jks
 
 # SSL Keystore Type
 org.ops4j.pax.web.ssl.keystore.type=jks
@@ -1474,8 +1469,8 @@ All ${branding} Catalog operations can be restricted to users with certain attri
 
 ===== Configuring Operation Authorization
 
-. Open the Admin Console at \https://localhost:8993/admin
-. Click the ${ddf-branding} Catalog application tile
+. Open the ${admin-console} at \https://localhost:8993/admin
+. Click the ${ddf-catalog} application tile
 . Click the *Configuration* tab
 . Click on the *Catalog Policy Plugin* configuration.
 . Add any required attributes for each operation type
@@ -1550,8 +1545,8 @@ In this particular case, the metacard might be allowed if the policy is configur
 The procedure for setting up a policy differs depending on whether that policy is to be used internally or by the external XACML processing engine.
 Setting up an internal policy is as follows:
 
-. Open the Admin Console at \https://localhost:8993/admin
-. Click the ${ddf-branding} Security application tile
+. Open the ${admin-console} at \https://localhost:8993/admin
+. Click the ${ddf-security} application tile
 . Click the *Configuration* tab
 . Click on the *Security AuthZ Realm* configuration.
 . Add any attribute mappings necessary to map between subject attributes and the attributes to be asserted.
@@ -1571,7 +1566,7 @@ Information on specific bundle configurations and names can be found on the Secu
 ===== Catalog Filter Policy Plugins
 
 Several PolicyPlugins for catalog filtering exist currently: *Metacard Attribute Security Policy Plugin* and *XML Attribute Security Policy Plugin*.
-These PolicyPlugin implementations allow an administrator to easily add filtering capabilities to some standard Metacard types for all ${ddf-branding} Catalog operations.
+These PolicyPlugin implementations allow an administrator to easily add filtering capabilities to some standard Metacard types for all ${ddf-catalog} operations.
 These plugins will place policy information on the Metacard itself that allows the FilterPlugin to restrict unauthorized users from viewing content they are not allowed to view.
 
 The *XML Attribute Security Policy Plugin* will parse XML metadata contained within a metacard for security attributes on any number of XML elements in the metadata.
@@ -1583,8 +1578,8 @@ The *Metacard Attribute Security Policy Plugin* will pull attributes directly of
 This plugin assumes that the pertinent information has already been parsed out of the metadata and placed directly on the metacard itself.
 
 To configure these policy plugins:
-. Open the Admin Console at \https://localhost:8993/admin
-. Click the ${ddf-branding} Catalog application tile
+. Open the ${admin-console} at \https://localhost:8993/admin
+. Click the ${ddf-catalog} application tile
 . Click the *Configuration* tab
 . Click on either the *Metacard Attribute Security Policy Plugin* or *XML Attribute Security Policy Plugin* configuration.
 
@@ -2015,11 +2010,11 @@ The STS is installed by default in ${ddf-branding}.
 . Verify that the `serverKeystores.jks` file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
 . Start the distribution.
 . Run the installer at https://localhost:8993/admin (if needed)
-. After the installer completes, click the ${ddf-branding} Security application tile
+. After the installer completes, click the ${ddf-security} application tile
 . Click the *Features* tab
 . Install `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features by clicking the *Play* button next to each
-. Open the ${ddf-branding} Admin Console as an administrator (https://localhost:8993/admin).
-. Click the *${ddf-branding} Security* application tile
+. Open the ${admin-console} as an administrator (https://localhost:8993/admin).
+. Click the *${ddf-security}* application tile
 . Click the *Configuration* tab
 . Open the *Security STS LDAP Login* configuration.
 . Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default ${ddf-branding} LDAP settings will match up with the default settings of the OpenDJ embedded LDAP server. If not using the embedded LDAP server, change these values to map to the location and settings of the LDAP server being used.
@@ -2111,7 +2106,7 @@ Information captured includes user identity, query information, and resources re
 The Audit plugin is not enabled by default.
 To enable, sign into the ${admin-console}.
 
-. Select ${ddf-branding} Catalog
+. Select *${ddf-catalog}*
 . Select *Features* tab
 . Install both `catalog-security-logging` and `catalog-security-auditplugin` features.
 

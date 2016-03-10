@@ -1,5 +1,0 @@
-= Integrating ${ddf-admin} Application
-include::./_contents/config.adoc[]
-
-== Overview
-include::./_contents/integrating-contents.adoc[]
