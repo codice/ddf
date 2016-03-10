@@ -60,6 +60,7 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
 import ddf.content.operation.CreateResponse;
+import ddf.content.operation.DeleteRequest;
 import ddf.content.operation.DeleteResponse;
 import ddf.content.operation.UpdateRequest;
 import ddf.content.operation.UpdateResponse;
@@ -105,6 +106,8 @@ public class TestCatalogContentPlugin {
     private CreateRequest mockContentCreateRequest = mock(CreateRequest.class);
 
     private UpdateRequest mockContentUpdateRequest = mock(UpdateRequest.class);
+
+    private DeleteRequest mockContentDeleteRequest = mock(DeleteRequest.class);
 
     private CreateResponse mockContentCreateResponse = mock(CreateResponse.class);
 
@@ -550,11 +553,11 @@ public class TestCatalogContentPlugin {
 
         when(mockContentCreateResponse.getCreatedContentItem()).thenReturn(mockContentItem);
         when(mockContentCreateResponse.getRequest()).thenReturn(mockContentCreateRequest);
+        when(mockContentCreateRequest.getProperties()).thenReturn(new HashMap<>());
         when(mockContentCreateResponse.getCreatedMetadata()).thenReturn(data);
         when(mockContentCreateResponse.getCreatedMetadataMimeType()).thenReturn(MIME_TYPE);
 
-        when(mockCatalogFramework.transform(any(Metacard.class),
-                eq(DEFAULT_METACARD_TRANSFORMER),
+        when(mockCatalogFramework.transform(any(Metacard.class), eq(DEFAULT_METACARD_TRANSFORMER),
                 isNull(Map.class))).thenReturn(mockBinaryContent);
         when(mockCatalogFramework.create(any(ddf.catalog.operation.CreateRequest.class))).thenReturn(
                 mockCatalogCreateResponse);
@@ -566,10 +569,13 @@ public class TestCatalogContentPlugin {
         when(mockContentItem.getUri()).thenReturn(TEST_URI);
         when(mockContentUpdateResponse.getUpdatedContentItem()).thenReturn(mockContentItem);
         when(mockContentUpdateResponse.getRequest()).thenReturn(mockContentUpdateRequest);
+        when(mockContentUpdateRequest.getProperties()).thenReturn(new HashMap<>());
         when(mockContentUpdateResponse.getUpdatedMetadata()).thenReturn(data);
         when(mockContentUpdateResponse.getUpdatedMetadataMimeType()).thenReturn(MIME_TYPE);
 
         when(mockContentDeleteResponse.getContentItem()).thenReturn(mockContentItem);
+        when(mockContentDeleteResponse.getRequest()).thenReturn(mockContentDeleteRequest);
+        when(mockContentDeleteRequest.getProperties()).thenReturn(new HashMap<>());
     }
 
     private void mockSecurity() {
