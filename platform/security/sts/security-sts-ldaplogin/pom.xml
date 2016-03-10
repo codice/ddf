@@ -41,16 +41,21 @@
                         <Import-Package>
                             org.osgi.service.blueprint,
                             org.osgi.framework,
+                            javax.security.auth.callback,
                             javax.security.auth.login,
                             javax.net.ssl,
                             javax.naming,
                             org.apache.karaf.jaas.config,
-                            org.apache.karaf.jaas.modules.ldap
+                            org.apache.karaf.jaas.modules,
+                            ddf.security.common.audit,
+                            ddf.security.sts,
+                            ddf.security.encryption,
+                            org.codice.ddf.configuration,
+                            org.slf4j
                         </Import-Package>
                         <Private-Package>
                             org.apache.karaf.jaas.config.impl
                         </Private-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -122,6 +127,11 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-server</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.org.forgerock.opendj</groupId>

@@ -156,7 +156,6 @@
                             ddf.catalog.util.impl,
                             ddf.catalog.endpoint.impl
                         </Private-Package>
-                        <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

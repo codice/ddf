@@ -38,10 +38,11 @@
                         <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[4,5)"
                         </Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <DynamicImport-Package>
+                        <Import-Package>
                             org.eclipse.jetty.server.session,
-                            javax.servlet.http
-                        </DynamicImport-Package>
+                            javax.servlet.http,
+                            *
+                        </Import-Package>
                         <Import-Package/>
                         <Export-Package/>
                     </instructions>
