@@ -69,7 +69,7 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>
                             *;artifactId=!hamcrest-core|hamcrest-library|hamcrest-all|
-                            junit|mockito-all
+                            junit|mockito-core
                         </Embed-Dependency>
                         <Export-Package>
                             com.jayway.restassured;version="${restassured.version}",

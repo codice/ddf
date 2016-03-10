@@ -143,12 +143,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-core</artifactId>
         </dependency>
@@ -233,7 +227,9 @@
                             org.apache.commons.io;version="1.4.0",
                             *
                         </Import-Package>
-                        <Embed-Dependency>httpclient,httpcore,platform-util-unavailableurls,ddf-security-common,platform-util</Embed-Dependency>
+                        <Embed-Dependency>
+                            httpclient,httpcore,platform-util-unavailableurls,ddf-security-common,platform-util
+                        </Embed-Dependency>
                         <Export-Package>
                             ddf.security.impl;version=${project.version},
                             ddf.security.service.impl;version=${project.version},

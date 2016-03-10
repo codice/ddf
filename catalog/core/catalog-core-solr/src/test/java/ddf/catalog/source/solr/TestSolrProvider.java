@@ -67,7 +67,6 @@ import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
@@ -104,12 +103,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Tests the {@link ddf.catalog.source.solr.SolrCatalogProvider}.
- * <p>
- * Uses the {@link RandomBlockJUnit4ClassRunner} to run the methods randomly so that the order does
- * not matter when testing.
- * </p>
  */
-@RunWith(RandomBlockJUnit4ClassRunner.class)
+
 public class TestSolrProvider extends SolrProviderTestCase {
 
     protected static final String SHOW_LOW_AIRPORT_POINT_WKT =
@@ -277,8 +272,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
         assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
         assertNotNull(mResult.getMetadata());
-        assertThat(mResult.getMetadata(),
-                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(mResult.getMetadata(), containsString(
+                "<title>Flagstaff Chamber of Commerce</title>"));
         assertTrue(!mResult.getMetadata()
                 .isEmpty());
         assertFalse(mResult.getCreatedDate()
@@ -381,8 +376,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertEquals(MockMetacard.DEFAULT_TYPE, createdMetacard.getContentTypeName());
         assertEquals(MockMetacard.DEFAULT_VERSION, createdMetacard.getContentTypeVersion());
         assertNotNull(createdMetacard.getMetadata());
-        assertThat(createdMetacard.getMetadata(),
-                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(createdMetacard.getMetadata(), containsString(
+                "<title>Flagstaff Chamber of Commerce</title>"));
         assertThat(createdMetacard.getMetadata()
                 .isEmpty(), is(not(true)));
         assertThat(createdMetacard.getCreatedDate(), is(oneDayAgo));
@@ -421,8 +416,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertEquals(MockMetacard.DEFAULT_TYPE, mResult.getContentTypeName());
         assertEquals(MockMetacard.DEFAULT_VERSION, mResult.getContentTypeVersion());
         assertNotNull(mResult.getMetadata());
-        assertThat(mResult.getMetadata(),
-                containsString("<title>Flagstaff Chamber of Commerce</title>"));
+        assertThat(mResult.getMetadata(), containsString(
+                "<title>Flagstaff Chamber of Commerce</title>"));
         assertThat(mResult.getMetadata()
                 .isEmpty(), is(not(true)));
         assertThat(mResult.getCreatedDate(), is(oneDayAgo));
@@ -1202,9 +1197,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 .get(0);
 
         assertThat(update.getNewMetacard()
-                        .getId(),
-                is(equalTo(update.getOldMetacard()
-                        .getId())));
+                .getId(), is(equalTo(update.getOldMetacard()
+                .getId())));
 
         assertEquals(1,
                 response.getUpdatedMetacards()
@@ -2347,11 +2341,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         Filter filter =
                 filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                        FLAGSTAFF_QUERY_PHRASE,
-                        wildcard,
-                        singleChar,
-                        escape,
-                        false),
+                                FLAGSTAFF_QUERY_PHRASE,
+                                wildcard,
+                                singleChar,
+                                escape,
+                                false),
                         filterFactory.like(filterFactory.property(Metacard.METADATA),
                                 TAMPA_QUERY_PHRASE,
                                 wildcard,
@@ -2373,13 +2367,12 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 wildcard,
                 singleChar,
                 escape,
-                false),
-                filterFactory.like(filterFactory.property(Metacard.METADATA),
-                        AIRPORT_QUERY_PHRASE,
-                        wildcard,
-                        singleChar,
-                        escape,
-                        false));
+                false), filterFactory.like(filterFactory.property(Metacard.METADATA),
+                AIRPORT_QUERY_PHRASE,
+                wildcard,
+                singleChar,
+                escape,
+                false));
 
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -2395,13 +2388,12 @@ public class TestSolrProvider extends SolrProviderTestCase {
                 wildcard,
                 singleChar,
                 escape,
-                false),
-                filterFactory.like(filterFactory.property(Metacard.METADATA),
-                        TAMPA_QUERY_PHRASE,
-                        wildcard,
-                        singleChar,
-                        escape,
-                        false));
+                false), filterFactory.like(filterFactory.property(Metacard.METADATA),
+                TAMPA_QUERY_PHRASE,
+                wildcard,
+                singleChar,
+                escape,
+                false));
 
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -2413,13 +2405,18 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CONTEXTUAL QUERY - AND / OR positive **/
 
         filter = filterFactory.or(filterFactory.and(filterFactory.like(filterFactory.property(
-                Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false),
-                filterFactory.like(filterFactory.property(Metacard.METADATA),
-                        "AZ",
-                        wildcard,
-                        singleChar,
-                        escape,
-                        false)),
+                                        Metacard.METADATA),
+                                AIRPORT_QUERY_PHRASE,
+                                wildcard,
+                                singleChar,
+                                escape,
+                                false),
+                        filterFactory.like(filterFactory.property(Metacard.METADATA),
+                                "AZ",
+                                wildcard,
+                                singleChar,
+                                escape,
+                                false)),
                 filterFactory.like(filterFactory.property(Metacard.METADATA),
                         FLAGSTAFF_QUERY_PHRASE,
                         wildcard,
@@ -2437,11 +2434,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** COMPLEX CONTEXTUAL QUERY **/
 
         filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                AIRPORT_QUERY_PHRASE,
-                wildcard,
-                singleChar,
-                escape,
-                false),
+                        AIRPORT_QUERY_PHRASE,
+                        wildcard,
+                        singleChar,
+                        escape,
+                        false),
                 filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
                         "AZ",
                         wildcard,
@@ -2449,11 +2446,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
                         escape,
                         false),
                         filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                                FLAGSTAFF_QUERY_PHRASE,
-                                wildcard,
-                                singleChar,
-                                escape,
-                                false),
+                                        FLAGSTAFF_QUERY_PHRASE,
+                                        wildcard,
+                                        singleChar,
+                                        escape,
+                                        false),
                                 filterFactory.like(filterFactory.property(Metacard.METADATA),
                                         TAMPA_QUERY_PHRASE,
                                         wildcard,
@@ -2471,11 +2468,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CONTEXTUAL QUERY - NOT positive **/
 
         filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                FLAGSTAFF_QUERY_PHRASE,
-                wildcard,
-                singleChar,
-                escape,
-                false),
+                        FLAGSTAFF_QUERY_PHRASE,
+                        wildcard,
+                        singleChar,
+                        escape,
+                        false),
                 filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA),
                         TAMPA_QUERY_PHRASE,
                         wildcard,
@@ -2493,11 +2490,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CONTEXTUAL QUERY - NOT negative **/
 
         filter = filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                FLAGSTAFF_QUERY_PHRASE,
-                wildcard,
-                singleChar,
-                escape,
-                false),
+                        FLAGSTAFF_QUERY_PHRASE,
+                        wildcard,
+                        singleChar,
+                        escape,
+                        false),
                 filterFactory.not(filterFactory.like(filterFactory.property(Metacard.METADATA),
                         AIRPORT_QUERY_PHRASE,
                         wildcard,
@@ -2566,19 +2563,23 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CONTEXTUAL QUERY - AND / OR **/
 
         filter = filterFactory.or(filterFactory.and(filterFactory.like(filterFactory.property(
-                Metacard.METADATA), AIRPORT_QUERY_PHRASE, wildcard, singleChar, escape, false),
-                filterFactory.like(filterFactory.property(Metacard.METADATA),
+                                Metacard.METADATA),
+                        AIRPORT_QUERY_PHRASE,
+                        wildcard,
+                        singleChar,
+                        escape,
+                        false), filterFactory.like(filterFactory.property(Metacard.METADATA),
                         "AZ",
                         wildcard,
                         singleChar,
                         escape,
                         false)),
                 filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                        FLAGSTAFF_QUERY_PHRASE,
-                        wildcard,
-                        singleChar,
-                        escape,
-                        false),
+                                FLAGSTAFF_QUERY_PHRASE,
+                                wildcard,
+                                singleChar,
+                                escape,
+                                false),
                         filterFactory.like(filterFactory.property(Metacard.METADATA),
                                 "AZ",
                                 wildcard,
@@ -2596,11 +2597,11 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /** CONTEXTUAL QUERY - OR Then NOT **/
 
         filter = filterFactory.or(filterFactory.like(filterFactory.property(Metacard.METADATA),
-                FLAGSTAFF_QUERY_PHRASE,
-                wildcard,
-                singleChar,
-                escape,
-                false),
+                        FLAGSTAFF_QUERY_PHRASE,
+                        wildcard,
+                        singleChar,
+                        escape,
+                        false),
                 filterFactory.and(filterFactory.like(filterFactory.property(Metacard.METADATA),
                         "AZ",
                         wildcard,
@@ -3262,10 +3263,10 @@ public class TestSolrProvider extends SolrProviderTestCase {
                         .like()
                         .text("any phrase"),
                 filterBuilder.allOf(filterBuilder.attribute(Metacard.GEOGRAPHY)
-                                .intersecting()
-                                .wkt(TAMPA_AIRPORT_POINT_WKT),
-                        filterBuilder.xpath("/rss//item/enclosure/@url")
-                                .exists()));
+                        .intersecting()
+                        .wkt(TAMPA_AIRPORT_POINT_WKT), filterBuilder.xpath(
+                        "/rss//item/enclosure/@url")
+                        .exists()));
 
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -3282,14 +3283,14 @@ public class TestSolrProvider extends SolrProviderTestCase {
         /* spatial AND (Bad XPath OR Bad XPath) */
 
         filter = filterBuilder.allOf(filterBuilder.attribute(Metacard.GEOGRAPHY)
-                        .intersecting()
-                        .wkt(FLAGSTAFF_AIRPORT_POINT_WKT),
-                filterBuilder.anyOf(filterBuilder.xpath(nonexistentXpath)
-                                .exists(),
-                        filterBuilder.xpath("//also/does/not[@exist]")
-                                .is()
-                                .like()
-                                .text(FLAGSTAFF_QUERY_PHRASE)));
+                .intersecting()
+                .wkt(FLAGSTAFF_AIRPORT_POINT_WKT), filterBuilder.anyOf(filterBuilder.xpath(
+                        nonexistentXpath)
+                        .exists(),
+                filterBuilder.xpath("//also/does/not[@exist]")
+                        .is()
+                        .like()
+                        .text(FLAGSTAFF_QUERY_PHRASE)));
 
         sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
@@ -3996,9 +3997,10 @@ public class TestSolrProvider extends SolrProviderTestCase {
         assertEquals(1, results.size());
 
         /** NEGATIVE CASES **/
-        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED,
-                getCannedTime(1980, Calendar.JANUARY, 1, 3),
-                dateBeforeNow(now));
+        filter = filterBuilder.dateIsDuring(Metacard.MODIFIED, getCannedTime(1980,
+                Calendar.JANUARY,
+                1,
+                3), dateBeforeNow(now));
         results = getResultsForFilteredQuery(filter);
         assertEquals(0, results.size());
 
@@ -4724,8 +4726,9 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query));
 
-        assertEquals(1, sourceResponse.getResults()
-                .size());
+        assertEquals(1,
+                sourceResponse.getResults()
+                        .size());
     }
 
     @Test
@@ -5303,15 +5306,12 @@ public class TestSolrProvider extends SolrProviderTestCase {
         Set<ContentType> contentTypes = provider.getContentTypes();
         assertEquals(3, contentTypes.size());
 
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-                        MockMetacard.DEFAULT_VERSION)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-                        MockMetacard.DEFAULT_VERSION)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-                        SAMPLE_CONTENT_VERSION_3)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_3)));
 
     }
 
@@ -5371,27 +5371,20 @@ public class TestSolrProvider extends SolrProviderTestCase {
         Set<ContentType> contentTypes = provider.getContentTypes();
         assertEquals(7, contentTypes.size());
 
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-                        SAMPLE_CONTENT_VERSION_1)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-                        SAMPLE_CONTENT_VERSION_1)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-                        SAMPLE_CONTENT_VERSION_2)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
-                        SAMPLE_CONTENT_VERSION_3)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
-                        SAMPLE_CONTENT_VERSION_4)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_4,
-                        SAMPLE_CONTENT_VERSION_1)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-                        SAMPLE_CONTENT_VERSION_4)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                SAMPLE_CONTENT_VERSION_1)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_1)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_2)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
+                SAMPLE_CONTENT_VERSION_3)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_3,
+                SAMPLE_CONTENT_VERSION_4)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_4,
+                SAMPLE_CONTENT_VERSION_1)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                SAMPLE_CONTENT_VERSION_4)));
 
     }
 
@@ -5411,9 +5404,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         Set<ContentType> contentTypes = provider.getContentTypes();
         assertEquals(1, contentTypes.size());
 
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
-                        MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                MockMetacard.DEFAULT_VERSION)));
 
     }
 
@@ -5434,8 +5426,8 @@ public class TestSolrProvider extends SolrProviderTestCase {
         Set<ContentType> contentTypes = provider.getContentTypes();
         assertEquals(1, contentTypes.size());
 
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1, null)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                null)));
     }
 
     @Test
@@ -5460,14 +5452,12 @@ public class TestSolrProvider extends SolrProviderTestCase {
         Set<ContentType> contentTypes = provider.getContentTypes();
         assertEquals(3, contentTypes.size());
 
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1, null)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-                        MockMetacard.DEFAULT_VERSION)));
-        assertThat(contentTypes,
-                hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
-                        SAMPLE_CONTENT_VERSION_3)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_1,
+                null)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                MockMetacard.DEFAULT_VERSION)));
+        assertThat(contentTypes, hasItem((ContentType) new ContentTypeImpl(SAMPLE_CONTENT_TYPE_2,
+                SAMPLE_CONTENT_VERSION_3)));
     }
 
     @Test

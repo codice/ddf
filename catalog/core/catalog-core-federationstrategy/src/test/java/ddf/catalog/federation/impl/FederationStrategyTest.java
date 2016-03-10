@@ -228,9 +228,7 @@ public class FederationStrategyTest {
     }
 
     /**
-     * Verify that a modified version of the query passed into {@link
-     * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
-     * used by the sources.
+     * Verify that a modified version of the query passed is used by the sources.
      * <p>
      * Special results handling done by OffsetResultsHandler.
      */
@@ -410,9 +408,7 @@ public class FederationStrategyTest {
     }
 
     /**
-     * Verify that the original query passed into {@link
-     * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
-     * used by the source.
+     * Verify that the original query is used by the source.
      * <p>
      * No special results handling done by OffsetResultsHandler.
      */
@@ -486,9 +482,7 @@ public class FederationStrategyTest {
     }
 
     /**
-     * Verify that the original query passed into {@link
-     * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
-     * used by the sources.
+     * Verify that the original query passed is used by the sources.
      * <p>
      * No special results handling done by OffsetResultsHandler.
      */
@@ -624,9 +618,7 @@ public class FederationStrategyTest {
     }
 
     /**
-     * Verify that the original query passed into {@link
-     * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
-     * used by the source.
+     * Verify that the original query is used by the source.
      * <p>
      * No special results handling done by OffsetResultsHandler.
      */
