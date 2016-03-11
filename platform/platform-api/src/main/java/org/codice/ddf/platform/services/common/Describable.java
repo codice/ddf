@@ -11,35 +11,32 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.content.util;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+package org.codice.ddf.platform.services.common;
 
 /**
- * Describable is used to capture a basic description. For an example of a how the Describable
- * interface is used view the {@link ddf.content.storage.StorageProvider} interface and the DescribableImpl
- * class.
+ * Describable is used to capture a basic description of a service. This provides valuable runtime
+ * information to the user regarding the application bundles and OSGi.
+ *
+ * This interface is not meant to be a concrete store of data and does not have a default implementation.
+ * It is expected that the children are services that perform specific tasks.
  */
-@Deprecated
-@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_INTERFACE")
-public interface Describable extends org.codice.ddf.platform.services.common.Describable {
+public interface Describable {
     /**
-     * Retrieve the version.
+     * Returns the version.
      *
      * @return the version of the item being described (example: 1.0)
      */
-    public String getVersion();
+    String getVersion();
 
     /**
      * Returns the name, aka ID, of the describable item. The name should be unique for each
-     * instance.
-     *
-     * Example: <code>fsprovider</code> for a {@link ddf.content.storage.StorageProvider}
-     * that stores content to a file system
+     * instance with the scope of a service or a component. For example, this is unique for any
+     * Migratable in a set of Migratables. It is not necessarily unique between Migratables and
+     * Metacards.
      *
      * @return ID of the item
      */
-    public String getId();
+    String getId();
 
     /**
      * Returns the title of the describable item. It is generally more verbose than the name (aka
@@ -47,19 +44,19 @@ public interface Describable extends org.codice.ddf.platform.services.common.Des
      *
      * @return title of the item (example: File System Provider)
      */
-    public String getTitle();
+    String getTitle();
 
     /**
      * Returns a description of the describable item.
      *
      * @return description of the item (example: Provider that returns back static results)
      */
-    public String getDescription();
+    String getDescription();
 
     /**
      * Returns the organization associated with the describable item.
      *
      * @return organizational name or acronym (example: USAF)
      */
-    public String getOrganization();
+    String getOrganization();
 }

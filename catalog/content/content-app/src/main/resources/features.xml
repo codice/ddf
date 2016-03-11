@@ -30,6 +30,7 @@
 
     <feature name="content-core-api" install="auto" version="${project.version}"
              description="Content API">
+        <bundle dependency="true">mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-api/${project.version}</bundle>
     </feature>
 

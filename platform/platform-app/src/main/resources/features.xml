@@ -663,6 +663,11 @@
     </feature>
     <!-- End CXF Features -->
 
+    <feature name="platform-api" install="manual" version="${project.version}"
+             description="Top Level Platform API">
+        <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
+    </feature>
+
     <feature name ="platform-migratable-api" install="manual" version="${project.version}"
              description="Platform Migratable API">
         <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
@@ -973,6 +978,7 @@
     </feature>
 
     <feature name="platform-all" install="manual" version="${project.version}" hidden="true">
+        <feature prerequisite="true">platform-api</feature>
         <feature prerequisite="true">platform-security-session</feature>
         <feature prerequisite="true">platform-migrate-all</feature>
         <feature>platform-scheduler</feature>

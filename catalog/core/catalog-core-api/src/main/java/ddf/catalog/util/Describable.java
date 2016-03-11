@@ -13,13 +13,15 @@
  */
 package ddf.catalog.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Describable is used to capture a basic description. For an example of a how the Describable
  * interface is used view the {@link ddf.catalog.source.Source} interface and the {@link DescribableImpl} class.
- *
- * @author ddf.isgs@lmco.com
  */
-public interface Describable {
+@Deprecated
+@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_INTERFACE")
+public interface Describable extends org.codice.ddf.platform.services.common.Describable {
 
     /**
      * Retrieve the version.
