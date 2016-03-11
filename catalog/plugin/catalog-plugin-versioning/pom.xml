@@ -64,11 +64,6 @@
                             platform-util-unavailableurls,
                             ddf-security-common
                         </Embed-Dependency>
-                        <!--<Private-Package>-->
-                        <!--ddf.catalog.backup,-->
-                        <!--ddf.catalog.data.impl,-->
-                        <!--org.codice.ddf.platform.util-->
-                        <!--</Private-Package>-->
                         <Export-Package/>
 
                     </instructions>

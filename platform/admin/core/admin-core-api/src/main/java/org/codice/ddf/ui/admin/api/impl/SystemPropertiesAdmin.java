@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
+    private static final String DEFAULT_LOCALHOST_DN = "localhost.local";
+
     private MBeanServer mbeanServer;
 
     private ObjectName objectName;
@@ -218,9 +220,14 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
 
         Map<String, Object> json = null;
         try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
-            json = MAPPER.parser().parseMap(stream);
+            json = MAPPER.parser()
+                    .parseMap(stream);
             if (json.containsKey(oldHostName)) {
                 json.put(System.getProperty(SystemBaseUrl.HOST), json.remove(oldHostName));
+            }
+
+            for (Map.Entry<String, Object> entry : json.entrySet()) {
+                json.put(entry.getKey(), replaceLocalhost(entry.getValue()));
             }
         } catch (IOException e) {
             LOGGER.error("Unable to read system user attribute file for hostname update.", e);
@@ -234,6 +241,36 @@ public class SystemPropertiesAdmin implements SystemPropertiesAdminMBean {
             }
         }
 
+    }
+
+    /*
+     * Replace any instances of SystemPropertiesAdmin#DEFAULT_LOCALHOST_DN with the actual
+     * hostname.
+     */
+    @SuppressWarnings("unchecked")
+    private Object replaceLocalhost(Object hostMap) {
+        if (!(hostMap instanceof Map)) {
+            return hostMap;
+        }
+
+        Map<String, Object> map;
+        try {
+            map = (Map<String, Object>) hostMap;
+        } catch (ClassCastException e) {
+            return hostMap;
+        }
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!(entry.getValue() instanceof String)) {
+                continue;
+            }
+            String val = (String) entry.getValue();
+            if (val.contains(DEFAULT_LOCALHOST_DN)) {
+                map.put(entry.getKey(),
+                        val.replace(DEFAULT_LOCALHOST_DN, System.getProperty(SystemBaseUrl.HOST)));
+            }
+        }
+        return map;
     }
 
     private SystemPropertyDetails getSystemPropertyDetails(String key, String title,

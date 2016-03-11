@@ -16,6 +16,7 @@ package ddf.catalog.metacard.versioning;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,8 @@ public class HistorianPlugin implements PostIngestPlugin {
         final List<Metacard> versionedMetacards = metacards.stream()
                 .filter(metacard -> !metacard.getMetacardType()
                         .equals(HistoryMetacardImpl.getVersionHistoryMetacardType()))
-                .map(metacard -> new HistoryMetacardImpl(metacard, action))
+                .map(metacard -> new HistoryMetacardImpl(metacard, action,
+                        SecurityUtils.getSubject()))
                 .collect(Collectors.toList());
 
         if (versionedMetacards.isEmpty()) {

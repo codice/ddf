@@ -486,7 +486,8 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <npmVersion>${npm.version}</npmVersion>
-                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot>
+                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/
+                                </downloadRoot>
                             </configuration>
                         </execution>
                         <execution>
@@ -506,6 +507,19 @@
                             <configuration>
                                 <arguments>build</arguments>
                             </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
                         </execution>
                     </executions>
                 </plugin>
@@ -653,7 +667,8 @@
                                                 </excludes>
                                             </resource>
                                             <resource>
-                                                <directory>${project.build.directory}/adoc</directory>
+                                                <directory>${project.build.directory}/adoc
+                                                </directory>
                                                 <filtering>true</filtering>
                                                 <includes>
                                                     <include>**/*.adoc</include>
@@ -1004,6 +1019,19 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 </plugins>
             </build>
         </profile>

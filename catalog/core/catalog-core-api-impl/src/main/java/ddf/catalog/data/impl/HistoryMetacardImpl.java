@@ -22,9 +22,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -62,6 +63,12 @@ public class HistoryMetacardImpl extends MetacardImpl {
         }
     }
 
+    private static final String HISTORY_PREFIX = "metacard.history";
+
+    private static Function<String, String> prefix = s -> String.format("%s.%s",
+            HISTORY_PREFIX,
+            s);
+
     /**
      * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Metacard#TAGS} when
      * a metacard is a History Metacard.
@@ -75,30 +82,30 @@ public class HistoryMetacardImpl extends MetacardImpl {
      *
      * @since DDF-2.9.0
      */
-    public static final String STATE = "state";
+    public static final String STATE = prefix.apply("state");
 
     /**
      * {@link ddf.catalog.data.Attribute} name for the editor of this {@link Metacard} revision.
      *
      * @since DDF-2.9.0
      */
-    public static final String EDITED_BY = "edited-by";
+    public static final String EDITED_BY = prefix.apply("edited-by");
 
     /**
      * {@link ddf.catalog.data.Attribute} name for version date of this {@link Metacard} revision.
      *
      * @since DDF-2.9.0
      */
-    public static final String VERSIONED = "versioned";
+    public static final String VERSIONED = prefix.apply("versioned");
 
     /**
      * {@link ddf.catalog.data.Attribute} name for metacard ID on a history item of this {@link Metacard} revision.
      *
      * @since DDF-2.9.0
      */
-    public static final String ID_HISTORY = "history-id";
+    public static final String ID_HISTORY = prefix.apply("history-id");
 
-    public static final String TAGS_HISTORY = "history-tags";
+    public static final String TAGS_HISTORY = prefix.apply("history-tags");
 
     private static MetacardType versionHistoryMetacard;
 
@@ -150,7 +157,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
      * @param action         Which action was done to modify the metacard
      * @throws IllegalArgumentException
      */
-    public HistoryMetacardImpl(Metacard sourceMetacard, Action action) {
+    public HistoryMetacardImpl(Metacard sourceMetacard, Action action, Subject subject) {
         super(sourceMetacard, versionHistoryMetacard);
         if (sourceMetacard instanceof HistoryMetacardImpl) {
             throw new IllegalArgumentException(
@@ -161,9 +168,9 @@ public class HistoryMetacardImpl extends MetacardImpl {
         this.setIdHistory(sourceMetacard.getId());
         this.setTagsHistory(sourceMetacard.getTags());
 
-        String editedBy = SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
+        String editedBy = SubjectUtils.getEmailAddress(subject);
         if (editedBy == null || editedBy.equals("")) {
-            editedBy = SubjectUtils.getName(SecurityUtils.getSubject());
+            editedBy = SubjectUtils.getName(subject);
         }
         this.setEditedBy(editedBy);
 
@@ -179,12 +186,12 @@ public class HistoryMetacardImpl extends MetacardImpl {
      * {@link HistoryMetacardImpl}
      *
      * @return The converted metacard
+     * @throws IllegalStateException
      */
-    public Metacard toBasicMetacard() throws IllegalArgumentException {
-        // TODO (RCZ) - DO THIS
+    public Metacard toBasicMetacard() {
         String id = this.getIdHistory();
         if (id == null || id.matches("\\s*")) {
-            throw new IllegalArgumentException(
+            throw new IllegalStateException(
                     "Cannot convert history metacard without the original metacard id");
         }
 
