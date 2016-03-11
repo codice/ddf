@@ -356,7 +356,7 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pdf/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-versioning-plugin" install="manual" version="${project.version"
+    <feature name="catalog-versioning-plugin" install="manual" version="${project.version}"
              description="DDF Metacard Versioning Plugin">
         <feature prerequisite="true">catalog-core</feature>
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-versioning/${project.version}</bundle>

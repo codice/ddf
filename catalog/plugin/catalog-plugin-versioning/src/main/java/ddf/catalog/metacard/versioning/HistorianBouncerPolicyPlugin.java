@@ -14,13 +14,13 @@
 package ddf.catalog.metacard.versioning;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -34,15 +34,11 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
 public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
+
+    public static final String HISTORY_ROLE = "system-history";
+
     private final Predicate<Metacard> isMetacardHistory = (tags) -> tags.getTags()
             .contains(HistoryMetacardImpl.HISTORY_TAG);
-
-    private final Predicate<Subject> isAdminSubject = (subject) -> SecurityUtils.getSubject()
-            .hasRole("codice-history");
-
-    private final Supplier<StopProcessingException> exceptionSupplier =
-            () -> new StopProcessingException(
-                    "Illegal Operation. History cannot be manually modified");
 
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
@@ -51,13 +47,11 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             /* not modifying history, proceed */
             return new PolicyResponseImpl();
         }
+        return new PolicyResponseImpl(new HashMap<>(),
+                Collections.singletonMap(
+                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
+                        Collections.singleton("system-history")));
 
-        if (!isAdminSubject.test(SecurityUtils.getSubject())) {
-            /* trying to modify history without codice-history role, deny */
-            throw exceptionSupplier.get();
-        }
-
-        return new PolicyResponseImpl();
     }
 
     @Override
@@ -67,12 +61,10 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             /* not modifying history, proceed */
             return new PolicyResponseImpl();
         }
-        if (!isAdminSubject.test(SecurityUtils.getSubject())) {
-            /* trying to modify history without codice-history role, deny */
-            throw exceptionSupplier.get();
-        }
-
-        return new PolicyResponseImpl();
+        return new PolicyResponseImpl(new HashMap<>(),
+                Collections.singletonMap(
+                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
+                        Collections.singleton("system-history")));
     }
 
     @Override
@@ -83,11 +75,10 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             /* not modifying history, proceed */
             return new PolicyResponseImpl();
         }
-        if (!isAdminSubject.test(SecurityUtils.getSubject())) {
-            /* trying to modify history without codice-history role, deny */
-            throw exceptionSupplier.get();
-        }
-        return new PolicyResponseImpl();
+        return new PolicyResponseImpl(new HashMap<>(),
+                Collections.singletonMap(
+                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
+                        Collections.singleton(HISTORY_ROLE)));
     }
 
     @Override

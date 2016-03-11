@@ -38,6 +38,9 @@ public final class SubjectUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubjectUtils.class);
 
+    public static final String EMAIL_ADDRESS_CLAIM_URI =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+
     private SubjectUtils() {
 
     }
@@ -169,7 +172,7 @@ public final class SubjectUtils {
                 .flatMap(as -> as.getAttributes()
                         .stream())
                 .filter(a -> a.getName()
-                        .equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"))
+                        .equals(EMAIL_ADDRESS_CLAIM_URI))
                 .flatMap(a -> a.getAttributeValues()
                         .stream())
                 .filter(o -> o instanceof XSString)
