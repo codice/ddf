@@ -19,7 +19,7 @@ import java.util.List;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
+import ddf.catalog.registry.common.RegistryConstants;
 
 public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
     /*
@@ -66,14 +66,14 @@ public class RegistryQueryDelegate extends FilterDelegate<Boolean> {
 
     @Override
     public Boolean propertyIsEqualTo(String propertyName, String pattern, boolean isCaseSensitive) {
-        return propertyName.equals(Metacard.CONTENT_TYPE) && pattern.startsWith(
-                RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME);
+        return propertyName.equals(Metacard.CONTENT_TYPE)
+                && pattern.startsWith(RegistryConstants.REGISTRY_TAG);
     }
 
     @Override
     public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-        return propertyName.equals(Metacard.CONTENT_TYPE) && pattern.startsWith(
-                RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME);
+        return propertyName.equals(Metacard.CONTENT_TYPE)
+                && pattern.startsWith(RegistryConstants.REGISTRY_TAG);
     }
 
     @Override

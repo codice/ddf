@@ -14,10 +14,15 @@
 -->
 <rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
                      home="https://somehost:someport"
-                     objectType="urn:catalog.service">
+                     objectType="urn:registry:federation:node">
 
     <rim:RegistryObjectList>
         <!-- id is just unique in document. convention will be urn:organization:<orgname> -->
+
+        <rim:Organization id="urn:node:organization:id0"
+                          parent="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
+        </rim:Organization>
+
         <rim:Organization id="urn:node:organization:myneworg"
                           parent="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
             <rim:Name>
@@ -29,9 +34,7 @@
             <rim:EmailAddress address="someone@somewhere.com"/>
         </rim:Organization>
 
-        <rim:Organization id="urn:node:organization:primary"
-                          parent="urn:uuid:2014ca7f59ac46f495e32b4a67a51276">
-        </rim:Organization>
+
 
     </rim:RegistryObjectList>
 </rim:RegistryPackage>

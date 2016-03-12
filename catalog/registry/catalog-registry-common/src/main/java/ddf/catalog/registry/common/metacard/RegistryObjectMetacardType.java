@@ -27,8 +27,6 @@ import ddf.catalog.data.impl.MetacardTypeImpl;
  */
 public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
-    public static final String REGISTRY_TAG = "registry";
-
     public static final String REGISTRY_METACARD_TYPE_NAME = "registry";
 
     public static final String METACARD_TYPE = "metacard-type";
@@ -44,8 +42,6 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     public static final String ENTRY_TYPE = "entry-type";
 
     public static final String SECURITY_LEVEL = "security-level";
-
-    public static final String SERVICE_REGISTRY_METACARD_TYPE_NAME = "registry.service";
 
     public static final String LIVE_DATE = "live-date";
 
