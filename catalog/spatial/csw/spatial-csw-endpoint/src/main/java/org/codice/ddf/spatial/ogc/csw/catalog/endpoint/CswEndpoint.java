@@ -28,7 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -223,6 +225,8 @@ public class CswEndpoint implements Csw {
     private final TransformerManager schemaTransformerManager;
 
     private final TransformerManager inputTransformerManager;
+
+    private BundleContext context;
 
     private CatalogFramework framework;
 
@@ -925,6 +929,17 @@ public class CswEndpoint implements Csw {
 
     private Element loadDocElementFromResourcePath(String resourcePath) throws CswException {
         URL recordUrl = getBundle().getResource(resourcePath);
+
+        if (recordUrl == null) {
+            Optional<Bundle> bundle = Stream.of(getBundle().getBundleContext().getBundles())
+                    .filter(b -> b.getSymbolicName()
+                            .equals("spatial-csw-schema-bindings"))
+                    .findFirst();
+            if (bundle.isPresent()) {
+                recordUrl = bundle.get()
+                        .getResource(resourcePath);
+            }
+        }
 
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
