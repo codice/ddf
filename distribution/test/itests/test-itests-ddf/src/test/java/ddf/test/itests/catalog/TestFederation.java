@@ -40,8 +40,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -130,9 +128,6 @@ public class TestFederation extends AbstractIntegrationTest {
             SUBSCRIBER);
 
     private static StubServer server;
-
-    @Inject
-    BundleService bundleService;
 
     @Rule
     public TestName testName = new TestName();
@@ -736,22 +731,12 @@ public class TestFederation extends AbstractIntegrationTest {
         String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract()
-                .body()
-                .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
-        // @formatter:on
+                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
 
-        // @formatter:off
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract()
-                .body()
-                .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
         String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
@@ -768,14 +753,8 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract()
-                .body()
-                .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
-        // @formatter:on
+                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
 
-        // @formatter:off
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
         // @formatter:on
@@ -795,18 +774,15 @@ public class TestFederation extends AbstractIntegrationTest {
 
         String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
-        //Subscribe
+        //CswSubscribe
         // @formatter:off
         String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract()
-                .body()
-                .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
+        BundleService bundleService = getServiceManager().getService(BundleService.class);
         Bundle bundle = bundleService.getBundle("spatial-csw-endpoint");
         bundle.stop();
         while (bundle.getState() != Bundle.RESOLVED) {
@@ -822,11 +798,7 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
-                .extract()
-                .body()
-                .xmlPath()
-                .get("Acknowledgement.RequestId")
-                .toString();
+                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
         // @formatter:on
 
         String metacardId = TestCatalog.ingest(Library.getSimpleGeoJson(), "application/json");
@@ -843,14 +815,70 @@ public class TestFederation extends AbstractIntegrationTest {
         given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat()
                 .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract().body().xmlPath().get("Acknowledgement.RequestId").toString();
+
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat().statusCode(404);
+        // @formatter:on
+
+    }
+
+    @Test
+    public void testCswCreateEventEndpoint() throws Exception {
+        whenHttp(server).match(Condition.post(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.get(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.delete(SUBSCRIBER))
+                .then(success());
+        whenHttp(server).match(Condition.put(SUBSCRIBER))
+                .then(success());
+
+        String wildcardQuery = Library.getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
+
+        String metacardId = "5b1688fa85fd46268e4ab7402a1750e0";
+        String event = Library.getCswRecordResponse();
+
+        // @formatter:off
+        String subscriptionId = given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_SUBSCRIPTION_PATH.getUrl())
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
                 .extract()
                 .body()
                 .xmlPath()
                 .get("Acknowledgement.RequestId")
                 .toString();
+
+        given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+
+        given().contentType(ContentType.XML).body(event).when().post(CSW_EVENT_PATH.getUrl())
+                .then().assertThat()
+                .statusCode(200);
         // @formatter:on
 
+        String[] subscrptionIds = {subscriptionId};
+
+        verifyEvents(new HashSet(Arrays.asList(metacardId)),
+                new HashSet(0),
+                new HashSet(Arrays.asList(subscrptionIds)));
+
         // @formatter:off
+        given().contentType(ContentType.XML).when().delete(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
+                .then().log().all().assertThat()
+                .body(hasXPath("/Acknowledgement/RequestId"))
+                .extract()
+                .body()
+                .xmlPath()
+                .get("Acknowledgement.RequestId")
+                .toString();
+
         given().contentType(ContentType.XML).when().get(CSW_SUBSCRIPTION_PATH.getUrl()+"/"+subscriptionId)
                 .then().log().all().assertThat().statusCode(404);
         // @formatter:on
@@ -958,10 +986,6 @@ public class TestFederation extends AbstractIntegrationTest {
     protected Option[] configureCustom() {
 
         return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
-    }
-
-    public void setBundleService(BundleService bundleService) {
-        this.bundleService = bundleService;
     }
 
 }

@@ -15,15 +15,15 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
 
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
@@ -65,7 +65,7 @@ public class SendEventTest {
 
     private BinaryContent binaryContent;
 
-    private CloseableHttpClient httpClient;
+    private WebClient webclient;
 
     @Before
     public void setUp() throws Exception {
@@ -87,19 +87,19 @@ public class SendEventTest {
         when(transformerManager.getTransformerBySchema(Matchers.contains(CswConstants.CSW_OUTPUT_SCHEMA))).thenReturn(
                 transformer);
         when(transformer.transform(any(SourceResponse.class), anyMap())).thenReturn(binaryContent);
-        when(binaryContent.getByteArray()).thenReturn("byte array with message contents".getBytes());
+        when(binaryContent.getByteArray()).thenReturn("byte array with message contents" .getBytes());
         query = mock(QueryRequest.class);
 
         metacard = mock(Metacard.class);
-        httpClient = mock(CloseableHttpClient.class);
+        webclient = mock(WebClient.class);
 
-        sendEvent = new SendEventExtension(transformerManager, request, query, httpClient);
+        sendEvent = new SendEventExtension(transformerManager, request, query, webclient);
 
     }
 
     public void verifyResults() throws Exception {
         verify(transformer).transform(any(SourceResponse.class), anyMap());
-        verify(httpClient).execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        verify(webclient).invoke(anyString(), anyObject());
     }
 
     @Test
@@ -128,17 +128,11 @@ public class SendEventTest {
     }
 
     private class SendEventExtension extends SendEvent {
-        CloseableHttpClient httpClient;
 
         public SendEventExtension(TransformerManager transformerManager, GetRecordsType request,
-                QueryRequest query, CloseableHttpClient httpClient) throws CswException {
+                QueryRequest query, WebClient httpClient) throws CswException {
             super(transformerManager, request, query);
-            this.httpClient = httpClient;
-        }
-
-        @Override
-        CloseableHttpClient getClosableHttpClient() {
-            return httpClient;
+            webClient = httpClient;
         }
 
     }

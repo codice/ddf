@@ -16,8 +16,10 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 import java.io.StringReader;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
 import org.slf4j.Logger;
@@ -26,7 +28,8 @@ import org.slf4j.LoggerFactory;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 
 public class CswSubscriptionConfigFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CswSubscriptionConfigFactory.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(CswSubscriptionConfigFactory.class);
 
     /**
      * The ManagedServiceFactory PID for the subscription's callback web service adapter,
@@ -42,61 +45,44 @@ public class CswSubscriptionConfigFactory {
 
     public static final String SUBSCRIPTION_UUID = "subscriptionUuid";
 
+    private final CswSubscriptionEndpoint subscriptionService;
+
     private String filterXml;
 
     private String subscriptionId;
 
     private String deliveryMethodUrl;
 
-    private CswSubscriptionEndpoint subscriptionService;
-
     public CswSubscriptionConfigFactory(CswSubscriptionEndpoint subscriptionService) {
         this.subscriptionService = subscriptionService;
     }
 
-    private void restore() {
-        if (isComplete()) {
-            try {
-                Unmarshaller unmarshaller = CswQueryFactory.getJaxBContext()
-                        .createUnmarshaller();
-                StringReader sr = new StringReader(filterXml);
-                JAXBElement<GetRecordsType> jaxbElement =
-                        (JAXBElement<GetRecordsType>) unmarshaller.unmarshal(sr);
-                GetRecordsType request = jaxbElement.getValue();
-                if (!subscriptionService.hasSubscription(subscriptionId)) {
-                    subscriptionService.addOrUpdateSubscription(request, false);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error restoring subscription: {} with delivery URL: {} XML: {}",
-                        new Object[] {subscriptionId, deliveryMethodUrl, filterXml},
-                        e);
+    public void restore() {
+        try (StringReader sr = new StringReader(filterXml)) {
+            Unmarshaller unmarshaller = CswQueryFactory.getJaxBContext()
+                    .createUnmarshaller();
+            JAXBElement<GetRecordsType> jaxbElement =
+                    (JAXBElement<GetRecordsType>) unmarshaller.unmarshal(sr);
+            GetRecordsType request = jaxbElement.getValue();
+            if (!subscriptionService.hasSubscription(subscriptionId)) {
+                subscriptionService.addOrUpdateSubscription(request, false);
             }
+        } catch (JAXBException | CswException e) {
+            LOGGER.error("Error restoring subscription: {} with delivery URL: {} XML: {}",
+                    new Object[] {subscriptionId, deliveryMethodUrl, filterXml},
+                    e);
         }
-    }
-
-    /**
-     * Helper method to determine if all of the fields of a CswSubscriptionConfigFactory have been set.
-     *
-     * @return true if all fields of this CswSubscriptionConfigFactory have been set; false otherwise
-     */
-    private boolean isComplete() {
-        return (filterXml != null && !filterXml.isEmpty() &&
-                deliveryMethodUrl != null && !deliveryMethodUrl.isEmpty() &&
-                subscriptionId != null && !subscriptionId.isEmpty());
     }
 
     public void setFilterXml(String filterXml) {
         this.filterXml = filterXml;
-        restore();
     }
 
     public void setSubscriptionId(String subscriptionId) {
         this.subscriptionId = subscriptionId;
-        restore();
     }
 
     public void setDeliveryMethodUrl(String deliveryMethodUrl) {
         this.deliveryMethodUrl = deliveryMethodUrl;
-        restore();
     }
 }

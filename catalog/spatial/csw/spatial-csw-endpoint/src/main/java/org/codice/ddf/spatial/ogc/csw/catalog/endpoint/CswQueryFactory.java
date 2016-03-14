@@ -68,18 +68,21 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.SortByType;
 
+/**
+ * CswQueryFactory provides utility methods for creating a {@Link QueryRequest}
+ */
 public class CswQueryFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswQueryFactory.class);
-
-    private FilterBuilder builder;
 
     private static final Configuration PARSER_CONFIG =
             new org.geotools.filter.v1_1.OGCConfiguration();
 
     private static JAXBContext jaxBContext;
 
-    private FilterAdapter adapter;
+    private final FilterBuilder builder;
+
+    private final FilterAdapter adapter;
 
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
@@ -244,27 +247,11 @@ public class CswQueryFactory {
         try {
             inputStream = marshalJaxB(element);
             return parser.parse(inputStream);
-        } catch (JAXBException e) {
-            throw new CswException("Failed to parse Element: (JAXBException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (IOException e) {
-            throw new CswException("Failed to parse Element: (IOException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (SAXException e) {
-            throw new CswException("Failed to parse Element: (SAXException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (ParserConfigurationException e) {
-            throw new CswException(
-                    "Failed to parse Element: (ParserConfigurationException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
-        } catch (RuntimeException e) {
-            throw new CswException("Failed to parse Element: (RuntimeException): " + e.getMessage(),
-                    CswConstants.INVALID_PARAMETER_VALUE,
-                    null);
+        } catch (JAXBException | IOException | SAXException | ParserConfigurationException | RuntimeException e) {
+            throw new CswException(String.format("Failed to parse Element: (%s): %s",
+                    e.getClass()
+                            .getSimpleName(),
+                    e.getMessage()), CswConstants.INVALID_PARAMETER_VALUE, null);
         }
     }
 
@@ -305,27 +292,28 @@ public class CswQueryFactory {
             throws UnsupportedQueryException {
         QueryRequest newRequest = queryRequest;
         Set<String> tags = schemaToTagsMapping.get(schema);
-        if (!CollectionUtils.isEmpty(tags)) {
-            Query origQuery = queryRequest.getQuery();
-            if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags))) {
-                List<Filter> filters = new ArrayList<>(tags.size());
-                for (String tag : tags) {
-                    filters.add(builder.attribute(Metacard.TAGS)
-                            .is()
-                            .like()
-                            .text(tag));
-                }
-                QueryImpl newQuery = new QueryImpl(builder.allOf(builder.anyOf(filters), origQuery),
-                        origQuery.getStartIndex(),
-                        origQuery.getPageSize(),
-                        origQuery.getSortBy(),
-                        origQuery.requestsTotalResultsCount(),
-                        origQuery.getTimeoutMillis());
-                newRequest = new QueryRequestImpl(newQuery,
-                        queryRequest.isEnterprise(),
-                        queryRequest.getSourceIds(),
-                        queryRequest.getProperties());
+        if (CollectionUtils.isEmpty(tags)) {
+            return queryRequest;
+        }
+        Query origQuery = queryRequest.getQuery();
+        if (!adapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate(tags))) {
+            List<Filter> filters = new ArrayList<>(tags.size());
+            for (String tag : tags) {
+                filters.add(builder.attribute(Metacard.TAGS)
+                        .is()
+                        .like()
+                        .text(tag));
             }
+            QueryImpl newQuery = new QueryImpl(builder.allOf(builder.anyOf(filters), origQuery),
+                    origQuery.getStartIndex(),
+                    origQuery.getPageSize(),
+                    origQuery.getSortBy(),
+                    origQuery.requestsTotalResultsCount(),
+                    origQuery.getTimeoutMillis());
+            newRequest = new QueryRequestImpl(newQuery,
+                    queryRequest.isEnterprise(),
+                    queryRequest.getSourceIds(),
+                    queryRequest.getProperties());
         }
         return newRequest;
     }

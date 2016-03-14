@@ -64,7 +64,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -223,8 +224,6 @@ public class CswEndpoint implements Csw {
 
     private final TransformerManager inputTransformerManager;
 
-    private BundleContext context;
-
     private CatalogFramework framework;
 
     private CapabilitiesType capabilitiesType;
@@ -239,11 +238,10 @@ public class CswEndpoint implements Csw {
     /**
      * JAX-RS Server that represents a CSW v2.0.2 Server.
      */
-    public CswEndpoint(BundleContext context, CatalogFramework ddf,
-            TransformerManager mimeTypeManager, TransformerManager schemaManager,
-            TransformerManager inputManager, Validator validator, CswQueryFactory queryFactory) {
+    public CswEndpoint(CatalogFramework ddf, TransformerManager mimeTypeManager,
+            TransformerManager schemaManager, TransformerManager inputManager, Validator validator,
+            CswQueryFactory queryFactory) {
         LOGGER.trace("Entering: CSW Endpoint constructor.");
-        this.context = context;
         this.framework = ddf;
         this.mimeTypeTransformerManager = mimeTypeManager;
         this.schemaTransformerManager = schemaManager;
@@ -926,8 +924,7 @@ public class CswEndpoint implements Csw {
     }
 
     private Element loadDocElementFromResourcePath(String resourcePath) throws CswException {
-        URL recordUrl = context.getBundle()
-                .getResource(resourcePath);
+        URL recordUrl = getBundle().getResource(resourcePath);
 
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
@@ -1240,10 +1237,6 @@ public class CswEndpoint implements Csw {
                 .add(createDomainType(CswConstants.FEDERATED_CATALOGS, sourceIds));
     }
 
-    private void notImplemented(final String methodName) throws CswException {
-        throw new CswException("The method " + methodName + " is not yet implemented.");
-    }
-
     private CswException createUnknownTypeException(final String type) {
         return new CswException("The type '" + type + "' is not known to this service.",
                 CswConstants.INVALID_PARAMETER_VALUE,
@@ -1328,4 +1321,7 @@ public class CswEndpoint implements Csw {
         this.uri = uri;
     }
 
+    Bundle getBundle() {
+        return FrameworkUtil.getBundle(this.getClass());
+    }
 }

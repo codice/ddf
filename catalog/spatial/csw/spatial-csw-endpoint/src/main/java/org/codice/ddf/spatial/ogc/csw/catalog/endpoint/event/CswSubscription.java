@@ -42,6 +42,16 @@ public class CswSubscription extends SubscriptionImpl {
                 query.isEnterprise());
     }
 
+    public static CswSubscription getFilterlessSubscription(
+            TransformerManager mimeTypeTransformerManager, GetRecordsType request,
+            QueryRequest query) throws CswException {
+        return new CswSubscription(request,
+                Filter.INCLUDE,
+                new SendEvent(mimeTypeTransformerManager, request, query),
+                null,
+                false);
+    }
+
     public GetRecordsType getOriginalRequest() {
         return originalRequest;
     }

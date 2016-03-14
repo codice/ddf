@@ -63,6 +63,10 @@ public class CswSourceConfiguration {
 
     private String queryTypePrefix;
 
+    private String eventServiceAddress;
+
+    private boolean registerForEvents;
+
     private Map<String, Set<String>> securityAttributes = new HashMap<>();
 
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
@@ -270,5 +274,21 @@ public class CswSourceConfiguration {
             schemaToTagsMapping.putAll(Permissions.parsePermissionsFromString(
                     schemaToTagsMappingStrings));
         }
+    }
+
+    public boolean isRegisterForEvents() {
+        return registerForEvents;
+    }
+
+    public void setRegisterForEvents(Boolean registerForEvents) {
+        this.registerForEvents = registerForEvents;
+    }
+
+    public String getEventServiceAddress() {
+        return eventServiceAddress;
+    }
+
+    public void setEventServiceAddress(String eventServiceAddress) {
+        this.eventServiceAddress = eventServiceAddress;
     }
 }

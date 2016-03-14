@@ -27,6 +27,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 
+/**
+ * Validator provides methods to validate Requests for CSW 2.0.2
+ */
 public class Validator {
 
     private static final List<String> ELEMENT_NAMES = Arrays.asList("brief", "summary", "full");
@@ -106,7 +109,8 @@ public class Validator {
 
     }
 
-    public void validateOutputSchema(String schema, TransformerManager schemaTransformerManager) throws CswException {
+    public void validateOutputSchema(String schema, TransformerManager schemaTransformerManager)
+            throws CswException {
         if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null
                 || schema.equals(OCTET_STREAM_OUTPUT_SCHEMA)) {
             return;

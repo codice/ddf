@@ -68,6 +68,9 @@
                     <value>http://www.opengis.net/cat/wrs/1.0=registry</value>
                 </array>
             </property>
+            <property name="eventServiceAddress" value=""/>
+            <property name="registerForEvents" value="false"/>
+
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -107,6 +110,9 @@
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="securityManager" ref="securityManager"/>
+            <property name="eventServiceAddress" value=""/>
+            <property name="registerForEvents" value="false"/>
+
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

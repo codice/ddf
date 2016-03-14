@@ -197,7 +197,6 @@ public class TestCswEndpoint {
             FederationException, ParseException, IngestException {
         URI mockUri = new URI("http://example.com/services/csw");
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
-        when(mockContext.getBundle()).thenReturn(mockBundle);
         URL resourceUrl = TestCswEndpoint.class.getResource("/record.xsd");
         URL resourceUrlDot = TestCswEndpoint.class.getClass()
                 .getResource(".");
@@ -205,13 +204,13 @@ public class TestCswEndpoint {
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
 
-        csw = new CswEndpoint(mockContext,
-                catalogFramework,
+        csw = new CswEndpointStub(catalogFramework,
                 mockMimeTypeManager,
                 mockSchemaManager,
                 mockInputManager,
                 validator,
-                queryFactory);
+                queryFactory,
+                mockBundle);
         csw.setUri(mockUriInfo);
         when(mockMimeTypeManager.getAvailableMimeTypes()).
                 thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
@@ -1881,6 +1880,23 @@ public class TestCswEndpoint {
         when(resourceResponse.getResource()).thenReturn(resource);
         when(catalogFramework.getLocalResource(any(ResourceRequest.class))).thenReturn(
                 resourceResponse);
+    }
+
+    public static class CswEndpointStub extends CswEndpoint {
+
+        private Bundle bundle;
+
+        public CswEndpointStub(CatalogFramework ddf, TransformerManager mimeTypeManager,
+                TransformerManager schemaManager, TransformerManager inputManager,
+                Validator validator, CswQueryFactory queryFactory, Bundle bundle) {
+            super(ddf, mimeTypeManager, schemaManager, inputManager, validator, queryFactory);
+            this.bundle = bundle;
+        }
+
+        @Override
+        Bundle getBundle() {
+            return bundle;
+        }
     }
 
 }

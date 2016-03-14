@@ -1278,7 +1278,7 @@ The following is an example of an `application/xml` response to the Transaction 
 The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching the GetRecords request used in the subscription.
 The response to a `GetRecords` request on the subscription url will be an acknowledgement containing the original GetRecords request and a requestId
 The client will be assigned a requestId (URN).
-A distributed search argument will be ignored in this context. It will only send events for metacards ingested locally.
+A Subscription listens for events from federated sources if the `DistributedSearch` element is present and the catalog is a member of a federation.
 
 
 ===== Subscription `GetRecords` `HTTP GET`
@@ -1315,7 +1315,7 @@ ConstraintLanguage=CQL_TEXT&constraint=Text Like '%25'
         <Constraint version="1.1.0">
             <ogc:Filter>
                 <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
-                    <ogc:PropertyName>AnyText</ogc:PropertyName>
+                    <ogc:PropertyName>xml</ogc:PropertyName>
                     <ogc:Literal>%</ogc:Literal>
                 </ogc:PropertyIsLike>
             </ogc:Filter>
@@ -1363,7 +1363,7 @@ The following is an example of an `application/xml` response to the `GetRecords`
             <Constraint version="1.1.0">
                 <ogc:Filter>
                     <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
-                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:PropertyName>xml</ogc:PropertyName>
                         <ogc:Literal>%</ogc:Literal>
                     </ogc:PropertyIsLike>
                 </ogc:Filter>
@@ -1437,7 +1437,7 @@ The following is an example `HTTP GET` Response retrieving an active subscriptio
             <Constraint version="1.1.0">
                 <ogc:Filter>
                     <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
-                        <ogc:PropertyName>AnyText</ogc:PropertyName>
+                        <ogc:PropertyName>xml</ogc:PropertyName>
                         <ogc:Literal>%</ogc:Literal>
                     </ogc:PropertyIsLike>
                 </ogc:Filter>

@@ -127,11 +127,11 @@
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
+    <reference id="eventProcessor" interface="ddf.catalog.event.EventProcessor"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint">
-        <argument ref="blueprintBundleContext"/>
         <argument ref="catalogFramework"/>
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
@@ -166,10 +166,12 @@
         </property>
     </bean>
 
-    <bean id="CswSubscriptionSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint">
-        <argument ref="blueprintBundleContext"/>
+    <bean id="CswSubscriptionSvc"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint">
+        <argument ref="eventProcessor"/>
         <argument ref="queryResponseTransformerManager"/>
         <argument ref="metacardTransformerManager"/>
+        <argument ref="inputTransformerManager"/>
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
     </bean>
@@ -194,9 +196,9 @@
 
 
     <cm:managed-service-factory id="cswSubscriptionFactory" factory-pid="CSW_Subscription"
-                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory">
-
-        <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory">
+                                interface="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" >
+        <cm:managed-component
+                class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory" init-method="restore">
             <argument ref="CswSubscriptionSvc"/>
             <property name="filterXml" value=""/>
             <property name="subscriptionId" value=""/>
@@ -205,5 +207,7 @@
         </cm:managed-component>
 
     </cm:managed-service-factory>
+
+    <service ref="CswSubscriptionSvc" interface="ddf.catalog.event.Subscriber"/>
 
 </blueprint>

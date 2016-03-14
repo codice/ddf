@@ -13,29 +13,29 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +55,16 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 
+/**
+ * SendEvent provides a implementation of {@link DeliveryMethod} for sending events to a CSW subscription event endpoint
+ */
 public class SendEvent implements DeliveryMethod {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendEvent.class);
+
+    private static final List<String> XML_MIME_TYPES = Collections.unmodifiableList(Arrays.asList(
+            MediaType.APPLICATION_XML,
+            MediaType.TEXT_XML));
 
     private final TransformerManager transformerManager;
 
@@ -76,6 +83,8 @@ public class SendEvent implements DeliveryMethod {
     private final ResultType resultType;
 
     private final QueryRequest query;
+
+    WebClient webClient;
 
     public SendEvent(TransformerManager transformerManager, GetRecordsType request,
             QueryRequest query) throws CswException {
@@ -110,10 +119,14 @@ public class SendEvent implements DeliveryMethod {
                 null;
         this.resultType =
                 request.getResultType() == null ? ResultType.HITS : request.getResultType();
+        SecureCxfClientFactory<CswSubscribe> cxfClientFactory = new SecureCxfClientFactory<>(
+                callbackUrl.toString(),
+                CswSubscribe.class);
+        webClient = cxfClientFactory.getWebClient();
     }
 
-    private String sendEvent(Operation operation, Metacard... metacards) {
-        try (CloseableHttpClient httpClient = getClosableHttpClient()) {
+    private Response sendEvent(String operation, Metacard... metacards) {
+        try {
             List<Result> results = Arrays.asList(metacards)
                     .stream()
                     .map(ResultImpl::new)
@@ -127,127 +140,68 @@ public class SendEvent implements DeliveryMethod {
             LOGGER.debug("Attempting to transform an Event with mime-type: {} & outputSchema: {}",
                     mimeType,
                     outputSchema);
-            Map<String, Serializable> arguments = new HashMap<>();
-            if (elementName != null) {
-                arguments.put(CswConstants.ELEMENT_NAMES, elementName.toArray());
-            }
 
-            BinaryContent binaryContent = null;
-            if (!CswConstants.CSW_OUTPUT_SCHEMA.equals(outputSchema)) {
+            QueryResponseTransformer transformer;
+            Map<String, Serializable> arguments = new HashMap<>();
+            if (StringUtils.isBlank(outputSchema) && StringUtils.isNotBlank(mimeType)
+                    && !XML_MIME_TYPES.contains(mimeType)) {
+                transformer = transformerManager.getTransformerByMimeType(mimeType);
+            } else {
+                transformer =
+                        transformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+                if (elementName != null) {
+                    arguments.put(CswConstants.ELEMENT_NAMES, elementName.toArray());
+                }
+                arguments.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, outputSchema);
+                arguments.put(CswConstants.ELEMENT_SET_TYPE, elementSetType);
+                arguments.put(CswConstants.IS_BY_ID_QUERY, false);
+                arguments.put(CswConstants.GET_RECORDS, request);
+                arguments.put(CswConstants.RESULT_TYPE_PARAMETER, resultType);
+                arguments.put(CswConstants.WRITE_NAMESPACES, false);
+            }
+            if (transformer == null) {
                 throw new WebApplicationException(new CatalogTransformerException(
                         "Unable to locate Transformer."));
             }
-            arguments.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, outputSchema);
-            arguments.put(CswConstants.ELEMENT_SET_TYPE, elementSetType);
-            arguments.put(CswConstants.IS_BY_ID_QUERY, false);
-            arguments.put(CswConstants.GET_RECORDS, request);
-            arguments.put(CswConstants.RESULT_TYPE_PARAMETER, resultType);
-            arguments.put(CswConstants.WRITE_NAMESPACES, false);
-            QueryResponseTransformer transformer = transformerManager.getTransformerBySchema(
-                    outputSchema);
-            binaryContent = transformer.transform(queryResponse, arguments);
+
+            BinaryContent binaryContent = transformer.transform(queryResponse, arguments);
 
             if (binaryContent == null) {
                 throw new WebApplicationException(new CatalogTransformerException(
                         "Transformer returned null."));
             }
 
-            HttpEntityEnclosingRequestBase httpMethod = getHttpRequest(operation);
-            httpMethod.addHeader("Cache-Control", "no-cache, no-store");
-            httpMethod.addHeader("Pragma", "no-cache");
-            httpMethod.setEntity(new ByteArrayEntity(binaryContent.getByteArray()));
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            return httpClient.execute(httpMethod, responseHandler);
-        } catch (Exception e) {
+            return webClient.invoke(operation, binaryContent.getByteArray());
+        } catch (IOException | CatalogTransformerException | RuntimeException e) {
             LOGGER.error("Error sending event to {}.", callbackUrl, e);
         }
         return null;
-    }
-
-    private HttpEntityEnclosingRequestBase getHttpRequest(Operation operation) {
-        HttpEntityEnclosingRequestBase httpMethod;
-        switch (operation) {
-        case UPDATE:
-            httpMethod = new HttpPut(callbackUrl);
-            break;
-        case DELETE:
-            httpMethod = new HttpDeleteWithBody(callbackUrl);
-            break;
-        default:
-            httpMethod = new HttpPost(callbackUrl);
-        }
-        return httpMethod;
     }
 
     @Override
     public void created(Metacard newMetacard) {
 
         LOGGER.debug("Created {}", newMetacard);
-        sendEvent(Operation.CREATE, newMetacard);
+        sendEvent(HttpMethod.POST, newMetacard);
     }
 
     @Override
     public void updatedHit(Metacard newMetacard, Metacard oldMetacard) {
         LOGGER.debug("Updated Hit {} {}", newMetacard, oldMetacard);
-        sendEvent(Operation.UPDATE, newMetacard);
+        sendEvent(HttpMethod.PUT, newMetacard, oldMetacard);
     }
 
     @Override
     public void updatedMiss(Metacard newMetacard, Metacard oldMetacard) {
         LOGGER.debug("Updated Miss {} {}", newMetacard, oldMetacard);
-        sendEvent(Operation.UPDATE, newMetacard);
+        sendEvent(HttpMethod.PUT, newMetacard, oldMetacard);
     }
 
     @Override
     public void deleted(Metacard oldMetacard) {
         LOGGER.debug("Deleted {}", oldMetacard);
-        sendEvent(Operation.DELETE, oldMetacard);
+        sendEvent(HttpMethod.DELETE, oldMetacard);
 
-    }
-
-    //for unit testing
-    CloseableHttpClient getClosableHttpClient() {
-        return HttpClients.createDefault();
-    }
-
-    public enum Operation {
-        CREATE("CREATE"),
-        UPDATE("UPDATE"),
-        DELETE("DELETE");
-
-        private final String name;
-
-        Operation(String name) {
-            this.name = name;
-        }
-
-        public String toString() {
-            return this.name;
-        }
-    }
-
-    //Their is no delete with body as part of the apache http client but it is allowed in http 1.1 spec..
-    @NotThreadSafe
-    static class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
-        public static final String METHOD_NAME = "DELETE";
-
-        public String getMethod() {
-            return METHOD_NAME;
-        }
-
-        public HttpDeleteWithBody(final String uri) {
-            super();
-            setURI(URI.create(uri));
-        }
-
-        public HttpDeleteWithBody(final URI uri) {
-            super();
-            setURI(uri);
-        }
-
-        public HttpDeleteWithBody() {
-            super();
-        }
     }
 
 }

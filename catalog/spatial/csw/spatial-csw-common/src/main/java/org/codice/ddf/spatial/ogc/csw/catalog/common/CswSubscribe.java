@@ -25,21 +25,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 
 /**
- * JAX-RS Interface to define an OGC Catalogue Service for Web (CSW).
+ * JAX-RS Interface to define an CSW Subscription service.
  */
-@Path("/subscription")
-public interface Subscribe {
+@Path("/")
+public interface CswSubscribe {
 
     /**
      * Deletes an active subscription
      *
      * @param requestId the requestId of the subscription to be removed
-     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * @return Response will contain a  CSW Acknowledgment message with the subscription that was
      * deleted or an empty 404 if none are found
-     * @throws CswException
+     * @throws CswException for validation errors returns a 400
      */
     @DELETE
     @Path("/{requestId}")
@@ -51,9 +52,9 @@ public interface Subscribe {
      * Get an active subscription
      *
      * @param requestId the requestId of the subscription to get
-     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * @return returns a response containing a CSW Acknowledgment message with the subscription that was
      * found or an empty 404 if none are found
-     * @throws CswException
+     * @throws CswException for validation errors returns a 400
      */
     @GET
     @Path("/{requestId}")
@@ -69,9 +70,9 @@ public interface Subscribe {
      *                  handle the CswRecordCollection response messages. When a create, update
      *                  or delete event is received a CswRecordCollection will be sent via a
      *                  POST, PUT or DELETE to the ResponseHandler URL.
-     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * @return Response will contain a  CSW Acknowledgment message with the subscription that was
      * updated or added
-     * @throws CswException
+     * @throws CswException for validation errors returns a 400
      */
     @PUT
     @Path("/{requestId}")
@@ -88,9 +89,9 @@ public interface Subscribe {
      *                handle the CswRecordCollection response messages. When a create, update
      *                or delete event is received a CswRecordCollection will be sent via a
      *                POST, PUT or DELETE to the ResponseHandler URL.
-     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * @return Response will contain a  CSW Acknowledgment message with the subscription that was
      * added
-     * @throws CswException
+     * @throws CswException for validation errors returns a 400
      */
     @GET
     @Produces({MediaType.WILDCARD})
@@ -105,12 +106,52 @@ public interface Subscribe {
      *                handle the CswRecordCollection response messages. When a create, update
      *                or delete event is received a CswRecordCollection will be sent via a
      *                POST, PUT or DELETE to the ResponseHandler URL
-     * @return Acknowledgment   returns a CSW Acknowledgment message with the subscription that was
+     * @return Response will contain a CSW Acknowledgment message with the subscription that was
      * added
-     * @throws CswException
+     * @throws CswException for validation errors returns a 400
      */
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.WILDCARD})
     Response createRecordsSubscription(GetRecordsType request) throws CswException;
+
+    /**
+     * Consume a create event
+     *
+     * @param recordsResponse the GetRecordsResponseType search results must be urn:catalog:metacard
+     *                        format
+     * @throws CswException for validation errors returns a 400
+     */
+    @POST
+    @Path("/event")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    Response createEvent(GetRecordsResponseType recordsResponse) throws CswException;
+
+    /**
+     * Consume an update event
+     *
+     * @param recordsResponse the GetRecordsResponseType search results must be urn:catalog:metacard
+     *                        format with two metacards the updated one being the first and the
+     *                        previous version being the seconds
+     * @throws CswException for validation errors returns a 400
+     */
+    @PUT
+    @Path("/event")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    Response updateEvent(GetRecordsResponseType recordsResponse) throws CswException;
+
+    /**
+     * Consume a delete event
+     *
+     * @param recordsResponse the GetRecordsResponseType search results must be urn:catalog:metacard
+     *                        format
+     * @throws CswException for validation errors returns a 400
+     */
+    @DELETE
+    @Path("/event")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    Response deleteEvent(GetRecordsResponseType recordsResponse) throws CswException;
 }
