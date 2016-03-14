@@ -34,6 +34,7 @@
         <module>sample-cometd</module>
         <module>sample-metacard-validator</module>
         <module>sample-storageplugins</module>
+        <module>sample-twitter-source</module>
         <module>sdk-app</module>
     </modules>
     <repositories>
