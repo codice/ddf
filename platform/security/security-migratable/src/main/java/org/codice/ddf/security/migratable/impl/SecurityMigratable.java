@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.migratable.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.migration.AbstractMigratable;
+import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
@@ -34,7 +36,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class handles the export process for all Security system files
  */
-public class SecurityMigratable extends AbstractMigratable {
+public class SecurityMigratable implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityMigratable.class);
 
@@ -48,11 +50,13 @@ public class SecurityMigratable extends AbstractMigratable {
             
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
+    private final String description;
+
     private final MigratableUtil migratableUtil;
 
-    public SecurityMigratable(String description, boolean isOptional,
-            MigratableUtil migratableUtil) {
-        super(description, isOptional);
+    public SecurityMigratable(String description, MigratableUtil migratableUtil) {
+        notNull(description, "description cannot be null");
+        this.description = description;
         this.migratableUtil = migratableUtil;
     }
 
@@ -61,6 +65,10 @@ public class SecurityMigratable extends AbstractMigratable {
         exportCrlFiles(exportPath, migrationWarnings);
         exportPdpDirectory(exportPath, migrationWarnings);
         return new MigrationMetadata(migrationWarnings);
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     private void exportCrlFiles(Path exportDirectory, Collection<MigrationWarning> migrationWarnings)

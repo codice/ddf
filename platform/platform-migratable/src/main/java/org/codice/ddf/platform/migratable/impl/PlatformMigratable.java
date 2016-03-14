@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.platform.migratable.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.migration.AbstractMigratable;
+import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * This class handles the export process for all Platform system files.
  *
  */
-public class PlatformMigratable extends AbstractMigratable {
+public class PlatformMigratable implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
 
@@ -49,11 +51,13 @@ public class PlatformMigratable extends AbstractMigratable {
     private static final Path APPLICATION_LIST = Paths.get("etc",
             "org.codice.ddf.admin.applicationlist.properties");
 
+    private final String description;
+
     private final MigratableUtil migratableUtil;
 
-    public PlatformMigratable(@NotNull String description, boolean isOptional,
-            @NotNull MigratableUtil migratableUtil) {
-        super(description, isOptional);
+    public PlatformMigratable(@NotNull String description, @NotNull MigratableUtil migratableUtil) {
+        notNull(description, "description cannot be null");
+        this.description = description;
         this.migratableUtil = migratableUtil;
     }
 
@@ -63,6 +67,10 @@ public class PlatformMigratable extends AbstractMigratable {
         exportSystemFiles(exportPath, migrationWarnings);
         exportWsSecurity(exportPath, migrationWarnings);
         return new MigrationMetadata(migrationWarnings);
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     private void exportSystemFiles(Path exportDirectory,

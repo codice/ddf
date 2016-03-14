@@ -18,7 +18,6 @@
     
     <bean id="platformMigratable" class="org.codice.ddf.platform.migratable.impl.PlatformMigratable">
         <argument value="Exports Platform system files" />
-        <argument value="false" />
         <argument ref="migrationUtil" />
     </bean>
 

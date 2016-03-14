@@ -19,7 +19,6 @@
     <bean id="securityMigratable"
           class="org.codice.ddf.security.migratable.impl.SecurityMigratable">
         <argument value="Exports Security system files"/>
-        <argument value="false"/>
         <argument ref="migratableUtil"/>
     </bean>
 

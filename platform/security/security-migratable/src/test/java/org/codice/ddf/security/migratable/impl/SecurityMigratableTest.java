@@ -49,31 +49,45 @@ public class SecurityMigratableTest {
 
     private static final String DESCRIPTION = "Exports Security system files";
 
-    private static final Path SERVER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc", "ws-security",
-            "server", "encryption.properties");
+    private static final Path SERVER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc",
+            "ws-security",
+            "server",
+            "encryption.properties");
 
-    private static final Path SERVER_SIGNATURE_PROPERTIES_PATH = Paths.get("etc", "ws-security",
-            "server", "signature.properties");
+    private static final Path SERVER_SIGNATURE_PROPERTIES_PATH = Paths.get("etc",
+            "ws-security",
+            "server",
+            "signature.properties");
 
-    private static final Path ISSUER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc", "ws-security",
-            "issuer", "encryption.properties");
+    private static final Path ISSUER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc",
+            "ws-security",
+            "issuer",
+            "encryption.properties");
 
-    private static final Path ISSUER_SIGNATURE_PROPERTIES_PATH = Paths.get("etc", "ws-security",
-            "issuer", "signature.properties");
+    private static final Path ISSUER_SIGNATURE_PROPERTIES_PATH = Paths.get("etc",
+            "ws-security",
+            "issuer",
+            "signature.properties");
 
-    private static final Path EXPECTED_SERVER_SIGNATURE_CRL_PATH = Paths.get("ddf", "crl",
-            "serverSignature", "crl.pem");
+    private static final Path EXPECTED_SERVER_SIGNATURE_CRL_PATH = Paths.get("ddf",
+            "crl",
+            "serverSignature",
+            "crl.pem");
 
-    private static final Path EXPECTED_SERVER_ENCRYPTION_CRL_PATH = Paths.get("ddf", "crl",
-            "serverEncryption", "crl.pem");
+    private static final Path EXPECTED_SERVER_ENCRYPTION_CRL_PATH = Paths.get("ddf",
+            "crl",
+            "serverEncryption",
+            "crl.pem");
 
-    private static final Path EXPECTED_ISSUER_SIGNATURE_CRL_PATH = Paths.get("ddf", "crl",
-            "issuerSignature", "crl.pem");
+    private static final Path EXPECTED_ISSUER_SIGNATURE_CRL_PATH = Paths.get("ddf",
+            "crl",
+            "issuerSignature",
+            "crl.pem");
 
-    private static final Path EXPECTED_ISSUER_ENCRYPTION_CRL_PATH = Paths.get("ddf", "crl",
-            "issuerEncryption", "crl.pem");
-
-    private static final boolean IS_OPTIONAL = false;
+    private static final Path EXPECTED_ISSUER_ENCRYPTION_CRL_PATH = Paths.get("ddf",
+            "crl",
+            "issuerEncryption",
+            "crl.pem");
 
     private static final Path DDF_HOME = Paths.get(DDF_BASE_DIR);
 
@@ -83,15 +97,15 @@ public class SecurityMigratableTest {
     public void testExportValidRelativePaths() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY))
-                .thenReturn(EXPECTED_SERVER_ENCRYPTION_CRL_PATH.toString());
-        when(mockMigratableUtil.getJavaPropertyValue(SERVER_SIGNATURE_PROPERTIES_PATH, CRL_PROP_KEY))
-                .thenReturn(EXPECTED_SERVER_SIGNATURE_CRL_PATH.toString());
-        when(mockMigratableUtil.getJavaPropertyValue(ISSUER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY))
-                .thenReturn(EXPECTED_ISSUER_ENCRYPTION_CRL_PATH.toString());
-        when(mockMigratableUtil.getJavaPropertyValue(ISSUER_SIGNATURE_PROPERTIES_PATH, CRL_PROP_KEY))
-                .thenReturn(EXPECTED_ISSUER_SIGNATURE_CRL_PATH.toString());
-        SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn(EXPECTED_SERVER_ENCRYPTION_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_SIGNATURE_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn(EXPECTED_SERVER_SIGNATURE_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(ISSUER_ENCRYPTION_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn(EXPECTED_ISSUER_ENCRYPTION_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(ISSUER_SIGNATURE_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn(EXPECTED_ISSUER_SIGNATURE_CRL_PATH.toString());
+        SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
                 mockMigratableUtil);
 
         // Perform Test
@@ -112,12 +126,10 @@ public class SecurityMigratableTest {
                         Matchers.<Collection<MigrationWarning>>any());
 
         SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 migratableUtil);
         MigrationMetadata migrationMetadata = securityMigratable.export(EXPORT_DIRECTORY);
 
-        assertThat(migrationMetadata.getMigrationWarnings(),
-                containsInAnyOrder(expectedWarning));
+        assertThat(migrationMetadata.getMigrationWarnings(), containsInAnyOrder(expectedWarning));
 
     }
 
@@ -129,7 +141,6 @@ public class SecurityMigratableTest {
                         eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         platformMigratable.export(EXPORT_DIRECTORY);
@@ -139,14 +150,13 @@ public class SecurityMigratableTest {
     public void testExportExceptionThrownWhenCopyingFile() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY))
-            .thenReturn(EXPECTED_SERVER_ENCRYPTION_CRL_PATH.toString());
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn(EXPECTED_SERVER_ENCRYPTION_CRL_PATH.toString());
         doThrow(MigrationException.class).when(mockMigratableUtil)
                 .copyFile(any(Path.class),
                         eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
@@ -157,10 +167,9 @@ public class SecurityMigratableTest {
     public void testExportCrlIsNull() {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        when(
-                mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
-                        CRL_PROP_KEY)).thenReturn(null);
-        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn(null);
+        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
                 mockMigratableUtil);
 
         // Perform test
@@ -168,18 +177,19 @@ public class SecurityMigratableTest {
 
         // Verify
         verify(mockMigratableUtil, never()).copyFile(eq(EXPECTED_SERVER_ENCRYPTION_CRL_PATH),
-                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
-        assertThat(migrationMetadata.getMigrationWarnings().size(), is(0));
+                eq(EXPORT_DIRECTORY),
+                anyCollectionOf(MigrationWarning.class));
+        assertThat(migrationMetadata.getMigrationWarnings()
+                .size(), is(0));
     }
 
     @Test(expected = MigrationException.class)
     public void testExportCrlIsBlank() {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        when(
-                mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
-                        CRL_PROP_KEY)).thenReturn("");
-        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+        when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
+                CRL_PROP_KEY)).thenReturn("");
+        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
                 mockMigratableUtil);
 
         // Perform test
@@ -190,9 +200,9 @@ public class SecurityMigratableTest {
     public void testExportExceptionThrownWhenReadingCrlPropsFile() {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        doThrow(MigrationException.class).when(mockMigratableUtil).getJavaPropertyValue(
-                SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY);
-        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION, IS_OPTIONAL,
+        doThrow(MigrationException.class).when(mockMigratableUtil)
+                .getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY);
+        SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
                 mockMigratableUtil);
 
         // Perform test
@@ -201,13 +211,17 @@ public class SecurityMigratableTest {
 
     private void assertCrlExport(MigratableUtil mockMigratableUtil) {
         verify(mockMigratableUtil).copyFile(eq(EXPECTED_SERVER_ENCRYPTION_CRL_PATH),
-                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+                eq(EXPORT_DIRECTORY),
+                anyCollectionOf(MigrationWarning.class));
         verify(mockMigratableUtil).copyFile(eq(EXPECTED_SERVER_SIGNATURE_CRL_PATH),
-                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+                eq(EXPORT_DIRECTORY),
+                anyCollectionOf(MigrationWarning.class));
         verify(mockMigratableUtil).copyFile(eq(EXPECTED_ISSUER_ENCRYPTION_CRL_PATH),
-                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+                eq(EXPORT_DIRECTORY),
+                anyCollectionOf(MigrationWarning.class));
         verify(mockMigratableUtil).copyFile(eq(EXPECTED_ISSUER_SIGNATURE_CRL_PATH),
-                eq(EXPORT_DIRECTORY), anyCollectionOf(MigrationWarning.class));
+                eq(EXPORT_DIRECTORY),
+                anyCollectionOf(MigrationWarning.class));
     }
 
     private void assertPdpDirectoryExport(MigratableUtil mockMigratableUtil) {
