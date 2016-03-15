@@ -473,5 +473,10 @@
             <artifactId>catalog-registry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-versioning</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

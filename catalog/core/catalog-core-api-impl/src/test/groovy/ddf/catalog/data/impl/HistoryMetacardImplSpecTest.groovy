@@ -1,6 +1,8 @@
 package ddf.catalog.data.impl
 
 import ddf.catalog.data.Metacard
+import ddf.security.SubjectUtils
+import org.apache.shiro.SecurityUtils
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
 import spock.lang.Specification
@@ -27,7 +29,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         Instant start = Instant.now()
 
         when:
-        HistoryMetacardImpl history = new HistoryMetacardImpl(meta.metacard, action)
+        HistoryMetacardImpl history = new HistoryMetacardImpl(meta.metacard, action, SecurityUtils.subject)
 
         then: $/All the original attributes should be there except for:
                     - Old tags should be stored in `tagsHistory
@@ -39,7 +41,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         !history.tags.any { meta.tags.contains(it) }
         history.metadata.equals(meta.metadata)
         history.title.equals(meta.title)
-        history.state.equals(action)
+        history.action.equals(action)
         history.tagsHistory.containsAll(meta.tags)
 
         Instant finish = Instant.now()
@@ -52,7 +54,7 @@ class HistoryMetacardImplSpecTest extends Specification {
         setup:
         def meta = defaultMetacard()
         Action action = Action.CREATED
-        HistoryMetacardImpl history = new HistoryMetacardImpl(meta.metacard, action)
+        HistoryMetacardImpl history = new HistoryMetacardImpl(meta.metacard, action, SecurityUtils.subject)
 
         when:
         Metacard metacard = history.toBasicMetacard()

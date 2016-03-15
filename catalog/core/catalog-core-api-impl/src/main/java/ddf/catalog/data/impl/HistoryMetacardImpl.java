@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 
 import org.apache.shiro.subject.Subject;
 
-import com.google.api.client.repackaged.com.google.common.base.Strings;
-
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -78,13 +76,12 @@ public class HistoryMetacardImpl extends MetacardImpl {
     public static final String HISTORY_TAG = "history";
 
     /**
-     * {@link ddf.catalog.data.Attribute} name for state of the current {@link Metacard}.
-     * Can be one of <code>Active</code>, <code>Inactive</code>, or <code>Deleted</code>.
-     * Default value is <code>Inactive</code>.
+     * {@link ddf.catalog.data.Attribute} name for action of the current {@link HistoryMetacardImpl}.
+     * Can be one of <code>Created</code>, <code>Updated</code>, or <code>Deleted</code>.
      *
      * @since DDF-2.9.0
      */
-    public static final String STATE = prefix.apply("state");
+    public static final String ACTION = prefix.apply("action");
 
     /**
      * {@link ddf.catalog.data.Attribute} name for the editor of this {@link Metacard} revision.
@@ -105,18 +102,16 @@ public class HistoryMetacardImpl extends MetacardImpl {
      *
      * @since DDF-2.9.0
      */
-    public static final String ID_HISTORY = prefix.apply("history-id");
+    public static final String ID_HISTORY = prefix.apply("id");
 
-    public static final String TAGS_HISTORY = prefix.apply("history-tags");
+    public static final String TAGS_HISTORY = prefix.apply("tags");
 
     private static MetacardType versionHistoryMetacard;
-
-    public static final String METACARD_TYPE_NAME = "ddf.history.metacard";
 
     static {
         HashSet<AttributeDescriptor> historyDescriptors =
                 new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
-        historyDescriptors.add(new AttributeDescriptorImpl(STATE,
+        historyDescriptors.add(new AttributeDescriptorImpl(ACTION,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
@@ -147,7 +142,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
                 true /* multivalued */,
                 BasicTypes.STRING_TYPE));
 
-        versionHistoryMetacard = new MetacardTypeImpl(METACARD_TYPE_NAME, historyDescriptors);
+        versionHistoryMetacard = new MetacardTypeImpl(HISTORY_PREFIX, historyDescriptors);
     }
 
     /**
@@ -166,7 +161,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
                     "Cannot create a history item from a history metacard.");
         }
 
-        this.setState(action);
+        this.setAction(action);
         this.setIdHistory(sourceMetacard.getId());
         this.setTagsHistory(sourceMetacard.getTags());
 
@@ -227,12 +222,12 @@ public class HistoryMetacardImpl extends MetacardImpl {
         setAttribute(EDITED_BY, editedBy);
     }
 
-    public Action getState() {
-        return Action.fromKey(requestString(STATE));
+    public Action getAction() {
+        return Action.fromKey(requestString(ACTION));
     }
 
-    public void setState(Action state) {
-        setAttribute(STATE, state.getKey());
+    public void setAction(Action action) {
+        setAttribute(ACTION, action.getKey());
     }
 
     public Set<String> getTagsHistory() {

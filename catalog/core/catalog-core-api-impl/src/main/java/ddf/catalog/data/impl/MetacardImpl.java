@@ -157,7 +157,7 @@ public class MetacardImpl implements Metacard {
                     MetacardType.class.getName() + " instance should not be null.");
         }
         map = new HashMap<>();
-        for (AttributeDescriptor attribute : type.getAttributeDescriptors()) {
+        for (AttributeDescriptor attribute : metacard.getMetacardType().getAttributeDescriptors()) {
             map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
         }
     }
