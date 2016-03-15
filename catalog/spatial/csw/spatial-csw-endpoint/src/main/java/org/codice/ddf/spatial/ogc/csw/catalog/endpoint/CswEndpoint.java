@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -225,8 +224,6 @@ public class CswEndpoint implements Csw {
     private final TransformerManager schemaTransformerManager;
 
     private final TransformerManager inputTransformerManager;
-
-    private BundleContext context;
 
     private CatalogFramework framework;
 
@@ -931,13 +928,12 @@ public class CswEndpoint implements Csw {
         URL recordUrl = getBundle().getResource(resourcePath);
 
         if (recordUrl == null) {
-            Optional<Bundle> bundle = Stream.of(getBundle().getBundleContext().getBundles())
-                    .filter(b -> b.getSymbolicName()
-                            .equals("spatial-csw-schema-bindings"))
-                    .findFirst();
-            if (bundle.isPresent()) {
-                recordUrl = bundle.get()
-                        .getResource(resourcePath);
+            /* Using DescribeRecordType since that is the bundle where other csw resources live */
+            recordUrl = Optional.of(FrameworkUtil.getBundle(DescribeRecordType.class))
+                    .map(b -> b.getResource(resourcePath))
+                    .orElse(null);
+            if (recordUrl /*still*/ == null) {
+                throw new CswException("Cannot find the resource: " + resourcePath);
             }
         }
 
