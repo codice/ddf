@@ -35,6 +35,7 @@ import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.registry.common.RegistryConstants;
 import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
 import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.converter.RegistryConversionException;
@@ -100,7 +101,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
                     .openStream());
 
             metacard.setAttribute(Metacard.METADATA, xml);
-            metacard.setTags(Collections.singleton(RegistryObjectMetacardType.REGISTRY_TAG));
+            metacard.setTags(Collections.singleton(RegistryConstants.REGISTRY_TAG));
 
         } catch (IOException e) {
             throw new CatalogTransformerException(

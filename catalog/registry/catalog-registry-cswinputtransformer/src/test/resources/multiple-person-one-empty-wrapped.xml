@@ -14,17 +14,17 @@
 -->
 <rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
                      home="https://somehost:someport"
-                     objectType="urn:catalog.service">
+                     objectType="urn:registry:federation:node">
 
     <rim:RegistryObjectList>
+
+        <rim:Person id="urn:node:contact:primary">
+        </rim:Person>
 
         <rim:Person id="urn:node:contact:person1">
             <rim:PersonName firstName="Doug" lastName="McKenzie"/>
             <rim:TelephoneNumber areaCode="333" number="333-3333" extension="3333"/>
             <rim:EmailAddress address="doug.mckenzie@something.com"/>
-        </rim:Person>
-
-        <rim:Person id="urn:node:contact:primary">
         </rim:Person>
 
         <rim:Person id="urn:node:contact:person2">

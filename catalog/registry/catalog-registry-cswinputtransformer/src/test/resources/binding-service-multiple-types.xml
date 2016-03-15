@@ -14,10 +14,10 @@
 -->
 <rim:RegistryPackage xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
                      home="https://somehost:someport"
-                     objectType="urn:catalog.service">
+                     objectType="urn:registry:federation:service">
     <rim:RegistryObjectList>
 
-        <rim:Service id="urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276">
+        <rim:Service id="urn:uuid:service:2014ca7f59ac46f495e32b4a67a51276" objectType="urn:registry:federation:service">
             <!--
             Zero or more repetitions: Service bindings represent a way to query data
             from this instance. The id indicates the type of the binding. Each binding

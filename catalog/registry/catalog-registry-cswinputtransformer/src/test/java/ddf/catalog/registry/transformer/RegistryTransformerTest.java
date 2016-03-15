@@ -103,12 +103,12 @@ public class RegistryTransformerTest {
 
     @Test
     public void testBasicTransformWithoutId() throws Exception {
-        assertRegistryMetacard(convert("/csw-rim-service.xml"));
+        assertRegistryMetacard(convert("/csw-rim-node.xml"));
     }
 
     @Test
     public void testBasicTransformWithId() throws Exception {
-        InputStream is = getClass().getResourceAsStream("/csw-rim-service.xml");
+        InputStream is = getClass().getResourceAsStream("/csw-rim-node.xml");
         Metacard meta = rit.transform(is, "my-id");
         assertRegistryMetacard(meta);
     }
@@ -118,7 +118,7 @@ public class RegistryTransformerTest {
         RegistryMetacardImpl meta = convert("/csw-basic-info.xml");
         assertRegistryMetacard(meta);
 
-        assertThat(meta.getId(), is("2014ca7f59ac46f495e32b4a67a51276"));
+        assertThat(meta.getId(), is("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
         assertThat(meta.getTitle(), is("my service"));
         assertThat(meta.getDescription(), is("something"));
         assertThat(meta.getContentTypeVersion(), is("0.0.0"));
@@ -197,7 +197,7 @@ public class RegistryTransformerTest {
 
     @Test
     public void testMetacardToXml() throws Exception {
-        String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-service.xml"));
+        String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
         Metacard m = rit.transform(IOUtils.toInputStream(in));
         String out = IOUtils.toString(rit.transform(m, null)
                 .getInputStream());
@@ -206,7 +206,7 @@ public class RegistryTransformerTest {
 
     @Test(expected = CatalogTransformerException.class)
     public void testMetacardToXmlBadContentType() throws Exception {
-        String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-service.xml"));
+        String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
         Metacard m = rit.transform(IOUtils.toInputStream(in));
 
         m.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "JustSomeMadeUpStuf"));
@@ -299,15 +299,15 @@ public class RegistryTransformerTest {
         assertThat(metacard.getAttribute(Metacard.TITLE)
                 .getValue(), is("Node Name"));
         assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                .getValue(), is(
-                "A little something describing this node in less than 1024 characters"));
+                        .getValue(),
+                is("A little something describing this node in less than 1024 characters"));
         assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE_VERSION)
                 .getValue(), is("2.9.x"));
 
         serializableList = metacard.getAttribute(RegistryObjectMetacardType.SERVICE_BINDING_TYPES)
                 .getValues();
         assertThat(serializableList.size(), is(2));
-        assertThat(serializableList, hasItem("csw"));
+        assertThat(serializableList, hasItem("Csw_Federated_Source"));
         assertThat(serializableList, hasItem("soap13"));
 
         serializableList = metacard.getAttribute(RegistryObjectMetacardType.SERVICE_BINDINGS)
@@ -326,89 +326,8 @@ public class RegistryTransformerTest {
                 .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
-                .getValue(), is(
-                "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
-    }
-
-    @Test
-    public void testRearrangedRegistryPackage() throws Exception {
-        RegistryMetacardImpl metacard = convert("/csw-registry-package-rearranged.xml");
-
-        Date date = dateOptionalTimeParser().parseDateTime("2015-06-01T13:15:30Z")
-                .toDate();
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.LIVE_DATE)
-                .getValue(), is(date));
-
-        date = dateOptionalTimeParser().parseDateTime("2015-11-01T13:15:30Z")
-                .toDate();
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.DATA_START_DATE)
-                .getValue(), is(date));
-
-        date = dateOptionalTimeParser().parseDateTime("2015-12-01T23:01:40Z")
-                .toDate();
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.DATA_END_DATE)
-                .getValue(), is(date));
-
-        date = dateOptionalTimeParser().parseDateTime("2016-01-26T17:16:34.996Z")
-                .toDate();
-        assertThat(metacard.getAttribute(Metacard.MODIFIED)
-                .getValue(), is(date));
-
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.LINKS)
-                .getValue(), is("https://some/link/to/my/repo"));
-
-        assertThat(metacard.getAttribute(Metacard.GEOGRAPHY)
-                .getValue(), is("POINT (112.267472 33.467944)"));
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.REGION)
-                .getValue(), is("USA"));
-
-        List<Serializable> serializableList =
-                metacard.getAttribute(RegistryObjectMetacardType.DATA_SOURCES)
-                        .getValues();
-        assertThat(serializableList.size(), is(2));
-        assertThat(serializableList, hasItem("youtube"));
-        assertThat(serializableList, hasItem("myCamera"));
-
-        serializableList = metacard.getAttribute(RegistryObjectMetacardType.DATA_TYPES)
-                .getValues();
-        assertThat(serializableList.size(), is(2));
-        assertThat(serializableList, hasItem("video"));
-        assertThat(serializableList, hasItem("sensor"));
-
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.SECURITY_LEVEL)
-                .getValue(), is("role=guest"));
-        assertThat(metacard.getAttribute(Metacard.TITLE)
-                .getValue(), is("Node Name"));
-        assertThat(metacard.getAttribute(Metacard.DESCRIPTION)
-                .getValue(), is(
-                "A little something describing this node in less than 1024 characters"));
-        assertThat(metacard.getAttribute(Metacard.CONTENT_TYPE_VERSION)
-                .getValue(), is("2.9.x"));
-
-        serializableList = metacard.getAttribute(RegistryObjectMetacardType.SERVICE_BINDING_TYPES)
-                .getValues();
-        assertThat(serializableList.size(), is(2));
-        assertThat(serializableList, hasItem("csw"));
-        assertThat(serializableList, hasItem("soap13"));
-
-        serializableList = metacard.getAttribute(RegistryObjectMetacardType.SERVICE_BINDINGS)
-                .getValues();
-        assertThat(serializableList.size(), is(2));
-        assertThat(serializableList, hasItem("REST"));
-        assertThat(serializableList, hasItem("SOAP"));
-
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME)
-                .getValue(), is("Codice"));
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL)
-                .getValue(), is("emailaddress@something.com"));
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER)
-                .getValue(), is("(555) 555-5555 extension 1234"));
-        assertThat(metacard.getAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS)
-                .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
-
-        assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
-                .getValue(), is(
-                "john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
+                        .getValue(),
+                is("john doe, (111) 111-1111 extension 1234, emailaddress@something.com"));
     }
 
     @Test

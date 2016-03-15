@@ -14,7 +14,7 @@
 -->
 <rim:Service xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" xmlns:wrs="http://www.opengis.net/cat/wrs/1.0"
              id="urn:uuid:2014ca7f59ac46f495e32b4a67a51276"
-             objectType="urn:catalog.service">
+             objectType="urn:registry:federation:service">
 
     <rim:Slot name="unknowSlotName" slotType="urn:my:very:own:urn">
         <wrs:ValueList>

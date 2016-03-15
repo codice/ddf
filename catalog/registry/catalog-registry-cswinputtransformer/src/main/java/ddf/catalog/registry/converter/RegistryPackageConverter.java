@@ -17,10 +17,13 @@ import static org.joda.time.format.ISODateTimeFormat.dateOptionalTimeParser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,14 +40,16 @@ import org.slf4j.LoggerFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.registry.common.RegistryConstants;
 import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
 import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.IdentifiableType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.InternationalStringType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.LocalizedStringType;
@@ -65,19 +70,11 @@ public class RegistryPackageConverter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryPackageConverter.class);
 
-    private static final Map<String, String> METACARD_XML_NAME_MAP;
-
-    private static final String XML_DATE_TIME_TYPE = ":dateTime";
-
-    private static final String XML_GEO_TYPE = ":GM_Point";
-
     private static final String URN_PATTERN_REGEX = "urn:(.*)";
 
     private static final Pattern URN_PATTERN = Pattern.compile(URN_PATTERN_REGEX);
 
-    private static final String ID_PATTERN_REGEX = "urn:uuid:(.*)";
-
-    private static final Pattern ID_PATTERN = Pattern.compile(ID_PATTERN_REGEX);
+    private static final Map<String, String> METACARD_XML_NAME_MAP;
 
     static {
         METACARD_XML_NAME_MAP = new HashMap<>();
@@ -116,6 +113,8 @@ public class RegistryPackageConverter {
 
         if (registryObject instanceof RegistryPackageType) {
             parseRegistryPackage((RegistryPackageType) registryObject, metacard);
+        } else if (registryObject instanceof ExtrinsicObjectType) {
+            parseNodeExtrinsicObject(registryObject, metacard);
         } else if (registryObject instanceof ServiceType) {
             parseRegistryService((ServiceType) registryObject, metacard);
         } else if (registryObject instanceof OrganizationType) {
@@ -131,16 +130,59 @@ public class RegistryPackageConverter {
 
     private static void parseRegistryObjectList(RegistryObjectListType registryObjects,
             RegistryMetacardImpl metacard) throws RegistryConversionException {
+        Map<String, Set<String>> associations = new HashMap<>();
+        Map<String, RegistryObjectType> registryIds = new HashMap<>();
+        List<OrganizationType> orgs = new ArrayList<>();
+        List<PersonType> contacts = new ArrayList<>();
+
+        String nodeId = "";
         for (JAXBElement identifiable : registryObjects.getIdentifiable()) {
             RegistryObjectType registryObject = (RegistryObjectType) identifiable.getValue();
-
-            if (registryObject instanceof ServiceType) {
+            registryIds.put(registryObject.getId(), registryObject);
+            if (registryObject instanceof ExtrinsicObjectType
+                    && RegistryConstants.REGISTRY_NODE_OBJECT_TYPE.equals(registryObject.getObjectType())) {
+                nodeId = registryObject.getId();
+                parseNodeExtrinsicObject(registryObject, metacard);
+            } else if (registryObject instanceof ServiceType
+                    && RegistryConstants.REGISTRY_SERVICE_OBJECT_TYPE.equals(registryObject.getObjectType())) {
                 parseRegistryService((ServiceType) registryObject, metacard);
             } else if (registryObject instanceof OrganizationType) {
-                parseRegistryOrganization((OrganizationType) registryObject, metacard);
+                orgs.add((OrganizationType) registryObject);
             } else if (registryObject instanceof PersonType) {
-                parseRegistryPerson((PersonType) registryObject, metacard);
+                contacts.add((PersonType) registryObject);
+            } else if (registryObject instanceof AssociationType1) {
+                AssociationType1 association = (AssociationType1) registryObject;
+                if (associations.containsKey(association.getSourceObject())) {
+                    associations.get(association.getSourceObject())
+                            .add(association.getTargetObject());
+                } else {
+                    associations.put(association.getSourceObject(),
+                            new HashSet<>(Collections.singleton(association.getTargetObject())));
+                }
             }
+        }
+        boolean orgFound = false;
+        boolean contactFound = false;
+        if (associations.get(nodeId) != null) {
+            Set<String> nodeAssociations = associations.get(nodeId);
+            RegistryObjectType ro;
+            for (String id : nodeAssociations) {
+                ro = registryIds.get(id);
+                if (!orgFound && ro != null && ro instanceof OrganizationType) {
+                    parseRegistryOrganization((OrganizationType) ro, metacard);
+                    orgFound = true;
+                } else if (!contactFound && ro != null && ro instanceof PersonType) {
+                    parseRegistryPerson((PersonType) ro, metacard);
+                    contactFound = true;
+                }
+            }
+        }
+
+        if (!orgFound && !orgs.isEmpty()) {
+            parseRegistryOrganization(orgs.get(0), metacard);
+        }
+        if (!contactFound && !contacts.isEmpty()) {
+            parseRegistryPerson(contacts.get(0), metacard);
         }
     }
 
@@ -149,44 +191,36 @@ public class RegistryPackageConverter {
 
         validateIdentifiable(organization);
 
-        Attribute orgNameAttribute =
-                metacard.getAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME);
+        if (organization.isSetName()) {
+            setMetacardStringAttribute(getStringFromIST(organization.getName()),
+                    RegistryObjectMetacardType.ORGANIZATION_NAME,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME, metacard);
+        }
 
-        if (orgNameAttribute == null || organization.getId()
-                .contains(":primary")) {
+        if (organization.isSetEmailAddress()) {
+            setMetacardEmailAttribute(organization.getEmailAddress(),
+                    RegistryObjectMetacardType.ORGANIZATION_EMAIL,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL, metacard);
+        }
 
-            if (organization.isSetName()) {
-                setMetacardStringAttribute(getStringFromIST(organization.getName()),
-                        RegistryObjectMetacardType.ORGANIZATION_NAME,
-                        metacard);
-            } else {
-                unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME, metacard);
-            }
+        if (organization.isSetTelephoneNumber()) {
+            setMetacardPhoneNumberAttribute(organization.getTelephoneNumber(),
+                    RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER, metacard);
+        }
 
-            if (organization.isSetEmailAddress()) {
-                setMetacardEmailAttribute(organization.getEmailAddress(),
-                        RegistryObjectMetacardType.ORGANIZATION_EMAIL,
-                        metacard);
-            } else {
-                unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL, metacard);
-            }
-
-            if (organization.isSetTelephoneNumber()) {
-                setMetacardPhoneNumberAttribute(organization.getTelephoneNumber(),
-                        RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
-                        metacard);
-            } else {
-                unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER,
-                        metacard);
-            }
-
-            if (organization.isSetAddress()) {
-                setMetacardAddressAttribute(organization.getAddress(),
-                        RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
-                        metacard);
-            } else {
-                unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS, metacard);
-            }
+        if (organization.isSetAddress()) {
+            setMetacardAddressAttribute(organization.getAddress(),
+                    RegistryObjectMetacardType.ORGANIZATION_ADDRESS,
+                    metacard);
+        } else {
+            unsetMetacardAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS, metacard);
         }
     }
 
@@ -202,51 +236,47 @@ public class RegistryPackageConverter {
 
         validateIdentifiable(person);
 
-        Attribute pointOfContactAttribute = metacard.getAttribute(Metacard.POINT_OF_CONTACT);
-        if (pointOfContactAttribute == null || person.getId()
-                .contains(":primary")) {
+        String name = "no name";
+        String phone = "no telephone number";
+        String email = "no email address";
 
-            String name = "no name";
-            String phone = "no telephone number";
-            String email = "no email address";
-
-            if (person.isSetPersonName()) {
-                PersonNameType personName = person.getPersonName();
-                List<String> nameParts = new ArrayList<>();
-                if (StringUtils.isNotBlank(personName.getFirstName())) {
-                    nameParts.add(personName.getFirstName());
-                }
-                if (StringUtils.isNotBlank(personName.getLastName())) {
-                    nameParts.add(personName.getLastName());
-                }
-
-                if (CollectionUtils.isNotEmpty(nameParts)) {
-                    name = String.join(" ", nameParts);
-                }
+        if (person.isSetPersonName()) {
+            PersonNameType personName = person.getPersonName();
+            List<String> nameParts = new ArrayList<>();
+            if (StringUtils.isNotBlank(personName.getFirstName())) {
+                nameParts.add(personName.getFirstName());
+            }
+            if (StringUtils.isNotBlank(personName.getLastName())) {
+                nameParts.add(personName.getLastName());
             }
 
-            if (person.isSetTelephoneNumber()) {
-                List<TelephoneNumberType> phoneNumbers = person.getTelephoneNumber();
-                if (CollectionUtils.isNotEmpty(phoneNumbers)) {
-                    phone = getPhoneNumberString(phoneNumbers.get(0));
-                }
+            if (CollectionUtils.isNotEmpty(nameParts)) {
+                name = String.join(" ", nameParts);
             }
-
-            if (person.isSetEmailAddress()) {
-                List<EmailAddressType> emailAddresses = person.getEmailAddress();
-
-                if (CollectionUtils.isNotEmpty(emailAddresses)) {
-                    EmailAddressType emailAddress = emailAddresses.get(0);
-
-                    if (StringUtils.isNotBlank(emailAddress.getAddress())) {
-                        email = emailAddress.getAddress();
-                    }
-                }
-            }
-
-            String metacardPoc = String.format("%s, %s, %s", name, phone, email);
-            metacard.setAttribute(Metacard.POINT_OF_CONTACT, metacardPoc);
         }
+
+        if (person.isSetTelephoneNumber()) {
+            List<TelephoneNumberType> phoneNumbers = person.getTelephoneNumber();
+            if (CollectionUtils.isNotEmpty(phoneNumbers)) {
+                phone = getPhoneNumberString(phoneNumbers.get(0));
+            }
+        }
+
+        if (person.isSetEmailAddress()) {
+            List<EmailAddressType> emailAddresses = person.getEmailAddress();
+
+            if (CollectionUtils.isNotEmpty(emailAddresses)) {
+                EmailAddressType emailAddress = emailAddresses.get(0);
+
+                if (StringUtils.isNotBlank(emailAddress.getAddress())) {
+                    email = emailAddress.getAddress();
+                }
+            }
+        }
+
+        String metacardPoc = String.format("%s, %s, %s", name, phone, email);
+        metacard.setAttribute(Metacard.POINT_OF_CONTACT, metacardPoc);
+
     }
 
     private static void parseRegistryService(ServiceType service, RegistryMetacardImpl metacard)
@@ -308,9 +338,8 @@ public class RegistryPackageConverter {
                 (Serializable) serviceBindings);
     }
 
-    private static void parseTopLevel(RegistryObjectType registryObject,
+    private static void parseNodeExtrinsicObject(RegistryObjectType registryObject,
             RegistryMetacardImpl metacard) throws RegistryConversionException {
-
         if (CollectionUtils.isNotEmpty(registryObject.getSlot())) {
             Map<String, SlotType1> slotMap = getSlotMap(registryObject.getSlot());
 
@@ -324,16 +353,6 @@ public class RegistryPackageConverter {
             setAttributeFromMap(RegistryObjectMetacardType.DATA_SOURCES, slotMap, metacard);
             setAttributeFromMap(RegistryObjectMetacardType.DATA_TYPES, slotMap, metacard);
             setAttributeFromMap(RegistryObjectMetacardType.SECURITY_LEVEL, slotMap, metacard);
-        }
-
-        if (registryObject.isSetId()) {
-            String id = registryObject.getId();
-            if (StringUtils.isNotBlank(id)) {
-                Matcher matcher = ID_PATTERN.matcher(id);
-                if (matcher.find()) {
-                    metacard.setId(matcher.group(1));
-                }
-            }
         }
 
         if (registryObject.isSetName()) {
@@ -353,16 +372,43 @@ public class RegistryPackageConverter {
             setMetacardStringAttribute(registryObject.getVersionInfo()
                     .getVersionName(), Metacard.CONTENT_TYPE_VERSION, metacard);
         }
+    }
+
+    private static void parseTopLevel(RegistryObjectType registryObject,
+            RegistryMetacardImpl metacard) throws RegistryConversionException {
+
+        if (registryObject.isSetId()) {
+            metacard.setId(registryObject.getId());
+        }
 
         if (registryObject.isSetObjectType()) {
             String objectType = registryObject.getObjectType();
-
             Matcher matcher = URN_PATTERN.matcher(objectType);
             if (matcher.find()) {
-                metacard.setContentTypeName(
-                        RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME + "."
-                                + matcher.group(1));
+                objectType = matcher.group(1).replaceAll(":", ".");
+                if (!objectType.startsWith(RegistryConstants.REGISTRY_TAG)) {
+                    objectType = String.format("%s.%s", RegistryConstants.REGISTRY_TAG, objectType);
+                }
             }
+            metacard.setContentTypeName(objectType);
+        }
+
+        if (registryObject.isSetName()) {
+            setMetacardStringAttribute(getStringFromIST(registryObject.getName()),
+                    Metacard.TITLE,
+                    metacard);
+        }
+
+        if (registryObject.isSetDescription()) {
+            setMetacardStringAttribute(getStringFromIST(registryObject.getDescription()),
+                    Metacard.DESCRIPTION,
+                    metacard);
+        }
+
+        if (registryObject.isSetVersionInfo()) {
+
+            setMetacardStringAttribute(registryObject.getVersionInfo()
+                    .getVersionName(), Metacard.CONTENT_TYPE_VERSION, metacard);
         }
     }
 
@@ -463,9 +509,9 @@ public class RegistryPackageConverter {
             SlotType1 slot = map.get(xmlAttributeName);
 
             String slotType = slot.getSlotType();
-            if (slotType.contains(XML_DATE_TIME_TYPE)) {
+            if (slotType.contains(RegistryConstants.XML_DATE_TIME_TYPE)) {
                 setSlotDateAttribute(slot, metacardAttributeName, metacard);
-            } else if (slotType.contains(XML_GEO_TYPE)) {
+            } else if (slotType.contains(RegistryConstants.XML_GEO_TYPE)) {
                 setSlotGeoAttribute(slot, metacardAttributeName, metacard);
             } else {
                 // default to string
