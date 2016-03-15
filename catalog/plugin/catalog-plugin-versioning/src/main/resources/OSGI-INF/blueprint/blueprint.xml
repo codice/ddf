@@ -17,8 +17,6 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-    <reference id="catalogProvider" interface="ddf.catalog.source.CatalogProvider" />
-
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
 
     <bean id="historian" class="ddf.catalog.metacard.versioning.HistorianPlugin">

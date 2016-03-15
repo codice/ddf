@@ -59,7 +59,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>catalog-core-api-impl,
+                        <Embed-Dependency>
+                            catalog-core-api-impl,
                             platform-util,
                             platform-util-unavailableurls,
                             ddf-security-common

@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.apache.shiro.SecurityUtils;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.HistoryMetacardImpl;
@@ -37,6 +35,9 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
 
     public static final String HISTORY_ROLE = "system-history";
 
+    public static final String ROLE_CLAIM =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+
     private final Predicate<Metacard> isMetacardHistory = (tags) -> tags.getTags()
             .contains(HistoryMetacardImpl.HISTORY_TAG);
 
@@ -48,9 +49,7 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             return new PolicyResponseImpl();
         }
         return new PolicyResponseImpl(new HashMap<>(),
-                Collections.singletonMap(
-                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
-                        Collections.singleton("system-history")));
+                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
 
     }
 
@@ -62,9 +61,7 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             return new PolicyResponseImpl();
         }
         return new PolicyResponseImpl(new HashMap<>(),
-                Collections.singletonMap(
-                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
-                        Collections.singleton("system-history")));
+                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
     }
 
     @Override
@@ -76,9 +73,7 @@ public class HistorianBouncerPolicyPlugin implements PolicyPlugin {
             return new PolicyResponseImpl();
         }
         return new PolicyResponseImpl(new HashMap<>(),
-                Collections.singletonMap(
-                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role",
-                        Collections.singleton(HISTORY_ROLE)));
+                Collections.singletonMap(ROLE_CLAIM, Collections.singleton(HISTORY_ROLE)));
     }
 
     @Override

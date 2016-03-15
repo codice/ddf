@@ -13,6 +13,8 @@
  */
 package ddf.catalog.data.impl;
 
+import static com.google.api.client.repackaged.com.google.common.base.Strings.isNullOrEmpty;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +28,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.subject.Subject;
+
+import com.google.api.client.repackaged.com.google.common.base.Strings;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
@@ -65,9 +69,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
 
     private static final String HISTORY_PREFIX = "metacard.history";
 
-    private static Function<String, String> prefix = s -> String.format("%s.%s",
-            HISTORY_PREFIX,
-            s);
+    private static Function<String, String> prefix = s -> String.format("%s.%s", HISTORY_PREFIX, s);
 
     /**
      * {@link ddf.catalog.data.Attribute} value for {@link ddf.catalog.data.Metacard#TAGS} when
@@ -169,7 +171,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
         this.setTagsHistory(sourceMetacard.getTags());
 
         String editedBy = SubjectUtils.getEmailAddress(subject);
-        if (editedBy == null || editedBy.equals("")) {
+        if (isNullOrEmpty(editedBy)) {
             editedBy = SubjectUtils.getName(subject);
         }
         this.setEditedBy(editedBy);
@@ -190,7 +192,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
      */
     public Metacard toBasicMetacard() {
         String id = this.getIdHistory();
-        if (id == null || id.matches("\\s*")) {
+        if (isNullOrEmpty(id)) {
             throw new IllegalStateException(
                     "Cannot convert history metacard without the original metacard id");
         }
@@ -238,7 +240,7 @@ public class HistoryMetacardImpl extends MetacardImpl {
         if (attribute == null || attribute.getValue() == null) {
             return new HashSet<>();
         } else {
-            return new HashSet<>(getAttribute(TAGS_HISTORY).getValues()
+            return new HashSet<>(attribute.getValues()
                     .stream()
                     .map(String::valueOf)
                     .collect(Collectors.toList()));
