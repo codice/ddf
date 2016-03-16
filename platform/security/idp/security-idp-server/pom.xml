@@ -147,12 +147,6 @@
             <artifactId>xml-apis</artifactId>
             <version>1.4.01</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
         <!--groovy dependencies-->
         <dependency>
             <groupId>org.ow2.asm</groupId>

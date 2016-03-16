@@ -21,7 +21,6 @@
         <groupId>ddf.measure</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.measure</groupId>
     <artifactId>measure-api</artifactId>
     <name>DDF :: Measure :: Measure API</name>
     <packaging>bundle</packaging>
@@ -38,12 +37,6 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
