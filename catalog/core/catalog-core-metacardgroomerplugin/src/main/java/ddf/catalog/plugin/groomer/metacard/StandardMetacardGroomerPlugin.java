@@ -99,6 +99,11 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
             aMetacard.setAttribute(new AttributeImpl(Metacard.EFFECTIVE, now));
         }
 
+        if (CollectionUtils.isEmpty(aMetacard.getTags())) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.TAGS,
+                    Collections.singletonList(Metacard.DEFAULT_TAG)));
+        }
+
     }
 
 }
