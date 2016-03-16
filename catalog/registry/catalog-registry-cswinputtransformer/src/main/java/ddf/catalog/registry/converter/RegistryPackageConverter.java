@@ -49,6 +49,7 @@ import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.EmailAddressType;
+import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExtrinsicObjectType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.IdentifiableType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.InternationalStringType;
@@ -378,14 +379,15 @@ public class RegistryPackageConverter {
             RegistryMetacardImpl metacard) throws RegistryConversionException {
 
         if (registryObject.isSetId()) {
-            metacard.setId(registryObject.getId());
+            metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, registryObject.getId());
         }
 
         if (registryObject.isSetObjectType()) {
             String objectType = registryObject.getObjectType();
             Matcher matcher = URN_PATTERN.matcher(objectType);
             if (matcher.find()) {
-                objectType = matcher.group(1).replaceAll(":", ".");
+                objectType = matcher.group(1)
+                        .replaceAll(":", ".");
                 if (!objectType.startsWith(RegistryConstants.REGISTRY_TAG)) {
                     objectType = String.format("%s.%s", RegistryConstants.REGISTRY_TAG, objectType);
                 }
@@ -409,6 +411,16 @@ public class RegistryPackageConverter {
 
             setMetacardStringAttribute(registryObject.getVersionInfo()
                     .getVersionName(), Metacard.CONTENT_TYPE_VERSION, metacard);
+        }
+
+        if (registryObject.isSetExternalIdentifier()) {
+            List<ExternalIdentifierType> extIds = registryObject.getExternalIdentifier();
+            for (ExternalIdentifierType extId : extIds) {
+                if (extId.getId()
+                        .equals(RegistryConstants.REGISTRY_MCARD_LOCAL_ID)) {
+                    metacard.setId(extId.getValue());
+                }
+            }
         }
     }
 

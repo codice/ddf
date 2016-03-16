@@ -63,6 +63,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
     //list of bindingType fields from all the service bindings
     public static final String SERVICE_BINDING_TYPES = "service-binding-types";
 
+    public static final String REGISTRY_ID = "registry-id";
+
     public RegistryObjectMetacardType() {
         this(REGISTRY_METACARD_TYPE_NAME, null);
     }
@@ -100,6 +102,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(DATA_TYPES, true);
         addQueryableString(SERVICE_BINDINGS, true);
         addQueryableString(SERVICE_BINDING_TYPES, true);
+        addQueryableString(REGISTRY_ID, false);
     }
 
     /**
