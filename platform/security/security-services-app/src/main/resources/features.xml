@@ -244,13 +244,6 @@
         <feature>security-all</feature>
     </feature>
 
-    <feature name="platform-migration-commands" install="manual" version="${project.version}"
-             description="Migration Command line tools">
-        <feature prerequisite="true">security-expansion</feature>
-        <feature prerequisite="true">platform-migratable-api</feature>
-        <bundle>mvn:ddf.platform.migration/platform-migration-commands/${project.version}</bundle>
-    </feature>
-
     <feature name="security-all" install="manual" version="${project.version}">
         <feature prerequisite="true">security-core</feature>
         <feature>security-policy-context</feature>
@@ -258,13 +251,6 @@
         <feature>security-guest</feature>
         <feature>security-certificate</feature>
         <feature>security-migratable</feature>
-        <!--
-            Since platform-migration-commands depends on security-services-app and didn't fit
-            in any other app that depends on security-services-app, it has been added here
-            for the time being. It will be moved to a more appropriate location once DDF-1928 has
-            been fully implemented.
-        -->
-        <feature>platform-migration-commands</feature>
     </feature>
 
     <feature name="security-web-sso-defaults" install="manual" version="${project.version}"

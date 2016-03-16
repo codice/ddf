@@ -13,12 +13,9 @@
 -->
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
-
-
         <command>
             <action
                     class="org.codice.ddf.migration.commands.MigrationStatusCommand">
@@ -28,10 +25,10 @@
         <command>
             <action class="org.codice.ddf.migration.commands.ExportCommand">
                 <argument ref="configurationMigrationService"/>
+                <argument ref="security"/>
                 <argument ref="defaultExportDirectoryPath"/>
             </action>
         </command>
-
     </command-bundle>
 
     <reference id="configStatusService"
@@ -39,6 +36,9 @@
 
     <reference id="configurationMigrationService"
                interface="org.codice.ddf.configuration.migration.ConfigurationMigrationService"/>
+
+    <bean id="security" class="org.codice.ddf.security.common.Security"
+          factory-method="getInstance"/>
 
     <!-- Base URI for DDF home -->
     <bean id="ddfHomeFile" class="java.io.File">
@@ -55,11 +55,6 @@
 
     <bean id="defaultExportDirectoryPath" class="java.nio.file.Paths" factory-method="get">
         <argument ref="defaultExportDirectoryUri"/>
-    </bean>
-
-    <bean id="platformExportCommand" class="org.codice.ddf.migration.commands.ExportCommand">
-        <argument ref="configurationMigrationService"/>
-        <argument ref="defaultExportDirectoryPath"/>
     </bean>
 
 </blueprint>

@@ -26,14 +26,6 @@
     <name>DDF :: Security :: Common</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <junit.version>4.12</junit.version>
-        <powermock.version>1.6.4</powermock.version>
-        <powermock.agent>
-            ${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar
-        </powermock.agent>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
