@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
@@ -64,45 +63,40 @@ public class CatalogMigratableImplTest {
 
     private static final String EXPORT_DIR_NAME = "org.codice.ddf.catalog";
 
-    private CatalogMigratableConfig config;
+    @Captor
+    private ArgumentCaptor<QueryRequest> argQueryRequest;
 
     @Mock
-    private CatalogFramework framework;
-
-    @Captor
-    private ArgumentCaptor<QueryRequest> queryRequest;
+    private CatalogFramework mockFramework;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private FilterBuilder filterBuilder;
+    private FilterBuilder mockFilterBuilder;
 
     @Mock
-    private MigrationFileWriter fileWriter;
+    private MigrationFileWriter mockFileWriter;
 
     @Mock
-    private MigrationTaskManager taskManager;
+    private MigrationTaskManager mockTaskManager;
+
+    private CatalogMigratableImpl migratable;
+
+    private CatalogMigratableConfig config;
 
     private List<Result> results;
-
-    private class CatalogMigratableImplUnderTest extends CatalogMigratableImpl {
-        public CatalogMigratableImplUnderTest(String description, CatalogFramework framework,
-                FilterBuilder filterBuilder, MigrationFileWriter fileWriter,
-                CatalogMigratableConfig config) {
-            super(description, framework, filterBuilder, fileWriter, config);
-        }
-
-        @Override
-        MigrationTaskManager createTaskManager(CatalogMigratableConfig config,
-                ExecutorService executorService) {
-            return taskManager;
-        }
-    }
 
     @Before
     public void setup() throws Exception {
         config = new CatalogMigratableConfig();
         config.setExportQueryPageSize(2);
 
-        when(filterBuilder.attribute(Metacard.ANY_TEXT)
+        migratable = new CatalogMigratableImpl(DESCRIPTION,
+                mockFramework,
+                mockFilterBuilder,
+                mockFileWriter,
+                config,
+                mockTaskManager);
+
+        when(mockFilterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
                 .like()
                 .text("*")).thenReturn(mock(Filter.class));
@@ -110,119 +104,83 @@ public class CatalogMigratableImplTest {
         results = Collections.singletonList(mock(Result.class));
 
         QueryResponse response = mock(QueryResponse.class);
-        when(framework.query(any())).thenReturn(response);
+        when(mockFramework.query(any())).thenReturn(response);
         when(response.getResults()).thenReturn(results);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullDescription() {
-        new CatalogMigratableImpl(null, framework, filterBuilder, fileWriter, config);
+        new CatalogMigratableImpl(null, mockFramework, mockFilterBuilder, mockFileWriter, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullProvider() {
-        new CatalogMigratableImpl(DESCRIPTION, null, filterBuilder, fileWriter, config);
+        new CatalogMigratableImpl(DESCRIPTION, null, mockFilterBuilder, mockFileWriter, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFilterBuilder() {
-        new CatalogMigratableImpl(DESCRIPTION, framework, null, fileWriter, config);
+        new CatalogMigratableImpl(DESCRIPTION, mockFramework, null, mockFileWriter, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFileWriter() {
-        new CatalogMigratableImpl(DESCRIPTION, framework, filterBuilder, null, config);
+        new CatalogMigratableImpl(DESCRIPTION, mockFramework, mockFilterBuilder, null, config);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfig() {
-        new CatalogMigratableImpl(DESCRIPTION, framework, filterBuilder, fileWriter, null);
+        new CatalogMigratableImpl(DESCRIPTION,
+                mockFramework,
+                mockFilterBuilder,
+                mockFileWriter,
+                null);
     }
 
     @Test
     public void exportSetsSubDirectory() {
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
-
         migratable.export(EXPORT_PATH);
-
         assertThat(config.getExportPath(), is(EXPORT_PATH.resolve(EXPORT_DIR_NAME)));
     }
 
     @Test
     public void exportUsesRightQuerySettings() throws Exception {
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
-
         migratable.export(EXPORT_PATH);
-
-        verify(framework).query(queryRequest.capture());
-        assertThat(queryRequest.getValue()
+        verify(mockFramework).query(argQueryRequest.capture());
+        assertThat(argQueryRequest.getValue()
                 .getQuery()
                 .getPageSize(), is(config.getExportQueryPageSize()));
-        assertThat(queryRequest.getValue()
+        assertThat(argQueryRequest.getValue()
                 .getQuery()
                 .requestsTotalResultsCount(), is(false));
     }
 
     @Test
     public void exportFileWriterCreatesExportDirectory() {
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
-
         migratable.export(EXPORT_PATH);
-        verify(fileWriter).createExportDirectory(any(Path.class));
+        verify(mockFileWriter).createExportDirectory(any(Path.class));
     }
 
     @Test(expected = ExportMigrationException.class)
     public void exportWhenResponseIsNull() throws Exception {
-        when(framework.query(any())).thenReturn(null);
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
+        when(mockFramework.query(any())).thenReturn(null);
         migratable.export(EXPORT_PATH);
     }
 
     @Test(expected = ExportMigrationException.class)
     public void exportWhenResultSetIsNull() throws Exception {
-        when(framework.query(any())
+        when(mockFramework.query(any())
                 .getResults()).thenReturn(null);
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
-
         migratable.export(EXPORT_PATH);
     }
 
     @Test
     public void exportWhenResultSetIsEmpty() throws Exception {
-        when(framework.query(any())
+        when(mockFramework.query(any())
                 .getResults()).thenReturn(new ArrayList<>());
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
         migratable.export(EXPORT_PATH);
-
-        verify(taskManager).exportFinish();
-        verifyNoMoreInteractions(taskManager);
+        verify(mockTaskManager).close();
+        verifyNoMoreInteractions(mockTaskManager);
     }
 
     @Test
@@ -230,19 +188,13 @@ public class CatalogMigratableImplTest {
         List<Result> result = Arrays.asList(mock(Result.class), mock(Result.class));
         List<Integer> startIndices = setupProviderResponses(result, Collections.emptyList());
 
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
-
         migratable.export(EXPORT_PATH);
 
-        verify(taskManager).exportMetacardQuery(result, 1);
-        verify(framework, times(2)).query(queryRequest.capture());
+        verify(mockTaskManager).exportMetacardQuery(result, 1);
+        verify(mockFramework, times(2)).query(argQueryRequest.capture());
         assertThat("Invalid start index for first query", startIndices.get(0), is(1));
         assertThat("Invalid page size",
-                queryRequest.getAllValues()
+                argQueryRequest.getAllValues()
                         .get(0)
                         .getQuery()
                         .getPageSize(),
@@ -250,8 +202,8 @@ public class CatalogMigratableImplTest {
         assertThat("Invalid start index for second query",
                 startIndices.get(1),
                 is(config.getExportQueryPageSize() + 1));
-        verify(taskManager).exportFinish();
-        verifyNoMoreInteractions(taskManager);
+        verify(mockTaskManager).close();
+        verifyNoMoreInteractions(mockTaskManager);
     }
 
     @Test
@@ -260,21 +212,15 @@ public class CatalogMigratableImplTest {
         List<Result> result2 = Collections.singletonList(mock(Result.class));
         List<Integer> startIndices = setupProviderResponses(result1, result2);
 
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
-
         MigrationMetadata metadata = migratable.export(EXPORT_PATH);
 
-        verify(taskManager).exportMetacardQuery(result1, 1);
+        verify(mockTaskManager).exportMetacardQuery(result1, 1);
         assertThat("Invalid start index for first query", startIndices.get(0), is(1));
-        verify(taskManager).exportMetacardQuery(result2, 2);
+        verify(mockTaskManager).exportMetacardQuery(result2, 2);
         assertThat("Invalid start index for second query",
                 startIndices.get(1),
                 is(config.getExportQueryPageSize() + 1));
-        verify(taskManager).exportFinish();
+        verify(mockTaskManager).close();
 
         assertThat(metadata.getMigrationWarnings(), is(empty()));
     }
@@ -285,32 +231,26 @@ public class CatalogMigratableImplTest {
         List<Result> result2 = Collections.singletonList(mock(Result.class));
         setupProviderResponses(result1, result2);
 
-        doThrow(new RuntimeException()).when(taskManager)
+        doThrow(new RuntimeException()).when(mockTaskManager)
                 .exportMetacardQuery(result1, 1);
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
 
         try {
             migratable.export(EXPORT_PATH);
         } finally {
-            verify(taskManager).exportMetacardQuery(result1, 1);
-            verify(taskManager).exportFinish();
-            verifyNoMoreInteractions(taskManager);
+            verify(mockTaskManager).exportMetacardQuery(result1, 1);
+            verify(mockTaskManager).close();
+            verifyNoMoreInteractions(mockTaskManager);
         }
     }
 
     @Test(expected = RuntimeException.class)
     public void exportWhenProviderQueryFails() throws Exception {
-        when(framework.query(any())).thenThrow(new UnsupportedQueryException(""));
+        when(mockFramework.query(any())).thenThrow(new UnsupportedQueryException(""));
 
         CatalogMigratableImpl migratable = new CatalogMigratableImpl(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
+                mockFramework,
+                mockFilterBuilder,
+                mockFileWriter,
                 config);
 
         migratable.export(EXPORT_PATH);
@@ -318,34 +258,22 @@ public class CatalogMigratableImplTest {
 
     @Test(expected = RuntimeException.class)
     public void exportWhenExportMetacardFailsWithMigrationException() throws Exception {
-        doThrow(new MigrationException("")).when(taskManager)
+        doThrow(new MigrationException("")).when(mockTaskManager)
                 .exportMetacardQuery(results, 1);
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
 
         try {
             migratable.export(EXPORT_PATH);
         } finally {
-            verify(taskManager).exportMetacardQuery(results, 1);
-            verify(taskManager).exportFinish();
-            verifyNoMoreInteractions(taskManager);
+            verify(mockTaskManager).exportMetacardQuery(results, 1);
+            verify(mockTaskManager).close();
+            verifyNoMoreInteractions(mockTaskManager);
         }
     }
 
     @Test(expected = MigrationException.class)
-    public void exportWhenTaskManagerFinishFailsWithMigrationException() {
-        doThrow(new MigrationException("")).when(taskManager)
-                .exportFinish();
-
-        CatalogMigratableImpl migratable = new CatalogMigratableImplUnderTest(DESCRIPTION,
-                framework,
-                filterBuilder,
-                fileWriter,
-                config);
+    public void exportWhenTaskManagerFinishFailsWithMigrationException() throws Exception {
+        doThrow(new MigrationException("")).when(mockTaskManager)
+                .close();
 
         migratable.export(EXPORT_PATH);
     }
@@ -358,7 +286,7 @@ public class CatalogMigratableImplTest {
                 .thenReturn(result2);
 
         List<Integer> responses = new ArrayList<>();
-        when(framework.query(any())).thenAnswer((invocation) -> {
+        when(mockFramework.query(any())).thenAnswer((invocation) -> {
             QueryRequest request = (QueryRequest) invocation.getArguments()[0];
             responses.add(request.getQuery()
                     .getStartIndex());

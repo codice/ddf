@@ -13,18 +13,25 @@
  */
 package org.codice.ddf.catalog.migratable.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -45,40 +52,59 @@ import ddf.catalog.data.Result;
 class MigrationTaskManager implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationTaskManager.class);
 
-    private final ListeningExecutorService taskExecutor;
-
     private final MigrationFileWriter fileWriter;
 
     private final CatalogMigratableConfig catalogConfig;
+
+    private final Supplier<ExecutorService> executorSupplier;
+
+    private ListeningExecutorService taskExecutor;
 
     private boolean failureFlag;
 
     /**
      * The creation of a task manager requires the passing of migratable configurations so that
      * task behavior can be explicitly defined (i.e. where to export, how many metacards per file,
-     * and other useful data). Also initializes the {@link MigrationFileWriter} and write directory.
+     * and other useful data). Also initializes the {@link MigrationFileWriter} and threading services.
      *
-     * @param config The set of configuration options to use.
+     * @param config Configuration object to use for customizing catalog migration process.
      */
-    public MigrationTaskManager(final CatalogMigratableConfig config,
-            final MigrationFileWriter fileWriter, final ExecutorService executor) {
-        this.taskExecutor = MoreExecutors.listeningDecorator(executor);
+    public MigrationTaskManager(@NotNull final CatalogMigratableConfig config,
+            @NotNull final MigrationFileWriter fileWriter) {
+        notNull(config, "Configuration object cannot be null");
+        notNull(fileWriter, "File writer cannot be null");
+
+        this.executorSupplier = this::createExecutorService;
         this.catalogConfig = config;
         this.fileWriter = fileWriter;
         this.failureFlag = false;
+        this.taskExecutor = MoreExecutors.listeningDecorator(executorSupplier.get());
+    }
+
+    /**
+     * Allows the specification of a {@link ExecutorService} to use during task management.
+     *
+     * @param config           Configuration object to use for customizing catalog migration process.
+     * @param fileWriter       Injectable object with file writing logic.
+     * @param executorSupplier Custom provider that makes the executor service.
+     */
+    public MigrationTaskManager(@NotNull final CatalogMigratableConfig config,
+            @NotNull final MigrationFileWriter fileWriter,
+            @NotNull final Supplier<ExecutorService> executorSupplier) {
+        notNull(config, "Configuration object cannot be null");
+        notNull(fileWriter, "File writer cannot be null");
+        notNull(executorSupplier, "Executor supplier cannot be null");
+
+        this.executorSupplier = executorSupplier;
+        this.catalogConfig = config;
+        this.fileWriter = fileWriter;
+        this.failureFlag = false;
+        this.taskExecutor = MoreExecutors.listeningDecorator(executorSupplier.get());
     }
 
     /**
      * Resources are automatically released by finishing the export process.
      *
-     * @throws Exception If an error occurs during closing.
-     */
-    @Override
-    public void close() throws Exception {
-        this.exportFinish();
-    }
-
-    /**
      * Must be called after all invocations to exportMetacardQuery. This will attempt
      * to gracefully shutdown the executor service and handle any exceptions that might have
      * occured in the asynchronous threads.
@@ -88,20 +114,11 @@ class MigrationTaskManager implements AutoCloseable {
      * within the scope of a try-with-resources block to utilize {@link AutoCloseable}.
      *
      * @throws MigrationException thrown if some of the some of the metacards couldn't be exported
+     * @throws Exception If an error occurs during closing.
      */
-    public void exportFinish() throws MigrationException {
-        LOGGER.debug("Attempting to shutdown catalog export");
-        taskExecutor.shutdown();
-        boolean isGracefulTermination = false;
-        try {
-            isGracefulTermination = taskExecutor.awaitTermination(1L, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            LOGGER.warn("Executor was interrupted during shutdown: " + e.getMessage(), e);
-        } finally {
-            if (!isGracefulTermination) {
-                taskExecutor.shutdownNow();
-            }
-        }
+    @Override
+    public void close() throws Exception {
+        this.exportFinish();
     }
 
     /**
@@ -127,9 +144,10 @@ class MigrationTaskManager implements AutoCloseable {
                     .resolve(makeFileName(exportGroupCount, i))
                     .toFile();
 
-            CatalogWriterCallable writerCallable = createWriterCallable(exportFile,
-                    fileResults,
-                    fileWriter);
+            Callable<Void> writerCallable = () -> {
+                fileWriter.writeMetacards(exportFile, fileResults);
+                return null;
+            };
 
             ListenableFuture<Void> task = taskExecutor.submit(writerCallable);
             Futures.addCallback(task, createFutureCallback());
@@ -140,7 +158,32 @@ class MigrationTaskManager implements AutoCloseable {
         }
     }
 
-    FutureCallback<Void> createFutureCallback() {
+    private void exportFinish() throws MigrationException {
+        LOGGER.debug("Attempting to shutdown catalog export");
+        taskExecutor.shutdown();
+        boolean isGracefulTermination = false;
+        try {
+            isGracefulTermination = taskExecutor.awaitTermination(1L, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            LOGGER.warn("Executor was interrupted during shutdown: " + e.getMessage(), e);
+        } finally {
+            if (!isGracefulTermination) {
+                taskExecutor.shutdownNow();
+            }
+            taskExecutor = MoreExecutors.listeningDecorator(executorSupplier.get());
+        }
+    }
+
+    private ExecutorService createExecutorService() {
+        return new ThreadPoolExecutor(0,
+                catalogConfig.getExportThreadCount(),
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(catalogConfig.getExportThreadCount()),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
+    private FutureCallback<Void> createFutureCallback() {
         return new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -156,12 +199,7 @@ class MigrationTaskManager implements AutoCloseable {
         };
     }
 
-    CatalogWriterCallable createWriterCallable(final File exportFile,
-            final List<Result> fileResults, final MigrationFileWriter fileWriter) {
-        return new CatalogWriterCallable(exportFile, fileResults, fileWriter);
-    }
-
-    String makeFileName(long queryPageNumber, int fileNumber) {
+    private String makeFileName(long queryPageNumber, int fileNumber) {
         return String.format("%s_%d_%d",
                 catalogConfig.getExportFilePrefix(),
                 queryPageNumber,
