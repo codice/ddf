@@ -27,13 +27,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.DateTimeParser;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
+
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -83,6 +93,8 @@ public class MetacardImpl implements Metacard {
 
     private String sourceId;
 
+    private static DateTimeFormatter dateTimeFormatter;
+
     /**
      * Creates a {@link Metacard} with a type of {@link BasicTypes#BASIC_METACARD} and empty
      * {@link Attribute}s.
@@ -110,6 +122,8 @@ public class MetacardImpl implements Metacard {
          * serialized object is maintained. For instance, if a null check is added in the
          * constructor, the same check should be added in the readObject() method.
          */
+        dateTimeFormatter = getDateTimeFormatter();
+
         map = new HashMap<String, Attribute>();
         if (type != null) {
             this.type = type;
@@ -131,6 +145,8 @@ public class MetacardImpl implements Metacard {
          * serialized object is maintained. For instance, if a null check is added in the
          * constructor, the same check should be added in the readObject() method.
          */
+        dateTimeFormatter = getDateTimeFormatter();
+
         this.wrappedMetacard = metacard;
         if (metacard.getMetacardType() != null) {
             this.type = metacard.getMetacardType();
@@ -147,9 +163,11 @@ public class MetacardImpl implements Metacard {
      * given {@link Metacard}.
      *
      * @param metacard the {@link Metacard} to create this new {@code Metacard} from
-     * @param type the {@link MetacardType} of metacard to create
+     * @param type     the {@link MetacardType} of metacard to create
      */
     public MetacardImpl(Metacard metacard, MetacardType type) {
+        dateTimeFormatter = getDateTimeFormatter();
+
         if (type != null) {
             this.type = type;
         } else {
@@ -157,7 +175,8 @@ public class MetacardImpl implements Metacard {
                     MetacardType.class.getName() + " instance should not be null.");
         }
         map = new HashMap<>();
-        for (AttributeDescriptor attribute : metacard.getMetacardType().getAttributeDescriptors()) {
+        for (AttributeDescriptor attribute : metacard.getMetacardType()
+                .getAttributeDescriptors()) {
             map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
         }
     }
@@ -398,6 +417,7 @@ public class MetacardImpl implements Metacard {
 
     /**
      * Sets the tags associated with this metacard
+     *
      * @param tags set of tags
      */
     public void setTags(Set<String> tags) {
@@ -685,7 +705,14 @@ public class MetacardImpl implements Metacard {
      * @param value the value of the {@link Attribute}
      */
     public void setAttribute(String name, Serializable value) {
-        setAttribute(new AttributeImpl(name, value));
+        boolean validAssignment = verifyTypesMatch(name, value);
+
+        if (!validAssignment) {
+            //Try to cast/parse/convert it
+            setAttribute(convertType(name, value));
+        } else {
+            setAttribute(new AttributeImpl(name, value));
+        }
     }
 
     @Override
@@ -694,7 +721,12 @@ public class MetacardImpl implements Metacard {
         if (attribute == null) {
             return;
         }
+        boolean validAssignment = verifyTypesMatch(attribute);
 
+        if (!validAssignment) {
+            //Try to cast/parse/convert it
+            attribute = convertType(attribute);
+        }
         if (wrappedMetacard != null) {
             wrappedMetacard.setAttribute(attribute);
         } else {
@@ -707,6 +739,124 @@ public class MetacardImpl implements Metacard {
                     map.remove(name);
                 }
             }
+        }
+    }
+
+    private boolean verifyTypesMatch(Attribute attribute) {
+        return verifyTypesMatch(attribute.getName(),
+                attribute.getValues()
+                        .size() > 1 ? (Serializable) attribute.getValues() : attribute.getValue());
+    }
+
+    private boolean verifyTypesMatch(String name, Serializable value) {
+
+        AttributeDescriptor descriptor = this.type.getAttributeDescriptor(name);
+        if (descriptor != null && value != null && !StringUtils.isEmpty(value.toString())) {
+            AttributeType type = descriptor.getType();
+            if (type != null) {
+                Class binding = type.getBinding();
+                if (binding != null && value.getClass() != binding) {
+                    if (value instanceof List) {
+                        List valueList = (List) value;
+                        if (!valueList.isEmpty() && valueList.get(0) != null && valueList.get(0)
+                                .getClass() != binding) {
+                            LOGGER.warn(String.format(
+                                    "Attempted to assign %s to %s. The correct type for %s is %s.",
+                                    valueList.get(0)
+                                            .getClass(),
+                                    name,
+                                    name,
+                                    binding));
+                            return false;
+                        }
+                    } else {
+                        LOGGER.warn(String.format(
+                                "Attempted to assign %s to %s. The correct type for %s is %s.",
+                                value.getClass(),
+                                name,
+                                name,
+                                binding));
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private AttributeImpl convertType(Attribute attribute) {
+        return convertType(attribute.getName(),
+                attribute.getValues()
+                        .size() > 1 ? (Serializable) attribute.getValues() : attribute.getValue());
+    }
+
+    private AttributeImpl convertType(String name, Serializable value) {
+        AttributeType.AttributeFormat attributeFormat = this.type.getAttributeDescriptor(name)
+                .getType()
+                .getAttributeFormat();
+
+        return new AttributeImpl(name, convertValue(attributeFormat, value));
+    }
+
+    private Serializable convertValue(AttributeType.AttributeFormat attributeFormat,
+            Serializable value) {
+
+        Serializable convertedValue = null;
+        try {
+            if (value instanceof List) {
+                List<Serializable> valueList = (List) value;
+                List<Serializable> convertedValueList = valueList.stream()
+                        .map(v -> convertValue(attributeFormat, v))
+                        .collect(Collectors.toList());
+                convertedValue = (Serializable) convertedValueList;
+            } else {
+                switch (attributeFormat) {
+                case DATE:
+                    try {
+                        convertedValue = dateTimeFormatter.parseDateTime(value.toString())
+                                .toDate();
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("Could not parse the date string.");
+                    }
+                    break;
+                case BINARY:
+                    convertedValue = value.toString()
+                            .getBytes(Charsets.UTF_8);
+                    break;
+                case DOUBLE:
+                    convertedValue = Double.parseDouble(value.toString());
+                    break;
+                case FLOAT:
+                    convertedValue = Float.parseFloat(value.toString());
+                    break;
+                case BOOLEAN:
+                    convertedValue = Boolean.parseBoolean(value.toString());
+                    break;
+                case INTEGER:
+                    convertedValue = Integer.parseInt(value.toString());
+                    break;
+                case LONG:
+                    convertedValue = Long.parseLong(value.toString());
+                    break;
+                case SHORT:
+                    convertedValue = Short.parseShort(value.toString());
+                    break;
+                case GEOMETRY:
+                case STRING:
+                case XML:
+                    convertedValue = value.toString();
+                    break;
+                default:
+                    convertedValue = value;
+                    break;
+                }
+            }
+            return convertedValue;
+        } catch (IllegalArgumentException e) {
+            String exceptionMessage = String.format("Could not convert %s to %s.",
+                    value.getClass(),
+                    attributeFormat);
+            throw new IllegalArgumentException(exceptionMessage, e);
         }
     }
 
@@ -854,4 +1004,32 @@ public class MetacardImpl implements Metacard {
 
     //TODO: is an equals() method needed?
 
+    private DateTimeFormatter getDateTimeFormatter() {
+        DateTimeParser[] dateTimeParsers =
+                {new DateTimeFormatterBuilder().append(ISODateTimeFormat.dateTimeParser())
+                        .appendOptional(new DateTimeFormatterBuilder().appendTimeZoneOffset("Z",
+                                true,
+                                2,
+                                4)
+                                .toFormatter()
+                                .getParser()).toParser(), new DateTimeFormatterBuilder().append(
+                        ISODateTimeFormat.yearMonth())
+                        .appendOptional(new DateTimeFormatterBuilder().appendTimeZoneOffset("Z",
+                                true,
+                                2,
+                                4)
+                                .toFormatter()
+                                .getParser()).toParser(), new DateTimeFormatterBuilder().append(
+                        ISODateTimeFormat.year())
+                        .appendOptional(new DateTimeFormatterBuilder().appendTimeZoneOffset("Z",
+                                true,
+                                2,
+                                4)
+                                .toFormatter()
+                                .getParser()).toParser(), new DateTimeFormatterBuilder().append(
+                        DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss ZZZ yyyy")).toParser()};
+        return new DateTimeFormatterBuilder().append(null, dateTimeParsers)
+                .toFormatter()
+                .withZoneUTC();
+    }
 }

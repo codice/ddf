@@ -291,7 +291,7 @@ class DynamicMetacardType implements MetacardType {
         return attributeDescriptors.stream()
                 .filter(p -> p.getName()
                         .equals(attributeName))
-                .collect(Collectors.toList())
-                .get(0);
+                .findFirst()
+                .orElse(null);
     }
 }

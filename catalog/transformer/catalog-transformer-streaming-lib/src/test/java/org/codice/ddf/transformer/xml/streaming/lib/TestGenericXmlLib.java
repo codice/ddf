@@ -16,6 +16,7 @@ package org.codice.ddf.transformer.xml.streaming.lib;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -244,6 +245,20 @@ public class TestGenericXmlLib {
         assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), is(notNullValue()));
         assertThat(dynamicMetacardType.getAttributeDescriptors()
                 .equals(attributeDescriptors), is(true));
+    }
+
+    @Test
+    public void testDynamicMetacardTypeNoMatchingDescriptors() {
+        Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
+        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.CREATED,
+                false,
+                false,
+                false,
+                false,
+                BasicTypes.STRING_TYPE));
+        DynamicMetacardType dynamicMetacardType = new DynamicMetacardType(attributeDescriptors,
+                "Foo");
+        assertThat(dynamicMetacardType.getAttributeDescriptor(Metacard.TITLE), is(nullValue()));
     }
 
     private SaxEventHandler getNewHandler() {

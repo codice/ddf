@@ -223,7 +223,7 @@ public class TestFeatureCollectionMessageBodyWriter {
                 false,
                 false,
                 false,
-                BasicTypes.LONG_TYPE));
+                BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(TITLE,
                 false,
                 false,

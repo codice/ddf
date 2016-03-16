@@ -13,15 +13,20 @@
  */
 package ddf.catalog.data.impl;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,17 +38,30 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.google.common.base.Charsets;
+
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 
 public class MetacardImplTest {
+
     private static final String DEFAULT_SERIALIZATION_FILE_LOCATION = "target/metacard1.ser";
+
+    private static final String TEST_GENERIC_STRING = "string";
+
+    private static final String TEST_ATTRIBUTE_NAME = "TestAttributeName";
+
+    private static final String TEST_ALT_ATTRIB_NAME = "testattributename";
 
     MetacardImpl mc;
 
@@ -562,4 +580,263 @@ public class MetacardImplTest {
 
     }
 
+    /*
+     * Tests for attribute type validation/enforcement
+     */
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetCreatedDateIncorrectAttributeType() {
+        MetacardImpl metacard = new MetacardImpl();
+
+        metacard.setAttribute(new AttributeImpl(Metacard.CREATED, TEST_GENERIC_STRING));
+    }
+
+    @Test
+    public void testSetCreatedDateIncorrectAttributeTypeMetacardFormatting() {
+        MetacardImpl metacard = new MetacardImpl();
+        Date testDate = new Date();
+        DateTime date = new DateTime(testDate);
+        DateTimeFormatter metacardDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+
+        metacard.setAttribute(new AttributeImpl(Metacard.CREATED, metacardDateFormat.print(date)));
+
+        assertThat("Should convert to (and return) valid date object.", metacard.getAttribute(
+                Metacard.CREATED)
+                .getValue()
+                .toString(), is(testDate.toString()));
+    }
+
+    @Test
+    public void testSetCreatedDateIncorrectAttributeTypeDefaultFormatting() {
+        MetacardImpl metacard = new MetacardImpl();
+        Date testDate = new Date();
+
+        metacard.setAttribute(new AttributeImpl(Metacard.CREATED, testDate.toString()));
+
+        assertThat("Should convert to (and return) valid date object.", metacard.getAttribute(
+                Metacard.CREATED)
+                .getValue()
+                .toString(), is(testDate.toString()));
+    }
+
+    @Test
+    public void testSetCreatedDateStringParameter() {
+        MetacardImpl metacard = new MetacardImpl();
+
+        String[] dateTimeStrings = {"2016-04-26T12:00:00.1-00:00", "2016-04-26T12:00:00.01",
+                "2016-04-26T12:00:00.001Z", "2016-04-26T12:00:00-00:00", "2016-04-26T12:00:00",
+                "2016-04-26T11:57:00Z", "2016-04-26T12:00-00:00", "2016-04-26T11:57",
+                "2016-04-26T11:57Z", "2016-04-26T12:00:22-00:00", "2016-04-26T12:00:22",
+                "2016-04-26T12:00:22Z", "2016-04-26T12:00:22.1-00:00", "2016-04-26T12:00:22.01",
+                "2016-04-26T12:00:22.001Z", "2016-04-26Z", "2016-04-26", "2016-04-26-00:00",
+                "2016-04Z", "2016-04", "2016-04-00:00", "2016Z", "2016", "2016-00:00"};
+        ArrayList<Date> dates = new ArrayList<>();
+        for (int i = 0; i < dateTimeStrings.length; i++) {
+            metacard.setAttribute(Metacard.CREATED, dateTimeStrings[i]);
+            assertThat("Should correctly convert " + dateTimeStrings[i] + " into a Date object.",
+                    metacard.getAttribute(Metacard.CREATED)
+                            .getValue(),
+                    instanceOf(Date.class));
+        }
+    }
+
+    @Test
+    public void testSetXmlIncorrectAttributeType() {
+        MetacardImpl metacard = new MetacardImpl();
+        Date xmlDate = new Date();
+
+        metacard.setAttribute(Metacard.METADATA, xmlDate);
+
+        assertThat("Should convert to a string.",
+                metacard.getAttribute(Metacard.METADATA)
+                        .getValue(),
+                is(xmlDate.toString()));
+    }
+
+    @Test
+    public void testSetAttributeResourceUriWithUriParameterGracefulHandling()
+            throws URISyntaxException {
+        MetacardImpl metacard = new MetacardImpl();
+        URI uri = new URI(nsUri.toString() + "/resource.html");
+
+        metacard.setAttribute("resource-uri", uri);
+
+        assertThat("Should convert the uri to a string.",
+                metacard.getAttribute("resource-uri")
+                        .getValue(),
+                is(uri.toString()));
+    }
+
+    @Test
+    public void testSetAttributeDoubleWithStringParameterGracefulHandling() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.DOUBLE_TYPE));
+        String doubleString = "1.001";
+        Double expectedReturnValue = 1.001;
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, doubleString);
+
+        assertThat("Should convert the string to a double.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(expectedReturnValue));
+    }
+
+    @Test
+    public void testSetAttributeIntegerWithStringParameterGracefulHandling() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.INTEGER_TYPE));
+        String integerString = "5005";
+        Integer expectedReturnValue = 5005;
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, integerString);
+
+        assertThat("Should convert the string to an integer.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(expectedReturnValue));
+    }
+
+    @Test
+    public void testSetAttributeFloatWithStringParameterGracefulHandling() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.FLOAT_TYPE));
+        String floatString = "1.1";
+        Float expectedReturnValue = 1.1f;
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, floatString);
+
+        assertThat("Should convert the string to a float.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(expectedReturnValue));
+    }
+
+    @Test
+    public void testSetAttributeLongWithStringParameterGracefulHandling() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.LONG_TYPE));
+        String longString = "1";
+        Long expectedReturnValue = 1L;
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, longString);
+
+        assertThat("Should convert the string to a long.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(expectedReturnValue));
+    }
+
+    @Test
+    public void testSetAttributeBooleanWithStringParameterGracefulHandling() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.BOOLEAN_TYPE));
+        String booleanString = "true";
+        Boolean expectedReturnValue = true;
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, booleanString);
+
+        assertThat("Should convert the string to a boolean.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(expectedReturnValue));
+    }
+
+    @Test
+    public void testSetAttributeBooleanWithStringListParameterGracefulHandling() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.BOOLEAN_TYPE));
+        ArrayList<String> booleanStrings = new ArrayList<>();
+        booleanStrings.add("true");
+        booleanStrings.add("false");
+        ArrayList<Boolean> booleanList = new ArrayList<>();
+        booleanList.add(true);
+        booleanList.add(false);
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, booleanStrings);
+
+        assertThat("Should convert the list of strings to a list of booleans.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValues(),
+                is(booleanList));
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetAttributeIntegerWithStringParameter() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.INTEGER_TYPE));
+        String invalidIntegerString = "notANumber";
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, invalidIntegerString);
+    }
+
+    @Test
+    public void testSetAttributeObjectWithStringParameter() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.OBJECT_TYPE));
+        String objectString = "objectString";
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, objectString);
+
+        assertThat("Should convert the string to an object.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(objectString));
+    }
+
+    @Test
+    public void testSetAttributeBinaryWithStringParameter() throws UnsupportedEncodingException {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.BINARY_TYPE));
+        String binaryString = "binaryString";
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, binaryString);
+
+        assertThat("Should convert the string to a binary object.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(binaryString.getBytes(Charsets.UTF_8)));
+    }
+
+    @Test
+    public void testSetAttributeStringWithDateParameter() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.STRING_TYPE));
+        Date stringDate = new Date();
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, stringDate);
+
+        assertThat("Should convert the date to a string.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(stringDate.toString()));
+    }
+
+    @Test
+    public void testSetAttributeShortWithStringParameter() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.SHORT_TYPE));
+        String shortString = "5";
+        Short expectedReturnValue = new Short(shortString);
+
+        metacard.setAttribute(TEST_ATTRIBUTE_NAME, shortString);
+
+        assertThat("Should convert the string to a short.",
+                metacard.getAttribute(TEST_ATTRIBUTE_NAME)
+                        .getValue(),
+                is(expectedReturnValue));
+    }
+
+    @Test
+    public void testSetAttributeWithNoAttributeDescriptors() {
+        MetacardImpl metacard = new MetacardImpl(getMetacardType(BasicTypes.DATE_TYPE));
+
+        metacard.setAttribute(TEST_ALT_ATTRIB_NAME, TEST_GENERIC_STRING);
+
+        assertThat("Should allow the attribute to be set without any changes.",
+                metacard.getAttribute(TEST_ALT_ATTRIB_NAME)
+                        .getValue(),
+                is(TEST_GENERIC_STRING));
+    }
+
+    private MetacardTypeImpl getMetacardType(AttributeType type) {
+        Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
+        attributeDescriptors.add(new AttributeDescriptorImpl(TEST_ATTRIBUTE_NAME,
+                true,
+                true,
+                true,
+                true,
+                type));
+        return new MetacardTypeImpl("TestMetacardType", attributeDescriptors);
+    }
 }

@@ -2098,7 +2098,7 @@ A result object consists of the following:
 ===== Creating Metacards
 
 The quickest way to create a `Metacard` is to extend or construct the `MetacardImpl` object. 
-`MetacardImpl` is the most commonly used and extended `Metacard` implementation in the system because it provides a convenient way for developers to retrieve and set `Attribute`s without having to create a new `MetacardType` (see below).
+`MetacardImpl` is the most commonly used and extended `Metacard` implementation in the system because it provides a convenient way for developers to retrieve and set ``Attribute``s without having to create a new `MetacardType` (see below). It also provides useful functionality such as type checking (and conversion for incorrectly typed values) based on the ``MetacardType``'s ``AttributeDescriptor``s.
 `MetacardImpl` uses `BASIC_METACARD` as its `MetacardType`.  
 
 ===== Limitations
