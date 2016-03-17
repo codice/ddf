@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.feature.NameImpl;
@@ -61,6 +62,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.permission.Permissions;
+
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -150,6 +152,7 @@ public class CswQueryFactory {
 
     private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint,
             List<QName> typeNames) throws CswException {
+
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
         Filter filter = null;
         if (constraint != null) {
@@ -178,10 +181,13 @@ public class CswQueryFactory {
                     null);
         }
         visitor.setVisitedFilter(filter);
-        if (typeNames.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+        boolean isTypeNameCsw = typeNames.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 CswConstants.CSW_RECORD_LOCAL_NAME,
-                CswConstants.CSW_NAMESPACE_PREFIX))) {
+                CswConstants.CSW_NAMESPACE_PREFIX));
+        boolean isTypeNameGmd = typeNames.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
+                CswConstants.GMD_RECORD_LOCAL_NAME));
 
+        if (isTypeNameCsw || isTypeNameGmd) {
             try {
                 visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
             } catch (UnsupportedOperationException ose) {
@@ -190,6 +196,7 @@ public class CswQueryFactory {
                         null);
             }
         }
+
         return visitor;
     }
 

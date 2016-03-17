@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -61,6 +61,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
@@ -105,6 +106,7 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -219,7 +221,10 @@ public class CswEndpoint implements Csw {
     private static final String ERROR_ID_PRODUCT_RETRIEVAL =
             "Unable to retrieve product for ID: %s";
 
-    private static Map<String, Element> documentElements = new HashMap<String, Element>();
+    private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
+            CswConstants.GMD_METADATA_TYPE);
+
+    private static Map<String, Element> documentElements = new HashMap<>();
 
     private final TransformerManager mimeTypeTransformerManager;
 
@@ -695,9 +700,9 @@ public class CswEndpoint implements Csw {
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
-            QueryRequest queryRequest = queryFactory.getQuery(constraint,
-                    typeStringToQNames(updateAction.getTypeName(),
-                            updateAction.getPrefixToUriMappings()));
+            QueryRequest queryRequest = queryFactory.getQuery(constraint, typeStringToQNames(
+                    updateAction.getTypeName(),
+                    updateAction.getPrefixToUriMappings()));
             QueryResponse response = framework.query(queryRequest);
 
             if (response.getHits() > 0) {
@@ -786,7 +791,7 @@ public class CswEndpoint implements Csw {
      */
     private List<QName> typeStringToQNames(String typeNames,
             Map<String, String> namespacePrefixToUriMappings) throws CswException {
-        List<QName> qNames = new ArrayList<QName>();
+        List<QName> qNames = new ArrayList<>();
         if (typeNames == null) {
             return qNames;
         }
@@ -845,11 +850,21 @@ public class CswEndpoint implements Csw {
         validator.validateFullyQualifiedTypes(types);
 
         DescribeRecordResponseType response = new DescribeRecordResponseType();
-        List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
+        List<SchemaComponentType> schemas = new ArrayList<>();
 
-        if (types.isEmpty() || types.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                CswConstants.CSW_RECORD_LOCAL_NAME))) {
-            schemas.add(getSchemaComponentType());
+        if (types.isEmpty()) {
+            schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
+            schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
+        } else {
+            if (types.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                    CswConstants.CSW_RECORD_LOCAL_NAME))) {
+                schemas.add(getSchemaComponentType(CswConstants.CSW_OUTPUT_SCHEMA));
+            }
+
+            if (types.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
+                    CswConstants.GMD_RECORD_LOCAL_NAME))) {
+                schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
+            }
         }
 
         response.setSchemaComponent(schemas);
@@ -917,14 +932,22 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
-    private SchemaComponentType getSchemaComponentType() throws CswException {
+    private SchemaComponentType getSchemaComponentType(String outputSchema) throws CswException {
+
         SchemaComponentType schemaComponentType = new SchemaComponentType();
-        List<Object> listOfObject = new ArrayList<Object>();
-        listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
+        List<Object> listOfObject = new ArrayList<>();
+
+        if (outputSchema.equals(CswConstants.CSW_OUTPUT_SCHEMA)) {
+            listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
+        } else if (outputSchema.equals(GmdMetacardType.GMD_NAMESPACE)) {
+            listOfObject.add(getDocElementFromResourcePath("gmd/record_gmd.xsd"));
+        }
+
         schemaComponentType.setContent(listOfObject);
         schemaComponentType.setSchemaLanguage(CswConstants.XML_SCHEMA_LANGUAGE);
-        schemaComponentType.setTargetNamespace(CswConstants.CSW_OUTPUT_SCHEMA);
+        schemaComponentType.setTargetNamespace(outputSchema);
         return schemaComponentType;
+
     }
 
     private Element getDocElementFromResourcePath(String resourcePath) throws CswException {
@@ -1044,7 +1067,7 @@ public class CswEndpoint implements Csw {
         filterCapabilities.setScalarCapabilities(scalarCapabilities);
 
         SpatialOperatorsType spatialOpsType = new SpatialOperatorsType();
-        ArrayList<SpatialOperatorType> spatialOpTypes = new ArrayList<SpatialOperatorType>();
+        ArrayList<SpatialOperatorType> spatialOpTypes = new ArrayList<>();
         for (SpatialOperatorNameType sont : SPATIAL_OPERATORS) {
             SpatialOperatorType sot = new SpatialOperatorType();
             sot.setName(sont);
@@ -1097,9 +1120,7 @@ public class CswEndpoint implements Csw {
 
         // Builds DescribeRecord operation metadata
         Operation describeRecordOp = buildOperation(CswConstants.DESCRIBE_RECORD, getAndPost);
-        addOperationParameter(CswConstants.TYPE_NAME_PARAMETER,
-                Arrays.asList(CswConstants.CSW_RECORD),
-                describeRecordOp);
+        addOperationParameter(CswConstants.TYPE_NAME_PARAMETER, TYPE_NAMES_LIST, describeRecordOp);
         Set<String> mimeTypeSet = new HashSet<>();
         mimeTypeSet.add(DEFAULT_OUTPUT_FORMAT);
         mimeTypeSet.addAll(mimeTypeTransformerManager.getAvailableMimeTypes());
@@ -1111,16 +1132,14 @@ public class CswEndpoint implements Csw {
 
         // Builds GetRecords operation metadata
         Operation getRecordsOp = buildOperation(CswConstants.GET_RECORDS, getAndPost);
-        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
-                Arrays.asList("hits", "results", "validate"),
-                getRecordsOp);
+        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER, Arrays.asList("hits",
+                "results",
+                "validate"), getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
                 schemaTransformerManager.getAvailableSchemas(),
                 getRecordsOp);
-        addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
-                Arrays.asList(CswConstants.CSW_RECORD),
-                getRecordsOp);
+        addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER, TYPE_NAMES_LIST, getRecordsOp);
         addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
                 CswConstants.CONSTRAINT_LANGUAGES,
                 getRecordsOp);
@@ -1135,16 +1154,16 @@ public class CswEndpoint implements Csw {
                 supportedSchemas,
                 getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
-        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
-                Arrays.asList("hits", "results", "validate"),
-                getRecordByIdOp);
+        addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER, Arrays.asList("hits",
+                "results",
+                "validate"), getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
                 ELEMENT_NAMES,
                 getRecordByIdOp);
 
         // Builds Transactions operation metadata
-        Operation transactionOp = buildOperation(CswConstants.TRANSACTION,
-                Arrays.asList(CswConstants.POST));
+        Operation transactionOp = buildOperation(CswConstants.TRANSACTION, Arrays.asList(
+                CswConstants.POST));
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 inputTransformerManager.getAvailableIds(),
                 transactionOp);
@@ -1212,14 +1231,14 @@ public class CswEndpoint implements Csw {
         Operation op = new Operation();
 
         op.setName(name);
-        ArrayList<DCP> dcpList = new ArrayList<DCP>();
+        ArrayList<DCP> dcpList = new ArrayList<>();
         DCP dcp = new DCP();
         HTTP http = new HTTP();
         for (QName type : types) {
             RequestMethodType rmt = new RequestMethodType();
             rmt.setHref(uri.getBaseUri()
                     .toASCIIString());
-            JAXBElement<RequestMethodType> requestElement = new JAXBElement<RequestMethodType>(type,
+            JAXBElement<RequestMethodType> requestElement = new JAXBElement<>(type,
                     RequestMethodType.class,
                     rmt);
             if (type.equals(CswConstants.POST)) {

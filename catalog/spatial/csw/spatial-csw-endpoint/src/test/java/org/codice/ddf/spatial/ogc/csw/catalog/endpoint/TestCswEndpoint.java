@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,15 +13,13 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -65,6 +63,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
@@ -109,6 +108,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
+
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -161,6 +161,9 @@ public class TestCswEndpoint {
     private static final String CQL_CONTEXTUAL_LIKE_QUERY =
             CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
+    private static final String GMD_CONTEXTUAL_LIKE_QUERY =
+            GmdMetacardType.APISO_ATTRIBUTE_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
+
     private static final String RANGE_VALUE = "bytes=100-";
 
     private static UriInfo mockUriInfo = mock(UriInfo.class);
@@ -204,6 +207,7 @@ public class TestCswEndpoint {
                 .getResource(".");
         when(mockBundle.getResource("record.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
+        when(mockBundle.getResource("gmd/record_gmd.xsd")).thenReturn(resourceUrl);
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
 
         csw = new CswEndpointStub(catalogFramework,
@@ -222,7 +226,7 @@ public class TestCswEndpoint {
                 mockTransformer);
         when(mockInputManager.getAvailableIds()).thenReturn(Arrays.asList(CswConstants.CSW_RECORD));
 
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
+        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<>(), 0);
         argument = ArgumentCaptor.forClass(QueryRequest.class);
         reset(catalogFramework);
         when(catalogFramework.query(argument.capture())).thenReturn(response);
@@ -247,9 +251,9 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
-        assertNull(ct.getOperationsMetadata());
-        assertNull(ct.getServiceIdentification());
+        assertThat(ct, notNullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
+        assertThat(ct.getServiceIdentification(), nullValue());
         verifyFilterCapabilities(ct);
         verifyServiceProvider(ct);
     }
@@ -266,10 +270,10 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
-        assertNull(ct.getOperationsMetadata());
+        assertThat(ct, notNullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
         verifyFilterCapabilities(ct);
-        assertNull(ct.getServiceProvider());
+        assertThat(ct.getServiceProvider(), nullValue());
         verifyServiceIdentification(ct);
     }
 
@@ -285,10 +289,10 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyFilterCapabilities(ct);
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getServiceProvider());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getServiceProvider(), nullValue());
         verifyOperationsMetadata(ct);
     }
 
@@ -304,10 +308,10 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
-        assertNull(ct.getOperationsMetadata());
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getServiceProvider());
+        assertThat(ct, notNullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getServiceProvider(), nullValue());
         verifyFilterCapabilities(ct);
     }
 
@@ -325,7 +329,7 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyServiceIdentification(ct);
         verifyServiceProvider(ct);
@@ -344,10 +348,10 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
-        assertNull(ct.getOperationsMetadata());
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getServiceProvider());
+        assertThat(ct, notNullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getServiceProvider(), nullValue());
         verifyFilterCapabilities(ct);
     }
 
@@ -361,7 +365,7 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyServiceIdentification(ct);
         verifyServiceProvider(ct);
@@ -379,7 +383,7 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyServiceIdentification(ct);
         verifyServiceProvider(ct);
@@ -396,8 +400,8 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
-        assertNotNull(ct.getOperationsMetadata());
+        assertThat(ct, notNullValue());
+        assertThat(ct.getOperationsMetadata(), notNullValue());
         for (Operation operation : ct.getOperationsMetadata()
                 .getOperation()) {
             if (StringUtils.equals(operation.getName(), CswConstants.GET_RECORDS)) {
@@ -428,11 +432,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyServiceIdentification(ct);
         verifyFilterCapabilities(ct);
-        assertNull(ct.getServiceProvider());
-        assertNull(ct.getOperationsMetadata());
+        assertThat(ct.getServiceProvider(), nullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
     }
 
     @Test
@@ -449,11 +453,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyServiceProvider(ct);
         verifyFilterCapabilities(ct);
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getOperationsMetadata());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
     }
 
     @Test
@@ -470,11 +474,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyFilterCapabilities(ct);
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getServiceProvider());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getServiceProvider(), nullValue());
     }
 
     @Test
@@ -491,11 +495,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyFilterCapabilities(ct);
-        assertNull(ct.getOperationsMetadata());
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getServiceProvider());
+        assertThat(ct.getOperationsMetadata(), nullValue());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getServiceProvider(), nullValue());
     }
 
     @Test
@@ -514,7 +518,7 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyServiceIdentification(ct);
         verifyServiceProvider(ct);
@@ -535,11 +539,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyFilterCapabilities(ct);
-        assertNull(ct.getServiceIdentification());
-        assertNull(ct.getServiceProvider());
-        assertNull(ct.getOperationsMetadata());
+        assertThat(ct.getServiceIdentification(), nullValue());
+        assertThat(ct.getServiceProvider(), nullValue());
+        assertThat(ct.getOperationsMetadata(), nullValue());
     }
 
     @Test
@@ -553,7 +557,7 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyServiceIdentification(ct);
         verifyServiceProvider(ct);
@@ -571,7 +575,7 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
+        assertThat(ct, notNullValue());
         verifyOperationsMetadata(ct);
         verifyServiceIdentification(ct);
         verifyServiceProvider(ct);
@@ -588,8 +592,8 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(ct);
-        assertNotNull(ct.getOperationsMetadata());
+        assertThat(ct, notNullValue());
+        assertThat(ct.getOperationsMetadata(), notNullValue());
         for (Operation operation : ct.getOperationsMetadata()
                 .getOperation()) {
             if (StringUtils.equals(operation.getName(), CswConstants.GET_RECORDS)) {
@@ -620,11 +624,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during getCapabilities GET request: " + e.getMessage());
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         // Assert that it returned all record types.
-        assertEquals(drrt.getSchemaComponent()
-                .size(), 1);
+        assertThat(drrt.getSchemaComponent()
+                .size(), is(1));
         LOGGER.info("got response \n{}\n", drrt.toString());
 
     }
@@ -632,7 +636,7 @@ public class TestCswEndpoint {
     @Test
     public void testPostDescribeRecordRequestSingleTypePassed() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         drt.setTypeName(typeNames);
         DescribeRecordResponseType drrt = null;
@@ -643,10 +647,31 @@ public class TestCswEndpoint {
             fail("CswException caught during describeRecord POST request: " + e.getMessage());
         }
 
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
+
+    }
+
+    @Test
+    public void testPostDescribeRecordRequestGMDTypePassed() {
+        DescribeRecordType drt = createDefaultDescribeRecordType();
+        List<QName> typeNames = new ArrayList<>();
+        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, CswConstants.GMD_RECORD_LOCAL_NAME, CswConstants.GMD_PREFIX));
+        drt.setTypeName(typeNames);
+        DescribeRecordResponseType drrt = null;
+
+        try {
+            drrt = csw.describeRecord(drt);
+        } catch (CswException e) {
+            fail("CswException caught during describeRecord POST request: " + e.getMessage());
+        }
+
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
+        List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -663,11 +688,11 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("CswException caught during describeRecord GET request: " + e.getMessage());
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         // Assert that it returned all record types.
-        assertEquals(drrt.getSchemaComponent()
-                .size(), 1);
+        assertThat(drrt.getSchemaComponent()
+                .size(), is(2));
         LOGGER.info("got response \n{}\n", drrt.toString());
 
     }
@@ -691,11 +716,11 @@ public class TestCswEndpoint {
             fail("CswException caught during describeRecord POST request: " + e.getMessage());
         }
 
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         // Assert that it returned all record types.
-        assertEquals(drrt.getSchemaComponent()
-                .size(), 1);
+        assertThat(drrt.getSchemaComponent()
+                .size(), is(2));
 
         LOGGER.info("got response \n{}\n", drrt.toString());
     }
@@ -715,17 +740,17 @@ public class TestCswEndpoint {
         // spec does not say specifically it should throw an exception,
         // and NSG interoperability tests require to skip the unknown ones, and
         // potentially return an empty list if none are known
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
     @Test
     public void testPostDescribeRecordRequestMultipleTypes() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, "test", VALID_PREFIX));
         drt.setTypeName(typeNames);
@@ -737,10 +762,10 @@ public class TestCswEndpoint {
             fail("CswException caught during describeRecord GET request: " + e.getMessage());
         }
 
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -760,7 +785,7 @@ public class TestCswEndpoint {
     @Test
     public void testPostDescribeRecordRequestInvalidType() throws CswException {
         DescribeRecordType drt = createDefaultDescribeRecordType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         drt.setTypeName(typeNames);
@@ -781,10 +806,10 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("DescribeRecord failed with message '" + e.getMessage() + "'");
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -810,10 +835,10 @@ public class TestCswEndpoint {
         } catch (CswException e) {
             fail("DescribeRecord failed with message '" + e.getMessage() + "'");
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(1, schemaComponents.size());
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -831,10 +856,10 @@ public class TestCswEndpoint {
             fail("DescribeRecord failed with message '" + e.getMessage() + "'");
 
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(1, schemaComponents.size());
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -895,10 +920,10 @@ public class TestCswEndpoint {
             fail("DescribeRecord failed with message '" + e.getMessage() + "'");
 
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -914,17 +939,17 @@ public class TestCswEndpoint {
             fail("DescribeRecord failed with message '" + e.getMessage() + "'");
 
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
     @Test
     public void testPostDescribeRecordValidSchemaLanguage() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         drt.setTypeName(typeNames);
         drt.setSchemaLanguage(CswConstants.SCHEMA_LANGUAGE_X_SCHEMA);
@@ -936,10 +961,10 @@ public class TestCswEndpoint {
             fail("DescribeRecord failed with message '" + e.getMessage() + "'");
 
         }
-        assertNotNull(drrt);
-        assertNotNull(drrt.getSchemaComponent());
+        assertThat(drrt, notNullValue());
+        assertThat(drrt.getSchemaComponent(), notNullValue());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
-        assertEquals(schemaComponents.size(), 1);
+        assertThat(schemaComponents.size(), is(1));
 
     }
 
@@ -993,7 +1018,7 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
         List<QName> elementNameList = Arrays.asList(new QName("brief"),
@@ -1011,7 +1036,7 @@ public class TestCswEndpoint {
 
         QueryType query = new QueryType();
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
         ElementSetNameType elsnt = new ElementSetNameType();
@@ -1030,7 +1055,7 @@ public class TestCswEndpoint {
 
         grr.setResultType(ResultType.RESULTS);
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
@@ -1040,7 +1065,44 @@ public class TestCswEndpoint {
         ElementSetNameType esnt = new ElementSetNameType();
         esnt.setValue(ElementSetType.SUMMARY);
         query.setElementSetName(esnt);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
+
+        grr.setAbstractQuery(jaxbQuery);
+        final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
+        grr.setOutputSchema(EXAMPLE_SCHEMA);
+        final String EXAMPLE_MIME = "application/xml";
+        grr.setOutputFormat(EXAMPLE_MIME);
+
+        CswRecordCollection collection = csw.getRecords(grr);
+
+        assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
+        assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
+        assertThat(collection.getSourceResponse(), notNullValue());
+        assertThat(collection.getResultType(), is(ResultType.RESULTS));
+        assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
+    }
+
+    @Test
+    public void testPostGetRecordsGmdCswOutputSchema()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        grr.setResultType(ResultType.RESULTS);
+        QueryType query = new QueryType();
+        List<QName> typeNames = new ArrayList<>();
+        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, CswConstants.GMD_RECORD_LOCAL_NAME, CswConstants.GMD_PREFIX));
+        query.setTypeNames(typeNames);
+        QueryConstraintType constraint = new QueryConstraintType();
+        constraint.setCqlText(GMD_CONTEXTUAL_LIKE_QUERY);
+
+        query.setConstraint(constraint);
+        ElementSetNameType esnt = new ElementSetNameType();
+        esnt.setValue(ElementSetType.SUMMARY);
+        query.setElementSetName(esnt);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -1069,14 +1131,14 @@ public class TestCswEndpoint {
 
         grr.setResultType(ResultType.HITS);
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -1098,14 +1160,14 @@ public class TestCswEndpoint {
 
         grr.setResultType(ResultType.VALIDATE);
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
 
@@ -1275,7 +1337,7 @@ public class TestCswEndpoint {
         assertThat(cswRecordCollection.getResource(), is(notNullValue()));
         assertThat(cswRecordCollection.getResource()
                 .getMimeType()
-                .toString(), is(equalTo(MediaType.APPLICATION_OCTET_STREAM)));
+                .toString(), is(MediaType.APPLICATION_OCTET_STREAM));
     }
 
     @Test(expected = CswException.class)
@@ -1407,8 +1469,8 @@ public class TestCswEndpoint {
         long bytesToSkipOffset = csw.getRange(validOffset);
         long bytesToSkipRange = csw.getRange(validRange);
 
-        assertThat(bytesToSkipOffset, is(equalTo(100L)));
-        assertThat(bytesToSkipRange, is(equalTo(200L)));
+        assertThat(bytesToSkipOffset, is(100L));
+        assertThat(bytesToSkipRange, is(200L));
     }
 
     @Test(expected = UnsupportedQueryException.class)
@@ -1440,7 +1502,7 @@ public class TestCswEndpoint {
 
         DescribeRecordResponseType response = new DescribeRecordResponseType();
 
-        List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
+        List<SchemaComponentType> schemas = new ArrayList<>();
 
         SchemaComponentType schemaComponentType = new SchemaComponentType();
         schemas.add(schemaComponentType);
@@ -1457,7 +1519,7 @@ public class TestCswEndpoint {
             StringWriter sw = new StringWriter();
 
             JAXBElement<DescribeRecordResponseType> wrappedResponse =
-                    new JAXBElement<DescribeRecordResponseType>(cswQnameOutPutSchema,
+                    new JAXBElement<>(cswQnameOutPutSchema,
                             DescribeRecordResponseType.class,
                             response);
 
@@ -1547,9 +1609,8 @@ public class TestCswEndpoint {
         String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
                 CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
                 CswConstants.OGC_OWS_PACKAGE}, ":");
-        verifyMarshalResponse(response,
-                contextPath,
-                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.TRANSACTION));
+        verifyMarshalResponse(response, contextPath, new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                CswConstants.TRANSACTION));
     }
 
     @Test
@@ -1827,12 +1888,12 @@ public class TestCswEndpoint {
         grr.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
 
         QueryType query = new QueryType();
-        List<QName> typeNames = new ArrayList<QName>();
+        List<QName> typeNames = new ArrayList<>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
 
         query.setTypeNames(typeNames);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(cswQnameOutPutSchema,
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
                 QueryType.class,
                 query);
         grr.setAbstractQuery(jaxbQuery);
@@ -1864,7 +1925,7 @@ public class TestCswEndpoint {
      */
     private void verifyServiceProvider(CapabilitiesType ct) {
         ServiceProvider sp = ct.getServiceProvider();
-        assertEquals(sp.getProviderName(), CswEndpoint.PROVIDER_NAME);
+        assertThat(sp.getProviderName(), is(CswEndpoint.PROVIDER_NAME));
     }
 
     /**
@@ -1874,11 +1935,11 @@ public class TestCswEndpoint {
      */
     private void verifyServiceIdentification(CapabilitiesType ct) {
         ServiceIdentification si = ct.getServiceIdentification();
-        assertEquals(si.getTitle(), CswEndpoint.SERVICE_TITLE);
-        assertEquals(si.getAbstract(), CswEndpoint.SERVICE_ABSTRACT);
-        assertEquals(si.getServiceType()
-                .getValue(), CswConstants.CSW);
-        assertEquals(si.getServiceTypeVersion(), Arrays.asList(CswConstants.VERSION_2_0_2));
+        assertThat(si.getTitle(), is(CswEndpoint.SERVICE_TITLE));
+        assertThat(si.getAbstract(), is(CswEndpoint.SERVICE_ABSTRACT));
+        assertThat(si.getServiceType()
+                .getValue(), is(CswConstants.CSW));
+        assertThat(si.getServiceTypeVersion(), is(Arrays.asList(CswConstants.VERSION_2_0_2)));
     }
 
     /**
@@ -1903,7 +1964,14 @@ public class TestCswEndpoint {
                                         CswConstants.CONSTRAINT_LANGUAGE_CQL));
                     } else if (StringUtils.equals(CswConstants.TYPE_NAMES_PARAMETER,
                             parameter.getName())) {
-                        assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
+
+                        // TODO : Remove conditional when GMD Metacard Transformer is merged (DDF-1976)
+                        if (StringUtils.equals(op.getName(), CswConstants.TRANSACTION)) {
+                            assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
+                        } else {
+                            assertThat(parameter.getValue(), hasItems(CswConstants.CSW_RECORD,
+                                    CswConstants.GMD_METADATA_TYPE));
+                        }
                     }
                 }
             }
@@ -1923,12 +1991,12 @@ public class TestCswEndpoint {
     private void verifyFilterCapabilities(CapabilitiesType ct) {
         FilterCapabilities fc = ct.getFilterCapabilities();
 
-        assertNotNull(fc.getIdCapabilities());
+        assertThat(fc.getIdCapabilities(), notNullValue());
         assertTrue(fc.getIdCapabilities()
                 .getEIDOrFID()
                 .size() == 1);
 
-        assertNotNull(fc.getScalarCapabilities());
+        assertThat(fc.getScalarCapabilities(), notNullValue());
         assertTrue(CswEndpoint.COMPARISON_OPERATORS.size() == fc.getScalarCapabilities()
                 .getComparisonOperators()
                 .getComparisonOperator()
@@ -1940,7 +2008,7 @@ public class TestCswEndpoint {
                     .contains(cot));
         }
 
-        assertNotNull(fc.getSpatialCapabilities());
+        assertThat(fc.getSpatialCapabilities(), notNullValue());
         assertTrue(CswEndpoint.SPATIAL_OPERATORS.size() == fc.getSpatialCapabilities()
                 .getSpatialOperators()
                 .getSpatialOperator()
@@ -1953,7 +2021,7 @@ public class TestCswEndpoint {
     }
 
     private QueryResponse getQueryResponse() {
-        List<Result> results = new LinkedList<Result>();
+        List<Result> results = new LinkedList<>();
         for (int i = 0; i < RESULT_COUNT; i++) {
             Result result = new ResultImpl();
             results.add(result);

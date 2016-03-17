@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.geotools.filter.FilterFactoryImpl;
@@ -132,11 +133,12 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
         String propertyName = expression.getPropertyName();
         String name;
+
         if (CswConstants.BBOX_PROP.equals(propertyName)
-                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName)) {
+                || CswRecordMetacardType.OWS_BOUNDING_BOX.equals(propertyName) ||
+                GmdMetacardType.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
-
             NamespaceSupport namespaceSupport = expression.getNamespaceContext();
 
             name = DefaultCswRecordMap.getDefaultCswRecordMap()
@@ -319,7 +321,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     @Override
     public Object visit(And filter, Object extraData) {
         List<Filter> children = filter.getChildren();
-        List<Filter> newChildren = new ArrayList<Filter>();
+        List<Filter> newChildren = new ArrayList<>();
         Iterator<Filter> iter = children.iterator();
         while (iter.hasNext()) {
             Filter child = iter.next();
@@ -341,7 +343,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     public Object visit(Or filter, Object extraData) {
         List<Filter> children = filter.getChildren();
-        List<Filter> newChildren = new ArrayList<Filter>();
+        List<Filter> newChildren = new ArrayList<>();
         Iterator<Filter> iter = children.iterator();
         while (iter.hasNext()) {
             Filter child = iter.next();
