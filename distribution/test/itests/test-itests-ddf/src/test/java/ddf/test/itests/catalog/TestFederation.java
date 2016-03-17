@@ -44,6 +44,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleService;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -376,6 +377,44 @@ public class TestFederation extends AbstractIntegrationTest {
         // @formatter:off
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain")
                 .body(is(SAMPLE_DATA));
+        // @formatter:on
+    }
+
+    /**
+     * Tests Source can retrieve existing product. The product is located in one of the
+     * URLResourceReader's root resource directories, so it can be downloaded.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFederatedRetrieveExistingProductWithRange() throws Exception {
+        /**
+         * Setup
+         * Add productDirectory to the URLResourceReader's set of valid root resource directories.
+         */
+        String fileName = testName.getMethodName() + ".txt";
+        String metacardId = ingestXmlWithProduct(fileName);
+        metacardsToDelete.add(metacardId);
+        String productDirectory = new File(fileName).getAbsoluteFile()
+                .getParent();
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS,
+                productDirectory);
+
+        int offset = 4;
+        byte[] sampleDataByteArray = SAMPLE_DATA.getBytes();
+        String partialSampleData = new String(Arrays.copyOfRange(sampleDataByteArray,
+                offset,
+                sampleDataByteArray.length));
+
+        String restUrl = REST_PATH.getUrl() + "sources/" + OPENSEARCH_SOURCE_ID + "/" + metacardId
+                + "?transform=resource";
+
+        // Perform Test and Verify
+        // @formatter:off
+        given().header(CswConstants.RANGE_HEADER, String.format("bytes=%s-", offset)).get(restUrl)
+                .then().log().all().assertThat().contentType("text/plain")
+                .body(is(partialSampleData));
         // @formatter:on
     }
 

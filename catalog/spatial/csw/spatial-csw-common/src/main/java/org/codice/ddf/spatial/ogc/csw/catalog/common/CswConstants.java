@@ -20,6 +20,8 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
+import com.google.common.net.HttpHeaders;
+
 public interface CswConstants {
 
     String GET_CAPABILITIES = "GetCapabilities";
@@ -62,6 +64,15 @@ public interface CswConstants {
 
     String PRODUCT_RETRIEVAL_HTTP_HEADER = "X-Csw-Product";
 
+    String BYTES = "bytes";
+
+    String BYTES_EQUAL = "bytes=";
+
+    String BYTES_TO_SKIP = "BytesToSkip";
+
+    String RANGE_HEADER = HttpHeaders.RANGE;
+
+    String ACCEPT_RANGES_HEADER = HttpHeaders.ACCEPT_RANGES;
     /*
      * typeName vs typeNames: typeName applies to DescribeRecord, where typeNames applies to
      * getRecords. However, throughout the csw 2.0.2 specification, in particular in section 10.8,

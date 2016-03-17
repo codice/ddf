@@ -921,9 +921,16 @@ public class CswSource extends MaskableImpl
             getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
             getRecordByIdRequest.setId(metacardId);
 
+            String rangeValue = "";
+            if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
+                rangeValue = String.format("%s%s-", CswConstants.BYTES_EQUAL,
+                        requestProperties.get(CswConstants.BYTES_TO_SKIP)
+                                .toString());
+                LOGGER.debug("Range: {}", rangeValue);
+            }
             CswRecordCollection recordCollection;
             try {
-                recordCollection = csw.getRecordById(getRecordByIdRequest);
+                recordCollection = csw.getRecordById(getRecordByIdRequest, rangeValue);
 
                 Resource resource = recordCollection.getResource();
                 if (resource != null) {

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -1241,14 +1242,15 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testRetrieveResourceViaGetRecordById()
+    public void testRetrieveResourceUsingGetRecordById()
             throws CswException, ResourceNotFoundException, IOException,
             ResourceNotSupportedException, URISyntaxException {
         Csw csw = createMockCsw();
         CswRecordCollection collection = mock(CswRecordCollection.class);
         Resource resource = mock(Resource.class);
         when(collection.getResource()).thenReturn(resource);
-        when(csw.getRecordById(any(GetRecordByIdRequest.class))).thenReturn(collection);
+        when(csw.getRecordById(any(GetRecordByIdRequest.class),
+                anyString())).thenReturn(collection);
         CswSource cswSource = getCswSource(csw, mockContext, null, null, null);
         ResourceReader reader = mock(ResourceReader.class);
         when(reader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mock(
@@ -1257,9 +1259,30 @@ public class TestCswSource extends TestCswSourceBase {
 
         Map<String, Serializable> props = new HashMap<>();
         props.put(Metacard.ID, "ID");
+        props.put(CswConstants.BYTES_TO_SKIP, "123");
         cswSource.retrieveResource(new URI("http://example.com/resource"), props);
         // Verify
-        verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class));
+        verify(csw, times(1)).getRecordById(any(GetRecordByIdRequest.class), any(String.class));
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testRetrieveResourceUsingGetRecordByIdWithNoId()
+            throws CswException, ResourceNotFoundException, IOException,
+            ResourceNotSupportedException, URISyntaxException {
+        Csw csw = createMockCsw();
+        CswRecordCollection collection = mock(CswRecordCollection.class);
+        Resource resource = mock(Resource.class);
+        when(collection.getResource()).thenReturn(resource);
+        when(csw.getRecordById(any(GetRecordByIdRequest.class),
+                anyString())).thenReturn(collection);
+        CswSource cswSource = getCswSource(csw, mockContext, null, null, null);
+        ResourceReader reader = mock(ResourceReader.class);
+        when(reader.retrieveResource(any(URI.class), any(Map.class))).thenReturn(mock(
+                ResourceResponse.class));
+        cswSource.setResourceReader(reader);
+
+        Map<String, Serializable> props = new HashMap<>();
+        cswSource.retrieveResource(new URI("http://example.com/resource"), props);
     }
 
     private CswSourceConfiguration getStandardCswSourceConfiguration(String contentTypeMapping,
