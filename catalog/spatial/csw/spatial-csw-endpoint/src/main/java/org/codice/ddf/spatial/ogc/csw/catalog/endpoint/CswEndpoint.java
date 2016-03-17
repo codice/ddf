@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.activation.MimeType;
@@ -937,6 +938,16 @@ public class CswEndpoint implements Csw {
 
     private Element loadDocElementFromResourcePath(String resourcePath) throws CswException {
         URL recordUrl = getBundle().getResource(resourcePath);
+
+        if (recordUrl == null) {
+            /* Using DescribeRecordType since that is the bundle where other csw resources live */
+            recordUrl = Optional.of(FrameworkUtil.getBundle(DescribeRecordType.class))
+                    .map(b -> b.getResource(resourcePath))
+                    .orElse(null);
+            if (recordUrl /*still*/ == null) {
+                throw new CswException("Cannot find the resource: " + resourcePath);
+            }
+        }
 
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
