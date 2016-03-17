@@ -17,7 +17,7 @@
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
 
-    <bean id="identificationPlugin" class="ddf.catalog.registry.identification">
+    <bean id="identificationPlugin" class="ddf.catalog.registry.identification.IdentificationPlugin">
         <property name="parser" ref="xmlParser"/>
     </bean>
 

@@ -36,17 +36,8 @@
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
-            <artifactId>ogc-tools-gml-jts</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.ogc</groupId>
             <artifactId>gml-v_3_1_1-schema</artifactId>
             <version>1.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vividsolutions</groupId>
@@ -83,31 +74,8 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
-            <artifactId>platform-parser-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
             <artifactId>platform-parser-xml</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-cswinputtransformer</artifactId>
-            <version>2.9.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-common</artifactId>
-            <version>2.9.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.transformer</groupId>
-            <artifactId>catalog-transformer-common</artifactId>
-            <version>2.9.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -119,23 +87,22 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package />
                         <Embed-Dependency>
                             catalog-registry-common,
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
-                            ogc-tools-gml-jts,
                             platform-util,
                             catalog-registry-schema-bindings
                         </Embed-Dependency>
                         <Import-Package>
-                            net.opengis.gml.v_3_1_1,*
+                            net.opengis.gml.v_3_1_1,
+                            *
                         </Import-Package>
                         <Private-Package>
                             net.opengis.filter.v_1_1_0,
-                            ddf.catalog.registry.transformer,
-                            ddf.catalog.registry.converter
+                            ddf.catalog.registry.identification
                         </Private-Package>
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
