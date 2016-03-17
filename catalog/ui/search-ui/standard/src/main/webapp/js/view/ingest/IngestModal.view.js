@@ -56,10 +56,7 @@ define([
                 view.fileUploadListRegion.show(new UploadList({collection: view.collection}));
 
                 this.$('.fileupload').fileupload({
-                    url: '/services/content',
-                    paramName: 'file',
-                    dataType: 'json',
-                    formData: {directive: "STORE_AND_PROCESS"},
+                    url: '/services/catalog',
                     maxFileSize: 5000000,
                     add: function (e, data) {
 // this overrides the add to use our own model to control when the upload actually happens.

@@ -83,9 +83,6 @@
                                     mvn:ddf.catalog/catalog-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.content/content-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
                                     mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
@@ -218,24 +215,6 @@
                                             <type>zip</type>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>ddf.content</groupId>
-                                            <artifactId>docs</artifactId>
-                                            <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/docs-pre/content
-                                            </outputDirectory>
-                                            <classifier>adoc-files</classifier>
-                                            <type>zip</type>
-                                        </artifactItem>
-                                        <artifactItem>
-                                            <groupId>ddf.content</groupId>
-                                            <artifactId>docs</artifactId>
-                                            <version>${project.version}</version>
-                                            <outputDirectory>${setup.folder}/documentation-final/content
-                                            </outputDirectory>
-                                            <classifier>export</classifier>
-                                            <type>zip</type>
-                                        </artifactItem>
-                                        <artifactItem>
                                             <groupId>ddf.platform</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
@@ -338,9 +317,6 @@
                                         <copy todir="${setup.folder}/docs/solr">
                                             <fileset dir="${setup.folder}/documentation-final/solr/docs-${project.version}"/>
                                         </copy>
-                                        <copy todir="${setup.folder}/docs/content">
-                                            <fileset dir="${setup.folder}/documentation-final/content/docs-${project.version}"/>
-                                        </copy>
                                         <copy todir="${setup.folder}/docs/platform">
                                             <fileset dir="${setup.folder}/documentation-final/platform/docs-${project.version}"/>
                                         </copy>
@@ -402,14 +378,6 @@
                                             </outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>ddf.content.core</groupId>
-                                            <artifactId>content-core-api</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>javadoc</type>
-                                            <outputDirectory>${setup.folder}/content_api_javadoc
-                                            </outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
                                             <groupId>ddf.security.core</groupId>
                                             <artifactId>security-core-api</artifactId>
                                             <version>${project.version}</version>
@@ -455,12 +423,6 @@
             <type>javadoc</type>
         </dependency>
         <dependency>
-            <groupId>ddf.content.core</groupId>
-            <artifactId>content-core-api</artifactId>
-            <version>${project.version}</version>
-            <type>javadoc</type>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
@@ -496,13 +458,6 @@
         <dependency>
             <groupId>ddf.catalog</groupId>
             <artifactId>catalog-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.content</groupId>
-            <artifactId>content-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

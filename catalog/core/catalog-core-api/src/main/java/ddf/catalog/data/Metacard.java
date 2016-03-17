@@ -199,6 +199,10 @@ public interface Metacard extends Serializable {
      */
     public static final String DEFAULT_TAG = "resource";
 
+    String RESOURCE_CHECKSUM_ALGORITHM = "resource-checksum-algorithm";
+
+    String RESOURCE_CHECKSUM = "resource-checksum";
+
     /**
      * Returns {@link Attribute} for given attribute name.
      *

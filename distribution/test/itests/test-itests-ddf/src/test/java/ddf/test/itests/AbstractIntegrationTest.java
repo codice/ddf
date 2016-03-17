@@ -235,8 +235,6 @@ public abstract class AbstractIntegrationTest {
 
     public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
-    public static final DynamicUrl CONTENT_PATH = new DynamicUrl(SERVICE_ROOT, "/content/");
-
     public static final DynamicUrl OPENSEARCH_PATH = new DynamicUrl(REST_PATH, "query");
 
     public static final DynamicUrl CSW_PATH = new DynamicUrl(SERVICE_ROOT, "/csw");

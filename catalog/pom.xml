@@ -513,7 +513,6 @@
         <module>admin</module>
         <module>catalog-app</module>
         <module>solr</module>
-        <module>content</module>
         <module>ui</module>
         <module>spatial</module>
         <module>docs</module>

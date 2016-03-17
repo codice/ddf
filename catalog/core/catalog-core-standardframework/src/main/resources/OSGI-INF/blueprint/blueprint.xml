@@ -26,9 +26,21 @@
 
     <ext:property-placeholder/>
 
+    <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
+
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper" />
+
     <bean id="sourceListener" class="ddf.catalog.util.impl.Masker"/>
 
     <!-- START Sorted Plugin lists that are sorted by their ServiceReferences -->
+    <bean id="preCreateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="postCreateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="preUpdateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="postUpdateStorageSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
     <bean id="preIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
     <bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
@@ -46,6 +58,8 @@
     <bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
     <bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+    <bean id="storageProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
     <bean id="resourceReaderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
     </bean>
@@ -73,12 +87,41 @@
         <reference-listener bind-method="bind"
                             unbind-method="unbind" ref="ddf"/>
     </reference-list>
+    <!-- STORAGEPROVIDER REFERENCE -->
+    <reference-list id="storage" interface="ddf.catalog.content.StorageProvider"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="storageProviderSortedList"/>
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="ddf"/>
+    </reference-list>
 	<!-- CATALOG STORE REFERENCE -->
 	<reference-list id="catalogStore" interface="ddf.catalog.source.CatalogStore"
 					availability="optional">
 		<reference-listener bind-method="bind"
 							unbind-method="unbind" ref="catalogStoreMap"/>
 	</reference-list>
+    <!-- CONTENT -->
+    <reference-list id="preCreateStorage" interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preCreateStorageSortedList"/>
+    </reference-list>
+    <reference-list id="postCreateStorage" interface="ddf.catalog.content.plugin.PostCreateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postCreateStorageSortedList"/>
+    </reference-list>
+    <reference-list id="preUpdateStorage" interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="preUpdateStorageSortedList"/>
+    </reference-list>
+    <reference-list id="postUpdateStorage" interface="ddf.catalog.content.plugin.PostUpdateStoragePlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="postUpdateStorageSortedList"/>
+    </reference-list>
     <!-- PREINGEST REFERENCE -->
     <reference-list id="preIngest" interface="ddf.catalog.plugin.PreIngestPlugin"
                     availability="optional">
@@ -275,8 +318,13 @@
         <argument>
             <bean class="ddf.catalog.impl.FrameworkProperties">
                 <property name="catalogProviders" ref="catalogProviderSortedList"/>
+                <property name="storageProviders" ref="storageProviderSortedList"/>
                 <property name="catalogStoresMap" ref="catalogStoreMap"/>
                 <property name="bundleContext" ref="blueprintBundleContext"/>
+                <property name="preCreateStoragePlugins" ref="preCreateStorageSortedList"/>
+                <property name="postCreateStoragePlugins" ref="postCreateStorageSortedList"/>
+                <property name="preUpdateStoragePlugins" ref="preUpdateStorageSortedList"/>
+                <property name="postUpdateStoragePlugins" ref="postUpdateStorageSortedList"/>
                 <property name="preIngest" ref="preIngestSortedList"/>
                 <property name="postIngest" ref="postIngestSortedList"/>
                 <property name="preQuery" ref="preQuerySortedList"/>
@@ -297,6 +345,8 @@
                 <property name="policyPlugins" ref="policySortedList"/>
                 <property name="accessPlugins" ref="accessSortedList"/>
                 <property name="filterBuilder" ref="filterBuilder"/>
+                <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
+                <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>

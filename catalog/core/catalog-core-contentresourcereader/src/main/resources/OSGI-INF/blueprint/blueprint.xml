@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
+           
+  <ext:property-placeholder/>
+
+    <bean id="storageProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
+    </bean>
+
+    <reference-list id="storage" interface="ddf.catalog.content.StorageProvider">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="storageProviderSortedList"/>
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="contentReader"/>
+    </reference-list>
+
+    <bean id="contentReader" class="org.codice.ddf.catalog.content.resource.reader.ContentResourceReader">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.content.resource.reader.ContentResourceReader"
+                update-strategy="container-managed"/>
+        <argument ref="storageProviderSortedList"/>
+    </bean>
+
+    <service ref="contentReader" interface="ddf.catalog.resource.ResourceReader">
+        <service-properties>
+            <entry key="shortname" value="ContentResourceReader"/>
+        </service-properties>
+    </service>
+  
+</blueprint>

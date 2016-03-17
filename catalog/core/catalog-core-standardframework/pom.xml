@@ -207,6 +207,11 @@
             <artifactId>jetty-util</artifactId>
             <version>${jetty.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.mime.core</groupId>
+            <artifactId>mime-core-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -272,6 +277,10 @@
                             ddf.catalog.resource;version="2.0",
                             ddf.catalog.source;version="2.0",
                             ddf.catalog.util;version="2.0",
+                            ddf.catalog.content;version="2.0",
+                            ddf.catalog.content.plugin;version="2.0",
+                            ddf.catalog.content.data;version="2.0",
+                            ddf.catalog.content.operation;version="2.0",
                             ddf.measure;version="2.0",
                             ddf.mime,
                             ddf.security,
@@ -320,6 +329,11 @@
                             org.apache.shiro.authz,
                             org.apache.shiro.subject,
                             org.apache.tika,
+                            org.apache.tika.detect,
+                            org.apache.tika.config,
+                            org.apache.tika.mime,
+                            org.apache.tika.utils,
+                            org.apache.tika.metadata,
                             org.apache.xerces.parsers,
                             org.apache.xerces.xni.parser,
                             org.apache.xml.resolver,
@@ -377,12 +391,12 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
+                                            <minimum>0.57</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.46</minimum>
+                                            <minimum>0.49</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
@@ -392,7 +406,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.55</minimum>
+                                            <minimum>0.59</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

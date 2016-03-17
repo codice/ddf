@@ -20,6 +20,7 @@
 	<reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
 	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
+	<reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
 
 	<bean id="actionFactory" class="org.codice.ddf.endpoints.rest.action.MetacardTransformerActionProviderFactory"/>
 
@@ -38,6 +39,7 @@
 		<property name="filterBuilder" ref="filterBuilder"/>
 		<property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
         <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
+		<property name="mimeTypeMapper" ref="mimeTypeMapper"/>
 	</bean>
 
 	<jaxrs:server id="restService" address="/catalog">

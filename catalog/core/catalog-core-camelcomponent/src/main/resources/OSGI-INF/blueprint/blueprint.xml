@@ -19,6 +19,8 @@
 
     <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
 
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+
     <reference id="framework" interface="ddf.catalog.CatalogFramework"/>
 
     <!--
@@ -49,5 +51,33 @@
 			<entry key="component" value="catalog"/>
 		</service-properties>
 	</service>
+
+    <!--
+    Instantiate our custom Camel ContentComponent and inject this bundle context into it.
+    -->
+    <bean id="contentComponent" class="ddf.camel.component.catalog.content.ContentComponent">
+        <property name="catalogFramework" ref="framework"/>
+        <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+    </bean>
+
+    <!--
+    Used by Camel framework to resolve "content" scheme in route nodes.
+    -->
+    <bean id="contentComponentResolver"
+          class="ddf.camel.component.catalog.content.ContentComponentResolver">
+        <argument ref="contentComponent"/>
+    </bean>
+
+    <!--
+    Registers custom Camel contentComponentResolver as a Camel ComponentResolver and
+    sets service property indicating that the component it can resolve is named "content".
+    This is how we insert our own Camel component resolver into the Camel component resolution
+    chain so that route nodes using our custom "content" scheme can be resolved.
+    -->
+    <service ref="contentComponentResolver" interface="org.apache.camel.spi.ComponentResolver">
+        <service-properties>
+            <entry key="component" value="content"/>
+        </service-properties>
+    </service>
 
 </blueprint>

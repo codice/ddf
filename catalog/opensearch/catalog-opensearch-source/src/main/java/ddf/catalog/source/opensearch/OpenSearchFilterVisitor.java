@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.geotools.filter.AttributeExpressionImpl;
+import org.geotools.filter.Expression;
+import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
@@ -45,16 +47,17 @@ import org.slf4j.ext.XLogger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 
 public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
-    private static final String ONLY_AND_MSG =
-            "Opensearch only supports AND operations for non-contextual criteria.";
+    private static final String ONLY_AND_MSG = "Opensearch only supports AND operations for non-contextual criteria.";
 
-    private static XLogger logger =
-            new XLogger(LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
+    private static XLogger logger = new XLogger(
+            LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
 
     private List<Filter> filters;
 
@@ -65,6 +68,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     private SpatialFilter spatialSearch;
 
+    private String id;
+
     private NestedTypes currentNest = null;
 
     public OpenSearchFilterVisitor() {
@@ -73,6 +78,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
         contextualSearch = null;
         temporalSearch = null;
         spatialSearch = null;
+        id = null;
     }
 
     @Override
@@ -326,20 +332,6 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     }
 
     /**
-     * PropertyIsEqualTo filter maps to a Type/Version(s) search criteria.
-     */
-    @Override
-    public Object visit(PropertyIsEqualTo filter, Object data) {
-        logger.trace("ENTERING: PropertyIsEqualTo filter");
-
-        filters.add(filter);
-
-        logger.trace("EXITING: PropertyIsEqualTo filter");
-
-        return super.visit(filter, data);
-    }
-
-    /**
      * PropertyIsLike filter maps to a Contextual search criteria.
      */
     @Override
@@ -350,8 +342,7 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
             LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
 
-            AttributeExpressionImpl expression =
-                    (AttributeExpressionImpl) likeFilter.getExpression();
+            AttributeExpressionImpl expression = (AttributeExpressionImpl) likeFilter.getExpression();
             String selectors = expression.getPropertyName();
             logger.debug("selectors = " + selectors);
 
@@ -362,13 +353,44 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                         contextualSearch.getSearchPhrase() + " " + currentNest.toString() + " "
                                 + searchPhrase);
             } else {
-                contextualSearch = new ContextualSearch(selectors,
-                        searchPhrase,
+                contextualSearch = new ContextualSearch(selectors, searchPhrase,
                         likeFilter.isMatchingCase());
             }
         }
 
         logger.trace("EXITING: PropertyIsLike filter");
+
+        return super.visit(filter, data);
+    }
+
+    /**
+     * PropertyIsEqualTo filter maps to a type/version criteria.
+     */
+    @Override
+    public Object visit(PropertyIsEqualTo filter, Object data) {
+        logger.trace("ENTERING: PropertyIsEqualTo filter");
+
+        if (currentNest != NestedTypes.NOT) {
+            if (filter instanceof IsEqualsToImpl) {
+                IsEqualsToImpl isEqualsTo = (IsEqualsToImpl) filter;
+                Expression leftValue = isEqualsTo.getLeftValue();
+                if (Metacard.ID.equals(leftValue.toString())) {
+                    id = isEqualsTo.getExpression2()
+                            .toString();
+                }
+            } else if (filter instanceof PropertyIsEqualToLiteral) {
+                PropertyIsEqualToLiteral isEqualsTo = (PropertyIsEqualToLiteral) filter;
+                if (Metacard.ID.equals(isEqualsTo.getExpression1()
+                        .toString())) {
+                    id = isEqualsTo.getExpression2()
+                            .toString();
+                }
+            }
+        }
+
+        filters.add(filter);
+
+        logger.trace("EXITING: PropertyIsEqualTo filter");
 
         return super.visit(filter, data);
     }
@@ -409,6 +431,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     public SpatialFilter getSpatialSearch() {
         return spatialSearch;
+    }
+
+    public String getMetacardId() {
+        return id;
     }
 
     private enum NestedTypes {

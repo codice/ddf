@@ -78,8 +78,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
     private static final String CATALOG_APP = "catalog-app";
 
-    private static final String CONTENT_APP = "content-app";
-
     private static final String SOLR_APP = "solr-app";
 
     private static final String SDK_APP = "sdk-app";
@@ -97,7 +95,6 @@ public class TestApplicationService extends AbstractIntegrationTest {
             basePort = getBasePort();
             getAdminConfig().setLogLevels();
             getServiceManager().waitForAllBundles();
-            getServiceManager().waitForRequiredApps(CONTENT_APP);
             console = new KarafConsole(getServiceManager().getBundleContext(),
                     features,
                     sessionFactory);
@@ -108,26 +105,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
     }
 
     @Test
-    public void aTestStartUpWithApplistPropertiesFile() throws Exception {
-        ApplicationService applicationService =
-                getServiceManager().getService(ApplicationService.class);
-        // Test AppService
-        Application application = applicationService.getApplication(CONTENT_APP);
-        assertNotNull("Application [" + CONTENT_APP + "] must not be null after boot", application);
-        ApplicationStatus status = applicationService.getApplicationStatus(application);
-        assertThat("Application [" + CONTENT_APP + "] should be ACTIVE after boot",
-                status.getState(),
-                is(ACTIVE));
-
-        // Test Commands
-        String response = console.runCommand(STATUS_COMMAND + CONTENT_APP);
-        assertThat(CONTENT_APP + " should be active after boot",
-                response,
-                containsString(ACTIVE_APP));
-    }
-
-    @Test
-    public void bTestAppStatus() {
+    public void bTestAppStatus() throws ApplicationServiceException, InterruptedException {
         // Test AppService
         ApplicationService applicationService =
                 getServiceManager().getService(ApplicationService.class);
@@ -139,6 +117,8 @@ public class TestApplicationService extends AbstractIntegrationTest {
             fail("Expected to find 1 " + CATALOG_APP + " in Application list.");
         }
         Application catalog = catalogList.get(0);
+        applicationService.startApplication(catalog);
+        getServiceManager().waitForAllBundles();
         assertNotNull("Application [" + CATALOG_APP + "] must not be null", catalog);
         ApplicationStatus status = applicationService.getApplicationStatus(catalog);
         assertThat("Application [" + CATALOG_APP + "] should be ACTIVE",
