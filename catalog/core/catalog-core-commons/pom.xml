@@ -71,7 +71,10 @@
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -109,7 +112,10 @@
                             ddf.common;version=${project.version},
                             ddf.util;version=${project.version}
                         </Export-Package>
-                        <Embed-Dependency>platform-util</Embed-Dependency>
+                        <Embed-Dependency>
+                            platform-util,
+                            catalog-core-api-impl
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

@@ -55,8 +55,8 @@ import net.opengis.ows.v_1_0_0.Operation;
 /**
  * CswFilterDelegate is an implementation of a {@link ddf.catalog.filter.FilterDelegate}. It extends
  * {@link org.codice.ddf.spatial.ogc.csw.catalog.source.CswAbstractFilterDelegate} and converts a {@link org.opengis.filter.Filter} into a {@link net.opengis.filter.v_1_1_0.FilterType}.
- *
- *            Generic type that the FilterDelegate will return as a final result
+ * <p>
+ * Generic type that the FilterDelegate will return as a final result
  */
 
 public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
@@ -87,14 +87,10 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     /**
      * Instantiates a CswFilterDelegate instance
      *
-     * @param getRecordsOp
-     *            An {@link net.opengis.ows.v_1_0_0.Operation} for the getRecords feature of the Csw service
-     * @param filterCapabilities
-     *            The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
-     * @param outputFormatValues
-     *            An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of valid Output Formats supported
-     * @param resultTypesValues
-     *            An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of Result Types supported
+     * @param getRecordsOp       An {@link net.opengis.ows.v_1_0_0.Operation} for the getRecords feature of the Csw service
+     * @param filterCapabilities The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
+     * @param outputFormatValues An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of valid Output Formats supported
+     * @param resultTypesValues  An {@link net.opengis.ows.v_1_0_0.DomainType} containing a list of Result Types supported
      */
     public CswFilterDelegate(MetacardType metacardType, Operation getRecordsOp,
             FilterCapabilities filterCapabilities, DomainType outputFormatValues,
@@ -790,6 +786,21 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     @Override
+    public FilterType xpathIsFuzzy(String xpath, String literal) {
+        return propertyIsFuzzy(xpath, literal);
+    }
+
+    @Override
+    public FilterType xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
+        return propertyIsLike(xpath, pattern, isCaseSensitive);
+    }
+
+    @Override
+    public FilterType xpathExists(String xpath) {
+        return not(propertyIsNull(xpath));
+    }
+
+    @Override
     public FilterType beyond(String propertyName, String wkt, double distance) {
 
         LOGGER.debug("Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
@@ -1335,9 +1346,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     /**
      * This method approximates the degrees in latitude for the given distance (in meters) using the
      * formula for the meridian distance on Earth.
-     *
+     * <p>
      * degrees = distance in meters/radius of Earth in meters * 180.0/pi
-     *
+     * <p>
      * The approximate degrees in latitude can be used to compute a buffer around a given geometry
      * (see bufferGeometry()).
      */
@@ -1365,8 +1376,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
      * Reads the {@link net.opengis.filter.v_1_1_0.FilterCapabilities} in order to determine what types of queries the server
      * can handle.
      *
-     * @param filterCapabilities
-     *            The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
+     * @param filterCapabilities The {@link net.opengis.filter.v_1_1_0.FilterCapabilities} understood by the Csw service
      */
     private final void updateAllowedOperations(FilterCapabilities filterCapabilities) {
         comparisonOps =

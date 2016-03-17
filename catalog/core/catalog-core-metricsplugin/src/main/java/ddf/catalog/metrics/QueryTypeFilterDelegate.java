@@ -13,19 +13,15 @@
  */
 package ddf.catalog.metrics;
 
-import java.util.Date;
-import java.util.List;
-
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 /**
  * Filter delegate to determine the types of filter features being used.
  *
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- *
  */
-public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
+public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     private boolean isSpatial = false;
 
@@ -42,113 +38,33 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     private boolean isComparison = false;
 
     @Override
-    public Boolean nearestNeighbor(String propertyName, String wkt) {
+    public <S> Boolean spatialOperation(String propertyName, S literal, Class<S> wktClass,
+            SpatialPropertyOperation spatialPropertyOperation) {
         return isSpatial = true;
     }
 
     @Override
-    public Boolean beyond(String propertyName, String wkt, double distance) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean contains(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean crosses(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean disjoint(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean dwithin(String propertyName, String wkt, double distance) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean intersects(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean overlaps(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean touches(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean within(String propertyName, String wkt) {
-        return isSpatial = true;
-    }
-
-    @Override
-    public Boolean xpathExists(String xpath) {
+    public <S> Boolean xpathOperation(String xpath, S literal, Class<S> literalClass,
+            XPathPropertyOperation xpathPropertyOperation) {
         return isXpath = true;
     }
 
     @Override
-    public Boolean xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
-        return isXpath = true;
-    }
-
-    @Override
-    public Boolean xpathIsFuzzy(String xpath, String literal) {
-        return isXpath = true;
-    }
-
-    @Override
-    public Boolean after(String propertyName, Date date) {
+    public <S> Boolean temporalOperation(String propertyName, S literal, Class<S> literalClass,
+            TemporalPropertyOperation temporalPropertyOperation) {
         return isTemporal = true;
     }
 
     @Override
-    public Boolean before(String propertyName, Date date) {
-        return isTemporal = true;
-    }
-
-    @Override
-    public Boolean during(String propertyName, Date startDate, Date endDate) {
-        return isTemporal = true;
-    }
-
-    @Override
-    public Boolean relative(String propertyName, long duration) {
-        return isTemporal = true;
-    }
-
-    @Override
-    public Boolean and(List<Boolean> operands) {
+    public Boolean logicalOperation(Object operand,
+            LogicalPropertyOperation logicalPropertyOperation) {
         return isLogical = true;
     }
 
     @Override
-    public Boolean or(List<Boolean> operands) {
-        return isLogical = true;
-    }
-
-    @Override
-    public Boolean not(Boolean operand) {
-        return isLogical = true;
-    }
-
-    @Override
-    public Boolean include() {
-        return isLogical = true;
-    }
-
-    @Override
-    public Boolean exclude() {
-        return isLogical = true;
+    public <S> Boolean comparisonOperation(String propertyName, S literal, Class<S> literalClass,
+            ComparisonPropertyOperation comparisonPropertyOperation) {
+        return isComparison = true;
     }
 
     @Override
@@ -156,11 +72,6 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
-        return isComparison = true;
-    }
-
-    @Override
-    public Boolean propertyIs(String propertyName, Object literal, PropertyOperation operation) {
         return isComparison = true;
     }
 

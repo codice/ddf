@@ -15,14 +15,13 @@
 package ddf.catalog.filter.delegate;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
-public class TagsFilterDelegate extends FilterDelegate<Boolean> {
+public class TagsFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     public static final String NULL_TAGS = Metacard.TAGS + "_NULL";
 
@@ -38,6 +37,13 @@ public class TagsFilterDelegate extends FilterDelegate<Boolean> {
 
     public TagsFilterDelegate(Set<String> types) {
         this.tags = types;
+    }
+
+    @Override
+    public <S> Boolean defaultOperation(Object property, S literal, Class<S> literalClass,
+            Enum operation) {
+        return false;
+
     }
 
     @Override
@@ -58,126 +64,17 @@ public class TagsFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean nearestNeighbor(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean include() {
-        return false;
-    }
-
-    @Override
-    public Boolean exclude() {
-        return false;
-    }
-
-    @Override
     public Boolean propertyIsEqualTo(String propertyName, String pattern, boolean isCaseSensitive) {
-        return propertyName.equals(Metacard.TAGS) && (tags == null
-                || tags.contains(pattern));
+        return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(pattern));
     }
 
     @Override
     public Boolean propertyIsNull(String propertyName) {
-        return propertyName.equals(Metacard.TAGS) && (tags == null
-                || tags.contains(NULL_TAGS));
+        return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(NULL_TAGS));
     }
 
     @Override
     public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-        return propertyName.equals(Metacard.TAGS) && (tags == null
-                || tags.contains(pattern));
+        return propertyName.equals(Metacard.TAGS) && (tags == null || tags.contains(pattern));
     }
-
-    @Override
-    public Boolean propertyIs(String propertyName, Object literal, PropertyOperation operation) {
-        return false;
-    }
-
-    @Override
-    public Boolean xpathExists(String xpath) {
-        return false;
-    }
-
-    @Override
-    public Boolean xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
-        return false;
-    }
-
-    @Override
-    public Boolean xpathIsFuzzy(String xpath, String literal) {
-        return false;
-    }
-
-    @Override
-    public Boolean beyond(String propertyName, String wkt, double distance) {
-        return false;
-    }
-
-    @Override
-    public Boolean contains(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean crosses(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean disjoint(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean dwithin(String propertyName, String wkt, double distance) {
-        return false;
-    }
-
-    @Override
-    public Boolean intersects(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean overlaps(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean touches(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean within(String propertyName, String wkt) {
-        return false;
-    }
-
-    @Override
-    public Boolean after(String propertyName, Date date) {
-        return false;
-    }
-
-    @Override
-    public Boolean before(String propertyName, Date date) {
-        return false;
-    }
-
-    @Override
-    public Boolean during(String propertyName, Date startDate, Date endDate) {
-        return false;
-    }
-
-    @Override
-    public Boolean begins(String propertyName, Date startDate, Date endDate) {
-        return false;
-    }
-
-    @Override
-    public Boolean relative(String propertyName, long duration) {
-        return false;
-    }
-
 }

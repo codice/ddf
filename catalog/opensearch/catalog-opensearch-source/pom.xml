@@ -178,7 +178,8 @@
                             jdom,
                             security-rest-cxfwrapper,
                             ddf-security-common,
-                            platform-util-unavailableurls
+                            platform-util-unavailableurls,
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Import-Package><!-- To avoid ClassNotFoundException for FOMFactory -->
                             org.apache.axiom.om,
