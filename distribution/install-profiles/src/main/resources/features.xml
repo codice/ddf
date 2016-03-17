@@ -13,7 +13,7 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="profile-standard" install="manual" version="${project.version}" 
+    <feature name="profile-standard" install="manual" version="${project.version}"
     	description="This will install the standard set of DDF applications." start-level="1">
     	<feature>kernel-webconsolebranding</feature>
         <feature>admin-app</feature>
