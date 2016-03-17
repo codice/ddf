@@ -51,6 +51,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
@@ -63,6 +64,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
@@ -110,7 +112,9 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.common.util.Security;
 import ddf.security.service.SecurityManager;
+import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -189,6 +193,10 @@ public class CswSource extends MaskableImpl
     protected static final String SECURITY_ATTRIBUTES_PROPERTY = "securityAttributeStrings";
 
     protected static final String SCHEMA_TO_TAGS_PROPERTY = "schemaToTagsMapping";
+
+    protected static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
+
+    protected static final String REGISTER_FOR_EVENTS = "registerForEvents";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -274,11 +282,15 @@ public class CswSource extends MaskableImpl
 
     protected SecureCxfClientFactory<Csw> factory;
 
+    protected SecureCxfClientFactory<CswSubscribe> subscribeClientFactory;
+
     protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
 
     protected List<String> jaxbElementClassNames = new ArrayList<>();
 
     protected Map<String, String> jaxbElementClassMap = new HashMap<>();
+
+    protected String filterlessSubscriptionId = null;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -333,6 +345,7 @@ public class CswSource extends MaskableImpl
         initClientFactory();
         setupAvailabilityPoll();
 
+        configureEventService();
     }
 
     private void initClientFactory() {
@@ -357,6 +370,33 @@ public class CswSource extends MaskableImpl
                     false,
                     cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout());
+        }
+    }
+
+    protected void initSubscribeClientFactory() {
+        if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername()) && StringUtils.isNotBlank(
+                cswSourceConfiguration.getPassword())) {
+            subscribeClientFactory =
+                    new SecureCxfClientFactory(cswSourceConfiguration.getEventServiceAddress(),
+                            CswSubscribe.class,
+                            initProviders(cswTransformProvider, cswSourceConfiguration),
+                            null,
+                            cswSourceConfiguration.getDisableCnCheck(),
+                            false,
+                            cswSourceConfiguration.getConnectionTimeout(),
+                            cswSourceConfiguration.getReceiveTimeout(),
+                            cswSourceConfiguration.getUsername(),
+                            cswSourceConfiguration.getPassword());
+        } else {
+            subscribeClientFactory =
+                    new SecureCxfClientFactory(cswSourceConfiguration.getEventServiceAddress(),
+                            CswSubscribe.class,
+                            initProviders(cswTransformProvider, cswSourceConfiguration),
+                            null,
+                            cswSourceConfiguration.getDisableCnCheck(),
+                            false,
+                            cswSourceConfiguration.getConnectionTimeout(),
+                            cswSourceConfiguration.getReceiveTimeout());
         }
     }
 
@@ -423,6 +463,12 @@ public class CswSource extends MaskableImpl
 
         consumerMap.put(SCHEMA_TO_TAGS_PROPERTY,
                 value -> cswSourceConfiguration.setSchemaToTagsMapping((String[]) value));
+
+        consumerMap.put(REGISTER_FOR_EVENTS,
+                value -> cswSourceConfiguration.setRegisterForEvents((Boolean) value));
+
+        consumerMap.put(EVENT_SERVICE_ADDRESS,
+                value -> cswSourceConfiguration.setEventServiceAddress((String) value));
 
     }
 
@@ -496,6 +542,7 @@ public class CswSource extends MaskableImpl
         LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
         availabilityPollFuture.cancel(true);
         scheduler.shutdownNow();
+        removeEventServiceSubscription();
     }
 
     protected List<? extends Object> initProviders(Converter cswTransformProvider,
@@ -509,6 +556,7 @@ public class CswSource extends MaskableImpl
         jaxbElementClassNames.add(CapabilitiesType.class.getName());
         jaxbElementClassNames.add(GetCapabilitiesType.class.getName());
         jaxbElementClassNames.add(GetRecordsResponseType.class.getName());
+        jaxbElementClassNames.add(AcknowledgementType.class.getName());
 
         getRecordsTypeProvider.setJaxbElementClassNames(jaxbElementClassNames);
 
@@ -533,6 +581,9 @@ public class CswSource extends MaskableImpl
         LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, caps201ExpandedName);
         jaxbElementClassMap.put(CapabilitiesType.class.getName(), caps201ExpandedName);
 
+        String acknowledgmentName = new QName("http://www.opengis.net/cat/csw/2.0.2",
+                "Acknowledgement").toString();
+        jaxbElementClassMap.put(AcknowledgementType.class.getName(), acknowledgmentName);
         getRecordsTypeProvider.setJaxbElementClassMap(jaxbElementClassMap);
 
         GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(cswTransformProvider,
@@ -569,6 +620,14 @@ public class CswSource extends MaskableImpl
         if (StringUtils.isBlank(currentContentTypeMapping)) {
             cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
         }
+
+        //if the event service address has changed attempt to remove the subscription before changing to the new event service address
+        if (cswSourceConfiguration.getEventServiceAddress() != null
+                && cswSourceConfiguration.isRegisterForEvents()
+                && !cswSourceConfiguration.getEventServiceAddress()
+                .equals(configuration.get(EVENT_SERVICE_ADDRESS))) {
+            removeEventServiceSubscription();
+        }
         // Filter Configuration Map
         Map<String, Object> filteredConfiguration = filter(configuration);
 
@@ -585,6 +644,7 @@ public class CswSource extends MaskableImpl
         configureCswSource();
 
         initClientFactory();
+        configureEventService();
     }
 
     private Map<String, Object> filter(Map<String, Object> configuration) {
@@ -1626,5 +1686,97 @@ public class CswSource extends MaskableImpl
         outTransformElements.put("{" + CswConstants.CSW_OUTPUT_SCHEMA + "}*",
                 "{http://www.opengis.net/cat/csw}*");
         getRecordsTypeProvider.setOutTransformElements(outTransformElements);
+    }
+
+    private void configureEventService() {
+
+        if (!cswSourceConfiguration.isRegisterForEvents()) {
+            LOGGER.debug("registerForEvents = false - do not configure site {} for events",
+                    this.getId());
+            removeEventServiceSubscription();
+            return;
+        }
+
+        if (StringUtils.isEmpty(cswSourceConfiguration.getEventServiceAddress())) {
+            LOGGER.debug(
+                    "eventServiceAddress is NULL or empty - do not configure site {} for events",
+                    this.getId());
+            return;
+        }
+
+        // If filterless subscription has already been configured then do not
+        // try to configure
+        // another one (because the DDF will allow it and you will get multiple
+        // events sent when
+        // a single event should be sent)
+        if (filterlessSubscriptionId != null) {
+            LOGGER.debug("filterless subscription already configured for site "
+                    + filterlessSubscriptionId);
+            return;
+        }
+
+        initSubscribeClientFactory();
+        CswSubscribe cswSubscribe = subscribeClientFactory.getClientForSubject(getSystemSubject());
+        GetRecordsType request = createSubscriptionGetRecordsRequest();
+        try {
+            Response response = cswSubscribe.createRecordsSubscription(request);
+            if (Response.Status.OK.getStatusCode() == response.getStatus()) {
+                AcknowledgementType acknowledgementType =
+                        response.readEntity(AcknowledgementType.class);
+                filterlessSubscriptionId = acknowledgementType.getRequestId();
+            }
+        } catch (CswException e) {
+            LOGGER.error("Failed to register a subscription for events from csw source with id of "
+                    + this.getId());
+        }
+
+    }
+
+    protected Subject getSystemSubject() {
+        return Security.getSystemSubject();
+    }
+
+    private GetRecordsType createSubscriptionGetRecordsRequest() {
+        GetRecordsType getRecordsType = new GetRecordsType();
+        getRecordsType.setVersion(cswVersion);
+        getRecordsType.setService(CswConstants.CSW);
+        getRecordsType.setResultType(ResultType.RESULTS);
+        getRecordsType.setStartPosition(BigInteger.ONE);
+        getRecordsType.setMaxRecords(BigInteger.TEN);
+        getRecordsType.setOutputFormat(MediaType.APPLICATION_XML);
+        getRecordsType.setOutputSchema("urn:catalog:metacard");
+        getRecordsType.getResponseHandler()
+                .add(SystemBaseUrl.constructUrl("csw/subscription/event", true));
+        QueryType queryType = new QueryType();
+        queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
+        ObjectFactory objectFactory = new ObjectFactory();
+        getRecordsType.setAbstractQuery(objectFactory.createQuery(queryType));
+        return getRecordsType;
+    }
+
+    private void removeEventServiceSubscription() {
+
+        if (filterlessSubscriptionId != null && subscribeClientFactory != null) {
+            CswSubscribe cswSubscribe = subscribeClientFactory.getClientForSubject(getSystemSubject());
+            try {
+                cswSubscribe.deleteRecordsSubscription(filterlessSubscriptionId);
+
+            } catch (CswException e) {
+                LOGGER.error("Failed to remove filterless subscription registered for id "
+                        + filterlessSubscriptionId + " for csw source with id of " + this.getId());
+            }
+            filterlessSubscriptionId = null;
+
+        }
+
+    }
+
+    public void setRegisterForEvents(Boolean registerForEvents) {
+        this.cswSourceConfiguration.setRegisterForEvents(registerForEvents);
+    }
+
+    public void setEventServiceAddress(String eventServiceAddress) {
+        this.cswSourceConfiguration.setEventServiceAddress(eventServiceAddress);
+
     }
 }

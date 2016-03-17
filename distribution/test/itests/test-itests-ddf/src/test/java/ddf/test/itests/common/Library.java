@@ -143,7 +143,9 @@ public final class Library {
     }
 
     public static String getCswIngest() {
-        return getCswInsert("csw:Record", getCswRecord(UUID.randomUUID().toString()));
+        return getCswInsert("csw:Record",
+                getCswRecord(UUID.randomUUID()
+                        .toString()));
     }
 
     public static String getCswRecord(String id) {
@@ -333,5 +335,9 @@ public final class Library {
                 + "service=\"CSW\" version=\"2.0.2\" outputFormat=\"application/octet-stream\"\n"
                 + "outputSchema=\"http://www.iana.org/assignments/media-types/application/octet-stream\">\n"
                 + "  <Id>placeholder_id_1</Id>\n" + "</GetRecordById>";
+    }
+
+    public static String getCswRecordResponse() throws IOException {
+        return IOUtils.toString(Library.class.getResourceAsStream("/get-records-response.xml"));
     }
 }

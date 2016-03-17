@@ -13,13 +13,18 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -35,16 +40,20 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.TransformerProperties;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Subscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscription;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event.CswSubscriptionConfigFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
@@ -52,45 +61,58 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.event.EventProcessor;
+import ddf.catalog.event.Subscriber;
 import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 
-public class CswSubscriptionEndpoint implements Subscribe {
+@Path("/subscription")
+public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSubscriptionEndpoint.class);
 
-    private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions =
-            new ConcurrentHashMap<>();
-
-    private ObjectFactory objectFactory = new ObjectFactory();
+    private static final String METACARD_SCHEMA = "urn:catalog:metacard";
 
     private static final String UUID_URN = "urn:uuid:";
-
-    private DatatypeFactory datatypeFactory;
-
-    private BundleContext context;
 
     private final TransformerManager schemaTransformerManager;
 
     private final TransformerManager mimeTypeTransformerManager;
 
-    private Validator validator;
+    private final TransformerManager inputTransformerManager;
 
-    private CswQueryFactory queryFactory;
+    private final ObjectFactory objectFactory = new ObjectFactory();
 
-    public CswSubscriptionEndpoint(BundleContext context,
+    private final Validator validator;
+
+    private final CswQueryFactory queryFactory;
+
+    private final EventProcessor eventProcessor;
+
+    private DatatypeFactory datatypeFactory;
+
+    private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions =
+            new HashMap<>();
+
+    public CswSubscriptionEndpoint(EventProcessor eventProcessor,
             TransformerManager mimeTypeTransformerManager,
-            TransformerManager schemaTransformerManager, Validator validator,
-            CswQueryFactory queryFactory) {
-        this.context = context;
+            TransformerManager schemaTransformerManager, TransformerManager inputTransformerManager,
+            Validator validator, CswQueryFactory queryFactory) {
+        this.eventProcessor = eventProcessor;
         this.mimeTypeTransformerManager = mimeTypeTransformerManager;
         this.schemaTransformerManager = schemaTransformerManager;
+        this.inputTransformerManager = inputTransformerManager;
         this.validator = validator;
         this.queryFactory = queryFactory;
 
@@ -115,12 +137,12 @@ public class CswSubscriptionEndpoint implements Subscribe {
     @Produces({MediaType.WILDCARD})
     public Response deleteRecordsSubscription(@PathParam("requestId") String requestId)
             throws CswException {
-        CswSubscription subscription = getSubscription(requestId);
+
+        CswSubscription subscription = deleteCswSubscription(requestId);
         if (subscription == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .build();
         }
-        deleteSubscription(requestId);
         return createAcknowledgment(subscription.getOriginalRequest());
     }
 
@@ -136,8 +158,7 @@ public class CswSubscriptionEndpoint implements Subscribe {
     @GET
     @Path("/{requestId}")
     @Produces({MediaType.WILDCARD})
-    public Response getRecordsSubscription(@PathParam("requestId") String requestId)
-            throws CswException {
+    public Response getRecordsSubscription(@PathParam("requestId") String requestId) {
 
         CswSubscription subscription = getSubscription(requestId);
         if (subscription == null) {
@@ -280,6 +301,83 @@ public class CswSubscriptionEndpoint implements Subscribe {
         return createAcknowledgment(request);
     }
 
+    @Override
+    @POST
+    @Path("/event")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public Response createEvent(GetRecordsResponseType recordsResponse) throws CswException {
+        validateResponseSchema(recordsResponse);
+        List<Metacard> metacards = getMetacards(recordsResponse);
+        eventProcessor.notifyCreated(metacards.get(0));
+        return Response.ok()
+                .build();
+
+    }
+
+    @Override
+    @PUT
+    @Path("/event")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public Response updateEvent(GetRecordsResponseType recordsResponse) throws CswException {
+        validateResponseSchema(recordsResponse);
+        List<Metacard> metacards = getMetacards(recordsResponse);
+        eventProcessor.notifyUpdated(metacards.get(0), null);
+        return Response.ok()
+                .build();
+
+    }
+
+    @Override
+    @DELETE
+    @Path("/event")
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    public Response deleteEvent(GetRecordsResponseType recordsResponse) throws CswException {
+        validateResponseSchema(recordsResponse);
+        List<Metacard> metacards = getMetacards(recordsResponse);
+        eventProcessor.notifyDeleted(metacards.get(0));
+        return Response.ok()
+                .build();
+
+    }
+
+    private void validateResponseSchema(GetRecordsResponseType recordsResponse)
+            throws CswException {
+        if (!METACARD_SCHEMA.equals(recordsResponse.getSearchResults()
+                .getRecordSchema())) {
+            throw new CswException(
+                    "Only " + METACARD_SCHEMA + " is supported for federated event consumption");
+        }
+    }
+
+    private List<Metacard> getMetacards(GetRecordsResponseType recordsResponse)
+            throws CswException {
+        try {
+            InputTransformer transformer = inputTransformerManager.getTransformerBySchema(
+                    recordsResponse.getSearchResults()
+                            .getRecordSchema());
+            List<Metacard> metacards = new ArrayList<>();
+            for (Object result : recordsResponse.getSearchResults()
+                    .getAny()) {
+                if (result instanceof Node) {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    XMLUtils.transform((Node) result,
+                            new TransformerProperties(),
+                            new StreamResult(outputStream));
+                    InputStream is = new ByteArrayInputStream(outputStream.toByteArray());
+                    metacards.add(transformer.transform(is));
+                }
+            }
+            return metacards;
+        } catch (IOException | CatalogTransformerException e) {
+            String msg = "Could not parse SearchResults in getRecordsResponse";
+            LOGGER.error(msg, e);
+            throw new CswException(msg, e);
+        }
+    }
+
     private Response createAcknowledgment(GetRecordsType request) {
         AcknowledgementType acknowledgementType = new AcknowledgementType();
         if (request != null) {
@@ -298,19 +396,17 @@ public class CswSubscriptionEndpoint implements Subscribe {
                 .build();
     }
 
-    public boolean hasSubscription(String subscriptionId) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("subscriptionUuid = {}", subscriptionId);
-        }
+    public synchronized boolean hasSubscription(String subscriptionId) {
+        LOGGER.debug("subscriptionUuid = {}", subscriptionId);
         return registeredSubscriptions.containsKey(subscriptionId);
     }
 
     private String getSubscriptionUuid(String subscriptionId) {
         if (subscriptionId == null || subscriptionId.isEmpty()) {
-            return UUID_URN+UUID.randomUUID()
+            return UUID_URN + UUID.randomUUID()
                     .toString();
-        }else if(!subscriptionId.startsWith(UUID_URN)){
-            return UUID_URN+subscriptionId;
+        } else if (!subscriptionId.startsWith(UUID_URN)) {
+            return UUID_URN + subscriptionId;
         }
         return subscriptionId;
     }
@@ -320,21 +416,25 @@ public class CswSubscriptionEndpoint implements Subscribe {
         if (sr == null) {
             return null;
         }
-        return (CswSubscription) context.getService(sr.getReference());
+        return (CswSubscription) getBundleContext().getService(sr.getReference());
     }
 
     public CswSubscription createSubscription(GetRecordsType request) throws CswException {
         QueryRequest query = queryFactory.getQuery(request);
-
+        //if it is an empty query we need to create a filterless subscription
+        if (((QueryType) request.getAbstractQuery()
+                .getValue()).getConstraint() == null) {
+            return CswSubscription.getFilterlessSubscription(mimeTypeTransformerManager,
+                    request,
+                    query);
+        }
         return new CswSubscription(mimeTypeTransformerManager, request, query);
     }
 
     public synchronized String addOrUpdateSubscription(GetRecordsType request,
             boolean persistSubscription) throws CswException {
         String methodName = "createSubscription";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("ENTERING: {}    (persistSubscription = {})", methodName);
-        }
+        LOGGER.trace("ENTERING: {}    (persistSubscription = {})", methodName);
 
         if (request.getResponseHandler() == null || request.getResponseHandler()
                 .isEmpty() || StringUtils.isEmpty(request.getResponseHandler()
@@ -347,24 +447,26 @@ public class CswSubscriptionEndpoint implements Subscribe {
                 .get(0);
 
         String subscriptionUuid = getSubscriptionUuid(request.getRequestId());
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("subscriptionUuid = {}", subscriptionUuid);
-        }
+        LOGGER.debug("subscriptionUuid = {}", subscriptionUuid);
         request.setRequestId(subscriptionUuid);
-
-        Dictionary<String, String> props = new Hashtable<>();
-        props.put("subscription-id", subscriptionUuid);
 
         // If this subscription already exists, then delete it and re-add it
         // to registry
         if (registeredSubscriptions.containsKey(subscriptionUuid)) {
             LOGGER.debug("Delete existing subscription {} for re-creation", subscriptionUuid);
-            deleteSubscription(subscriptionUuid);
+            deleteCswSubscription(subscriptionUuid);
         }
         CswSubscription sub = createSubscription(request);
+
+        Dictionary<String, String> props = new Hashtable<>();
+        props.put("subscription-id", subscriptionUuid);
+        props.put("event-endpoint",
+                request.getResponseHandler()
+                        .get(0));
+
         LOGGER.debug("Registering Subscription");
         ServiceRegistration serviceRegistration =
-                context.registerService(Subscription.class.getName(), sub, props);
+                getBundleContext().registerService(Subscription.class.getName(), sub, props);
 
         if (serviceRegistration != null) {
             LOGGER.debug("Subscription registered with bundle ID = {} ",
@@ -383,25 +485,32 @@ public class CswSubscriptionEndpoint implements Subscribe {
             LOGGER.debug("Subscription registration failed");
         }
 
-        LOGGER.debug("EXITING: {}", methodName);
+        LOGGER.trace("EXITING: {}", methodName);
         return subscriptionUuid;
 
     }
 
-    private synchronized boolean deleteSubscription(String subscriptionId) throws CswException {
-        String methodName = "deleteSubscription";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("ENTERING: {}", methodName);
-            LOGGER.debug("subscriptionId = {}", subscriptionId);
+    @Override
+    public boolean deleteSubscription(String subscriptionId) {
+        try {
+            return deleteCswSubscription(subscriptionId) != null;
+        } catch (CswException e) {
+            return false;
         }
+    }
+
+    private synchronized CswSubscription deleteCswSubscription(String subscriptionId)
+            throws CswException {
+        String methodName = "deleteCswSubscription";
+        LOGGER.trace("ENTERING: {}", methodName);
+        LOGGER.trace("subscriptionId = {}", subscriptionId);
 
         if (StringUtils.isEmpty(subscriptionId)) {
             throw new CswException(
                     "Unable to delete subscription because subscription ID is null or empty");
         }
 
-        boolean status = false;
-
+        CswSubscription subscription = getSubscription(subscriptionId);
         try {
             LOGGER.debug("Removing (unregistering) subscription: {}", subscriptionId);
             ServiceRegistration sr = (ServiceRegistration) registeredSubscriptions.remove(
@@ -418,11 +527,6 @@ public class CswSubscriptionEndpoint implements Subscribe {
                     LOGGER.debug("Deleting subscription for subscriptionId = {}", subscriptionId);
                     subscriptionConfig.delete();
 
-                    // Subscription removal is only successful if able to remove from OSGi registry and
-                    // ConfigAdmin service
-                    if (sr != null) {
-                        status = true;
-                    }
                 } else {
                     LOGGER.debug("subscriptionConfig is NULL for ID = {}", subscriptionId);
                 }
@@ -438,9 +542,9 @@ public class CswSubscriptionEndpoint implements Subscribe {
             LOGGER.error("Could not delete subscription for " + subscriptionId, e);
         }
 
-        LOGGER.debug("EXITING: {}    (status = {})", methodName, status);
+        LOGGER.trace("EXITING: {}    (status = {})", methodName, false);
 
-        return status;
+        return subscription;
     }
 
     /**
@@ -453,7 +557,7 @@ public class CswSubscriptionEndpoint implements Subscribe {
     private void persistSubscription(CswSubscription subscription, String deliveryMethodUrl,
             String subscriptionUuid) {
         String methodName = "persistSubscription";
-        LOGGER.debug("ENTERING: {}", methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         try {
             StringWriter sw = new StringWriter();
@@ -482,12 +586,12 @@ public class CswSubscriptionEndpoint implements Subscribe {
             LOGGER.warn("Unable to persist subscription " + subscriptionUuid, e);
         }
 
-        LOGGER.debug("EXITING: {}", methodName);
+        LOGGER.trace("EXITING: {}", methodName);
     }
 
     private ConfigurationAdmin getConfigAdmin() {
         ConfigurationAdmin configAdmin = null;
-
+        BundleContext context = getBundleContext();
         ServiceReference configAdminRef =
                 context.getServiceReference(ConfigurationAdmin.class.getName());
 
@@ -500,7 +604,7 @@ public class CswSubscriptionEndpoint implements Subscribe {
 
     private Configuration getSubscriptionConfiguration(String subscriptionUuid) {
         String methodName = "getSubscriptionConfiguration";
-        LOGGER.debug("ENTERING: {}", methodName);
+        LOGGER.trace("ENTERING: {}", methodName);
 
         String filterStr = getSubscriptionUuidFilter(subscriptionUuid);
         LOGGER.debug("filterStr = {}", filterStr);
@@ -508,7 +612,7 @@ public class CswSubscriptionEndpoint implements Subscribe {
         Configuration config = null;
 
         try {
-            org.osgi.framework.Filter filter = context.createFilter(filterStr);
+            org.osgi.framework.Filter filter = getBundleContext().createFilter(filterStr);
             LOGGER.debug("filter.toString() = {}", filter.toString());
 
             Configuration[] configs = getConfigAdmin().listConfigurations(filter.toString());
@@ -527,7 +631,7 @@ public class CswSubscriptionEndpoint implements Subscribe {
             LOGGER.warn("IOException trying to list configurations for filter {}", filterStr, e);
         }
 
-        LOGGER.debug("EXITING: {}", methodName);
+        LOGGER.trace("EXITING: {}", methodName);
 
         return config;
     }
@@ -542,5 +646,10 @@ public class CswSubscriptionEndpoint implements Subscribe {
 
         return "(subscriptionUuid=" + subscriptionUuid + ")";
 
+    }
+
+    BundleContext getBundleContext() {
+        return FrameworkUtil.getBundle(CswSubscriptionEndpoint.class)
+                .getBundleContext();
     }
 }

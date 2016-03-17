@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;
@@ -58,6 +59,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
@@ -98,6 +100,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.service.SecurityServiceException;
+import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -962,6 +965,115 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
+    public void testRefreshWithRegisterForEvents() throws Exception {
+        String subscriptionId = "subscriptionid";
+        String eventEndpoint = "https://ddf/services/csw/subscriptions";
+        CswSourceStub cswSource = (CswSourceStub) getCswSource(mockCsw, mockContext, "contentType");
+
+        CswSubscribe client = mock(CswSubscribe.class);
+        Response response = mock(Response.class);
+        AcknowledgementType ack = mock(AcknowledgementType.class);
+        when(client.createRecordsSubscription(any(GetRecordsType.class))).thenReturn(response);
+        when(response.getStatus()).thenReturn(200);
+        when(response.readEntity(any(Class.class))).thenReturn(ack);
+
+        when(ack.getRequestId()).thenReturn(subscriptionId);
+        when(cswSource.getSubscriberClientFactory()
+                .getClientForSubject(cswSource.getSubject())).thenReturn(client);
+
+        // Set Configuration Map
+        Map<String, Object> configuration = getConfigurationMap(cswSource);
+        configuration.put(cswSource.REGISTER_FOR_EVENTS, true);
+        configuration.put(cswSource.EVENT_SERVICE_ADDRESS, eventEndpoint);
+
+        // Call Refresh
+        cswSource.refresh(configuration);
+
+        // Get Configuration
+        CswSourceConfiguration cswSourceConfiguration = cswSource.cswSourceConfiguration;
+
+        // Assert Refresh Changes
+        Assert.assertTrue(cswSourceConfiguration.isRegisterForEvents());
+        Assert.assertEquals(cswSourceConfiguration.getEventServiceAddress(), eventEndpoint);
+        verify(ack).getRequestId();
+    }
+
+    @Test
+    public void testRefreshWithUpdateRegisterForEvents() throws Exception {
+        String subscriptionId = "subscriptionid";
+        String eventEndpoint = "https://ddf/services/csw/subscriptions";
+        CswSourceStub cswSource = (CswSourceStub) getCswSource(mockCsw, mockContext, "contentType");
+        cswSource.filterlessSubscriptionId = subscriptionId;
+        CswSubscribe client = mock(CswSubscribe.class);
+        Response response = mock(Response.class);
+        AcknowledgementType ack = mock(AcknowledgementType.class);
+        when(client.createRecordsSubscription(any(GetRecordsType.class))).thenReturn(response);
+        when(response.getStatus()).thenReturn(200);
+        when(response.readEntity(any(Class.class))).thenReturn(ack);
+
+        when(ack.getRequestId()).thenReturn(subscriptionId);
+        when(cswSource.getSubscriberClientFactory()
+                .getClientForSubject(cswSource.getSubject())).thenReturn(client);
+
+        cswSource.cswSourceConfiguration.setRegisterForEvents(true);
+        cswSource.cswSourceConfiguration.setEventServiceAddress(eventEndpoint + "/original");
+
+        // Set Configuration Map
+        Map<String, Object> configuration = getConfigurationMap(cswSource);
+        configuration.put(cswSource.REGISTER_FOR_EVENTS, true);
+        configuration.put(cswSource.EVENT_SERVICE_ADDRESS, eventEndpoint);
+
+        // Call Refresh
+        cswSource.refresh(configuration);
+
+        // Get Configuration
+        CswSourceConfiguration cswSourceConfiguration = cswSource.cswSourceConfiguration;
+
+        // Assert Refresh Changes
+        Assert.assertTrue(cswSourceConfiguration.isRegisterForEvents());
+        Assert.assertEquals(cswSourceConfiguration.getEventServiceAddress(), eventEndpoint);
+        verify(client).deleteRecordsSubscription(subscriptionId);
+        verify(ack).getRequestId();
+    }
+
+    @Test
+    public void testRefreshWithUnregisterForEvents() throws Exception {
+        String subscriptionId = "subscriptionid";
+        String eventEndpoint = "https://ddf/services/csw/subscriptions";
+        CswSourceStub cswSource = (CswSourceStub) getCswSource(mockCsw, mockContext, "contentType");
+        cswSource.filterlessSubscriptionId = subscriptionId;
+        CswSubscribe client = mock(CswSubscribe.class);
+        Response response = mock(Response.class);
+        AcknowledgementType ack = mock(AcknowledgementType.class);
+        when(client.createRecordsSubscription(any(GetRecordsType.class))).thenReturn(response);
+        when(response.getStatus()).thenReturn(200);
+        when(response.readEntity(any(Class.class))).thenReturn(ack);
+
+        when(ack.getRequestId()).thenReturn(subscriptionId);
+        when(cswSource.getSubscriberClientFactory()
+                .getClientForSubject(cswSource.getSubject())).thenReturn(client);
+
+        cswSource.cswSourceConfiguration.setRegisterForEvents(true);
+        cswSource.cswSourceConfiguration.setEventServiceAddress(eventEndpoint);
+
+        // Set Configuration Map
+        Map<String, Object> configuration = getConfigurationMap(cswSource);
+        configuration.put(cswSource.REGISTER_FOR_EVENTS, false);
+        configuration.put(cswSource.EVENT_SERVICE_ADDRESS, eventEndpoint);
+
+        // Call Refresh
+        cswSource.refresh(configuration);
+
+        // Get Configuration
+        CswSourceConfiguration cswSourceConfiguration = cswSource.cswSourceConfiguration;
+
+        // Assert Refresh Changes
+        Assert.assertFalse(cswSourceConfiguration.isRegisterForEvents());
+        Assert.assertEquals(cswSourceConfiguration.getEventServiceAddress(), eventEndpoint);
+        verify(client).deleteRecordsSubscription(subscriptionId);
+    }
+
+    @Test
     public void testQueryWithAlternateQueryType()
             throws JAXBException, UnsupportedQueryException, DatatypeConfigurationException,
             SAXException, IOException, SecurityServiceException {
@@ -1197,7 +1309,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(csw).when(mockFactory)
                 .getClientForSubject(any(Subject.class));
 
-        CswSource cswSource = new CswSource(mockContext,
+        CswSource cswSource = new CswSourceStub(mockContext,
                 cswSourceConfiguration,
                 mockProvider,
                 mockFactory);

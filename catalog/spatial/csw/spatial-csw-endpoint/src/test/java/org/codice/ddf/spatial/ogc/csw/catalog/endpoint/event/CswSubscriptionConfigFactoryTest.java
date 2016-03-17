@@ -55,6 +55,7 @@ public class CswSubscriptionConfigFactoryTest {
         cswSubscriptionConfigFactory.setDeliveryMethodUrl(DELIVERY_URL);
         cswSubscriptionConfigFactory.setSubscriptionId(SUBSCRIPTION_ID);
         cswSubscriptionConfigFactory.setFilterXml(filterXml);
+        cswSubscriptionConfigFactory.restore();
         verify(subscriptionService).addOrUpdateSubscription(any(GetRecordsType.class), eq(false));
 
     }
@@ -65,6 +66,7 @@ public class CswSubscriptionConfigFactoryTest {
         cswSubscriptionConfigFactory.setDeliveryMethodUrl(DELIVERY_URL);
         cswSubscriptionConfigFactory.setSubscriptionId(SUBSCRIPTION_ID);
         cswSubscriptionConfigFactory.setFilterXml(filterXml);
+        cswSubscriptionConfigFactory.restore();
         verify(subscriptionService, never()).addOrUpdateSubscription(any(GetRecordsType.class),
                 anyBoolean());
 

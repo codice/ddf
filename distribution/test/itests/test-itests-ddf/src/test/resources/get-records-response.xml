@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<csw:GetRecordsResponse xmlns:dct="http://purl.org/dc/terms/" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0.2">
+    <csw:SearchStatus timestamp="2016-03-03T14:46:42.479-07:00"/>
+    <csw:SearchResults numberOfRecordsMatched="1" numberOfRecordsReturned="1" nextRecord="0" recordSchema="urn:catalog:metacard" elementSet="full">
+        <metacard xmlns="urn:catalog:metacard" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:smillang="http://www.w3.org/2001/SMIL20/Language" gml:id="5b1688fa85fd46268e4ab7402a1750e0">
+            <type>ddf.metacard</type>
+            <source>ddf.distribution</source>
+            <dateTime name="created">
+                <value>2012-09-01T00:09:19.368+00:00</value>
+
+            </dateTime>
+            <string name="resource-uri">
+                <value>http://cabinets-fleets-gushier-splintering-crayoning-robuster-nonsecular.com</value>
+
+            </string>
+            <string name="metadata-content-type">
+                <value>myType</value>
+
+            </string>
+            <string name="metacard-tags">
+                <value>resource</value>
+
+            </string>
+            <string name="title">
+                <value>cabinets fleets gushier splintering crayoning robuster nonsecular</value>
+
+            </string>
+            <geometry xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" name="location">
+                <value>
+                    <ns2:Point>
+                        <ns2:pos>175.0 -54.0</ns2:pos>
+
+                    </ns2:Point>
+
+                </value>
+            </geometry>
+            <string name="metadata-content-type-version">
+                <value>myVersion</value>
+
+            </string>
+            <string name="resource-download-url">
+                <value>https://localhost:8993/services/catalog/sources/ddf.distribution/5b1688fa85fd46268e4ab7402a1750e0?transform=resource</value>
+
+            </string>
+            <base64Binary name="thumbnail">
+                <value>CA==</value>
+
+            </base64Binary>
+            <dateTime name="modified">
+                <value>2012-09-01T00:09:19.368+00:00</value>
+
+            </dateTime>
+            <dateTime name="effective">
+                <value>2016-03-03T20:28:35.691+00:00</value>
+
+            </dateTime>
+            <stringxml name="metadata">
+                <value>
+                    <xml>
+                        <title>cabinets fleets gushier splintering crayoning robuster nonsecular</title>
+                        <uri>cabinets-fleets-gushier-splintering-crayoning-robuster-nonsecular.com</uri>
+                    </xml>
+                </value>
+
+            </stringxml>
+        </metacard>
+    </csw:SearchResults>
+</csw:GetRecordsResponse>

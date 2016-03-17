@@ -25,7 +25,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
@@ -45,13 +49,24 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+
+import junit.framework.Assert;
 
 import ch.qos.logback.classic.Level;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.event.EventProcessor;
 import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 
 public class CswSubscriptionEndpointTest {
     private static final ch.qos.logback.classic.Logger CSW_LOGGER =
@@ -60,6 +75,8 @@ public class CswSubscriptionEndpointTest {
     private static final String RESPONSE_HANDLER_URL = "https://somehost:12345/test";
 
     private static final String VALID_TYPES = "csw:Record,csw:Record";
+
+    private static final String METACARD_SCHEMA = "urn:catalog:metacard";
 
     private static BundleContext mockContext;
 
@@ -99,9 +116,14 @@ public class CswSubscriptionEndpointTest {
 
     private GetRecordsRequest defaultRequest;
 
+    private EventProcessor eventProcessor;
+
+    private TransformerManager mockInputManager;
+
     @Before
     public void setUp() throws Exception {
-
+        eventProcessor = mock(EventProcessor.class);
+        mockInputManager = mock(TransformerManager.class);
         mockContext = mock(BundleContext.class);
         mockMimeTypeManager = mock(TransformerManager.class);
         mockSchemaManager = mock(TransformerManager.class);
@@ -143,11 +165,13 @@ public class CswSubscriptionEndpointTest {
         when(configAdmin.createFactoryConfiguration(anyString(), isNull(String.class))).thenReturn(
                 config);
 
-        cswSubscriptionEndpoint = new CswSubscriptionEndpoint(mockContext,
+        cswSubscriptionEndpoint = new CswSubscriptionEndpointStub(eventProcessor,
                 mockMimeTypeManager,
                 mockSchemaManager,
+                mockInputManager,
                 validator,
-                queryFactory);
+                queryFactory,
+                mockContext);
     }
 
     @Test
@@ -299,4 +323,119 @@ public class CswSubscriptionEndpointTest {
         grr.setTypeNames(VALID_TYPES);
         return grr;
     }
+
+    @Test
+    public void testCreateOrUpdateSubscriptionPersitanceFalse() throws Exception {
+        ObjectFactory objectFactory = new ObjectFactory();
+        GetRecordsType getRecordsType = createDefaultGetRecordsRequest().get202RecordsType();
+        QueryType queryType = new QueryType();
+        getRecordsType.setAbstractQuery(objectFactory.createQuery(queryType));
+
+        cswSubscriptionEndpoint.createOrUpdateSubscription(getRecordsType, subscriptionId, false);
+        verify(mockContext).registerService(eq(Subscription.class.getName()),
+                any(Subscription.class),
+                any(Dictionary.class));
+    }
+
+    @Test
+    public void testDeletedSubscription() throws Exception {
+        Assert.assertFalse("Did not expect a subscription to be deleted",
+                cswSubscriptionEndpoint.deleteSubscription(subscriptionId));
+        cswSubscriptionEndpoint.addOrUpdateSubscription(defaultRequest.get202RecordsType(), true);
+        Assert.assertTrue("Expected a subscription to be deleted",
+                cswSubscriptionEndpoint.deleteSubscription(subscriptionId));
+        verify(serviceRegistration, times(1)).unregister();
+        verify(config, times(2)).delete();
+    }
+
+    @Test
+    public void testCreateEvent() throws Exception {
+        cswSubscriptionEndpoint.createEvent(getRecordsResponse(1));
+        verify(eventProcessor).notifyCreated(any(Metacard.class));
+    }
+
+    @Test
+    public void testUpdateEvent() throws Exception {
+
+        cswSubscriptionEndpoint.updateEvent(getRecordsResponse(2));
+        verify(eventProcessor).notifyUpdated(any(Metacard.class), any(Metacard.class));
+
+    }
+
+    @Test
+    public void testDeleteEvent() throws Exception {
+        cswSubscriptionEndpoint.deleteEvent(getRecordsResponse(1));
+        verify(eventProcessor).notifyDeleted(any(Metacard.class));
+    }
+
+    @Test(expected = CswException.class)
+    public void testCreateEventInvalidSchema() throws Exception {
+        GetRecordsResponseType getRecordsResponse = new GetRecordsResponseType();
+        SearchResultsType searchResults = new SearchResultsType();
+        searchResults.setRecordSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        getRecordsResponse.setSearchResults(searchResults);
+        cswSubscriptionEndpoint.createEvent(getRecordsResponse);
+    }
+
+    @Test(expected = CswException.class)
+    public void testUpdateEventInvalidSchema() throws Exception {
+        GetRecordsResponseType getRecordsResponse = new GetRecordsResponseType();
+        SearchResultsType searchResults = new SearchResultsType();
+        searchResults.setRecordSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        getRecordsResponse.setSearchResults(searchResults);
+        cswSubscriptionEndpoint.updateEvent(getRecordsResponse);
+    }
+
+    @Test(expected = CswException.class)
+    public void testDeleteEventInvalidSchema() throws Exception {
+        GetRecordsResponseType getRecordsResponse = new GetRecordsResponseType();
+        SearchResultsType searchResults = new SearchResultsType();
+        searchResults.setRecordSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        getRecordsResponse.setSearchResults(searchResults);
+        cswSubscriptionEndpoint.deleteEvent(getRecordsResponse);
+    }
+
+    private GetRecordsResponseType getRecordsResponse(int metacardCount)
+            throws IOException, CatalogTransformerException {
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+        when(mockInputManager.getTransformerBySchema(METACARD_SCHEMA)).thenReturn(inputTransformer);
+        Metacard metacard = mock(Metacard.class);
+        when(inputTransformer.transform(any(InputStream.class))).thenReturn(metacard);
+
+        GetRecordsResponseType getRecordsResponse = new GetRecordsResponseType();
+        SearchResultsType searchResults = new SearchResultsType();
+        searchResults.setRecordSchema(METACARD_SCHEMA);
+        getRecordsResponse.setSearchResults(searchResults);
+        List<Object> any = new ArrayList<>();
+        Node node = mock(Node.class);
+        for (int i = 0; i < metacardCount; i++) {
+            any.add(node);
+        }
+        searchResults.setAny(any);
+        return getRecordsResponse;
+    }
+
+    public static class CswSubscriptionEndpointStub extends CswSubscriptionEndpoint {
+        private final BundleContext bundleContext;
+
+        public CswSubscriptionEndpointStub(EventProcessor eventProcessor,
+                TransformerManager mimeTypeTransformerManager,
+                TransformerManager schemaTransformerManager,
+                TransformerManager inputTransformerManager, Validator validator,
+                CswQueryFactory queryFactory, BundleContext context) {
+            super(eventProcessor,
+                    mimeTypeTransformerManager,
+                    schemaTransformerManager,
+                    inputTransformerManager,
+                    validator,
+                    queryFactory);
+            this.bundleContext = context;
+        }
+
+        @Override
+        BundleContext getBundleContext() {
+            return this.bundleContext;
+        }
+    }
+
 }
