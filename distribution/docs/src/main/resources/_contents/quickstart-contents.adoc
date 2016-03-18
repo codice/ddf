@@ -99,11 +99,11 @@ ${branding-lowercase}${at-symbol}local>
 . Click the *upload* icon icon:upload[role="blue"] in the upper right corner.
 . Select the file to upload.
 
-==== Using the Content Framework Directory Monitor
+==== Using the Catalog Content Directory Monitor
 
-Using the Content framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
+Using the Catalog framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
 
-. In the ${admin-console}, select the *${ddf-branding} Content* application.
+. In the {admin-console}, select the *${ddf-catalog}* application.
 . Select *Configuration* tab.
 . Select the *Content Directory Monitor*.
 . Set the directory path to `inbox`.
@@ -111,7 +111,7 @@ Using the Content framework's directory monitor, ingest a file so that it is sto
 . Click the *Save* button.
 . Copy the attached https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&modificationDate=1368249436010&api=v2[geojson file] to the `<DISTRIBUTION_INSTALL_DIR>/inbox` directory.
 +
-The Content Framework will:
+The Catalog Framework will:
 +
 .. ingest the file,
 .. store it in the content repository at `<DISTRIBUTION_INSTALL_DIR>/content/store/<GUID>/geojson_valid.json`,
