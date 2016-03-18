@@ -32,6 +32,7 @@ import com.google.common.io.CharStreams;
 import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
@@ -39,7 +40,6 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.registry.common.RegistryConstants;
-import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
 import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
@@ -58,7 +58,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
         for (Metacard metacard : metacards) {
             Set<String> metacardTags = metacard.getTags();
             if (metacardTags.contains(RegistryConstants.REGISTRY_TAG)) {
-                setMetacardExtID((RegistryMetacardImpl) metacard);
+                setMetacardExtID(metacard);
             }
         }
         return input;
@@ -76,7 +76,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
         return input;
     }
 
-    private void setMetacardExtID(RegistryMetacardImpl metacard) throws StopProcessingException {
+    private void setMetacardExtID(Metacard metacard) throws StopProcessingException {
 
         boolean extOriginFound = false;
         String metacardID = metacard.getId();
@@ -157,7 +157,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
                     String xml = CharStreams.toString(outputStream.asByteSource()
                             .asCharSource(Charsets.UTF_8)
                             .openStream());
-                    metacard.setAttribute(Metacard.METADATA, xml);
+                    metacard.setAttribute(new AttributeImpl(Metacard.METADATA, xml));
                 }
             }
 
