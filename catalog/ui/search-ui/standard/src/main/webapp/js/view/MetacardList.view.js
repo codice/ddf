@@ -221,7 +221,7 @@ define([
             childView : List.StatusRow,
             childViewContainer: '.included tbody',
             events: {
-                'click #status-icon': 'toggleStatus',
+                'click .result-details': 'toggleStatus',
                 'click .excluded-source-toggle': 'toggleSource'
             },
             collectionEvents: {
@@ -240,7 +240,7 @@ define([
             },
             toggleStatus: function() {
                 this.$('#status-table').toggleClass('shown hidden');
-                this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
+                this.$('.result-details-icon').toggleClass('fa-caret-down fa-caret-right');
                 wreqr.vent.trigger('toggleFilterMenu');
             },
             initFromFilter: function(){
