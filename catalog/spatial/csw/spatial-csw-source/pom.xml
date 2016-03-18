@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
@@ -23,6 +25,11 @@
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: CSW :: Source</name>
     <dependencies>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-source-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
@@ -124,7 +131,7 @@
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
-            <version>1.6</version>
+            <version>1.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -168,6 +175,7 @@
                         <!-- Don't Export Anything -->
                         <Export-Package/>
                         <Embed-Dependency>
+                            spatial-csw-source-common,
                             spatial-csw-common,
                             spatial-ogc-common,
                             spatial-csw-transformer,
@@ -199,26 +207,28 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
+                                    <!-- Coverages are at zero right now since the CswSourceImpl doesn't add any functionality on top of the AbstractCswSource
+                                    AbstractCswSource has the tests/coverage-->
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.62</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.48</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.46</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.61</minimum>
+                                            <minimum>0.0</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -34,12 +34,12 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.XStreamAttributeCopier;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory;
 
