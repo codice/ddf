@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.admin</groupId>
@@ -22,12 +24,13 @@
     <groupId>ddf.admin.core</groupId>
     <artifactId>admin-core</artifactId>
     <packaging>pom</packaging>
-    <name>DDF Admin Core</name>
+    <name>DDF :: Admin :: Core</name>
     <modules>
         <module>admin-core-api</module>
         <module>admin-core-configpidplugin</module>
         <module>admin-core-appservice</module>
         <module>admin-core-jolokia</module>
         <module>admin-core-insecuredefaults</module>
+        <module>admin-core-migration-commands</module>
     </modules>
 </project>

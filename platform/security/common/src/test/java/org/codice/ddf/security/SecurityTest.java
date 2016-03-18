@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.common.util;
+package org.codice.ddf.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
@@ -41,6 +41,7 @@ import java.util.concurrent.Callable;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.security.common.Security;
@@ -193,7 +194,7 @@ public class SecurityTest {
 
     @Test
     public void testRunWithSubjectOrElevateWhenSystemSubjectHasAdminRole() throws Exception {
-        when(SecurityUtils.getSubject()).thenThrow(new IllegalStateException());
+        when(SecurityUtils.getSubject()).thenThrow(new UnavailableSecurityManagerException(""));
         when(systemSubject.execute(callable)).thenReturn("Success!");
         configureMocksForBundleContext("server");
 

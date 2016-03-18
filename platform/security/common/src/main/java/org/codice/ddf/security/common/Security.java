@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
 
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
@@ -139,7 +140,7 @@ public class Security {
                 org.apache.shiro.subject.Subject subject =
                         org.apache.shiro.SecurityUtils.getSubject();
                 return subject.execute(codeToRun);
-            } catch (IllegalStateException e) {
+            } catch (IllegalStateException | UnavailableSecurityManagerException e) {
                 LOGGER.debug(
                         "No shiro subject available for running command, trying with Java Subject");
             }
