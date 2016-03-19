@@ -33,5 +33,6 @@
         <module>spatial-geocoding-localsearch</module>
         <module>spatial-geocoding-websearch</module>
         <module>spatial-geocoding-admin-module</module>
+        <module>spatial-clavin-lucene</module>
     </modules>
 </project>

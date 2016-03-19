@@ -52,6 +52,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import com.google.common.io.FileBackedOutputStream;
 import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
@@ -121,7 +123,7 @@ public class TikaInputTransformer implements InputTransformer {
             }
 
             Parser parser = new AutoDetectParser();
-            ToXMLContentHandler handler = new ToXMLContentHandler();
+            ToXMLContentHandler handler = new EmptyBodyXMLHandler();
             TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
                     handler);
 
@@ -232,4 +234,54 @@ public class TikaInputTransformer implements InputTransformer {
             return xhtml;
         }
     }
+
+    /*
+        XML handler that outputs empty body.
+     */
+    private static class EmptyBodyXMLHandler extends ToXMLContentHandler {
+        private boolean bodyStartTag = false;
+
+        private boolean bodyEndTag = false;
+
+        private boolean insideBodyTag() {
+            return bodyStartTag && !bodyEndTag ? true : false;
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (!this.insideBodyTag()) {
+                super.characters(ch, start, length);
+            }
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts)
+                throws SAXException {
+            if (!this.insideBodyTag()) {
+                super.startElement(uri, localName, qName, atts);
+            }
+            /*
+                - once found, stop checking.
+                - check after, so empty body tag is output
+             */
+            if (!bodyStartTag) {
+                bodyStartTag = "body".equals(localName);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            /*
+                - once found, stop checking.
+                - check before, so empty body tag is output
+             */
+            if (!bodyEndTag) {
+                bodyEndTag = "body".equals(localName);
+            }
+            if (!this.insideBodyTag()) {
+                super.endElement(uri, localName, qName);
+            }
+        }
+    }
+
 }
