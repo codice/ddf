@@ -817,6 +817,52 @@ It is recommended that:
 * The maven project's pom file should be updated to attach each data/configuration file as an artifact (using the `build-helper-maven-plugin`)
 * Add each data/configuration file to the KAR file by using the `<configfile>` tag in the KAR's `features.xml` file
 
+=== Migration API
+
+${branding} currently has an experimental API for making bundles migratable. Interfaces in `platform/migration/platform-migratable-api` are
+used by the system to identify bundles that provide implementations for import (_coming soon_) and export operations.
+
+[NOTE]
+====
+This code is experimental. While this interface is functional and tested, it may change or be removed in a future version of the library.
+====
+
+An export operation can be performed through the ${command-console} or through the ${admin-console}. When a export operation is processed, the migration API
+will do a look-up for all registered OSGi services that are implementing `Migratable` and call their `export()` method.
+
+The services that implement one of the migratable interfaces will be called one at a time, in any order, and do not need to be thread safe. A bundle
+or a feature can have as many services implementing the interfaces as needed.
+
+==== Migratable
+
+The contract for a migratable is stored here. It is used by both sub-interfaces `ConfigurationMigratable` and `DataMigratable`.
+
+[WARNING]
+====
+Do not implement `Migratable` directly; it is intended for use only as a common base interface.
+Instead, the appropriate sub-interface should be used.
+====
+
+==== ConfigurationMigratable
+
+This is the base interface that must be implemented by all bundles or features that need to export and/or import system related settings
+(e.g. bundle specific Java properties, XML or JSON configuration files) during system migration.
+The information exported must allow the new system to have the same configuration as the original system.
+Only bundle or feature specific settings need be handled. All configurations stored in OSGi's
+`ConfigurationAdmin` will automatically be migrated and do not need to be managed by implementors of this class.
+
+Also, any other data not related to the system's configuration and settings (e.g., data stored in Solr) should be handled by a different
+service that implements the `DataMigratable` interface, not by implementors of this class.
+
+==== DataMigratable
+
+This is the interface that must be implemented by all bundles or features that need to export and/or import data during system migration.
+The data is not mandatory for the system to come up (e.g., data stored in Solr) and doesn't affect the system's configuration,
+i.e., without this data, the new system will still have the same configuration as the original one.
+
+Any system related configuration and settings should be handled by a different service that implements the
+`ConfigurationMigratable` interface, not by implementors of this class.
+
 === Web Service Security Architecture
 
 The Web Service Security (WSS) functionality that comes with ${branding} is integrated throughout the system.

@@ -22,10 +22,16 @@ import javax.validation.constraints.NotNull;
  * exported for later import into a new system. The framework that handles the Migratables
  * ensures that no two Migratable's methods are running at the same time. Implementors do not
  * need to program exports and imports with regard to reflexive thread-safety.
- *
  * <p>
- * <b> This code is experimental. While this interface is functional and tested, it may change or be
- * removed in a future version of the library. </b>
+ * <b>This interface should not be implemented directly;</b> the appropriate extension should be chosen,
+ * either {@link ConfigurationMigratable} or {@link DataMigratable}.
+ * </p>
+ * <p>
+ * <b>
+ * This code is experimental. While this interface is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
  * </p>
  */
 public interface Migratable {
@@ -48,13 +54,4 @@ public interface Migratable {
      */
     @NotNull
     String getDescription();
-
-    /**
-     * Determines if the exported data from this {@link Migratable} is optional or required.
-     * This can be used by consumers of {@link Migratable} services to determine if the data
-     * of this export is necessary when importing into a new system.
-     *
-     * @return status of whether or not the export is optional
-     */
-    boolean isOptional();
 }

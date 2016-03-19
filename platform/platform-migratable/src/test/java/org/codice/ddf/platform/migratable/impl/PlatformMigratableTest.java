@@ -63,8 +63,6 @@ public class PlatformMigratableTest {
 
     private static final String DESCRIPTION = "Exports system files";
 
-    private static final boolean IS_OPTIONAL = false;
-
     private Path ddfHome;
 
     private Path exportDirectory;
@@ -80,7 +78,6 @@ public class PlatformMigratableTest {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -118,7 +115,6 @@ public class PlatformMigratableTest {
                         Matchers.<Collection<MigrationWarning>>any());
 
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -149,7 +145,6 @@ public class PlatformMigratableTest {
                         Matchers.<Collection<MigrationWarning>>any());
 
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -174,7 +169,6 @@ public class PlatformMigratableTest {
                         Matchers.<Collection<MigrationWarning>>any());
 
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform Test
@@ -194,7 +188,6 @@ public class PlatformMigratableTest {
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
@@ -210,7 +203,6 @@ public class PlatformMigratableTest {
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test
@@ -226,7 +218,6 @@ public class PlatformMigratableTest {
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
         PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                IS_OPTIONAL,
                 mockMigratableUtil);
 
         // Perform test

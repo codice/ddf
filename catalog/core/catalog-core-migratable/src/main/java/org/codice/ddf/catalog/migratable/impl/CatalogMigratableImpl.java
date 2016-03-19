@@ -25,7 +25,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.migration.AbstractMigratable;
+import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
@@ -50,13 +50,15 @@ import ddf.catalog.source.UnsupportedQueryException;
  * Implementation of the {@link org.codice.ddf.migration.Migratable} interface used to migrate
  * the current catalog framework's {@link Metacard}s.
  */
-public class CatalogMigratableImpl extends AbstractMigratable {
+public class CatalogMigratableImpl implements DataMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMigratableImpl.class);
 
     private static final String DEFAULT_FAILURE_MESSAGE = "Catalog could not export metacards";
 
     private static final String CATALOG_EXPORT_DIRECTORY = "org.codice.ddf.catalog";
+
+    private final String description;
 
     private final CatalogFramework framework;
 
@@ -101,14 +103,14 @@ public class CatalogMigratableImpl extends AbstractMigratable {
     public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogFramework framework,
             @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
             @NotNull CatalogMigratableConfig config, @NotNull MigrationTaskManager taskManager) {
-        super(description, true);
-
+        notNull(description, "description cannot be null");
         notNull(framework, "CatalogFramework cannot be null");
         notNull(filterBuilder, "FilterBuilder cannot be null");
         notNull(fileWriter, "FileWriter cannot be null");
         notNull(config, "Configuration object cannot be null");
         notNull(taskManager, "Task manager cannot be null");
 
+        this.description = description;
         this.framework = framework;
         this.filterBuilder = filterBuilder;
         this.fileWriter = fileWriter;
@@ -149,6 +151,10 @@ public class CatalogMigratableImpl extends AbstractMigratable {
         }
 
         return new MigrationMetadata(warnings);
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     private void cleanup() throws MigrationException {
