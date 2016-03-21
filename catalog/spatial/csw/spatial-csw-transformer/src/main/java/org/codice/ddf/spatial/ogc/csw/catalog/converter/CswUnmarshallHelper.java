@@ -54,7 +54,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 
-class CswUnmarshallHelper {
+public class CswUnmarshallHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CswUnmarshallHelper.class);
 
     private static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
@@ -70,7 +70,7 @@ class CswUnmarshallHelper {
     private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES =
             Arrays.asList(Metacard.TITLE, Metacard.CREATED, Metacard.MODIFIED);
 
-    static Date convertToDate(String value) {
+    public static Date convertToDate(String value) {
         // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,
         // per annotations in the CSW Record schema. At least the date portion must be present;
         // the time zone and time are optional.
@@ -105,7 +105,7 @@ class CswUnmarshallHelper {
         return new Date();
     }
 
-    static void removeExistingAttributes(Map<String, String> cswAttrMap,
+    public static void removeExistingAttributes(Map<String, String> cswAttrMap,
             Map<String, String> mappingObj) {
         // If we got mappings passed in, remove the existing mappings for that attribute
         Map<String, String> customMappings = new CaseInsensitiveMap(mappingObj);
@@ -138,7 +138,7 @@ class CswUnmarshallHelper {
         }
     }
 
-    static String convertToCswField(String name) {
+    public static String convertToCswField(String name) {
 
         if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(name)) {
             return CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + name;
@@ -147,7 +147,7 @@ class CswUnmarshallHelper {
         return name;
     }
 
-    static MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
+    public static MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
             Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
             String thumbnailMapping, CswAxisOrder cswAxisOrder, Map<String, String> namespaceMap) {
 
@@ -320,7 +320,7 @@ class CswUnmarshallHelper {
      *         {@code cswAttributeValue} converted to the type of the attribute
      *         {@code metacardAttributeName} in a {@code Metacard}.
      */
-    static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
+    public static Attribute getMetacardAttributeFromCswAttribute(String cswAttributeName,
             Serializable cswAttributeValue, String metacardAttributeName) {
         AttributeType.AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE.getAttributeDescriptor(
                 cswAttributeName)
@@ -356,7 +356,7 @@ class CswUnmarshallHelper {
      * @return the value that was extracted from {@code reader} and is of the type described by
      *         {@code attributeFormat}
      */
-    static Serializable convertStringValueToMetacardValue(
+    public static Serializable convertStringValueToMetacardValue(
             AttributeType.AttributeFormat attributeFormat, String value) {
         LOGGER.debug("converting csw record property {}", value);
         Serializable ser = null;
@@ -429,7 +429,7 @@ class CswUnmarshallHelper {
      * @return the value that was extracted from {@code reader} and is of the type described by
      *         {@code attributeFormat}
      */
-    static Serializable convertRecordPropertyToMetacardAttribute(
+    public static Serializable convertRecordPropertyToMetacardAttribute(
             AttributeType.AttributeFormat attributeFormat, HierarchicalStreamReader reader,
             CswAxisOrder cswAxisOrder) {
         LOGGER.debug("converting csw record property {}", reader.getValue());
