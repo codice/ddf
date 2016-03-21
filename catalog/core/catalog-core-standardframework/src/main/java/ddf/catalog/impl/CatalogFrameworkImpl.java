@@ -57,6 +57,7 @@ import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.impl.LiteralImpl;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
 import ddf.catalog.filter.impl.PropertyNameImpl;
@@ -1041,7 +1042,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                                 .toString()));
             }
 
-            QueryImpl queryImpl = new QueryImpl(filterBuilder.anyOf(idFilters));
+            QueryImpl queryImpl = new QueryImpl(filterBuilder.allOf(getTagsQueryFilter(),
+                    filterBuilder.anyOf(idFilters)));
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(updateReq.getUpdates()
                     .size());
@@ -1184,7 +1186,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         .text(serializable.toString()));
             }
 
-            QueryImpl queryImpl = new QueryImpl(filterBuilder.anyOf(idFilters));
+            QueryImpl queryImpl = new QueryImpl(filterBuilder.allOf(getTagsQueryFilter(),
+                    filterBuilder.anyOf(idFilters)));
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(deleteRequest.getAttributeValues()
                     .size());
@@ -1474,6 +1477,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         return queryResponse;
 
+    }
+
+    private Filter getTagsQueryFilter() {
+        return filterBuilder.anyOf(filterBuilder.attribute(Metacard.TAGS)
+                .is()
+                .like()
+                .text(FilterDelegate.WILDCARD_CHAR),
+                filterBuilder.attribute(Metacard.TAGS)
+                .empty());
     }
 
     private void setFlagsOnRequest(Request request) {
