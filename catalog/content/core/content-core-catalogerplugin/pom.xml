@@ -40,11 +40,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-dynamic-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
@@ -161,7 +156,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.57</minimum>
+                                            <minimum>0.55</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>

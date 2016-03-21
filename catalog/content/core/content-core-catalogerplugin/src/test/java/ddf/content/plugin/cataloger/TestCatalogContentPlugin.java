@@ -48,9 +48,6 @@ import org.junit.Test;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.dynamic.api.DynamicMetacard;
-import ddf.catalog.data.dynamic.api.MetacardFactory;
-import ddf.catalog.data.dynamic.impl.MetacardFactoryImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.impl.UpdateImpl;
@@ -138,23 +135,13 @@ public class TestCatalogContentPlugin {
 
     private CatalogContentPlugin catalogContentPlugin = null;
 
-    private MetacardFactory metacardFactory = null;
-
     @Before
     public void setup() throws Exception {
-        metacardFactory = new MetacardFactoryImpl();
         catalogContentPlugin = new CatalogContentPlugin(mockCatalogFramework,
-                mockMimeTypeToTransformerMapper,
-                metacardFactory);
+                mockMimeTypeToTransformerMapper);
 
         setupContent();
         setupMockContent();
-    }
-
-    @Test
-    public void setMetacardFactory() {
-        catalogContentPlugin.setMetacardFactory(metacardFactory);
-        assertThat(catalogContentPlugin, notNullValue());
     }
 
     @Test
@@ -256,68 +243,6 @@ public class TestCatalogContentPlugin {
 
         CreateResponse response = catalogContentPlugin.process(mockContentCreateResponse);
         assertThat(response, notNullValue());
-        assertThat(response.getCreatedMetadata(),
-                is(mockContentCreateResponse.getCreatedMetadata()));
-        assertThat(response.getCreatedContentItem(),
-                is(mockContentCreateResponse.getCreatedContentItem()));
-        assertThat(response.getCreatedMetadataMimeType(),
-                is(mockContentCreateResponse.getCreatedMetadataMimeType()));
-    }
-
-    @Test
-    public void testDynamicMetacard() throws Exception {
-        DynamicMetacard dynamicMetacard = metacardFactory.newInstance();
-        dynamicMetacard.addAttribute(Metacard.TITLE, "Dynamic Metacard");
-        dynamicMetacard.addAttribute(TEST_ATTRIB_NAME, TEST_ATTRIB_VALUE);
-
-        when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(dynamicMetacard);
-        when(mockInputTransformer.transform(any(InputStream.class), any(String.class))).thenReturn(
-                dynamicMetacard);
-
-        CreateResponse response = catalogContentPlugin.process(mockContentCreateResponse);
-        assertThat(response, notNullValue());
-
-        assertThat(response.getCreatedMetadata(),
-                is(mockContentCreateResponse.getCreatedMetadata()));
-        assertThat(response.getCreatedContentItem(),
-                is(mockContentCreateResponse.getCreatedContentItem()));
-        assertThat(response.getCreatedMetadataMimeType(),
-                is(mockContentCreateResponse.getCreatedMetadataMimeType()));
-    }
-
-    @Test
-    public void testDynamicMetacardNoURI() throws Exception {
-        DynamicMetacard dynamicMetacard = metacardFactory.newInstance();
-        dynamicMetacard.addAttribute(TEST_ATTRIB_NAME, TEST_ATTRIB_VALUE);
-
-        when(mockContentItem.getUri()).thenReturn(null);
-        when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(dynamicMetacard);
-        when(mockInputTransformer.transform(any(InputStream.class), any(String.class))).thenReturn(
-                dynamicMetacard);
-
-        CreateResponse response = catalogContentPlugin.process(mockContentCreateResponse);
-        assertThat(response, notNullValue());
-
-        assertThat(response.getCreatedMetadata(),
-                is(mockContentCreateResponse.getCreatedMetadata()));
-        assertThat(response.getCreatedContentItem(),
-                is(mockContentCreateResponse.getCreatedContentItem()));
-        assertThat(response.getCreatedMetadataMimeType(),
-                is(mockContentCreateResponse.getCreatedMetadataMimeType()));
-    }
-
-    @Test
-    public void testDynamicMetacardNoTitle() throws Exception {
-        DynamicMetacard dynamicMetacard = metacardFactory.newInstance();
-
-        when(mockContentItem.getUri()).thenReturn(null);
-        when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(dynamicMetacard);
-        when(mockInputTransformer.transform(any(InputStream.class), any(String.class))).thenReturn(
-                dynamicMetacard);
-
-        CreateResponse response = catalogContentPlugin.process(mockContentCreateResponse);
-        assertThat(response, notNullValue());
-
         assertThat(response.getCreatedMetadata(),
                 is(mockContentCreateResponse.getCreatedMetadata()));
         assertThat(response.getCreatedContentItem(),

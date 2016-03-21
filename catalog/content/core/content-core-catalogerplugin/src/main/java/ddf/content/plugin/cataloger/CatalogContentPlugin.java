@@ -37,8 +37,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.dynamic.api.DynamicMetacard;
-import ddf.catalog.data.dynamic.api.MetacardFactory;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -65,21 +63,17 @@ public class CatalogContentPlugin implements ContentPlugin {
 
     private final CatalogFramework catalogFramework;
 
-    private MetacardFactory metacardFactory;
-
     private Cataloger cataloger;
 
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
     public CatalogContentPlugin(CatalogFramework catalogFramework,
-            MimeTypeToTransformerMapper mimeTypeToTransformerMapper,
-            MetacardFactory factory) {
+            MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
         LOGGER.trace("INSIDE: CatalogContentPlugin constructor");
 
         this.catalogFramework = catalogFramework;
         this.cataloger = new Cataloger(catalogFramework);
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
-        this.metacardFactory = factory;
     }
 
     @Override
@@ -268,56 +262,35 @@ public class CatalogContentPlugin implements ContentPlugin {
                         LOGGER.debug("Unable to retrieve Security Manager.", e);
                     }
 
-                    if (generatedMetacard instanceof DynamicMetacard) {
-                        LOGGER.debug("Adding fields to dynamic metacard of type {}", generatedMetacard.getContentTypeName());
-                        DynamicMetacard metacard = (DynamicMetacard) generatedMetacard;
+                    contentMetacard = new MetacardImpl(new ContentMetacardType());
 
-                        // set the user name
-                        metacard.setAttribute(Metacard.POINT_OF_CONTACT, name == null ? "" : name);
+                    //copy attributes in loop
+                    for (AttributeDescriptor descriptor : generatedMetacard.getMetacardType()
+                            .getAttributeDescriptors()) {
+                        Attribute attribute = generatedMetacard.getAttribute(descriptor.getName());
+                        if (attribute != null) {
+                            contentMetacard.setAttribute(attribute);
+                        }
+                    }
 
-                        // set the uri
-                        if (uri != null) {
-                            metacard.setAttribute(Metacard.RESOURCE_URI, uri);
-                            metacard.setAttribute(Metacard.RESOURCE_SIZE, String.valueOf(size));
-                        } else {
-                            LOGGER.debug("Metacard {} had a null uri", metacard.getId());
-                        }
-                        if (StringUtils.isBlank(metacard.getTitle())) {
-                            LOGGER.debug("Metacard {} title was blank. Setting title to filename.", metacard.getId());
-                            metacard.setAttribute(Metacard.TITLE, contentItem.getFilename());
-                        }
-                        contentMetacard = generatedMetacard;
+                    if (name != null) {
+                        contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                name));
+                    }
+
+                    if (uri != null) {
+                        //Setting the non-transformer specific information not including creation and modification dates/times
+                        contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                                uri));
+                        contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                String.valueOf(size)));
                     } else {
-                        contentMetacard = new MetacardImpl(new ContentMetacardType());
-
-                        //copy attributes in loop
-                        for (AttributeDescriptor descriptor : generatedMetacard.getMetacardType()
-                                .getAttributeDescriptors()) {
-                            Attribute attribute = generatedMetacard.getAttribute(descriptor.getName());
-                            if (attribute != null) {
-                                contentMetacard.setAttribute(attribute);
-                            }
-                        }
-
-                        if (name != null) {
-                            contentMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
-                                    name));
-                        }
-
-                        if (uri != null) {
-                            //Setting the non-transformer specific information not including creation and modification dates/times
-                            contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
-                                    uri));
-                            contentMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                                    String.valueOf(size)));
-                        } else {
-                            LOGGER.debug("Metacard had a null uri");
-                        }
-                        if (StringUtils.isBlank(contentMetacard.getTitle())) {
-                            LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                            contentMetacard.setAttribute(new AttributeImpl(Metacard.TITLE,
-                                    contentItem.getFilename()));
-                        }
+                        LOGGER.debug("Metacard had a null uri");
+                    }
+                    if (StringUtils.isBlank(contentMetacard.getTitle())) {
+                        LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                        contentMetacard.setAttribute(new AttributeImpl(Metacard.TITLE,
+                                contentItem.getFilename()));
                     }
                     break;
                 } catch (IOException | CatalogTransformerException e) {
@@ -354,7 +327,4 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
     }
 
-    public void setMetacardFactory(MetacardFactory factory) {
-        metacardFactory = factory;
-    }
 }
