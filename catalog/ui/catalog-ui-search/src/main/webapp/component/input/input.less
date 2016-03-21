@@ -1,0 +1,86 @@
+@{customElementNamespace}input {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: 5px;
+
+  &:hover {
+    //background: @select-background-color;
+  }
+
+  .inlineFix;
+
+  > div {
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  label {
+    cursor: auto;
+  }
+
+  .input-label {
+    text-align: right;
+    > label {
+      padding: 10px;
+      width: 100%;
+      margin: 0px;
+    }
+  }
+
+  .input-value {
+    padding-right: 10px;
+    input {
+      width: 100%;
+      padding: 6px 10px 5px 10px;
+      color: black;
+      display: none;
+    }
+    label {
+      margin: 0px;
+      padding: 10px;
+    }
+  }
+
+  &.is-readOnly {
+
+    .input-value {
+      input {
+        display: none;
+      }
+      label {
+        display: block;
+      }
+    }
+  }
+
+  &.is-editing:not(.is-readOnly) {
+    label {
+      cursor: pointer;
+    }
+
+    .input-value {
+      input {
+        display: block;
+      }
+      label {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}input {
+
+    white-space: normal;
+    > div {
+      width: 100%;
+    }
+    .input-label {
+      text-align: left;
+    }
+  }
+
+}

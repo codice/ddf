@@ -1,0 +1,32 @@
+@import 'explore/styles';
+@import 'query-editor/styles';
+
+.side-panel {
+
+  // positioning
+  z-index: 100;
+  position: absolute;
+  top: 51px;
+  bottom: 15px;
+  left: 15px;
+
+  .panel-column,
+  .panel-content {
+    height: 100%;
+  }
+
+  .panel-column {
+    float: left;
+  }
+
+  .panel-content {
+    background-color: rgba(36, 36, 36, 0.9);
+    border: 1px solid @border-color;
+    border-left: none;
+    max-width: 400px;
+    width: 30vw;
+  }
+
+  border-left: 1px solid @border-color;
+
+} 

@@ -1,0 +1,73 @@
+@{customElementNamespace}input-query-time {
+  display: block;
+  padding: 10px;
+  width: 100%;
+  .whitespaceNowrap;
+  .inlineBlockDisplay(div);
+
+  > div {
+    width: 50%;
+    vertical-align: top;
+  }
+
+  > .input-label {
+    text-align: right;
+    padding: 10px;
+  }
+
+  > .input-value {
+    padding-right: 10px;
+    > .top-level {
+      > .is-button-group {
+        > button {
+          width: 33%;
+          height: @minimumButtonSize;
+        }
+      }
+    }
+    > .second-level {
+      display: block;
+      padding: 0px 10px;
+      > .is-button-group {
+        > button {
+          width: 33%;
+          height: @minimumButtonSize;
+        }
+      }
+    }
+    > .third-level {
+      padding: 10px 20px;
+      > input {
+        width: 100%;
+        color: black;
+      }
+      > div {
+        text-align: center;
+      }
+      > select {
+        width: 100%;
+        color: black;
+        text-align: center;
+      }
+    }
+    > .third-level.relative {
+      display: none;
+    }
+    > .third-level.absolute {
+      display: none;
+      > input {
+        width: 100%;
+      }
+      > div {
+        text-align: center;
+      }
+    }
+  }
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}input-query-time {
+
+  }
+
+}

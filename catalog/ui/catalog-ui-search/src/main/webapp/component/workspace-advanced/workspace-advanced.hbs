@@ -1,0 +1,81 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Name
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{name}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Created
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{createdDate}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Modified
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{lastModifiedDate}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        ID
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{id}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Source
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{source}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Shared With
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{#each sharedWith}}
+            <span class="workspace-shared-group">
+                {{this}}
+            </span>
+        {{/each}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Searches
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{numSearches}}
+    </div>
+</div>
+<div class="workspaceBasic-row clearfix">
+    <div class="workspaceBasic-property workspaceBasic-cell">
+        Saved Items
+    </div>
+    <div class="workspaceBasic-value workspaceBasic-cell">
+        {{numSavedItems}}
+    </div>
+</div>

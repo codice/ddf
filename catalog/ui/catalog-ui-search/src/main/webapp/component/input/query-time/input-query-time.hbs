@@ -1,0 +1,68 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="input-label">
+    <label for="{{cid}}" class="is-clickable">
+        <span class=""></span>
+        <span>{{label}}</span>
+    </label>
+</div>
+<div class="input-value">
+    <div class="top-level">
+        <div class="is-button-group">
+            <button class="is-button">
+                <span>Any</span>
+            </button>
+            <button class="is-button">
+                <span>Relative</span>
+            </button>
+            <button class="is-button">
+                <span>Absolute</span>
+            </button>
+        </div>
+    </div>
+    <div class="second-level">
+        <div class="is-button-group">
+            <button class="is-button">
+                <span>Created</span>
+            </button>
+            <button class="is-button">
+                <span>Modified</span>
+            </button>
+            <button class="is-button">
+                <span>Effective</span>
+            </button>
+        </div>
+    </div>
+    <div class="third-level relative">
+        <div>last</div>
+        <input>
+        <select>
+            <option value="seconds">seconds</option>
+            <option value="minutes">minutes</option>
+            <option value="hours">hours</option>
+            <option value="days">days</option>
+            <option value="weeks">weeks</option>
+            <option value="months">months</option>
+            <option value="years">years</option>
+        </select>
+    </div>
+    <div class="third-level absolute">
+        <input>
+        <div>to</div>
+        <input>
+    </div>
+    <label>
+        {{value}}
+    </label>
+</div>

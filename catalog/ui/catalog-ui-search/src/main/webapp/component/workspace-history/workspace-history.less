@@ -1,0 +1,76 @@
+@{customElementNamespace}workspace-history {
+  @buttonMargin: 10px;
+
+  @valueWidth: 60%;
+
+  .customElement;
+
+  overflow: hidden;
+  padding: 10px 10px;
+
+  .workspaceHistory-row {
+    transition: padding @transitionTime linear;
+  }
+
+  .workspaceHistory-header {
+    height: 50px;
+  }
+  .workspaceHistory-body {
+    max-height: ~"calc(100% - @{minimumButtonSize}*2 - 20px - @{buttonMargin})";
+    overflow: auto;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .workspaceHistory-cell {
+    float: left;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .workspaceHistory-version {
+    width: 20%;
+  }
+
+  .workspaceHistory-date {
+    width: 50%;
+  }
+
+  .workspaceHistory-user {
+    width: 30%;
+  }
+
+  button {
+    margin-top: @buttonMargin;
+    width: 100%;
+    text-align: center;
+    height: @minimumButtonSize;
+    display: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &.has-selection {
+    button {
+      display: block;
+    }
+  }
+
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}workspace-history {
+    @buttonMargin: 10px;
+
+    .workspaceHistory-body {
+      max-height: ~"calc(100% - @{minimumButtonSize}*4 - 19px - @{buttonMargin})";
+      overflow: auto;
+    }
+
+    .workspaceHistory-cell {
+      display: block;
+      width: 100%;
+    }
+  }
+}

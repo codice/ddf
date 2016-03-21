@@ -1,0 +1,7 @@
+.is-list {
+  @shadowStrength: 3px;
+  > * {
+    box-shadow: inset 0px @shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%),
+    inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%);
+  }
+}

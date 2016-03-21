@@ -1,0 +1,77 @@
+button {
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0px;
+}
+
+button.is-primary {
+  background: @primary-color;
+}
+
+.button-mixin(@buttonColor) {
+  background: @buttonColor;
+  font-size: 2rem !important;
+  padding: 0px !important;
+  line-height: 44px;
+  height: 44px;
+  .resetIconLineHeight;
+  span {
+    font-size: 2rem !important;
+  }
+
+  &:hover {
+    background: shade(@buttonColor, 10%);
+    box-shadow: 0px 0px 2px shade(@buttonColor, 25%);
+  }
+
+  &:focus {
+    background: shade(@buttonColor, 25%);
+    border: 0px 0px 2px shade(@buttonColor, 50%);
+  }
+
+  &.is-disabled {
+    background: tint(@buttonColor, 50%);
+    cursor: not-allowed;
+  }
+}
+
+button.is-negative {
+  .button-mixin(@negative-color);
+}
+
+button.is-positive {
+  .button-mixin(@positive-color);
+}
+
+button.is-neutral {
+  .button-mixin(@neutral-color);
+}
+
+button.is-primary {
+  .button-mixin(@primary-color);
+}
+
+button > span.is-disabled {
+  display: none;
+}
+
+button.is-disabled {
+
+  > span:not(.is-disabled) {
+    display: none;
+  }
+  > span.is-disabled {
+    display: inline;
+  }
+}
+
+.is-button-group {
+  .whitespaceNowrap;
+
+  .inlineBlockDisplay(button);
+
+  > button {
+    .boxShadow;
+  }
+}

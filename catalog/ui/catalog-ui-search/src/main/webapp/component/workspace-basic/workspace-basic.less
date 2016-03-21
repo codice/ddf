@@ -1,0 +1,59 @@
+@{customElementNamespace}workspace-basic {
+
+  @valueWidth: 60%;
+
+  .customElement;
+
+  overflow: auto;
+  padding: 10px 50px;
+
+  .workspaceBasic-inputs {
+    overflow: auto;
+    max-height: ~"calc(100% - 44px)";
+  }
+
+  .workspaceBasic-footer {
+    height: 44px;
+    white-space: nowrap;
+    .inlineFix;
+
+    > button {
+      height: 100%;
+      padding: 10px;
+      display: inline-block;
+    }
+    > .workspaceBasic-edit {
+      width: 100%;
+    }
+    > .workspaceBasic-cancel {
+      width: 50%;
+      display: none;
+    }
+    > .workspaceBasic-save {
+      width: 50%;
+      display: none;
+    }
+  }
+
+  &.is-editing {
+    .workspaceBasic-footer {
+
+      > .workspaceBasic-edit {
+        display: none;
+      }
+      > .workspaceBasic-cancel {
+        display: inline-block;
+      }
+      > .workspaceBasic-save {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}workspace-basic {
+
+
+  }
+}

@@ -1,0 +1,415 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<form id="searchForm" class="search-form" method="get">
+    <ul class="nav">
+        <li>
+            <h6>Query Name</h6>
+        </li>
+        <li>
+            <div class="col-lg-10 form-group">
+                <div class="input-group input-group-sm margin-no">
+                    <input name="title" type="text" class="form-control" value="{{title}}" />
+                </div>
+            </div>
+        </li>
+
+        <li class="heading-with-help-tip keyword-heading-with-help-tip" style="clear:both">
+            <h6>Text</h6>
+            <i class="fa fa-question-circle" data-toggle="keyword-popover"></i>
+        </li>
+        <li>
+            <div class="col-lg-10 form-group">
+                <div class="input-group input-group-sm margin-no">
+                    <input name="q" type="text" class="form-control" autofocus />
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input name="matchcase" type="checkbox">Match Case
+                    </label>
+                </div>
+            </div>
+        </li>
+
+        <li class="heading-with-help-tip" style="clear:both">
+            <h6>Time</h6>
+            <i class="fa fa-question-circle" data-toggle="time-popover"></i>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label class="btn btn-default time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}" data-toggle="tab" data-target="#notemporal">
+                    <input type="radio" name="noTemporalButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Any
+                </label>
+                <label class="btn btn-default time {{#if dtoffset}}active{{/if}}" data-target="#time_relative" data-toggle="tab">
+                    <input type="radio" name="relativeTimeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Relative
+                </label>
+                <label class="btn btn-default time {{#ifAnd dtend dtstart}}active{{/ifAnd}}" data-target="#time_absolute" data-toggle="tab">
+                    <input type="radio" name="absoluteTimeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Absolute
+                </label>
+            </div>
+            <div class="tab-content form-group">
+                <div id="notemporal" class="tab-pane {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"></div>
+                <div class="temporal-types col-lg-10">
+                    <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                        <label id="created" class="btn btn-default {{#is timeType 'created'}}active{{/is}}" >
+                            <input type="radio" name="createdTimeButton" value="created">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Created
+                        </label>
+                        <label id="modified" class="btn btn-default {{#is timeType 'modified'}}active{{/is}}">
+                            <input type="radio" name="modifiedTimeButton" value="modified">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                             Modified
+                        </label>
+                        <label id="effective" class="btn btn-default {{#is timeType 'effective'}}active{{/is}}">
+                            <input type="radio" name="effectiveTimeButton" value="effective">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Effective
+                        </label>
+                    </div>
+                </div>
+                <div id="time_relative" class="tab-pane {{#if dtoffset}}active{{/if}}">
+                    <input name="dtoffset" type="hidden" />
+                    <div class="col-lg-10">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Last&nbsp;</span>
+                            <input class="form-control" id="offsetTime" type="number" min="0" step="any" placeholder="" name="offsetTime"/>
+                            <span class="input-group-btn">
+                                <select id="offsetTimeUnits" name="offsetTimeUnits" class="input-group-addon">
+                                    <option value="seconds">seconds</option>
+                                    <option value="minutes">minutes</option>
+                                    <option selected="selected" value="hours">hours</option>
+                                    <option value="days">days</option>
+                                    <option value="weeks">weeks</option>
+                                    <option value="months">months</option>
+                                    <option value="years">years</option>
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
+                    <div class="col-lg-10">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Begin&nbsp;</span>
+                            <input id="absoluteStartTime" name="dtstart" type="text" class="form-control"/>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">End&nbsp;</span>
+                            <input id="absoluteEndTime" name="dtend" type="text" class="form-control"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+
+        <li class="heading-with-help-tip" style="clear:both">
+            <h6>Location</h6>
+            <i class="fa fa-question-circle" data-toggle="location-popover"></i>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="locationAny" class="btn btn-default location {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}" data-target="#nogeo" data-toggle="tab">
+                    <input type="radio" name="noLocationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Any
+                </label>
+                {{#if is2D}}
+                    <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
+                        <input type="radio" name="polygonButton">
+                        <i class="fa fa-circle"></i>
+                        <i class="fa fa-circle-o"></i>
+                        Polygon
+                    </label>
+                {{else}}
+                    <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
+                        <input type="radio" name="polygonButton">
+                        <i class="fa fa-circle"></i>
+                        <i class="fa fa-circle-o"></i>
+                        Polygon
+                    </label>
+                    <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
+                        <input type="radio" name="pointRadiusButton">
+                        <i class="fa fa-circle"></i>
+                        <i class="fa fa-circle-o"></i>
+                        Point-Radius
+                    </label>
+                {{/if}}
+
+                <label id="locationBbox" class="btn btn-default location {{#if bbox}}active{{/if}}" data-target="#boundingbox" data-toggle="tab">
+                    <input type="radio" name="bboxButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Bounding Box
+                </label>
+            </div>
+            <div class="tab-content form-group">
+                <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}"></div>
+                <div class="geo-types col-lg-10">
+                    <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                        <label id="latlon" class="btn btn-default {{#is locationType 'latlon'}}active{{/is}}">
+                            <input type="radio" name="latLonButton" value="latlon">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            Lat / Lon
+                        </label>
+                        <label id="usng" class="btn btn-default {{#is locationType 'usng'}}active{{/is}}">
+                            <input type="radio" name="usngButton" value="usng">
+                            <i class="fa fa-circle"></i>
+                            <i class="fa fa-circle-o"></i>
+                            USNG / MGRS
+                        </label>
+                    </div>
+                </div>
+                <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
+                    <input type="hidden" name="radius" value="">
+
+                    <div class="col-lg-10">
+                        <div id="latdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">Latitude&nbsp;</span>
+                            <input class="form-control" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="londiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">Longitude&nbsp;</span>
+                            <input class="form-control" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+
+                        <div id="usngdiv" class="input-group input-group-sm" style="display: none;">
+                            <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
+                            <input class="form-control" id="usng" name="usng" type="text" placeholder=""/>
+                        </div>
+
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Radius&nbsp;</span>
+                            <input class="form-control" id="radiusValue" type="number" min="0" step="any" placeholder=""/>
+                            <span class="input-group-btn">
+                                <select id="radiusUnits" name="radiusUnits" class="input-group-addon">
+                                    <option value="meters" selected="selected">meters</option>
+                                    <option value="kilometers">kilometers</option>
+                                    <option value="feet">feet</option>
+                                    <option value="yards">yards</option>
+                                    <option value="miles">miles</option>
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="polygonTab" class="tab-pane {{#if polygon}}active{{/if}}">
+                    <input type="hidden" name="polygon" value="">
+
+                    <div class="col-lg-10">
+                        <div id="polygondiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">Polygon&nbsp;</span>
+                            <input class="form-control" id="polygon" name="polygon" type="text" placeholder=""/>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="boundingbox" class="tab-pane {{#if bbox}}active{{/if}}">
+                    <input type="hidden" name="bbox" value="">
+
+                    <div class="col-lg-10">
+                        <div id="westdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">West&nbsp;</span>
+                            <input class="form-control" id="mapWest" name="mapWest" type="number" min="-180" max="180" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="southdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">South&nbsp;</span>
+                            <input class="form-control" id="mapSouth" name="mapSouth" type="number" min="-90" max="90" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="eastdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">East&nbsp;</span>
+                            <input class="form-control" id="mapEast" name="mapEast" type="number" min="-180" max="180" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="northdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">North&nbsp;</span>
+                            <input class="form-control" id="mapNorth" name="mapNorth" type="number" min="-90" max="90" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+
+                        <div id="usngbbdiv" class="input-group input-group-sm" style="display: none;">
+                            <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
+                            <input class="form-control" id="usngbb" name="usngbb" type="text" placeholder=""/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+
+        <li class="heading-with-help-tip" style="clear:both">
+            <h6>Type</h6>
+            <i class="fa fa-question-circle" data-toggle="type-popover"></i>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label class="btn btn-default type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab" data-toggle="tab">
+                    <input type="radio" name="noTypeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Any
+                </label>
+                <label class="btn btn-default type {{#if type}}active{{/if}}" data-target="#typeTab" data-toggle="tab">
+                    <input type="radio" name="typeButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Specific Types
+                </label>
+            </div>
+            <div class="tab-content form-group">
+                <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
+                <div id="typeTab" class="tab-pane col-lg-10 {{#if type}}active{{/if}}">
+                    <select class="select-types" id="typeList" name="type" multiple title="Select Types" data-size="10" data-container="body" data-width="auto"
+                                    multiple data-selected-text-format="count" data-live-search="true">
+                    </select>
+                </div>
+            </div>
+        </li>
+
+        <li class="heading-with-help-tip" style="clear:both">
+            <h6>Sorting</h6>
+            <i class="fa fa-question-circle" data-toggle="sorting-popover"></i>
+        </li>
+        <li>
+            <div class="margin-bottom-large">
+                <select id="sortOrderSelected">
+                    <option {{#isAnd sortField 'RELEVANCE' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:RELEVANCE">Best Text Match</option>
+                    <option {{#isAnd sortField 'DISTANCE' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:DISTANCE">Shortest Distance</option>
+                    <option {{#isAnd sortField 'DISTANCE' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:DISTANCE">Furthest Distance</option>
+                    <option {{#isAnd sortField 'modified' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:modified">Latest Modified</option>
+                    <option {{#isAnd sortField 'modified' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:modified">Earliest Modified</option>
+                    <option {{#isAnd sortField 'created' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:created">Latest Created</option>
+                    <option {{#isAnd sortField 'created' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:created">Earliest Created</option>
+                    <option {{#isAnd sortField 'effective' sortOrder 'desc'}}selected="selected"{{/isAnd}} value="desc:effective">Latest Effective</option>
+                    <option {{#isAnd sortField 'effective' sortOrder 'asc'}}selected="selected"{{/isAnd}} value="asc:effective">Earliest Effective</option>
+                </select>
+            </div>
+        </li>
+
+        <li class="heading-with-help-tip" style="clear:both">
+            <h6>Additional Sources</h6>
+            <i class="fa fa-question-circle" data-toggle="additional-sources-popover"></i>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="federationAll" class="btn btn-default {{#is federation 'enterprise'}}active{{/is}}" data-target="#nofed" data-toggle="tab">
+                    <input type="radio" name="enterpriseFederationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    All Sources
+                </label>
+                <label id="federationSelected" class="btn btn-default {{#is federation 'selected'}}active{{/is}}" data-target="#sources" data-toggle="tab">
+                    <input type="radio" name="selectedFederationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    Specific Sources
+                </label>
+                <label id="federationNo" class="btn btn-default {{#is federation 'local'}}active{{/is}}" data-target="#local" data-toggle="tab">
+                    <input type="radio" name="noFederationButton">
+                    <i class="fa fa-circle"></i>
+                    <i class="fa fa-circle-o"></i>
+                    None
+                </label>
+            </div>
+            <div class="tab-content form-group">
+                <div id="nofed" class="tab-pane {{#is federation 'enterprise'}}active{{/is}}"></div>
+                <div id="sources" class="tab-pane col-lg-10 {{#is federation 'selected'}}active{{/is}}">
+                    <div id="scrollableSources" class="scrollable">
+                        <select class="select-sources" id="federationSources" multiple title="Select Sources" data-size="auto" data-container="body" data-width="auto"
+                            data-selected-text-format="count" data-live-search="true">
+                        </select>
+                    </div>
+                </div>
+                <div id="local" class="tab-pane {{#is federation 'local'}}active{{/is}}"></div>
+            </div>
+        </li>
+
+        {{#is isWorkspace true}}
+            <li>
+                <div style="clear:both"></div>
+                <h6>Scheduling</h6>
+            </li>
+            <li>
+                <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                    <label id="scheduledNo" class="btn btn-default {{#isnt scheduled true}} active{{/isnt}}" data-target="#nosched" data-toggle="tab">
+                        <input type="radio" name="notScheduledButton">
+                        Not Scheduled
+                    </label>
+                    <label id="scheduledYes" class="btn btn-default {{#is scheduled true}} active{{/is}}" data-target="#sched" data-toggle="tab">
+                        <input type="radio" name="scheduledButton">
+                        Scheduled
+                    </label>
+                </div>
+                <div id="schedulingOptions" class="tab-content">
+                    <div id="nosched" class="tab-pane {{#isnt scheduled true}} active{{/isnt}}"></div>
+                    <div id="sched" class="tab-pane {{#is scheduled true}} active{{/is}}">
+                        <div class="col-lg-8">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon">Every&nbsp;</span>
+                                <input class="form-control" id="scheduleValue" name="scheduleValue" type="number" min="0" step="any" placeholder="" />
+                                <span class="input-group-btn">
+                                    <select id="scheduleUnits" name="scheduleUnits" class="input-group-addon">
+                                        <option value="minutes" selected="selected">minutes</option>
+                                        <option value="hours">hours</option>
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        {{/is}}
+
+        <li>
+            <div class="form-actions btn-group search-buttons">
+                {{#is isWorkspace true}}
+                    <a href="#" id="workspaceSearchButton" class="btn btn-primary searchButton">
+                        <i class="fa fa-search"></i> Save & Search
+                    </a>
+                {{else}}
+                    <a href="#" id="searchButton" class="btn btn-primary searchButton">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                    <a href="#" id="saveButton" class="btn btn-default">
+                        Save
+                    </a>
+                {{/is}}
+
+                <a href="#" id="resetButton" class="btn btn-default resetButton" type="reset">Clear</a>
+                {{#is isWorkspace true}}
+                    <a href="#" id="workspaceCancelButton" class="btn btn-default">
+                        Cancel
+                    </a>
+                {{/is}}
+            </div>
+        </li>
+    </ul>
+</form>

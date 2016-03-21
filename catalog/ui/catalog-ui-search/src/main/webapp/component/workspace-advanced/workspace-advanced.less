@@ -1,0 +1,33 @@
+@{customElementNamespace}workspace-advanced {
+
+  @valueWidth: 60%;
+
+  .customElement;
+
+  overflow: auto;
+  padding: 10px 50px;
+
+
+
+  .workspaceBasic-cell {
+    float: left;
+    padding: 10px;
+  }
+
+  .workspaceBasic-property {
+    text-align: right;
+    color: grey;
+    width: ~"calc(100% - @{valueWidth})";
+  }
+
+  .workspaceBasic-value {
+    width: @valueWidth;
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}workspace-advanced {
+
+
+  }
+}

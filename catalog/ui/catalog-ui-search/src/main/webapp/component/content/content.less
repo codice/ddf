@@ -1,0 +1,79 @@
+@{customElementNamespace}content {
+  @titleBarFontSize: 3rem;
+  .customElement;
+  .inlineFix;
+  .whiteSpaceFix;
+
+  position: fixed;
+  left: 0%;
+  top: 37px;
+  height: ~"calc(100% - 37px)";
+  z-index: @zIndexContent;
+  background: @background-color;
+
+  > div {
+    display: inline-block;
+    width: 33.33%;
+    height: 100%;
+    vertical-align: top;
+    transition: width @transitionTime linear;
+    overflow: hidden;
+    .boxShadow;
+  }
+
+  &.hide-panelTwo {
+    > .content-panelTwo {
+      width: 0%;
+    }
+    > .content-panelThree {
+      width: 66.66%;
+    }
+  }
+
+  > .content-panelTwo {
+    > .content-panelTwo-titleBar {
+      position: relative;
+      font-size: @titleBarFontSize;
+      text-align: center;
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+      .resetIconLineHeight;
+
+      > span {
+        display: block;
+        width: ~'calc(100% - @{minimumButtonSize})';
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 0px 10px;
+      }
+
+      > button {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        width: @minimumButtonSize;
+        height: 100%;
+      }
+    }
+
+    > .content-panelTwo-content {
+      height: ~"calc(100% - @{minimumButtonSize})";
+      overflow: hidden;
+    }
+  }
+
+
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}content {
+
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}content {
+
+  }
+}

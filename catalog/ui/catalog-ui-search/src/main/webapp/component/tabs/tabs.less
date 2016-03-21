@@ -1,0 +1,155 @@
+@{customElementNamespace}tabs {
+  @tabHeight: 44px;
+  @tabColor: lighten(@primary-color, 20%);
+
+  .customElement;
+  .tabs-list {
+    .inlineFix;
+
+    z-index: @zIndexContent;
+    height: @tabHeight;
+    padding: 0px 50px;
+    white-space: nowrap;
+    overflow: visible;
+    width: 100%;
+    position: relative;
+    text-align: center;
+
+    &.is-collapsed {
+      .tabs-dropdown {
+        display: inline-block;
+      }
+    }
+
+    &.is-open {
+      .tabs-dropdown {
+        color: white;
+      }
+
+      .tabs-collapsed {
+        display: block;
+        width: 100%;
+        text-align: center;
+        .boxShadow;
+
+        > div.is-merged {
+          display: block;
+          color: white;
+          width: 100%;
+          padding: 10px;
+
+          &:hover {
+            background: @background-color;
+            color: @tabColor;
+          }
+        }
+        > div.is-merged.is-active {
+          display: none;
+        }
+      }
+    }
+
+    .tabs-expanded {
+      height: 100%;
+    }
+
+    .tabs-collapsed {
+      display: none;
+      background: @background-color;
+      > div {
+        display: none;
+      }
+    }
+
+    .tabs-title {
+
+      display: none;
+
+      &.is-active.is-merged {
+        display: inline;
+      }
+    }
+
+    .tabs-dropdown {
+      display: none;
+      height: 100%;
+      padding: 10px;
+
+      &.has-activeTab {
+        color: @tabColor;
+        border-bottom: 1px solid @tabColor;
+
+        .hint {
+          display: none;
+        }
+      }
+
+      &:hover {
+        background: none;
+      }
+
+      .hint {
+        display: inline;
+      }
+    }
+
+    .tabs-tab + .tabs-tab,
+    .tabs-tab + .tabs-dropdown{
+      //border-left: 1px solid @border-color;
+    }
+
+    .tabs-tab {
+      padding: 10px 10px;
+      display: inline-block;
+      height: 100%;
+
+      &.is-active {
+        color: @tabColor;
+        border-bottom: 1px solid @tabColor;
+      }
+
+      &:hover {
+        background: none;
+        color: @tabColor;
+      }
+
+      &.is-merged {
+        display: none;
+      }
+    }
+  }
+
+  .tabs-content {
+    height: ~"calc(100% - @{tabHeight})";
+   .boxShadowTop;
+  }
+
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}tabs {
+    .tabs-list {
+
+      &.is-open {
+        .tabs-dropdown {
+          position: fixed;
+          left: 0px;
+          top: 0px;
+          width: 100%;
+          text-align: center;
+          background: @within-background-color;
+          color: white;
+          z-index: @zIndexContent;
+        }
+
+        .tabs-collapsed {
+          position: fixed;
+          left: 0px;
+          top: 50px;
+          z-index: @zIndexContent;
+        }
+      }
+    }
+  }
+
+}

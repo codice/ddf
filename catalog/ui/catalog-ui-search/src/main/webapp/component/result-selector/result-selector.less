@@ -1,0 +1,41 @@
+@{customElementNamespace}result-selector {
+
+  .customElement;
+
+  .resultSelector-list {
+    overflow: auto;
+    max-height: ~'calc(100% - 155px)';
+  }
+
+  .resultSelector-result {
+      padding: 0px 10px;
+      .inlineBlockDisplay(div);
+      height: 2*@minimumButtonSize;
+      vertical-align: middle;
+  }
+
+  .resultSelector-resultTitle {
+    width: 100%;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  .resultSelector-resultSource {
+    width: 50%;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  .resultSelector-resultLastModified {
+    width: 50%;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}result-selector {
+
+  }
+}

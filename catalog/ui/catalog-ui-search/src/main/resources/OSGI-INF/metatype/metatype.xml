@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
+        <AD
+                description="Specifies the number of results to request from each source"
+                name="Result Count" id="resultCount" required="true" type="Integer"
+                default="250">
+        </AD>
+        <AD name="Imagery Providers" id="imageryProviders"
+            required="false" type="String" cardinality="10000"
+            description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}'
+            default='{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/map" "fileExtension" "jpg" "alpha" 1},{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/sat" "fileExtension" "jpg" "alpha" 0.5}'
+                />
+
+        <AD name="Terrain Provider" id="terrainProvider"
+            required="false" type="String"
+            description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type" "CT" "url" "http://example.com"}'
+            default='{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'
+                />
+
+        <AD description="Projection of imagery providers" name="Map Projection" id="projection"
+            required="false" type="String" default="EPSG:3857"/>
+
+        <AD description="Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers." name="Bing Maps Key" id="bingKey"
+            required="false" type="String" default="" />
+
+        <AD description="Specifies the client-side connection timeout in milliseconds."
+            name="Connection Timeout" id="timeout"
+            required="false" type="Integer" default="15000"/>
+
+        <AD description="URL to help documentation" name="Help Location" id="helpUrl"
+            required="false" type="String" default="help.html"/>
+
+        <AD description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected."
+            name="Show Sign In" id="signIn"
+            required="false" type="Boolean" default="true"/>
+
+        <AD description="Show task menu area for long running actions." name="Show Tasks" id="task"
+            required="false" type="Boolean" default="false"/>
+
+        <AD description="Show gazetteer for searching place names." name="Show Gazetteer"
+            id="gazetteer"
+            required="false" type="Boolean" default="true"/>
+
+        <AD description="Show upload menu for adding new record." name="Show Uploader" id="ingest"
+            required="false" type="Boolean" default="true"/>
+
+        <AD description="Use an external authentication point, such as IdP"
+            name="Use External Authentication" id="externalAuthentication"
+            required="false" type="Boolean" default="false"
+                />
+
+        <AD name="Type Name Mapping" id="typeNameMapping"
+            required="false" type="String" cardinality="10000"
+            description="Mapping of display names to content types in the form name=type."
+                />
+	    </OCD>
+
+	<Designate pid="org.codice.ddf.ui.search.standard.properties">
+		<Object ocdref="org.codice.ddf.ui.search.standard.properties"/>
+	</Designate>
+
+</metatype:MetaData>

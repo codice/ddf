@@ -1,0 +1,71 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="querySelector-query">
+    <div class="querySelector-queryActive">
+        <span>
+            Active
+        </span>
+    </div>
+    <div class="querySelector-queryDetails">
+        <div class="querySelector-queryName">
+            <span>
+                Name
+            </span>
+        </div>
+        <div class="querySelector-queryResults">
+            <span>
+                Results
+            </span>
+        </div>
+    </div>
+</div>
+<div class="querySelector-list is-list">
+    {{#each this}}
+        <div class="querySelector-query" data-id="{{cid}}">
+            <div class="querySelector-queryActive is-button" data-id="{{cid}}">
+                <span class="fa fa-eye">
+
+                </span>
+            </div>
+            <div class="querySelector-queryDetails is-button" data-id="{{cid}}">
+                <div class="querySelector-queryName" title="{{generatedName}}">
+                    <span>
+                        {{generatedName}}
+                    </span>
+                </div>
+                <div class="querySelector-queryResults">
+                    <span>
+
+                    </span>
+                </div>
+            </div>
+        </div>
+    {{/each}}
+</div>
+{{#unless this}}
+    <h6 align="center">
+        You don't have any queries.
+        Click "Add Query" to get Started.
+    </h6>
+{{/unless}}
+<button class="querySelector-add is-primary">
+    <span class="fa fa-plus">
+    </span>
+    <span>
+        Add Query
+    </span>
+    <span class="is-disabled">
+        Max Queries Reached
+    </span>
+</button>
