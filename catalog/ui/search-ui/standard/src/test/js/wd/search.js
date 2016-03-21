@@ -72,7 +72,7 @@ for (var i = 0; i < shared.iterations; i++) {
 
             it("should display source status and filter options", function () {
                 return this.browser
-                    .waitForElementById('status-icon', shared.timeout).click()
+                    .waitForElementByCssSelector('.result-details', shared.timeout).click()
                     .waitForElementById('status-table', asserters.isDisplayed, shared.timeout)
                     .waitForElementByCssSelector('.filter-view.active', asserters.isDisplayed, shared.timeout)
                     .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('results-filters.png'));

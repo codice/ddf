@@ -82,7 +82,7 @@ for (var i = 0; i < shared.iterations; i++) {
 
         it("should allow saving results", function () {
             return this.browser
-                .waitForElementById('status-icon').click()
+                .waitForElementByCssSelector('.result-details').click()
                 .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout)
                 .waitForElementById('Save').click()
                 .waitForElementByCssSelector('#workspaces input.select-record-checkbox', shared.timeout).click()
