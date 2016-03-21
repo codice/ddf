@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -16,11 +16,16 @@ package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,9 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.path.Path;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.StaxReader;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTWriter;
@@ -126,6 +134,10 @@ public class GmdTransformer implements InputTransformer {
 
     private final XStream xstream;
 
+    private final DataHolder argumentHolder;
+
+    private final XMLInputFactory xmlFactory;
+
     public GmdTransformer() {
         QNameMap qmap = new QNameMap();
         qmap.setDefaultNamespace(GmdMetacardType.GMD_NAMESPACE);
@@ -136,10 +148,11 @@ public class GmdTransformer implements InputTransformer {
         xstream.setClassLoader(this.getClass()
                 .getClassLoader());
         XstreamPathConverter converter = new XstreamPathConverter();
-        converter.setPaths(PATHS);
         xstream.registerConverter(converter);
         xstream.alias("MD_Metadata", XstreamPathValueTracker.class);
-
+        argumentHolder = xstream.newDataHolder();
+        argumentHolder.put(XstreamPathConverter.PATH_KEY, PATHS);
+        xmlFactory = XMLInputFactory.newInstance();
     }
 
     @Override
@@ -154,16 +167,18 @@ public class GmdTransformer implements InputTransformer {
 
         String xml = null;
         XstreamPathValueTracker pathValueTracker = null;
-        try {
-            xml = IOUtils.toString(inputStream);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
-        }
+        xml = IOUtils.toString(inputStream);
 
         try {
-            pathValueTracker = (XstreamPathValueTracker) xstream.fromXML(xml);
-        } catch (XStreamException e) {
+            XMLStreamReader streamReader = xmlFactory.createXMLStreamReader(new StringReader(xml));
+            HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+            pathValueTracker = (XstreamPathValueTracker) xstream.unmarshal(reader,
+                    null,
+                    argumentHolder);
+        } catch (XStreamException | XMLStreamException e) {
             throw new CatalogTransformerException(TRANSFORM_EXCEPTION_MSG, e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
 
         MetacardImpl metacard = toMetacard(pathValueTracker, id);

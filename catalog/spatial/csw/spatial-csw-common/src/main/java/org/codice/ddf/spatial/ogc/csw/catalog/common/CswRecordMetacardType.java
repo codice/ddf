@@ -32,7 +32,7 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
 
     public static final String CSW_NAMESPACE_URI = "http://www.opengis.net/cat/csw/2.0.2";
 
-    public static final String CSW_METACARD_TYPE_NAME = "csw.record";
+    public static final String CSW_METACARD_TYPE_NAME = "csw:Record";
 
     public static final String CSW_IDENTIFIER = "identifier";
 

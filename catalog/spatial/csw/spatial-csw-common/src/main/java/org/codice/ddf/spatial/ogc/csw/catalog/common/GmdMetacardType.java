@@ -28,7 +28,7 @@ public class GmdMetacardType extends MetacardTypeImpl {
 
     private static final String GMD_ATTRIBUTE_PREFIX = "gmd.";
 
-    public static final String GMD_METACARD_TYPE_NAME = "gmd.metadata";
+    public static final String GMD_METACARD_TYPE_NAME = "gmd:MD_Metadata";
 
     public static final String GMD_NAMESPACE = "http://www.isotc211.org/2005/gmd";
 
@@ -53,11 +53,29 @@ public class GmdMetacardType extends MetacardTypeImpl {
 
     public static final String GMD_PUBLISHER = GMD_ATTRIBUTE_PREFIX + "publisher";
 
+    public static final String APISO_PREFIX = "apiso:";
+
+    public static final String APISO_SUBJECT = APISO_PREFIX + "subject";
+
+    public static final String APISO_TITLE = APISO_PREFIX + "title";
+
+    public static final String APISO_ABSTRACT = APISO_PREFIX + "abstract";
+
+    public static final String APISO_FORMAT = APISO_PREFIX + "format";
+
+    public static final String APISO_IDENTIFIER = APISO_PREFIX + "Identifier";
+
+    public static final String APISO_MODIFIED = APISO_PREFIX + "modified";
+
+    public static final String APISO_TYPE = APISO_PREFIX + "type";
+
+    public static final String APISO_BOUNDING_BOX = APISO_PREFIX + "BoundingBox";
+
+    public static final String APISO_CRS = APISO_PREFIX + "crs";
+
+    public static final String APISO_ANYTEXT = APISO_PREFIX + CswConstants.ANY_TEXT;
+
     public static final List<QName> QNAME_LIST;
-
-    public static final String APISO_ATTRIBUTE_PREFIX = "apiso:";
-
-    public static final String APISO_BOUNDING_BOX = APISO_ATTRIBUTE_PREFIX + "BoundingBox";
 
     public static final String GMD_REVISION_DATE = "RevisionDate";
 
@@ -107,6 +125,7 @@ public class GmdMetacardType extends MetacardTypeImpl {
 
         addDdfMetacardAttributes();
         addGmdMetacardAttributes();
+        addApisoMetacardAttributes();
     }
 
     public GmdMetacardType(String sourceId) {
@@ -114,6 +133,7 @@ public class GmdMetacardType extends MetacardTypeImpl {
 
         addDdfMetacardAttributes();
         addGmdMetacardAttributes();
+        addApisoMetacardAttributes();
     }
 
     private void addDdfMetacardAttributes() {
@@ -195,6 +215,85 @@ public class GmdMetacardType extends MetacardTypeImpl {
                 false /* tokenized */,
                 false /* multivalued */,
                 BasicTypes.STRING_TYPE));
+
+    }
+
+    /**
+     * Adds APISO specific attributes to metacard type. These are the core queryable attributes.
+     * Note: queryable attributes defined in "OpenGIS® Catalogue Services Specification 2.0.2 -
+     ISO Metadata Application Profile" Table 6 and Table 9
+     */
+    private void addApisoMetacardAttributes() {
+        descriptors.add(new AttributeDescriptorImpl(APISO_SUBJECT,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_TITLE,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_ABSTRACT,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_FORMAT,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_IDENTIFIER,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_MODIFIED,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.DATE_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_TYPE,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_BOUNDING_BOX,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.GEO_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_CRS,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(APISO_ANYTEXT,
+                QUERYABLE /* indexed */,
+                false /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
 
     }
 

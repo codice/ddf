@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.source.UnsupportedQueryException;
-
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
@@ -1568,9 +1567,10 @@ public class TestCswCqlFilter {
     private CswSourceConfiguration initCswSourceConfiguration(CswAxisOrder cswAxisOrder,
             String contentType) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID,
+                CswRecordMetacardType.CSW_IDENTIFIER);
         cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
-        cswSourceConfiguration.setContentTypeMapping(contentType);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentType);
         return cswSourceConfiguration;
     }
 
@@ -1578,12 +1578,12 @@ public class TestCswCqlFilter {
             String contentType, String effectiveDateMapping, String createdDateMapping,
             String modifiedDateMapping, String identifierMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setIdentifierMapping(identifierMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, identifierMapping);
         cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
-        cswSourceConfiguration.setContentTypeMapping(contentType);
-        cswSourceConfiguration.setEffectiveDateMapping(effectiveDateMapping);
-        cswSourceConfiguration.setCreatedDateMapping(createdDateMapping);
-        cswSourceConfiguration.setModifiedDateMapping(modifiedDateMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentType);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.EFFECTIVE, effectiveDateMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CREATED, createdDateMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED, modifiedDateMapping);
         return cswSourceConfiguration;
     }
 

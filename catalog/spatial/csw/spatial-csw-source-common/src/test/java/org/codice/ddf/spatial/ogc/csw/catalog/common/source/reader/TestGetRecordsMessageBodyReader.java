@@ -78,8 +78,8 @@ public class TestGetRecordsMessageBodyReader {
         config.setMetacardCswMappings(DefaultCswRecordMap.getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
-        config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
-        config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
+        config.putMetacardCswMapping(Metacard.THUMBNAIL, CswRecordMetacardType.CSW_REFERENCES);
+        config.putMetacardCswMapping(Metacard.RESOURCE_URI, CswRecordMetacardType.CSW_SOURCE);
 
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(
@@ -133,8 +133,8 @@ public class TestGetRecordsMessageBodyReader {
         config.setMetacardCswMappings(mappings);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setCswAxisOrder(CswAxisOrder.LAT_LON);
-        config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
-        config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
+        config.putMetacardCswMapping(Metacard.THUMBNAIL, CswRecordMetacardType.CSW_REFERENCES);
+        config.putMetacardCswMapping(Metacard.RESOURCE_URI, CswRecordMetacardType.CSW_SOURCE);
 
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class.getResourceAsStream(

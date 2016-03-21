@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -155,15 +156,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     protected static final String PASSWORD_PROPERTY = "password";
 
-    protected static final String EFFECTIVE_DATE_MAPPING_PROPERTY = "effectiveDateMapping";
-
-    protected static final String CREATED_DATE_MAPPING_PROPERTY = "createdDateMapping";
-
-    protected static final String MODIFIED_DATE_MAPPING_PROPERTY = "modifiedDateMapping";
-
-    protected static final String CONTENT_TYPE_MAPPING_PROPERTY = "contentTypeMapping";
-
-    protected static final String IDENTIFIER_MAPPING_PROPERTY = "identifierMapping";
+    protected static final String METACARD_MAPPINGS_PROPERTY = "metacardMappings";
 
     protected static final String COORDINATE_ORDER_PROPERTY = "coordinateOrder";
 
@@ -183,9 +176,9 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     protected static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
 
-    protected static final String QUERY_TYPE_QNAME_PROPERTY = "queryTypeQName";
+    protected static final String QUERY_TYPE_NAME_PROPERTY = "queryTypeName";
 
-    protected static final String QUERY_TYPE_PREFIX_PROPERTY = "queryTypePrefix";
+    protected static final String QUERY_TYPE_NAMESPACE_PROPERTY = "queryTypeNamespace";
 
     protected static final String USE_POS_LIST_PROPERTY = "usePosList";
 
@@ -290,6 +283,8 @@ public abstract class AbstractCswSource extends MaskableImpl
     protected Map<String, String> jaxbElementClassMap = new HashMap<>();
 
     protected String filterlessSubscriptionId = null;
+
+    private List<MetacardType> metacardTypes;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -422,14 +417,13 @@ public abstract class AbstractCswSource extends MaskableImpl
         consumerMap.put(OUTPUT_SCHEMA_PROPERTY,
                 value -> setConsumerOutputSchemaProperty((String) value));
 
-        consumerMap.put(QUERY_TYPE_QNAME_PROPERTY,
-                value -> cswSourceConfiguration.setQueryTypeQName((String) value));
+        consumerMap.put(QUERY_TYPE_NAME_PROPERTY,
+                value -> cswSourceConfiguration.setQueryTypeName((String) value));
 
-        consumerMap.put(QUERY_TYPE_PREFIX_PROPERTY,
-                value -> cswSourceConfiguration.setQueryTypePrefix((String) value));
+        consumerMap.put(QUERY_TYPE_NAMESPACE_PROPERTY,
+                value -> cswSourceConfiguration.setQueryTypeNamespace((String) value));
 
-        consumerMap.put(IDENTIFIER_MAPPING_PROPERTY,
-                value -> cswSourceConfiguration.setIdentifierMapping((String) value));
+        consumerMap.put(METACARD_MAPPINGS_PROPERTY, value -> setMetacardMappings((String[]) value));
 
         consumerMap.put(DISABLE_CN_CHECK_PROPERTY,
                 value -> cswSourceConfiguration.setDisableCnCheck((Boolean) value));
@@ -438,18 +432,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         consumerMap.put(USE_POS_LIST_PROPERTY,
                 value -> cswSourceConfiguration.setUsePosList((Boolean) value));
-
-        consumerMap.put(CREATED_DATE_MAPPING_PROPERTY,
-                value -> cswSourceConfiguration.setCreatedDateMapping((String) value));
-
-        consumerMap.put(EFFECTIVE_DATE_MAPPING_PROPERTY,
-                value -> cswSourceConfiguration.setEffectiveDateMapping((String) value));
-
-        consumerMap.put(MODIFIED_DATE_MAPPING_PROPERTY,
-                value -> cswSourceConfiguration.setModifiedDateMapping((String) value));
-
-        consumerMap.put(CONTENT_TYPE_MAPPING_PROPERTY,
-                value -> setConsumerContentTypeMapping((String) value));
 
         consumerMap.put(POLL_INTERVAL_PROPERTY, value -> setConsumerPollInterval((Integer) value));
 
@@ -492,7 +474,8 @@ public abstract class AbstractCswSource extends MaskableImpl
      * Consumer function that sets the cswSourceConfiguration ContentType if it is changed.
      */
     private void setConsumerContentTypeMapping(String newContentTypeMapping) {
-        String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
+        String previousContentTypeMapping =
+                cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE);
         LOGGER.debug("{}: Previous content type mapping: {}.",
                 cswSourceConfiguration.getId(),
                 previousContentTypeMapping);
@@ -505,7 +488,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             contentTypes.clear();
         }
 
-        cswSourceConfiguration.setContentTypeMapping(newContentTypeMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, newContentTypeMapping);
 
         LOGGER.debug("{}: Current content type mapping: {}.",
                 cswSourceConfiguration.getId(),
@@ -618,10 +601,10 @@ public abstract class AbstractCswSource extends MaskableImpl
         }
         setForceSpatialFilter(spatialFilter);
 
-        String currentContentTypeMapping =
-                (String) configuration.get(CONTENT_TYPE_MAPPING_PROPERTY);
+        String currentContentTypeMapping = (String) configuration.get(Metacard.CONTENT_TYPE);
         if (StringUtils.isBlank(currentContentTypeMapping)) {
-            cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
+            cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
+                    CswRecordMetacardType.CSW_TYPE);
         }
 
         //if the event service address has changed attempt to remove the subscription before changing to the new event service address
@@ -656,11 +639,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         // Filter out Blank Strings and null Integers and Booleans
         filteredConfiguration.putAll(configuration.entrySet()
                 .stream()
-                .filter(entry -> (entry.getValue() instanceof String
-                        && StringUtils.isNotBlank((String) entry.getValue())) ||
-                        (entry.getValue() instanceof String[]) ||
-                        (entry.getValue() instanceof Integer)
-                        || (entry.getValue() instanceof Boolean))
+                .filter(entry -> (entry.getValue() != null))
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue())));
 
         return filteredConfiguration;
@@ -736,14 +715,14 @@ public abstract class AbstractCswSource extends MaskableImpl
         LOGGER.debug("Setting output schema to: {}", outputSchema);
     }
 
-    public void setQueryTypeQName(String queryTypeQName) {
-        cswSourceConfiguration.setQueryTypeQName(queryTypeQName);
-        LOGGER.debug("Setting queryTypeQName to: {}", queryTypeQName);
+    public void setQueryTypeName(String queryTypeName) {
+        cswSourceConfiguration.setQueryTypeName(queryTypeName);
+        LOGGER.debug("Setting queryTypeQName to: {}", queryTypeName);
     }
 
-    public void setQueryTypePrefix(String queryTypePrefix) {
-        cswSourceConfiguration.setQueryTypePrefix(queryTypePrefix);
-        LOGGER.debug("Setting queryTypePrefix to: {}", queryTypePrefix);
+    public void setQueryTypeNamespace(String queryTypeNamespace) {
+        cswSourceConfiguration.setQueryTypeNamespace(queryTypeNamespace);
+        LOGGER.debug("Setting queryTypePrefix to: {}", queryTypeNamespace);
     }
 
     @Override
@@ -927,7 +906,8 @@ public abstract class AbstractCswSource extends MaskableImpl
 
             String rangeValue = "";
             if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
-                rangeValue = String.format("%s%s-", CswConstants.BYTES_EQUAL,
+                rangeValue = String.format("%s%s-",
+                        CswConstants.BYTES_EQUAL,
                         requestProperties.get(CswConstants.BYTES_TO_SKIP)
                                 .toString());
                 LOGGER.debug("Range: {}", rangeValue);
@@ -997,28 +977,16 @@ public abstract class AbstractCswSource extends MaskableImpl
         cswSourceConfiguration.setIsCqlForced(isCqlForced);
     }
 
-    public void setEffectiveDateMapping(String effectiveDateMapping) {
-        cswSourceConfiguration.setEffectiveDateMapping(effectiveDateMapping);
-    }
-
-    public void setCreatedDateMapping(String createdDateMapping) {
-        cswSourceConfiguration.setCreatedDateMapping(createdDateMapping);
-    }
-
-    public void setModifiedDateMapping(String modifiedDateMapping) {
-        cswSourceConfiguration.setModifiedDateMapping(modifiedDateMapping);
-    }
-
-    public void setResourceUriMapping(String resourceUriMapping) {
-        cswSourceConfiguration.setResourceUriMapping(resourceUriMapping);
-    }
-
-    public void setThumbnailMapping(String thumbnailMapping) {
-        cswSourceConfiguration.setThumbnailMapping(thumbnailMapping);
-    }
-
-    public void setIdentifierMapping(String identifierMapping) {
-        cswSourceConfiguration.setIdentifierMapping(identifierMapping);
+    public void setMetacardMappings(String[] configuredMappings) {
+        if (configuredMappings != null && configuredMappings.length > 0) {
+            Map<String, String> mappings = new HashMap<>(configuredMappings.length);
+            Arrays.stream(configuredMappings)
+                    .forEach(m -> {
+                        String[] parts = m.split("=");
+                        mappings.put(parts[0], parts[1]);
+                    });
+            cswSourceConfiguration.setMetacardCswMappings(mappings);
+        }
     }
 
     public void setFilterAdapter(FilterAdapter filterAdapter) {
@@ -1027,13 +995,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
-    }
-
-    public void setContentTypeMapping(String contentTypeMapping) {
-        if (StringUtils.isEmpty(contentTypeMapping)) {
-            contentTypeMapping = CswRecordMetacardType.CSW_TYPE;
-        }
-        cswSourceConfiguration.setContentTypeMapping(contentTypeMapping);
     }
 
     public void setPollInterval(Integer interval) {
@@ -1086,16 +1047,25 @@ public abstract class AbstractCswSource extends MaskableImpl
             List<QName> elementNames) throws UnsupportedQueryException {
         QueryType queryType = new QueryType();
 
-        QName queryTypeQName;
+        QName queryTypeQName = null;
         try {
-            queryTypeQName = new QName(QName.valueOf(cswSourceConfiguration.getQueryTypeQName())
-                    .getNamespaceURI(),
-                    QName.valueOf(cswSourceConfiguration.getQueryTypeQName())
-                            .getLocalPart(),
-                    cswSourceConfiguration.getQueryTypePrefix());
+            if (StringUtils.isNotBlank(cswSourceConfiguration.getQueryTypeName())) {
+                String[] parts = cswSourceConfiguration.getQueryTypeName()
+                        .split(":");
+                if (parts.length > 1) {
+                    queryTypeQName = new QName(cswSourceConfiguration.getQueryTypeNamespace(),
+                            parts[1],
+                            parts[0]);
+                } else {
+                    queryTypeQName = new QName(cswSourceConfiguration.getQueryTypeNamespace(),
+                            cswSourceConfiguration.getQueryTypeName());
+                }
+            }
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Unable to parse query type QName of {}.  Defaulting to CSW Record",
-                    cswSourceConfiguration.getQueryTypeQName());
+                    cswSourceConfiguration.getQueryTypeName());
+        }
+        if (queryTypeQName == null) {
             queryTypeQName = new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                     CswConstants.CSW_RECORD_LOCAL_NAME,
                     CswConstants.CSW_NAMESPACE_PREFIX);
@@ -1436,7 +1406,7 @@ public abstract class AbstractCswSource extends MaskableImpl
                 isConstraintCql = false;
             }
 
-            setFilterDelegate(new CswRecordMetacardType(),
+            setFilterDelegate(getMetacardType(),
                     getRecordsOp,
                     capabilitiesType.getFilterCapabilities(),
                     outputFormatValues,
@@ -1457,6 +1427,17 @@ public abstract class AbstractCswSource extends MaskableImpl
                 cswFilterDelegate.setSpatialOps(spatialOperators);
             }
         }
+    }
+
+    private MetacardType getMetacardType() {
+        Optional<MetacardType> type = metacardTypes.stream()
+                .filter(t -> StringUtils.equals(cswSourceConfiguration.getQueryTypeName(),
+                        t.getName()))
+                .findFirst();
+        if (type.isPresent()) {
+            return type.get();
+        }
+        return new CswRecordMetacardType();
     }
 
     /**
@@ -1657,6 +1638,10 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     public void setSchemaToTagsMapping(String[] mapping) {
         this.cswSourceConfiguration.setSchemaToTagsMapping(mapping);
+    }
+
+    public void setMetacardTypes(List<MetacardType> types) {
+        this.metacardTypes = types;
     }
 
     /**

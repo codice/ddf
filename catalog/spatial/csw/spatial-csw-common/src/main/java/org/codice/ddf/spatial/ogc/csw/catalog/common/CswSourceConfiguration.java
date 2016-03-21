@@ -16,10 +16,8 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import ddf.catalog.data.Metacard;
 import ddf.security.permission.Permissions;
 
 /**
@@ -39,11 +37,7 @@ public class CswSourceConfiguration {
 
     private boolean disableCnCheck = false;
 
-    private Map<String, String> metacardCswMappings = new HashMap<String, String>();
-
-    private String resourceUriMapping;
-
-    private String thumbnailMapping;
+    private Map<String, String> metacardCswMappings = new HashMap<>();
 
     private CswAxisOrder cswAxisOrder;
 
@@ -59,9 +53,9 @@ public class CswSourceConfiguration {
 
     private String outputSchema;
 
-    private String queryTypeQName;
+    private String queryTypeName;
 
-    private String queryTypePrefix;
+    private String queryTypeNamespace;
 
     private String eventServiceAddress;
 
@@ -103,52 +97,17 @@ public class CswSourceConfiguration {
         this.password = password;
     }
 
-    public String getEffectiveDateMapping() {
-        return metacardCswMappings.get(Metacard.EFFECTIVE);
+    public void setMetacardCswMappings(Map<String, String> mapping) {
+        this.metacardCswMappings.clear();
+        this.metacardCswMappings.putAll(mapping);
     }
 
-    public void setEffectiveDateMapping(String effectiveDateMapping) {
-        metacardCswMappings.put(Metacard.EFFECTIVE, effectiveDateMapping);
+    public void putMetacardCswMapping(String key, String value) {
+        this.metacardCswMappings.put(key, value);
     }
 
-    public String getCreatedDateMapping() {
-        return metacardCswMappings.get(Metacard.CREATED);
-    }
-
-    public void setCreatedDateMapping(String createdDateMapping) {
-        metacardCswMappings.put(Metacard.CREATED, createdDateMapping);
-    }
-
-    public String getModifiedDateMapping() {
-        return metacardCswMappings.get(Metacard.MODIFIED);
-    }
-
-    public void setModifiedDateMapping(String modifiedDateMapping) {
-        metacardCswMappings.put(Metacard.MODIFIED, modifiedDateMapping);
-    }
-
-    public String getResourceUriMapping() {
-        return resourceUriMapping;
-    }
-
-    public void setResourceUriMapping(String resourceUriMapping) {
-        this.resourceUriMapping = resourceUriMapping;
-    }
-
-    public String getContentTypeMapping() {
-        return metacardCswMappings.get(Metacard.CONTENT_TYPE);
-    }
-
-    public void setContentTypeMapping(String contentTypeMapping) {
-        metacardCswMappings.put(Metacard.CONTENT_TYPE, contentTypeMapping);
-    }
-
-    public String getThumbnailMapping() {
-        return thumbnailMapping;
-    }
-
-    public void setThumbnailMapping(String thumbnailMapping) {
-        this.thumbnailMapping = thumbnailMapping;
+    public String getMetacardMapping(String key) {
+        return metacardCswMappings.get(key);
     }
 
     public boolean getDisableCnCheck() {
@@ -157,19 +116,12 @@ public class CswSourceConfiguration {
 
     public void setDisableCnCheck(boolean disableCnCheck) {
         this.disableCnCheck = disableCnCheck;
-
     }
 
     public Map<String, String> getMetacardCswMappings() {
         Map<String, String> newMap = new HashMap<>();
-        for (Entry<String, String> entry : metacardCswMappings.entrySet()) {
-            newMap.put(entry.getValue(), entry.getKey());
-        }
+        newMap.putAll(metacardCswMappings);
         return newMap;
-    }
-
-    public void setMetacardCswMappings(Map<String, String> metacardCswMappings) {
-        this.metacardCswMappings = metacardCswMappings;
     }
 
     public void setCswAxisOrder(CswAxisOrder cswAxisOrder) {
@@ -228,29 +180,20 @@ public class CswSourceConfiguration {
         this.outputSchema = outputSchema;
     }
 
-    public String getQueryTypeQName() {
-        return queryTypeQName;
+    public String getQueryTypeName() {
+        return queryTypeName;
     }
 
-    public void setQueryTypeQName(String queryTypeQName) {
-        this.queryTypeQName = queryTypeQName;
+    public void setQueryTypeName(String queryTypeName) {
+        this.queryTypeName = queryTypeName;
     }
 
-    public String getQueryTypePrefix() {
-        return queryTypePrefix;
+    public String getQueryTypeNamespace() {
+        return queryTypeNamespace;
     }
 
-    public void setQueryTypePrefix(String queryTypePrefix) {
-        this.queryTypePrefix = queryTypePrefix;
-    }
-
-    public String getIdentifierMapping() {
-        return metacardCswMappings.get(Metacard.ID);
-    }
-
-    public void setIdentifierMapping(String identifierMapping) {
-        metacardCswMappings.put(Metacard.ID, identifierMapping);
-
+    public void setQueryTypeNamespace(String queryTypeNamespace) {
+        this.queryTypeNamespace = queryTypeNamespace;
     }
 
     public Map<String, Set<String>> getSecurityAttributes() {

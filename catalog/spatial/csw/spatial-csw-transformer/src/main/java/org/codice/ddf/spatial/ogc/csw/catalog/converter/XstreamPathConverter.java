@@ -29,7 +29,7 @@ import com.thoughtworks.xstream.io.path.PathTrackingReader;
 
 public class XstreamPathConverter implements Converter {
 
-    private XstreamPathValueTracker pathValueTracker = null;
+    public static final String PATH_KEY = "PATHS";
 
     @Override
     public void marshal(Object o, HierarchicalStreamWriter hierarchicalStreamWriter,
@@ -46,27 +46,21 @@ public class XstreamPathConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
             throws ConversionException {
 
+        XstreamPathValueTracker pathValueTracker = new XstreamPathValueTracker();
+        pathValueTracker.buildPaths((List<Path>) context.get(PATH_KEY));
+
         if (pathValueTracker != null) {
 
             PathTracker tracker = new PathTracker();
             PathTrackingReader pathReader = new PathTrackingReader(reader, tracker);
 
-            readPath(pathReader, tracker);
+            readPath(pathReader, tracker, pathValueTracker);
 
         }
         return pathValueTracker;
 
     }
 
-    /**
-     * Set the paths the convert should attempt to find
-     *
-     * @param paths
-     */
-    public void setPaths(List<Path> paths) {
-        pathValueTracker = new XstreamPathValueTracker();
-        pathValueTracker.buildPaths(paths);
-    }
 
     /**
      * Reads through the tree looking for a specific path and returns the value at that node
@@ -83,24 +77,26 @@ public class XstreamPathConverter implements Converter {
      * </a>
      * <d></d>
      * {code}
-     *
-     * @param reader
+     *  @param reader
      * @param tracker
+     * @param pathValueTracker
      */
-    protected void readPath(PathTrackingReader reader, PathTracker tracker) {
+    protected void readPath(PathTrackingReader reader, PathTracker tracker,
+            XstreamPathValueTracker pathValueTracker) {
 
         pathValueTracker.getPaths()
-                .forEach(path -> updatePath(reader, path, tracker.getPath()));
+                .forEach(path -> updatePath(reader, path, tracker.getPath(), pathValueTracker));
 
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
-            readPath(reader, tracker);
+            readPath(reader, tracker, pathValueTracker);
             reader.moveUp();
         }
     }
 
-    protected void updatePath(PathTrackingReader reader, Path path, Path currentPath) {
+    protected void updatePath(PathTrackingReader reader, Path path, Path currentPath,
+            XstreamPathValueTracker pathValueTracker) {
         if (doBasicPathsMatch(path, currentPath)) {
 
             if (path.toString()

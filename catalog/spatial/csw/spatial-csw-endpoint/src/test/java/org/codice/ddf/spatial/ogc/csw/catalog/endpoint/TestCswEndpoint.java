@@ -162,7 +162,7 @@ public class TestCswEndpoint {
             CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String GMD_CONTEXTUAL_LIKE_QUERY =
-            GmdMetacardType.APISO_ATTRIBUTE_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
+            GmdMetacardType.APISO_PREFIX + "title Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String RANGE_VALUE = "bytes=100-";
 
