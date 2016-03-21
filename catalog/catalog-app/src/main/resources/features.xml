@@ -30,6 +30,7 @@
 
     <feature name="catalog-core-api" install="manual" version="${project.version}"
              description="Catalog API interfaces and simple implementations.">
+        <bundle dependency="true">mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-dynamic-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>

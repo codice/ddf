@@ -344,6 +344,7 @@
         </plugins>
     </build>
     <modules>
+        <module>platform-api</module>
         <module>util</module>
         <module>platform-configuration</module>
         <module>migration</module>

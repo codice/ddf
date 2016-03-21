@@ -427,5 +427,10 @@
             <artifactId>catalog-security-xmlattributeplugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.api</groupId>
+            <artifactId>platform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
