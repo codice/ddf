@@ -14,6 +14,9 @@
 
 package ddf.test.itests.platform;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.given;
 
@@ -30,11 +33,15 @@ import ddf.test.itests.AbstractIntegrationTest;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class TestBanana extends AbstractIntegrationTest {
+public class TestPlatform extends AbstractIntegrationTest {
 
-    private static final DynamicUrl BANANA_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT,
-            HTTPS_PORT,
+    private static final DynamicUrl BANANA_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT,
             "/solr/banana");
+
+    private static final DynamicUrl LOGGING_SERVICE_JOLOKIA_URL = new DynamicUrl(
+            DynamicUrl.SECURE_ROOT,
+            HTTPS_PORT,
+            "/jolokia/exec/org.codice.ddf.platform.logging.LoggingService:service=logging-service/retrieveLogEvents");
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -61,5 +68,19 @@ public class TestBanana extends AbstractIntegrationTest {
                 .statusCode(200)
                 .when()
                 .get(BANANA_URL.getUrl());
+    }
+
+    @Test
+    public void testLoggingServiceEndpoint() throws Exception {
+
+        Response response = given().auth()
+                .preemptive()
+                .basic("admin", "admin")
+                .expect()
+                .statusCode(200)
+                .when()
+                .get(LOGGING_SERVICE_JOLOKIA_URL.getUrl());
+        
+        assertThat(response.getBody().asString(), not(isEmptyString()));
     }
 }
