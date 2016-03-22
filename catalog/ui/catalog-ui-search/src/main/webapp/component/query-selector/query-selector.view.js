@@ -79,6 +79,7 @@ define([
         },
         onRender: function(){
             this.handleMaxQueries();
+            this.highlightQuery();
         },
         handleMaxQueries: function(){
             this.$el.toggleClass('can-addQuery', this.model.canAddQuery());

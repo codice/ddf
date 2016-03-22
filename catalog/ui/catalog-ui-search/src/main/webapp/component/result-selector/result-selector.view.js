@@ -14,13 +14,14 @@
  **/
 /*global define*/
 define([
+    'wreqr',
     'marionette',
     'underscore',
     'jquery',
     'text!./result-selector.hbs',
     'js/CustomElements',
     'js/store'
-], function (Marionette, _, $, resultSelectorTemplate, CustomElements, store) {
+], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, store) {
 
     var ResultSelector = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -40,12 +41,13 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            //this.listenTo(this.model.get('searches'), 'nested-change', _.debounce(this.handleUpdate,200));
+            this.listenTo(this.model.get('searches'), 'nested-change', _.debounce(this.handleUpdate,200));
             this.listenTo(store.get('content').get('results'), 'all', this.rerender);
             this.handleUpdate();
         },
         handleUpdate: function(){
             var results = store.get('content').get('results');
+            wreqr.vent.trigger('map:clear');
             this.model.get('searches').forEach(function(search){
                 var searchResult = search.get('result');
                 if (searchResult){
@@ -57,6 +59,7 @@ define([
                         });
                     }
                 }
+                wreqr.vent.trigger('map:results', searchResult, false);
             });
         },
         rerender: function(){

@@ -14,6 +14,7 @@
  **/
 /*global define*/
 define([
+    'wreqr',
     'marionette',
     'underscore',
     'jquery',
@@ -25,7 +26,7 @@ define([
     'maptype',
     'text!templates/map.handlebars',
     'js/store'
-], function (Marionette, _, $, contentTemplate, CustomElements, WorkspaceContentTabs,
+], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, WorkspaceContentTabs,
              WorkspaceContentTabsView, QueryTabsView, maptype, map, store) {
 
     var ContentView = Marionette.LayoutView.extend({
@@ -85,6 +86,7 @@ define([
                     className: 'height-full',
                     regions: { mapDrawingPopup: '#mapDrawingPopup' },
                     onShow: function () {
+                        var map2d = this;
                         require([
                             'js/controllers/openlayers.controller',
                             'js/widgets/openlayers.bbox',
@@ -100,6 +102,9 @@ define([
                             new DrawPolygon.Controller({
                                 map: geoController.mapViewer,
                                 notificationEl: contentView._mapView.mapDrawingPopup.el
+                            });
+                            map2d.listenTo(wreqr.vent, 'resize', function(){
+                                geoController.mapViewer.updateSize();
                             });
                         });
                     }
@@ -131,6 +136,7 @@ define([
                 this.showPanelTwo();
                 this.panelTwo.show(new QueryTabsView());
             }
+            wreqr.vent.trigger('resize');
         },
         updatePanelTwoTitle: function(){
             var queryRef = store.getQuery();
