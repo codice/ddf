@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,7 +28,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
-import org.apache.pdfbox.util.ImageIOUtil;
+import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,14 +67,23 @@ public class PdfInputTransformer implements InputTransformer {
             throws IOException, CatalogTransformerException {
         try (PDDocument pdfDocument = PDDocument.load(input)) {
             return transformPdf(id, pdfDocument);
+        } catch (InvalidPasswordException e) {
+            LOGGER.warn("Cannot transform encrypted pdf", e);
+            return initializeMetacard(id);
         }
     }
 
-    private Metacard transformPdf(String id, PDDocument pdfDocument) throws IOException {
+    private MetacardImpl initializeMetacard(String id) {
         MetacardImpl metacard = new MetacardImpl();
 
         metacard.setId(id);
         metacard.setContentTypeName(MediaType.PDF.subtype());
+
+        return metacard;
+    }
+
+    private Metacard transformPdf(String id, PDDocument pdfDocument) throws IOException {
+        MetacardImpl metacard = initializeMetacard(id);
 
         if (pdfDocument.isEncrypted()) {
             LOGGER.debug("Cannot transform encrypted pdf");
@@ -103,29 +115,19 @@ public class PdfInputTransformer implements InputTransformer {
 
         PDDocumentInformation documentInformation = pdfDocument.getDocumentInformation();
 
-        try {
-            Calendar creationDate = documentInformation.getCreationDate();
-            if (creationDate != null) {
-                metacard.setCreatedDate(creationDate.getTime());
-                addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
-            }
-            LOGGER.info("PDF Creation date was: {}", creationDate);
-        } catch (IOException e) {
-            LOGGER.debug("Could not create date object", e);
+        Calendar creationDate = documentInformation.getCreationDate();
+        if (creationDate != null) {
+            metacard.setCreatedDate(creationDate.getTime());
+            addXmlElement("creationDate", DATE_FORMAT.format(creationDate), metadataField);
         }
+        LOGGER.info("PDF Creation date was: {}", DATE_FORMAT.format(creationDate));
 
-        try {
-            Calendar modificationDate = documentInformation.getModificationDate();
-            if (modificationDate != null) {
-                metacard.setModifiedDate(modificationDate.getTime());
-                addXmlElement("modificationDate",
-                        DATE_FORMAT.format(modificationDate),
-                        metadataField);
-            }
-            LOGGER.info("PDF Modification date was: {}", modificationDate);
-        } catch (IOException e) {
-            LOGGER.debug("Could not create date object", e);
+        Calendar modificationDate = documentInformation.getModificationDate();
+        if (modificationDate != null) {
+            metacard.setModifiedDate(modificationDate.getTime());
+            addXmlElement("modificationDate", DATE_FORMAT.format(modificationDate), metadataField);
         }
+        LOGGER.info("PDF Modification date was: {}", DATE_FORMAT.format(modificationDate));
 
         String title = documentInformation.getTitle();
         if (StringUtils.isNotBlank(title)) {
@@ -154,20 +156,24 @@ public class PdfInputTransformer implements InputTransformer {
         }
     }
 
-    public byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
-        PDDocument pdfDocument = PDDocument.load(pdfInputStream);
-        if (pdfDocument.isEncrypted()) {
-            throw new IOException("Unable to read encrypted document");
-        }
-        return generatePdfThumbnail(pdfDocument);
-    }
-
     private byte[] generatePdfThumbnail(PDDocument pdfDocument) throws IOException {
-        PDPage page = (PDPage) pdfDocument.getDocumentCatalog()
-                .getAllPages()
-                .get(0);
 
-        BufferedImage image = page.convertToImage(BufferedImage.TYPE_INT_RGB, RESOLUTION_DPI);
+        PDFRenderer pdfRenderer = new PDFRenderer(pdfDocument);
+
+        if (pdfDocument.getNumberOfPages() < 1) {
+            /*
+             * Can there be a PDF with zero pages??? Should we throw an error or what? The
+             * original implementation assumed that a PDF would always have at least one
+             * page. That's what I've implemented here, but I don't like make those
+             * kinds of assumptions :-( But I also don't want to change the original
+             * behavior without knowing how it will impact the system.
+             */
+        }
+
+        PDPage page = pdfDocument.getPage(0);
+
+        BufferedImage image = pdfRenderer.renderImageWithDPI(0, RESOLUTION_DPI, ImageType.RGB);
+
         int largestDimension = Math.max(image.getHeight(), image.getWidth());
         float scalingFactor = IMAGE_HEIGHTWIDTH / largestDimension;
         int scaledHeight = (int) (image.getHeight() * scalingFactor);
@@ -191,4 +197,5 @@ public class PdfInputTransformer implements InputTransformer {
             return outputStream.toByteArray();
         }
     }
+
 }

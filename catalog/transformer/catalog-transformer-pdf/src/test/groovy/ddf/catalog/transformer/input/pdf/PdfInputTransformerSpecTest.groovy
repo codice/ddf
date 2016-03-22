@@ -31,6 +31,10 @@ class PdfInputTransformerSpecTest extends Specification {
         PdfInputTransformerSpecTest.class.getResourceAsStream("/sample_with_catalog_metadata.pdf")
     }
 
+    def getFontExceptionStream = {
+        PdfInputTransformerSpecTest.class.getResourceAsStream("/font_exception.pdf")
+    }
+
     void setup() {
         pdfInputTransformer = new PdfInputTransformer();
     }
@@ -52,6 +56,21 @@ class PdfInputTransformerSpecTest extends Specification {
     void verifyThumbnailSize(byte[] thumbnail) {
         assert thumbnail.length > 0
         assert thumbnail.length < 128 * 1024
+    }
+
+    def "Generate Thumbail with Font Exception"() {
+
+        /*
+          The only thing this test does is reproduce a problem that can only be detected by visual
+          inspection of the output log. It may be possible to test the thumbnail to see if every pixel is
+          white.
+         */
+
+        when:
+        Metacard metacard = pdfInputTransformer.transform(getFontExceptionStream())
+
+        then:
+        metacard != null
     }
 
     def "Transform"() {
@@ -107,18 +126,19 @@ class PdfInputTransformerSpecTest extends Specification {
 
     def "Generate thumbnail only"() {
         when:
-        byte[] thumbnail = pdfInputTransformer.generatePdfThumbnail(getSampleInputStream())
+        Metacard metacard = pdfInputTransformer.transform(getSampleInputStream())
 
         then:
-        thumbnail != null
-        verifyThumbnailSize(thumbnail)
+        metacard != null
+        metacard.getThumbnail() != null
+        verifyThumbnailSize(metacard.getThumbnail())
     }
 
     def "Generate thumbnail only encrypted"() {
         when:
-        pdfInputTransformer.generatePdfThumbnail(getEncryptedInputStream())
+        Metacard metacard = pdfInputTransformer.transform(getEncryptedInputStream())
 
         then:
-        thrown(IOException)
+        metacard.getThumbnail() == null
     }
 }
