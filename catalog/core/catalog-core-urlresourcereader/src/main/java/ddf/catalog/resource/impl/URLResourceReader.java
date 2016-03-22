@@ -95,6 +95,8 @@ public class URLResourceReader implements ResourceReader {
 
     private Set<String> rootResourceDirectories = new HashSet<>();
 
+    private boolean followRedirects = true;
+
     /**
      * Default URLResourceReader constructor.
      */
@@ -204,6 +206,30 @@ public class URLResourceReader implements ResourceReader {
     }
 
     /**
+     * Specifies whether the code should follow server issued redirection (HTTP
+     * Response codes between 300 and 400)
+     *
+     * @param redirect
+     *            true - follow redirections automatically false - do not follow
+     *            server issued redirections
+     */
+    public void setFollowRedirects(Boolean redirect) {
+        LOGGER.debug("{}: Setting follow URL redirects (HTTP 300 codes) to {}",
+                URLResourceReader.class.getName(), redirect);
+        this.followRedirects = redirect;
+    }
+
+    /**
+     * Gets the autoRedirect property
+     * 
+     * @return true if the server issued redirections should be automatically
+     *         followed
+     */
+    public boolean getFollowRedirects() {
+        return followRedirects;
+    }
+
+    /**
      * Retrieves a {@link ddf.catalog.resource.Resource} based on a {@link URI} and provided
      * arguments. A connection is made to the {@link URI} to obtain the
      * {@link ddf.catalog.resource.Resource}'s {@link InputStream} and build a
@@ -223,7 +249,6 @@ public class URLResourceReader implements ResourceReader {
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
             throws IOException, ResourceNotFoundException {
         String bytesToSkip = null;
-
         if (resourceURI == null) {
             LOGGER.warn("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource");
@@ -480,9 +505,11 @@ public class URLResourceReader implements ResourceReader {
         return false;
     }
 
-    /* Added for Unit Testing */
     protected WebClient getWebClient(String uri) {
-        return WebClient.create(uri);
+        WebClient client = WebClient.create(uri);
+        WebClient.getConfig(client).getHttpConduit().getClient()
+                .setAutoRedirect(getFollowRedirects());
+        return client;
     }
 
     @Override

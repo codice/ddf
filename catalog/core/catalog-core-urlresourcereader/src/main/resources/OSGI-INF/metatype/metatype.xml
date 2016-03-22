@@ -18,6 +18,11 @@
         <OCD name="URL Resource Reader"
          id="ddf.catalog.resource.impl.URLResourceReader">
                 <AD
+                description="Check the box if you want the Resource Reader to automatically follow server issued redirects (HTTP Response Code 300 series)"
+                name="Follow Server Redirects" id="followRedirects" required="true"
+                type="Boolean" default="true"/>
+         
+                <AD
                 description="List of root resource directories. A relative path is relative to ddf.home. Specifies the only directories the URLResourceReader has access to when attempting to download resources linked using file-based URLs."
                 name="Root Resource Directories" id="rootResourceDirectories" required="true" cardinality="100"
                 type="String" default="data/products"/>

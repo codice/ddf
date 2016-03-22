@@ -16,6 +16,7 @@ package ddf.catalog.resource.impl;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -44,6 +45,8 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import junit.framework.Assert;
+
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.tika.metadata.HttpHeaders;
 import org.junit.Before;
@@ -56,8 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-
-import junit.framework.Assert;
 
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -574,6 +575,25 @@ public class ResourceReaderTest {
         // Verify
         Set<String> rootResourceDirectories = resourceReader.getRootResourceDirectories();
         assertThat(rootResourceDirectories.size(), is(1));
+    }
+
+    @Test
+    public void testSetRedirect() throws Exception {
+        URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+        WebClient client = resourceReader.getWebClient(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH
+                + JPEG_FILE_NAME_1);
+        assertTrue(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
+
+        resourceReader.setFollowRedirects(false);
+        client = resourceReader.getWebClient(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH
+                + JPEG_FILE_NAME_1);
+        assertFalse(WebClient.getConfig(client).getHttpConduit().getClient()
+                .isAutoRedirect());
+
+        resourceReader.setFollowRedirects(true);
+        client = resourceReader.getWebClient(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH
+                + JPEG_FILE_NAME_1);
+        assertTrue(WebClient.getConfig(client).getHttpConduit().getClient().isAutoRedirect());
     }
 
     private void verifyFile(String filePath, String filename, String expectedMimeType,
