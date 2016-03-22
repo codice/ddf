@@ -107,5 +107,9 @@
         <module>catalog-core-solr</module>
         <module>catalog-core-solrcommands</module>
         <module>catalog-core-migratable</module>
+        <module>catalog-core-contentresourcereader</module>
+        <module>catalog-core-localstorageprovider</module>
+        <module>catalog-core-camelcontext</module>
+        <module>catalog-core-directorymonitor</module>
     </modules>
 </project>

@@ -17,7 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -35,14 +37,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.plugin.PostIngestPlugin;
-import ddf.catalog.plugin.PostQueryPlugin;
-import ddf.catalog.plugin.PostResourcePlugin;
-import ddf.catalog.plugin.PreIngestPlugin;
-import ddf.catalog.plugin.PreQueryPlugin;
-import ddf.catalog.plugin.PreResourcePlugin;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.SourcePoller;
@@ -66,24 +60,11 @@ public class FanoutCatalogFrameworkTest {
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
-                null,
-                new ArrayList<PreIngestPlugin>(),
-                postIngestPlugins,
-                new ArrayList<PreQueryPlugin>(),
-                new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(),
-                new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(),
-                new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(),
-                null,
-                null,
-                poller,
-                null,
-                null,
-                null);
+        FrameworkProperties frameworkProperties = new FrameworkProperties();
+        frameworkProperties.setSourcePoller(poller);
+        frameworkProperties.setFederationStrategy(new MockFederationStrategy());
+        frameworkProperties.setPostIngest(postIngestPlugins);
+        framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
     }
@@ -236,24 +217,17 @@ public class FanoutCatalogFrameworkTest {
 
         fedSources.add(mockFederatedSource);
 
-        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
-                null,
-                new ArrayList<PreIngestPlugin>(),
-                postIngestPlugins,
-                new ArrayList<PreQueryPlugin>(),
-                new ArrayList<PostQueryPlugin>(),
-                new ArrayList<PreResourcePlugin>(),
-                new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(),
-                fedSources,
-                new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(),
-                null,
-                null,
-                poller,
-                null,
-                null,
-                null);
+        FrameworkProperties frameworkProperties = new FrameworkProperties();
+        frameworkProperties.setSourcePoller(poller);
+        frameworkProperties.setFederationStrategy(new MockFederationStrategy());
+        frameworkProperties.setPostIngest(postIngestPlugins);
+        Map<String, FederatedSource> sourceMap = new HashMap<>();
+        for (FederatedSource federatedSource : fedSources) {
+            sourceMap.put(federatedSource.getId(), federatedSource);
+        }
+        frameworkProperties.setFederatedSources(sourceMap);
+
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
 

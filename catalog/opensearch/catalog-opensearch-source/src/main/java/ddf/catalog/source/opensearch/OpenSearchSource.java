@@ -266,7 +266,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                 response = processResponse(responseStream, queryRequest);
             }
         } else {
-
+            if (StringUtils.isEmpty((String) metacardId)) {
+                OpenSearchFilterVisitor visitor = new OpenSearchFilterVisitor();
+                query.accept(visitor, null);
+                metacardId = visitor.getMetacardId();
+            }
             restWebClient = newRestClient(query, (String) metacardId, false, subject);
 
             if (restWebClient != null) {
@@ -629,12 +633,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             Collection<ServiceReference<InputTransformer>> transformerReference =
                     bundleContext.getServiceReferences(InputTransformer.class,
                             "(schema=" + namespaceUri + ")");
-            if (transformerReference.size() == 1) {
-                return bundleContext.getService(transformerReference.iterator()
-                        .next());
-            } else if (transformerReference.size() > 1) {
-                LOGGER.error("ambiguous transformer schema " + namespaceUri);
-            }
+            return bundleContext.getService(transformerReference.iterator()
+                    .next());
         }
         return null;
     }

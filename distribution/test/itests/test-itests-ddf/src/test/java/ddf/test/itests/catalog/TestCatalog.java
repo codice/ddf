@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -77,7 +76,6 @@ import org.osgi.service.cm.Configuration;
 import org.xml.sax.InputSource;
 
 import com.google.common.collect.Maps;
-import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -932,11 +930,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     @Test
     public void testVideoThumbnail() throws Exception {
-        getServiceManager().startFeature(true,
-                "content-rest-endpoint",
-                "content-core-filesystemstorageprovider",
-                "content-catalogerplugin",
-                "content-core-videothumbnailplugin");
 
         try (InputStream inputStream = getClass().getClassLoader()
                 .getResourceAsStream("sample.mp4")) {
@@ -946,24 +939,13 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "sample.mp4",
                     fileBytes,
                     "video/mp4")
-                    .post(CONTENT_PATH.getUrl())
-                    .then();
-
-            final JsonPath jsonPath = response.extract()
-                    .jsonPath();
-            assertThat(jsonPath.getString("properties.thumbnail"), not(isEmptyOrNullString()));
-        } finally {
-            getServiceManager().stopFeature(true,
-                    "content-rest-endpoint",
-                    "content-core-filesystemstorageprovider",
-                    "content-catalogerplugin",
-                    "content-core-videothumbnailplugin");
+                    .post(REST_PATH.getUrl())
+                    .then().statusCode(201);
         }
     }
 
     @Test
     public void testContentDirectoryMonitor() throws Exception {
-        getServiceManager().startFeature(true, "content-core-directorymonitor");
         final String TMP_PREFIX = "tcdm_";
         Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
         tmpDir.toFile()
@@ -979,10 +961,9 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         Map<String, Object> cdmProperties = new HashMap<>();
         cdmProperties.putAll(getMetatypeDefaults("content-core-directorymonitor",
-                "ddf.content.core.directorymonitor.ContentDirectoryMonitor"));
-        cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/"); // Must end with /
-        cdmProperties.put("directive", "STORE_AND_PROCESS");
-        createManagedService("ddf.content.core.directorymonitor.ContentDirectoryMonitor",
+                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
+        cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
+        createManagedService("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
                 cdmProperties);
 
         long startTime = System.nanoTime();

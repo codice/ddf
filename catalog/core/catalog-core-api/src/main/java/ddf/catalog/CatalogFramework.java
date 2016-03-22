@@ -18,6 +18,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
+import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.federation.FederationException;
@@ -70,12 +72,49 @@ import ddf.catalog.util.Describable;
  * {@link ddf.catalog.transform.QueryResponseTransformer}s.
  * </p>
  *
- * @author Michael Menousek, Lockheed Martin
- * @author Ashraf Barakat, Lockheed Martin
- * @author Ian Barnett, Lockheed Martin
- * @author ddf.isgs@lmco.com
  */
 public interface CatalogFramework extends Describable {
+
+    /**
+     * <p>
+     * <b> This code is experimental. While this interface is functional and tested, it may change or be
+     * removed in a future version of the library. </b>
+     * </p>
+     *
+     * Creates {@link Metacard}s in the {@link ddf.catalog.source.CatalogProvider}.
+     *
+     * <p>
+     * <b>Implementations of this method must:</b>
+     * <ol>
+     * <li/>Before evaluation, call {@link ddf.catalog.plugin.PreIngestPlugin#process(CreateRequest)} for each
+     * registered {@link ddf.catalog.plugin.PreIngestPlugin} in order determined by the OSGi SERVICE_RANKING
+     * (Descending, highest first), "daisy chaining" their responses to each other.
+     * <li/>Call {@link ddf.catalog.source.CatalogProvider#create(CreateRequest)} on the registered
+     * {@link ddf.catalog.source.CatalogProvider}
+     * <li/>Call {@link ddf.catalog.plugin.PostIngestPlugin#process(CreateResponse)} for each registered
+     * {@link ddf.catalog.plugin.PostIngestPlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
+     * first), "daisy chaining" their responses to each other.
+     * <li/>Call {@link ddf.catalog.content.plugin.PreCreateStoragePlugin#process(CreateStorageRequest)} for each
+     * registered {@link ddf.catalog.content.plugin.PreCreateStoragePlugin} in order determined by the OSGi SERVICE_RANKING
+     * (Descending, highest first), "daisy chaining" their responses to each other.
+     * <li/>Call {@link ddf.catalog.content.StorageProvider#create(CreateStorageRequest)} on the registered
+     * {@link ddf.catalog.source.CatalogProvider}
+     * <li/>Call {@link ddf.catalog.content.plugin.PostCreateStoragePlugin#process(ddf.catalog.content.operation.CreateStorageResponse)} for each registered
+     * {@link ddf.catalog.content.plugin.PostCreateStoragePlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
+     * first), "daisy chaining" their responses to each other.
+     * </ol>
+     * </p>
+     *
+     * @param createRequest
+     *            the {@link CreateStorageRequest}
+     * @return {@link CreateResponse}
+     * @throws IngestException
+     *             if an issue occurs during the update
+     * @throws SourceUnavailableException
+     *             if the source being updated is unavailable
+     */
+    CreateResponse create(CreateStorageRequest createRequest)
+            throws IngestException, SourceUnavailableException;
 
     /**
      * Creates {@link Metacard}s in the {@link ddf.catalog.source.CatalogProvider}.
@@ -102,7 +141,7 @@ public interface CatalogFramework extends Describable {
      * @throws SourceUnavailableException
      *             if the source being updated is unavailable
      */
-    public CreateResponse create(CreateRequest createRequest)
+    CreateResponse create(CreateRequest createRequest)
             throws IngestException, SourceUnavailableException;
 
     /**
@@ -130,7 +169,7 @@ public interface CatalogFramework extends Describable {
      * @throws SourceUnavailableException
      *             if the source being updated is unavailable
      */
-    public DeleteResponse delete(DeleteRequest deleteRequest)
+    DeleteResponse delete(DeleteRequest deleteRequest)
             throws IngestException, SourceUnavailableException;
 
     /**
@@ -166,7 +205,7 @@ public interface CatalogFramework extends Describable {
      *             if the scheme used in the associated java.net.URI is not supported by this
      *             {@link CatalogFramework}
      */
-    public ResourceResponse getEnterpriseResource(ResourceRequest request)
+    ResourceResponse getEnterpriseResource(ResourceRequest request)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 
     /**
@@ -181,7 +220,7 @@ public interface CatalogFramework extends Describable {
      *             {@link Metacard}
      * @deprecated will be removed in the next release
      */
-    public Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId)
+    Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId)
             throws ResourceNotFoundException;
 
     /**
@@ -217,7 +256,7 @@ public interface CatalogFramework extends Describable {
      *             if the scheme used in the associated java.net.URI is not supported by this
      *             {@link CatalogFramework}
      */
-    public ResourceResponse getLocalResource(ResourceRequest request)
+    ResourceResponse getLocalResource(ResourceRequest request)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 
     /**
@@ -232,7 +271,7 @@ public interface CatalogFramework extends Describable {
      *             {@link Metacard}
      * @deprecated Will be removed in the next release.
      */
-    public Map<String, Set<String>> getLocalResourceOptions(String metacardId)
+    Map<String, Set<String>> getLocalResourceOptions(String metacardId)
             throws ResourceNotFoundException;
 
     /**
@@ -269,7 +308,7 @@ public interface CatalogFramework extends Describable {
      *             if the scheme used in the associated java.net.URI is not supported by this
      *             {@link CatalogFramework}
      */
-    public ResourceResponse getResource(ResourceRequest request, String resourceSiteName)
+    ResourceResponse getResource(ResourceRequest request, String resourceSiteName)
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 
     /**
@@ -286,7 +325,7 @@ public interface CatalogFramework extends Describable {
      *             {@link Metacard}
      * @deprecated Will be removed in the next release.
      */
-    public Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId)
+    Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId)
             throws ResourceNotFoundException;
 
     /**
@@ -296,7 +335,7 @@ public interface CatalogFramework extends Describable {
      *
      * @return Set of source IDs
      */
-    public Set<String> getSourceIds();
+    Set<String> getSourceIds();
 
     /**
      * Returns information for each {@link ddf.catalog.source.Source} that is endpoint-addressable in
@@ -318,7 +357,7 @@ public interface CatalogFramework extends Describable {
      *             if the source indicated in the {@link SourceInfoRequest} is <code>null</code>,
      *             not found, or cannot provide the requested information
      */
-    public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest)
+    SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest)
             throws SourceUnavailableException;
 
     /**
@@ -354,7 +393,7 @@ public interface CatalogFramework extends Describable {
      *             if federation is requested but can not complete, usually due to the
      *             {@link FederationStrategy}
      */
-    public QueryResponse query(QueryRequest query)
+    QueryResponse query(QueryRequest query)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException;
 
     /**
@@ -380,7 +419,7 @@ public interface CatalogFramework extends Describable {
      *             cannot evaluate the {@link ddf.catalog.operation.Query}
      *
      */
-    public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
+    QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
             throws SourceUnavailableException, UnsupportedQueryException, FederationException;
 
     /**
@@ -398,7 +437,7 @@ public interface CatalogFramework extends Describable {
      * @throws CatalogTransformerException
      *             if there is a problem transforming the {@link Metacard}
      */
-    public BinaryContent transform(Metacard metacard, String transformerId,
+    BinaryContent transform(Metacard metacard, String transformerId,
             Map<String, Serializable> requestProperties) throws CatalogTransformerException;
 
     /**
@@ -416,8 +455,52 @@ public interface CatalogFramework extends Describable {
      * @throws CatalogTransformerException
      *             if there is a problem transforming the {@link SourceResponse}
      */
-    public BinaryContent transform(SourceResponse response, String transformerId,
+    BinaryContent transform(SourceResponse response, String transformerId,
             Map<String, Serializable> requestProperties) throws CatalogTransformerException;
+
+    /**
+     * <p>
+     * <b> This code is experimental. While this interface is functional and tested, it may change or be
+     * removed in a future version of the library. </b>
+     * </p>
+     *
+     * Updates a list of Metacards. Metacards that are not in the Catalog will not be created.
+     *
+     * If a Metacard in the list to be updated does not have its ID attribute set, then the
+     * associated ID for that Metacard in the {@link UpdateRequest} will be used.
+     *
+     * <p>
+     * <b>Implementations of this method must:</b>
+     * <ol>
+     * <li/>Before evaluation, call {@link ddf.catalog.plugin.PreIngestPlugin#process(UpdateRequest)} for each
+     * registered {@link ddf.catalog.plugin.PreIngestPlugin} in order determined by the OSGi SERVICE_RANKING
+     * (Descending, highest first), "daisy chaining" their responses to each other.
+     * <li/>Call {@link ddf.catalog.source.CatalogProvider#update(UpdateRequest)} on the registered
+     * {@link ddf.catalog.source.CatalogProvider}
+     * <li/>Call {@link ddf.catalog.plugin.PostIngestPlugin#process(UpdateResponse)} for each registered
+     * {@link ddf.catalog.plugin.PostIngestPlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
+     * first), "daisy chaining" their responses to each other.
+     * <li/>Call {@link ddf.catalog.content.plugin.PreUpdateStoragePlugin#process(UpdateStorageRequest)} for each
+     * registered {@link ddf.catalog.content.plugin.PreUpdateStoragePlugin} in order determined by the OSGi SERVICE_RANKING
+     * (Descending, highest first), "daisy chaining" their responses to each other.
+     * <li/>Call {@link ddf.catalog.content.StorageProvider#update(UpdateStorageRequest)} on the registered
+     * {@link ddf.catalog.source.CatalogProvider}
+     * <li/>Call {@link ddf.catalog.content.plugin.PostUpdateStoragePlugin#process(ddf.catalog.content.operation.UpdateStorageResponse)} for each registered
+     * {@link ddf.catalog.content.plugin.PostUpdateStoragePlugin} in order determined by the OSGi SERVICE_RANKING (Descending, highest
+     * first), "daisy chaining" their responses to each other.
+     * </ol>
+     * </p>
+     *
+     * @param updateRequest
+     *            the {@link UpdateStorageRequest}
+     * @return {@link UpdateResponse}
+     * @throws IngestException
+     *             if an issue occurs during the update
+     * @throws SourceUnavailableException
+     *             if the source being updated is unavailable
+     */
+    UpdateResponse update(UpdateStorageRequest updateRequest)
+            throws IngestException, SourceUnavailableException;
 
     /**
      * Updates a list of Metacards. Metacards that are not in the Catalog will not be created.
@@ -447,7 +530,7 @@ public interface CatalogFramework extends Describable {
      * @throws SourceUnavailableException
      *             if the source being updated is unavailable
      */
-    public UpdateResponse update(UpdateRequest updateRequest)
+    UpdateResponse update(UpdateRequest updateRequest)
             throws IngestException, SourceUnavailableException;
 
 }

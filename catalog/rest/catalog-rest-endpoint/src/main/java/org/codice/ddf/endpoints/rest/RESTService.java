@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -28,6 +28,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+
 /**
  * REST endpoint interface
  */
@@ -39,8 +41,7 @@ public interface RESTService {
      * but is used to specify what format the data should be returned.
      *
      * @param id
-     * @param transformerParam
-     *            (OPTIONAL)
+     * @param transformerParam (OPTIONAL)
      * @param uriInfo
      * @return
      * @throws ServerErrorException
@@ -92,6 +93,19 @@ public interface RESTService {
             @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
+     * REST Put. Updates the specified metadata entry with the provided metadata.
+     *
+     * @param id
+     * @param message
+     * @return
+     */
+    @PUT
+    @Path("/{id}")
+    public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+            @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
+            InputStream message);
+
+    /**
      * REST Post. Creates a new metadata entry in the catalog.
      *
      * @param message
@@ -100,6 +114,17 @@ public interface RESTService {
     @POST
     public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
             @Context HttpServletRequest httpRequest, InputStream message);
+
+    /**
+     * REST Post. Creates a new metadata entry in the catalog.
+     *
+     * @param message
+     * @return
+     */
+    @POST
+    public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+            @Context HttpServletRequest httpRequest, MultipartBody multipartBody,
+            InputStream message);
 
     /**
      * REST Delete. Deletes a record from the catalog.

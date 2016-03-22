@@ -133,6 +133,8 @@ public final class Constants {
      */
     public static final String MIME_TYPE_JPEG = "image/jpeg";
 
+    public static final String MIME_TYPE = "mime.type";
+
     public static final String OAUTH_RESOURCE_OWNER_USERNAME = "resource.owner.username";
 
     public static final String INGEST_LOGGER_NAME = "ingestLogger";

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,6 +22,11 @@ import java.util.concurrent.ExecutorService;
 import org.osgi.framework.BundleContext;
 
 import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.plugin.PostCreateStoragePlugin;
+import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
+import ddf.catalog.content.plugin.PreCreateStoragePlugin;
+import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterBuilder;
@@ -40,6 +45,8 @@ import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.util.impl.SourcePoller;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeToTransformerMapper;
 
 /**
  * Properties relating to the {@link CatalogFrameworkImpl} class.
@@ -90,6 +97,20 @@ public class FrameworkProperties {
     private ReliableResourceDownloadManager reliableResourceDownloadManager;
 
     private FilterBuilder filterBuilder;
+
+    private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+
+    private MimeTypeMapper mimeTypeMapper;
+
+    private List<StorageProvider> storageProviders = new ArrayList<>();
+
+    private List<PreCreateStoragePlugin> preCreateStoragePlugins = new ArrayList<>();
+
+    private List<PostCreateStoragePlugin> postCreateStoragePlugins = new ArrayList<>();
+
+    private List<PreUpdateStoragePlugin> preUpdateStoragePlugins = new ArrayList<>();
+
+    private List<PostUpdateStoragePlugin> postUpdateStoragePlugins = new ArrayList<>();
 
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
@@ -268,5 +289,64 @@ public class FrameworkProperties {
 
     public void setFilterBuilder(FilterBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
+    }
+
+    public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
+        return mimeTypeToTransformerMapper;
+    }
+
+    public void setMimeTypeToTransformerMapper(
+            MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
+        this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
+    }
+
+    public MimeTypeMapper getMimeTypeMapper() {
+        return mimeTypeMapper;
+    }
+
+    public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
+        this.mimeTypeMapper = mimeTypeMapper;
+    }
+
+    public List<StorageProvider> getStorageProviders() {
+        return storageProviders;
+    }
+
+    public void setStorageProviders(List<StorageProvider> storageProviders) {
+        this.storageProviders = storageProviders;
+    }
+
+    public List<PreCreateStoragePlugin> getPreCreateStoragePlugins() {
+        return preCreateStoragePlugins;
+    }
+
+    public void setPreCreateStoragePlugins(List<PreCreateStoragePlugin> preCreateStoragePlugins) {
+        this.preCreateStoragePlugins = preCreateStoragePlugins;
+    }
+
+    public List<PostCreateStoragePlugin> getPostCreateStoragePlugins() {
+        return postCreateStoragePlugins;
+    }
+
+    public void setPostCreateStoragePlugins(
+            List<PostCreateStoragePlugin> postCreateStoragePlugins) {
+        this.postCreateStoragePlugins = postCreateStoragePlugins;
+    }
+
+    public List<PreUpdateStoragePlugin> getPreUpdateStoragePlugins() {
+        return preUpdateStoragePlugins;
+    }
+
+    public void setPreUpdateStoragePlugins(List<PreUpdateStoragePlugin> preUpdateStoragePlugins) {
+        this.preUpdateStoragePlugins = preUpdateStoragePlugins;
+    }
+
+    public List<PostUpdateStoragePlugin> getPostUpdateStoragePlugins() {
+        return postUpdateStoragePlugins;
+    }
+
+    public void setPostUpdateStoragePlugins(
+            List<PostUpdateStoragePlugin> postUpdateStoragePlugins) {
+        this.postUpdateStoragePlugins = postUpdateStoragePlugins;
     }
 }

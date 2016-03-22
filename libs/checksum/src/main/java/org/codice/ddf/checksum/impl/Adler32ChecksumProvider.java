@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.zip.Adler32;
 import java.util.zip.CheckedInputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.codice.ddf.checksum.AbstractChecksumProvider;
 
 /**
@@ -42,7 +41,8 @@ public class Adler32ChecksumProvider extends AbstractChecksumProvider {
         long checksumValue = 0L;
 
         try (CheckedInputStream cis = new CheckedInputStream(inputStream, new Adler32())) {
-            IOUtils.toByteArray(cis);
+            byte[] buf = new byte[4096];
+            while(cis.read(buf, 0, buf.length - 1) != -1) {}
             checksumValue = cis.getChecksum()
                     .getValue();
         }

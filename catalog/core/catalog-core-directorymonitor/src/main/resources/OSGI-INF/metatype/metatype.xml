@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Catalog Content Directory Monitor"
+         id="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
+        <AD
+                description="Specifies the directory to be monitored"
+                name="Directory Path" id="monitoredDirectoryPath" required="true"
+                type="String" default=""/>
+
+        <AD
+                description="Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository."
+                name="Copy Files to Backup Directory" id="copyIngestedFiles" required="false"
+                type="Boolean" default="false"/>
+    </OCD>
+
+    <Designate pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
+               factoryPid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
+        <Object ocdref="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"/>
+    </Designate>
+
+</metatype:MetaData>

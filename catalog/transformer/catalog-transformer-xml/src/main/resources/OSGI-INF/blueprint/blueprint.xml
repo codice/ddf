@@ -31,6 +31,20 @@
         </bean>
     </service>
 
+    <service interface="ddf.catalog.transform.InputTransformer">
+        <service-properties>
+            <entry key="id" value="appxml"/>
+            <entry key="mime-type" value="application/xml"/>
+            <entry key="schema" value="urn:catalog:metacard"/>
+        </service-properties>
+        <bean class="ddf.catalog.transformer.xml.XmlInputTransformer">
+            <argument ref="xmlParser"/>
+            <property name="metacardTypes">
+                <reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
+            </property>
+        </bean>
+    </service>
+
     <service interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="xml"/>
