@@ -21,6 +21,7 @@
         <feature prerequisite="true">camel-http</feature>
         <feature prerequisite="true">search-ui-app</feature>
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
+        <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
         
