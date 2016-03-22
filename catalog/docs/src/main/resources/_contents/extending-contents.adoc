@@ -3677,6 +3677,51 @@ Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice doc
 
 This input transformer maps the metadata common across all mime types to applicable metacard attributes in the default MetacardType.
 
+===== PPTX Input Transformer
+
+The PPTX Input Transformer is the input transformer responsible for translating Microsoft PowerPoint (OOXML only) documents into a Catalog Metacard. This input transformer utilizes Apache Tika
+(for basic metadata) and Apache POI (for thumbnail creation). The PPTX Input Transformer's main purpose is to ingest PPTX documents into the ${branding} Content Repository and the Metadata Catalog.
+
+The PPTX Input Transformer will take precedence over the Tika Input Transformer for PPTX documents.
+
+====== Installing and Uninstalling
+This transformer is installed by default. To install or uninstall manually, use the `catalog-transformer-pptx` feature in the ${admin-console} (https://localhost:8993/admin) under DDF Catalog -> Features.
+
+
+====== Configuring
+This transformer does not require any configuring.
+
+====== Using
+Use the PPTX Input Transformer for ingesting Microsoft PowerPoint (OOXML only) documents into the ${branding} Content Repository and/or the Metadata Catalog.
+
+====== Service Properties
+
+[cols="2,5a" options="header"]
+|===
+
+|Key
+|Value
+
+|mime-type
+|* application/vnd.openxmlformats-officedocument.presentationml.presentation
+
+|id
+|pptx
+
+|title
+|PPTX Input Transformer
+
+|description
+|Default Input Transformer for the `application/vnd.openxmlformats-officedocument.presentationml.presentation` mime type.
+
+|===
+
+====== Implementation Details
+
+This input transformer maps the metadata common across all mime types to applicable metacard attributes in the default MetacardType and adds a thumbnail of
+the first page in the PPTX document.
+
+
 ===== Video Input Transformer
 The video input transformer is responsible for creating Catalog metacards from certain video file types. Currently, it is responsible for handling MPEG-2 transport streams as well as MPEG-4, AVI, MOV, and WMV videos. This input transformer uses Apache Tika to extract basic metadata from the video files and applies more sophisticated methods to extract more meaningful metadata from these types of video.
 
