@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,24 +13,35 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
+import javax.activation.MimeType;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswUnmarshallHelper;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.GmdConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.XstreamPathConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.XstreamPathValueTracker;
 import org.slf4j.Logger;
@@ -39,8 +50,12 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.path.Path;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.StaxReader;
@@ -48,12 +63,15 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.WKTWriter;
 
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.transform.MetacardTransformer;
 
-public class GmdTransformer implements InputTransformer {
+public class GmdTransformer implements InputTransformer, MetacardTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdTransformer.class);
 
@@ -61,73 +79,7 @@ public class GmdTransformer implements InputTransformer {
 
     private static final GmdMetacardType GMD_METACARD_TYPE = new GmdMetacardType();
 
-    private static final Path FILE_IDENTIFIER_PATH = new Path(
-            "/MD_Metadata/fileIdentifier/CharacterString");
-
-    private static final Path DATE_STAMP_PATH = new Path("/MD_Metadata/dateStamp/Date");
-
-    private static final Path CODE_LIST_VALUE_PATH = new Path(
-            "/MD_Metadata/hierarchyLevel/MD_ScopeCode/@codeListValue");
-
-    private static final Path CRS_AUTHORITY_PATH = new Path(
-            "/MD_Metadata/referenceSystemInfo/MD_ReferenceSystem/referenceSystemIdentifier/RS_Identifier/codeSpace/CharacterString");
-
-    private static final Path CRS_VERSION_PATH = new Path(
-            "/MD_Metadata/referenceSystemInfo/MD_ReferenceSystem/referenceSystemIdentifier/RS_Identifier/version");
-
-    private static final Path CRS_CODE_PATH = new Path(
-            "/MD_Metadata/referenceSystemInfo/MD_ReferenceSystem/referenceSystemIdentifier/RS_Identifier/code/CharacterString");
-
-    private static final Path TITLE_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/citation/CI_Citation/title/CharacterString");
-
-    private static final Path ABSTRACT_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/abstract/CharacterString");
-
-    private static final Path FORMAT_PATH = new Path(
-            "/MD_Metadata/distributionInfo/MD_Distribution/distributionFormat/MD_Format/name/CharacterString");
-
-    private static final Path LINKAGE_URI_PATH = new Path(
-            "/MD_Metadata/distributionInfo/MD_Distribution/distributor/MD_Distributor/distributorTransferOptions/MD_DigitalTransferOptions/onLine/CI_OnlineResource/linkage/URL");
-
-    private static final Path KEYWORD_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/descriptiveKeywords/MD_Keywords/keyword/CharacterString");
-
-    private static final Path TOPIC_CATEGORY_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/topicCategory/MD_TopicCategoryCode");
-
-    private static final Path BBOX_WEST_LON_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox/westBoundLongitude/Decimal");
-
-    private static final Path BBOX_EAST_LON_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox/eastBoundLongitude/Decimal");
-
-    private static final Path BBOX_SOUTH_LAT_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox/southBoundLatitude/Decimal");
-
-    private static final Path BBOX_NORTH_LAT_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/extent/EX_Extent/geographicElement/EX_GeographicBoundingBox/northBoundLatitude/Decimal");
-
-    private static final Path POINT_OF_CONTACT_PATH = new Path(
-            "/MD_Metadata/identificationInfo/MD_DataIdentification/pointOfContact/CI_ResponsibleParty/organisationName/CharacterString");
-
-    private static final List<Path> PATHS = Arrays.asList(FILE_IDENTIFIER_PATH,
-            DATE_STAMP_PATH,
-            CODE_LIST_VALUE_PATH,
-            CRS_AUTHORITY_PATH,
-            CRS_VERSION_PATH,
-            CRS_CODE_PATH,
-            TITLE_PATH,
-            ABSTRACT_PATH,
-            FORMAT_PATH,
-            LINKAGE_URI_PATH,
-            KEYWORD_PATH,
-            TOPIC_CATEGORY_PATH,
-            BBOX_WEST_LON_PATH,
-            BBOX_EAST_LON_PATH,
-            BBOX_SOUTH_LAT_PATH,
-            BBOX_NORTH_LAT_PATH,
-            POINT_OF_CONTACT_PATH);
+    private static final String GCO_COLON = GmdMetacardType.GCO_PREFIX + ":";
 
     private static final String TRANSFORM_EXCEPTION_MSG =
             "Unable to transform from GMD Metadata to Metacard";
@@ -151,8 +103,38 @@ public class GmdTransformer implements InputTransformer {
         xstream.registerConverter(converter);
         xstream.alias("MD_Metadata", XstreamPathValueTracker.class);
         argumentHolder = xstream.newDataHolder();
-        argumentHolder.put(XstreamPathConverter.PATH_KEY, PATHS);
+        argumentHolder.put(XstreamPathConverter.PATH_KEY, buildPaths());
         xmlFactory = XMLInputFactory.newInstance();
+    }
+
+    private LinkedHashSet<Path> buildPaths() {
+        LinkedHashSet<Path> paths = new LinkedHashSet<>();
+
+        paths.add(new Path(GmdMetacardType.FILE_IDENTIFIER_PATH));
+
+        Arrays.asList(GmdMetacardType.FILE_IDENTIFIER_PATH,
+                GmdMetacardType.DATE_TIME_STAMP_PATH,
+                GmdMetacardType.DATE_STAMP_PATH,
+                GmdMetacardType.CODE_LIST_VALUE_PATH,
+                GmdMetacardType.CRS_AUTHORITY_PATH,
+                GmdMetacardType.CRS_VERSION_PATH,
+                GmdMetacardType.CRS_CODE_PATH,
+                GmdMetacardType.TITLE_PATH,
+                GmdMetacardType.ABSTRACT_PATH,
+                GmdMetacardType.FORMAT_PATH,
+                GmdMetacardType.LINKAGE_URI_PATH,
+                GmdMetacardType.KEYWORD_PATH,
+                GmdMetacardType.TOPIC_CATEGORY_PATH,
+                GmdMetacardType.BBOX_WEST_LON_PATH,
+                GmdMetacardType.BBOX_EAST_LON_PATH,
+                GmdMetacardType.BBOX_SOUTH_LAT_PATH,
+                GmdMetacardType.BBOX_NORTH_LAT_PATH,
+                GmdMetacardType.POINT_OF_CONTACT_PATH)
+                .forEach(path -> {
+                    paths.add(toPath(path));
+                });
+
+        return paths;
     }
 
     @Override
@@ -188,6 +170,46 @@ public class GmdTransformer implements InputTransformer {
         return metacard;
     }
 
+    @Override
+    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+            throws CatalogTransformerException {
+        StringWriter stringWriter = new StringWriter();
+        Boolean omitXmlDec = null;
+        if (MapUtils.isNotEmpty(arguments)) {
+            omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
+        }
+
+        if (omitXmlDec == null || !omitXmlDec) {
+            stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        }
+
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter, new NoNameCoder());
+
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        copyArgumentsToContext(context, arguments);
+
+        new GmdConverter().marshal(metacard, writer, context);
+
+        BinaryContent transformedContent;
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString()
+                .getBytes(StandardCharsets.UTF_8));
+        transformedContent = new BinaryContentImpl(bais, new MimeType());
+        return transformedContent;
+    }
+
+    private void copyArgumentsToContext(MarshallingContext context,
+            Map<String, Serializable> arguments) {
+
+        if (context == null || arguments == null) {
+            return;
+        }
+
+        for (Map.Entry<String, Serializable> entry : arguments.entrySet()) {
+            context.put(entry.getKey(), entry.getValue());
+        }
+    }
+
     private MetacardImpl toMetacard(final XstreamPathValueTracker pathValueTracker,
             final String id) {
         MetacardImpl metacard = new MetacardImpl(GMD_METACARD_TYPE);
@@ -195,7 +217,7 @@ public class GmdTransformer implements InputTransformer {
         if (StringUtils.isNotEmpty(id)) {
             metacard.setAttribute(Metacard.ID, id);
         } else {
-            metacard.setId(pathValueTracker.getPathValue(FILE_IDENTIFIER_PATH));
+            metacard.setId(pathValueTracker.getFirstValue(toPath(GmdMetacardType.FILE_IDENTIFIER_PATH)));
         }
         addMetacardDates(pathValueTracker, metacard);
 
@@ -220,22 +242,36 @@ public class GmdTransformer implements InputTransformer {
         return metacard;
     }
 
+    private Path toPath(String stringPath) {
+        return new Path(stringPath.replace(GCO_COLON, ""));
+
+    }
+
     private void addMetacardDates(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
 
-        String dateStr = pathValueTracker.getPathValue(DATE_STAMP_PATH);
-        if (StringUtils.isNotEmpty(dateStr)) {
-            Date date = CswUnmarshallHelper.convertToDate(dateStr);
-            metacard.setModifiedDate(date);
-            metacard.setCreatedDate(date);
-        }
+        String dateTimeStr =
+                pathValueTracker.getFirstValue(toPath(GmdMetacardType.DATE_TIME_STAMP_PATH));
+        String dateStr = pathValueTracker.getFirstValue(toPath(GmdMetacardType.DATE_STAMP_PATH));
 
+        Date date = new Date();
+        if (StringUtils.isNotBlank(dateTimeStr)) {
+            date = CswUnmarshallHelper.convertToDate(dateTimeStr);
+
+        } else if (StringUtils.isNotBlank(dateStr)) {
+            date = CswUnmarshallHelper.convertToDate(dateStr);
+
+        }
+        metacard.setModifiedDate(date);
+        metacard.setCreatedDate(date);
+        metacard.setEffectiveDate(date);
     }
 
     private void setPointOfContact(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
 
-        String pointOfContact = pathValueTracker.getPathValue(POINT_OF_CONTACT_PATH);
+        String pointOfContact =
+                pathValueTracker.getFirstValue(toPath(GmdMetacardType.POINT_OF_CONTACT_PATH));
         if (StringUtils.isNotEmpty(pointOfContact)) {
             metacard.setPointOfContact(pointOfContact);
             metacard.setAttribute(GmdMetacardType.GMD_PUBLISHER, pointOfContact);
@@ -246,7 +282,7 @@ public class GmdTransformer implements InputTransformer {
     private void addMetacardType(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
 
-        String type = pathValueTracker.getPathValue(CODE_LIST_VALUE_PATH);
+        String type = pathValueTracker.getFirstValue(toPath(GmdMetacardType.CODE_LIST_VALUE_PATH));
         if (StringUtils.isNotEmpty(type)) {
             metacard.setContentTypeName(type);
         }
@@ -257,18 +293,18 @@ public class GmdTransformer implements InputTransformer {
             MetacardImpl metacard) {
         StringBuilder crs = new StringBuilder();
         crs.append("urn:ogc:def:crs:");
-        crs.append(StringUtils.defaultString(pathValueTracker.getPathValue(CRS_AUTHORITY_PATH)));
+        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_AUTHORITY_PATH))));
         crs.append(COLON);
-        crs.append(StringUtils.defaultString(pathValueTracker.getPathValue(CRS_VERSION_PATH)));
+        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_VERSION_PATH))));
         crs.append(COLON);
-        crs.append(StringUtils.defaultString(pathValueTracker.getPathValue(CRS_CODE_PATH)));
+        crs.append(StringUtils.defaultString(pathValueTracker.getFirstValue(toPath(GmdMetacardType.CRS_CODE_PATH))));
         metacard.setAttribute(GmdMetacardType.GMD_CRS, crs.toString());
 
     }
 
     private void addMetacardTitle(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        String title = pathValueTracker.getPathValue(TITLE_PATH);
+        String title = pathValueTracker.getFirstValue(toPath(GmdMetacardType.TITLE_PATH));
         if (StringUtils.isNotEmpty(title)) {
             metacard.setTitle(title);
         }
@@ -276,7 +312,7 @@ public class GmdTransformer implements InputTransformer {
 
     private void addMetacardAbstract(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        String gmdAbstract = pathValueTracker.getPathValue(ABSTRACT_PATH);
+        String gmdAbstract = pathValueTracker.getFirstValue(toPath(GmdMetacardType.ABSTRACT_PATH));
         if (StringUtils.isNotEmpty(gmdAbstract)) {
             metacard.setDescription(gmdAbstract);
         }
@@ -285,7 +321,7 @@ public class GmdTransformer implements InputTransformer {
 
     private void addMetacardFormat(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        String format = pathValueTracker.getPathValue(FORMAT_PATH);
+        String format = pathValueTracker.getFirstValue(toPath(GmdMetacardType.FORMAT_PATH));
         if (StringUtils.isNotEmpty((format))) {
             metacard.setAttribute(GmdMetacardType.GMD_FORMAT, format);
         }
@@ -293,10 +329,10 @@ public class GmdTransformer implements InputTransformer {
 
     private void addMetacardResourceUri(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        String linkage = pathValueTracker.getPathValue(LINKAGE_URI_PATH);
+        String linkage = pathValueTracker.getFirstValue(toPath(GmdMetacardType.LINKAGE_URI_PATH));
         if (StringUtils.isNotEmpty(linkage)) {
             try {
-                metacard.setResourceURI(new URI(linkage));
+                metacard.setResourceURI(new URI(linkage.trim()));
             } catch (URISyntaxException e) {
                 LOGGER.info("Unable to read resource URI {}", linkage, e);
             }
@@ -307,18 +343,32 @@ public class GmdTransformer implements InputTransformer {
     private void addMetacardSubject(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
 
-        List<String> subjects = pathValueTracker.getAllValues(KEYWORD_PATH);
-        subjects.addAll(pathValueTracker.getAllValues(TOPIC_CATEGORY_PATH));
-        metacard.setAttribute(GmdMetacardType.GMD_SUBJECT, (Serializable) subjects);
+        List<String> keywords = pathValueTracker.getAllValues(toPath(GmdMetacardType.KEYWORD_PATH));
+        List<String> topics =
+                pathValueTracker.getAllValues(toPath(GmdMetacardType.TOPIC_CATEGORY_PATH));
 
+        List<String> subjects = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(keywords)) {
+            subjects.addAll(keywords);
+        }
+        if (CollectionUtils.isNotEmpty(topics)) {
+            subjects.addAll(topics);
+        }
+
+        if (subjects.size() > 0) {
+            metacard.setAttribute(GmdMetacardType.GMD_SUBJECT, (Serializable) subjects);
+
+        }
     }
 
     private void addMetacardLocation(final XstreamPathValueTracker pathValueTracker,
             MetacardImpl metacard) {
-        String westLon = pathValueTracker.getPathValue(BBOX_WEST_LON_PATH);
-        String eastLon = pathValueTracker.getPathValue(BBOX_EAST_LON_PATH);
-        String southLat = pathValueTracker.getPathValue(BBOX_SOUTH_LAT_PATH);
-        String northLat = pathValueTracker.getPathValue(BBOX_NORTH_LAT_PATH);
+        String westLon = pathValueTracker.getFirstValue(toPath(GmdMetacardType.BBOX_WEST_LON_PATH));
+        String eastLon = pathValueTracker.getFirstValue(toPath(GmdMetacardType.BBOX_EAST_LON_PATH));
+        String southLat =
+                pathValueTracker.getFirstValue(toPath(GmdMetacardType.BBOX_SOUTH_LAT_PATH));
+        String northLat =
+                pathValueTracker.getFirstValue(toPath(GmdMetacardType.BBOX_NORTH_LAT_PATH));
 
         if (westLon != null && eastLon != null && southLat != null && northLat != null) {
             WKTWriter wktWriter = new WKTWriter();

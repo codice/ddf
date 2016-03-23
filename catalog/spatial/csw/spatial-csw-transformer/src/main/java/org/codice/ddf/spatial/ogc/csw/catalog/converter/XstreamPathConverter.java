@@ -13,7 +13,7 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -47,7 +47,7 @@ public class XstreamPathConverter implements Converter {
             throws ConversionException {
 
         XstreamPathValueTracker pathValueTracker = new XstreamPathValueTracker();
-        pathValueTracker.buildPaths((List<Path>) context.get(PATH_KEY));
+        pathValueTracker.buildPaths((LinkedHashSet<Path>) context.get(PATH_KEY));
 
         if (pathValueTracker != null) {
 
@@ -77,7 +77,7 @@ public class XstreamPathConverter implements Converter {
      * </a>
      * <d></d>
      * {code}
-     *  @param reader
+     * @param reader
      * @param tracker
      * @param pathValueTracker
      */

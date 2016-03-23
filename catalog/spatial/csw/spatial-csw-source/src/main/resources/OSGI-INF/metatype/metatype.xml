@@ -52,7 +52,8 @@
             default="false"/>
 
         <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
-            name="Metacard Mappings" id="metacardMappings" required="false" type="String" cardinality="100"
+            name="Metacard Mappings" id="metacardMappings" required="false" type="String"
+            cardinality="100"
             default="effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source">
         </AD>
 
@@ -144,7 +145,8 @@
             default="false"/>
 
         <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
-            name="Metacard Mappings" id="metacardMappings" required="false" type="String" cardinality="100"
+            name="Metacard Mappings" id="metacardMappings" required="false" type="String"
+            cardinality="100"
             default="effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source">
         </AD>
 
@@ -193,7 +195,8 @@
         </AD>
     </OCD>
 
-    <OCD name="GMD CSW Federated Source" id="Gmd_Csw_Federated_Source" description="GMD CSW Federated Source">
+    <OCD name="GMD CSW Federated Source" id="Gmd_Csw_Federated_Source"
+         description="CSW Federated Source using the Geographic MetaData (GMD) format (ISO 19115:2003)">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
             type="String"/>
@@ -222,8 +225,9 @@
             default="false"/>
 
         <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
-            name="Metacard Mappings" id="metacardMappings" required="false" type="String" cardinality="100"
-            default="effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox">
+            name="Metacard Mappings" id="metacardMappings" required="false" type="String"
+            cardinality="100"
+            default="id=apiso:Identifier,effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox">
         </AD>
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."

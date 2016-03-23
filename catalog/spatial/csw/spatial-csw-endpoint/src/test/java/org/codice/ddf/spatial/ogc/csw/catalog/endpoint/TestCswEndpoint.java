@@ -658,7 +658,7 @@ public class TestCswEndpoint {
     public void testPostDescribeRecordRequestGMDTypePassed() {
         DescribeRecordType drt = createDefaultDescribeRecordType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, CswConstants.GMD_RECORD_LOCAL_NAME, CswConstants.GMD_PREFIX));
+        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME, GmdMetacardType.GMD_PREFIX));
         drt.setTypeName(typeNames);
         DescribeRecordResponseType drrt = null;
 
@@ -1093,7 +1093,7 @@ public class TestCswEndpoint {
         grr.setResultType(ResultType.RESULTS);
         QueryType query = new QueryType();
         List<QName> typeNames = new ArrayList<>();
-        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, CswConstants.GMD_RECORD_LOCAL_NAME, CswConstants.GMD_PREFIX));
+        typeNames.add(new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME, GmdMetacardType.GMD_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
         constraint.setCqlText(GMD_CONTEXTUAL_LIKE_QUERY);
@@ -1970,7 +1970,7 @@ public class TestCswEndpoint {
                             assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
                         } else {
                             assertThat(parameter.getValue(), hasItems(CswConstants.CSW_RECORD,
-                                    CswConstants.GMD_METADATA_TYPE));
+                                    GmdMetacardType.GMD_METACARD_TYPE_NAME));
                         }
                     }
                 }

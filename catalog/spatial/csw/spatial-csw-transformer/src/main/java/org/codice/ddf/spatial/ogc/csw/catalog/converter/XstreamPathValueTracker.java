@@ -13,24 +13,35 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import org.apache.commons.collections.CollectionUtils;
 
 import com.thoughtworks.xstream.io.path.Path;
 
 public class XstreamPathValueTracker {
 
-    private MultivaluedMap<Path, String> pathMap = new MultivaluedHashMap<>();
+    private LinkedHashMap<Path, List<String>> pathMap = new LinkedHashMap<>();
 
-    public void buildPaths(List<Path> paths) {
-        paths.forEach(path -> pathMap.add(path, null));
+    public void buildPaths(LinkedHashSet<Path> paths) {
+        paths.forEach(path -> pathMap.put(path, null));
     }
 
-    public String getPathValue(Path key) {
-        return pathMap.getFirst(key);
+    public String getFirstValue(Path key) {
+
+        if (key != null) {
+            List<String> value = pathMap.get(key);
+            if (CollectionUtils.isNotEmpty(value)) {
+                return value.get(0);
+            }
+
+        }
+        return null;
     }
 
     public List<String> getAllValues(Path key) {
@@ -41,8 +52,23 @@ public class XstreamPathValueTracker {
         return pathMap.keySet();
     }
 
+    public void add(Path key, List<String> value) {
+
+        if (key != null) {
+            List<String> originalValue = pathMap.get(key);
+            if (originalValue == null) {
+                pathMap.put(key, value);
+            } else {
+                List<String> joinedList = new ArrayList<>(originalValue);
+                joinedList.addAll(value);
+                pathMap.put(key, joinedList);
+            }
+        }
+    }
+
     public void add(Path key, String value) {
-        pathMap.add(key, value);
+
+        this.add(key, Arrays.asList(value));
     }
 
 }

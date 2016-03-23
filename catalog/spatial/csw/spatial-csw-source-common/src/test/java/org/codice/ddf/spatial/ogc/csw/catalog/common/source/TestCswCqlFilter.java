@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,9 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -742,21 +740,6 @@ public class TestCswCqlFilter {
     }
 
     @Test
-    public void testPropertyIsEqualToStringLiteralNonQueryableProperty()
-            throws UnsupportedQueryException {
-        /**
-         * See CswRecordMetacardType.java for queryable and non-queryable properties.
-         */
-        String nonQueryableProperty = Metacard.METADATA;
-        FilterType filterType = cswFilterDelegate.propertyIsEqualTo(nonQueryableProperty,
-                stringLiteral,
-                isCaseSensitive);
-        String cqlText = CswCqlTextFilter.getInstance()
-                .getCqlText(filterType);
-        assertThat(cqlText, equalTo(propertyIsEqualToAnyText));
-    }
-
-    @Test
     public void testPropertyIsEqualToStringLiteralType() throws UnsupportedQueryException {
         FilterType filterType = cswFilterDelegate.propertyIsEqualTo(Metacard.CONTENT_TYPE,
                 contentTypeLiteral,
@@ -1293,9 +1276,8 @@ public class TestCswCqlFilter {
 
     @Test
     public void testFeatureId() throws UnsupportedQueryException {
-        FilterType filter = cswFilterDelegate.propertyIsEqualTo(Metacard.ID,
-                String.valueOf(CSW_RECORD_ID),
-                false);
+        FilterType filter = cswFilterDelegate.propertyIsEqualTo(Metacard.ID, String.valueOf(
+                CSW_RECORD_ID), false);
 
         String cqlText = CswCqlTextFilter.getInstance()
                 .getCqlText(filter);

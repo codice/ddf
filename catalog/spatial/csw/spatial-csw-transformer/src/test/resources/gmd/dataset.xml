@@ -476,7 +476,7 @@
 					<onLine>
 						<CI_OnlineResource>
 							<linkage>
-								<URL>http://...</URL>
+								<URL>http:/example.com/linkage</URL>
 							</linkage>
 						</CI_OnlineResource>
 					</onLine>

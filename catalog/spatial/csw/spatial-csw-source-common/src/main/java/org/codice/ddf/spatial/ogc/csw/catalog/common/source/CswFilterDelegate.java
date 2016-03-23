@@ -1176,9 +1176,6 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     protected String mapPropertyName(String propertyName) {
-        if (isContentTypeVersion(propertyName)){
-            return null;
-        }
         if (isAnyText(propertyName) || isMetadata(propertyName)) {
             propertyName = CswConstants.ANY_TEXT;
         } else if (isAnyGeo(propertyName)) {
@@ -1396,19 +1393,6 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             globalGeometryOperands = geometryOperandsType.getGeometryOperand();
             LOGGER.debug("globalGeometryOperands: {}", globalGeometryOperands);
         }
-    }
-
-    protected boolean isPropertyQueryable(String propertyName) {
-        if (propertyName != null && (propertyName.equalsIgnoreCase(CswConstants.ANY_TEXT) || (
-                metacardType.getAttributeDescriptor(propertyName) != null
-                        && metacardType.getAttributeDescriptor(propertyName)
-                        .isIndexed()))) {
-            LOGGER.debug("Property [{}] is queryable.", propertyName);
-            return true;
-        }
-
-        LOGGER.debug("Property [{}]  is NOT queryable.", propertyName);
-        return false;
     }
 
     public GeometryOperandsType getGeoOpsForSpatialOp(SpatialOperatorNameType name) {

@@ -202,6 +202,31 @@ public class TestCswSourceBase {
                     + "    </Query>" // Line break
                     + "</GetRecords>";
 
+    protected String getRecordsControlXml202ConteTypeAndVersion =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                    + "<csw:GetRecords xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                    + "    xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\"\n"
+                    + "    xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/\"\n"
+                    + "    xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:ows=\"http://www.opengis.net/ows\"\n"
+                    + "    xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\"\n"
+                    + "    resultType=\"results\" outputFormat=\"application/xml\"\n"
+                    + "    outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\" maxRecords=\"10\"\n"
+                    + "    service=\"CSW\" version=\"2.0.2\">\n"
+                    + "    <csw:Query typeNames=\"csw:Record\">\n"
+                    + "        <csw:ElementSetName>full</csw:ElementSetName>\n"
+                    + "        <csw:Constraint version=\"1.1.0\">\n" + "            <ogc:Filter>\n"
+                    + "                <ogc:And>\n"
+                    + "                    <ogc:PropertyIsEqualTo matchCase=\"true\">\n"
+                    + "                        <ogc:PropertyName>"+CswRecordMetacardType.CSW_FORMAT+"</ogc:PropertyName>\n"
+                    + "                        <ogc:Literal>myContentType</ogc:Literal>\n"
+                    + "                    </ogc:PropertyIsEqualTo>\n"
+                    + "                    <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">\n"
+                    + "                        <ogc:PropertyName>metadata-content-type-version</ogc:PropertyName>\n"
+                    + "                        <ogc:Literal>2.0</ogc:Literal>\n"
+                    + "                    </ogc:PropertyIsLike>\n" + "                </ogc:And>\n"
+                    + "            </ogc:Filter>\n" + "        </csw:Constraint>\n"
+                    + "    </csw:Query>\n" + "</csw:GetRecords>";
+
     @BeforeClass
     public static void init() {
         // The magic setting - besides ignoring whitespace, this setting configures XMLUnit to

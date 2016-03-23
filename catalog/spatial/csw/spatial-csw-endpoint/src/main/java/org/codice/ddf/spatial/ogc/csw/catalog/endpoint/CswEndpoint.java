@@ -222,7 +222,7 @@ public class CswEndpoint implements Csw {
             "Unable to retrieve product for ID: %s";
 
     private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
-            CswConstants.GMD_METADATA_TYPE);
+            GmdMetacardType.GMD_METACARD_TYPE_NAME);
 
     private static Map<String, Element> documentElements = new HashMap<>();
 
@@ -862,7 +862,7 @@ public class CswEndpoint implements Csw {
             }
 
             if (types.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
-                    CswConstants.GMD_RECORD_LOCAL_NAME))) {
+                    GmdMetacardType.GMD_LOCAL_NAME))) {
                 schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
             }
         }
