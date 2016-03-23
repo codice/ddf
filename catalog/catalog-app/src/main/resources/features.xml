@@ -49,9 +49,7 @@
         <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-        <bundle dependency="true">
-            mvn:commons-collections/commons-collections/${commons-collections.version}
-        </bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-federationstrategy/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
         <bundle>mvn:ddf.catalog.core/ddf-pubsub/${project.version}</bundle>
@@ -180,7 +178,7 @@
 
     <feature name="catalog-plugin-federationreplication" install="manual"
              version="${project.version}" description="">
-        <feature prerequisite="true">catalog-app</feature>
+            <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
     </feature>
 
@@ -308,20 +306,16 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-policyplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-security-metacardattributeplugin" install="auto"
-             version="${project.version}"
+    <feature name="catalog-security-metacardattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog Metacard Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
-        <bundle>
-            mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}
-        </bundle>
+        <bundle>mvn:ddf.catalog.security/catalog-security-metacardattributeplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-xmlattributeplugin" install="auto" version="${project.version}"
              description="DDF Catalog XML Attribute Policy Plugin">
         <feature prerequisite="true">security-pdp-authz</feature>
-        <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}
-        </bundle>
+        <bundle>mvn:ddf.catalog.security/catalog-security-xmlattributeplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-admin-module-sources" install="auto" version="${project.version}"
@@ -333,11 +327,14 @@
     <feature name="catalog-registry" install="manual" version="${project.version}"
              description="DDF Registry">
         <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-api/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-schema-bindings/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-policyplugin/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}
-        </bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-identificationplugin/${project.version}
-        </bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-identificationplugin/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminservice/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminserviceimpl/${project.version}</bundle>
+
     </feature>
 
     <feature name="catalog-transformer-streaming" install="manual" version="${project.version}"
@@ -352,8 +349,7 @@
     <feature name="catalog-plugin-metacard-validation" install="manual" version="${project.version}"
              description="DDF Metacard Validator Plugins">
         <feature prerequisite="true">catalog-app</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}
-        </bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-pdf" install="auto" version="${project.version}"
@@ -369,5 +365,5 @@
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
-
+    
 </features>

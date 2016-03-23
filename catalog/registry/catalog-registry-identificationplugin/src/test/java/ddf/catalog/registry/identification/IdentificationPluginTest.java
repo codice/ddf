@@ -37,11 +37,11 @@ import org.junit.Test;
 import com.google.common.base.Charsets;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
-import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
-import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -53,7 +53,7 @@ public class IdentificationPluginTest {
 
     private ParserConfigurator configurator;
 
-    private RegistryMetacardImpl sampleData;
+    private MetacardImpl sampleData;
 
     @Before
     public void setUp() {
@@ -61,7 +61,7 @@ public class IdentificationPluginTest {
         idp = new IdentificationPlugin();
         idp.setParser(parser);
         setParser(parser);
-        sampleData = new RegistryMetacardImpl();
+        sampleData = new MetacardImpl();
         sampleData.setId("testNewMetacardId");
         sampleData.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, "testNewRegistryId");
         Set<String> tags = new HashSet<>();

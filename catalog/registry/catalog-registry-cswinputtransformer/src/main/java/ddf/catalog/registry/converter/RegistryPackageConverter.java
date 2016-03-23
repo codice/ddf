@@ -13,9 +13,8 @@
  **/
 package ddf.catalog.registry.converter;
 
-import static org.joda.time.format.ISODateTimeFormat.dateOptionalTimeParser;
-
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,9 +41,9 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
-import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
-import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
@@ -100,7 +99,7 @@ public class RegistryPackageConverter {
 
     public static Metacard getRegistryObjectMetacard(RegistryObjectType registryObject)
             throws RegistryConversionException {
-        RegistryMetacardImpl metacard = null;
+        MetacardImpl metacard = null;
 
         if (registryObject == null) {
             return metacard;
@@ -108,7 +107,7 @@ public class RegistryPackageConverter {
 
         validateIdentifiable(registryObject);
 
-        metacard = new RegistryMetacardImpl(new RegistryObjectMetacardType());
+        metacard = new MetacardImpl(new RegistryObjectMetacardType());
 
         parseTopLevel(registryObject, metacard);
 
@@ -130,7 +129,7 @@ public class RegistryPackageConverter {
     }
 
     private static void parseRegistryObjectList(RegistryObjectListType registryObjects,
-            RegistryMetacardImpl metacard) throws RegistryConversionException {
+            MetacardImpl metacard) throws RegistryConversionException {
         Map<String, Set<String>> associations = new HashMap<>();
         Map<String, RegistryObjectType> registryIds = new HashMap<>();
         List<OrganizationType> orgs = new ArrayList<>();
@@ -188,7 +187,7 @@ public class RegistryPackageConverter {
     }
 
     private static void parseRegistryOrganization(OrganizationType organization,
-            RegistryMetacardImpl metacard) throws RegistryConversionException {
+            MetacardImpl metacard) throws RegistryConversionException {
 
         validateIdentifiable(organization);
 
@@ -226,13 +225,13 @@ public class RegistryPackageConverter {
     }
 
     private static void parseRegistryPackage(RegistryPackageType registryPackage,
-            RegistryMetacardImpl metacard) throws RegistryConversionException {
+            MetacardImpl metacard) throws RegistryConversionException {
         if (registryPackage.isSetRegistryObjectList()) {
             parseRegistryObjectList(registryPackage.getRegistryObjectList(), metacard);
         }
     }
 
-    private static void parseRegistryPerson(PersonType person, RegistryMetacardImpl metacard)
+    private static void parseRegistryPerson(PersonType person, MetacardImpl metacard)
             throws RegistryConversionException {
 
         validateIdentifiable(person);
@@ -280,7 +279,7 @@ public class RegistryPackageConverter {
 
     }
 
-    private static void parseRegistryService(ServiceType service, RegistryMetacardImpl metacard)
+    private static void parseRegistryService(ServiceType service, MetacardImpl metacard)
             throws RegistryConversionException {
 
         validateIdentifiable(service);
@@ -340,7 +339,7 @@ public class RegistryPackageConverter {
     }
 
     private static void parseNodeExtrinsicObject(RegistryObjectType registryObject,
-            RegistryMetacardImpl metacard) throws RegistryConversionException {
+            MetacardImpl metacard) throws RegistryConversionException {
         if (CollectionUtils.isNotEmpty(registryObject.getSlot())) {
             Map<String, SlotType1> slotMap = getSlotMap(registryObject.getSlot());
 
@@ -375,8 +374,8 @@ public class RegistryPackageConverter {
         }
     }
 
-    private static void parseTopLevel(RegistryObjectType registryObject,
-            RegistryMetacardImpl metacard) throws RegistryConversionException {
+    private static void parseTopLevel(RegistryObjectType registryObject, MetacardImpl metacard)
+            throws RegistryConversionException {
 
         if (registryObject.isSetId()) {
             metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_ID, registryObject.getId());
@@ -424,7 +423,7 @@ public class RegistryPackageConverter {
         }
     }
 
-    private static boolean isAttributeMultiValued(String attribute, RegistryMetacardImpl metacard) {
+    private static boolean isAttributeMultiValued(String attribute, MetacardImpl metacard) {
         boolean multiValued = false;
         AttributeDescriptor descriptor = metacard.getMetacardType()
                 .getAttributeDescriptor(attribute);
@@ -451,7 +450,7 @@ public class RegistryPackageConverter {
     }
 
     private static void setMetacardAddressAttribute(List<PostalAddressType> addresses,
-            String metacardAttribute, RegistryMetacardImpl metacard) {
+            String metacardAttribute, MetacardImpl metacard) {
         if (CollectionUtils.isNotEmpty(addresses)) {
             PostalAddressType address = addresses.get(0);
 
@@ -469,14 +468,14 @@ public class RegistryPackageConverter {
     }
 
     private static void setMetacardStringAttribute(String value, String metacardAttribute,
-            RegistryMetacardImpl metacard) {
+            MetacardImpl metacard) {
         if (StringUtils.isNotBlank(value)) {
             metacard.setAttribute(metacardAttribute, value);
         }
     }
 
     private static void setMetacardEmailAttribute(List<EmailAddressType> emailAddresses,
-            String metacardAttribute, RegistryMetacardImpl metacard) {
+            String metacardAttribute, MetacardImpl metacard) {
         List<String> metacardEmailAddresses = new ArrayList<>();
 
         for (EmailAddressType email : emailAddresses) {
@@ -490,7 +489,7 @@ public class RegistryPackageConverter {
     }
 
     private static void setMetacardPhoneNumberAttribute(List<TelephoneNumberType> phoneNumbers,
-            String metacardAttribute, RegistryMetacardImpl metacard) {
+            String metacardAttribute, MetacardImpl metacard) {
         List<String> metacardPhoneNumbers = new ArrayList<>();
 
         for (TelephoneNumberType digits : phoneNumbers) {
@@ -512,8 +511,7 @@ public class RegistryPackageConverter {
     }
 
     private static void setAttributeFromMap(String metacardAttributeName,
-            Map<String, SlotType1> map, RegistryMetacardImpl metacard)
-            throws RegistryConversionException {
+            Map<String, SlotType1> map, MetacardImpl metacard) throws RegistryConversionException {
         String xmlAttributeName = METACARD_XML_NAME_MAP.get(metacardAttributeName);
 
         if (map.containsKey(xmlAttributeName)) {
@@ -547,7 +545,7 @@ public class RegistryPackageConverter {
     }
 
     private static void setSlotStringAttribute(SlotType1 slot, String metacardAttributeName,
-            RegistryMetacardImpl metacard) {
+            MetacardImpl metacard) {
         List<String> stringAttributes = getSlotStringAttributes(slot);
 
         if (isAttributeMultiValued(metacardAttributeName, metacard)) {
@@ -568,8 +566,8 @@ public class RegistryPackageConverter {
                 List<String> values = valueList.getValue();
 
                 for (String dateString : values) {
-                    Date date = dateOptionalTimeParser().parseDateTime(dateString)
-                            .toDate();
+                    Date date = Date.from(ZonedDateTime.parse(dateString)
+                            .toInstant());
                     if (date != null) {
                         dates.add(date);
                     }
@@ -581,7 +579,7 @@ public class RegistryPackageConverter {
     }
 
     private static void setSlotDateAttribute(SlotType1 slot, String metacardAttributeName,
-            RegistryMetacardImpl metacard) {
+            MetacardImpl metacard) {
         List<Date> dates = getSlotDateAttributes(slot);
 
         if (CollectionUtils.isNotEmpty(dates)) {
@@ -620,7 +618,7 @@ public class RegistryPackageConverter {
     }
 
     private static void setSlotGeoAttribute(SlotType1 slot, String metacardAttributeName,
-            RegistryMetacardImpl metacard) throws RegistryConversionException {
+            MetacardImpl metacard) throws RegistryConversionException {
         if (slot.isSetValueList()) {
             net.opengis.cat.wrs.v_1_0_2.ValueListType valueList =
                     (net.opengis.cat.wrs.v_1_0_2.ValueListType) slot.getValueList()
@@ -693,8 +691,7 @@ public class RegistryPackageConverter {
         return stringValue;
     }
 
-    private static void unsetMetacardAttribute(String metacardAttribute,
-            RegistryMetacardImpl metacard) {
+    private static void unsetMetacardAttribute(String metacardAttribute, MetacardImpl metacard) {
         if (StringUtils.isNotBlank(metacardAttribute)) {
             metacard.setAttribute(metacardAttribute, null);
         }

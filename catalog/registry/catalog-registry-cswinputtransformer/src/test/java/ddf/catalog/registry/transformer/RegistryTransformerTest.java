@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.joda.time.format.ISODateTimeFormat.dateOptionalTimeParser;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -26,6 +25,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -43,8 +43,8 @@ import org.mockito.Mockito;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
-import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -115,10 +115,11 @@ public class RegistryTransformerTest {
 
     @Test
     public void testBasicInfo() throws Exception {
-        RegistryMetacardImpl meta = convert("/csw-basic-info.xml");
+        MetacardImpl meta = convert("/csw-basic-info.xml");
         assertRegistryMetacard(meta);
 
-        assertThat(meta.getAttribute(RegistryObjectMetacardType.REGISTRY_ID).getValue(), is("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
+                .getValue(), is("urn:uuid:2014ca7f59ac46f495e32b4a67a51276"));
         assertThat(meta.getTitle(), is("my service"));
         assertThat(meta.getDescription(), is("something"));
         assertThat(meta.getContentTypeVersion(), is("0.0.0"));
@@ -126,13 +127,17 @@ public class RegistryTransformerTest {
 
     @Test
     public void testOrgInfo() throws Exception {
-        RegistryMetacardImpl meta = convert("/csw-org-info.xml");
+        MetacardImpl meta = convert("/csw-org-info.xml");
         assertRegistryMetacard(meta);
 
-        assertThat(meta.getOrgName(), is("Codice"));
-        assertThat(meta.getOrgAddress(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
-        assertThat(meta.getOrgPhoneNumber(), is("(555) 555-5555 extension 1234"));
-        assertThat(meta.getOrgEmail(), is("emailaddress@something.com"));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME)
+                .getValue(), is("Codice"));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS)
+                .getValue(), is("1234 Some Street, Phoenix, AZ 85037, USA"));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER)
+                .getValue(), is("(555) 555-5555 extension 1234"));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL)
+                .getValue(), is("emailaddress@something.com"));
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -174,14 +179,14 @@ public class RegistryTransformerTest {
 
     @Test
     public void testServiceWithMinimumBinding() throws Exception {
-        RegistryMetacardImpl m = convert("/valid-federation-min-service.xml");
+        MetacardImpl m = convert("/valid-federation-min-service.xml");
         assertThat(m.getAttribute(RegistryObjectMetacardType.SERVICE_BINDING_TYPES)
                 .getValue(), is("csw"));
     }
 
     @Test
     public void testServiceWithMultipleBindings() throws Exception {
-        RegistryMetacardImpl m = convert("/valid-federation-multiple-service.xml");
+        MetacardImpl m = convert("/valid-federation-multiple-service.xml");
         List<Serializable> serviceBindingTypes =
                 m.getAttribute(RegistryObjectMetacardType.SERVICE_BINDING_TYPES)
                         .getValues();
@@ -217,7 +222,7 @@ public class RegistryTransformerTest {
 
     @Test
     public void testLastUpdated() throws Exception {
-        RegistryMetacardImpl m = convert("/csw-last-updated.xml");
+        MetacardImpl m = convert("/csw-last-updated.xml");
         String utc = m.getModifiedDate()
                 .toInstant()
                 .toString();
@@ -231,7 +236,7 @@ public class RegistryTransformerTest {
 
     @Test
     public void testPersonNoExtension() throws Exception {
-        RegistryMetacardImpl metacard = convert("/csw-person-info.xml");
+        MetacardImpl metacard = convert("/csw-person-info.xml");
 
         assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
                 .getValue(), is("Vito Andolini, (999) 555-2368, godfather@mafia.com"));
@@ -239,7 +244,7 @@ public class RegistryTransformerTest {
 
     @Test
     public void testServiceBindingWithMultipleTypes() throws Exception {
-        RegistryMetacardImpl metacard = convert("/binding-service-multiple-types.xml");
+        MetacardImpl metacard = convert("/binding-service-multiple-types.xml");
 
         List<Serializable> serializableList =
                 metacard.getAttribute(RegistryObjectMetacardType.SERVICE_BINDING_TYPES)
@@ -251,25 +256,25 @@ public class RegistryTransformerTest {
 
     @Test
     public void testFullRegistryPackage() throws Exception {
-        RegistryMetacardImpl metacard = convert("/csw-full-registry-package.xml");
+        MetacardImpl metacard = convert("/csw-full-registry-package.xml");
 
-        Date date = dateOptionalTimeParser().parseDateTime("2015-06-01T13:15:30Z")
-                .toDate();
+        Date date = Date.from(ZonedDateTime.parse("2015-11-01T06:15:30-07:00")
+                .toInstant());
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.LIVE_DATE)
                 .getValue(), is(date));
 
-        date = dateOptionalTimeParser().parseDateTime("2015-11-01T13:15:30Z")
-                .toDate();
+        date = Date.from(ZonedDateTime.parse("2015-11-01T13:15:30Z")
+                .toInstant());
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.DATA_START_DATE)
                 .getValue(), is(date));
 
-        date = dateOptionalTimeParser().parseDateTime("2015-12-01T23:01:40Z")
-                .toDate();
+        date = Date.from(ZonedDateTime.parse("2015-12-01T23:01:40Z")
+                .toInstant());
         assertThat(metacard.getAttribute(RegistryObjectMetacardType.DATA_END_DATE)
                 .getValue(), is(date));
 
-        date = dateOptionalTimeParser().parseDateTime("2016-01-26T17:16:34.996Z")
-                .toDate();
+        date = Date.from(ZonedDateTime.parse("2016-01-26T17:16:34.996Z")
+                .toInstant());
         assertThat(metacard.getAttribute(Metacard.MODIFIED)
                 .getValue(), is(date));
 
@@ -332,24 +337,28 @@ public class RegistryTransformerTest {
 
     @Test
     public void testMultipleOrgsOneEmpty() throws Exception {
-        RegistryMetacardImpl meta = convert("/multiple-org-one-empty-wrapped.xml");
+        MetacardImpl meta = convert("/multiple-org-one-empty-wrapped.xml");
         assertRegistryMetacard(meta);
 
-        assertThat(meta.getOrgName(), is(nullValue()));
-        assertThat(meta.getOrgAddress(), is(nullValue()));
-        assertThat(meta.getOrgPhoneNumber(), is(nullValue()));
-        assertThat(meta.getOrgEmail(), is(nullValue()));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_NAME),
+                is(nullValue()));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_ADDRESS),
+                is(nullValue()));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_PHONE_NUMBER),
+                is(nullValue()));
+        assertThat(meta.getAttribute(RegistryObjectMetacardType.ORGANIZATION_EMAIL),
+                is(nullValue()));
     }
 
     @Test
     public void testMultiplePersonsOneEmpty() throws Exception {
-        RegistryMetacardImpl meta = convert("/multiple-person-one-empty-wrapped.xml");
+        MetacardImpl meta = convert("/multiple-person-one-empty-wrapped.xml");
         assertRegistryMetacard(meta);
 
         assertThat(meta.getPointOfContact(), is("no name, no telephone number, no email address"));
     }
 
-    private RegistryMetacardImpl convert(String path) throws Exception {
-        return (RegistryMetacardImpl) rit.transform(getClass().getResourceAsStream(path));
+    private MetacardImpl convert(String path) throws Exception {
+        return (MetacardImpl) rit.transform(getClass().getResourceAsStream(path));
     }
 }

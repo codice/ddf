@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.registry.common.metacard;
+package ddf.catalog.registry.api.metacard;
 
 import java.util.Set;
 
@@ -65,6 +65,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String REGISTRY_ID = "registry-id";
 
+    public static final String REGISTRY_IDENTITY_NODE = "registry-identity-node";
+
     public RegistryObjectMetacardType() {
         this(REGISTRY_METACARD_TYPE_NAME, null);
     }
@@ -103,6 +105,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(SERVICE_BINDINGS, true);
         addQueryableString(SERVICE_BINDING_TYPES, true);
         addQueryableString(REGISTRY_ID, false);
+        addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
     }
 
     /**
@@ -124,6 +127,17 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
      */
     public void addQueryableDate(String name) {
         addDescriptor(name, true, false, BasicTypes.DATE_TYPE);
+    }
+
+    /**
+     * Method to add a queryable boolean to the descriptors of this metacard type. Can be used to
+     * dynamically add additional descriptors to the base set.
+     *
+     * @param name Name of the descriptor
+     * @param multivalued Whether or not this descriptor represents several values (true) or one value (false)
+     */
+    public void addQueryableBoolean(String name, boolean multivalued) {
+        addDescriptor(name, true, multivalued, BasicTypes.BOOLEAN_TYPE);
     }
 
     /**

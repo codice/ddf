@@ -25,7 +25,7 @@
     <artifactId>catalog-registry-schema-bindings</artifactId>
     <name>DDF :: Catalog :: Registry :: Schema Bindings</name>
 
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <dependencies>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -55,6 +55,11 @@
             <artifactId>spatial-csw-schema-bindings</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>0.6.0</version>
         </dependency>
     </dependencies>
 
@@ -114,6 +119,29 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Embed-Dependency>
+                            jaxb2-basics-runtime
+                        </Embed-Dependency>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Export-Package>
+                            oasis.names.tc.ebxml_regrep.xsd.rim._3
+                            ,net.opengis.ogc
+                            ,net.opengis.cat.wrs.v_1_0_2
+                        </Export-Package>
+                        <Private-Package>
+                            net.opengis.filter.v_1_1_0,
+                            org.w3._1999.xlink
+                        </Private-Package>
+                    </instructions>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

@@ -35,4 +35,8 @@ public class RegistryConstants {
     //classifications
     public static final String REGISTRY_METACARD_ID_CLASS = "MetacardId";
     public static final String REGISTRY_ASSOCIATION_CLASS = "RelatedTo";
+
+    //xml slot names
+    public static final String XML_LIVE_DATE_NAME = "liveDate";
+    public static final String XML_LAST_UPDATED_NAME = "lastUpdated";
 }
