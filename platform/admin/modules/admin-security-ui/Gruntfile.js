@@ -182,9 +182,9 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
-    grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
-    grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
+    //grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
+    //grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
+    //grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
 
     grunt.registerTask('build', ['bower-offline-install', 'sed', 'less',
         'cssmin', 'jshint']);
