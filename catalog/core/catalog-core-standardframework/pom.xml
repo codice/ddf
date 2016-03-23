@@ -355,7 +355,11 @@
                             org.w3c.dom,
                             org.xml.sax,
                             org.xml.sax.ext,
-                            org.xml.sax.helpers
+                            org.xml.sax.helpers,
+                            org.geotools.geometry.jts.spatialschema.geometry.geometry,
+                            org.geotools.geometry.jts.spatialschema.geometry.primitive,
+                            org.geotools.geometry.jts.spatialschema,
+                            org.geotools.geometry.jts.spatialschema.geometry.aggregate
                         </Import-Package>
                     </instructions>
                 </configuration>
