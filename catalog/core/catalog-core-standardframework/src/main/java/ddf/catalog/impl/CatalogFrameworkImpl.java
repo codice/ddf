@@ -716,7 +716,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(size)));
         }
 
-        if (generatedMetacard.getTitle() == null) {
+        if (StringUtils.isBlank(generatedMetacard.getTitle())) {
             generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, fileName));
         }
 
