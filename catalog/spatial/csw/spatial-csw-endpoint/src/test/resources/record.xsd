@@ -4,7 +4,7 @@ Copyright © 1994-2012 Open Geospatial Consortium, Inc.
 
 Apr 1, 2014: Modified record.xsd for testing purposes:
  - removed imports
- - remoted ows:BoundingBox elemtent
+ - removed ows:BoundingBox element
 -->
 <xsd:schema xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"

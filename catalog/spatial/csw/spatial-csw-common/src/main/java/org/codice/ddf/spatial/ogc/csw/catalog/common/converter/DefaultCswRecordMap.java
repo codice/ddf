@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.Metacard;
@@ -75,9 +76,16 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_ABSTRACT, Metacard.DESCRIPTION);
         localNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION, Metacard.DESCRIPTION);
 
+        // GMD TYPES
+        localNameMap.put(GmdMetacardType.GMD_REVISION_DATE, Metacard.MODIFIED);
+        localNameMap.put(GmdMetacardType.GMD_ALTERNATE_TITLE, Metacard.TITLE);
+        localNameMap.put(GmdMetacardType.GMD_CREATION_DATE, Metacard.CREATED);
+        localNameMap.put(GmdMetacardType.GMD_PUBLICATION_DATE, Metacard.EFFECTIVE);
+        localNameMap.put(GmdMetacardType.GMD_ORGANIZATION_NAME, Metacard.POINT_OF_CONTACT);
+
         CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
 
-        Map<QName, String> qNameMap = new HashMap<QName, String>();
+        Map<QName, String> qNameMap = new HashMap<>();
 
         qNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER_QNAME, Metacard.ID);
         qNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Metacard.ID);
@@ -101,34 +109,43 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_TABLE_OF_CONTENTS_QNAME, Metacard.DESCRIPTION);
         qNameMap.put(CswRecordMetacardType.CSW_DESCRIPTION_QNAME, Metacard.DESCRIPTION);
 
+        // GMD TYPES
+        qNameMap.put(GmdMetacardType.GMD_REVISION_DATE_QNAME, Metacard.MODIFIED);
+        qNameMap.put(GmdMetacardType.GMD_ALTERNATE_TITLE_QNAME, Metacard.TITLE);
+        qNameMap.put(GmdMetacardType.GMD_CREATION_DATE_QNAME, Metacard.CREATED);
+        qNameMap.put(GmdMetacardType.GMD_PUBLICATION_DATE_QNAME, Metacard.EFFECTIVE);
+        qNameMap.put(GmdMetacardType.GMD_ORGANIZATION_NAME_QNAME, Metacard.POINT_OF_CONTACT);
+
         CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
-        Map<String, List<QName>> metacardMap = new HashMap<String, List<QName>>();
+        Map<String, List<QName>> metacardMap = new HashMap<>();
 
-        metacardMap.put(Metacard.ID,
-                Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME,
+        metacardMap.put(Metacard.ID, Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME,
                         CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
-        metacardMap.put(Metacard.TITLE,
-                Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
-                        CswRecordMetacardType.CSW_ALTERNATIVE_QNAME));
+        metacardMap.put(Metacard.TITLE, Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
+                        CswRecordMetacardType.CSW_ALTERNATIVE_QNAME,
+                        GmdMetacardType.GMD_ALTERNATE_TITLE_QNAME));
         metacardMap.put(Metacard.CONTENT_TYPE, Arrays.asList(CswRecordMetacardType.CSW_TYPE_QNAME));
-        metacardMap.put(Metacard.MODIFIED,
-                Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
+        metacardMap.put(Metacard.MODIFIED, Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
                         CswRecordMetacardType.CSW_MODIFIED_QNAME,
                         CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
-                        CswRecordMetacardType.CSW_ISSUED_QNAME));
+                        CswRecordMetacardType.CSW_ISSUED_QNAME,
+                        GmdMetacardType.GMD_REVISION_DATE_QNAME));
 
-        metacardMap.put(Metacard.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME));
+        metacardMap.put(Metacard.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME,
+                GmdMetacardType.GMD_CREATION_DATE_QNAME));
         metacardMap.put(Metacard.EFFECTIVE,
                 Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME,
-                        CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME));
+                        CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME,
+                        GmdMetacardType.GMD_PUBLICATION_DATE_QNAME));
         metacardMap.put(Metacard.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
         metacardMap.put(Metacard.RESOURCE_URI,
                 Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
         metacardMap.put(Metacard.POINT_OF_CONTACT,
                 Arrays.asList(CswRecordMetacardType.CSW_PUBLISHER_QNAME,
                         CswRecordMetacardType.CSW_CONTRIBUTOR_QNAME,
-                        CswRecordMetacardType.CSW_CREATED_QNAME));
+                        CswRecordMetacardType.CSW_CREATED_QNAME,
+                        GmdMetacardType.GMD_ORGANIZATION_NAME_QNAME));
         metacardMap.put(Metacard.RESOURCE_DOWNLOAD_URL,
                 Arrays.asList(CswRecordMetacardType.CSW_RELATION_QNAME));
 
@@ -139,7 +156,7 @@ public class DefaultCswRecordMap {
 
         METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);
 
-        Map<String, String> prefixMapping = new HashMap<String, String>();
+        Map<String, String> prefixMapping = new HashMap<>();
 
         prefixMapping.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
         prefixMapping.put(CswConstants.XML_SCHEMA_INSTANCE_NAMESPACE_PREFIX,

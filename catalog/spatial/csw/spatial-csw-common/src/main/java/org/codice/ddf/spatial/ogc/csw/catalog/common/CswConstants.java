@@ -217,6 +217,12 @@ public interface CswConstants {
 
     String OWS_LOWER_CORNER = "LowerCorner";
 
+    String GMD_PREFIX = "gmd";
+
+    String GMD_RECORD_LOCAL_NAME = "MD_Metadata";
+
+    String GMD_METADATA_TYPE = GMD_PREFIX + ":" + GMD_RECORD_LOCAL_NAME;
+
     double DEGREES_TO_RADIANS = Math.PI / 180.0;
 
     double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
