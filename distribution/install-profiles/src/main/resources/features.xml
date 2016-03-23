@@ -38,6 +38,8 @@
         <feature>solr-app</feature>
         <feature>search-ui-app</feature>
         <feature>spatial-app</feature>
+        <feature>resourcemanagement-app</feature>
+        <feature>geowebcache-app</feature>
     </feature>
 
 </features>
