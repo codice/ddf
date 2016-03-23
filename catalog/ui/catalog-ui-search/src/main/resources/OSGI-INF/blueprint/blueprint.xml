@@ -46,18 +46,36 @@
                   value='{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
     </bean>
 
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceMetacardTypeImpl"/>
+    </service>
+
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.QueryMetacardTypeImpl"/>
+    </service>
+
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer" filter="(|(mime-type=application/xml)(mime-type=text/xml))"/>
+    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
+               filter="(|(mime-type=application/xml)(mime-type=text/xml))"/>
+
+    <bean id="workspaceTransformer" class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceTransformer">
+        <argument ref="catalogFramework"/>
+        <argument ref="inputTransformer"/>
+    </bean>
 
     <jaxrs:server id="workspaceService" address="/search/catalog">
         <jaxrs:serviceBeans>
             <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacesEndpoint">
                 <argument ref="catalogFramework"/>
                 <argument ref="filterBuilder"/>
-                <argument ref="inputTransformer"/>
+                <argument ref="workspaceTransformer"/>
             </bean>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceBodyReader"/>
+            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceBodyWriter"/>
+        </jaxrs:providers>
     </jaxrs:server>
 
 

@@ -32,6 +32,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String QUERY_SOURCES = "sources";
 
+    public static final String QUERY_ENTERPRISE = "enterprise";
+
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
@@ -48,8 +50,15 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
                 false   /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,
-                false    /* multivalued */,
+                false   /* multivalued */,
                 BasicTypes.STRING_TYPE));
+
+        DESCRIPTORS.add(new AttributeDescriptorImpl(QUERY_ENTERPRISE,
+                false   /* indexed */,
+                true    /* stored */,
+                false   /* tokenized */,
+                false   /* multivalued */,
+                BasicTypes.BOOLEAN_TYPE));
 
         DESCRIPTORS.add(new AttributeDescriptorImpl(QUERY_SOURCES,
                 false   /* indexed */,

@@ -30,7 +30,7 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     }
 
     public void setMetacards(List<String> items) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, (ArrayList<String>) items);
+        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, new ArrayList<>(items));
     }
 
     private List<String> getValues(String attribute) {
@@ -45,7 +45,7 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     }
 
     public void setQueries(List<String> queries) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES, (ArrayList<String>) queries);
+        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES, new ArrayList<>(queries));
     }
 
     public List<String> getQueries() {

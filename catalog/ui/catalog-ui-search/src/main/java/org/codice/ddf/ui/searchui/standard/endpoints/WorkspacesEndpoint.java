@@ -13,11 +13,13 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,9 +29,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-import org.boon.json.JsonFactory;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
@@ -43,7 +43,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.InputTransformer;
 
 @Path("/")
 public class WorkspacesEndpoint {
@@ -52,94 +51,64 @@ public class WorkspacesEndpoint {
 
     private final FilterBuilder fb;
 
-    private final InputTransformer it;
+    private final WorkspaceTransformer transformer;
 
-    public WorkspacesEndpoint(CatalogFramework cf, FilterBuilder fb, InputTransformer it) {
+    public WorkspacesEndpoint(CatalogFramework cf, FilterBuilder fb,
+            WorkspaceTransformer transformer) {
         this.cf = cf;
         this.fb = fb;
-        this.it = it;
-    }
-
-    private static List<String> getValues(Metacard m, String attribute) {
-        return m.getAttribute(attribute)
-                .getValues()
-                .stream()
-                .map(String::valueOf)
-                .collect(Collectors.toList());
-    }
-
-    private static Workspace toWorkspace(Metacard m) {
-        return new Workspace(m.getId(), m.getTitle(), getValues(m,
-                WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS), getValues(m,
-                WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES));
-    }
-
-    private static Response ok() {
-        return Response.ok()
-                .build();
-    }
-
-    private static Response ok(Object o) {
-        return Response.ok(JsonFactory.create()
-                .toJson(o))
-                .build();
-    }
-
-    private static Response notFound() {
-        return Response.status(404)
-                .build();
-    }
-
-    private static Workspace getWorkspace(HttpServletRequest req) throws IOException {
-        return JsonFactory.create()
-                .readValue(req.getInputStream(), Workspace.class);
-    }
-
-    private static Metacard getMetacard(HttpServletRequest req) throws IOException {
-        WorkspaceMetacardImpl m = new WorkspaceMetacardImpl();
-        Workspace w = getWorkspace(req);
-
-        m.setTitle(w.title);
-        m.setQueries(w.queries);
-        m.setMetacards(w.metacards);
-
-        return m;
+        this.transformer = transformer;
     }
 
     @GET
     @Path("/workspaces/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Workspace getDocument(@PathParam("id") String id) throws Exception {
-        List<Workspace> workspaces = query(builder().allOf(byId(id), byWorkspaceTag()));
+    public Map getDocument(@PathParam("id") String id, @Context HttpServletResponse res)
+            throws Exception {
+        List<Map> workspaces = query(builder().allOf(byId(id), byWorkspaceTag()));
 
         if (workspaces.size() > 0) {
             return workspaces.get(0);
         }
 
+        res.setStatus(404);
         return null;
     }
 
     @GET
     @Path("/workspaces")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDocuments(@Context HttpServletRequest req) throws Exception {
-        return ok(query(byWorkspaceTag()));
+    public List<Map> getDocuments(@Context HttpServletRequest req) throws Exception {
+        return query(byWorkspaceTag());
     }
 
     @POST
     @Path("/workspaces")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postDocument(@Context HttpServletRequest req) throws Exception {
-        Metacard m = getMetacard(req);
-        Workspace w = saveMetacard(m);
-        return ok(w);
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map postDocument(Map<String, Object> workspace, @Context HttpServletResponse res)
+            throws Exception {
+        Map<String, Object> response;
+
+        try {
+            Metacard saved = saveMetacard(transformer.transform(workspace));
+            response = transformer.transform(saved);
+            res.setStatus(201);
+        } catch (Exception ex) {
+            res.setStatus(400);
+            response = new HashMap<>();
+            response.put("message", "bad request");
+        }
+
+        return response;
     }
 
     @DELETE
     @Path("/workspaces/{id}")
-    public Response deleteDocument(@PathParam("id") String id) throws Exception {
+    public void deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
+            throws Exception {
         cf.delete(new DeleteRequestImpl(id));
-        return ok();
+        res.setStatus(200);
     }
 
     private FilterBuilder builder() {
@@ -160,22 +129,21 @@ public class WorkspacesEndpoint {
                 .text(WorkspaceMetacardTypeImpl.WORKSPACE_TAG);
     }
 
-    private List<Workspace> query(Filter f)
+    private List<Map> query(Filter f)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         return cf.query(new QueryRequestImpl(new QueryImpl(f)))
                 .getResults()
                 .stream()
                 .map(result -> result.getMetacard())
-                .map(WorkspacesEndpoint::toWorkspace)
+                .map(m -> transformer.transform(m))
                 .collect(Collectors.toList());
     }
 
-    private Workspace saveMetacard(Metacard metacard)
+    private Metacard saveMetacard(Metacard metacard)
             throws IngestException, SourceUnavailableException {
-        String id = cf.create(new CreateRequestImpl(metacard))
+        return cf.create(new CreateRequestImpl(metacard))
                 .getCreatedMetacards()
-                .get(0)
-                .getId();
-        return new Workspace(id);
+                .get(0);
+
     }
 }

@@ -24,4 +24,12 @@ public class QueryMetacardImpl extends MetacardImpl {
         super(TYPE);
         setTags(Collections.singleton(QueryMetacardTypeImpl.QUERY_TAG));
     }
+
+    public void setCql(String cql) {
+        setAttribute(QueryMetacardTypeImpl.QUERY_CQL, cql);
+    }
+
+    public void setEnterprise(Boolean b) {
+        setAttribute(QueryMetacardTypeImpl.QUERY_ENTERPRISE, b);
+    }
 }
