@@ -67,24 +67,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>create-kar</id>
-                        <goals>
-                            <goal>create-kar</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Workaround to prevent features.xml file from being included twice in the kar file. -->
-                            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
-                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Puts the features XML file for this app into the maven repo. -->
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
@@ -98,6 +80,29 @@
                         <configuration>
                             <resourcesDir>${project.build.directory}/resources</resourcesDir>
                             <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                            </artifacts>
                         </configuration>
                     </execution>
                 </executions>

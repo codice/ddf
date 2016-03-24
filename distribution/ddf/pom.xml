@@ -101,6 +101,9 @@
                                     mvn:org.codice.ddf.resourcemanagement/resourcemanagement-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
+                                    mvn:org.codice.ddf.spatial/geowebcache-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
                                     mvn:ddf.distribution/install-profiles/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
