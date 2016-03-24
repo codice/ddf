@@ -57,6 +57,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -74,7 +75,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
-
+import ddf.catalog.data.MetacardType;
 import net.opengis.filter.v_1_1_0.AbstractIdType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
 import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
@@ -658,6 +659,16 @@ public class TestCswFilterDelegate {
             "format",
             "myContentType");
 
+    private final String configurableApisoTypeMappingXml = createComparisonFilterString(
+            ComparisonOperator.PROPERTY_IS_EQUAL_TO,
+            GmdMetacardType.APISO_TYPE,
+            "myContentType");
+
+    private final String configurableApisoAnyTextMappingXml = createComparisonFilterString(
+            ComparisonOperator.PROPERTY_IS_LIKE,
+            GmdMetacardType.APISO_ANYTEXT,
+            "myContentType");
+
     private final String emptyFilterXml = getXmlHeaderString() + getXmlFooterString();
 
     private StringWriter writer = null;
@@ -915,15 +926,14 @@ public class TestCswFilterDelegate {
      * header and footer.
      *
      * @param comparisonOp The comparison operator to use when building the
-     *      Filter string
+     *                     Filter string
      * @param propertyName The name of the property to include in the
-     *      <PropertyName>
-     * @param args Zero or more strings to be used within the comparison
-     *      Filter. For example, a PROPERTY_IS_BETWEEN comparison operator
-     *      requires two arguments, a string representing a lower boundary and a
-     *      string representing an upper boundary, so two Strings must be
-     *      supplied as parameters to this method.
-     *
+     *                     <PropertyName>
+     * @param args         Zero or more strings to be used within the comparison
+     *                     Filter. For example, a PROPERTY_IS_BETWEEN comparison operator
+     *                     requires two arguments, a string representing a lower boundary and a
+     *                     string representing an upper boundary, so two Strings must be
+     *                     supplied as parameters to this method.
      * @return
      */
     private String createComparisonFilterStringWithoutHeaderAndFooter(
@@ -965,11 +975,11 @@ public class TestCswFilterDelegate {
      * Creates a property comparison Filter string
      *
      * @param comparisonOp The comparison operator to use when building the
-     *      Filter string
+     *                     Filter string
      * @param propertyName The name of the property to include in the
-     *      <PropertyName>
-     * @param args See {@link #createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator, String, String...)
-     *      for description of this argument.
+     *                     <PropertyName>
+     * @param args         See {@link #createComparisonFilterStringWithoutHeaderAndFooter(ComparisonOperator, String, String...)
+     *                     for description of this argument.
      * @return A comparison Filter string
      */
     private String createComparisonFilterString(ComparisonOperator comparisonOp,
@@ -988,10 +998,10 @@ public class TestCswFilterDelegate {
      * expressions with a compound expression operator (e.g., AND, OR, NOT).
      *
      * @param compoundOperator The {@code CompoundExpressionOperator} with which
-     *      to wrap the expressions
-     * @param expressions The expressions to be wrapped. If the expressions
-     *      contain a header/footer, it will be removed (the
-     *      header/footer will be added to the compound expression)
+     *                         to wrap the expressions
+     * @param expressions      The expressions to be wrapped. If the expressions
+     *                         contain a header/footer, it will be removed (the
+     *                         header/footer will be added to the compound expression)
      * @return
      */
     private String createCompoundExpressionFilterString(CompoundExpressionOperator compoundOperator,
@@ -1020,15 +1030,14 @@ public class TestCswFilterDelegate {
      * Converts a string of coordinates into <pos> elements
      *
      * @param coordinatesString A string of coordinate pairs. Each coordinate
-     *      pair is converted into a <pos> element in the order it appears in
-     *      the string. For example:
-     *
-     *      "10.0 20.0 0.0 20.0"
-     *
-     *      Will be converted to:
-     *
-     *      "<ns4:pos>10.0 20.0</ns4:pos><ns4:pos>0.0 20.0"</ns4:pos>"
-     *
+     *                          pair is converted into a <pos> element in the order it appears in
+     *                          the string. For example:
+     *                          <p>
+     *                          "10.0 20.0 0.0 20.0"
+     *                          <p>
+     *                          Will be converted to:
+     *                          <p>
+     *                          "<ns4:pos>10.0 20.0</ns4:pos><ns4:pos>0.0 20.0"</ns4:pos>"
      * @return A string of <pos> elements representing the received coordinates
      */
     private String createPosElementsString(String coordinatesString) {
@@ -1052,12 +1061,12 @@ public class TestCswFilterDelegate {
     /**
      * Creates a LinearRing Filter string.
      *
-     * @param usePosList If true, will construct the LinearRing using a
-     *      single <posList> element, rather than including a <pos> element for
-     *      each coordinate pair in the coordinates string.
+     * @param usePosList        If true, will construct the LinearRing using a
+     *                          single <posList> element, rather than including a <pos> element for
+     *                          each coordinate pair in the coordinates string.
      * @param coordinatesString A string of ordered coordinate pairs that
-     *      represent the polygon. For an example see
-     *      {@link #LAT_LON_POLYGON_COORDINATES_STRING}.
+     *                          represent the polygon. For an example see
+     *                          {@link #LAT_LON_POLYGON_COORDINATES_STRING}.
      * @return
      */
     private String createLinearRingFilterString(boolean usePosList, String coordinatesString) {
@@ -1079,7 +1088,7 @@ public class TestCswFilterDelegate {
      * XML point.
      *
      * @param pointCoordinatesString A string containing a single coordinates
-     *      pair
+     *                               pair
      * @return A string of the form "<ns4:Point>x y</ns4:Point>
      */
     private String createPointFilterString(String pointCoordinatesString) {
@@ -1096,10 +1105,10 @@ public class TestCswFilterDelegate {
      * Creates a MultiPoint Filter string.
      *
      * @param multiPointCoordinatesString A space-separated list of coordinates
-     *      pairs. For an example see {@link #LAT_LON_LINESTRING_COORDINATES_STRING}
+     *                                    pairs. For an example see {@link #LAT_LON_LINESTRING_COORDINATES_STRING}
      * @return A string of the form
-     *      "<ns4:pointMember><ns4:Point>x y</ns4:Point></ns4:pointMember>
-     *       <ns4:pointMember><ns4:Point>y z</ns4:Point></ns4:pointMember>"
+     * "<ns4:pointMember><ns4:Point>x y</ns4:Point></ns4:pointMember>
+     * <ns4:pointMember><ns4:Point>y z</ns4:Point></ns4:pointMember>"
      */
     private String createMultiPointMembersFilterString(String multiPointCoordinatesString) {
         String[] coordinates = multiPointCoordinatesString.split(" ");
@@ -1123,12 +1132,12 @@ public class TestCswFilterDelegate {
     /**
      * Creates an Envelop Filter string
      *
-     * @param spatialOperator The spatial operator to use in the Filter string
-     * @param propertyName The PropertyName to use in the Filter string
+     * @param spatialOperator        The spatial operator to use in the Filter string
+     * @param propertyName           The PropertyName to use in the Filter string
      * @param lowerCornerPointCoords A pair of coordinates of the form "x y"
-     *      that represent the lower corner.
+     *                               that represent the lower corner.
      * @param upperCornerPointCoords A pair of coordinates of the form "x y"
-     *      that represent the upper corner.
+     *                               that represent the upper corner.
      * @return
      */
     private String createEnvelopeFilterString(SpatialOperatorNameType spatialOperator,
@@ -1174,25 +1183,24 @@ public class TestCswFilterDelegate {
     /**
      * Creates a geospatial Filter string.
      *
-     * @param spatialOperator The spatial operator (e.g., BBOX, INTERSECTS,
-     *      WITHIN) to use in the Filter string
-     * @param propertyName he PropertyName to use in the Filter string
-     * @param geoType The type of geometry (e.g., LINESTRING, POINT, POLYGON)
-     *      the Filter string will represent
+     * @param spatialOperator   The spatial operator (e.g., BBOX, INTERSECTS,
+     *                          WITHIN) to use in the Filter string
+     * @param propertyName      he PropertyName to use in the Filter string
+     * @param geoType           The type of geometry (e.g., LINESTRING, POINT, POLYGON)
+     *                          the Filter string will represent
      * @param coordinatesString A string of space-separated coordinates to
-     *      use when constructing the geometry Filter string
-     * @param propertyMap A map of additional properties. Currently valid
-     *      properties that will be used when applicable include:
-     *
-     *      {@link #USE_POS_LIST_GEO_FILTER_PROP_MAP_KEY} A string with a value
-     *      of either "true" or "false." When true, a single <posList> element,
-     *      rather than a set of <pos> elements, is used in building a
-     *      <LinearRing>.
-     *
-     *      {@link #DISTANCE_GEO_FILTER_PROP_MAP_KEY} When present, a
-     *      <Distance> element will be included in the geospatial Filter string
-     *      using the distance value included in the property map.
-     *
+     *                          use when constructing the geometry Filter string
+     * @param propertyMap       A map of additional properties. Currently valid
+     *                          properties that will be used when applicable include:
+     *                          <p>
+     *                          {@link #USE_POS_LIST_GEO_FILTER_PROP_MAP_KEY} A string with a value
+     *                          of either "true" or "false." When true, a single <posList> element,
+     *                          rather than a set of <pos> elements, is used in building a
+     *                          <LinearRing>.
+     *                          <p>
+     *                          {@link #DISTANCE_GEO_FILTER_PROP_MAP_KEY} When present, a
+     *                          <Distance> element will be included in the geospatial Filter string
+     *                          using the distance value included in the property map.
      * @return A string representing a geospatial Filter
      */
     private String createGeospatialFilterString(SpatialOperatorNameType spatialOperator,
@@ -1286,7 +1294,7 @@ public class TestCswFilterDelegate {
 
     /**
      * The CSW Source should be able to map a csw:Record field to Content Type.
-     *
+     * <p>
      * Verify that when an isEqualTo query is sent to the CswFilterDelegate Metacard.CONTENT_TYPE is
      * mapped to the configured content type mapping (eg. in this test Metacard.CONTENT_TYPE is
      * mapped to format).
@@ -1316,6 +1324,94 @@ public class TestCswFilterDelegate {
          * equal to myContentType
          */
         assertXMLEqual(configurableContentTypeMappingXml, getXmlFromMarshaller(filterType));
+    }
+
+    @Test
+    public void testConfigurableMetacardMapping() throws JAXBException, SAXException, IOException {
+
+        // Setup
+        CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID,
+                CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED,
+                CswRecordMetacardType.CSW_MODIFIED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CREATED,
+                CswRecordMetacardType.CSW_CREATED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.EFFECTIVE,
+                CswRecordMetacardType.CSW_DATE_SUBMITTED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
+                CswRecordMetacardType.CSW_FORMAT);
+
+        cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LAT_LON);
+        cswSourceConfiguration.setUsePosList(false);
+
+        String contentType = "myContentType";
+        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
+
+        // Perform Test
+        /**
+         * Incoming query with Metacard.CONTENT_TYPE equal to myContentType. Metacard.CONTENT_TYPE
+         * will be mapped to format in the CswFilterDelegate.
+         */
+        FilterType filterType = localCswFilterDelegate.propertyIsEqualTo(Metacard.CONTENT_TYPE,
+                contentType,
+                isCaseSensitive);
+
+        // Verify
+        /**
+         * Verify that a PropertyIsEqualTo filter is created with PropertyName of format and Literal
+         * equal to myContentType
+         */
+        assertXMLEqual(configurableContentTypeMappingXml, getXmlFromMarshaller(filterType));
+    }
+
+    @Test
+    public void testConfigurableMetacardMappingApiso()
+            throws JAXBException, SAXException, IOException {
+
+        // Setup
+        CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, GmdMetacardType.APISO_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED,
+                GmdMetacardType.APISO_MODIFIED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
+                GmdMetacardType.APISO_TYPE);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.TITLE, GmdMetacardType.APISO_TITLE);
+        cswSourceConfiguration.putMetacardCswMapping(CswConstants.ANY_TEXT,
+                GmdMetacardType.APISO_ANYTEXT);
+
+        cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LAT_LON);
+        cswSourceConfiguration.setUsePosList(false);
+
+        String contentType = "myContentType";
+        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration,
+                new GmdMetacardType());
+
+        // Perform Test
+        /**
+         * Incoming query with Metacard.CONTENT_TYPE equal to myContentType. Metacard.CONTENT_TYPE
+         * will be mapped to format in the CswFilterDelegate.
+         */
+        FilterType filterType = localCswFilterDelegate.propertyIsEqualTo(Metacard.CONTENT_TYPE,
+                contentType,
+                isCaseSensitive);
+
+        // Verify
+        /**
+         * Verify that a PropertyIsEqualTo filter is created with PropertyName of format and Literal
+         * equal to myContentType
+         */
+        assertXMLEqual(configurableApisoTypeMappingXml, getXmlFromMarshaller(filterType));
+
+        /**
+         * Incoming query with Metacard.ANY_TEXT equal to myContentType. Metacard.ANY_TEXT
+         * will be mapped to format in the CswFilterDelegate.
+         */
+        FilterType anyTextfilterType = localCswFilterDelegate.propertyIsLike(Metacard.ANY_TEXT,
+                contentType,
+                isCaseSensitive);
+        String xml = getXmlFromMarshaller(anyTextfilterType);
+        assertXMLEqual(configurableApisoAnyTextMappingXml, xml);
     }
 
     /**
@@ -2501,7 +2597,8 @@ public class TestCswFilterDelegate {
 
         String propName = CswConstants.BBOX_PROP;
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
+                CswRecordMetacardType.CSW_TYPE);
 
         CswFilterDelegate localCswFilterDelegate = initCswFilterDelegate(
                 getMockFilterCapabilitiesForSpatialFallback(Arrays.asList(DISJOINT),
@@ -2990,6 +3087,7 @@ public class TestCswFilterDelegate {
     }
 
     private String getXmlFromMarshaller(FilterType filterType) throws JAXBException {
+        writer.getBuffer().setLength(0);
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
         LOGGER.debug("XML returned by Marshaller:\n{}", xml);
@@ -3085,7 +3183,11 @@ public class TestCswFilterDelegate {
 
     private CswFilterDelegate createCswFilterDelegate(
             CswSourceConfiguration cswSourceConfiguration) {
+        return createCswFilterDelegate(cswSourceConfiguration, null);
+    }
 
+    private CswFilterDelegate createCswFilterDelegate(CswSourceConfiguration cswSourceConfiguration,
+            MetacardType type) {
         DomainType outputFormatValues = null;
         DomainType resultTypesValues = null;
 
@@ -3098,8 +3200,11 @@ public class TestCswFilterDelegate {
                 resultTypesValues = dt;
             }
         }
+        if (type == null) {
+            type = new CswRecordMetacardType();
+        }
 
-        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(new CswRecordMetacardType(),
+        CswFilterDelegate cswFilterDelegate = new CswFilterDelegate(type,
                 getOperation(),
                 getMockFilterCapabilities(),
                 outputFormatValues,
@@ -3136,10 +3241,11 @@ public class TestCswFilterDelegate {
     private CswSourceConfiguration initCswSourceConfiguration(CswAxisOrder cswAxisOrder,
             boolean usePosList, String contentType) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID,
+                CswRecordMetacardType.CSW_IDENTIFIER);
         cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
         cswSourceConfiguration.setUsePosList(usePosList);
-        cswSourceConfiguration.setContentTypeMapping(contentType);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentType);
         return cswSourceConfiguration;
     }
 
@@ -3147,13 +3253,13 @@ public class TestCswFilterDelegate {
             boolean usePosList, String contentType, String effectiveDateMapping,
             String createdDateMapping, String modifiedDateMapping, String identifierMapping) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setIdentifierMapping(identifierMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, identifierMapping);
         cswSourceConfiguration.setCswAxisOrder(cswAxisOrder);
         cswSourceConfiguration.setUsePosList(usePosList);
-        cswSourceConfiguration.setContentTypeMapping(contentType);
-        cswSourceConfiguration.setEffectiveDateMapping(effectiveDateMapping);
-        cswSourceConfiguration.setCreatedDateMapping(createdDateMapping);
-        cswSourceConfiguration.setModifiedDateMapping(modifiedDateMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentType);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.EFFECTIVE, effectiveDateMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CREATED, createdDateMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED, modifiedDateMapping);
         return cswSourceConfiguration;
     }
 

@@ -51,37 +51,10 @@
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
 
-        <AD description="CSW field to map to Metacard's effective date"
-            name="Effective Date maps to" id="effectiveDateMapping"
-            required="false" type="String"
-            default="created"/>
-        <AD description="CSW field to map to Metacard's created date" name="Created Date maps to"
-            id="createdDateMapping"
-            required="false" type="String"
-            default="dateSubmitted"/>
-        <AD description="CSW field to map to Metacard's modified date" name="Modified Date maps to"
-            id="modifiedDateMapping"
-            required="false" type="String"
-            default="modified"/>
-
-        <AD description="CSW field to map to Metacard's resource URI to retrieve product associated with the CSW record."
-            name="Resource URI maps to" id="resourceUriMapping"
-            required="false" type="String"
-            default="source"/>
-
-        <AD description="CSW field to map to Metacard's thumbnail URI to retrieve thumbnail data associated with the CSW record."
-            name="Thumbnail maps to" id="thumbnailMapping"
-            required="false" type="String"
-            default="references"/>
-
-        <AD description="CSW field to map to Metacard's content type" name="Content type maps to"
-            id="contentTypeMapping" required="true"
-            type="String" default="type"/>
-
-        <AD description="CSW field to map to Metacard's ID attribute."
-            name="ID maps to" id="identifierMapping"
-            required="true" type="String"
-            default="identifier"/>
+        <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
+            name="Metacard Mappings" id="metacardMappings" required="false" type="String" cardinality="100"
+            default="effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source">
+        </AD>
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
@@ -99,12 +72,12 @@
             type="String" default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
-            name="Query Type QName" id="queryTypeQName" required="true" type="String"
-            default="{http://www.opengis.net/cat/csw/2.0.2}Record"/>
+            name="Query Type Name" id="queryTypeName" required="true" type="String"
+            default="csw:Record"/>
 
         <AD description="Namespace prefix for the Query Type used in the CSW GetRecords request"
-            name="Query Type Namespace Prefix" id="queryTypePrefix" required="true" type="String"
-            default="csw"/>
+            name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
+            default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
             id="isCqlForced" required="true"
@@ -170,37 +143,10 @@
             name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
             default="false"/>
 
-        <AD description="CSW field to map to Metacard's effective date"
-            name="Effective Date maps to" id="effectiveDateMapping"
-            required="false" type="String"
-            default="created"/>
-        <AD description="CSW field to map to Metacard's created date" name="Created Date maps to"
-            id="createdDateMapping"
-            required="false" type="String"
-            default="dateSubmitted"/>
-        <AD description="CSW field to map to Metacard's modified date" name="Modified Date maps to"
-            id="modifiedDateMapping"
-            required="false" type="String"
-            default="modified"/>
-
-        <AD description="CSW field to map to Metacard's resource URI to retrieve product associated with the CSW record."
-            name="Resource URI maps to" id="resourceUriMapping"
-            required="false" type="String"
-            default="source"/>
-
-        <AD description="CSW field to map to Metacard's thumbnail URI to retrieve thumbnail data associated with the CSW record."
-            name="Thumbnail maps to" id="thumbnailMapping"
-            required="false" type="String"
-            default="references"/>
-
-        <AD description="CSW field to map to Metacard's content type" name="Content type maps to"
-            id="contentTypeMapping" required="true"
-            type="String" default="type"/>
-
-        <AD description="CSW field to map to Metacard's ID attribute."
-            name="ID maps to" id="identifierMapping"
-            required="true" type="String"
-            default="identifier"/>
+        <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
+            name="Metacard Mappings" id="metacardMappings" required="false" type="String" cardinality="100"
+            default="effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source">
+        </AD>
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
@@ -218,12 +164,12 @@
             type="String" default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
-            name="Query Type QName" id="queryTypeQName" required="true" type="String"
-            default="{http://www.opengis.net/cat/csw/2.0.2}Record"/>
+            name="Query Type Name" id="queryTypeName" required="true" type="String"
+            default="csw:Record"/>
 
         <AD description="Namespace prefix for the Query Type used in the CSW GetRecords request"
-            name="Query Type Namespace Prefix" id="queryTypePrefix" required="true" type="String"
-            default="csw"/>
+            name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
+            default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
             id="isCqlForced" required="true"
@@ -247,8 +193,98 @@
         </AD>
     </OCD>
 
+    <OCD name="GMD CSW Federated Source" id="Gmd_Csw_Federated_Source" description="GMD CSW Federated Source">
+
+        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+            type="String"/>
+
+        <AD description="URL to the endpoint implementing the Catalogue Service for Web (CSW) spec"
+            name="CSW URL" id="cswUrl" required="true" type="String"/>
+
+        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+            required="false" type="String"/>
+        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+            required="false" type="Password"/>
+
+        <AD description="Disable CN check for the server certificate. This should only be used when testing."
+            name="Disable CN Check" id="disableCnCheck" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Coordinate order that remote source expects and returns spatial data in"
+            name="Coordinate Order" id="coordinateOrder" required="true"
+            type="String" default="LON_LAT">
+            <Option label="Lon/Lat" value="LON_LAT"/>
+            <Option label="Lat/Lon" value="LAT_LON"/>
+        </AD>
+
+        <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing"
+            name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean"
+            default="false"/>
+
+        <AD description="Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'."
+            name="Metacard Mappings" id="metacardMappings" required="false" type="String" cardinality="100"
+            default="effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox">
+        </AD>
+
+        <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
+            name="Poll Interval" id="pollInterval"
+            required="true" type="Integer" default="5"/>
+
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
+
+        <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true"
+            type="String" default="http://www.isotc211.org/2005/gmd"/>
+
+        <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
+            name="Query Type Name" id="queryTypeName" required="true" type="String"
+            default="gmd:MD_Metadata"/>
+
+        <AD description="Namespace for the Query Type used in the CSW GetRecords request"
+            name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
+            default="http://www.isotc211.org/2005/gmd"/>
+
+        <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
+            id="isCqlForced" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
+            name="Forced Spatial Filter Type" id="forceSpatialFilter"
+            required="false" type="String" default="NO_FILTER">
+            <Option label="None" value="NO_FILTER"/>
+            <Option label="BBOX" value="BBOX"/>
+            <Option label="Beyond" value="Beyond"/>
+            <Option label="Contains" value="Contains"/>
+            <Option label="Crosses" value="Crosses"/>
+            <Option label="Disjoint" value="Disjoint"/>
+            <Option label="DWithin" value="DWithin"/>
+            <Option label="Intersects" value="Intersects"/>
+            <Option label="Equals" value="Equals"/>
+            <Option label="Overlaps" value="Overlaps"/>
+            <Option label="Touches" value="Touches"/>
+            <Option label="Within" value="Within"/>
+        </AD>
+
+        <AD description="Security attributes for this source" name="Security Attributes"
+            id="securityAttributeStrings" required="true" type="String" cardinality="1000"/>
+
+        <AD description="Schema to tag mapping. The tags for a given output schema will be required for this source to be queried"
+            name="Schema/Tag Mapping" id="schemaToTagsMapping" required="true" type="String"
+            default="http://www.opengis.net/cat/wrs/1.0=registry" cardinality="100"/>
+
+    </OCD>
+
     <Designate pid="Csw_Federated_Source" factoryPid="Csw_Federated_Source">
         <Object ocdref="Csw_Federated_Source"/>
+    </Designate>
+
+    <Designate pid="Gmd_Csw_Federated_Source" factoryPid="Gmd_Csw_Federated_Source">
+        <Object ocdref="Gmd_Csw_Federated_Source"/>
     </Designate>
 
     <Designate pid="Csw_Connected_Source" factoryPid="Csw_Connected_Source">

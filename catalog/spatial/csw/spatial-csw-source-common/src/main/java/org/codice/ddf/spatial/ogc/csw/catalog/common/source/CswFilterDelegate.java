@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -1175,23 +1176,17 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     protected String mapPropertyName(String propertyName) {
+        if (isContentTypeVersion(propertyName)){
+            return null;
+        }
         if (isAnyText(propertyName) || isMetadata(propertyName)) {
             propertyName = CswConstants.ANY_TEXT;
-        } else if (isId(propertyName)) {
-            propertyName = cswSourceConfiguration.getIdentifierMapping();
         } else if (isAnyGeo(propertyName)) {
             propertyName = CswConstants.BBOX_PROP;
-        } else if (isContentType(propertyName)) {
-            propertyName = cswSourceConfiguration.getContentTypeMapping();
-        } else if (isEffectivedDate(propertyName)) {
-            propertyName = cswSourceConfiguration.getEffectiveDateMapping();
-        } else if (isModifiedDate(propertyName)) {
-            propertyName = cswSourceConfiguration.getModifiedDateMapping();
-        } else if (isCreatedDate(propertyName)) {
-            propertyName = cswSourceConfiguration.getCreatedDateMapping();
-        } else if (isContentTypeVersion(propertyName)) {
-            propertyName = null;
         }
+        propertyName = StringUtils.defaultIfBlank(cswSourceConfiguration.getMetacardMapping(
+                    propertyName), propertyName);
+
         return propertyName;
     }
 
@@ -1199,16 +1194,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         return Metacard.ANY_TEXT.equalsIgnoreCase(propertyName);
     }
 
-    private boolean isId(String propertyName) {
-        return Metacard.ID.equalsIgnoreCase(propertyName);
-    }
-
     private boolean isAnyGeo(String propertyName) {
         return Metacard.ANY_GEO.equalsIgnoreCase(propertyName);
-    }
-
-    protected boolean isContentType(String propertyName) {
-        return Metacard.CONTENT_TYPE.equalsIgnoreCase(propertyName);
     }
 
     protected boolean isContentTypeVersion(String propertyName) {
@@ -1221,18 +1208,6 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     private boolean isSpatialOperationSupported(SpatialOperatorNameType operation) {
         return spatialOps.containsKey(operation);
-    }
-
-    private boolean isModifiedDate(String propertyName) {
-        return Metacard.MODIFIED.equalsIgnoreCase(propertyName);
-    }
-
-    private boolean isEffectivedDate(String propertyName) {
-        return Metacard.EFFECTIVE.equalsIgnoreCase(propertyName);
-    }
-
-    private boolean isCreatedDate(String propertyName) {
-        return Metacard.CREATED.equalsIgnoreCase(propertyName);
     }
 
     private Geometry getGeometryFromWkt(String wkt) {

@@ -112,9 +112,6 @@ public class TestCswSource extends TestCswSourceBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSource.class);
 
-    private static final String CSW_RECORD_QNAME =
-            "{" + CswConstants.CSW_OUTPUT_SCHEMA + "}" + CswConstants.CSW_RECORD_LOCAL_NAME;
-
     private Converter mockProvider = mock(Converter.class);
 
     @Test
@@ -718,8 +715,6 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
-        cswSource.setEffectiveDateMapping(Metacard.EFFECTIVE);
-
         // Perform test
         cswSource.query(new QueryRequestImpl(temporalQuery));
 
@@ -829,7 +824,6 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
-        cswSource.setEffectiveDateMapping(Metacard.EFFECTIVE);
         // Perform test
         cswSource.query(new QueryRequestImpl(temporalQuery));
 
@@ -1108,8 +1102,8 @@ public class TestCswSource extends TestCswSourceBase {
         AbstractCswSource cswSource = getCswSource(mockCsw,
                 mockContext,
                 null,
-                expectedQname.toString(),
-                expectedQname.getPrefix());
+                expectedQname.getPrefix() + ":" + expectedQname.getLocalPart(),
+                expectedQname.getNamespaceURI());
 
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
@@ -1181,8 +1175,8 @@ public class TestCswSource extends TestCswSourceBase {
         assertThat(cswQuery.getTypeNames()
                 .size(), is(1));
         assertThat(cswQuery.getTypeNames()
-                .get(0)
-                .toString(), is(CSW_RECORD_QNAME));
+                        .get(0),
+                is(new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME)));
     }
 
     @Test
@@ -1294,16 +1288,18 @@ public class TestCswSource extends TestCswSourceBase {
             String queryTypeQName, String queryTypePrefix) {
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         if (contentTypeMapping == null) {
-            cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
+            cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
+                    CswRecordMetacardType.CSW_TYPE);
         } else {
-            cswSourceConfiguration.setContentTypeMapping(contentTypeMapping);
+            cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentTypeMapping);
         }
-        cswSourceConfiguration.setQueryTypePrefix(queryTypePrefix);
-        cswSourceConfiguration.setQueryTypeQName(queryTypeQName);
+        cswSourceConfiguration.setQueryTypeNamespace(queryTypePrefix);
+        cswSourceConfiguration.setQueryTypeName(queryTypeQName);
         cswSourceConfiguration.setId(ID);
         cswSourceConfiguration.setCswUrl(URL);
-        cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
-        cswSourceConfiguration.setIdentifierMapping(CswRecordMetacardType.CSW_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED, Metacard.MODIFIED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID,
+                CswRecordMetacardType.CSW_IDENTIFIER);
         cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LON_LAT);
         cswSourceConfiguration.setUsername("user");
         cswSourceConfiguration.setPassword("pass");
@@ -1319,8 +1315,8 @@ public class TestCswSource extends TestCswSourceBase {
         return getCswSource(csw,
                 context,
                 contentMapping,
-                CSW_RECORD_QNAME,
-                CswConstants.CSW_NAMESPACE_PREFIX);
+                CswConstants.CSW_RECORD,
+                CswConstants.CSW_OUTPUT_SCHEMA);
     }
 
     private AbstractCswSource getCswSource(Csw csw, BundleContext context, String contentMapping,
@@ -1330,7 +1326,7 @@ public class TestCswSource extends TestCswSourceBase {
                 contentMapping,
                 queryTypeQName,
                 queryTypePrefix);
-        cswSourceConfiguration.setContentTypeMapping(contentMapping);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, contentMapping);
 
         SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
         doReturn(csw).when(mockFactory)
@@ -1347,6 +1343,7 @@ public class TestCswSource extends TestCswSourceBase {
         cswSource.setContext(context);
         cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         cswSource.setAvailabilityTask(mockAvailabilityTask);
+        cswSource.setMetacardTypes(mockRegistry);
         cswSource.configureCswSource();
 
         return cswSource;
@@ -1363,8 +1360,8 @@ public class TestCswSource extends TestCswSourceBase {
                 is(defaultCswSourceConfiguration.getConnectionTimeout()));
         assertThat(cswSourceConfiguration.getReceiveTimeout(),
                 is(defaultCswSourceConfiguration.getReceiveTimeout()));
-        assertThat(cswSourceConfiguration.getIdentifierMapping(),
-                is(defaultCswSourceConfiguration.getIdentifierMapping()));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.ID),
+                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.ID)));
         assertThat(cswSourceConfiguration.getDisableCnCheck(),
                 is(defaultCswSourceConfiguration.getDisableCnCheck()));
         assertThat(cswSourceConfiguration.getCswAxisOrder()
@@ -1373,14 +1370,14 @@ public class TestCswSource extends TestCswSourceBase {
                         .toString()));
         assertThat(cswSourceConfiguration.isSetUsePosList(),
                 is(defaultCswSourceConfiguration.isSetUsePosList()));
-        assertThat(cswSourceConfiguration.getCreatedDateMapping(),
-                is(defaultCswSourceConfiguration.getCreatedDateMapping()));
-        assertThat(cswSourceConfiguration.getEffectiveDateMapping(),
-                is(defaultCswSourceConfiguration.getEffectiveDateMapping()));
-        assertThat(cswSourceConfiguration.getModifiedDateMapping(),
-                is(defaultCswSourceConfiguration.getModifiedDateMapping()));
-        assertThat(cswSourceConfiguration.getContentTypeMapping(),
-                is(defaultCswSourceConfiguration.getContentTypeMapping()));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CREATED),
+                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.CREATED)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE),
+                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.MODIFIED),
+                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.MODIFIED)));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE),
+                is(defaultCswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE)));
         assertThat(cswSourceConfiguration.getPollIntervalMinutes(),
                 is(defaultCswSourceConfiguration.getPollIntervalMinutes()));
         assertThat(cswSourceConfiguration.getCswUrl(),
@@ -1396,17 +1393,19 @@ public class TestCswSource extends TestCswSourceBase {
         assertThat(cswSourceConfiguration.getConnectionTimeout(), is(CONNECTION_TIMEOUT));
         assertThat(cswSourceConfiguration.getReceiveTimeout(), is(RECEIVE_TIMEOUT));
         assertThat(cswSourceConfiguration.getOutputSchema(), is(OUTPUT_SCHEMA));
-        assertThat(cswSourceConfiguration.getQueryTypeQName(), is(QUERY_TYPE_QNAME));
-        assertThat(cswSourceConfiguration.getQueryTypePrefix(), is(QUERY_TYPE_PREFIX));
-        assertThat(cswSourceConfiguration.getIdentifierMapping(), is(IDENTIFIER_MAPPING));
+        assertThat(cswSourceConfiguration.getQueryTypeName(), is(QUERY_TYPE_NAME));
+        assertThat(cswSourceConfiguration.getQueryTypeNamespace(), is(QUERY_TYPE_NAMESPACE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.ID), is(IDENTIFIER_MAPPING));
         assertThat(cswSourceConfiguration.getDisableCnCheck(), is(false));
         assertThat(cswSourceConfiguration.getCswAxisOrder()
                 .toString(), is(COORDINATE_ORDER));
         assertThat(cswSourceConfiguration.isSetUsePosList(), is(false));
-        assertThat(cswSourceConfiguration.getCreatedDateMapping(), is(CREATED_DATE));
-        assertThat(cswSourceConfiguration.getEffectiveDateMapping(), is(EFFECTIVE_DATE));
-        assertThat(cswSourceConfiguration.getModifiedDateMapping(), is(MODIFIED_DATE));
-        assertThat(cswSourceConfiguration.getContentTypeMapping(), is(CONTENT_TYPE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CREATED), is(CREATED_DATE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.EFFECTIVE),
+                is(EFFECTIVE_DATE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.MODIFIED), is(MODIFIED_DATE));
+        assertThat(cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE),
+                is(CONTENT_TYPE));
         assertThat(cswSourceConfiguration.getPollIntervalMinutes(), is(POLL_INTERVAL));
         assertThat(cswSourceConfiguration.getCswUrl(), is(URL));
         assertThat(cswSourceConfiguration.isCqlForced(), is(false));
@@ -1420,16 +1419,12 @@ public class TestCswSource extends TestCswSourceBase {
         configuration.put(cswSource.CONNECTION_TIMEOUT_PROPERTY, CONNECTION_TIMEOUT);
         configuration.put(cswSource.RECEIVE_TIMEOUT_PROPERTY, RECEIVE_TIMEOUT);
         configuration.put(cswSource.OUTPUT_SCHEMA_PROPERTY, OUTPUT_SCHEMA);
-        configuration.put(cswSource.QUERY_TYPE_QNAME_PROPERTY, QUERY_TYPE_QNAME);
-        configuration.put(cswSource.QUERY_TYPE_PREFIX_PROPERTY, QUERY_TYPE_PREFIX);
-        configuration.put(cswSource.IDENTIFIER_MAPPING_PROPERTY, IDENTIFIER_MAPPING);
+        configuration.put(cswSource.QUERY_TYPE_NAME_PROPERTY, QUERY_TYPE_NAME);
+        configuration.put(cswSource.QUERY_TYPE_NAMESPACE_PROPERTY, QUERY_TYPE_NAMESPACE);
+        configuration.put(cswSource.METACARD_MAPPINGS_PROPERTY, metacardMappings);
         configuration.put(cswSource.DISABLE_CN_CHECK_PROPERTY, false);
         configuration.put(cswSource.COORDINATE_ORDER_PROPERTY, COORDINATE_ORDER);
         configuration.put(cswSource.USE_POS_LIST_PROPERTY, false);
-        configuration.put(cswSource.CREATED_DATE_MAPPING_PROPERTY, CREATED_DATE);
-        configuration.put(cswSource.EFFECTIVE_DATE_MAPPING_PROPERTY, EFFECTIVE_DATE);
-        configuration.put(cswSource.MODIFIED_DATE_MAPPING_PROPERTY, MODIFIED_DATE);
-        configuration.put(cswSource.CONTENT_TYPE_MAPPING_PROPERTY, CONTENT_TYPE);
         configuration.put(cswSource.POLL_INTERVAL_PROPERTY, POLL_INTERVAL);
         configuration.put(cswSource.CSWURL_PROPERTY, URL);
         configuration.put(cswSource.IS_CQL_FORCED_PROPERTY, false);

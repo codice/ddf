@@ -14,6 +14,20 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <service interface="ddf.catalog.data.MetacardType" >
+        <service-properties>
+            <entry key="name" value="csw:Record" />
+        </service-properties>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType" />
+    </service>
+
+    <service interface="ddf.catalog.data.MetacardType" >
+        <service-properties>
+            <entry key="name" value="gmd:MD_Metadata" />
+        </service-properties>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType" />
+    </service>
+
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
                filter="id=catalog.data.metacard.resource"/>
 
@@ -24,7 +38,12 @@
     <service interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="csw:Record"/>
-            <entry key="mime-type" value="text/xml"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                </list>
+            </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
@@ -33,7 +52,12 @@
     <service interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
             <entry key="id" value="csw:Record"/>
-            <entry key="mime-type" value="text/xml"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                </list>
+            </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter"/>
@@ -42,7 +66,12 @@
     <service interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
             <entry key="id" value="gmd:MD_Metadata"/>
-            <entry key="mime-type" value="text/xml"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                </list>
+            </entry>
             <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
         </service-properties>
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer"/>
@@ -100,7 +129,12 @@
              interface="ddf.catalog.transform.QueryResponseTransformer">
         <service-properties>
             <entry key="id" value="csw:Record"/>
-            <entry key="mime-type" value="text/xml"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                </list>
+            </entry>
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2"/>
         </service-properties>
     </service>

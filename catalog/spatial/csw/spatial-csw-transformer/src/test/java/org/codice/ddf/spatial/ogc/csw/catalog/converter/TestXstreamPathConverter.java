@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,17 +18,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 
-
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.path.Path;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.StaxReader;
 
 public class TestXstreamPathConverter {
 
@@ -59,6 +66,8 @@ public class TestXstreamPathConverter {
 
     private XStream xstream;
 
+    private DataHolder argumentHolder;
+
     @Before
     public void setup() {
 
@@ -71,32 +80,49 @@ public class TestXstreamPathConverter {
         xstream.setClassLoader(this.getClass()
                 .getClassLoader());
         XstreamPathConverter converter = new XstreamPathConverter();
-        converter.setPaths(PATHS);
         xstream.registerConverter(converter);
         xstream.alias("Polygon", XstreamPathValueTracker.class);
+        argumentHolder = xstream.newDataHolder();
+        argumentHolder.put(XstreamPathConverter.PATH_KEY, PATHS);
 
     }
 
     @Test
-    public void testAttributeValid() {
-        XstreamPathValueTracker pathValueTracker =
-                (XstreamPathValueTracker) xstream.fromXML(GML_XML);
+    public void testAttributeValid() throws XMLStreamException {
+        XMLStreamReader streamReader = XMLInputFactory.newInstance()
+                .createXMLStreamReader(new StringReader(GML_XML));
+        HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+        XstreamPathValueTracker pathValueTracker = (XstreamPathValueTracker) xstream.unmarshal(
+                reader,
+                null,
+                argumentHolder);
+
         assertThat(pathValueTracker.getPathValue(POLYGON_GML_ID_PATH), is("p1"));
 
     }
 
     @Test
-    public void testGetFirstNodeValue() {
-        XstreamPathValueTracker pathValueTracker =
-                (XstreamPathValueTracker) xstream.fromXML(GML_XML);
+    public void testGetFirstNodeValue() throws XMLStreamException {
+        XMLStreamReader streamReader = XMLInputFactory.newInstance()
+                .createXMLStreamReader(new StringReader(GML_XML));
+        HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+        XstreamPathValueTracker pathValueTracker = (XstreamPathValueTracker) xstream.unmarshal(
+                reader,
+                null,
+                argumentHolder);
         assertThat(pathValueTracker.getPathValue(POLYGON_POS_PATH), is("-180.000000 90.000000"));
 
     }
 
     @Test
-    public void testBadPath() {
-        XstreamPathValueTracker pathValueTracker =
-                (XstreamPathValueTracker) xstream.fromXML(GML_XML);
+    public void testBadPath() throws XMLStreamException {
+        XMLStreamReader streamReader = XMLInputFactory.newInstance()
+                .createXMLStreamReader(new StringReader(GML_XML));
+        HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+        XstreamPathValueTracker pathValueTracker = (XstreamPathValueTracker) xstream.unmarshal(
+                reader,
+                null,
+                argumentHolder);
         assertThat(pathValueTracker.getPathValue(BAD_PATH), nullValue());
 
     }

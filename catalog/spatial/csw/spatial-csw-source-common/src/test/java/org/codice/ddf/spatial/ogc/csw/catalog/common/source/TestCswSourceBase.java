@@ -121,9 +121,9 @@ public class TestCswSourceBase {
 
     protected static final String OUTPUT_SCHEMA = "outputSchema";
 
-    protected static final String QUERY_TYPE_QNAME = "queryQname";
+    protected static final String QUERY_TYPE_NAME = "queryTypeName";
 
-    protected static final String QUERY_TYPE_PREFIX = "queryType";
+    protected static final String QUERY_TYPE_NAMESPACE = "http://example.com/namespace";
 
     protected static final String IDENTIFIER_MAPPING = "idMapping";
 
@@ -136,6 +136,8 @@ public class TestCswSourceBase {
     protected static final String MODIFIED_DATE = "modifiedProperty";
 
     protected static final String CONTENT_TYPE = "contentTypeProperty";
+
+    protected static String[] metacardMappings;
 
     protected static final Integer POLL_INTERVAL = 100;
 
@@ -153,6 +155,8 @@ public class TestCswSourceBase {
     protected BundleContext mockContext = mock(BundleContext.class);
 
     protected AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
+
+    protected List<MetacardType> mockRegistry = new ArrayList<>();
 
     protected String getRecordsControlXml202 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -207,6 +211,11 @@ public class TestCswSourceBase {
         XMLUnit.setIgnoreWhitespace(true);
         XMLUnit.setIgnoreAttributeOrder(true);
         XMLUnit.setIgnoreComments(true);
+
+        metacardMappings = new String[] {Metacard.ID + "=" + IDENTIFIER_MAPPING,
+                Metacard.CREATED + "=" + CREATED_DATE, Metacard.EFFECTIVE + "=" + EFFECTIVE_DATE,
+                Metacard.MODIFIED + "=" + MODIFIED_DATE,
+                Metacard.CONTENT_TYPE + "=" + CONTENT_TYPE};
     }
 
     @Before
