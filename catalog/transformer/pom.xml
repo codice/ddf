@@ -99,5 +99,6 @@
         <module>catalog-transformer-streaming-impl</module>
         <module>catalog-transformer-streaming-lib</module>
         <module>catalog-transformer-pdf</module>
+        <module>catalog-transformer-microsoft</module>
     </modules>
 </project>

@@ -80,22 +80,17 @@ public class MetacardCreator {
 
         final String lat = metadata.get(Metadata.LATITUDE);
         final String lon = metadata.get(Metadata.LONGITUDE);
-        final String wkt = toWkt(lon, lat);
-        if (StringUtils.isNotBlank(wkt)) {
-            metacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, wkt));
-        }
+
+        createWktFromLonLat(metacard, lon, lat);
 
         return metacard;
     }
 
-    private static String toWkt(final String lon, final String lat) {
-        if (StringUtils.isBlank(lon) || StringUtils.isBlank(lat)) {
-            return null;
+    public static void createWktFromLonLat(Metacard metacard, String lon, String lat) {
+        if (!StringUtils.isBlank(lon) && !StringUtils.isBlank(lat)) {
+            String wkt = String.format("POINT(%s %s)", lon, lat);
+            metacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, wkt));
         }
-
-        final String wkt = String.format("POINT(%s %s)", lon, lat);
-        LOGGER.debug("wkt: {}", wkt);
-        return wkt;
     }
 
     private static Date convertDate(final String dateStr) {

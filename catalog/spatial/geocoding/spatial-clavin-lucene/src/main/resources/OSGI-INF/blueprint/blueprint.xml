@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+               http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <bean id="clavinMetacardEnricher" class="org.codice.ddf.spatial.clavin.ClavinMetacardEnricher">
+        <cm:managed-properties persistent-id="org.codice.ddf.spatial.clavin.index.properties"
+                               update-strategy="container-managed"/>
+        <property name="clavinIndexLocation" value="data/clavin-index"/>
+    </bean>
+
+    <bean id="clavinUpdateCommandImpl" class="org.codice.ddf.spatial.clavin.ClavinUpdateCommandImpl">
+        <cm:managed-properties persistent-id="org.codice.ddf.spatial.clavin.index.properties"
+                               update-strategy="container-managed"/>
+        <property name="clavinIndexLocation" value="data/clavin-index"/>
+    </bean>
+
+    <service ref="clavinMetacardEnricher" interface="ddf.catalog.transform.MetacardEnricher">
+        <service-properties>
+            <entry key="id" value="clavinMetacardEnricher"/>
+            <!-- shortname only exists for backwards compatibility -->
+            <entry key="shortname" value="clavin"/>
+            <entry key="description"
+                   value="Enriches metacard using clavin."/>
+        </service-properties>
+    </service>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+        <command name="clavin/update">
+            <action class="org.codice.ddf.spatial.clavin.ClavinUpdateCommand">
+                <property name="clavinUpdateCommandImpl" ref="clavinUpdateCommandImpl"/>
+            </action>
+        </command>
+    </command-bundle>
+
+</blueprint>

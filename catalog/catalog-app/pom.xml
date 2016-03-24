@@ -467,5 +467,20 @@
             <artifactId>catalog-core-directorymonitor</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>microsoft-input-transformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-clavin-command</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-clavin-lucene</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

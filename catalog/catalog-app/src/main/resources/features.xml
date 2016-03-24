@@ -227,6 +227,12 @@
         <bundle>mvn:ddf.catalog.transformer/video-input-transformer/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-transformer-microsoft" install="manual" version="${project.version}"
+             description="Microsoft Input Transformer.">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-clavin-lucene/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.transformer/microsoft-input-transformer/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-json" install="auto" version="${project.version}"
              description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature prerequisite="true">catalog-app</feature>

@@ -1,0 +1,107 @@
+1282503	Île Yeye	Ile Yeye	Ile Yeye,Île Yeye	-5.24282	71.96228	T	ISL	IO		00				0		5	Indian/Chagos	2012-01-18
+1282504	Wight Bank	Wight Bank	Wight Bank,Wiglit Bank	-7.41442	71.5261	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282505	West Island	West Island	West Island,West Islet	-7.24801	72.38434	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282506	Victory Bank	Victory Bank	Victory Bank	-5.55	72.23333	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-05-06
+1282507	Île Verte	Ile Verte	Ile Verte,Île Verte	-5.32891	71.74281	T	ISL	IO		00				0		3	Indian/Chagos	2012-01-18
+1282508	Vancleve Shoal	Vancleve Shoal		-7.26415	72.38369	H	SHOL	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282509	Île Vache Marine	Ile Vache Marine	Ile Vache Marine,Île Vache Marine	-5.42401	71.82931	T	ISL	IO		00				0		10	Indian/Chagos	2012-01-18
+1282510	Three Brothers	Three Brothers	Three Brothers,Three Brothers Islands	-6.14389	71.56222	T	ISLS	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282511	Île Tattamucca	Ile Tattamucca		-6.68164	71.36749	T	ISL	IO		00				0		17	Indian/Chagos	2008-11-10
+1282512	Île Takamaka	Ile Takamaka		-5.3311	72.2712	T	ISL	IO		00				0		9	Indian/Chagos	2008-11-07
+1282513	Île Sudest	Ile Sudest		-6.6866	71.38739	T	ISL	IO		00				0		10	Indian/Chagos	2008-11-10
+1282514	Spur Reef	Spur Reef		-7.23448	72.40516	H	RF	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282515	Speakers Bank	Speakers Bank	Speakers Bank	-4.88126	72.34855	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-02-02
+1282516	Île Sipaille	Ile Sipaille		-6.65545	71.31504	T	ISL	IO		00				0		19	Indian/Chagos	2008-11-10
+1282517	Simpson Point	Simpson Point		-7.2714	72.35338	T	PT	IO		00				0		1	Indian/Chagos	2008-11-12
+1282518	Île Sepulture	Ile Sepulture		-5.34921	72.25336	T	ISL	IO		00				0		-9999	Indian/Chagos	2008-11-07
+1282519	Île du Sel	Ile du Sel		-5.35468	72.22664	T	ISL	IO		00				0		5	Indian/Chagos	2008-11-07
+1282520	Salomon Islands	Salomon Islands	Salomon Islands	-5.32917	72.24536	T	ATOL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282521	Île Saint-Brandon	Ile Saint-Brandon		-5.24834	71.8335	T	ISL	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282522	Île des Rats	Ile des Rats		-6.6452	71.31308	T	ISL	IO		00				0		3	Indian/Chagos	2008-11-10
+1282523	Rambler Bay	Rambler Bay		-7.29307	72.47256	H	BAY	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282524	Île Poule	Ile Poule	Ile Poule,Île Poule	-5.40584	71.75027	T	ISL	IO		00				0		15	Indian/Chagos	2012-01-18
+1282525	Île Poule	Ile Poule		-5.35878	72.22084	T	ISL	IO		00				0		-9999	Indian/Chagos	2008-11-07
+1282526	Pitt Bank	Pitt Bank	Pitt Bank	-7.01537	71.25453	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-05-06
+1282527	Île Pierre	Ile Pierre	Ile Pierre,Île Pierre	-5.29046	71.73784	T	ISL	IO		00				0		10	Indian/Chagos	2012-01-18
+1282528	Petite Soeur	Petite Soeur		-5.36417	71.75477	T	ISL	IO		00				0		13	Indian/Chagos	2008-11-10
+1282529	Petite Île Mapou	Petite Ile Mapou	Petite Ile Mapou,Petite Île Mapou	-5.27346	71.74631	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282530	Petite Île de la Passe	Petite Ile de la Passe		-5.23333	71.81667	T	ISL	IO		00				0		-9999	Indian/Chagos	1993-12-22
+1282531	Petite Île Coquillage	Petite Ile Coquillage		-5.33931	71.97332	T	ISL	IO		00				0		6	Indian/Chagos	2008-11-10
+1282532	Peros Banhos	Peros Banhos	Peros Banhos,Peros Banhos Island	-5.33333	71.85	T	ATOL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282533	Île de la Passe	Ile de la Passe		-5.3023	72.25299	T	ISL	IO		00				0		7	Indian/Chagos	2008-11-07
+1282534	Île de la Passe	Ile de la Passe		-5.24212	71.8153	T	ISL	IO		00				0		18	Indian/Chagos	2008-11-10
+1282535	Parry Patch	Parry Patch		-7.28627	72.45168	H	RF	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282536	Île Parasol	Ile Parasol	Ile Parasol,Ile Parasole,Île Parasol	-5.26373	71.84357	T	ISL	IO		00				0		4	Indian/Chagos	2012-01-18
+1282537	Owen Bank	Owen Bank	Owen Bank	-6.8	70.25	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-05-06
+1282538	Orient Bay	Orient Bay		-7.24744	72.43872	H	BAY	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282539	Observatory Point	Observatory Point		-7.23876	72.43411	T	PT	IO		00				0		7	Indian/Chagos	2008-11-10
+1282541	Moresby Islands	Moresby Islands		-5.237	71.82596	T	ISLS	IO		00				0		7	Indian/Chagos	2008-11-10
+1282542	Île Monpatre	Ile Monpatre	Ile Monpatre,Île Monpatre	-5.42372	71.75113	T	ISL	IO		00				0		12	Indian/Chagos	2012-01-18
+1282543	Minni Minni Patch	Minni Minni Patch		-7.31007	72.46707	H	RF	IO		00				0		1	Indian/Chagos	2008-11-12
+1282544	Minni Minni	Minni Minni		-7.31694	72.48296	P	PPLQ	IO		00				0		25	Indian/Chagos	2008-11-12
+1282545	Middle Passage	Middle Passage	Middle Pass,Middle Passage	-7.22237	72.40933	H	CHN	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282546	Middle Island	Middle Island	Middle Island,Middle Islet	-7.22826	72.40828	T	ISL	IO		00				0		5	Indian/Chagos	2012-01-18
+1282547	Pointe Marianne	Pointe Marianne	Point Marianne,Pointe Marianne	-7.3137	72.43359	T	PT	IO		00				0		4	Indian/Chagos	2012-01-18
+1282548	Mapou de Î’ile du Coin	Mapou de I'ile du Coin		-5.46163	71.7918	T	ISL	IO		00				0		8	Indian/Chagos	2008-11-10
+1282549	Île Mapou	Ile Mapou		-5.31143	72.26466	T	ISL	IO		00				0		10	Indian/Chagos	2008-11-07
+1282550	Île Manon	Ile Manon	Ile Manon,Île Manon	-5.3149	71.73587	T	ISL	IO		00				0		4	Indian/Chagos	2012-01-18
+1282551	Île Manoël	Ile Manoel	Ile Manoel,Île Manoel,Île Manoël	-5.25915	71.92237	T	ISL	IO		00				0		13	Indian/Chagos	2012-01-18
+1282552	Main Passage	Main Passage	Main Pass,Main Passage	-7.23379	72.38041	H	CHN	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282553	Île Lubine	Ile Lubine		-6.66819	71.33024	T	ISL	IO		00				0		13	Indian/Chagos	2008-11-10
+1282554	Île Longue	Ile Longue	Ile Longue,Île Longue	-5.26922	71.86877	T	ISL	IO		00				0		6	Indian/Chagos	2012-01-18
+1282555	Leconte Point	Leconte Point		-7.27091	72.45936	T	PT	IO		00				0		1	Indian/Chagos	2008-11-10
+1282556	Jennifer Shoal	Jennifer Shoal		-7.28333	72.43333	H	RF	IO		00				0		-9999	Indian/Chagos	1993-12-22
+1282557	Île Jacobin	Ile Jacobin		-5.35072	72.24547	T	ISL	IO		00				0		-9999	Indian/Chagos	2008-11-07
+1282558	Horsburgh Point	Horsburgh Point		-7.38016	72.49263	T	PT	IO		00				0		3	Indian/Chagos	2008-11-12
+1282559	Great Chagos Bank	Great Chagos Bank	Great Chagos,Great Chagos Bank	-6.31472	71.90222	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282560	Grande Soeur	Grande Soeur		-5.34603	71.74943	T	ISL	IO		00				0		11	Indian/Chagos	2008-11-10
+1282561	Grande Île Mapou	Grande Ile Mapou	Grande Ile Mapou,Grande Île Mapou	-5.2654	71.75025	T	ISL	IO		00				0		11	Indian/Chagos	2012-01-18
+1282562	Grande Île Coquillage	Grande Ile Coquillage		-5.37305	71.96936	T	ISL	IO		00				0		8	Indian/Chagos	2008-11-10
+1282563	Ganges Bank	Ganges Bank	Ganges Bank	-7.37862	70.97325	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-05-06
+1282564	Île Gabrielle	Ile Gabrielle	Ile Gabrielle,Île Gabrielle	-5.42282	71.74917	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282565	Île Fouquet	Ile Fouquet	Ile Fouquet,Île Fouquet	-5.46253	71.81055	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282566	Île Fouquet	Ile Fouquet		-5.34161	72.26631	T	ISL	IO		00				0		13	Indian/Chagos	2008-11-07
+1282567	Île Finon	Ile Finon	Ile Finon,Île Finon	-5.33214	71.74427	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282568	Elder Rock	Elder Rock		-7.3	72.45	T	RK	IO		00				0		-9999	Indian/Chagos	1993-12-22
+1282569	Egmont Islands	Egmont Islands	Egmont,Egmont Islands,Six Islands	-6.65443	71.35028	T	ISLS	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282570	Eclipse Point	Eclipse Point		-7.25784	72.37963	T	PT	IO		00				0		-9999	Indian/Chagos	2008-11-12
+1282571	Eclipse Bay	Eclipse Bay		-7.26684	72.38192	H	BAY	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282572	East Point	East Point		-7.35261	72.46348	T	PT	IO		00				0		-9999	Indian/Chagos	2008-11-12
+1282573	East Island	East Island	East Island,East Islet	-7.22674	72.41868	T	ISL	IO		00				0		7	Indian/Chagos	2012-01-18
+1282574	Eagle Islands	Eagle Islands	Eagle,Eagle Islands	-6.18254	71.33245	T	ISLS	IO		00				0		15	Indian/Chagos	2011-03-15
+1282575	Diego Garcia	Diego Garcia	Atol Diego Garcia,Atol Diego García,Diego Garcia,Diego García,Diego Garsia,Diego Garsija,Diego-Garsija,Dijego Garsija,Diyegogarsiya,Ntienko Nkarsia,Vostrau Dyega-Garsija,di ge jia xi ya dao,di xe ko kar si xa,di'ego garsiya,diegogaleusia seom,diegogarushia dao,diyego garsiya,dyyghw gharsya,dyygw grsyh,jzyrh dyh‌gw garsya,tiyeko karciya,Ντιέγκο Γκαρσία,Востраў Дыега-Гарсія,Диего Гарсия,Диего-Гарсия,Дијего Гарсија,Дієго-Гарсія,דייגו גרסיה,جزیره دیه‌گو گارسیا,دييغو غارسيا,ڈیگو گارشیا,डिएगो गार्सिया,দিয়েগো গার্সিয়া,தியேகோ கார்சியா,డియెగో గార్సియా,ഡീഗോ ഗാർഷിയ,ดีเอโกการ์ซีอา,ディエゴガルシア島,迪戈加西亚岛,디에고가르시아 섬	-7.31754	72.4524	T	ATOL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282576	Île Diamant	Ile Diamant	Ile Diamant,Île Diamant	-5.25369	71.76208	T	ISL	IO		00				0		13	Indian/Chagos	2012-01-18
+1282577	Île Diable	Ile Diable		-5.34619	72.20368	T	ISL	IO		00				0		-9999	Indian/Chagos	2008-11-07
+1282578	Danger Shoals	Danger Shoals		-5.41432	71.80686	H	SHOL	IO		00				0		-9999	Indian/Chagos	2008-11-10
+1282579	Danger Island	Danger Island	Danger,Danger Island	-6.38333	71.26528	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282580	Cust Point	Cust Point		-7.28962	72.49208	T	PT	IO		00				0		7	Indian/Chagos	2008-11-12
+1282581	Colvocoresses Reef	Colvocoresses Reef	Colvocoresses Reef	-4.88943	72.61795	H	RF	IO		00				0		-9999	Indian/Chagos	2012-02-02
+1282582	Coin du Mire	Coin du Mire	Coin du Mire,Gunners Coign	-5.42711	71.8811	T	ISL	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282583	Île du Coin	Ile du Coin		-5.45392	71.76622	T	ISL	IO		00				0		13	Indian/Chagos	2008-11-10
+1282585	Cauvin Bank	Cauvin Bank	Cauvin Bank	-6.81494	72.34032	H	BNK	IO		00				0		-9999	Indian/Chagos	2012-05-06
+1282586	Île Carre Pate	Ile Carre Pate		-6.67804	71.36284	T	ISL	IO		00				0		6	Indian/Chagos	2008-11-10
+1282587	Camp Cummins	Camp Cummins		-7.25	72.38333	S	CMP	IO		00				0		-9999	Indian/Chagos	1993-12-22
+1282588	British Indian Ocean Territory	British Indian Ocean Territory	Agbegbe Okun India Britani,Agbègbè Òkun Índíà Brítánì,Angilɛ ka ɛndu dugukolo,Bizinga by'eCago,Bresku Indlandshafseyjar,Bretsku Indiahavsoyggjarnar,Brit Indiai-oceani Teruelet,Brit Indiai-óceáni Terület,Brita Hindoceana Teritorio,Britaintɔwo ƒe india ƒudome nutome,Britaniana teritorio en Indiana Oceano,Britanin latta Indin okeanekh',Britaniya Hind okeanı əraziləri,Britaniya-Hindistan Okeanik territoriyasi,Britaniya-Hindistan Okeanik territoriyası,Britans'ka teritorija v Indijs'komu okeani,Britans'ki teritorii Indijs'kogo okeanu,Britanska indookeanska teritorija,Britanska teritorija Indijskog okeana,Britanska teritorija u Indijskom okeanu,Britanskaja Territorija v Indijskom Okeane,Britanskaja territorija v Indijskom okeane,Britanske indijskookeanske teritorije,Britanski Indijskooceanski teritorij,Britanski Teritorij Indijskog Oceana,Britanski teritorii v Indijskija okean,Britanski teritorij Indijskog oceana,Britansko Indijska Okeanska Teritorija,Britansko Indisko Okeanska teritorija,Britansko ozemlje v Indijskem oceanu,Britanya Hint Okyanusu Topraklari,Britanya Hint Okyanusu Toprakları,Britenfo Hɔn Man Wɔ India Po No Mu,Briti India ookeani ala,Britisches Territorium im Indischen Ozean,Britischs Territorium im Indischn Ozean,British Indian Ocean Territory,Britiske omrade i Det indiske hav,Britiske område i Det indiske hav,Britiske territorier i Indiahavet,Brits Indische Oceaanterritorium,Britse Gebieden in de Indische Oceaan,Britse Indiese Oseaan Gebied,Britse Indiese Oseaangebied,Britske indickooceanske uzemi,Britske indickooceanske uzemie,Britske uzemie v Indickom oceane,Britské indickooceánske územie,Britské indickooceánské území,Britské územie v Indickom oceáne,Brittilaeinen Intian valtameren alue,Brittiläinen Intian valtameren alue,Brittiska Indiska oceanoearna,Brittiska Indiska oceanöarna,Brittiska territoriet i Indiska oceanen,Britu Indijas Okeana Teritorija,Britu Indijas Okeāna Teritorija,Brytanskaa terytorya Indyjskaga akianu,Brytanskaja tehrytoryja u Indyjskim akijane,Bryttisca Indisca Garsecg Landscipe,Brytyjskie Terytorium Oceanu Indyjskiego,Criocha Briotanacha an Aigein Indiagh,Críocha Briotanacha an Aigéin Indiagh,Det Britiske Territorium i Det Indiske Ocean,Det britiske territoriet i Indiahavet,Eneo la Uingereza katika Bahari Hindi,Faridranomasina indiana britanika,Indi okeanyndagy Britan territorijasy,Indiako Ozeanoko Britainiar Lurraldea,Indijas okeana Britu teritorija,Indijas okeāna Britu teritorija,Indijos Vandenyno Britu Sritis,Indijos Vandenyno Britų Sritis,Indijos vandenyno britu sritis,Indijos vandenyno britų sritis,Indijy furdy Britanijy territori,Ingiliz Hint Okyanusu Boelgesi,Intara y'Ubwongereza yo mu birwa by'Abahindi,Keeriindi britaani to maayo enndo,Lanh tho An GJo Duong thuoc Anh,Lutanda lwa Angeletele ku mbu wa Indiya,Lãnh thổ Ấn Độ Dương thuộc Anh,Mabelé ya Angɛlɛtɛ́lɛ na mbú ya Indiya,Orileede Etikun Indiani ti Ilu Biritisi,Orílẹ́ède Etíkun Índíánì ti Ìlú Bírítísì,Potu fonua moana 'Initia fakapilitania,Potu fonua moana ʻInitia fakapilitānia,Sese ti Anglee na Nguyaemae ti Ennde,Sêse tî Anglëe na Ngûyämä tî Ênnde,Teritoeio Britannego de lOceano Indian,Teritori Samudra Hindia Britania,Teritoriul Britanic din Oceanul Indian,Teritoryo han Britanya ha Kalawdan Indyano,Teritwari y'Inyanja y'Abahinde Nyongereza,Teritwari y’Inyanja y’Abahinde Nyongereza,Teritöio Britannego de lOçeano Indian,Territoire britannique de l'ocean Indien,Territoire britannique de l'océan Indien,Territoires britanniques de l'Ocean Indien,Territoires britanniques de l'Océan Indien,Territori Britanic de l'Ocea Indic,Territori Britanic de lOcea Indic,Territori Britannic en l'Ocean Indic,Territori Britànic de l'Oceà Índic,Territori Britànic de lOceà Índic,Territorio Britanico de lOcian Indico,Territorio Britanico de lOcián Indico,Territorio Britanico del Oceano Indico,Territorio Britanico do Oceano Indico,Territorio Britannico dell'Oceano Indiano,Territorio Britannico dell’Oceano Indiano,Territorio Británico del Océano Índico,Territorio Británico do Océano Índico,Territorio britannico dellOceano Indiano,Territorio oceanic britanno-indian,Território Britânico do Oceano Índico,Terytorium Brytyjskie Oceanu Indyjskiego,Thuoc gia Anh tai An GJo Duong,Thuộc địa Anh tại Ấn Độ Dương,Tiriad Meurvor Indez Breizh-Veur,Tiriad breizhveurat Meurvor Indez,Tiriogaeth Brydeinig Cefnfor India,Tiriogaeth Cefnfor India Prydain,Téritori Samudra Hindia Britania,Vretanika Edafi Indikou Okeanou,Vretaniko Edafos Indikou Okeanou,Wilayah Inggreh di Samudra Hindia,Wilayah Inggris di Samudra Hindia,Wilayah Inggréh di Samudra Hindia,Wilayah Lautan Hindi British,Wilayah Samudra Hindia Britania,Yankin Birtaniya Na Tekun Indiya,alaqlym albrytany fy almhyt alhndy,aqlym almhyt alhndy albrytany,baratanavi hida mahansagara rajakhetara,belayati hinda mahasagara ksetra,braitisba indiyana mahasagarara ancala,britich xin deiy n xo cheiy n ther ri thx ri,britis bharatiya osan prantam,britis bharatiya samudrika ksetra,britis indiyan mahasagara pradesa,britisa bharata mahasagariya ancala,britisa hinda mahasagara ksetra,britisa hinda mahasagariya ksetra,britisa hindi mahasagara ksetra,britisa indiyana osana teritari,i-British Indian Ocean Territory,igirisu lingindo yang de yu,pirittaniya intiyap perunkatal mantalam,pirittis intiyap perunkatal pakuti,qlmrw brytanya dr aqyanws hnd,yeong-guglyeong indoyang jiyeog,ying lingindo yang de yu,ying shu yin du yang ling de,İngiliz Hint Okyanusu Bölgesi,Βρετανικά Εδάφη Ινδικού Ωκεανού,Βρετανικό Έδαφος Ινδικού Ωκεανού,Британин латта Индин океанехь,Британска индоокеанска територия,Британска територија Индијског океана,Британска територија у Индијском океану,Британская Территория в Индийском Океане,Британская территория в Индийском океане,Британски територии в Индийския океан,Британско Индиско Океанска територија,Британська територія в Індійському океані,Британські території Індійського океану,Брытанская тэрыторыя Індыйскага акіяну,Брытанская тэрыторыя ў Індыйскім акіяне,Инди океанындагы Британ территориясы,Индийы фурды Британийы территори,Үнді мұхитындағы Британия аймағы,Հնդկական օվկիանոսի բրիտանական տարածքներ,הטריטוריה הבריטית באוקיינוס ההודי,טריטוריה בריטית באוקיאנוס ההודי,إقليم المحيط الهندي البريطاني,الإقليم البريطاني في المحيط الهندي,برطانوی بحرہند خطہ,برطانوی ہندوستانی سمندری خطہ,قلمرو بریتانیا در اقیانوس هند,مستعمره‌های بریتانیا در اقیانوس هند,बेलायती हिन्द महासागर क्षेत्र,ब्रिटिश इंडियन ओशन टेरीटरी,ब्रिटिश हिंद महासागर क्षेत्र,ब्रिटिश हिंद महासागरीय क्षेत्र,ब्रिटीश हिंदी महासागर क्षेत्र,ব্রিটিশ ভারত মহাসাগরীয় অঞ্চল,ব্ৰিটিশ্ব ইণ্ডিয়ান মহাসাগৰৰ অঞ্চল,ਬਰਤਾਨਵੀ ਹਿੰਦ ਮਹਾਂਸਾਗਰ ਰਾਜਖੇਤਰ,બ્રિટિશ ઇન્ડિયન ઓશન ટેરિટરી,ବ୍ରିଟିଶ୍ ଭାରତୀୟ ସାମୁଦ୍ରିକ କ୍ଷେତ୍ର,பிரிட்டிஷ் இந்தியப் பெருங்கடல் பகுதி,பிரித்தானிய இந்தியப் பெருங்கடல் மண்டலம்,బ్రిటిష్ భారతీయ ఓషన్ ప్రాంతం,ಬ್ರಿಟೀಶ್ ಇಂಡಿಯನ್ ಮಹಾಸಾಗರ ಪ್ರದೇಶ,ബ്രിട്ടീഷ് ഇന്ത്യന്‍ മഹാസമുദ്ര പ്രദേശം,බ්‍රිතාන්‍ය ඉන්දීය සාගර ප්‍රාන්තය,บริติชอินเดียนโอเชียนเทร์ริทอรี,ဗြိတိသျှ အိန္ဒိယသမုဒ္ဒရာ နယ်မြေ,ဗြိတိသျှ အိန္ဒြိယ သမုဒ္ဒရာ ပိုင်နက်,ბრიტანეთის ინდოეთის ოკეანის ტერიტორია,ბრიტანული ტერიტორია ინდოეთის ოკეანეში,የብሪታኒያ ህንድ ውቂያኖስ ግዛት,የብሪታንያ ሕንድ ውቅያኖስ ግዛት,イギリス領インド洋地域,英属印度洋领地,英屬印度洋領地,英領インド洋地域,영국령 인도양 지역	-6	72	A	PCLD	IO		00				4000		-9999	Indian/Chagos	2015-10-30
+1282589	Île Boddam	Ile Boddam		-5.35903	72.2055	T	ISL	IO		00				0		7	Indian/Chagos	2008-11-07
+1282590	Blenheim Reef	Blenheim Reef	Blenheim Reef	-5.2	72.46667	H	RF	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282591	Benares Shoals	Benares Shoals	Benares Shoals	-5.25	71.66667	H	SHOL	IO		00				0		-9999	Indian/Chagos	2012-05-06
+1282592	Barton Point	Barton Point		-7.23291	72.43398	T	PT	IO		00				0		12	Indian/Chagos	2008-11-10
+1282593	Barton Passage	Barton Passage	Barton Pass,Barton Passage	-7.22536	72.43188	H	CHN	IO		00				0		-9999	Indian/Chagos	2012-01-18
+1282594	Île Anglaise	Ile Anglaise	Ile Anglaise,Île Anglaise	-5.43949	71.75313	T	ISL	IO		00				0		8	Indian/Chagos	2012-01-18
+1282595	Île Anglaise	Ile Anglaise		-5.32434	72.22276	T	ISL	IO		00				0		7	Indian/Chagos	2008-11-07
+6296986	Diego Garcia	Diego Garcia	FJDG,NKW	-7.31327	72.41109	S	AIRP	IO		00				0	2	0	Indian/Chagos	2007-01-03
+6896270	South Point	South Point		-7.44331	72.42645	T	PT	IO		00				0		8	Indian/Chagos	2009-01-06
+6896271	Turtle Bay	Turtle Bay		-7.42455	72.43639	H	BAY	IO		00				0		1	Indian/Chagos	2009-01-06
+6896272	Barochois Sylvaine	Barochois Sylvaine		-7.42963	72.42995	H	COVE	IO		00				0		1	Indian/Chagos	2009-01-06
+6896273	Skarda Pier	Skarda Pier		-7.29262	72.41057	S	PIER	IO		00				0		-9999	Indian/Chagos	2009-01-06
+6896274	Anniversary Island	Anniversary Island		-7.23769	72.40259	T	ISL	IO		00				0		-9999	Indian/Chagos	2009-01-06
+6902748	Passe de I'Île Poule	Passe de I'Ile Poule	Passe de I'Ile Poule,Passe de I'Île Poule	-5.38435	71.74468	H	CHN	IO		00				0		1	Indian/Chagos	2012-01-20
+6902749	Grande Île Bois Mangue	Grande Ile Bois Mangue	Grande Ile Bois Mangue,Grande Île Bois Mangue	-5.26984	71.89585	T	ISL	IO		00				0		11	Indian/Chagos	2012-01-20
+6902750	Petite Île Bois Mangue	Petite Ile Bois Mangue	Petite Ile Bois Mangue,Petite Île Bois Mangue	-5.27072	71.88478	T	ISL	IO		00				0		11	Indian/Chagos	2012-01-20
+6904651	Barachois Maurice	Barachois Maurice	Barachois Maurice	-7.3821	72.47808	H	COVE	IO		00				0		1	Indian/Chagos	2012-01-20
+6904652	Carcasse	Carcasse	Carcasse	-7.37453	72.48127	P	PPLQ	IO		00				0		14	Indian/Chagos	2012-01-20
+6904653	East Point Settlement	East Point Settlement	East Point Settlement	-7.35278	72.46823	P	PPLQ	IO		00				0		7	Indian/Chagos	2012-01-20
+6904654	Cannon Point	Cannon Point	Cannon Point	-7.25913	72.37268	T	PT	IO		00				0		8	Indian/Chagos	2012-01-20
+7503193	Bolt	Bolt	Bolt	-7.2771	72.46864	S	TRIG	IO		00				0		3	Indian/Chagos	2012-01-20
+7503194	Catalina Bay	Catalina Bay	Catalina Bay	-7.37315	72.47238	H	BAY	IO		00				0		1	Indian/Chagos	2012-01-20
+7503195	Downtown	Downtown	Downtown	-7.26181	72.37747	P	PPLL	IO		00				0		11	Indian/Chagos	2012-01-20
