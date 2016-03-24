@@ -487,6 +487,13 @@
             <type>xml</type>
         </dependency>
         <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>geowebcache-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
             <groupId>ddf.ui.search</groupId>
             <artifactId>search-ui-app</artifactId>
             <version>${project.version}</version>
