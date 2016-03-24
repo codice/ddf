@@ -20,7 +20,6 @@
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
         <feature>catalog-app</feature>
-        <feature>content-app</feature>
         <feature>search-ui-app</feature>
         <feature>solr-app</feature>
         <feature>spatial-app</feature>
@@ -34,7 +33,6 @@
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
         <feature>catalog-app</feature>
-        <feature>content-app</feature>
         <feature>solr-app</feature>
         <feature>search-ui-app</feature>
         <feature>spatial-app</feature>
