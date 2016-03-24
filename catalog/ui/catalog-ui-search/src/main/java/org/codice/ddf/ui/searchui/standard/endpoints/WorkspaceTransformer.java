@@ -100,7 +100,7 @@ public class WorkspaceTransformer {
         return null;
     }
 
-    public Map transform(Metacard m) {
+    public Map<String, Object> transform(Metacard m) {
         Map<String, Object> h = new HashMap<>();
 
         if (m != null) {

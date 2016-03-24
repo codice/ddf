@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -34,12 +35,14 @@ import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -103,6 +106,16 @@ public class WorkspacesEndpoint {
         return response;
     }
 
+    @PUT
+    @Path("/workspaces/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map putDocument(Map<String, Object> workspace, @PathParam("id") String id)
+            throws Exception {
+        Metacard updated = updateMetacard(id, transformer.transform(workspace));
+        return transformer.transform(updated);
+    }
+
     @DELETE
     @Path("/workspaces/{id}")
     public void deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
@@ -134,9 +147,17 @@ public class WorkspacesEndpoint {
         return cf.query(new QueryRequestImpl(new QueryImpl(f)))
                 .getResults()
                 .stream()
-                .map(result -> result.getMetacard())
-                .map(m -> transformer.transform(m))
+                .map(Result::getMetacard)
+                .map(transformer::transform)
                 .collect(Collectors.toList());
+    }
+
+    private Metacard updateMetacard(String id, Metacard metacard)
+            throws SourceUnavailableException, IngestException {
+        return cf.update(new UpdateRequestImpl(id, metacard))
+                .getUpdatedMetacards()
+                .get(0)
+                .getNewMetacard();
     }
 
     private Metacard saveMetacard(Metacard metacard)
