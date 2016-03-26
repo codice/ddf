@@ -185,7 +185,7 @@ public class CswQueryFactory {
                 CswConstants.CSW_RECORD_LOCAL_NAME,
                 CswConstants.CSW_NAMESPACE_PREFIX));
         boolean isTypeNameGmd = typeNames.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
-                CswConstants.GMD_RECORD_LOCAL_NAME));
+                GmdMetacardType.GMD_LOCAL_NAME));
 
         if (isTypeNameCsw || isTypeNameGmd) {
             try {

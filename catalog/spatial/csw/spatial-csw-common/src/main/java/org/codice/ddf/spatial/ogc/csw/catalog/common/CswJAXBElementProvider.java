@@ -57,6 +57,8 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
         prefixes.put(CswConstants.DUBLIN_CORE_SCHEMA, CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX);
         prefixes.put(CswConstants.DUBLIN_CORE_TERMS_SCHEMA,
                 CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX);
+        prefixes.put(GmdMetacardType.GMD_NAMESPACE,
+                GmdMetacardType.GMD_PREFIX);
 
         setNamespaceMapperPropertyName(NS_MAPPER_PROPERTY_RI);
         setNamespacePrefixes(prefixes);

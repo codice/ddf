@@ -640,15 +640,15 @@ public class TestCswSource extends TestCswSourceBase {
         GetRecordsType getRecordsType = captor.getValue();
 
         String xml = getGetRecordsTypeAsXml(getRecordsType);
-        Diff xmlDiff = new Diff(getRecordsControlXml202ContentTypeMappedToFormat, xml);
+        Diff xmlDiff = new Diff(getRecordsControlXml202ConteTypeAndVersion, xml);
 
         if (!xmlDiff.similar()) {
             LOGGER.error("Unexpected XML request sent");
-            LOGGER.error("Expected: {}", getRecordsControlXml202ContentTypeMappedToFormat);
-            LOGGER.error("Actual: {}", xml);
+            LOGGER.error("Expected:\n {}", getRecordsControlXml202ConteTypeAndVersion);
+            LOGGER.error("Actual:\n {}", xml);
         }
 
-        assertXMLEqual(getRecordsControlXml202ContentTypeMappedToFormat, xml);
+        assertXMLEqual(getRecordsControlXml202ConteTypeAndVersion, xml);
     }
 
     @Test

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -20,7 +20,8 @@ import static org.hamcrest.core.IsNull.nullValue;
 
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -50,17 +51,11 @@ public class TestXstreamPathConverter {
                     + "        </gml:LinearRing>\n" + "    " + "</gml:exterior>\n"
                     + "</gml:Polygon>" + "";
 
-    private XstreamPathConverter converter;
-
     private static final Path POLYGON_POS_PATH = new Path("/Polygon/exterior/LinearRing/pos");
 
     private static final Path BAD_PATH = new Path("/Polygon/a/b/c");
 
     private static final Path POLYGON_GML_ID_PATH = new Path("/Polygon/@id");
-
-    private static final List<Path> PATHS = Arrays.asList(POLYGON_POS_PATH,
-            BAD_PATH,
-            POLYGON_GML_ID_PATH);
 
     private static final String GML_NAMESPACE = "";
 
@@ -83,7 +78,10 @@ public class TestXstreamPathConverter {
         xstream.registerConverter(converter);
         xstream.alias("Polygon", XstreamPathValueTracker.class);
         argumentHolder = xstream.newDataHolder();
-        argumentHolder.put(XstreamPathConverter.PATH_KEY, PATHS);
+
+        Set<Path> paths = new LinkedHashSet<>();
+        paths.addAll(Arrays.asList(POLYGON_POS_PATH, BAD_PATH, POLYGON_GML_ID_PATH));
+        argumentHolder.put(XstreamPathConverter.PATH_KEY, paths);
 
     }
 
@@ -97,7 +95,7 @@ public class TestXstreamPathConverter {
                 null,
                 argumentHolder);
 
-        assertThat(pathValueTracker.getPathValue(POLYGON_GML_ID_PATH), is("p1"));
+        assertThat(pathValueTracker.getFirstValue(POLYGON_GML_ID_PATH), is("p1"));
 
     }
 
@@ -110,7 +108,7 @@ public class TestXstreamPathConverter {
                 reader,
                 null,
                 argumentHolder);
-        assertThat(pathValueTracker.getPathValue(POLYGON_POS_PATH), is("-180.000000 90.000000"));
+        assertThat(pathValueTracker.getFirstValue(POLYGON_POS_PATH), is("-180.000000 90.000000"));
 
     }
 
@@ -123,7 +121,7 @@ public class TestXstreamPathConverter {
                 reader,
                 null,
                 argumentHolder);
-        assertThat(pathValueTracker.getPathValue(BAD_PATH), nullValue());
+        assertThat(pathValueTracker.getFirstValue(BAD_PATH), nullValue());
 
     }
 

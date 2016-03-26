@@ -1,0 +1,47 @@
+<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+    <fileIdentifier>
+        <gco:CharacterString>ID</gco:CharacterString>
+    </fileIdentifier>
+    <hierarchyLevel>
+        <MD_ScopeCode codeListValue="dataset" codeList="urn:catalog:metacard"/>
+    </hierarchyLevel>
+    <contact/>
+    <dateStamp>
+        <gco:DateTime>2016-11-01T00:00:00.000-06:00</gco:DateTime>
+    </dateStamp>
+    <identificationInfo>
+        <MD_DataIdentification>
+            <citation>
+                <CI_Citation>
+                    <title>
+                        <gco:CharacterString></gco:CharacterString>
+                    </title>
+                    <date>
+                        <CI_Date>
+                            <date>
+                                <gco:DateTime>2014-11-01T00:00:00.000-06:00</gco:DateTime>
+                            </date>
+                            <dateType>
+                                <CI_DateTypeCode codeList="urn:catalog:metacard" codeListValue="created"/>
+                            </dateType>
+                        </CI_Date>
+                    </date>
+                </CI_Citation>
+            </citation>
+            <abstract>
+                <gco:CharacterString></gco:CharacterString>
+            </abstract>
+            <pointOfContact>
+                <CI_ResponsibleParty>
+                    <organisationName>
+                        <gco:CharacterString></gco:CharacterString>
+                    </organisationName>
+                    <role/>
+                </CI_ResponsibleParty>
+            </pointOfContact>
+            <language>
+                <gco:CharacterString>en</gco:CharacterString>
+            </language>
+        </MD_DataIdentification>
+    </identificationInfo>
+</MD_Metadata>

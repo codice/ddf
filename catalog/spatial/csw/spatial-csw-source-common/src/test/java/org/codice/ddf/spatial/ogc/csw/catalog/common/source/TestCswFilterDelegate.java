@@ -661,15 +661,13 @@ public class TestCswFilterDelegate {
 
     private final String configurableApisoTypeMappingXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO,
-            GmdMetacardType.APISO_TYPE,
+            APISO_TYPE,
             "myContentType");
 
     private final String configurableApisoAnyTextMappingXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_LIKE,
-            GmdMetacardType.APISO_ANYTEXT,
+            APISO_ANYTEXT,
             "myContentType");
-
-    private final String emptyFilterXml = getXmlHeaderString() + getXmlFooterString();
 
     private StringWriter writer = null;
 
@@ -709,6 +707,29 @@ public class TestCswFilterDelegate {
                     + " 30.000616830158776 30.00092315157021"
                     + " 30.000424880003134 30.00102575106595"
                     + " 30.000216601947248 30.00108893152347" + " 30.0 30.001110264953223");
+
+
+    private static final String APISO_PREFIX = "apiso:";
+
+    private static final String APISO_SUBJECT = APISO_PREFIX + "subject";
+
+    private static final String APISO_TITLE = APISO_PREFIX + "title";
+
+    private static final String APISO_ABSTRACT = APISO_PREFIX + "abstract";
+
+    private static final String APISO_FORMAT = APISO_PREFIX + "format";
+
+    private static final String APISO_IDENTIFIER = APISO_PREFIX + "Identifier";
+
+    private static final String APISO_MODIFIED = APISO_PREFIX + "modified";
+
+    private static final String APISO_TYPE = APISO_PREFIX + "type";
+
+    private static final String APISO_BOUNDING_BOX = APISO_PREFIX + "BoundingBox";
+
+    private static final String APISO_CRS = APISO_PREFIX + "crs";
+
+    private static final String APISO_ANYTEXT = APISO_PREFIX + CswConstants.ANY_TEXT;
 
     @BeforeClass
     public static void setupTestClass() throws JAXBException, ParseException {
@@ -1371,14 +1392,14 @@ public class TestCswFilterDelegate {
 
         // Setup
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, GmdMetacardType.APISO_IDENTIFIER);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, APISO_IDENTIFIER);
         cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED,
-                GmdMetacardType.APISO_MODIFIED);
+                APISO_MODIFIED);
         cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
-                GmdMetacardType.APISO_TYPE);
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.TITLE, GmdMetacardType.APISO_TITLE);
+                APISO_TYPE);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.TITLE, APISO_TITLE);
         cswSourceConfiguration.putMetacardCswMapping(CswConstants.ANY_TEXT,
-                GmdMetacardType.APISO_ANYTEXT);
+                APISO_ANYTEXT);
 
         cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LAT_LON);
         cswSourceConfiguration.setUsePosList(false);

@@ -14,6 +14,8 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -22,24 +24,35 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGmdTransformer {
 
-    private GmdTransformer gmdTransformer;
+    private static GmdTransformer gmdTransformer;
+
+    private static final String XML_DECLARATION =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
 
     private static final TreeSet<String> SUBJECTS = new TreeSet<>(Arrays.asList("Geologie",
             "World",
@@ -57,8 +70,8 @@ public class TestGmdTransformer {
                 .getName(), is(GmdMetacardType.GMD_METACARD_TYPE_NAME));
     }
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         gmdTransformer = new GmdTransformer();
     }
 
@@ -71,7 +84,7 @@ public class TestGmdTransformer {
     }
 
     @Test
-    public void testDataset() throws Exception {
+    public void testDatasetToMetacard() throws Exception {
         Metacard metacard = transform("/gmd/dataset.xml");
         assertGmdMetacard(metacard);
         DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
@@ -100,17 +113,19 @@ public class TestGmdTransformer {
         assertThat(subjectAttributes, is(SUBJECTS));
 
         assertThat(metacard.getResourceURI()
-                .toASCIIString(), is("http://example.com"));
+                .toASCIIString(), is("http:/example.com/linkage"));
         assertThat(metacard.getLocation(), is(
                 "POLYGON ((6.9 -44.94, 6.9 61.61, 70.35 61.61, 70.35 -44.94, 6.9 -44.94))"));
 
-        assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT).getValue(), is("example organization"));
-        assertThat(metacard.getAttribute(GmdMetacardType.GMD_PUBLISHER).getValue(), is("example organization"));
+        assertThat(metacard.getAttribute(Metacard.POINT_OF_CONTACT)
+                .getValue(), is("example organization"));
+        assertThat(metacard.getAttribute(GmdMetacardType.GMD_PUBLISHER)
+                .getValue(), is("example organization"));
 
     }
 
     @Test
-    public void testFormat() throws Exception {
+    public void testDatasetWithFormatToMetacard() throws Exception {
         Metacard metacard = transform("/gmd/dataset2.xml");
         assertGmdMetacard(metacard);
 
@@ -119,7 +134,7 @@ public class TestGmdTransformer {
     }
 
     @Test
-    public void testAllMetadata() throws Exception {
+    public void testAllGmdMetadataToMetacard() throws Exception {
         InputStream input = getClass().getResourceAsStream("/gmd/");
         try (BufferedReader rdr = new BufferedReader(new InputStreamReader(input))) {
             String line;
@@ -131,6 +146,61 @@ public class TestGmdTransformer {
                 }
             }
         }
+
+    }
+
+    @Test
+    public void testMetacardTransform() throws IOException, CatalogTransformerException {
+        Metacard metacard = getTestMetacard();
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.OMIT_XML_DECLARATION, false);
+
+        BinaryContent content = new GmdTransformer().transform(metacard, args);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml, startsWith(XML_DECLARATION));
+
+    }
+
+    @Test
+    public void testMetacardTransformNoDeclaration()
+            throws IOException, CatalogTransformerException {
+        Metacard metacard = getTestMetacard();
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.OMIT_XML_DECLARATION, true);
+
+        BinaryContent content = new GmdTransformer().transform(metacard, args);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml, not(startsWith(XML_DECLARATION)));
+
+    }
+
+    @Test
+    public void testMetacardTransformNullArgs() throws IOException, CatalogTransformerException {
+        Metacard metacard = getTestMetacard();
+
+        BinaryContent content = new GmdTransformer().transform(metacard, null);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml, startsWith(XML_DECLARATION));
+    }
+
+    @Test
+    public void testMetacardTransformNullMetacard()
+            throws IOException, CatalogTransformerException {
+
+        BinaryContent content = new GmdTransformer().transform((Metacard) null, null);
+
+        String xml = IOUtils.toString(content.getInputStream());
+
+        assertThat(xml.trim(), is(XML_DECLARATION));
+    }
+
+    private Metacard getTestMetacard() {
+        return new MetacardImpl(BasicTypes.BASIC_METACARD);
 
     }
 

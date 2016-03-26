@@ -76,6 +76,14 @@
         </service-properties>
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer"/>
     </service>
+    <service interface="ddf.catalog.transform.MetacardTransformer">
+        <service-properties>
+            <entry key="id" value="gmd:MD_Metadata"/>
+            <entry key="mime-type" value="text/xml"/>
+            <entry key="schema" value="http://www.isotc211.org/2005/gmd"/>
+        </service-properties>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.GmdTransformer"/>
+    </service>
 
     <bean id="getRecordsResponseConverter"
           class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
