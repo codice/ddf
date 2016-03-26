@@ -28,6 +28,7 @@ import java.util.function.Function;
 import javax.ws.rs.core.MediaType;
 
 import org.boon.json.JsonFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -43,6 +44,7 @@ import ddf.test.itests.AbstractIntegrationTest;
 import ddf.test.itests.common.CswQueryBuilder;
 import ddf.test.itests.common.Library;
 
+@Ignore
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestVersioning extends AbstractIntegrationTest {
