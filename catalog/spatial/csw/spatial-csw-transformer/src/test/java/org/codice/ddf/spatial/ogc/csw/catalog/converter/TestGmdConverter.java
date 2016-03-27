@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -47,11 +48,11 @@ public class TestGmdConverter {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(TestGmdConverter.class);
 
-    private static final GregorianCalendar CREATED_DATE = new GregorianCalendar(2014, 10, 1);
+    private static GregorianCalendar createdDate;
 
-    private static final GregorianCalendar MODIFIED_DATE = new GregorianCalendar(2016, 10, 1);
+    private static GregorianCalendar modifiedDate;
 
-    private static final GregorianCalendar EFFECTIVE_DATE = new GregorianCalendar(2015, 10, 1);
+    private static GregorianCalendar effectiveDate;
 
     private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
 
@@ -66,6 +67,16 @@ public class TestGmdConverter {
     @BeforeClass
     public static void setup() {
         XMLUnit.setIgnoreWhitespace(true);
+        TimeZone zone = TimeZone.getTimeZone("UTC");
+        createdDate = new GregorianCalendar(2014, 10, 1);
+        createdDate.setTimeZone(zone);
+
+        modifiedDate = new GregorianCalendar(2016, 10, 1);
+        modifiedDate.setTimeZone(zone);
+
+        effectiveDate = new GregorianCalendar(2015, 10, 1);
+        effectiveDate.setTimeZone(zone);
+
     }
 
     private String convert(Object object, boolean writeNamespaces) {
@@ -108,6 +119,7 @@ public class TestGmdConverter {
         String xml = convert(metacard, true);
         Diff diff = new Diff(compareString, xml);
 
+        LOGGER.info("diff:\n" + diff);
         assertThat(diff.identical(), is(true));
     }
 
@@ -122,6 +134,7 @@ public class TestGmdConverter {
 
         String xml = convert(metacard, true);
         Diff diff = new Diff(compareString, xml);
+        LOGGER.info("diff:\n" + diff);
 
         assertThat(diff.identical(), is(true));
 
@@ -131,8 +144,8 @@ public class TestGmdConverter {
 
         MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
         metacard.setId("ID");
-        metacard.setCreatedDate(CREATED_DATE.getTime());
-        metacard.setModifiedDate(MODIFIED_DATE.getTime());
+        metacard.setCreatedDate(createdDate.getTime());
+        metacard.setModifiedDate(modifiedDate.getTime());
 
         return metacard;
     }
@@ -143,8 +156,8 @@ public class TestGmdConverter {
 
         metacard.setContentTypeName("jpeg");
         metacard.setContentTypeVersion("1.0.0");
-        metacard.setCreatedDate(CREATED_DATE.getTime());
-        metacard.setEffectiveDate(EFFECTIVE_DATE.getTime());
+        metacard.setCreatedDate(createdDate.getTime());
+        metacard.setEffectiveDate(effectiveDate.getTime());
         metacard.setPointOfContact("John Doe");
         metacard.setDescription("example description");
         metacard.setLocation((wkt));
