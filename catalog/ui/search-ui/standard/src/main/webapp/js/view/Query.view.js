@@ -14,7 +14,6 @@
 define([
         'jquery',
         'backbone',
-        'cesium',
         'marionette',
         'underscore',
         'icanhaz',
@@ -27,7 +26,7 @@ define([
         'maptype',
         'bootstrapselect'
     ],
-    function ($, Backbone, Cesium, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir, maptype) {
+    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir, maptype) {
         "use strict";
         var Query = {};
 
@@ -282,7 +281,7 @@ define([
                             case 'ModelToView':
                                 var distanceFromMeters = view.getDistanceFromMeters(view.model.get('radius'), radiusUnitVal);
                                 var currentValue = this.boundEls[0].value;
-                                var deltaThreshold = Cesium.Math.EPSILON7;  // same used in cesium.bbox.js
+                                var deltaThreshold = 0.0000001;
                                 // only update the view's value if it's significantly different from the model's value
                                 return (Math.abs(currentValue - distanceFromMeters) > deltaThreshold) ?
                                     distanceFromMeters : currentValue;
