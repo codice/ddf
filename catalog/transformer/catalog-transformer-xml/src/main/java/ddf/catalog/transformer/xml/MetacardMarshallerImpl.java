@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -179,74 +180,77 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
         return writer.makeString();
     }
 
+    private String getStringValue(XmlPullParser parser, Attribute attribute,
+            AttributeType.AttributeFormat format, Serializable value)
+            throws IOException, CatalogTransformerException {
+        switch (format) {
+
+        case STRING:
+        case BOOLEAN:
+        case SHORT:
+        case INTEGER:
+        case LONG:
+        case FLOAT:
+        case DOUBLE:
+            return value.toString();
+        case DATE:
+            Date date = (Date) value;
+            return DateFormatUtils.formatUTC(date, DF_PATTERN);
+        case GEOMETRY:
+            return geoToXml(geometryTransformer.transform(attribute), parser);
+        case OBJECT:
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try (ObjectOutput output = new ObjectOutputStream(bos)) {
+                output.writeObject(attribute.getValue());
+                return Base64.getEncoder()
+                        .encodeToString(bos.toByteArray());
+            }
+        case BINARY:
+            return Base64.getEncoder()
+                    .encodeToString((byte[]) value);
+        case XML:
+            return value.toString()
+                    .replaceAll("[<][?]xml.*[?][>]", "");
+        default:
+            LOGGER.warn("Unsupported attribute: {}", format);
+            return value.toString();
+        }
+    }
+
     private void writeAttributeToXml(PrintWriter writer, XmlPullParser parser, Attribute attribute,
             AttributeType.AttributeFormat format) throws IOException, CatalogTransformerException {
         String attributeName = attribute.getName();
+        List<Serializable> values = attribute.getValues();
 
-        for (Serializable value : attribute.getValues()) {
-            String xmlValue = null;
-
-            switch (format) {
-
-            case STRING:
-            case BOOLEAN:
-            case SHORT:
-            case INTEGER:
-            case LONG:
-            case FLOAT:
-            case DOUBLE:
-                xmlValue = value.toString();
-                break;
-            case DATE:
-                Date date = (Date) value;
-                xmlValue = DateFormatUtils.formatUTC(date, DF_PATTERN);
-                break;
-            case GEOMETRY:
-                xmlValue = geoToXml(geometryTransformer.transform(attribute), parser);
-                break;
-            case OBJECT:
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                try (ObjectOutput output = new ObjectOutputStream(bos)) {
-                    output.writeObject(attribute.getValue());
-                    xmlValue = Base64.getEncoder()
-                            .encodeToString(bos.toByteArray());
-                }
-                break;
-            case BINARY:
-                xmlValue = Base64.getEncoder()
-                        .encodeToString((byte[]) value);
-                break;
-            case XML:
-                xmlValue = value.toString()
-                        .replaceAll("[<][?]xml.*[?][>]", "");
-                break;
-            default:
-                LOGGER.warn("Unsupported attribute: {}", format);
-                xmlValue = value.toString();
-                break;
+        if (values.size() > 0) {
+            // The GeometryTransformer creates an XML fragment containing
+            // both the name - with namespaces declared - and the value
+            if (format != AttributeType.AttributeFormat.GEOMETRY) {
+                writer.startNode(TYPE_NAME_LOOKUP.get(format));
+                writer.addAttribute("name", attributeName);
             }
 
-            // Write the node if we were able to convert it.
-            if (xmlValue != null) {
-                // The GeometryTransformer creates an XML fragment containing
-                // both the name - with namespaces declared - and the value
+            for (Serializable value : values) {
+                String stringifiedValue = getStringValue(parser, attribute, format, value);
+
                 if (format != AttributeType.AttributeFormat.GEOMETRY) {
-                    writer.startNode(TYPE_NAME_LOOKUP.get(format));
-                    writer.addAttribute("name", attributeName);
                     writer.startNode("value");
                 }
 
                 if (format == AttributeType.AttributeFormat.XML
                         || format == AttributeType.AttributeFormat.GEOMETRY) {
-                    writer.setRawValue(xmlValue);
+                    writer.setRawValue(stringifiedValue);
                 } else {
-                    writer.setValue(xmlValue);
+                    writer.setValue(stringifiedValue);
                 }
 
                 if (format != AttributeType.AttributeFormat.GEOMETRY) {
                     writer.endNode(); // value
-                    writer.endNode(); // type
                 }
+            }
+
+            if (format != AttributeType.AttributeFormat.GEOMETRY) {
+                writer.endNode(); // type
             }
         }
     }
