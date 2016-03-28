@@ -15,50 +15,39 @@ package ddf.catalog.transform.xml;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.xml.XmlParser;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.api.MetacardMarshaller;
 import ddf.catalog.transformer.xml.MetacardMarshallerImpl;
 import ddf.catalog.transformer.xml.PrintWriterProviderImpl;
 import ddf.catalog.transformer.xml.XmlMetacardTransformer;
 
 public class TestXmlMetacardTransformer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestXmlMetacardTransformer.class);
 
     private XmlMetacardTransformer transformer;
 
@@ -72,11 +61,22 @@ public class TestXmlMetacardTransformer {
         transformer = new XmlMetacardTransformer(metacardMarshaller);
     }
 
-    /*
-    */
+    @Before
+    public void setupXpath() {
+        Map<String, String> m = new HashMap<String, String>();
+        m.put("m", "urn:catalog:metacard");
+        m.put("gml", "http://www.opengis.net/gml");
+        NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XMLUnit.setXpathNamespaceContext(ctx);
+    }
+
+    private String transform(Metacard mc) throws Exception {
+        BinaryContent bc = transformer.transform(mc, emptyArgs);
+        return new String(bc.getByteArray());
+    }
+
     @Test
-    public void testMetacardTypeNameEmpty()
-            throws CatalogTransformerException, IOException, XpathException, SAXException {
+    public void testMetacardTypeNameEmpty() throws Exception {
         Metacard mc = mock(Metacard.class);
 
         MetacardType mct = mock(MetacardType.class);
@@ -87,23 +87,15 @@ public class TestXmlMetacardTransformer {
         when(mc.getId()).thenReturn(null);
         when(mc.getSourceId()).thenReturn(null);
 
-        BinaryContent bc = transformer.transform(mc, emptyArgs);
-        String outputXml = new String(bc.getByteArray());
-        //LOGGER.info(outputXml);
-        Map<String, String> m = new HashMap<>();
-        m.put("m", "urn:catalog:metacard");
-        NamespaceContext ctx = new SimpleNamespaceContext(m);
-        XMLUnit.setXpathNamespaceContext(ctx);
+        String outputXml = transform(mc);
+
         assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME,
                 "/m:metacard/m:type",
                 outputXml);
     }
 
-    /*
-    */
     @Test
-    public void testMetacardTypeNameNull()
-            throws CatalogTransformerException, SAXException, IOException, XpathException {
+    public void testMetacardTypeNameNull() throws Exception {
         Metacard mc = mock(Metacard.class);
 
         MetacardType mct = mock(MetacardType.class);
@@ -114,20 +106,15 @@ public class TestXmlMetacardTransformer {
         when(mc.getId()).thenReturn(null);
         when(mc.getSourceId()).thenReturn(null);
 
-        BinaryContent bc = transformer.transform(mc, emptyArgs);
-        String outputXml = new String(bc.getByteArray());
-        //LOGGER.info(outputXml);
-        Map<String, String> m = new HashMap<>();
-        m.put("m", "urn:catalog:metacard");
-        NamespaceContext ctx = new SimpleNamespaceContext(m);
-        XMLUnit.setXpathNamespaceContext(ctx);
+        String outputXml = transform(mc);
+
         assertXpathEvaluatesTo(MetacardType.DEFAULT_METACARD_TYPE_NAME,
                 "/m:metacard/m:type",
                 outputXml);
     }
 
     @Test
-    public void testXmlMetacardTransformerSparse() throws CatalogTransformerException {
+    public void testXmlMetacardTransformerSparse() throws Exception {
 
         MetacardImpl mc = new MetacardImpl();
 
@@ -143,29 +130,9 @@ public class TestXmlMetacardTransformer {
                         1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1};
         mc.setThumbnail(bytes);
 
-        Metacard mci = (Metacard) mc;
-
-        BinaryContent bc = transformer.transform(mci, emptyArgs);
-
-        if (bc == null) {
-            fail("Binary Content is null.");
-        }
+        String outputXml = transform(mc);
 
         // TODO add assertions. Use XMLunit?
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(bc.getInputStream()));
-        String inputLine;
-        try {
-            LOGGER.debug("\n* * * START XML METACARD REPRESENTATION * * * \n");
-            while ((inputLine = in.readLine()) != null) {
-                LOGGER.debug(inputLine);
-            }
-            in.close();
-            LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
-        } catch (IOException e) { // TODO Auto-generated catch block
-            LOGGER.error("IOException during test", e);
-        }
-
     }
 
     @Test
@@ -190,42 +157,11 @@ public class TestXmlMetacardTransformer {
         mc.setLocation(testLocation);
         mc.setThumbnail(testThumbnail);
 
-        String metadata = null;
-        FileInputStream stream = new FileInputStream(new File(
-                "src/test/resources/extensibleMetacard.xml"));
-        try {
-            FileChannel fc = stream.getChannel();
-            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            /* Instead of using default, pass in a decoder. */
-            metadata = Charset.defaultCharset()
-                    .decode(bb)
-                    .toString();
-        } finally {
-            stream.close();
-        }
-
+        InputStream input = getClass().getResourceAsStream("/extensibleMetacard.xml");
+        String metadata = IOUtils.toString(input);
         mc.setMetadata(metadata);
 
-        Metacard mci = (Metacard) mc;
-
-        BinaryContent bc = transformer.transform(mci, emptyArgs);
-
-        if (bc == null) {
-            fail("Binary Content is null.");
-        }
-
-        String outputXml = new String(bc.getByteArray());
-
-        LOGGER.debug("\n* * * START XML METACARD REPRESENTATION * * * \n");
-        LOGGER.debug(outputXml);
-        LOGGER.debug("\n* * * END XML METACARD REPRESENTATION * * * \n");
-
-        Map<String, String> m = new HashMap<String, String>();
-        m.put("gml", "http://www.opengis.net/gml");
-        m.put("m", "urn:catalog:metacard");
-        m.put("", "urn:catalog:metacard");
-        NamespaceContext ctx = new SimpleNamespaceContext(m);
-        XMLUnit.setXpathNamespaceContext(ctx);
+        String outputXml = transform(mc);
 
         assertXpathEvaluatesTo(testId, "/m:metacard/@gml:id", outputXml);
         assertXpathEvaluatesTo(testSource, "/m:metacard/m:source", outputXml);
@@ -243,6 +179,26 @@ public class TestXmlMetacardTransformer {
 
         // TODO XML Date representation?
         assertXpathExists("/m:metacard/m:dateTime[@name='expiration']/m:value", outputXml);
+    }
 
+    @Test
+    public void testMultivalueAttribute() throws Exception {
+        MetacardImpl mc = new MetacardImpl();
+        Set<String> tags = new HashSet<>(Arrays.asList("basic-tag", "another-tag"));
+        mc.setTags(tags);
+
+        String outputXml = transform(mc);
+
+        // only one element gets produced for a multivalued attribute
+        assertXpathEvaluatesTo("1",
+                "count(/m:metacard/m:string[@name='metacard-tags'])",
+                outputXml);
+
+        // the element contains every value for the multivalued attribute
+        assertXpathExists("/m:metacard/m:string[@name='metacard-tags']/m:value[text()='basic-tag']",
+                outputXml);
+        assertXpathExists(
+                "/m:metacard/m:string[@name='metacard-tags']/m:value[text()='another-tag']",
+                outputXml);
     }
 }
