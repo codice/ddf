@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -61,6 +62,10 @@ public final class SecurityLogger {
             if (servletRequest != null) {
                 return " Request IP: " + servletRequest.getRemoteAddr() + ", Port: "
                         + servletRequest.getRemotePort();
+            }
+
+            if (MessageUtils.isOutbound(message)) {
+                return " Outbound endpoint: " + message.get(Message.ENDPOINT_ADDRESS);
             }
         }
         return "";

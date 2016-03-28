@@ -68,6 +68,7 @@ import com.jayway.restassured.path.xml.XmlPath;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.semantics.Condition;
 import com.xebialabs.restito.server.StubServer;
+import com.xebialabs.restito.server.secure.SecureStubServer;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.endpoint.CatalogEndpoint;
@@ -124,7 +125,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
-    public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("http://localhost:",
+    public static final DynamicUrl RESTITO_STUB_SERVER = new DynamicUrl("https://localhost:",
             RESTITO_STUB_SERVER_PORT,
             SUBSCRIBER);
 
@@ -192,7 +193,7 @@ public class TestFederation extends AbstractIntegrationTest {
             fail("An unrecoverable error occurred from previous test");
         }
 
-        server = new StubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
+        server = new SecureStubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
         server.start();
     }
 

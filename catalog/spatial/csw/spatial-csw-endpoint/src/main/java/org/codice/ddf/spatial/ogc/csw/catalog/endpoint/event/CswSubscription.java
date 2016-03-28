@@ -19,19 +19,22 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.opengis.filter.Filter;
 
-import ddf.catalog.event.DeliveryMethod;
 import ddf.catalog.event.impl.SubscriptionImpl;
 import ddf.catalog.operation.QueryRequest;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 
 public class CswSubscription extends SubscriptionImpl {
-    public CswSubscription(GetRecordsType request, Filter filter, DeliveryMethod dm,
-            Set<String> sourceIds, boolean enterprise) {
-        super(filter, dm, sourceIds, enterprise);
-        this.originalRequest = request;
-    }
 
     private GetRecordsType originalRequest;
+
+    private SendEvent sendEvent;
+
+    private CswSubscription(GetRecordsType request, Filter filter, SendEvent sendEvent,
+            Set<String> sourceIds, boolean enterprise) {
+        super(filter, sendEvent, sourceIds, enterprise);
+        this.originalRequest = request;
+        this.sendEvent = sendEvent;
+    }
 
     public CswSubscription(TransformerManager mimeTypeTransformerManager, GetRecordsType request,
             QueryRequest query) throws CswException {
@@ -54,5 +57,9 @@ public class CswSubscription extends SubscriptionImpl {
 
     public GetRecordsType getOriginalRequest() {
         return originalRequest;
+    }
+
+    public boolean ping() {
+        return sendEvent.ping();
     }
 }

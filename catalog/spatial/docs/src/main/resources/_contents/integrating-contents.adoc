@@ -1,4 +1,3 @@
-
 The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 
 This guide supports integration of this application with external frameworks.
@@ -2005,6 +2004,7 @@ The following is an example of an `application/xml` response to the Transaction 
 ===== Subscription `GetRecords` Operation
 
 The subscription `GetRecords` operation is very similar to the `GetRecords` operation used to search the catalog but it subscribes to a search and sends events to a `ResponseHandler` endpoint as metacards are ingested matching the GetRecords request used in the subscription.
+The `ResponseHandler` must use the https protocol and receive a HEAD request to poll for availability and POST/PUT/DELETE requests for creation, updates, and deletions.
 The response to a `GetRecords` request on the subscription url will be an acknowledgement containing the original GetRecords request and a requestId
 The client will be assigned a requestId (URN).
 A Subscription listens for events from federated sources if the `DistributedSearch` element is present and the catalog is a member of a federation.
@@ -2107,7 +2107,7 @@ The following is an example of an `application/xml` response to the `GetRecords`
 
 ===== Subscription `GetRecords` event Response
 
-The following is an example of an `application/xml` event sent to a subscribers `ResponseHandler` using an `HTTP POST` for a create, `HTTP PUT` for an update, and `HTTP DELETE` for a delete.
+The following is an example of an `application/xml` event sent to a subscribers `ResponseHandler` using an `HTTP POST` for a create, `HTTP PUT` for an update, and `HTTP DELETE` for a delete using the default `outputSchema` of `http://www.opengis.net/cat/csw/2.0.2` if you specified another supported schema format in the subscription it will be returned in that format.
 
 .Subscription `GetRecords` event XML Response
 [source,xml,linenums]

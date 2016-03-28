@@ -29,6 +29,7 @@ import java.util.UUID;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -341,6 +342,23 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
         return Response.ok()
                 .build();
 
+    }
+
+    @Override
+    @HEAD
+    @Path("/event")
+    public Response ping() {
+        return Response.ok()
+                .build();
+
+    }
+
+    public void pingSubscriptionResponseHandlers() {
+        for (String subscriptionId : registeredSubscriptions.keySet()) {
+            CswSubscription cswSubscription = getSubscription(subscriptionId);
+            cswSubscription.ping();
+
+        }
     }
 
     private void validateResponseSchema(GetRecordsResponseType recordsResponse)

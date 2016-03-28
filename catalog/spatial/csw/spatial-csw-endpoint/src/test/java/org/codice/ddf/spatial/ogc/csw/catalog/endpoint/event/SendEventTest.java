@@ -18,24 +18,40 @@ import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.osgi.framework.InvalidSyntaxException;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.security.Subject;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
@@ -45,7 +61,7 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 public class SendEventTest {
 
-    private URI callbackURI;
+    private URL callbackURI;
 
     private GetRecordsType request;
 
@@ -67,9 +83,17 @@ public class SendEventTest {
 
     private WebClient webclient;
 
+    private SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
+
+    private Response response;
+
+    private MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+
+    private List<AccessPlugin> accessPlugins = new ArrayList<>();
+
     @Before
     public void setUp() throws Exception {
-        callbackURI = new URI("http://localhost:12345/test");
+        callbackURI = new URL("https://localhost:12345/services/csw/subscription/event");
         ObjectFactory objectFactory = new ObjectFactory();
         request = new GetRecordsType();
         request.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
@@ -87,19 +111,33 @@ public class SendEventTest {
         when(transformerManager.getTransformerBySchema(Matchers.contains(CswConstants.CSW_OUTPUT_SCHEMA))).thenReturn(
                 transformer);
         when(transformer.transform(any(SourceResponse.class), anyMap())).thenReturn(binaryContent);
-        when(binaryContent.getByteArray()).thenReturn("byte array with message contents" .getBytes());
+        when(binaryContent.getByteArray()).thenReturn("byte array with message contents".getBytes());
         query = mock(QueryRequest.class);
 
         metacard = mock(Metacard.class);
         webclient = mock(WebClient.class);
+        cxfClientFactory = mock(SecureCxfClientFactory.class);
+        response = mock(Response.class);
+        headers.put(Subject.class.toString(), Arrays.asList(new Subject[] {mock(Subject.class)}));
+        AccessPlugin accessPlugin = mock(AccessPlugin.class);
+        accessPlugins.add(accessPlugin);
+        when(cxfClientFactory.getWebClient()).thenReturn(webclient);
+        when(webclient.head()).thenReturn(response);
+        when(webclient.invoke(anyString(), any(QueryResponse.class))).thenReturn(response);
+        when(response.getHeaders()).thenReturn(headers);
+        when(accessPlugin.processPostQuery(any(QueryResponse.class))).thenAnswer(new Answer<QueryResponse>() {
+            @Override
+            public QueryResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return (QueryResponse) invocationOnMock.getArguments()[0];
+            }
+        });
 
-        sendEvent = new SendEventExtension(transformerManager, request, query, webclient);
+        sendEvent = new SendEventExtension(transformerManager, request, query, cxfClientFactory);
 
     }
 
     public void verifyResults() throws Exception {
-        verify(transformer).transform(any(SourceResponse.class), anyMap());
-        verify(webclient).invoke(anyString(), anyObject());
+        verify(webclient, times(2)).invoke(anyString(), anyObject());
     }
 
     @Test
@@ -130,10 +168,14 @@ public class SendEventTest {
     private class SendEventExtension extends SendEvent {
 
         public SendEventExtension(TransformerManager transformerManager, GetRecordsType request,
-                QueryRequest query, WebClient httpClient) throws CswException {
+                QueryRequest query, SecureCxfClientFactory<CswSubscribe> cxfClientFactory)
+                throws CswException {
             super(transformerManager, request, query);
-            webClient = httpClient;
+            this.cxfClientFactory = cxfClientFactory;
         }
 
+        List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
+            return accessPlugins;
+        }
     }
 }

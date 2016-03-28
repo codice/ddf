@@ -35,6 +35,11 @@
             <artifactId>grizzly-http-server</artifactId>
             <version>2.3.17</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs</artifactId>
+            <version>${findbugs.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -57,6 +62,7 @@
                             com.xebialabs.restito.resources,
                             com.xebialabs.restito.semantics,
                             com.xebialabs.restito.server,
+                            com.xebialabs.restito.server.secure,
                             com.xebialabs.restito.support.behavior,
                             com.xebialabs.restito.support.junit,
                             com.xebialabs.restito.support.log
