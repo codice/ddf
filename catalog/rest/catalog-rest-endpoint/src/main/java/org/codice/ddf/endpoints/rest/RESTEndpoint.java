@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,7 +17,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,7 @@ import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
@@ -49,6 +52,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -115,8 +119,8 @@ public class RESTEndpoint implements RESTService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(
-            Constants.INGEST_LOGGER_NAME);
+    private static final Logger INGEST_LOGGER =
+            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final String HEADER_RANGE = "Range";
 
@@ -262,7 +266,8 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 LOGGER.debug("Calling transform.");
-                final BinaryContent content = catalogFramework.transform(card, transformer,
+                final BinaryContent content = catalogFramework.transform(card,
+                        transformer,
                         convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
@@ -301,15 +306,18 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+                String exceptionMessage =
+                        "Unable to transform Metacard.  Try different transformer: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
-                String exceptionMessage = "Cannot obtain query results because source is unavailable: ";
+                String exceptionMessage =
+                        "Cannot obtain query results because source is unavailable: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (UnsupportedQueryException e) {
-                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
+                String exceptionMessage =
+                        "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
 
@@ -363,8 +371,8 @@ public class RESTEndpoint implements RESTService {
         JSONArray resultsList = new JSONArray();
         SourceInfoResponse sources;
         try {
-            SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(
-                    true);
+            SourceInfoRequestEnterprise sourceInfoRequestEnterprise =
+                    new SourceInfoRequestEnterprise(true);
 
             sources = catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
             for (SourceDescriptor source : sources.getSourceInfo()) {
@@ -378,9 +386,10 @@ public class RESTEndpoint implements RESTService {
                         if (contentType != null && contentType.getName() != null) {
                             JSONObject contentTypeObj = new JSONObject();
                             contentTypeObj.put("name", contentType.getName());
-                            contentTypeObj.put("version", contentType.getVersion() != null ?
-                                    contentType.getVersion() :
-                                    "");
+                            contentTypeObj.put("version",
+                                    contentType.getVersion() != null ?
+                                            contentType.getVersion() :
+                                            "");
                             contentTypesObj.add(contentTypeObj);
                         }
                     }
@@ -393,9 +402,8 @@ public class RESTEndpoint implements RESTService {
         }
 
         sourcesString = JSONValue.toJSONString(resultsList);
-        content = new BinaryContentImpl(
-                new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)),
-                jsonMimeType);
+        content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes(
+                StandardCharsets.UTF_8)), jsonMimeType);
         responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
         // Add the Accept-ranges header to let the client know that we accept ranges in bytes
@@ -417,7 +425,8 @@ public class RESTEndpoint implements RESTService {
      */
     @GET
     @Path("/sources/{sourceid}/{id}")
-    public Response getDocument(@PathParam("sourceid") String sourceid, @PathParam("id") String id,
+    public Response getDocument(@Encoded @PathParam("sourceid") String encodedSourceId,
+            @Encoded @PathParam("id") String encodedId,
             @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
             @Context HttpServletRequest httpRequest) {
 
@@ -430,8 +439,8 @@ public class RESTEndpoint implements RESTService {
         URI absolutePath = uriInfo.getAbsolutePath();
         MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
 
-        if (id != null) {
-            LOGGER.debug("Got id: {}", id);
+        if (encodedId != null) {
+            LOGGER.debug("Got id: {}", encodedId);
             LOGGER.debug("Got service: {}", transformerParam);
             LOGGER.debug("Map of query parameters: \n{}", map.toString());
 
@@ -442,6 +451,8 @@ public class RESTEndpoint implements RESTService {
 
             // default to xml if no transformer specified
             try {
+                String id = URLDecoder.decode(encodedId, CharEncoding.UTF_8);
+
                 String transformer = DEFAULT_METACARD_TRANSFORMER;
                 if (transformerParam != null) {
                     transformer = transformerParam;
@@ -452,7 +463,8 @@ public class RESTEndpoint implements RESTService {
                         .text(id);
 
                 Collection<String> sources = null;
-                if (sourceid != null) {
+                if (encodedSourceId != null) {
+                    String sourceid = URLDecoder.decode(encodedSourceId, CharEncoding.UTF_8);
                     sources = new ArrayList<String>();
                     sources.add(sourceid);
                 }
@@ -486,7 +498,8 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 LOGGER.debug("Calling transform.");
-                final BinaryContent content = catalogFramework.transform(card, transformer,
+                final BinaryContent content = catalogFramework.transform(card,
+                        transformer,
                         convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
@@ -524,15 +537,18 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard. Try different transformer: ";
+                String exceptionMessage =
+                        "Unable to transform Metacard.  Try different transformer: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
-                String exceptionMessage = "Cannot obtain query results because source is unavailable: ";
+                String exceptionMessage =
+                        "Cannot obtain query results because source is unavailable: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (UnsupportedQueryException e) {
-                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
+                String exceptionMessage =
+                        "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
                 // The catalog framework will throw this if any of the transformers blow up. We need to
@@ -541,7 +557,7 @@ public class RESTEndpoint implements RESTService {
                 // here or else execution will return to CXF and we'll lose this message and end up with
                 // a huge stack trace
                 // in a GUI or whatever else is connected to this endpoint
-            } catch (RuntimeException e) {
+            } catch (RuntimeException | UnsupportedEncodingException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
         } else {
@@ -610,10 +626,12 @@ public class RESTEndpoint implements RESTService {
             String metacardId = metacard.getId();
             LOGGER.debug("Metacard {} created", metacardId);
             LOGGER.debug("Transforming metacard {} to {} to be able to return it to client",
-                    metacardId, transformer);
+                    metacardId,
+                    transformer);
             final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
             LOGGER.debug("Metacard to {} transform complete for {}, preparing response.",
-                    transformer, metacardId);
+                    transformer,
+                    metacardId);
 
             Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
                     content.getMimeTypeValue());
@@ -679,10 +697,13 @@ public class RESTEndpoint implements RESTService {
                     catalogFramework.update(updateRequest);
                 } else {
                     UpdateStorageRequest streamUpdateRequest = new UpdateStorageRequestImpl(
-                            Collections.singletonList(
-                                    new IncomingContentItem(id, createInfo.getStream(),
-                                            createInfo.getContentType(), createInfo.getFilename(),
-                                            0, null)), null);
+                            Collections.singletonList(new IncomingContentItem(id,
+                                    createInfo.getStream(),
+                                    createInfo.getContentType(),
+                                    createInfo.getFilename(),
+                                    0,
+                                    null)),
+                            null);
                     catalogFramework.update(streamUpdateRequest);
                 }
 
@@ -747,15 +768,17 @@ public class RESTEndpoint implements RESTService {
 
                 CreateResponse createResponse;
                 if (createInfo == null) {
-                    CreateRequest createRequest = new CreateRequestImpl(
-                            generateMetacard(mimeType, null, message));
+                    CreateRequest createRequest = new CreateRequestImpl(generateMetacard(mimeType,
+                            null,
+                            message));
                     createResponse = catalogFramework.create(createRequest);
                 } else {
                     CreateStorageRequest streamCreateRequest = new CreateStorageRequestImpl(
-                            Collections.singletonList(
-                                    new IncomingContentItem(createInfo.getStream(),
-                                            createInfo.getContentType(), createInfo.getFilename(),
-                                            null)), null);
+                            Collections.singletonList(new IncomingContentItem(createInfo.getStream(),
+                                    createInfo.getContentType(),
+                                    createInfo.getFilename(),
+                                    null)),
+                            null);
                     createResponse = catalogFramework.create(streamCreateRequest);
                 }
 
@@ -865,12 +888,14 @@ public class RESTEndpoint implements RESTService {
             if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
                 String fileExtension = FilenameUtils.getExtension(filename);
                 LOGGER.debug("fileExtension = {}, contentType before refinement = {}",
-                        fileExtension, contentType);
+                        fileExtension,
+                        contentType);
                 try {
                     contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                 } catch (MimeTypeResolutionException e) {
                     LOGGER.debug("Unable to refine contentType {} based on filename extension {}",
-                            contentType, fileExtension);
+                            contentType,
+                            fileExtension);
                 }
                 LOGGER.debug("Refined contentType = {}", contentType);
             }
@@ -908,7 +933,8 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException ce) {
-            String exceptionMessage = "Could not delete entry from catalog since the source is unavailable: ";
+            String exceptionMessage =
+                    "Could not delete entry from catalog since the source is unavailable: ";
             LOGGER.warn(exceptionMessage, ce);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (InternalIngestException e) {
@@ -945,7 +971,8 @@ public class RESTEndpoint implements RESTService {
             throws MetacardCreationException {
 
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
-                InputTransformer.class, mimeType);
+                InputTransformer.class,
+                mimeType);
 
         LOGGER.trace("Entering generateMetacard.");
         LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
