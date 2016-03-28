@@ -73,6 +73,9 @@ define([
         getQuery: function () {
             return this.get('content').get('query');
         },
+        getQueryById: function(queryId){
+            return this.getCurrentQueries().get(queryId);
+        },
         saveQuery: function () {
             var cloneOf = this.getQuery()._cloneOf;
             if (cloneOf === undefined){
@@ -100,6 +103,12 @@ define([
         },
         clearResults: function(){
             this.get('content').get('results').reset();
+        },
+        getFilteredQueries: function(){
+            return this.get('content').get('filteredQueries');
+        },
+        filterQuery: function(queryId){
+            this.get('content').filterQuery(this.getQueryById(queryId));
         }
     });
 

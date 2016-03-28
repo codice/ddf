@@ -45,7 +45,7 @@ require.config({
         wreqr: 'js/wreqr',
         properties: 'properties',
         // jquery
-        jquery: 'lib/jquery/jquery.min',
+        jquery: 'lib/jquery/jquery',
         jqueryCookie: 'lib/jquery-cookie/jquery.cookie',
         jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
         datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',

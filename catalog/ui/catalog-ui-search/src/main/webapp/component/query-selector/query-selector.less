@@ -36,6 +36,11 @@
     }
   }
 
+  .querySelector-queryActive.is-filtered span {
+    background: @background-color !important;
+    border: 2px solid white;
+  }
+
   > button {
     margin-top: @buttonMargin;
     display: none;
@@ -56,6 +61,15 @@
     .querySelector-list {
       max-height: ~"calc(100% - @{minimumButtonSize}*2 - @{buttonMargin} - 1px)";
     }
+  }
+
+  .querySelector-indicator {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    border-radius: 20px;
+    //border: 2px solid white;
+    vertical-align: middle;
   }
 }
 

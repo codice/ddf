@@ -1,9 +1,20 @@
 @{customElementNamespace}tabs {
+  margin-top: 10px;
   @tabHeight: 44px;
   @tabColor: lighten(@primary-color, 20%);
 
+  /*.clipPath() {
+    -webkit-clip-path: polygon(100% 100%,0 100%,17% 8%,20% 4%,23% 1%,25% 0,75% 0,77% 1%,80% 4%,83% 8%);
+    clip-path: polygon(100% 100%,0 100%,17% 8%,20% 4%,23% 1%,25% 0,75% 0,77% 1%,80% 4%,83% 8%);
+  }*/
+
+  .clipPath() {
+    -webkit-clip-path: ~"polygon(100% 100%,0 100%,17px 8%,20px 4%,23px 1%,25px 0,calc(100% - 25px) 0,calc(100% - 23px) 1%,calc(100% - 20px) 4%,calc(100% - 17px) 8%)";
+    clip-path: polygon(100% 100%,0 100%,17% 8%,20% 4%,23% 1%,25% 0,75% 0,77% 1%,80% 4%,83% 8%);
+  }
+
   .customElement;
-  .tabs-list {
+  > .tabs-list {
     .inlineFix;
 
     z-index: @zIndexContent;
@@ -98,18 +109,62 @@
       //border-left: 1px solid @border-color;
     }
 
+    /*.tabs-tab:not(.is-active)::after {
+      content: "";
+      position: absolute;
+      height: calc(100% - 10px);
+      width: 14px;
+      background: #000;
+      right: -10px;
+      top: -4px;
+      border-left: 1px solid grey;
+      transform: rotate(-25deg);
+    }*/
+
+    .tabs-tab.is-active > .tabs-tab-container {
+      background: black;
+    }
+
+    .tabs-tab-container {
+      .clipPath;
+      background: rgba(50,50,50,1);
+      padding: 0px 30px;
+      position: relative;
+      left: 1px;
+      width: ~"calc(100% - 2px)";
+      top: 1px;
+    }
+
+
     .tabs-tab {
-      padding: 10px 10px;
+      min-width: 150px;
+      .clipPath;
+      background: grey;
+      //background: linear-gradient(black, black, rgb(50,50,50));
+      //padding: 10px 20px;
+      line-height: 44px;
       display: inline-block;
       height: 100%;
+      //border-top: 1px solid grey;
+      //border-left: 1px solid grey;
+      //border-right: 1px solid grey;
+      //border-bottom: 1px solid grey;
+      transition: margin .2s linear;
+      margin: 0px -15px;
+      position: relative;
 
       &.is-active {
+        background: grey;
         color: @tabColor;
-        border-bottom: 1px solid @tabColor;
+        //border-top: 1px solid @tabColor;
+        //border-left: 1px solid @tabColor;
+        //border-right: 1px solid @tabColor;
+        border-bottom: 1px solid black;
+        z-index: 1000;
       }
 
       &:hover {
-        background: none;
+        //background: none;
         color: @tabColor;
       }
 
@@ -128,7 +183,7 @@
 
 @media (max-width: @smallScreenSize) {
   @{customElementNamespace}tabs {
-    .tabs-list {
+    > .tabs-list {
 
       &.is-open {
         .tabs-dropdown {

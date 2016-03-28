@@ -16,9 +16,10 @@ define([
         'js/model/Metacard',
         'js/model/Query',
         'js/Common',
+        'js/ColorGenerator',
         'backboneassociations'
     ],
-    function (Backbone, Metacard, Query, Common) {
+    function (Backbone, Metacard, Query, Common, ColorGenerator) {
         "use strict";
         var Workspace = {};
 
@@ -28,6 +29,20 @@ define([
 
         Workspace.SearchList = Backbone.Collection.extend({
             model: Query.Model,
+            initialize: function(){
+                var searchList = this;
+                this._colorGenerator = ColorGenerator.getNewGenerator();
+                this.listenTo(this, 'add', function(query){
+                    query.setColor(searchList._colorGenerator.getColor(query.getId()));
+                    query.startSearch();
+                    query.listenTo(query, 'change', function(){
+                        query.startSearch();
+                    });
+                });
+                this.listenTo(this, 'remove', function(query){
+                    searchList._colorGenerator.removeColor(query.getId);
+                });
+            },
             canAddQuery: function(){
                 return this.length < 10;
             }

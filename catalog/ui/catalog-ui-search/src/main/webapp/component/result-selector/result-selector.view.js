@@ -24,9 +24,6 @@ define([
 ], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, store) {
 
     var ResultSelector = Marionette.LayoutView.extend({
-        setDefaultModel: function(){
-            this.model = store.getCurrentWorkspace();
-        },
         template: resultSelectorTemplate,
         tagName: CustomElements.register('result-selector'),
         modelEvents: {
@@ -38,35 +35,22 @@ define([
         regions: {
         },
         initialize: function(options){
-            if (options.model === undefined){
-                this.setDefaultModel();
-            }
-            this.listenTo(this.model.get('searches'), 'nested-change', _.debounce(this.handleUpdate,200));
-            this.listenTo(store.get('content').get('results'), 'all', this.rerender);
+            this.listenTo(this.model, 'nested-change', _.debounce(this.handleUpdate,200));
             this.handleUpdate();
         },
         handleUpdate: function(){
-            var results = store.get('content').get('results');
             wreqr.vent.trigger('map:clear');
-            this.model.get('searches').forEach(function(search){
-                var searchResult = search.get('result');
-                if (searchResult){
-                    var searchResults = searchResult.get('results');
-                    if (searchResults){
-                        searchResults.forEach(function(metacardResult){
-                            var metacard = metacardResult.get('metacard');
-                            results.add(metacard);
-                        });
-                    }
-                }
-                wreqr.vent.trigger('map:results', searchResult, false);
-            });
-        },
-        rerender: function(){
+            this.updateMap();
             this.render();
         },
         serializeData: function(){
-            return store.get('content').get('results').toJSON();
+            return this.model.get('result').get('results').toJSON();
+        },
+        updateMap: function(){
+            var searchResult = this.model.get('result');
+            if (searchResult){
+                wreqr.vent.trigger('map:results', searchResult, false);
+            }
         }
     });
 

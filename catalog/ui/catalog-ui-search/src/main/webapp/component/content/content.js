@@ -13,8 +13,9 @@
 define([
     'underscore',
     'backbone',
-    'js/model/Metacard'
-], function (_, Backbone, Metacard) {
+    'js/model/Metacard',
+    'js/model/Query'
+], function (_, Backbone, Metacard, Query) {
 
     var Content = Backbone.AssociatedModel.extend({
         relations: [
@@ -22,6 +23,11 @@ define([
                 type: Backbone.Many,
                 key: 'results',
                 relatedModel: Metacard.Metacard
+            },
+            {
+                type: Backbone.Many,
+                key: 'filteredQueries',
+                relatedModel: Query.Model
             }
         ],
         defaults: {
@@ -30,7 +36,7 @@ define([
             query: undefined,
             state: undefined,
             results: [],  //list of metacards
-            filter: [],  //list of filtered queries
+            filteredQueries: [],
             editing: true
         },
         initialize: function(){
@@ -49,6 +55,15 @@ define([
         },
         setQuery: function(queryRef){
             this.set('query', queryRef);
+        },
+        filterQuery: function(queryRef) {
+            var filteredQueries = this.get('filteredQueries');
+            var filtered = Boolean(filteredQueries.get(queryRef));
+            if (filtered){
+                filteredQueries.remove(queryRef);
+            } else {
+                filteredQueries.add(queryRef);
+            }
         }
     });
 

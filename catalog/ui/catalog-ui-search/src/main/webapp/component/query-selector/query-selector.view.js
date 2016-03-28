@@ -20,8 +20,9 @@ define([
     'text!./query-selector.hbs',
     'js/CustomElements',
     'js/store',
-    'js/model/Query'
-], function (Marionette, _, $, querySelectorTemplate, CustomElements, store, Query) {
+    'js/model/Query',
+    'js/Common'
+], function (Marionette, _, $, querySelectorTemplate, CustomElements, store, Query, Common) {
 
     var QuerySelector = Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -33,7 +34,8 @@ define([
         },
         events: {
             'click .querySelector-add': 'addQuery',
-            'click .querySelector-queryDetails': 'selectQuery'
+            'click .querySelector-queryDetails': 'selectQuery',
+            'click .querySelector-queryActive': 'filterQuery'
         },
         ui: {
         },
@@ -45,6 +47,8 @@ define([
             }
             this.listenTo(this.model, 'all', this.render);
             this.listenTo(store.get('content'), 'change:query', this.highlightQuery);
+            this.listenTo(store.getFilteredQueries(), 'add', this.filterQueries);
+            this.listenTo(store.getFilteredQueries(), 'remove', this.filterQueries);
         },
         addQuery: function(){
             if (this.model.canAddQuery()){
@@ -60,20 +64,27 @@ define([
             var queryRef = store.getQuery();
             this.$el.find('.querySelector-queryDetails').removeClass('is-selected');
             if (queryRef !== undefined){
-                this.$el.find('.querySelector-queryDetails[data-id="'+queryRef._cloneOf+'"]').addClass('is-selected');
+                this.$el.find('.querySelector-queryDetails[data-id="'+queryRef.getId()+'"]').addClass('is-selected');
             }
+        },
+        filterQuery: function(event){
+            var queryId = event.currentTarget.getAttribute('data-id');
+            store.filterQuery(queryId);
+        },
+        filterQueries: function(){
+            var self = this;
+            var filteredQueries = store.getFilteredQueries();
+            this.$el.find('.querySelector-queryActive').removeClass('is-filtered');
+            filteredQueries.forEach(function(query){
+                self.$el.find('.querySelector-queryActive[data-id="'+query.getId()+'"]').addClass('is-filtered');
+            });
         },
         serializeData: function(){
             var json = this.model.toJSON({
-                additionalProperties: ['cid']
+                additionalProperties: ['cid', 'color']
             });
             json.forEach(function(search){
-                var cql = search.cql;
-                cql = cql.replace(new RegExp('anyText ILIKE ','g'),'~');
-                cql = cql.replace(new RegExp('anyText LIKE ','g'),'');
-                cql = cql.replace(new RegExp('AFTER','g'),'>');
-                cql = cql.replace(new RegExp('DURING','g'),'BETWEEN');
-                search.generatedName = cql;
+                search.generatedName = Common.cqlToHumanReadable(search.cql);
             });
             return json;
         },

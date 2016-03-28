@@ -178,7 +178,9 @@ module.exports = function (grunt) {
                 ]
             },
             lessFiles: {
-                files: ['src/main/webapp/component/**/*.less','src/main/webapp/component/***/*.less','src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
+                files: ['src/main/webapp/component/**/**/*.less','src/main/webapp/component/***/***/*.less',
+                    'src/main/webapp/component/**/*.less','src/main/webapp/component/***/*.less',
+                    'src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
                 tasks: ['less']
             },
             cssFiles : {

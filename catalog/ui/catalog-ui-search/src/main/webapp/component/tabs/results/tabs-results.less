@@ -1,0 +1,58 @@
+@{customElementNamespace}tabs {
+
+  > .tabs-list {
+    .results-tabs-tab {
+      display: inline-block;
+      border-radius: @minimumButtonSize;
+      vertical-align: middle;
+      min-height: 20px;
+      min-width: 20px;
+    }
+
+    .tabs-tab.is-active .results-tabs-tab {
+      //box-shadow: 0px 0px 0px 2px black, 0px 0px 0px 5px @primary-color;
+      //border-radius: 0px;
+      //transform: scaleY(2);
+    }
+
+    .tabs-tab.is-active:hover .results-tabs-tab {
+      //border-radius: 0px;
+      //transform: scaleY(2);
+    }
+
+    .tabs-tab:hover .results-tabs-tab {
+      //border-radius: 0px;
+      //transform: scaleY(1.5);
+    }
+
+    .tabs-collapsed > div > span {
+    }
+
+    .tabs-collapsed > div:hover > span {
+      //border-radius: 0px;
+      //transform: scaleY(2);
+    }
+
+    .tabs-title.results-tabs-tab {
+      display: none;
+    }
+
+    .tabs-title.results-tabs-tab.is-active.is-merged {
+      display: inline-block;
+      //border-radius: 0px;
+      //transform: scaleY(2);
+      margin-right: 10px;
+    }
+  }
+
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}tabs {
+    .tabs-list {
+
+
+    }
+  }
+
+}

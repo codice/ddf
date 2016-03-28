@@ -36,8 +36,8 @@ define([
             'change:activeTab': 'handleTabChange'
         },
         events: {
-            'click .tabs-tab': 'changeTab',
-            'click .tabs-collapsed div': 'changeTab'
+            'click > .tabs-list .tabs-tab': 'changeTab',
+            'click > .tabs-list .tabs-collapsed div': 'changeTab'
         },
         regions: {
             'tabsContent': '.tabs-content'
@@ -80,11 +80,11 @@ define([
             this.tabsContent.show(new activeTab());
         },
         showActiveDropdownTab: function(){
-            var hasActiveTab = this.$el.find('.tabs-list .tabs-dropdown .tabs-title.is-active.is-merged').length !== 0;
+            var hasActiveTab = this.$el.find('> .tabs-list .tabs-dropdown .tabs-title.is-active.is-merged').length !== 0;
             if (hasActiveTab) {
-                this.$el.find('.tabs-list .tabs-dropdown').addClass('has-activeTab');
+                this.$el.find('> .tabs-list .tabs-dropdown').addClass('has-activeTab');
             } else {
-                this.$el.find('.tabs-list .tabs-dropdown').removeClass('has-activeTab');
+                this.$el.find('> .tabs-list .tabs-dropdown').removeClass('has-activeTab');
             }
         },
         changeTab: function (event) {
@@ -93,7 +93,7 @@ define([
         },
         _clickHandler: function(){
             var view = this;
-            var tabList = view.$el.find('.tabs-list');
+            var tabList = view.$el.find('> .tabs-list');
             var menu = tabList.find('.tabs-dropdown');
             menu.off('click').on('click', function () {
                 tabList.toggleClass('is-open');
@@ -118,7 +118,7 @@ define([
         },
         _resizeHandler: function () {
             var view = this;
-            var menu = view.el.querySelector('.tabs-list');
+            var menu = view.$el.find('> .tabs-list')[0];
             var expandedList = menu.querySelector('.tabs-expanded');
             if (view._hasMergeableTabs() && expandedList.scrollWidth > expandedList.clientWidth) {
                 view._widthWhenCollapsed().push(expandedList.scrollWidth);
@@ -144,17 +144,17 @@ define([
             view.showTab(false);
         },
         _hasMergeableTabs: function () {
-            return this.$el.find('.tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)').length !== 0;
+            return this.$el.find('> .tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)').length !== 0;
         },
         _mergeTab: function () {
-            var id = this.$el.find('.tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)')
+            var id = this.$el.find('> .tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)')
                 .last().attr('data-id');
-            this.$el.find('.tabs-list [data-id="' + id + '"]').addClass('is-merged');
+            this.$el.find('> .tabs-list [data-id="' + id + '"]').addClass('is-merged');
         },
         _unmergeTab: function () {
-            var id = this.$el.find('.tabs-list .tabs-expanded > .tabs-tab.is-merged')
+            var id = this.$el.find('> .tabs-list .tabs-expanded > .tabs-tab.is-merged')
                 .first().attr('data-id');
-            this.$el.find('.tabs-list [data-id="' + id + '"]').removeClass('is-merged');
+            this.$el.find('> .tabs-list [data-id="' + id + '"]').removeClass('is-merged');
         }
     });
 

@@ -535,7 +535,6 @@ define([
         },
         save: function(){
             store.saveQuery();
-            this.workspaceSearch();
         },
         readOnly: function(){
             this.$el.find('label').attr('disabled', 'disabled');

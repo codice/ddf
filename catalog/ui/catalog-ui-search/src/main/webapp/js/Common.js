@@ -12,7 +12,8 @@
 /*global define, window, performance*/
 /*jshint bitwise: false*/
 define([
-], function () {
+    'jquery'
+], function ($) {
 
 
     return {
@@ -27,6 +28,28 @@ define([
                 return (c==='x' ? r : (r&0x3|0x8)).toString(16);
             });
             return uuid;
+        },
+        cqlToHumanReadable: function(cql){
+            if (cql===undefined){
+                return cql;
+            }
+            cql = cql.replace(new RegExp('anyText ILIKE ','g'),'~');
+            cql = cql.replace(new RegExp('anyText LIKE ','g'),'');
+            cql = cql.replace(new RegExp('AFTER','g'),'>');
+            cql = cql.replace(new RegExp('DURING','g'),'BETWEEN');
+            return cql;
+        },
+        setupPopOver: function ($component) {
+            $component.find('[title]').each(function(){
+                var $element = $(this);
+                $element.popover({
+                    delay: {
+                        show: 1000,
+                        hide: 0
+                    },
+                    trigger: 'hover'
+                });
+            });
         }
     };
 });

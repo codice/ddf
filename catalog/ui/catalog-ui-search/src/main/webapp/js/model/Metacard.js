@@ -269,6 +269,9 @@ define([
             getQueryId: function(){
                 return this.get('queryId');
             },
+            getColor: function(){
+                return this.get('color');
+            },
             cancel: function() {
                 this.unsubscribe();
                 if(this.has('status')){
@@ -282,6 +285,7 @@ define([
             },
             mergeLatest: function () {
                 var queryId = this.getQueryId();
+                var color = this.getColor();
                 if (this.lastResponse) {
                     var update = this.parse(this.lastResponse);
                     if (update && this.get('results') && this.get('results').length > 0) {
@@ -291,6 +295,7 @@ define([
                         });
                         _.forEach(update.results, function (result) {
                             result.metacard.queryId = queryId;
+                            result.metacard.color = color;
                             if (_.some(selectedForSave, function (saved) {
                                 return saved.get('metacard').get('properties').get('id') ===
                                     result.metacard.properties.id;

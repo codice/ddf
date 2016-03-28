@@ -518,7 +518,8 @@ define([
                     result = this.get('result');
                 } else {
                     result = new Metacard.SearchResult({
-                        queryId: this.getId()
+                        queryId: this.getId(),
+                        color: this.getColor()
                     });
                     this.set({result: result});
                 }
@@ -530,7 +531,7 @@ define([
                     localResult.get('results').each(function(searchResult) {
                         searchResult.cleanup();
                     });
-                    //localResult.mergeLatest();
+                    localResult.mergeLatest();
                     localResult = null;
                 };
 
@@ -585,6 +586,12 @@ define([
             },
             getId: function(){
                 return this._cloneOf || this.cid;
+            },
+            setColor: function(color){
+                this.color = color;
+            },
+            getColor: function(){
+                return this.color;
             }
         });
         return Query;

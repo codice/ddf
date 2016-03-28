@@ -13,44 +13,41 @@
  --}}
 <h6 align="center">Results</h6>
 
-<div class="resultSelector-result">
-    <div class="resultSelector-resultTitle">
+<div class="resultAggregator-result">
+    <div class="resultAggregator-resultTitle">
         <span>
             Title
         </span>
     </div>
-    <div class="resultSelector-resultSource">
+    <div class="resultAggregator-resultSource">
         <span>
             Source
         </span>
     </div>
-    <div class="resultSelector-resultLastModified">
+    <div class="resultAggregator-resultLastModified">
         <span>
             Last Modified
         </span>
     </div>
 </div>
-<div class="resultSelector-list is-list">
+<div class="resultAggregator-list is-list">
     {{#each this}}
-        {{#with metacard}}
-            <div class="resultSelector-result is-button" data-metacardId="{{id}}"
-                 data-queryId="{{queryId}}">
-                <div class="resultSelector-resultTitle">
+        <div class="resultAggregator-result is-button" data-metacardId="{{id}}" data-queryId="{{queryId}}">
+            <div class="resultAggregator-resultTitle">
                 <span>
                     {{properties.title}}
                 </span>
-                </div>
-                <div class="resultSelector-resultSource">
+            </div>
+            <div class="resultAggregator-resultSource">
                 <span>
                     {{properties.source-id}}
                 </span>
-                </div>
-                <div class="resultSelector-resultLastModified">
+            </div>
+            <div class="resultAggregator-resultLastModified">
                 <span>
                     {{properties.modified}}
                 </span>
-                </div>
             </div>
-        {{/with}}
+        </div>
     {{/each}}
 </div>
