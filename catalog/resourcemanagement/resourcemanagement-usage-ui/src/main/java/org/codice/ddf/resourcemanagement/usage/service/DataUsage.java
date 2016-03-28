@@ -71,8 +71,11 @@ public class DataUsage extends RouteBuilder implements DataUsageMBean {
 
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
-    public DataUsage() {
+    public DataUsage(AttributesStore attributesStore, PersistentStore persistentStore) {
+        this.attributesStore = attributesStore;
+        this.persistentStore = persistentStore;
         registerMbean();
+
     }
 
     public void init() {
@@ -227,29 +230,13 @@ public class DataUsage extends RouteBuilder implements DataUsageMBean {
 
     @Override
     public void configure() {
-        from("quartz://myGroupName/myTimerName?cron=" + cronTime + "&stateful=true").errorHandler(
+        from("quartz://dataUsage/dataUsageResetTimer?cron=" + cronTime + "&stateful=true").errorHandler(
                 loggingErrorHandler(DataUsage.class.getCanonicalName()).level(LoggingLevel.ERROR))
                 .process((Exchange exchange) -> {
                     LOGGER.info("Resetting Data Usages for all users in {}.",
                             AttributesStore.class.getCanonicalName());
                     attributesStore.resetUserDataUsages();
                 });
-    }
-
-    public AttributesStore getAttributesStore() {
-        return attributesStore;
-    }
-
-    public void setAttributesStore(AttributesStore attributesStore) {
-        this.attributesStore = attributesStore;
-    }
-
-    public PersistentStore getPersistentStore() {
-        return persistentStore;
-    }
-
-    public void setPersistentStore(PersistentStore persistentStore) {
-        this.persistentStore = persistentStore;
     }
 
     public void destroy() {

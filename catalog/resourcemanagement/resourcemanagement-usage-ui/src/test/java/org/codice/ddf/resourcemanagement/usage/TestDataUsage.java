@@ -11,12 +11,16 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-
 package org.codice.ddf.resourcemanagement.usage;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +33,6 @@ import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.codice.ddf.resourcemanagement.usage.service.DataUsage;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
 public class TestDataUsage {
@@ -60,16 +63,13 @@ public class TestDataUsage {
 
     @Before
     public void setUp() throws PersistenceException {
-        dataUsage = new DataUsage();
-        attributesStore = Mockito.mock(AttributesStore.class);
-        persistentStore = Mockito.mock(PersistentStore.class);
-        dataUsage.setAttributesStore(attributesStore);
-        dataUsage.setPersistentStore(persistentStore);
-        userList = generateUserList();
-        Mockito.when(attributesStore.getAllUsers())
-                .thenReturn(userList);
+        attributesStore = mock(AttributesStore.class);
+        persistentStore = mock(PersistentStore.class);
 
-        Mockito.doAnswer((InvocationOnMock invocationOnMock) -> {
+        userList = generateUserList();
+        when(attributesStore.getAllUsers()).thenReturn(userList);
+
+        doAnswer((InvocationOnMock invocationOnMock) -> {
             Object[] args = invocationOnMock.getArguments();
             String user = (String) args[0];
             long dataUsage = (long) args[1];
@@ -80,16 +80,16 @@ public class TestDataUsage {
                 }
             }
             return null;
-        })
-                .when(attributesStore)
-                .setDataLimit(Mockito.anyString(), Mockito.anyLong());
+        }).when(attributesStore)
+                .setDataLimit(anyString(), anyLong());
+        dataUsage = new DataUsage(attributesStore, persistentStore);
     }
 
     @Test
     public void testUserMap() {
         Map<String, List<Long>> map = dataUsage.userMap();
-        assertNotNull(map.get(USER_BOB));
-        assertNotNull(map.get(USER_BEN));
+        assertThat(map.get(USER_BOB), notNullValue());
+        assertThat(map.get(USER_BEN), notNullValue());
 
         List<Long> userLongList = map.get(USER_BOB);
         assertThat(userLongList.size(), is(2));
@@ -110,8 +110,8 @@ public class TestDataUsage {
         dataUsage.updateUserDataLimit(map);
 
         Map<String, List<Long>> resultMap = dataUsage.userMap();
-        assertNotNull(resultMap.get(USER_BOB));
-        assertNotNull(resultMap.get(USER_BEN));
+        assertThat(resultMap.get(USER_BOB), notNullValue());
+        assertThat(resultMap.get(USER_BEN), notNullValue());
 
         List<Long> userLongList = resultMap.get(USER_BOB);
         assertThat(userLongList.size(), is(2));
@@ -137,8 +137,7 @@ public class TestDataUsage {
         stringObjectMap.put(DataUsage.ID + DataUsage.TXT_PREFIX, DataUsage.CRON_TIME_ID_KEY);
         stringObjectMap.put(DataUsage.CRON_TIME_KEY + DataUsage.TXT_PREFIX, CRON_TIME);
         mapList.add(stringObjectMap);
-        Mockito.when(persistentStore.get(Mockito.anyString()))
-                .thenReturn(mapList);
+        when(persistentStore.get(anyString())).thenReturn(mapList);
         dataUsage.init();
         assertThat(dataUsage.cronTime(), is(TIME));
     }
@@ -148,8 +147,7 @@ public class TestDataUsage {
         List<Map<String, Object>> mapList = new ArrayList<>();
         Map<String, Object> stringObjectMap = new HashMap<>();
         mapList.add(stringObjectMap);
-        Mockito.when(persistentStore.get(Mockito.anyString()))
-                .thenReturn(mapList);
+        when(persistentStore.get(anyString())).thenReturn(mapList);
         dataUsage.init();
         assertThat(dataUsage.cronTime(), is(DEFAULT_TIME));
     }
@@ -159,8 +157,7 @@ public class TestDataUsage {
         List<Map<String, Object>> mapList = new ArrayList<>();
         Map<String, Object> stringObjectMap = new HashMap<>();
         mapList.add(stringObjectMap);
-        Mockito.when(persistentStore.get(Mockito.anyString()))
-                .thenThrow(new PersistenceException());
+        when(persistentStore.get(anyString())).thenThrow(new PersistenceException());
         dataUsage.init();
         assertThat(dataUsage.cronTime(), is(DEFAULT_TIME));
     }

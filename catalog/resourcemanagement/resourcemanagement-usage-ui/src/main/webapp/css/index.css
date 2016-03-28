@@ -51,8 +51,12 @@ input {
 }
 
 select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
     margin-right: 5px;
     height: 26px;
+    appearance: none;
+    padding: 0px 5px 0px 5px;
 }
 
 .input-time {

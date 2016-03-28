@@ -37,6 +37,21 @@
             <artifactId>resourcemanagement-usage-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.resourcemanagement</groupId>
+            <artifactId>resourcemanagement-querymonitor-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.resourcemanagement</groupId>
+            <artifactId>resourcemanagement-querymonitor-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.resourcemanagement</groupId>
+            <artifactId>resourcemanagement-querymonitor-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

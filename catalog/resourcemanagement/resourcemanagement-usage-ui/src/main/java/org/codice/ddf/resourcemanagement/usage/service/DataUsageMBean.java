@@ -45,5 +45,4 @@ public interface DataUsageMBean {
      * @return a String representing the current Cron Time
      */
     String cronTime();
-
 }
