@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import ddf.catalog.data.impl.MetacardImpl;
 
@@ -31,5 +33,9 @@ public class QueryMetacardImpl extends MetacardImpl {
 
     public void setEnterprise(Boolean b) {
         setAttribute(QueryMetacardTypeImpl.QUERY_ENTERPRISE, b);
+    }
+
+    public void setSources(List<String> sources) {
+        setAttribute(QueryMetacardTypeImpl.QUERY_SOURCES, new ArrayList<>(sources));
     }
 }

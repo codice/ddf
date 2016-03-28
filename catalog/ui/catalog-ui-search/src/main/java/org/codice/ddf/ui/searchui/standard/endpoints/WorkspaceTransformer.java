@@ -13,7 +13,6 @@
  **/
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SerializationUtils;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
@@ -41,12 +39,27 @@ public class WorkspaceTransformer {
         this.it = it;
     }
 
+    private static boolean check(Object o, Class clazz) {
+        return o != null && clazz.isAssignableFrom(o.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
     private static QueryMetacardImpl transformQuery(Map<String, Object> m) {
         QueryMetacardImpl q = new QueryMetacardImpl();
 
-        q.setTitle((String) m.get("title"));
-        q.setCql((String) m.get("cql"));
-        q.setEnterprise((Boolean) m.get("enterprise"));
+        if (check(m.get(Metacard.TITLE), String.class)) {
+            q.setTitle((String) m.get(Metacard.TITLE));
+        }
+
+        if (check(m.get(QueryMetacardTypeImpl.QUERY_CQL), String.class)) {
+            q.setCql((String) m.get(QueryMetacardTypeImpl.QUERY_CQL));
+        }
+
+        if (check(m.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE), Boolean.class)) {
+            q.setEnterprise((Boolean) m.get(QueryMetacardTypeImpl.QUERY_ENTERPRISE));
+        } else if (check(m.get(QueryMetacardTypeImpl.QUERY_SOURCES), List.class)) {
+            q.setSources((List) m.get(QueryMetacardTypeImpl.QUERY_SOURCES));
+        }
 
         return q;
     }
@@ -64,11 +77,13 @@ public class WorkspaceTransformer {
     public Metacard transform(Map w) {
         WorkspaceMetacardImpl m = new WorkspaceMetacardImpl();
 
-        m.setTitle((String) w.get("title"));
+        if (check(w.get(Metacard.TITLE), String.class)) {
+            m.setTitle((String) w.get(Metacard.TITLE));
+        }
 
-        if (w.get("queries") != null && List.class.isAssignableFrom(w.get("queries")
-                .getClass())) {
-            List<Map<String, Object>> queries = (List<Map<String, Object>>) w.get("queries");
+        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), List.class)) {
+            List<Map<String, Object>> queries = (List<Map<String, Object>>) w.get(
+                    WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES);
 
             List<String> xmlQueries = queries.stream()
                     .map(WorkspaceTransformer::transformQuery)
@@ -78,9 +93,8 @@ public class WorkspaceTransformer {
             m.setQueries(xmlQueries);
         }
 
-        if (w.get("metacards") != null && List.class.isAssignableFrom(w.get("metacards")
-                .getClass())) {
-            m.setMetacards((List) w.get("metacards"));
+        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS), List.class)) {
+            m.setMetacards((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS));
         }
 
         return m;
@@ -109,7 +123,9 @@ public class WorkspaceTransformer {
                 Attribute attr = m.getAttribute(ad.getName());
                 if (attr != null) {
                     // ignore metacard tags
-                    if (Metacard.TAGS.equals(ad.getName())) continue;
+                    if (Metacard.TAGS.equals(ad.getName())) {
+                        continue;
+                    }
 
                     if (WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES.equals(ad.getName())) {
                         h.put(ad.getName(),

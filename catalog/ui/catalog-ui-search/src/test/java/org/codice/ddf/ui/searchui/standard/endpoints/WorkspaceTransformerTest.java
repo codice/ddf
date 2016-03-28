@@ -1,0 +1,129 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ **/
+package org.codice.ddf.ui.searchui.standard.endpoints;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.transform.InputTransformer;
+
+public class WorkspaceTransformerTest {
+
+    private CatalogFramework cf;
+
+    private InputTransformer it;
+
+    private WorkspaceTransformer wt;
+
+    @Before
+    public void setup() throws Exception {
+        cf = Mockito.mock(CatalogFramework.class);
+
+        doReturn(new BinaryContentImpl(IOUtils.toInputStream("<xml></xml>"))).when(cf)
+                .transform(any(Metacard.class), any(String.class), any(Map.class));
+
+        it = Mockito.mock(InputTransformer.class);
+
+        doReturn(getQuery()).when(it)
+                .transform(any(InputStream.class));
+
+        wt = new WorkspaceTransformer(cf, it);
+    }
+
+    private Map<String, Object> getQueryAsMap() {
+        Map<String, Object> q = new HashMap<>();
+        q.put(Metacard.TITLE, "test query");
+        q.put(QueryMetacardTypeImpl.QUERY_ENTERPRISE, true);
+        q.put(QueryMetacardTypeImpl.QUERY_CQL, "*");
+        return q;
+    }
+
+    private QueryMetacardImpl getQuery() {
+        QueryMetacardImpl q = new QueryMetacardImpl();
+
+        q.setTitle("test query");
+        q.setEnterprise(true);
+        q.setCql("*");
+
+        return q;
+    }
+
+    private Map<String, Object> getWorkspaceAsMap() {
+        Map<String, Object> w = new HashMap<>();
+
+        w.put(Metacard.TITLE, "test");
+        w.put(Metacard.TAGS, new HashSet<>(Arrays.asList("first", "second")));
+        w.put(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, Arrays.asList("id1", "id2"));
+        w.put(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES, Arrays.asList(getQueryAsMap()));
+
+        return w;
+    }
+
+    private WorkspaceMetacardImpl getWorkspace() {
+        WorkspaceMetacardImpl mci = new WorkspaceMetacardImpl();
+
+        mci.setTitle("test");
+
+        Set<String> tags = new HashSet<>(Arrays.asList("first", "second"));
+        mci.setTags(tags);
+
+        mci.setMetacards(Arrays.asList("id1", "id2"));
+        mci.setQueries(Arrays.asList("<xml></xml>"));
+
+        return mci;
+    }
+
+    @Test
+    public void testMetacardToMap() {
+        WorkspaceMetacardImpl workspace = getWorkspace();
+        Map<String, Object> map = wt.transform(workspace);
+
+        assertThat(map.get(Metacard.TITLE), is(workspace.getTitle()));
+        assertThat(map.get(Metacard.TAGS), nullValue()); // don't output metacard tags
+        assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), is(Arrays.asList(
+                getQueryAsMap())));
+        assertThat(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS),
+                is(workspace.getMetacards()));
+    }
+
+    @Test
+    public void testMapToMetacard() {
+        Map<String, Object> map = getWorkspaceAsMap();
+        WorkspaceMetacardImpl workspace = (WorkspaceMetacardImpl) wt.transform(map);
+
+        assertThat(workspace.getTitle(), is(map.get(workspace.TITLE)));
+        assertThat(workspace.getQueries(), is(Arrays.asList("<xml></xml>")));
+        assertThat(workspace.getMetacards(),
+                is(map.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS)));
+    }
+
+}

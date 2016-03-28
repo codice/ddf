@@ -40,7 +40,7 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
                 .collect(Collectors.toList());
     }
 
-    public List<String> getSavedItems() {
+    public List<String> getMetacards() {
         return getValues(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS);
     }
 
