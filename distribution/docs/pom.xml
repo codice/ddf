@@ -148,14 +148,6 @@
                                             <outputDirectory>${project.build.directory}/adoc/catalog</outputDirectory>
                                         </artifactItem>
                                         <artifactItem>
-                                            <groupId>ddf.content</groupId>
-                                            <artifactId>docs</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${project.build.directory}/adoc/content</outputDirectory>
-                                        </artifactItem>
-                                        <artifactItem>
                                             <groupId>ddf.platform</groupId>
                                             <artifactId>docs</artifactId>
                                             <version>${project.version}</version>
