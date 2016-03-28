@@ -63,6 +63,16 @@
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-federationadminimpl</artifactId>
+                <version>2.9.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-federationadminapi</artifactId>
+                <version>2.9.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
                 <artifactId>catalog-registry-identificationplugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -131,6 +141,8 @@
         <module>catalog-registry-identificationplugin</module>
         <module>catalog-registry-api</module>
         <module>catalog-registry-api-impl</module>
+        <module>catalog-registry-federationadminapi</module>
+        <module>catalog-registry-federationadminimpl</module>
         <module>catalog-registry-federationadminservice</module>
         <module>catalog-registry-federationadminserviceimpl</module>
         <module>registry-app</module>

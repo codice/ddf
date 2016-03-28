@@ -57,7 +57,6 @@
             <groupId>ddf.platform</groupId>
             <artifactId>platform-parser-xml</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.registry</groupId>
@@ -87,7 +86,7 @@
                         <Export-Package/>
                         <Embed-Dependency>
                             catalog-registry-common,
-                            catalog-core-api-impl,
+                            catalog-core-api-impl;scope=!test,
                             jaxb2-basics-runtime,
                             ogc-tools-gml-jts
                         </Embed-Dependency>

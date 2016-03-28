@@ -34,7 +34,6 @@ import com.google.common.base.Charsets;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -47,9 +46,8 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.registry.common.RegistryConstants;
 import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
+import ddf.catalog.registry.federationadmin.service.FederationAdminException;
 import ddf.catalog.registry.federationadmin.service.FederationAdminService;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.Requests;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
@@ -228,8 +226,7 @@ public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
                 .toString();
     }
 
-    public void init()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void init() throws FederationAdminException {
 
         List<Metacard> registryMetacards = federationAdmin.getRegistryMetacards();
 

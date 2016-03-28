@@ -1,0 +1,31 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+    <bean id="federationAdmin" class="ddf.catalog.registry.federationadmin.impl.FederationAdmin"
+          destroy-method="destroy">
+        <property name="federationAdminService" ref="federationAdminService"/>
+        <property name="registryTransformer" ref="inputTransformer"/>
+        <property name="parser" ref="xmlParser"/>
+    </bean>
+
+    <reference id="federationAdminService"
+               interface="ddf.catalog.registry.federationadmin.service.FederationAdminService"/>
+    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
+               filter="(id=rim:RegistryPackage)"/>
+    <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"/>
+
+</blueprint>
