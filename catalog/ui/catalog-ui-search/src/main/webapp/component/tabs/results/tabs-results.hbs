@@ -16,16 +16,19 @@
         {{#each tabs}}
             {{#unless this.filter}}
             <div class="tabs-tab is-button" data-id="{{@key}}">
+                <div class="tabs-tab-container">
                 {{#if this.color}}
                     <span class="results-tabs-tab" style="background: {{this.color}}" title="{{this.tooltip}}">
                     </span>
                 {{else}}
                     {{@key}}
                 {{/if}}
+                </div>
             </div>
             {{/unless}}
         {{/each}}
         <div class="tabs-dropdown is-button">
+            <div class="tabs-tab-container">
             {{#each tabs}}
                 {{#unless this.filter}}
                 <span class="results-tabs-tab tabs-title" data-id="{{@key}}" style="background: {{this.color}}" data-popover-title="{{this.tooltip}}">
@@ -37,6 +40,7 @@
             {{/each}}
             <span class="hint">More</span>
             <span class="fa fa-bars"></span>
+            </div>
         </div>
     </div>
     <div class="tabs-collapsed">

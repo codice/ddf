@@ -100,11 +100,11 @@
     }
 
     .tabs-tab.is-active > .tabs-tab-container {
-      background: black;
+      background: rgba(0,0,0,1);
     }
 
     .tabs-dropdown.has-activeTab > .tabs-tab-container {
-      background: black;
+      background: rgba(0,0,0,1);
     }
 
     .tabs-tab-container {
@@ -129,13 +129,11 @@
       line-height: 44px;
       height: 100%;
       transition: margin .2s linear;
-      margin: 0px -15px;
+      margin: 0px -8px;
       position: relative;
 
       &.is-active {
-        background: grey;
         color: @tabColor;
-        border-bottom: 1px solid black;
         z-index: 1000;
       }
 
