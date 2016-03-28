@@ -22,6 +22,7 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.opensaml.core.xml.schema.XSString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,9 @@ public final class SubjectUtils {
     public static final String GUEST_DISPLAY_NAME = "Guest";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubjectUtils.class);
+
+    public static final String EMAIL_ADDRESS_CLAIM_URI =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
 
     private SubjectUtils() {
 
@@ -139,6 +143,42 @@ public final class SubjectUtils {
     }
 
     public static String getCommonName(X500Principal principal) {
-        return new X500Name(principal.getName()).getRDNs(BCStyle.CN)[0].getFirst().getValue().toString();
+        return new X500Name(principal.getName()).getRDNs(BCStyle.CN)[0].getFirst()
+                .getValue()
+                .toString();
+    }
+
+    public static String getEmailAddress(org.apache.shiro.subject.Subject subject) {
+        if (subject == null) {
+            LOGGER.debug("Incoming subject was null, cannot look up email address.");
+            return null;
+        }
+
+        PrincipalCollection principals = subject.getPrincipals();
+        if (principals == null) {
+            LOGGER.debug(
+                    "No principals located in the incoming subject, cannot look up email address.");
+            return null;
+        }
+
+        SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
+        if (assertion == null) {
+            LOGGER.debug("Could not find Security Assertion, cannot look up email address");
+            return null;
+        }
+
+        return assertion.getAttributeStatements()
+                .stream()
+                .flatMap(as -> as.getAttributes()
+                        .stream())
+                .filter(a -> a.getName()
+                        .equals(EMAIL_ADDRESS_CLAIM_URI))
+                .flatMap(a -> a.getAttributeValues()
+                        .stream())
+                .filter(o -> o instanceof XSString)
+                .map(o -> (XSString) o)
+                .map(XSString::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }

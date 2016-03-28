@@ -178,21 +178,21 @@ public class MetacardTypeImpl implements MetacardType {
             return false;
         }
 
-        MetacardTypeImpl other = (MetacardTypeImpl) obj;
+        MetacardType other = (MetacardType) obj;
 
         if (name == null) {
-            if (other.name != null) {
+            if (other.getName() != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        } else if (!name.equals(other.getName())) {
             return false;
         }
 
         if (descriptors == null) {
-            if (other.descriptors != null) {
+            if (other.getAttributeDescriptors() != null) {
                 return false;
             }
-        } else if (!descriptors.equals(other.descriptors)) {
+        } else if (!descriptors.equals(other.getAttributeDescriptors())) {
             return false;
         }
 
