@@ -35,9 +35,9 @@ import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
-import ddf.catalog.registry.common.metacard.RegistryMetacardImpl;
-import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.converter.RegistryConversionException;
 import ddf.catalog.registry.converter.RegistryPackageConverter;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -61,7 +61,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
     public Metacard transform(InputStream inputStream, String id)
             throws IOException, CatalogTransformerException {
 
-        RegistryMetacardImpl metacard;
+        MetacardImpl metacard;
 
         try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
@@ -78,7 +78,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
 
             try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
                     .openStream()) {
-                metacard = (RegistryMetacardImpl) unmarshal(inputStreamCopy);
+                metacard = (MetacardImpl) unmarshal(inputStreamCopy);
             } catch (ParserException e) {
                 throw new CatalogTransformerException(
                         "Unable to transform from CSW RIM Service Record to Metacard. Parser exception caught",
@@ -128,7 +128,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
 
     private Metacard unmarshal(InputStream xmlStream)
             throws ParserException, RegistryConversionException {
-        RegistryMetacardImpl metacard = null;
+        MetacardImpl metacard = null;
 
         JAXBElement<RegistryObjectType> registryObjectTypeJAXBElement = parser.unmarshal(
                 configurator,
@@ -141,7 +141,7 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
             if (registryObjectType != null) {
 
                 metacard =
-                        (RegistryMetacardImpl) RegistryPackageConverter.getRegistryObjectMetacard(
+                        (MetacardImpl) RegistryPackageConverter.getRegistryObjectMetacard(
                                 registryObjectType);
 
             }

@@ -36,7 +36,7 @@
             <!--Optional: Date indicating when this instance when live or operational-->
             <rim:Slot name="liveDate" slotType="xs:dateTime">
                 <rim:ValueList>
-                    <rim:Value>2015-06-01T13:15:30Z</rim:Value>
+                    <rim:Value>2015-11-01T06:15:30-07:00</rim:Value>
                 </rim:ValueList>
             </rim:Slot>
             <!--Optional: Date indicating the earliest data sets available in this instance-->

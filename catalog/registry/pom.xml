@@ -31,5 +31,8 @@
         <module>catalog-registry-common</module>
         <module>catalog-registry-schema-bindings</module>
         <module>catalog-registry-identificationplugin</module>
+        <module>catalog-registry-api</module>
+        <module>catalog-registry-federationadminservice</module>
+        <module>catalog-registry-federationadminserviceimpl</module>
     </modules>
 </project>
