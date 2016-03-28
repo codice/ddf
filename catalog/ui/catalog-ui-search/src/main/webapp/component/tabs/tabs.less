@@ -84,7 +84,6 @@
     .tabs-dropdown {
       display: none;
       height: 100%;
-      padding: 10px;
 
       &.has-activeTab {
         color: @tabColor;
@@ -95,33 +94,16 @@
         }
       }
 
-      &:hover {
-        background: none;
-      }
-
       .hint {
         display: inline;
       }
     }
 
-    .tabs-tab + .tabs-tab,
-    .tabs-tab + .tabs-dropdown{
-      //border-left: 1px solid @border-color;
+    .tabs-tab.is-active > .tabs-tab-container {
+      background: black;
     }
 
-    /*.tabs-tab:not(.is-active)::after {
-      content: "";
-      position: absolute;
-      height: calc(100% - 10px);
-      width: 14px;
-      background: #000;
-      right: -10px;
-      top: -4px;
-      border-left: 1px solid grey;
-      transform: rotate(-25deg);
-    }*/
-
-    .tabs-tab.is-active > .tabs-tab-container {
+    .tabs-dropdown.has-activeTab > .tabs-tab-container {
       background: black;
     }
 
@@ -135,20 +117,17 @@
       top: 1px;
     }
 
-
     .tabs-tab {
+      display: inline-block;
+    }
+
+    .tabs-tab,
+    .tabs-dropdown {
       min-width: 150px;
       .clipPath;
       background: grey;
-      //background: linear-gradient(black, black, rgb(50,50,50));
-      //padding: 10px 20px;
       line-height: 44px;
-      display: inline-block;
       height: 100%;
-      //border-top: 1px solid grey;
-      //border-left: 1px solid grey;
-      //border-right: 1px solid grey;
-      //border-bottom: 1px solid grey;
       transition: margin .2s linear;
       margin: 0px -15px;
       position: relative;
@@ -156,15 +135,11 @@
       &.is-active {
         background: grey;
         color: @tabColor;
-        //border-top: 1px solid @tabColor;
-        //border-left: 1px solid @tabColor;
-        //border-right: 1px solid @tabColor;
         border-bottom: 1px solid black;
         z-index: 1000;
       }
 
       &:hover {
-        //background: none;
         color: @tabColor;
       }
 

@@ -21,11 +21,13 @@
             </div>
         {{/each}}
         <div class="tabs-dropdown is-button">
-            {{#each tabTitles}}
-                <span class="tabs-title" data-id="{{this}}">{{this}}</span>
-            {{/each}}
-            <span class="hint">More</span>
-            <span class="fa fa-bars"></span>
+            <div class="tabs-tab-container">
+                {{#each tabTitles}}
+                    <span class="tabs-title" data-id="{{this}}">{{this}}</span>
+                {{/each}}
+                <span class="hint">More</span>
+                <span class="fa fa-bars">
+            </div>
         </div>
     </div>
     <div class="tabs-collapsed">
