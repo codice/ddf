@@ -110,6 +110,7 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
+import ddf.catalog.operation.impl.OperationTransaction;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -998,6 +999,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 createReq = plugin.processPreCreate(createReq);
             }
 
+            createReq.getProperties()
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransaction(OperationTransaction.OperationType.CREATE,
+                                    new ArrayList<>()));
+
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
                     createReq = plugin.process(createReq);
@@ -1314,6 +1320,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 updateReq = plugin.processPreUpdate(updateReq, metacardMap);
             }
 
+            updateReq.getProperties()
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransaction(OperationTransaction.OperationType.UPDATE,
+                                    metacardMap.values()));
+
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
                     updateReq = plugin.process(updateReq);
@@ -1446,6 +1457,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
                 deleteRequest = plugin.processPreDelete(deleteRequest);
             }
+
+            deleteRequest.getProperties()
+                    .put(Constants.OPERATION_TRANSACTION_KEY,
+                            new OperationTransaction(OperationTransaction.OperationType.DELETE,
+                                    metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {

@@ -142,4 +142,6 @@ public final class Constants {
     public static final String REMOTE_DESTINATION_KEY = "remote-destination";
 
     public static final String LOCAL_DESTINATION_KEY = "local-destination";
+
+    public static final String OPERATION_TRANSACTION_KEY = "operation-transaction";
 }
