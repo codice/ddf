@@ -15,19 +15,15 @@
     <div class="tabs-expanded">
         {{#each tabTitles}}
             <div class="tabs-tab is-button" data-id="{{this}}">
-                <div class="tabs-tab-container">
-                    {{this}}
-                </div>
+                {{this}}
             </div>
         {{/each}}
         <div class="tabs-dropdown is-button">
-            <div class="tabs-tab-container">
-                {{#each tabTitles}}
-                    <span class="tabs-title" data-id="{{this}}">{{this}}</span>
-                {{/each}}
-                <span class="hint">More</span>
-                <span class="fa fa-bars">
-            </div>
+            {{#each tabTitles}}
+                <span class="tabs-title" data-id="{{this}}">{{this}}</span>
+            {{/each}}
+            <span class="hint">More</span>
+            <span class="fa fa-bars"></span>
         </div>
     </div>
     <div class="tabs-collapsed">

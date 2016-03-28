@@ -21,6 +21,11 @@ define([
         relations: [
             {
                 type: Backbone.Many,
+                key: 'resultIds',
+                relatedModel: Metacard.Metacard
+            },
+            {
+                type: Backbone.Many,
                 key: 'results',
                 relatedModel: Metacard.Metacard
             },
@@ -31,6 +36,7 @@ define([
             }
         ],
         defaults: {
+            resultIds: [],
             queryId: undefined,
             savedItems: undefined,
             query: undefined,
