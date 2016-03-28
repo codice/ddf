@@ -482,7 +482,13 @@ public class URLResourceReader implements ResourceReader {
 
     /* Added for Unit Testing */
     protected WebClient getWebClient(String uri) {
-        return WebClient.create(uri);
+        //TODO TROY REMOVE and wait for DDF-1588
+        WebClient client = WebClient.create(uri);
+        WebClient.getConfig(client)
+                .getHttpConduit()
+                .getClient()
+                .setAutoRedirect(true);
+        return client;
     }
 
     @Override
