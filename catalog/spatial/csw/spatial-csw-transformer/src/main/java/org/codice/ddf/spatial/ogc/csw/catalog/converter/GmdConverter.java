@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -50,6 +51,8 @@ public class GmdConverter implements Converter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdConverter.class);
 
     static final DatatypeFactory XSD_FACTORY;
+    
+    private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
     static {
         DatatypeFactory factory = null;
@@ -155,6 +158,8 @@ public class GmdConverter implements Converter {
 
             modifiedCal.setTime(metacard.getModifiedDate());
         }
+        modifiedCal.setTimeZone(UTC_TIME_ZONE);
+
         pathValueTracker.add(new Path(GmdMetacardType.DATE_TIME_STAMP_PATH),
                 XSD_FACTORY.newXMLGregorianCalendar(modifiedCal)
                         .toXMLFormat());
@@ -190,6 +195,7 @@ public class GmdConverter implements Converter {
 
             createdCal.setTime(metacard.getCreatedDate());
         }
+        createdCal.setTimeZone(UTC_TIME_ZONE);
         pathValueTracker.add(new Path(GmdMetacardType.CREATED_DATE_PATH),
                 XSD_FACTORY.newXMLGregorianCalendar(createdCal)
                         .toXMLFormat());

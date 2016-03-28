@@ -7,7 +7,7 @@
     </hierarchyLevel>
     <contact/>
     <dateStamp>
-        <gco:DateTime>2016-11-01T00:00:00.000-06:00</gco:DateTime>
+        <gco:DateTime>2016-11-01T00:00:00.000Z</gco:DateTime>
     </dateStamp>
     <identificationInfo>
         <MD_DataIdentification>
@@ -19,7 +19,7 @@
                     <date>
                         <CI_Date>
                             <date>
-                                <gco:DateTime>2014-11-01T00:00:00.000-06:00</gco:DateTime>
+                                <gco:DateTime>2014-11-01T00:00:00.000Z</gco:DateTime>
                             </date>
                             <dateType>
                                 <CI_DateTypeCode codeList="urn:catalog:metacard" codeListValue="created"/>
