@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.registry</groupId>
+            <artifactId>catalog-registry-federationadminservice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.registry</groupId>
             <artifactId>catalog-registry-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -114,7 +119,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.94</minimum>
+                                            <minimum>0.91</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
