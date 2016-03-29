@@ -175,12 +175,34 @@ public final class Library {
                 + "    </csw:Insert>\n" + "</csw:Transaction>";
     }
 
-    public static String getRegistryService() throws IOException {
-        return IOUtils.toString(Library.class.getResourceAsStream("/csw-rim-service.xml"));
+    public static String getRegistryNode() throws IOException {
+        return IOUtils.toString(Library.class.getResourceAsStream("/csw-rim-node.xml"));
     }
 
     public static String getCswRegistryInsert() throws IOException {
-        return Library.getCswInsert("ebrim", getRegistryService());
+        return Library.getCswInsert("ebrim", getRegistryNode());
+    }
+
+    public static String getCswRegistryUpdate() throws IOException {
+        return "<csw:Transaction\n" + "    service=\"CSW\"\n" + "    version=\"2.0.2\"\n"
+                + "    verboseResponse=\"true\"\n"
+                + "    xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\">\n"
+                + "    <csw:Update typeName=\"rim:RegistryPackage\">\n"
+                + getRegistryNode() + "\n"
+                + "    </csw:Update>\n" + "</csw:Transaction>";
+    }
+
+    public static String getCswRegistryDelete() throws IOException {
+        return "<csw:Transaction service=\"CSW\"\n"
+                + "   version=\"2.0.2\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"\n"
+                + "   xmlns:ogc=\"http://www.opengis.net/ogc\">\n"
+                + "  <csw:Delete typeName=\"rim:RegistryPackage\" handle=\"something\">\n"
+                + "    <csw:Constraint version=\"2.0.0\">\n" + "      <ogc:Filter>\n"
+                + "        <ogc:PropertyIsEqualTo>\n"
+                + "            <ogc:PropertyName>registry-id</ogc:PropertyName>\n"
+                + "            <ogc:Literal>urn:uuid:2014ca7f59ac46f495e32b4a67a51276</ogc:Literal>\n"
+                + "        </ogc:PropertyIsEqualTo>\n" + "      </ogc:Filter>\n"
+                + "    </csw:Constraint>\n" + "  </csw:Delete>\n" + "</csw:Transaction>";
     }
 
     public static String getCswFilterDelete() {

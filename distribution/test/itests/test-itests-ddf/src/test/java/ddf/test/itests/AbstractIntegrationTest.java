@@ -739,4 +739,19 @@ public abstract class AbstractIntegrationTest {
         }
 
     }
+
+    public class CswRegistryStoreProperties extends HashMap<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "catalog-registry-api-impl";
+
+        public static final String FACTORY_PID = "Csw_Registry_Store";
+
+        public CswRegistryStoreProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("id", sourceId);
+            this.put("cswUrl", CSW_PATH.getUrl());
+            this.put("pollInterval", 1);
+        }
+    }
 }
