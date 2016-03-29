@@ -22,6 +22,7 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
+import org.codice.ddf.migration.AbstractDescribable;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
@@ -30,11 +31,11 @@ import org.codice.ddf.migration.util.MigratableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * This class handles the export process for all Platform system files.
- *
  */
-public class PlatformMigratable implements ConfigurationMigratable {
+public class PlatformMigratable extends AbstractDescribable implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
 
@@ -51,13 +52,15 @@ public class PlatformMigratable implements ConfigurationMigratable {
     private static final Path APPLICATION_LIST = Paths.get("etc",
             "org.codice.ddf.admin.applicationlist.properties");
 
-    private final String description;
-
     private final MigratableUtil migratableUtil;
 
-    public PlatformMigratable(@NotNull String description, @NotNull MigratableUtil migratableUtil) {
-        notNull(description, "description cannot be null");
-        this.description = description;
+    public PlatformMigratable(@NotNull String description, @NotNull MigratableUtil migratableUtil,
+            @NotNull String organization, @NotNull String title, @NotNull String id,
+            @NotNull String version) {
+
+        super(version, id, title, description, organization);
+
+        notNull(migratableUtil, "migratable utility should not be null");
         this.migratableUtil = migratableUtil;
     }
 
@@ -67,10 +70,6 @@ public class PlatformMigratable implements ConfigurationMigratable {
         exportSystemFiles(exportPath, migrationWarnings);
         exportWsSecurity(exportPath, migrationWarnings);
         return new MigrationMetadata(migrationWarnings);
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     private void exportSystemFiles(Path exportDirectory,

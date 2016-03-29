@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.codice.ddf.migration.AbstractDescribable;
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
@@ -47,18 +48,14 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
- * Implementation of the {@link org.codice.ddf.migration.Migratable} interface used to migrate
+ * Implementation of the {@link org.codice.ddf.migration.DataMigratable} interface used to migrate
  * the current catalog framework's {@link Metacard}s.
  */
-public class CatalogMigratableImpl implements DataMigratable {
+public class CatalogMigratableImpl extends AbstractDescribable implements DataMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogMigratableImpl.class);
 
     private static final String DEFAULT_FAILURE_MESSAGE = "Catalog could not export metacards";
-
-    private static final String CATALOG_EXPORT_DIRECTORY = "org.codice.ddf.catalog";
-
-    private final String description;
 
     private final CatalogFramework framework;
 
@@ -76,46 +73,61 @@ public class CatalogMigratableImpl implements DataMigratable {
      * @param description   description of this migratable
      * @param framework     framework used to retrieve the metacards to export
      * @param filterBuilder builder used to create query filters
-     * @param fileWriter    object used to write metacards to disk
      * @param config        export configuration information
+     * @param version       version of this migratable
+     * @param id            id of this migratable
+     * @param title         title of this migratable
+     * @param organization  organization of this migratable
      */
-    public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogFramework framework,
+    public CatalogMigratableImpl(@NotNull CatalogFramework framework,
             @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
-            @NotNull CatalogMigratableConfig config) {
-        this(description,
-                framework,
+            @NotNull CatalogMigratableConfig config, @NotNull String version, @NotNull String id,
+            @NotNull String title, @NotNull String description, @NotNull String organization) {
+
+        this(framework,
                 filterBuilder,
                 fileWriter,
                 config,
-                new MigrationTaskManager(config, fileWriter));
+                new MigrationTaskManager(config, fileWriter),
+                version,
+                id,
+                title,
+                description,
+                organization);
+
     }
 
     /**
      * Constructor that allows the caller choice of {@link MigrationTaskManager} to be injected.
      *
-     * @param description   description of this migratable
      * @param framework     framework used to retrieve the metacards to export
      * @param filterBuilder builder used to create query filters
-     * @param fileWriter    object used to write metacards to disk
      * @param config        export configuration information
      * @param taskManager   the manager responsible for submitting file writing jobs during export
+     * @param version       version of this migratable
+     * @param id            id of this migratable
+     * @param title         title of this migratable
+     * @param description   description of this migratable
+     * @param organization  organization of this migratable
      */
-    public CatalogMigratableImpl(@NotNull String description, @NotNull CatalogFramework framework,
+    public CatalogMigratableImpl(@NotNull CatalogFramework framework,
             @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
-            @NotNull CatalogMigratableConfig config, @NotNull MigrationTaskManager taskManager) {
-        notNull(description, "description cannot be null");
+            @NotNull CatalogMigratableConfig config, @NotNull MigrationTaskManager taskManager,
+            @NotNull String version, @NotNull String id, @NotNull String title,
+            @NotNull String description, @NotNull String organization) {
+
+        super(version, id, title, description, organization);
+
         notNull(framework, "CatalogFramework cannot be null");
         notNull(filterBuilder, "FilterBuilder cannot be null");
         notNull(fileWriter, "FileWriter cannot be null");
         notNull(config, "Configuration object cannot be null");
         notNull(taskManager, "Task manager cannot be null");
 
-        this.description = description;
         this.framework = framework;
         this.filterBuilder = filterBuilder;
         this.fileWriter = fileWriter;
         this.config = config;
-
         this.taskManager = taskManager;
     }
 
@@ -124,8 +136,11 @@ public class CatalogMigratableImpl implements DataMigratable {
      * <p>
      * {@inheritDoc}
      */
-    public MigrationMetadata export(Path exportPath) throws MigrationException {
-        config.setExportPath(exportPath.resolve(CATALOG_EXPORT_DIRECTORY));
+    @Override
+    @NotNull
+    public MigrationMetadata export(@NotNull Path exportPath) throws MigrationException {
+
+        config.setExportPath(exportPath.resolve(this.getId()));
         fileWriter.createExportDirectory(config.getExportPath());
 
         Collection<MigrationWarning> warnings = new ArrayList<>();
@@ -151,10 +166,6 @@ public class CatalogMigratableImpl implements DataMigratable {
         }
 
         return new MigrationMetadata(warnings);
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     private void cleanup() throws MigrationException {

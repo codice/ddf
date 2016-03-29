@@ -27,11 +27,15 @@
 
     <bean id="catalogMigratable"
           class="org.codice.ddf.catalog.migratable.impl.CatalogMigratableImpl">
-        <argument value="Exports Catalog metacards"/>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="catalogFileWriter"/>
         <argument ref="catalogMigratableConfig"/>
+        <argument value="1.0"/>
+        <argument value="org.codice.ddf.catalog"/>
+        <argument value="Catalog Migration"/>
+        <argument value="Exports Catalog metacards"/>
+        <argument value="DDF"/>
     </bean>
 
     <bean id="catalogFileWriter"
@@ -39,6 +43,6 @@
     </bean>
 
     <service id="catalogMigratableService" ref="catalogMigratable"
-             interface="org.codice.ddf.migration.Migratable"/>
+             interface="org.codice.ddf.migration.DataMigratable"/>
 
 </blueprint>

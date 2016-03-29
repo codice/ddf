@@ -103,11 +103,34 @@
           class="java.lang.management.ManagementFactory"
           factory-method="getPlatformMBeanServer"/>
 
+    <!-- DataMigratable service reference list -->
+    <bean id="sortedDataMigratables" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <reference-list id="dataMigratables" interface="org.codice.ddf.migration.DataMigratable"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
+                            ref="sortedDataMigratables"/>
+    </reference-list>
+
+    <!-- ConfigurationMigratable service reference list -->
+    <bean id="sortedConfigurationMigratables"
+          class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <reference-list id="configurationMigratables"
+                    interface="org.codice.ddf.migration.ConfigurationMigratable"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
+                            ref="sortedConfigurationMigratables"/>
+    </reference-list>
+
+    <!-- ConfigurationMigrationManager -->
     <bean id="configMigrationManager"
           class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager"
           init-method="init">
         <argument ref="configurationAdminMigration"/>
         <argument ref="mBeanServer"/>
+        <argument ref="sortedConfigurationMigratables"/>
+        <argument ref="sortedDataMigratables"/>
     </bean>
 
     <service id="configurationFileDirectoryService" ref="configurationAdminMigration"
