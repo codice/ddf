@@ -70,19 +70,12 @@
             <property name="receiveTimeout" value="60000"/>
             <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="schemaToTagsMapping">
-                <array value-type="java.lang.String">
-                    <value>http://www.opengis.net/cat/wrs/1.0=registry</value>
-                </array>
-            </property>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
-
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
     </cm:managed-service-factory>
-
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswConnectedSource.id"
@@ -160,14 +153,8 @@
             <property name="receiveTimeout" value="60000"/>
             <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
-            <property name="schemaToTagsMapping">
-                <array value-type="java.lang.String">
-                    <value>http://www.opengis.net/cat/wrs/1.0=registry</value>
-                </array>
-            </property>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
-
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

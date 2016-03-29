@@ -47,6 +47,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
@@ -110,6 +111,12 @@ public class TestGetRecordsMessageBodyReader {
         // Assert the output Schema is set.
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), instanceOf(String.class));
         assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+
+        assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_KEY), instanceOf(String.class));
+        assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_KEY), is(TransformerManager.SCHEMA));
+        assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE), instanceOf(String.class));
+        assertThat(context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE),
                 is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 

@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -89,7 +88,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -184,8 +182,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     protected static final String SECURITY_ATTRIBUTES_PROPERTY = "securityAttributeStrings";
 
-    protected static final String SCHEMA_TO_TAGS_PROPERTY = "schemaToTagsMapping";
-
     protected static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
 
     protected static final String REGISTER_FOR_EVENTS = "registerForEvents";
@@ -242,9 +238,9 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     protected SecurityManager securityManager;
 
-    private FilterBuilder filterBuilder;
+    protected FilterBuilder filterBuilder;
 
-    private FilterAdapter filterAdapter;
+    protected FilterAdapter filterAdapter;
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<>();
 
@@ -260,7 +256,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     private String description = null;
 
-    private CapabilitiesType capabilities;
+    protected CapabilitiesType capabilities;
 
     private String cswVersion;
 
@@ -443,9 +439,6 @@ public abstract class AbstractCswSource extends MaskableImpl
         consumerMap.put(SECURITY_ATTRIBUTES_PROPERTY,
                 value -> cswSourceConfiguration.setSecurityAttributes((String[]) value));
 
-        consumerMap.put(SCHEMA_TO_TAGS_PROPERTY,
-                value -> cswSourceConfiguration.setSchemaToTagsMapping((String[]) value));
-
         consumerMap.put(REGISTER_FOR_EVENTS,
                 value -> cswSourceConfiguration.setRegisterForEvents((Boolean) value));
 
@@ -574,6 +567,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(cswTransformProvider,
                 cswSourceConfiguration);
+
         return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
     }
 
@@ -750,13 +744,6 @@ public abstract class AbstractCswSource extends MaskableImpl
 
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
-
-        Set<String> tags = cswSourceConfiguration.getSchemaToTagsMapping()
-                .get(cswSourceConfiguration.getOutputSchema());
-        if (!CollectionUtils.isEmpty(tags) && !tags.contains(Metacard.DEFAULT_TAG)
-                && !filterAdapter.adapt(query, new TagsFilterDelegate(tags))) {
-            return new SourceResponseImpl(queryRequest, Collections.emptyList());
-        }
 
         GetRecordsType getRecordsType = createGetRecordsRequest(query,
                 elementSetName,
@@ -1630,14 +1617,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     @Override
     public Map<String, Set<String>> getSecurityAttributes() {
         return this.cswSourceConfiguration.getSecurityAttributes();
-    }
-
-    public void setSecurityAttributeStrings(String[] attributes) {
-        this.cswSourceConfiguration.setSecurityAttributes(attributes);
-    }
-
-    public void setSchemaToTagsMapping(String[] mapping) {
-        this.cswSourceConfiguration.setSchemaToTagsMapping(mapping);
     }
 
     public void setMetacardTypes(List<MetacardType> types) {

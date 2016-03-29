@@ -63,8 +63,6 @@ public class CswSourceConfiguration {
 
     private Map<String, Set<String>> securityAttributes = new HashMap<>();
 
-    private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
-
     public String getCswUrl() {
         return cswUrl;
     }
@@ -204,18 +202,6 @@ public class CswSourceConfiguration {
         if (securityAttributStrings != null) {
             securityAttributes.clear();
             securityAttributes.putAll(Permissions.parsePermissionsFromString(securityAttributStrings));
-        }
-    }
-
-    public Map<String, Set<String>> getSchemaToTagsMapping() {
-        return schemaToTagsMapping;
-    }
-
-    public void setSchemaToTagsMapping(String[] schemaToTagsMappingStrings) {
-        if (schemaToTagsMappingStrings != null) {
-            schemaToTagsMapping.clear();
-            schemaToTagsMapping.putAll(Permissions.parsePermissionsFromString(
-                    schemaToTagsMappingStrings));
         }
     }
 
