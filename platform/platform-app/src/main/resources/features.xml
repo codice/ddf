@@ -979,6 +979,7 @@
 
     <feature name="platform-all" install="manual" version="${project.version}" hidden="true">
         <feature prerequisite="true">platform-api</feature>
+        <bundle>mvn:ddf.platform/platform-logging/${project.version}</bundle>        
         <feature prerequisite="true">platform-security-session</feature>
         <feature prerequisite="true">platform-migrate-all</feature>
         <feature>platform-scheduler</feature>

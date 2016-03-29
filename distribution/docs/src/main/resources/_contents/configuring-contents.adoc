@@ -275,3 +275,8 @@ Integrators and developers can add more claims handlers that can handle other ty
 
 A claim is an additional piece of data about a principal that can be included in a token along with basic token data.
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
+
+==== Configuring ${branding} Logging Service
+
+The maximum number of log events to store can be configured in the Admin Console.
+
