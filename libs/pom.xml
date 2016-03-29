@@ -36,5 +36,6 @@
         <module>webapps</module>
         <module>klv</module>
         <module>mpeg-transport-stream</module>
+        <module>geospatial</module>
     </modules>
 </project>
