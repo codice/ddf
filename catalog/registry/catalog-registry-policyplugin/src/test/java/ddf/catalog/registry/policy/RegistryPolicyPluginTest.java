@@ -28,6 +28,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.plugin.PolicyResponse;
+import ddf.catalog.registry.common.RegistryConstants;
 
 public class RegistryPolicyPluginTest {
 
@@ -35,7 +36,7 @@ public class RegistryPolicyPluginTest {
     public void testBlackListPostQuery() throws Exception {
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         RegistryPolicyPlugin rpp = createRegistryPlugin();
@@ -57,7 +58,7 @@ public class RegistryPolicyPluginTest {
     public void testWhiteListPostQuery() throws Exception {
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         RegistryPolicyPlugin rpp = createRegistryPlugin();
@@ -82,7 +83,7 @@ public class RegistryPolicyPluginTest {
         rpp.setWriteAccessPolicyStrings(Collections.singletonList("role=guest"));
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         PolicyResponse response = rpp.processPreCreate(mcard, null);
@@ -101,7 +102,7 @@ public class RegistryPolicyPluginTest {
         rpp.setReadAccessPolicyStrings(Collections.singletonList("role=guest"));
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         PolicyResponse response = rpp.processPostQuery(new ResultImpl(mcard), null);
@@ -115,7 +116,7 @@ public class RegistryPolicyPluginTest {
         rpp.setWriteAccessPolicyStrings(Collections.singletonList("role=guest"));
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         HashMap<String, Serializable> props = new HashMap<>();
@@ -137,7 +138,7 @@ public class RegistryPolicyPluginTest {
         rpp.setRegistryBypassPolicyStrings(Collections.singletonList("role=system-admin"));
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "some.type"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, "some.type"));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         PolicyResponse response = rpp.processPostQuery(new ResultImpl(mcard), null);
@@ -169,7 +170,7 @@ public class RegistryPolicyPluginTest {
         rpp.setRegistryDisabled(true);
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         PolicyResponse response = rpp.processPreCreate(mcard, null);
@@ -183,7 +184,7 @@ public class RegistryPolicyPluginTest {
     @Test
     public void testNoRegistryBypassPermissions() throws Exception {
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         RegistryPolicyPlugin rpp = createRegistryPlugin();
@@ -219,7 +220,7 @@ public class RegistryPolicyPluginTest {
                 .contains("1234567890abcdefg987654321"), is(true));
 
         Metacard mcard = new MetacardImpl();
-        mcard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "registry.service"));
+        mcard.setAttribute(new AttributeImpl(Metacard.TAGS, RegistryConstants.REGISTRY_TAG));
         mcard.setAttribute(new AttributeImpl(Metacard.ID, "1234567890abcdefg987654321"));
 
         assertThat(rpp.processPostDelete(mcard, null)

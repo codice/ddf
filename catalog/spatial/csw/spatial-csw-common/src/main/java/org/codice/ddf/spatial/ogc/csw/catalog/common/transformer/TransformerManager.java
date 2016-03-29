@@ -11,10 +11,12 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
+package org.codice.ddf.spatial.ogc.csw.catalog.common.transformer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -29,11 +31,11 @@ public class TransformerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManager.class);
 
-    protected static final String MIME_TYPE = "mime-type";
+    public static final String MIME_TYPE = "mime-type";
 
-    protected static final String SCHEMA = "schema";
+    public static final String SCHEMA = "schema";
 
-    protected static final String ID = "id";
+    public static final String ID = "id";
 
     private final List<ServiceReference> serviceRefs;
 
@@ -51,6 +53,14 @@ public class TransformerManager {
 
     public List<String> getAvailableIds() {
         return getAvailableProperty(ID);
+    }
+
+    public String getTransformerIdForSchema(String schema) {
+        return (String) getRelatedTransformerProperties(SCHEMA, schema).get(ID);
+    }
+
+    public String getTransformerSchemaForId(String id) {
+        return (String) getRelatedTransformerProperties(ID, id).get(SCHEMA);
     }
 
     public List<String> getAvailableProperty(String propertyName) {
@@ -97,6 +107,22 @@ public class TransformerManager {
         }
         LOGGER.debug("Did not find transformer for property: {} == value: {}", property, value);
         return null;
+    }
+
+    public Map<String, Object> getRelatedTransformerProperties(String property, String value) {
+        Map<String, Object> map = new HashMap<>();
+        for (ServiceReference serviceRef : serviceRefs) {
+            Object propertyObject = serviceRef.getProperty(property);
+            if (propertyObject != null && propertyObject instanceof String) {
+                if (value.equals(propertyObject)) {
+                    for (String key : serviceRef.getPropertyKeys()) {
+                        map.put(key, serviceRef.getProperty(key));
+                    }
+                    return map;
+                }
+            }
+        }
+        return map;
     }
 
     protected BundleContext getBundleContext() {

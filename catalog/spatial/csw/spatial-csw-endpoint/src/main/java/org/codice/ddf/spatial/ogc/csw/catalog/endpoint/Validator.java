@@ -24,7 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+
 
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 

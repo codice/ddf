@@ -16,7 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 import java.util.Set;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.event.DeliveryMethod;

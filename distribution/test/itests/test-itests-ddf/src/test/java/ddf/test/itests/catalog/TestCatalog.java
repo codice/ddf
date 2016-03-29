@@ -499,8 +499,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
                         hasXPath("//metacard/string[@name='format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='subject']/value",
-                                is("Hydrography--Dictionaries")));
+                        hasXPath("//metacard/string[@name='subject']/value", is(
+                                "Hydrography--Dictionaries")));
 
         String secondUrl = REST_PATH.getUrl() + secondId;
         when().get(secondUrl)
@@ -513,8 +513,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                         hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
                         hasXPath("//metacard/string[@name='format']/value", is("")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='subject']/value",
-                                is("Hydrography--Dictionaries")));
+                        hasXPath("//metacard/string[@name='subject']/value", is(
+                                "Hydrography--Dictionaries")));
 
         deleteMetacard(firstId);
         deleteMetacard(secondId);
@@ -619,9 +619,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the attributes about to be removed in the update are present.
-                .body(hasXPath("//metacard/dateTime[@name='date']"),
-                        hasXPath("//metacard/string[@name='title']"),
-                        hasXPath("//metacard/geometry[@name='location']"));
+                .body(hasXPath("//metacard/dateTime[@name='date']"), hasXPath(
+                        "//metacard/string[@name='title']"), hasXPath(
+                        "//metacard/geometry[@name='location']"));
 
         ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
                 MediaType.APPLICATION_XML)
@@ -639,12 +639,12 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 // Check that the updated attributes were removed.
-                .body(not(hasXPath("//metacard/dateTime[@name='date']")),
-                        not(hasXPath("//metacard/string[@name='title']")),
-                        not(hasXPath("//metacard/geometry[@name='location']")),
+                .body(not(hasXPath("//metacard/dateTime[@name='date']")), not(hasXPath(
+                                "//metacard/string[@name='title']")), not(hasXPath(
+                                "//metacard/geometry[@name='location']")),
                         // Check that an attribute that was not updated was not changed.
-                        hasXPath("//metacard/string[@name='subject']/value",
-                                is("Hydrography--Dictionaries")));
+                        hasXPath("//metacard/string[@name='subject']/value", is(
+                                "Hydrography--Dictionaries")));
 
         deleteMetacard(id);
     }

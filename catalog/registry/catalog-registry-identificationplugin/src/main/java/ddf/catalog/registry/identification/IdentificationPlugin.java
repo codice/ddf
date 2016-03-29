@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
 
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
@@ -33,32 +36,52 @@ import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
+import ddf.catalog.registry.federationadmin.service.FederationAdminService;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.Requests;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
-public class IdentificationPlugin implements PreIngestPlugin {
+public class IdentificationPlugin implements PreIngestPlugin, PostIngestPlugin {
 
     private Parser parser;
 
-    private ParserConfigurator configurator;
+    private FederationAdminService federationAdmin;
+
+    private ParserConfigurator marshalConfigurator;
+
+    private ParserConfigurator unmarshalConfigurator;
+
+    private Set<String> registryIds = ConcurrentHashMap.newKeySet();
 
     @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
-        List<Metacard> metacards = input.getMetacards();
-
-        for (Metacard metacard : metacards) {
-            Set<String> metacardTags = metacard.getTags();
-            if (metacardTags.contains(RegistryConstants.REGISTRY_TAG)) {
-                setMetacardExtID(metacard);
+        if (Requests.isLocal(input)) {
+            for (Metacard metacard : input.getMetacards()) {
+                if (metacard.getTags()
+                        .contains(RegistryConstants.REGISTRY_TAG)) {
+                    if (registryIds.contains(getRegistryId(metacard))) {
+                        throw new StopProcessingException(String.format(
+                                "Duplication error. Can not create metacard with registry-id %s since it already exists",
+                                getRegistryId(metacard)));
+                    }
+                    setMetacardExtID(metacard);
+                }
             }
         }
         return input;
@@ -76,21 +99,50 @@ public class IdentificationPlugin implements PreIngestPlugin {
         return input;
     }
 
+    @Override
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+        if (Requests.isLocal(input.getRequest())) {
+            for (Metacard metacard : input.getCreatedMetacards()) {
+                if (metacard.getTags()
+                        .contains(RegistryConstants.REGISTRY_TAG)) {
+                    registryIds.add(getRegistryId(metacard));
+                }
+            }
+        }
+        return input;
+    }
+
+    @Override
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+        return input;
+    }
+
+    @Override
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+        if (Requests.isLocal(input.getRequest())) {
+            for (Metacard metacard : input.getDeletedMetacards()) {
+                if (metacard.getTags()
+                        .contains(RegistryConstants.REGISTRY_TAG)) {
+                    registryIds.remove(getRegistryId(metacard));
+                }
+            }
+        }
+        return input;
+    }
+
     private void setMetacardExtID(Metacard metacard) throws StopProcessingException {
 
         boolean extOriginFound = false;
         String metacardID = metacard.getId();
         String metadata = metacard.getMetadata();
-        String registryID = metacard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
-                .getValue()
-                .toString();
+        String registryID = getRegistryId(metacard);
 
         InputStream inputStream = new ByteArrayInputStream(metadata.getBytes(Charsets.UTF_8));
         FileBackedOutputStream outputStream = new FileBackedOutputStream(1000000);
 
         try {
             JAXBElement<RegistryObjectType> registryObjectTypeJAXBElement = parser.unmarshal(
-                    configurator,
+                    unmarshalConfigurator,
                     JAXBElement.class,
                     inputStream);
 
@@ -152,7 +204,9 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
                     registryObjectType.setExternalIdentifier(extIdList);
                     registryObjectTypeJAXBElement.setValue(registryObjectType);
-                    parser.marshal(configurator, registryObjectTypeJAXBElement, outputStream);
+                    parser.marshal(marshalConfigurator,
+                            registryObjectTypeJAXBElement,
+                            outputStream);
 
                     String xml = CharStreams.toString(outputStream.asByteSource()
                             .asCharSource(Charsets.UTF_8)
@@ -167,9 +221,29 @@ public class IdentificationPlugin implements PreIngestPlugin {
         }
     }
 
+    private String getRegistryId(Metacard mcard) {
+        return mcard.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)
+                .getValue()
+                .toString();
+    }
+
+    public void init()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+
+        List<Metacard> registryMetacards = federationAdmin.getRegistryMetacards();
+
+        registryIds.addAll(registryMetacards.stream()
+                .map(this::getRegistryId)
+                .collect(Collectors.toList()));
+    }
+
+    public void setFederationAdmin(FederationAdminService federationAdmin) {
+        this.federationAdmin = federationAdmin;
+    }
+
     public void setParser(Parser parser) {
 
-        this.configurator =
+        this.unmarshalConfigurator =
                 parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
                                 .getName(),
                         net.opengis.ogc.ObjectFactory.class.getPackage()
@@ -178,7 +252,16 @@ public class IdentificationPlugin implements PreIngestPlugin {
                                 .getName()),
                         this.getClass()
                                 .getClassLoader());
-
+        this.marshalConfigurator =
+                parser.configureParser(Arrays.asList(RegistryObjectType.class.getPackage()
+                                .getName(),
+                        net.opengis.ogc.ObjectFactory.class.getPackage()
+                                .getName(),
+                        net.opengis.gml.v_3_1_1.ObjectFactory.class.getPackage()
+                                .getName()),
+                        this.getClass()
+                                .getClassLoader());
+        this.marshalConfigurator.addProperty(Marshaller.JAXB_FRAGMENT, true);
         this.parser = parser;
     }
 }

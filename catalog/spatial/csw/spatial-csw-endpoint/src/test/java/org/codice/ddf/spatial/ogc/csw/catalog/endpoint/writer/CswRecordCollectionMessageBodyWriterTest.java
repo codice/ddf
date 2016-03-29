@@ -42,7 +42,7 @@ import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 

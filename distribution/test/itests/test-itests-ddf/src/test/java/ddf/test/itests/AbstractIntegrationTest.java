@@ -387,16 +387,18 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configurePaxExam() {
-        return options(logLevel(LogLevelOption.LogLevel.INFO),
-                useOwnExamBundlesStartLevel(100),
+        return options(logLevel(LogLevelOption.LogLevel.INFO), useOwnExamBundlesStartLevel(100),
                 // increase timeout for CI environment
-                systemTimeout(TimeUnit.MINUTES.toMillis(10)),
-                when(Boolean.getBoolean("keepRuntimeFolder")).useOptions(keepRuntimeFolder()),
-                cleanCaches(true));
+                systemTimeout(TimeUnit.MINUTES.toMillis(10)), when(Boolean.getBoolean(
+                        "keepRuntimeFolder")).useOptions(keepRuntimeFolder()), cleanCaches(true));
     }
 
     protected Option[] configureAdditionalBundles() {
         return options(junitBundles(),
+                wrappedBundle(mavenBundle("ddf.catalog.registry",
+                        "catalog-registry-common").versionAsInProject()),
+                wrappedBundle(mavenBundle("ddf.catalog.core",
+                        "catalog-core-api-impl").versionAsInProject()),
                 wrappedBundle(mavenBundle("org.apache.httpcomponents",
                         "httpclient").versionAsInProject()),
                 wrappedBundle(mavenBundle("org.apache.httpcomponents",
@@ -731,6 +733,38 @@ public abstract class AbstractIntegrationTest {
         public static final String FACTORY_PID = "Csw_Connected_Source";
 
         public CswConnectedSourceProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("id", sourceId);
+            this.put("cswUrl", CSW_PATH.getUrl());
+            this.put("pollInterval", 1);
+        }
+
+    }
+
+    public class CswCatalogStoreProperties extends HashMap<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "spatial-csw-source";
+
+        public static final String FACTORY_PID = "Csw_Catalog_Store";
+
+        public CswCatalogStoreProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("id", sourceId);
+            this.put("cswUrl", CSW_PATH.getUrl());
+            this.put("pollInterval", 1);
+        }
+
+    }
+
+    public class CswRegistryStoreProperties extends HashMap<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "catalog-registry-api-impl";
+
+        public static final String FACTORY_PID = "Csw_Registry_Store";
+
+        public CswRegistryStoreProperties(String sourceId) {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);

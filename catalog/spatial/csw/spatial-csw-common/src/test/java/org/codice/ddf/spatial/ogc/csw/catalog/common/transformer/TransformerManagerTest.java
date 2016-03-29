@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
+package org.codice.ddf.spatial.ogc.csw.catalog.common.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
@@ -38,6 +38,10 @@ public class TransformerManagerTest {
     private static InputTransformer transformerA = mock(InputTransformer.class);
 
     private static InputTransformer transformerB = mock(InputTransformer.class);
+
+    private static final String ID_A = "idA";
+
+    private static final String ID_B = "idB";
 
     private static final String MIME_TYPE_A = "mimeTypeA";
 
@@ -66,8 +70,14 @@ public class TransformerManagerTest {
     public static void setUp() {
         ServiceReference serviceRefA = mock(ServiceReference.class);
         ServiceReference serviceRefB = mock(ServiceReference.class);
+        when(serviceRefA.getPropertyKeys()).thenReturn(new String[] {TransformerManager.ID,
+                TransformerManager.SCHEMA, TransformerManager.MIME_TYPE});
+        when(serviceRefA.getProperty(TransformerManager.ID)).thenReturn(ID_A);
         when(serviceRefA.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_A);
         when(serviceRefA.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_A);
+        when(serviceRefB.getPropertyKeys()).thenReturn(new String[] {TransformerManager.ID,
+                TransformerManager.SCHEMA, TransformerManager.MIME_TYPE});
+        when(serviceRefB.getProperty(TransformerManager.ID)).thenReturn(ID_B);
         when(serviceRefB.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_B);
         when(serviceRefB.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_B);
         serviceReferences.add(serviceRefA);
@@ -102,6 +112,18 @@ public class TransformerManagerTest {
                 is(transformerA));
         assertThat(manager.<InputTransformer>getTransformerByMimeType(MIME_TYPE_B),
                 is(transformerB));
+    }
+
+    @Test
+    public void testGetTransformerIdForSchema() throws Exception {
+        assertThat(manager.<InputTransformer>getTransformerIdForSchema(SCHEMA_A), is(ID_A));
+        assertThat(manager.<InputTransformer>getTransformerIdForSchema(SCHEMA_B), is(ID_B));
+    }
+
+    @Test
+    public void testGetTransformerSchemaForId() throws Exception {
+        assertThat(manager.<InputTransformer>getTransformerSchemaForId(ID_A), is(SCHEMA_A));
+        assertThat(manager.<InputTransformer>getTransformerSchemaForId(ID_B), is(SCHEMA_B));
     }
 
     @Ignore

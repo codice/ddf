@@ -54,7 +54,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;

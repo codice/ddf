@@ -76,6 +76,7 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
 import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -94,6 +95,7 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -110,7 +112,7 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
-import ddf.catalog.operation.impl.OperationTransaction;
+import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -1001,7 +1003,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             createReq.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransaction(OperationTransaction.OperationType.CREATE,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
                                     new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1259,7 +1261,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             List<Filter> idFilters = new ArrayList<>();
             for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
                 idFilters.add(frameworkProperties.getFilterBuilder()
-                        .attribute(Metacard.ID)
+                        .attribute(updateRequest.getAttributeName())
                         .is()
                         .equalTo()
                         .text(update.getKey()
@@ -1272,7 +1274,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(updateReq.getUpdates()
                     .size());
-            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl);
+            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
+                    updateReq.getStoreIds());
+
             QueryResponse query;
             Map<String, Metacard> metacardMap = new HashMap<>(updateReq.getUpdates()
                     .size());
@@ -1281,8 +1285,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 try {
                     query = doQuery(queryRequest, frameworkProperties.getFederationStrategy());
                     for (Result result : query.getResults()) {
-                        metacardMap.put(result.getMetacard()
-                                .getId(), result.getMetacard());
+                        metacardMap.put(getAttributeStringValue(result.getMetacard(),
+                                updateRequest.getAttributeName()), result.getMetacard());
                     }
                 } catch (FederationException e) {
                     LOGGER.warn("Unable to complete query for updated metacards.", e);
@@ -1292,8 +1296,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             for (Entry<Serializable, Metacard> update : updateReq.getUpdates()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-                Metacard oldMetacard = metacardMap.get(update.getValue()
-                        .getId());
+                Metacard oldMetacard = metacardMap.get(getAttributeStringValue(update.getValue(),
+                        updateRequest.getAttributeName()));
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
                             Collections.unmodifiableMap(updateReq.getProperties()));
@@ -1322,7 +1326,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             updateReq.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransaction(OperationTransaction.OperationType.UPDATE,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1415,7 +1419,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(deleteRequest.getAttributeValues()
                     .size());
-            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl);
+            QueryRequestImpl queryRequest = new QueryRequestImpl(queryImpl,
+                    deleteRequest.getStoreIds());
+
             QueryResponse query;
             List<Metacard> metacards = new ArrayList<>(deleteRequest.getAttributeValues()
                     .size());
@@ -1460,7 +1466,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             deleteRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransaction(OperationTransaction.OperationType.DELETE,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
                                     metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -3122,6 +3128,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             throw new ResourceNotFoundException(message);
         }
+    }
+
+    private String getAttributeStringValue(Metacard mcard, String attribute) {
+        Attribute attr = mcard.getAttribute(attribute);
+        if (attr != null && attr.getValue() != null) {
+            return attr.getValue()
+                    .toString();
+        }
+        return null;
     }
 
     protected static class ResourceInfo {

@@ -175,12 +175,12 @@ public final class Library {
                 + "    </csw:Insert>\n" + "</csw:Transaction>";
     }
 
-    public static String getRegistryService() throws IOException {
-        return IOUtils.toString(Library.class.getResourceAsStream("/csw-rim-service.xml"));
+    public static String getRegistryNode() throws IOException {
+        return IOUtils.toString(Library.class.getResourceAsStream("/csw-rim-node.xml"));
     }
 
     public static String getCswRegistryInsert() throws IOException {
-        return Library.getCswInsert("ebrim", getRegistryService());
+        return Library.getCswInsert("ebrim", getRegistryNode());
     }
 
     public static String getCswFilterDelete() {

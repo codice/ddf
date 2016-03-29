@@ -43,6 +43,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.hamcrest.core.IsEqual;
 import org.junit.Before;
 import org.junit.Rule;

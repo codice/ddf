@@ -36,7 +36,6 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
 import ddf.catalog.registry.converter.RegistryConversionException;
 import ddf.catalog.registry.converter.RegistryPackageConverter;
@@ -115,13 +114,12 @@ public class RegistryTransformer implements InputTransformer, MetacardTransforme
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
-        if (metacard.getContentTypeName()
-                .startsWith(RegistryObjectMetacardType.REGISTRY_METACARD_TYPE_NAME)) {
+        if (metacard.getTags().contains(RegistryConstants.REGISTRY_TAG)) {
             String metadata = metacard.getMetadata();
             return new BinaryContentImpl(IOUtils.toInputStream(metadata));
         } else {
             throw new CatalogTransformerException(
-                    "Can't transform metacard of content type " + metacard.getContentTypeName()
+                    "Can't transform metacard of tag type " + metacard.getTags()
                             + " to csw-ebrim xml");
         }
     }
