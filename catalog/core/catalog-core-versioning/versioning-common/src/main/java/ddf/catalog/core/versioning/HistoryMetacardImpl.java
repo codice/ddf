@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) Codice Foundation
  * <p>
@@ -11,9 +12,14 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.data.impl;
+package ddf.catalog.core.versioning;
 
-import static com.google.api.client.repackaged.com.google.common.base.Strings.isNullOrEmpty;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+
+
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,6 +39,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.security.SubjectUtils;
 
 public class HistoryMetacardImpl extends MetacardImpl {
@@ -250,3 +257,4 @@ public class HistoryMetacardImpl extends MetacardImpl {
         return versionHistoryMetacard;
     }
 }
+
