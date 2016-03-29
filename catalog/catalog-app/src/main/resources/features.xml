@@ -326,6 +326,7 @@
              description="DDF Registry">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-api/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-api-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-schema-bindings/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-policyplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
@@ -369,5 +370,5 @@
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
-    
+
 </features>
