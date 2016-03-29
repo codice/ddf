@@ -79,7 +79,7 @@
 
     <!-- QueryResponseTransformer TransformerManager -->
     <bean id="queryResponseTransformerManager"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
         <argument ref="queryResponseTransformers"/>
     </bean>
 
@@ -92,7 +92,7 @@
 
     <!-- MetacardTransformer Manager -->
     <bean id="metacardTransformerManager"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
         <argument ref="metacardTransformers"/>
     </bean>
 
@@ -105,7 +105,7 @@
 
     <!-- InputTransformer TransformerManager -->
     <bean id="inputTransformerManager"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
         <argument ref="inputTransformers"/>
     </bean>
 

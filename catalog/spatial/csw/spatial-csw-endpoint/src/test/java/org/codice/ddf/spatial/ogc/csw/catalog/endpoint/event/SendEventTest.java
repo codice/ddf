@@ -36,7 +36,7 @@ import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
