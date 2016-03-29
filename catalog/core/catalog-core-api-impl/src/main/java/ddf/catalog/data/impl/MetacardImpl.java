@@ -138,7 +138,28 @@ public class MetacardImpl implements Metacard {
             throw new IllegalArgumentException(
                     MetacardType.class.getName() + " instance should not be null.");
         }
+    }
 
+    /**
+     * Creates a {@link Metacard} with the provided {@link Metacard} and {@link MetacardType}.
+     * This method does not simply wrap the metacard and keep its type, but will create a new
+     * metacard and clone any attributes defined by the {@link MetacardType} that exist on the
+     * given {@link Metacard}.
+     *
+     * @param metacard the {@link Metacard} to create this new {@code Metacard} from
+     * @param type the {@link MetacardType} of metacard to create
+     */
+    public MetacardImpl(Metacard metacard, MetacardType type) {
+        if (type != null) {
+            this.type = type;
+        } else {
+            throw new IllegalArgumentException(
+                    MetacardType.class.getName() + " instance should not be null.");
+        }
+        map = new HashMap<>();
+        for (AttributeDescriptor attribute : metacard.getMetacardType().getAttributeDescriptors()) {
+            map.put(attribute.getName(), metacard.getAttribute(attribute.getName()));
+        }
     }
 
     @Override
@@ -825,14 +846,10 @@ public class MetacardImpl implements Metacard {
     public int hashCode() {
 
         //TODO: add remaining fields for hashCode
-        return new HashCodeBuilder(17, 37).
-                append(this.getId())
-                .
-                        append(this.getMetacardType())
-                .
-                        append(this.getMetadata())
-                .
-                        toHashCode();
+        return new HashCodeBuilder(17, 37).append(this.getId())
+                .append(this.getMetacardType())
+                .append(this.getMetadata())
+                .toHashCode();
     }
 
     //TODO: is an equals() method needed?

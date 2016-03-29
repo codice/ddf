@@ -132,6 +132,36 @@
                 <!-- See DDF-1397 for issues with the upgrade to 2.2.1-->
                 <version>2.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>5.0.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>3.2.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>2.1</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.spockframework</groupId>
+                <artifactId>spock-core</artifactId>
+                <version>1.0-groovy-2.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>2.4.5</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <distributionManagement>
@@ -486,7 +516,8 @@
                             <configuration>
                                 <nodeVersion>${node.version}</nodeVersion>
                                 <npmVersion>${npm.version}</npmVersion>
-                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/</downloadRoot>
+                                <downloadRoot>http://artifacts.codice.org/nodejs/dist/
+                                </downloadRoot>
                             </configuration>
                         </execution>
                         <execution>
@@ -506,6 +537,19 @@
                             <configuration>
                                 <arguments>build</arguments>
                             </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
                         </execution>
                     </executions>
                 </plugin>
@@ -653,7 +697,8 @@
                                                 </excludes>
                                             </resource>
                                             <resource>
-                                                <directory>${project.build.directory}/adoc</directory>
+                                                <directory>${project.build.directory}/adoc
+                                                </directory>
                                                 <filtering>true</filtering>
                                                 <includes>
                                                     <include>**/*.adoc</include>
@@ -1000,6 +1045,19 @@
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.gmavenplus</groupId>
+                        <artifactId>gmavenplus-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>compile</goal>
+                                    <goal>testCompile</goal>
                                 </goals>
                             </execution>
                         </executions>
