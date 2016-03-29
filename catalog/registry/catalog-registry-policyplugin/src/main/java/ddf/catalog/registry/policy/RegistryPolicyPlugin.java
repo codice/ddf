@@ -33,8 +33,8 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
-import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import ddf.catalog.util.impl.Requests;
 
 public class RegistryPolicyPlugin implements PolicyPlugin {

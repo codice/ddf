@@ -55,8 +55,8 @@ import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
