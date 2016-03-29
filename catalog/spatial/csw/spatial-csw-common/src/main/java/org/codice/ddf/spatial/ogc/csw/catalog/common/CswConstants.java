@@ -89,6 +89,10 @@ public interface CswConstants {
 
     String OUTPUT_SCHEMA_PARAMETER = "OutputSchema";
 
+    String TRANSFORMER_LOOKUP_KEY = "TransformerLookupKey";
+
+    String TRANSFORMER_LOOKUP_VALUE = "TransformerLookupValue";
+
     String CONSTRAINT_LANGUAGE_PARAMETER = "ConstraintLanguage";
 
     String CONSTRAINT_LANGUAGE_FILTER = "Filter";
@@ -222,6 +226,14 @@ public interface CswConstants {
     double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
 
     double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
+
+    String CSW_TRANSACTION = "csw:Transaction";
+
+    String CSW_TRANSACTION_INSERT_NODE = "csw:Insert";
+
+    String CSW_TRANSACTION_UPDATE_NODE = "csw:Update";
+
+    String CSW_TRANSACTION_DELETE_NODE = "csw:Delete";
 
     // Exception Codes
     String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";

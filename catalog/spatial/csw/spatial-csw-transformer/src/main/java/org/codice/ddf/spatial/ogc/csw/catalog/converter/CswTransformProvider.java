@@ -74,7 +74,8 @@ public class CswTransformProvider implements Converter {
      * @param o       - metacard to transform.
      * @param writer  - writes the XML.
      * @param context - the marshalling context. Should contain a map entry for {@link
-     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.OUTPUT_SCHEMA_PARAMETER}
+     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.TRANSFORMER_LOOKUP_KEY}
+     *                {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.TRANSFORMER_LOOKUP_VALUE}
      *                to identify which transformer to use. Also contains properties for any
      *                arguments to provide the transformer.
      */
@@ -84,20 +85,21 @@ public class CswTransformProvider implements Converter {
             return;
         }
         Metacard metacard = (Metacard) o;
-        Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        String keyArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_KEY);
+        String valArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE);
         MetacardTransformer transformer = null;
 
-        if (arg != null && StringUtils.isNotBlank((String) arg)) {
-            String outputSchema = (String) arg;
-            transformer = metacardTransformerManager.getTransformerBySchema(outputSchema);
+        if (StringUtils.isNotBlank(keyArg) && StringUtils.isNotBlank(valArg)) {
+            transformer = metacardTransformerManager.getTransformerByProperty(keyArg, valArg);
         } else {
             transformer =
                     metacardTransformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
         }
 
         if (transformer == null) {
-            throw new ConversionException(
-                    "Unable to locate a transformer for output schema: " + arg);
+            throw new ConversionException(String.format("Unable to locate a transformer for %s = %s",
+                    keyArg,
+                    valArg));
         }
 
         BinaryContent content = null;
@@ -146,29 +148,20 @@ public class CswTransformProvider implements Converter {
      */
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Object outputSchema = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
-        Object typeName = context.get(CswConstants.TYPE_NAME_PARAMETER);
+        String keyArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_KEY);
+        String valArg = (String) context.get(CswConstants.TRANSFORMER_LOOKUP_VALUE);
         InputTransformer transformer = null;
-        if (StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA, (String) outputSchema)
-                || StringUtils.equals(CswConstants.CSW_RECORD, (String) typeName) ||
-                (outputSchema == null && typeName == null)) {
+        if (StringUtils.isNotBlank(keyArg) && StringUtils.isNotBlank(valArg)) {
+            transformer = inputTransformerManager.getTransformerByProperty(keyArg, valArg);
+        } else {
             transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
                     CswConstants.CSW_OUTPUT_SCHEMA);
-            if (transformer != null) {
-                return ((CswRecordConverter) transformer).unmarshal(reader, context);
-            }
-        } else if (outputSchema != null) {
-            String outputSchemaStr = (String) outputSchema;
-            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(
-                    outputSchemaStr);
-        } else {
-            String typeNameStr = (String) typeName;
-            transformer = inputTransformerManager.<InputTransformer>getTransformerById(typeNameStr);
         }
 
         if (transformer == null) {
-            throw new ConversionException(
-                    "Unable to locate a transformer for output schema: " + outputSchema);
+            throw new ConversionException(String.format("Unable to locate a transformer for %s = %s",
+                    keyArg,
+                    valArg));
         }
 
         Metacard metacard = null;
