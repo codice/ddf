@@ -21,9 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.core.versioning.HistoryMetacardImpl;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.HistoryMetacardImpl;
-import ddf.catalog.data.impl.HistoryMetacardImpl.Action;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
@@ -47,7 +46,7 @@ public class HistorianPlugin implements PostIngestPlugin {
 
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        getVersionedMetacards(input.getCreatedMetacards(), Action.CREATED);
+        getVersionedMetacards(input.getCreatedMetacards(), HistoryMetacardImpl.Action.CREATED);
         return input;
     }
 
@@ -57,22 +56,23 @@ public class HistorianPlugin implements PostIngestPlugin {
                 .stream()
                 .map(Update::getNewMetacard)
                 .collect(Collectors.toList());
-        getVersionedMetacards(inputMetacards, Action.UPDATED);
+        getVersionedMetacards(inputMetacards, HistoryMetacardImpl.Action.UPDATED);
         return input;
     }
 
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        getVersionedMetacards(input.getDeletedMetacards(), Action.DELETED);
+        getVersionedMetacards(input.getDeletedMetacards(), HistoryMetacardImpl.Action.DELETED);
         return input;
     }
 
-    private void getVersionedMetacards(List<Metacard> metacards, final Action action)
-            throws PluginExecutionException {
+    private void getVersionedMetacards(List<Metacard> metacards,
+            final HistoryMetacardImpl.Action action) throws PluginExecutionException {
         final List<Metacard> versionedMetacards = metacards.stream()
                 .filter(metacard -> !metacard.getMetacardType()
                         .equals(HistoryMetacardImpl.getVersionHistoryMetacardType()))
-                .map(metacard -> new HistoryMetacardImpl(metacard, action,
+                .map(metacard -> new HistoryMetacardImpl(metacard,
+                        action,
                         SecurityUtils.getSubject()))
                 .collect(Collectors.toList());
 

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) Codice Foundation
  * <p>
@@ -13,11 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.core.versioning;
-
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -39,6 +33,9 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.security.SubjectUtils;
 

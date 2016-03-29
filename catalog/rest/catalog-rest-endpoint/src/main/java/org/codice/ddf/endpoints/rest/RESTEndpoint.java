@@ -446,14 +446,11 @@ public class RESTEndpoint implements RESTService {
                 if (transformerParam != null) {
                     transformer = transformerParam;
                 }
-                Filter filter = getFilterBuilder().allOf(getFilterBuilder().attribute(Metacard.ID)
-                                .is()
-                                .equalTo()
-                                .text(id),
-                        getFilterBuilder().attribute(Metacard.TAGS)
-                                .is()
-                                .like()
-                                .text("*"));
+                Filter filter = getFilterBuilder().attribute(Metacard.ID)
+                        .is()
+                        .equalTo()
+                        .text(id);
+
                 Collection<String> sources = null;
                 if (sourceid != null) {
                     sources = new ArrayList<String>();

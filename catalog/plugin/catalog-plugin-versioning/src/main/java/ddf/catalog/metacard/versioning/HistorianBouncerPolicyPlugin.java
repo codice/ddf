@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import ddf.catalog.core.versioning.HistoryMetacardImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.HistoryMetacardImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
