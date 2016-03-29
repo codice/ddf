@@ -20,6 +20,7 @@ import java.util.Map;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.DeleteStorageResponse;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.operation.impl.ResponseImpl;
 
 public class DeleteStorageResponseImpl extends ResponseImpl<DeleteStorageRequest> implements
@@ -55,7 +56,7 @@ public class DeleteStorageResponseImpl extends ResponseImpl<DeleteStorageRequest
     }
 
     @Override
-    public String getId() {
-        return request.getId();
+    public StorageRequest getStorageRequest() {
+        return request;
     }
 }

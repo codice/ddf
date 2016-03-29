@@ -19,6 +19,7 @@ import java.util.Map;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.operation.impl.ResponseImpl;
 
 public class ReadStorageResponseImpl extends ResponseImpl<ReadStorageRequest> implements
@@ -54,7 +55,7 @@ public class ReadStorageResponseImpl extends ResponseImpl<ReadStorageRequest> im
     }
 
     @Override
-    public String getId() {
-        return request.getId();
+    public StorageRequest getStorageRequest() {
+        return request;
     }
 }

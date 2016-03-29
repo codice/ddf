@@ -15,8 +15,6 @@ package ddf.catalog.content.operation;
 
 import java.net.URI;
 
-import ddf.catalog.operation.Request;
-
 /**
  * Request to retrieve a file product associated with a Metacard
  * <p>
@@ -24,7 +22,7 @@ import ddf.catalog.operation.Request;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface ReadStorageRequest extends Request {
+public interface ReadStorageRequest extends StorageRequest {
 
     /**
      * Returns the resource URI associated with this request.
@@ -32,11 +30,4 @@ public interface ReadStorageRequest extends Request {
      * @return URI
      */
     URI getResourceUri();
-
-    /**
-     * Returns the ID associated with this read storage request.
-     *
-     * @return ID
-     */
-    String getId();
 }

@@ -261,7 +261,6 @@ ${ddf-branding-lowercase}${at-symbol}local>app:tree
 +- opendj-embedded
 +- platform-app
 |   +- catalog-app
-|   |   +- content-app
 |   |   +- search-ui-app
 |   |   |   +- spatial-app
 |   |   +- solr-app

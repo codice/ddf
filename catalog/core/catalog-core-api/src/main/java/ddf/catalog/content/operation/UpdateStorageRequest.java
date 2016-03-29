@@ -16,7 +16,6 @@ package ddf.catalog.content.operation;
 import java.util.List;
 
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.operation.Request;
 
 /**
  * Request to update the file associated with a Metacard
@@ -25,7 +24,7 @@ import ddf.catalog.operation.Request;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface UpdateStorageRequest extends Request {
+public interface UpdateStorageRequest extends StorageRequest {
 
     /**
      * Returns the {@link List} of {@link ContentItem}s that should be updated
@@ -33,11 +32,4 @@ public interface UpdateStorageRequest extends Request {
      * @return {@link List} of {@link ContentItem}s
      */
     List<ContentItem> getContentItems();
-
-    /**
-     * Returns the ID associated with this update storage request.
-     *
-     * @return ID
-     */
-    String getId();
 }

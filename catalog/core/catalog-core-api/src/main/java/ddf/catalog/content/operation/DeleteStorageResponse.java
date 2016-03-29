@@ -16,7 +16,6 @@ package ddf.catalog.content.operation;
 import java.util.List;
 
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.operation.Response;
 
 /**
  * Response that holds the @{link List} of deleted {@link ContentItem}s
@@ -25,7 +24,7 @@ import ddf.catalog.operation.Response;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface DeleteStorageResponse extends Response<DeleteStorageRequest> {
+public interface DeleteStorageResponse extends StorageResponse<DeleteStorageRequest> {
 
     /**
      * Returns @{link List} of deleted {@link ContentItem}s
@@ -33,11 +32,4 @@ public interface DeleteStorageResponse extends Response<DeleteStorageRequest> {
      * @return @{link List} of deleted {@link ContentItem}s
      */
     List<ContentItem> getDeletedContentItems();
-
-    /**
-     * Returns the ID associated with the request that resulted in this response
-     *
-     * @return request ID
-     */
-    String getId();
 }

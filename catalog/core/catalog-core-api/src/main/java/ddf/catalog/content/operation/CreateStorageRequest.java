@@ -16,7 +16,6 @@ package ddf.catalog.content.operation;
 import java.util.List;
 
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.operation.Request;
 
 /**
  * Request to store content that is accessible by querying Metacards
@@ -25,7 +24,7 @@ import ddf.catalog.operation.Request;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface CreateStorageRequest extends Request {
+public interface CreateStorageRequest extends StorageRequest {
 
     /**
      * Returns {@link List} of {@link ContentItem}
@@ -33,11 +32,4 @@ public interface CreateStorageRequest extends Request {
      * @return {@link List} of {@link ContentItem}s
      */
     List<ContentItem> getContentItems();
-
-    /**
-     * Returns the ID associated with this create storage request
-     *
-     * @return ID
-     */
-    String getId();
 }
