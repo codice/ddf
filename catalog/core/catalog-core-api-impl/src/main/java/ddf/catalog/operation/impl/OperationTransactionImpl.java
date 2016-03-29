@@ -13,41 +13,39 @@
  */
 package ddf.catalog.operation.impl;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.OperationTransaction;
 
 /**
  * Class for storing operation information. This is primarily for capturing the state before an
  * operation is performed so it can be referenced later if needed.
  */
-public class OperationTransaction implements Serializable {
+public class OperationTransactionImpl implements OperationTransaction {
 
     private OperationType type;
 
     private List<Metacard> previousStateMetacards;
 
-    public OperationTransaction(OperationType type, Collection<Metacard> previousStateMetacards) {
+    public OperationTransactionImpl(OperationType type,
+            Collection<Metacard> previousStateMetacards) {
         this.type = type;
         this.previousStateMetacards = Collections.unmodifiableList(new ArrayList(
                 previousStateMetacards));
     }
 
+    @Override
     public List<Metacard> getPreviousStateMetacards() {
         return previousStateMetacards;
     }
 
+    @Override
     public OperationType getType() {
         return type;
     }
 
-    public enum OperationType {
-        CREATE,
-        UPDATE,
-        DELETE
-    }
 }

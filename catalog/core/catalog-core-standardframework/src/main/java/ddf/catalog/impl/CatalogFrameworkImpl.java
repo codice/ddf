@@ -95,6 +95,7 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.OperationTransaction;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -111,7 +112,7 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
-import ddf.catalog.operation.impl.OperationTransaction;
+import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -1010,7 +1011,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             createReq.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransaction(OperationTransaction.OperationType.CREATE,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
                                     new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1292,7 +1293,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             updateReq.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransaction(OperationTransaction.OperationType.UPDATE,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
                                     metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
@@ -1430,7 +1431,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             deleteRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransaction(OperationTransaction.OperationType.DELETE,
+                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
                                     metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
