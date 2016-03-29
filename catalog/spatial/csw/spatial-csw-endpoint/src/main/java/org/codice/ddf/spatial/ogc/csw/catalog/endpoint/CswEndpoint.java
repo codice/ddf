@@ -650,10 +650,12 @@ public class CswEndpoint implements Csw {
     private int deleteRecords(DeleteAction deleteAction)
             throws CswException, FederationException, IngestException, SourceUnavailableException,
             UnsupportedQueryException {
-        List<QName> qNames = typeStringToQNames(deleteAction.getTypeName(),
-                deleteAction.getPrefixToUriMappings());
 
-        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint(), qNames);
+        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint());
+        if (!CswConstants.CSW_RECORD.equals(deleteAction.getTypeName())) {
+            queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
+                    schemaTransformerManager.getTransformerSchemaForId(deleteAction.getTypeName()));
+        }
         QueryResponse response = framework.query(queryRequest);
 
         List<String> ids = new ArrayList<>();
@@ -700,9 +702,11 @@ public class CswEndpoint implements Csw {
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
-            QueryRequest queryRequest = queryFactory.getQuery(constraint, typeStringToQNames(
-                    updateAction.getTypeName(),
-                    updateAction.getPrefixToUriMappings()));
+            QueryRequest queryRequest = queryFactory.getQuery(constraint);
+            if (!CswConstants.CSW_RECORD.equals(updateAction.getTypeName())) {
+                queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
+                        schemaTransformerManager.getTransformerSchemaForId(updateAction.getTypeName()));
+            }
             QueryResponse response = framework.query(queryRequest);
 
             if (response.getHits() > 0) {
