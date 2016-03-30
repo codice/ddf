@@ -1,5 +1,0 @@
-= Managing ${ddf-spatial} Application
-include::./_contents/config.adoc[]
-
-== Overview
-include::./_contents/managing-contents.adoc[]

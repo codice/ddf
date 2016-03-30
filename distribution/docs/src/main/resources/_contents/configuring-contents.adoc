@@ -9,7 +9,7 @@ While there are multiple ways to configure ${branding} for use, the recommended 
 ====
 
 * RECOMMENDED: Using the browser and the ${admin-console}. <<_configuring_${branding-lowercase}_from_the_admin_console>>
-* Using a terminal and the {command-console}. <<_configuring_${branding-lowercase}_from_the_command_console>>
+* Using a terminal and the ${command-console}. <<_configuring_${branding-lowercase}_from_the_command_console>>
 * Editing configuration files. <<_configuring_${branding-lowercase}_from_configuration_files>>
 * Importing the configurations from an existing ${branding} instance. <<_importing_configurations>>
 

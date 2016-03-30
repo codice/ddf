@@ -576,7 +576,7 @@ Features XML files group other features and/or bundle(s) for ease of installatio
 
 [source,xml,linenums]
 ----
-<feature name="catalog-app" install="auto" version="${ddf-version}"
+<feature name="catalog-app" install="auto" version="${ddf.version}"
     description="The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::${ddf-catalog}">
     <feature>platform-app</feature>
     <feature>catalog-core</feature>
@@ -600,35 +600,35 @@ Features XML files group other features and/or bundle(s) for ease of installatio
     <feature>catalog-plugin-jpeg2000</feature>
 </feature>
 
-<feature name="catalog-core" install="manual" version="${ddf-version}"
+<feature name="catalog-core" install="manual" version="${ddf.version}"
     description="Catalog Core feature containing the API, third party bundles necessary to run ${ddf-branding-lowercase}-core.">
     <feature>catalog-core-api</feature>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commons/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-camelcomponent/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.measure/measure-api/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commons/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-camelcomponent/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.measure/measure-api/${ddf.version}</bundle>
     <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
     <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
     <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
     <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-federationstrategy/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-federationstrategy/${ddf.version}</bundle>
     <bundle>mvn:org.codice.thirdparty/lucene-core/3.0.2_1</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-eventcommands/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub-tracker/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-urlresourcereader/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/filter-proxy/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commands/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-metacardgroomerplugin/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/metacard-type-registry/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-standardframework/${ddf-version}</bundle>
-    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-resourcesizeplugin/${ddf-version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-eventcommands/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/${ddf-branding-lowercase}-pubsub-tracker/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-urlresourcereader/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/filter-proxy/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-commands/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-metacardgroomerplugin/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/metacard-type-registry/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-standardframework/${ddf.version}</bundle>
+    <bundle>mvn:${ddf-branding-lowercase}.catalog.core/catalog-core-resourcesizeplugin/${ddf.version}</bundle>
 
-    <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/xml/solrconfig</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/xml/schema</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/protwords</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/stopwords_en</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/stopwords</configfile>
-    <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf-version}/txt/synonyms</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/xml/solrconfig</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/xml/schema</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/protwords</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/stopwords_en</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/stopwords</configfile>
+    <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.version}/txt/synonyms</configfile>
 </feature>
 ----
 

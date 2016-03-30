@@ -1,7 +1,7 @@
 
 The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using http://lucene.apache.org/solr/[Apache Solr] as a data store.
 
-=== {branding} Catalog Solr External Provider
+=== ${branding} Catalog Solr External Provider
 
 ==== Using
 
@@ -14,9 +14,8 @@ It is meant to be used only with the Standalone Solr Server (`catalog-solr-se
 
 Before the ${ddf-solr} Application can be installed,
 
-* the {branding} Kernel must be running,
-* the {branding} Platform Application must be installed, and
-* the {branding} Catalog Application must be installed.
+* the ${ddf-platform} Application and
+* the ${ddf-catalog} Application must be installed.
 
 ===== Installing
 
@@ -67,7 +66,7 @@ Forcing auto-commit makes the search results visible immediately.
 
 |===
 
-=== {branding} Catalog Solr Embedded Provider
+=== ${branding} Catalog Solr Embedded Provider
 
 ==== Using
 
@@ -80,9 +79,9 @@ It is a local instance that is a lightweight Catalog provider solution. However,
 
 Before the ${ddf-solr} Application can be installed:
 
-* the {branding} Kernel must be running,
-* the {branding} Platform Application must be installed, and
-* the {branding} Catalog Application must be installed
+* the ${branding} Kernel must be running,
+* the ${branding} Platform Application must be installed, and
+* the ${branding} Catalog Application must be installed
 
 ===== Installing
 
@@ -127,9 +126,9 @@ If `dataDirectoryPath` is left blank (empty string), it will default to `<DISTRI
 
 If data directory file path is a relative string, the SCP will write the data files starting at the installation directory. For instance, if the string `scp/solr_data` is provided, the data directory will be at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/scp/solr_data`.
 
-If data directory file path is `/solr_data` in Windows, the Solr Catalog Provider will write the data files starting at the beginning of the drive, e.g., `C:/solr_data`.
+If data directory file path is `/solr_data` in Windows, the Solr Catalog Provider will write the data files starting at the beginning of the drive, e.g., `C:\solr_data`.
 
-It is recommended that an absolute filepath be used to minimize confusion, e.g., `/opt/solr_data` in Linux or `C:/solr_data` in Windows. Permissions are necessary to write to the directory.
+It is recommended that an absolute filepath be used to minimize confusion, e.g., `/opt/solr_data` in Linux or `C:\solr_data` in Windows. Permissions are necessary to write to the directory.
 |
 |No
 
@@ -167,7 +166,7 @@ Nonetheless, if a user needs to change the location after the user has already i
 . Change the data directory file path property within the *Catalog Embedded Solr Catalog Provider* configuration in the Admin Console to the desired future location of the Solr data files.
 . Shut down the distribution.
 . Find the future location on the drive. If the current location does not exist, create the directories.
-. Find the location of where the current Solr data files exist and copy all the directories in that location to the future the location. For instance, if the previous Solr data files existed at C:/solr_data and it is necessary to move it to C:/solr_data_new, copy all directories within `C:/solr_data` into `C:/solr_data_new`. Usually this consists of copying the index and tlog directories into the new data directory.
+. Find the location of where the current Solr data files exist and copy all the directories in that location to the future the location. For instance, if the previous Solr data files existed at C:\solr_data and it is necessary to move it to C:\solr_data_new, copy all directories within `C:\solr_data` into `C:\solr_data_new`. Usually this consists of copying the index and tlog directories into the new data directory.
 . Start the distribution. SCP should recognize the index files and be able to query them again.
 
 [WARNING]
@@ -202,11 +201,11 @@ The Solr Catalog Provider acts as a client to the Solr Server.
 
 ===== Prerequisites
 
-Before the ${ddf-solr} Application can be installed for configuration as the Standalone Solr Server, the {branding} Kernel must be running.
+Before the ${ddf-solr} Application can be installed for configuration as the Standalone Solr Server, the ${branding} Kernel must be running.
 
 In production environments, it is recommended that Standalone Solr Server be run in isolation on a separate machine in order to maximize the Solr Server performance and use of resources such as RAM and CPU cores.
 The Standalone Solr Server, as its name suggests, does not require or depend on other apps, such as the Catalog API, nor does it require their dependencies, such as Camel, CXF, etc.
-Therefore, it is recommended to have the Solr Server app run on a lightweight {branding} distribution, such as the {branding} Distribution Kernel.
+Therefore, it is recommended to have the Solr Server app run on a lightweight ${branding} distribution, such as the ${branding} Distribution Kernel.
 If clustering is necessary, the Solr Server application can run alongside the Platform application for clustering support.
 
 ==== Installing

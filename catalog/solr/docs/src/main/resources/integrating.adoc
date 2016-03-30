@@ -1,5 +1,0 @@
-= Integrating ${ddf-branding} Application
-include::./_contents/config.adoc[]
-
-== Overview
-include::./_contents/integrating-contents.adoc[]

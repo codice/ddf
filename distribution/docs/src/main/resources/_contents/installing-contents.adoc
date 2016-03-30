@@ -214,7 +214,7 @@ Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.we
 .Additional Configuration Step
 ----
 # Jetty Configuration
-`org.ops4j.pax.web.config.file={karaf.home}/etc/jetty.xml`
+`org.ops4j.pax.web.config.file=<KARAF.HOME>/etc/jetty.xml`
 ----
 
 * Run the ${branding} using the appropriate script.

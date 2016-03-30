@@ -1,4 +1,4 @@
-===== Accessing the {admin-console}
+===== Accessing the ${admin-console}
 
 * Open the admin portal. (Default: \https://localhost:8993/admin)
 * Enter Username and Password. (Default: `admin/admin`)
@@ -16,7 +16,7 @@ The first time the ${branding} ${admin-console} runs, the initial configuration 
 Platform App, Admin App, and Security Services App CANNOT be selected or unselected as it is installed by default and can cause errors if removed.
 ====
 
-===== Viewing Currently Active Applications from {admin-console}
+===== Viewing Currently Active Applications from ${admin-console}
 
 ====== Tile View
 
@@ -80,7 +80,7 @@ Configuration via this page could result in an unstable system.
 Proceed with caution!
 ====
 
-===== Managing Features Using the {admin-console}
+===== Managing Features Using the ${admin-console}
 
 . Select the appropriate application.
 . Select the *Features* tab.
@@ -100,15 +100,15 @@ Proceed with caution!
 .. Select the *Add URL* button.
 . Select the *Save Changes* button.
 
-===== Configuring HTTP Port from {admin-console}
+===== Configuring HTTP Port from ${admin-console}
 
 [IMPORTANT]
 ====
-Do not use the {admin-console} to change the HTTP port.
+Do not use the ${admin-console} to change the HTTP port.
 While the Admin Console's Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
 ====
 
-===== Configuring HTTP to HTTPS Proxy From the {admin-console}
+===== Configuring HTTP to HTTPS Proxy From the ${admin-console}
 
 The `platform-http-proxy` feature proxies https to http for clients that cannot use HTTPS and should not have HTTP enabled for the entire container via the `etc/org.ops4j.pax.web.cfg` file.
 
