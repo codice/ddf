@@ -34,10 +34,22 @@ define([
         },
         regions: {
         },
-        initialize: function () {
+        initialize: function (options) {
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+        },
+        serializeData: function(){
+            var combinedProperties = {};
+            this.model.toJSON().forEach(function(metacardResult){
+                var properties = metacardResult.metacard.properties;
+                for (var property in properties) {
+                    combinedProperties[property]  = combinedProperties[property] || [];
+                    combinedProperties[property].push(properties[property]);
+                }
+            });
+            console.log(combinedProperties);
+            return combinedProperties;
         }
     });
 

@@ -114,7 +114,10 @@ define([
             }
             this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.updatePanelOne);
             this.listenTo(store.get('content'), 'change:query', this.updatePanelTwo);
-            this.listenTo(store.get('content'), 'update:selectedResults', this.updatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'update', this.updatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'add', this.updatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'remove', this.updatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'reset', this.updatePanelTwo);
         },
         onRender: function(){
             this.updatePanelOne();
@@ -165,6 +168,7 @@ define([
         },
         unselectQueriesAndResults: function(){
             store.get('content').set('query', undefined);
+            store.clearSelectedResults();
         },
         _mapView: undefined
 

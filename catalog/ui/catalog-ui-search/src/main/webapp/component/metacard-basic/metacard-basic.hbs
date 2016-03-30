@@ -11,4 +11,15 @@
  *
  **/
  --}}
-<h1>Test</h1>
+{{#each this}}
+    <div>
+        <h5 align="center">
+            {{@key}}
+        </h5>
+        {{#each this}}
+            <label>
+                {{this}}
+            </label>
+        {{/each}}
+    </div>
+{{/each}}
