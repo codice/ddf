@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -41,7 +40,7 @@ import ddf.catalog.util.Describable;
 
 /**
  * A {@link InputTransformer} that can be configured to parse any XML into a {@link Metacard}
- * It is configured through {@link XmlInputTransformer#setSaxEventHandlerConfiguration(List)} and {@link XmlInputTransformer#defineMetacardType()}
+ * It is configured through {@link XmlInputTransformer#setSaxEventHandlerConfiguration(List)} and {@link XmlInputTransformer#getMetacardType()}
  * {@inheritDoc}
  */
 public class XmlInputTransformer implements InputTransformer, Describable {
@@ -74,12 +73,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     private List<String> saxEventHandlerConfiguration;
 
-    /*
-     * The type of metacard created by this transformer, used in creating the corresponding, properly configured SaxEventHandlerDelegate
-     * Set using its setter, generally through a blueprint.xml
-     */
-    private MetacardType metacardType = BasicTypes.BASIC_METACARD;
-
     /**
      * Method to create a new {@link SaxEventHandlerDelegate}, configured to parse a metacard
      * according to {@link XmlInputTransformer#saxEventHandlerConfiguration} and {@link XmlInputTransformer#metacardType}
@@ -99,7 +92,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
          * Pass all the new handlers to configure and create a new SaxEventHandlerDelegate and sets
          * the metacardType
          */
-        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(metacardType);
+        return new SaxEventHandlerDelegate(filteredSaxEventHandlers).setMetacardType(getMetacardType());
 
     }
 
@@ -190,7 +183,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     public void setSaxEventHandlerFactories(List<SaxEventHandlerFactory> saxEventHandlerFactories) {
         this.saxEventHandlerFactories = saxEventHandlerFactories;
-        this.metacardType = defineMetacardType();
     }
 
     /**
@@ -200,7 +192,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      */
     public void setSaxEventHandlerConfiguration(List<String> saxEventHandlerConfiguration) {
         this.saxEventHandlerConfiguration = saxEventHandlerConfiguration;
-        this.metacardType = defineMetacardType();
     }
 
     @Override
@@ -248,10 +239,6 @@ public class XmlInputTransformer implements InputTransformer, Describable {
         this.organization = organization;
     }
 
-    public MetacardType getMetacardType() {
-        return this.metacardType;
-    }
-
     /**
      * Defines and returns a {@link DynamicMetacardType} based on component Sax Event Handler Factories
      * and what attributes they populate
@@ -259,7 +246,7 @@ public class XmlInputTransformer implements InputTransformer, Describable {
      * @return a DynamicMetacardType that describes the type of metacard that is created in this transformer
      */
 
-    public DynamicMetacardType defineMetacardType() {
+    public MetacardType getMetacardType() {
         Set<AttributeDescriptor> attributeDescriptors = new HashSet<>();
 
         if (saxEventHandlerConfiguration != null && saxEventHandlerFactories != null) {
@@ -272,33 +259,10 @@ public class XmlInputTransformer implements InputTransformer, Describable {
                 attributeDescriptors.addAll(factory.getSupportedAttributeDescriptors());
             }
         }
-
-
-        /*
-         * These two attributes (metadata and ID) are added to the metacard by the input transformer itself
-         */
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.METADATA,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.XML_TYPE));
-        attributeDescriptors.add(new AttributeDescriptorImpl(Metacard.ID,
-                true /* indexed */,
-                true /* stored */,
-                false /* tokenized */,
-                false /* multivalued */,
-                BasicTypes.STRING_TYPE));
+        attributeDescriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
         return new DynamicMetacardType(attributeDescriptors, id);
     }
 
-    public void init() {
-        this.metacardType = defineMetacardType();
-    }
-
-    public void destroy(int code) {
-
-    }
 }
 
 class DynamicMetacardType implements MetacardType {

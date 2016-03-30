@@ -20,10 +20,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -35,6 +36,8 @@ import org.xml.sax.Attributes;
 
 /**
  * A library class used to turn SAX events back into their corresponding XML snippets
+ * <p>
+ * Not threadsafe
  */
 public class SaxEventToXmlElementConverter {
 
@@ -50,13 +53,12 @@ public class SaxEventToXmlElementConverter {
     /*
      * Map of namespace mappings, used to keep settings across XMLStreamWriters
      */
-    private static Map<String, String> namespaces = new HashMap();
+    private static Map<String, String> namespaces = new ConcurrentHashMap();
 
     /*
-     * Set of namespace prefixes that have been already declared in the XML snippet
-     * Used to ensure there aren't superfluous "xmlns" declarations.
+     * Stack of scoped namespace URI to prefix mappings
      */
-    private Set<String> namespacesAdded = new HashSet<>();
+    private Deque<Map<String, String>> scopeOfNamespacesAdded = new ArrayDeque<>();
 
     public SaxEventToXmlElementConverter() throws UnsupportedEncodingException, XMLStreamException {
 
@@ -78,15 +80,23 @@ public class SaxEventToXmlElementConverter {
      */
     public SaxEventToXmlElementConverter toElement(String uri, String localName, Attributes atts)
             throws XMLStreamException {
+        return startConstructingElement(uri, localName, atts);
+    }
 
+    private SaxEventToXmlElementConverter startConstructingElement(String uri, String localName,
+            Attributes atts) throws XMLStreamException {
+        Map<String, String> scopedNamespaces = new HashMap<>();
+        scopeOfNamespacesAdded.addFirst(scopedNamespaces);
         /*
          * Use the uri to look up the namespace prefix and append it and the localName to the start tag
          */
         out.writeStartElement(uri, localName);
-        if (!namespacesAdded.contains(uri)) {
+        if (!checkNamespaceAdded(uri)) {
             out.writeNamespace(out.getNamespaceContext()
                     .getPrefix(uri), uri);
-            namespacesAdded.add(uri);
+            scopedNamespaces.put(uri,
+                    out.getNamespaceContext()
+                            .getPrefix(uri));
         }
         /*
          * Loop through the attributes and append them, prefixed with the proper namespace
@@ -100,15 +110,18 @@ public class SaxEventToXmlElementConverter {
             } else {
                 String attUri = atts.getURI(i);
 
-                if (!namespacesAdded.contains(attUri)) {
+                if (!checkNamespaceAdded(attUri)) {
                     out.writeNamespace(out.getNamespaceContext()
                             .getPrefix(attUri), attUri);
-                    namespacesAdded.add(attUri);
+                    scopedNamespaces.put(attUri,
+                            out.getNamespaceContext()
+                                    .getPrefix(attUri));
                 }
                 out.writeAttribute(attUri, atts.getLocalName(i), atts.getValue(i));
 
             }
         }
+
         return this;
     }
 
@@ -122,6 +135,11 @@ public class SaxEventToXmlElementConverter {
      */
     public SaxEventToXmlElementConverter toElement(String uri, String localName)
             throws XMLStreamException {
+        return finishConstructingElement();
+    }
+
+    private SaxEventToXmlElementConverter finishConstructingElement() throws XMLStreamException {
+        scopeOfNamespacesAdded.removeFirst();
         /*
          * Append the properly prefixed end tag to the XML snippet
          */
@@ -139,6 +157,11 @@ public class SaxEventToXmlElementConverter {
      * {@see SaxEventHandler#characters}
      */
     public SaxEventToXmlElementConverter toElement(char[] ch, int start, int length)
+            throws XMLStreamException {
+        return addCharactersToElement(ch, start, length);
+    }
+
+    private SaxEventToXmlElementConverter addCharactersToElement(char[] ch, int start, int length)
             throws XMLStreamException {
         out.writeCharacters(ch, start, length);
         return this;
@@ -170,7 +193,6 @@ public class SaxEventToXmlElementConverter {
      */
     public SaxEventToXmlElementConverter reset() {
         outputStream.reset();
-        namespacesAdded = new HashSet<>();
         try {
             out = xmlOutputFactory.createXMLStreamWriter(outputStream);
             for (Map.Entry<String, String> mapping : namespaces.entrySet()) {
@@ -193,5 +215,12 @@ public class SaxEventToXmlElementConverter {
     public void addNamespace(String prefix, String uri) throws XMLStreamException {
         out.setPrefix(prefix, uri);
         namespaces.put(prefix, uri);
+    }
+
+    private boolean checkNamespaceAdded(String uri) {
+
+        return scopeOfNamespacesAdded.stream()
+                .anyMatch(p -> p.containsKey(uri));
+
     }
 }

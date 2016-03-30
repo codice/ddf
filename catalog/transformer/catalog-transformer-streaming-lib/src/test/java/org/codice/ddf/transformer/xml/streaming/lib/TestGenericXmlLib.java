@@ -44,6 +44,7 @@ import org.xml.sax.SAXException;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -63,7 +64,6 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.init();
         assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
         Metacard metacard = null;
         try {
@@ -90,7 +90,6 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.init();
         try {
             xmlInputTransformer.transform(inputStream, "test");
         } catch (IOException e) {
@@ -109,13 +108,37 @@ public class TestGenericXmlLib {
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.init();
         try {
             xmlInputTransformer.transform(null, "test");
         } catch (IOException e) {
             fail();
         }
 
+    }
+
+    @Test
+    public void testNoConfigTransform()
+            throws IOException, CatalogTransformerException {
+        SaxEventHandlerFactory saxEventHandlerFactory = mock(SaxEventHandlerFactory.class);
+        when(saxEventHandlerFactory.getId()).thenReturn("test");
+        SaxEventHandler handler = getNewHandler();
+        when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
+        XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
+                saxEventHandlerFactory));
+        MetacardType metacardType = xmlInputTransformer.getMetacardType();
+        assertThat(metacardType.getAttributeDescriptors(),
+                is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
+    }
+
+    @Test
+    public void testNoFactoriesTransform() {
+        XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
+        xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
+        xmlInputTransformer.setSaxEventHandlerFactories(null);
+        MetacardType metacardType = xmlInputTransformer.getMetacardType();
+        assertThat(metacardType.getAttributeDescriptors(),
+                is(BasicTypes.BASIC_METACARD.getAttributeDescriptors()));
     }
 
     @Test
@@ -149,11 +172,9 @@ public class TestGenericXmlLib {
 
         when(saxEventHandlerFactory.getNewSaxEventHandler()).thenReturn(handler);
         XmlInputTransformer xmlInputTransformer = new XmlInputTransformer();
-        xmlInputTransformer.init();
         xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("test"));
         xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(
                 saxEventHandlerFactory));
-        xmlInputTransformer.init();
         assertThat(xmlInputTransformer.getMetacardType(), is(notNullValue()));
         Metacard metacard = null;
         try {
@@ -203,7 +224,7 @@ public class TestGenericXmlLib {
         saxEventToXmlElementConverter.toElement("characters".toCharArray(), 0, 8);
         saxEventToXmlElementConverter.toElement("bar", "test");
         assertThat(saxEventToXmlElementConverter.toString(),
-                is("<foo:test xmlns:foo=\"bar\" xmlns:barfoo=\"foobar\" barfoo:foo=\"test\" bar=\"test\">&amp;lt;chara&amp;gt;cte</foo:test><foo:test barfoo:foo=\"test\" bar=\"test\">characte</foo:test>"));
+                is("<foo:test xmlns:foo=\"bar\" xmlns:barfoo=\"foobar\" barfoo:foo=\"test\" bar=\"test\">&amp;lt;chara&amp;gt;cte</foo:test><foo:test xmlns:foo=\"bar\" xmlns:barfoo=\"foobar\" barfoo:foo=\"test\" bar=\"test\">characte</foo:test>"));
         saxEventToXmlElementConverter.reset();
         assertThat(saxEventToXmlElementConverter.toString(), is(""));
     }
