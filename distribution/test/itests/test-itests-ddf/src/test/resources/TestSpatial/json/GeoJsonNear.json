@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "title": "GeoJson near",
+    "thumbnail": "CA==",
+    "site": "ddf.distribution",
+    "resource-uri": "http://example.com",
+    "created": "2015-12-28T00:09:19.368+0000",
+    "metadata-content-type-version": "myVersion",
+    "metadata-content-type": "myType",
+    "metadata": "<xml>GeoJson near</xml>",
+    "modified": "2015-12-28T00:09:19.368+0000",
+    "effective": "2015-12-28T00:09:19.368+0000",
+    "id": "362ac66837804bb997663a3db5026733"
+  },
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      70.0,
+      33.5
+    ]
+  }
+}

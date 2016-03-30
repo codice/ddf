@@ -17,12 +17,17 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.tika.io.IOUtils;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Helper class containing test data.
  */
 public final class Library {
+
+    public static final String VARIABLE_DELIMETER = "$";
 
     private Library() {
         // static util class
@@ -361,5 +366,36 @@ public final class Library {
 
     public static String getCswRecordResponse() throws IOException {
         return IOUtils.toString(Library.class.getResourceAsStream("/get-records-response.xml"));
+    }
+
+    public static String getFileContent(String filePath) {
+
+        return getFileContent(filePath, ImmutableMap.<String, String>builder().build());
+    }
+
+    /**
+     * Variables to be replaced in a resource file should be in the format: $variableName$
+     * The variable to replace in the file should also also match the parameter names of the method calling getFileContent.
+     *
+     * @param filePath
+     * @param params
+     * @return
+     */
+    public static String getFileContent(String filePath, ImmutableMap<String, String> params) {
+
+        StrSubstitutor strSubstitutor = new StrSubstitutor(params);
+
+        strSubstitutor.setVariablePrefix(VARIABLE_DELIMETER);
+        strSubstitutor.setVariableSuffix(VARIABLE_DELIMETER);
+        String fileContent = null;
+
+        try {
+            fileContent = org.apache.commons.io.IOUtils.toString(Library.class.getResourceAsStream(
+                    filePath), "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read filepath: " + filePath);
+        }
+
+        return strSubstitutor.replace(fileContent);
     }
 }
