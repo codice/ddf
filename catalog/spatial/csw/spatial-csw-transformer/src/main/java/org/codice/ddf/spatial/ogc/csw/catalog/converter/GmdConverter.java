@@ -13,6 +13,7 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import java.net.URI;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Set;
@@ -43,6 +44,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
@@ -51,7 +53,7 @@ public class GmdConverter implements Converter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GmdConverter.class);
 
     static final DatatypeFactory XSD_FACTORY;
-    
+
     private static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
     static {
@@ -175,10 +177,21 @@ public class GmdConverter implements Converter {
     protected void addDistributionInfo(MetacardImpl metacard,
             XstreamPathValueTracker pathValueTracker) {
 
-        if (metacard.getResourceURI() != null) {
-            pathValueTracker.add(new Path(GmdMetacardType.LINKAGE_URI_PATH),
-                    metacard.getResourceURI()
-                            .toASCIIString());
+        String resourceUrl = null;
+        Attribute downloadUrlAttr = metacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL);
+        if (downloadUrlAttr != null) {
+            resourceUrl = (String) downloadUrlAttr.getValue();
+        }
+
+        if (StringUtils.isNotBlank(resourceUrl)) {
+            pathValueTracker.add(new Path(GmdMetacardType.LINKAGE_URI_PATH), resourceUrl);
+        } else {
+            URI resourceUri = metacard.getResourceURI();
+            if (resourceUri != null) {
+
+                pathValueTracker.add(new Path(GmdMetacardType.LINKAGE_URI_PATH),
+                        resourceUri.toASCIIString());
+            }
         }
 
     }
