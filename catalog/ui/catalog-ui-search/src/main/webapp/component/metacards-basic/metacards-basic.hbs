@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,25 +10,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'underscore',
-    '../tabs',
-    'js/store',
-    'component/metacard-basic/metacard-basic.view'
-], function (_, Tabs, store, MetacardBasicView) {
-
-    var MetacardTabs = Tabs.extend({
-        defaults: {
-            tabs: {
-                'Basic': MetacardBasicView,
-                'Advanced': MetacardBasicView,
-                'History': MetacardBasicView,
-                'Associations': MetacardBasicView,
-                'Sharing': MetacardBasicView
-            }
-        }
-    });
-
-    return MetacardTabs;
-});
+ --}}
+{{#each this}}
+    <div>
+        <h5 align="center">
+            {{@key}}
+        </h5>
+        {{#each this}}
+            <label>
+                {{this}}
+            </label>
+        {{/each}}
+    </div>
+{{/each}}

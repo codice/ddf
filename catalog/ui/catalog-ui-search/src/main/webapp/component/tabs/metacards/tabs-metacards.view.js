@@ -12,34 +12,30 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, alert*/
 define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./metacard-basic.hbs',
-    'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, workspaceBasicTemplate, CustomElements, store) {
+    '../tabs.view',
+    './tabs-metacards'
+], function (Marionette, _, $, TabsView, MetacardsTabsModel) {
 
-    var MetacardBasic = Marionette.LayoutView.extend({
+    var MetacardsTabsView = TabsView.extend({
         setDefaultModel: function(){
-            this.model = store.getSelectedResults().first();
+            this.model = new MetacardsTabsModel();
         },
-        template: workspaceBasicTemplate,
-        tagName: CustomElements.register('metacard-basic'),
-        modelEvents: {
-        },
-        events: {
-        },
-        regions: {
-        },
-        initialize: function (options) {
+        initialize: function(options){
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+            TabsView.prototype.initialize.call(this)
+        },
+        determineContent: function(){
+            var activeTab = this.model.getActiveView();
+            this.tabsContent.show(new activeTab());
         }
     });
 
-    return MetacardBasic;
+    return MetacardsTabsView;
 });

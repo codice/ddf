@@ -17,17 +17,17 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./metacard-basic.hbs',
+    'text!./metacards-basic.hbs',
     'js/CustomElements',
     'js/store'
 ], function (Marionette, _, $, workspaceBasicTemplate, CustomElements, store) {
 
     var MetacardBasic = Marionette.LayoutView.extend({
         setDefaultModel: function(){
-            this.model = store.getSelectedResults().first();
+            this.model = store.getSelectedResults();
         },
         template: workspaceBasicTemplate,
-        tagName: CustomElements.register('metacard-basic'),
+        tagName: CustomElements.register('metacards-basic'),
         modelEvents: {
         },
         events: {
@@ -38,6 +38,17 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+        },
+        serializeData: function(){
+            var combinedProperties = {};
+            this.model.toJSON().forEach(function(metacardResult){
+                var properties = metacardResult.metacard.properties;
+                for (var property in properties) {
+                    combinedProperties[property]  = combinedProperties[property] || [];
+                    combinedProperties[property].push(properties[property]);
+                }
+            });
+            return combinedProperties;
         }
     });
 

@@ -53,7 +53,31 @@ define([
             this.render();
         },
         serializeData: function(){
-            return this.model.get('result').get('results').toJSON();
+            return this.massageData(this.model.get('result').get('results').toJSON());
+        },
+        massageData: function(data){
+            data.forEach(function(result){
+                result.local = Boolean(result.metacard.properties['source-id'] === 'ddf.distribution');
+                var dateModified = new Date(result.metacard.properties.modified);
+                var diffMs = (new Date()) - dateModified;
+                var diffDays = Math.round(diffMs / 86400000); // days
+                var diffHrs = Math.round((diffMs % 86400000) / 3600000); // hours
+                var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+                if (diffDays > 2){
+                    result.niceDiff = dateModified.toDateString() + ', ' + dateModified.toLocaleTimeString();
+                } else if (diffDays > 0) {
+                    result.niceDiff = 'Yesterday, ' + dateModified.toLocaleTimeString();
+                } else if (diffHrs > 4) {
+                    result.niceDiff = 'Today, ' + dateModified.toLocaleTimeString();
+                } else if (diffHrs > 1){
+                    result.niceDiff = diffHrs + ' hours ago';
+                } else if (diffMins > 0){
+                    result.niceDiff = diffMins + ' minutes ago';
+                } else {
+                    result.niceDiff = 'A few seconds ago';
+                }
+            });
+            return data;
         },
         updateMap: function(){
             var searchResult = this.model.get('result');
@@ -65,7 +89,7 @@ define([
             event.preventDefault();
         },
         handleClick: function(event){
-            var indexClicked = event.currentTarget.getAttribute('data-index');
+            var indexClicked = parseInt(event.currentTarget.getAttribute('data-index'));
             var metacardId = event.currentTarget.getAttribute('data-metacard-id');
             var alreadySelected = $(event.currentTarget).hasClass('is-selected');
             //shift key wins over all else
@@ -78,16 +102,16 @@ define([
             }
         },
         handleShiftClick: function(metacardId, indexClicked){
-            var firstIndex = this.$el.find('.resultSelector-list > .resultSelector-result.is-selected').first().attr('data-index');
-            var lastIndex = this.$el.find('.resultSelector-list > .resultSelector-result.is-selected').last().attr('data-index');
-            if (firstIndex === undefined && lastIndex === undefined){
+            var firstIndex = parseInt(this.$el.find('.resultSelector-list > .resultSelector-result.is-selected').first().attr('data-index'));
+            var lastIndex = parseInt(this.$el.find('.resultSelector-list > .resultSelector-result.is-selected').last().attr('data-index'));
+            if (_.isNaN(firstIndex) && _.isNaN(lastIndex)){
                 this.handleNormalClick(metacardId);
             } else if (indexClicked <= firstIndex) {
                 this.selectBetween(indexClicked, firstIndex);
             } else if (indexClicked >= lastIndex) {
-                this.selectBetween(lastIndex, parseInt(indexClicked)+1);
+                this.selectBetween(lastIndex, indexClicked + 1);
             } else {
-                this.selectBetween(firstIndex, parseInt(indexClicked)+1);
+                this.selectBetween(firstIndex, indexClicked + 1);
             }
         },
         selectBetween: function(startIndex, endIndex){

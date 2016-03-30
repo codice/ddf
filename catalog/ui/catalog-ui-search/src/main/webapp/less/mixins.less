@@ -70,7 +70,12 @@
 }
 
 .boxShadowTop {
-  box-shadow: 0px 0px 1px white;
+  box-shadow: inset 0px 1px 1px -1px white;
+  overflow: hidden;
+}
+
+.boxShadowBottom {
+  box-shadow: inset 0px -1px 1px -1px white;
   overflow: hidden;
 }
 

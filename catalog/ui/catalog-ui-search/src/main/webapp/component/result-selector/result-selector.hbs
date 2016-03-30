@@ -12,29 +12,43 @@
  **/
  --}}
 <div class="resultSelector-menu">
-    <div>
+    <div class="resultSelector-menu-action">
         <span class="fa fa-filter">
 
         </span>
-        <span>
-            Filter
+        <span class="resultSelector-menu-action-descriptor">
+             Filter
         </span>
     </div>
-    <div>
+    <div class="resultSelector-menu-action">
         <span class="fa fa-long-arrow-up">
 
         </span>
         <span class="fa fa-long-arrow-down">
 
         </span>
+        <span class="resultSelector-menu-action-descriptor">
+             Sort
+        </span>
     </div>
-    <div>
-        <span>
+    <div class="resultSelector-menu-action">
+        <span class="fa fa-bars">
+
+        </span>
+        <span class="resultSelector-menu-action-descriptor">
+             List
+        </span>
+        <span class="fa fa-caret-down">
+
+        </span>
+    </div>
+    <div class="resultSelector-menu-action">
+        <span class="fa fa-cog">
 
         </span>
     </div>
 </div>
-<div class="resultSelector-result">
+<div class="resultSelector-result resultSelector-result-example">
     <div class="resultSelector-resultTitle">
         <span>
             Title
@@ -56,19 +70,28 @@
             <div class="resultSelector-result is-button" data-metacard-id="{{id}}" data-index="{{@key}}"
                  data-query-id="{{metacard.queryId}}">
                 <div class="resultSelector-resultTitle">
-                <span>
-                    {{metacard.properties.title}}
-                </span>
+                    <span>
+                        {{metacard.properties.title}}
+                    </span>
                 </div>
                 <div class="resultSelector-resultSource">
-                <span>
-                    {{metacard.properties.source-id}}
-                </span>
+                    {{#if local}}
+                        <span class="fa fa-home">
+
+                        </span>
+                    {{else}}
+                        <span class="fa fa-cloud">
+
+                        </span>
+                        <span>
+                            {{metacard.properties.source-id}}
+                        </span>
+                    {{/if}}
                 </div>
                 <div class="resultSelector-resultLastModified">
-                <span>
-                    {{metacard.properties.modified}}
-                </span>
+                    <span>
+                        {{niceDiff}}
+                    </span>
                 </div>
             </div>
     {{/each}}

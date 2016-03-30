@@ -1,39 +1,77 @@
 @{customElementNamespace}result-selector {
-
+  position: relative;
   .customElement;
-
+  padding: 10px;
   .resultSelector-list {
     overflow: auto;
     max-height: ~'calc(100% - 155px)';
   }
 
+  .resultSelector-result-example {
+    font-weight: bold;
+    color: grey;
+    .boxShadowBottom;
+  }
+
   .resultSelector-result {
       padding: 0px 10px;
       .inlineBlockDisplay(div);
-      height: 2*@minimumButtonSize;
+      height: 2*@minimumLineSize;
       vertical-align: middle;
+  }
+
+  .resultSelector-result > div > span {
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    max-height: 100%;
+    max-width: 100%;
+    display: inline-block;
+    white-space: nowrap;
+    line-height: inherit;
   }
 
   .resultSelector-resultTitle {
     width: 100%;
-    height: @minimumButtonSize;
-    line-height: @minimumButtonSize;
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
   }
 
   .resultSelector-resultSource {
     width: 50%;
-    height: @minimumButtonSize;
-    line-height: @minimumButtonSize;
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
   }
 
   .resultSelector-resultLastModified {
     width: 50%;
-    height: @minimumButtonSize;
-    line-height: @minimumButtonSize;
+    height: @minimumLineSize;
+    line-height: @minimumLineSize;
   }
 
-  .resultSelector-result.is-selected {
+  .resultSelector-menu {
+    position: relative;
+    text-align: right;
+    .inlineBlockDisplay(div);
+  }
 
+  .resultSelector-menu > div:last-of-type {
+    display: block;
+    position: absolute;
+    right: 0px;
+    top: ~'calc(@{minimumLineSize}+.5*@{minimumLineSize})';
+  }
+
+  .resultSelector-menu > div:last-of-type > span {
+    font-size: 2rem;
+  }
+
+  .resultSelector-menu-action {
+    padding: 10px;
+  }
+
+  .resultSelector-menu-action-descriptor {
+    padding: 3px;
   }
 
 }

@@ -26,9 +26,11 @@ define([
     'maptype',
     'text!templates/map.handlebars',
     'js/store',
-    'component/tabs/metacard/tabs-metacard.view'
+    'component/tabs/metacard/tabs-metacard.view',
+    'component/tabs/metacards/tabs-metacards.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, WorkspaceContentTabs,
-             WorkspaceContentTabsView, QueryTabsView, maptype, map, store, MetacardTabsView) {
+             WorkspaceContentTabsView, QueryTabsView, maptype, map, store, MetacardTabsView,
+            MetacardsTabsView) {
 
     var ContentView = Marionette.LayoutView.extend({
         template: contentTemplate,
@@ -113,11 +115,11 @@ define([
                 this._mapView = new Map2d();
             }
             this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.updatePanelOne);
-            this.listenTo(store.get('content'), 'change:query', this.updatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'update', this.updatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'add', this.updatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'remove', this.updatePanelTwo);
-            this.listenTo(store.getSelectedResults(), 'reset', this.updatePanelTwo);
+            this.listenTo(store.get('content'), 'change:query', _.debounce(this.updatePanelTwo, 200));
+            this.listenTo(store.getSelectedResults(), 'update',_.debounce(this.updatePanelTwo, 200));
+            this.listenTo(store.getSelectedResults(), 'add', _.debounce(this.updatePanelTwo, 200));
+            this.listenTo(store.getSelectedResults(), 'remove', _.debounce(this.updatePanelTwo, 200));
+            this.listenTo(store.getSelectedResults(), 'reset', _.debounce(this.updatePanelTwo, 200));
         },
         onRender: function(){
             this.updatePanelOne();
@@ -138,17 +140,19 @@ define([
             if (queryRef === undefined && selectedResults.length === 0){
                 this.hidePanelTwo();
             } else if (queryRef !== undefined) {
-                console.log('query selected');
                 this.updatePanelTwoQueryTitle();
                 this.showPanelTwo();
                 this.panelTwo.show(new QueryTabsView());
-            } else {
-                console.log('results selected');
-                this.updatePanelTwoSelectedResultsTitle();
+            } else if (selectedResults.length === 1) {
+                this.updatePanelTwoSelectedResultTitle();
                 this.showPanelTwo();
                 this.panelTwo.show(new MetacardTabsView());
+            } else {
+                this.updatePanelTwoSelectedResultsTitle();
+                this.showPanelTwo();
+                this.panelTwo.show(new MetacardsTabsView());
             }
-            wreqr.vent.trigger('resize');
+            //wreqr.vent.trigger('resize');
         },
         updatePanelTwoQueryTitle: function(){
             var queryRef = store.getQuery();
@@ -159,6 +163,9 @@ define([
             var queryRef = store.getQuery();
             var title = 'Metacard';
             this.$el.find('.content-panelTwo-title').html(title);
+        },
+        updatePanelTwoSelectedResultTitle: function(){
+            this.$el.find('.content-panelTwo-title').html(store.getSelectedResults().first().get('metacard').get('properties').get('title'));
         },
         hidePanelTwo: function(){
             this.$el.addClass('hide-panelTwo');

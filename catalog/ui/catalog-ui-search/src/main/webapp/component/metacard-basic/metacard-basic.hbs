@@ -11,15 +11,45 @@
  *
  **/
  --}}
-{{#each this}}
-    <div>
-        <h5 align="center">
-            {{@key}}
-        </h5>
-        {{#each this}}
-            <label>
-                {{this}}
-            </label>
-        {{/each}}
+<h5 align="center">{{metacard.properties.title}}</h5>
+<div class="metacardBasic-row">
+    <div class="metacardBasic-property">
+        <label>
+            Created
+        </label>
+        <div>
+            {{metacard.properties.created}}
+        </div>
     </div>
-{{/each}}
+    <div class="metacardBasic-property">
+        <label>
+            Modified
+        </label>
+        <div>
+            {{metacard.properties.modified}}
+        </div>
+    </div>
+</div>
+<div class="metacardBasic-row">
+    <div class="metacardBasic-property">
+        <label>
+            Content Type
+        </label>
+        <div>
+            {{metacard.properties.metadata-content-type}}
+        </div>
+    </div>
+    <div class="metacardBasic-property">
+        <label>
+            Item Size
+        </label>
+        <div>
+            {{metacard.properties.resource-size}} mb
+        </div>
+    </div>
+</div>
+<div class="metacardBasic-row full">
+    <div class="metacardBasic-property">
+        <img class='thumbnail' alt='{{metacard.properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{metacard.properties.thumbnail}}' />
+    </div>
+</div>
