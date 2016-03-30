@@ -71,7 +71,8 @@ public class Validator {
             QName typeName = types.get(0);
             QName cswOutputSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME);
             QName gmdOutputSchema = new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME);
-            if (!typeName.equals(cswOutputSchema) && !typeName.equals(gmdOutputSchema)) {
+            QName ebrimOutputSchema = new QName(CswConstants.EBRIM_SCHEMA, CswConstants.EBRIM_RECORD_LOCAL_NAME);
+            if (!typeName.equals(cswOutputSchema) && !typeName.equals(gmdOutputSchema) && !typeName.equals(ebrimOutputSchema)) {
                 throw createUnknownTypeException(types.get(0)
                         .toString());
             }

@@ -180,7 +180,7 @@ public final class Library {
     }
 
     public static String getCswRegistryInsert() throws IOException {
-        return Library.getCswInsert("ebrim", getRegistryNode());
+        return Library.getCswInsert("rim:RegistryPackage", getRegistryNode());
     }
 
     public static String getCswRegistryUpdate() throws IOException {

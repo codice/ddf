@@ -145,17 +145,23 @@ public interface CswConstants {
 
     String CSW_NAMESPACE_PREFIX = "csw";
 
+    String EBRIM_NAMESPACE_PREFIX = "rim";
+
     String DUBLIN_CORE_NAMESPACE_PREFIX = "dc";
 
     String DUBLIN_CORE_TERMS_NAMESPACE_PREFIX = "dct";
 
     String CSW_RECORD_LOCAL_NAME = "Record";
 
+    String EBRIM_RECORD_LOCAL_NAME = "RegistryPackage";
+
     String CSW_SUMMARY_RECORD_LOCAL_NAME = "SummaryRecord";
 
     String CSW_BRIEF_RECORD_LOCAL_NAME = "BriefRecord";
 
     String CSW_RECORD = CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_RECORD_LOCAL_NAME;
+
+    String EBRIM_RECORD = EBRIM_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + EBRIM_RECORD_LOCAL_NAME;
 
     String CSW_SUMMARY_RECORD =
             CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_SUMMARY_RECORD_LOCAL_NAME;
@@ -168,6 +174,8 @@ public interface CswConstants {
     String OGC_SCHEMA = "http://www.opengis.net/ogc";
 
     String GML_SCHEMA = "http://www.opengis.net/gml";
+
+    String EBRIM_SCHEMA = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
 
     String DUBLIN_CORE_SCHEMA = "http://purl.org/dc/elements/1.1/";
 

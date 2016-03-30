@@ -167,7 +167,8 @@
         <argument ref="filterAdapter"/>
         <property name="schemaToTagsMapping">
             <array value-type="java.lang.String">
-                <value type="java.lang.String">http://www.opengis.net/cat/wrs/1.0=registry</value>
+                <value type="java.lang.String">http://www.opengis.net/cat/csw/2.0.2=resource</value>
+                <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry</value>
             </array>
         </property>
     </bean>
