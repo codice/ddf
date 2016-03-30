@@ -54,7 +54,10 @@ public class TestGmdConverter {
 
     private static GregorianCalendar effectiveDate;
 
-    private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
+    private static final String RESOURCE_DOWNLOAD_URL =
+            "http://example.com/source/id?transform=resource";
+
+    private static final String RESOURCE_URI = "content:123";
 
     private static final String POLYGON_LOCATION =
             "POLYGON ((117.6552810668945 -30.92013931274414, 117.661361694336 -30.92383384704589, 117.6666412353516 -30.93005561828613, "
@@ -119,7 +122,7 @@ public class TestGmdConverter {
         String xml = convert(metacard, true);
         Diff diff = new Diff(compareString, xml);
 
-        LOGGER.info("diff:\n" + diff);
+        LOGGER.info("diff:\n" + diff.toString());
         assertThat(diff.identical(), is(true));
     }
 
@@ -134,8 +137,8 @@ public class TestGmdConverter {
 
         String xml = convert(metacard, true);
         Diff diff = new Diff(compareString, xml);
-        LOGGER.info("diff:\n" + diff);
 
+        LOGGER.info("diff:\n" + diff.toString());
         assertThat(diff.identical(), is(true));
 
     }
@@ -166,8 +169,10 @@ public class TestGmdConverter {
         metacard.setSourceId("sourceID");
         metacard.setTitle("example title");
 
+        metacard.setAttribute(Metacard.RESOURCE_DOWNLOAD_URL, RESOURCE_DOWNLOAD_URL);
+
         try {
-            metacard.setResourceURI(new URI(ACTION_URL));
+            metacard.setResourceURI(new URI(RESOURCE_URI));
         } catch (URISyntaxException e) {
             LOGGER.debug("URISyntaxException", e);
         }
