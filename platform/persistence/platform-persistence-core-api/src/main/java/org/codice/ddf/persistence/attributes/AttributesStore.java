@@ -26,8 +26,6 @@ public interface AttributesStore {
 
     String USER_KEY = "user";
 
-    long DEFAULT_DATA_USAGE_LIMIT = 750L * 1000L * 1000L;
-
     /**
      * Returns the user's current data usage from the persistent store
      *

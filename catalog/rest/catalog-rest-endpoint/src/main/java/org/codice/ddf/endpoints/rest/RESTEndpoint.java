@@ -519,7 +519,7 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+                String exceptionMessage = "Unable to transform Metacard. Try different transformer: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
@@ -536,7 +536,7 @@ public class RESTEndpoint implements RESTService {
                 // here or else execution will return to CXF and we'll lose this message and end up with
                 // a huge stack trace
                 // in a GUI or whatever else is connected to this endpoint
-            } catch (IllegalArgumentException e) {
+            } catch (RuntimeException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
         } else {

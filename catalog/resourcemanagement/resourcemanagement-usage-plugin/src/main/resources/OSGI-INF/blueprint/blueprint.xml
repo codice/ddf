@@ -19,7 +19,12 @@
     </bean>
 
     <!-- Register in the OSGi Service Registry -->
-    <service ref="plugin" interface="ddf.catalog.plugin.PreResourcePlugin"/>
+    <service ref="plugin">
+        <interfaces>
+            <value>ddf.catalog.plugin.PreResourcePlugin</value>
+            <value>ddf.catalog.plugin.PostResourcePlugin</value>
+        </interfaces>
+    </service>
 
     <reference id="attributesStore" interface="org.codice.ddf.persistence.attributes.AttributesStore"/>
 
