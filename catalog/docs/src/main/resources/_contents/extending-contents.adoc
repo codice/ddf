@@ -1,5 +1,7 @@
 
-The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.  Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.
+Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  
+At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 
 This guide supports developers creating extensions of the existing framework.
 
@@ -42,6 +44,45 @@ The following packages have been exported by the ${ddf-catalog} application and 
 * `org.codice.${ddf-branding-lowercase}.endpoints.rest.action`
 * `org.codice.${ddf-branding-lowercase}.opensearch.query`
 * `org.codice.${ddf-branding-lowercase}.opensearch.query.filter`
+
+=== Catalog Architecture
+
+.Catalog Architecture
+[ditaa,catalog_architecture]
+....
+
+                /-=-----------------\
+                |      Clients      |
+                \-------------------/
+                          |
+                          v
+                /-------------------\
+                |cDEFEndpoints      |
+                +------------+------+
+                |cDEF        |cDEF  |
+                | Operations | Data |
+/---------------+------------+------+------------+---------\    +--------+
+|cDEF           |cDEF               |cDEF        |cDEF     |<-> |        |
+|  Transformers |                   | Federation | Sources |    |External|
++---------------+ Catalog Framework +------------+---------+<-> |  Data  |
+|cDEF           |                   |cDEF   Eventing       |    |Holdings|
+|   Catalog     |                   +------------+---------+<-> |    {s} |
+|   Plugins     |                   |cDEF   Resources      |    +------=-+
+\---------------+-------------------+----------------------/
+                |cDEF               |
+                | Catalog Provider  |
+                \-------------------/
+                          ^
+                          |
+                          v                         Legend
+                  +---------------+                /---------------------\
+                  |{s}            |                |cDEF ${ddf-branding} Component   |
+                  |  Data Store   |                \---------------------/
+                  |               |                /---------------------\
+                  +------------=--+                | External Component  |
+                                                   \--------------------=/
+
+....
 
 === Catalog Application Services
 
@@ -1577,7 +1618,7 @@ The procedure for implementing any of the plugins follows a similar format:
 
 [TIP]
 ====
-Refer to the Javadoc for more information on all Requests and Responses in the `${ddf-branding}.catalog.operation` and `${ddf-branding}.catalog.event` packages.
+Refer to the Javadoc for more information on all Requests and Responses in the `${ddf-branding-lowercase}.catalog.operation` and `${ddf-branding-lowercase}.catalog.event` packages.
 ====
 
 ===== Pre-Ingest
@@ -3575,22 +3616,25 @@ Input transformers should be registered within the Service Registry with the int
 The Tika Input Transformer is the default input transformer responsible for translating Microsoft Word, Microsoft Excel, Microsoft PowerPoint, OpenOffice Writer, and PDF documents into a Catalog Metacard.
 This input transformer utilizes Apache Tika to provide basic support for these mime types.
 As such, the metadata extracted from these types of documents is the metadata that is common across all of these document types, e.g., creation date, author, last modified date, etc.
-The Tika Input Transformer's main purpose is to ingest these types of content into the ${branding} Content Repository and the Metadata Catalog.
+The Tika Input Transformer's main purpose is to ingest these types of content into the Metadata Catalog.
 
 The Tika input transformer is given a service ranking (prioity) of -1 so that it is guaranteed to be the last input transformer that is invoked.
 This allows any registered input transformer that are more specific for any of these document types to be invoked instead of this rudimentary default input transformer.
 
 ====== Installing and Uninstalling
-This transformer is installed by default. To install or uninstall manually, use the `tika-input-transformer` feature in the Admin Console (https://localhost:8993/admin) under DDF Catalog -> Features or use the System Console.
 
-Install the `catalog-transformer-tika` feature using the http://localhost:8181/admin[Admin Console].
+This transformer is installed by default.
+To install or uninstall manually, use the `tika-input-transformer` feature in the ${admin-console} (https://localhost:8993/admin) under DDF Catalog -> Features or use the System Console.
+
+Install the `catalog-transformer-tika` feature using the http://localhost:8181/admin[${admin-console].
 This feature is uninstalled by default.
 
 ====== Configuring
 None
 
 ====== Using
-Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice documents, or PDF documents into the ${branding} Content Repository and/or the Metadata Catalog.
+
+Use the Tika Input Transformer for ingesting Microsoft documents, OpenOffice documents, or PDF documents into the Catalog.
 
 ====== Service Properties
 
@@ -3643,7 +3687,7 @@ This transformer is installed by default. To install or uninstall manually, use 
 None
 
 ====== Using
-Use the video input transformer for ingesting video files into the DDF Content Repository and/or the Metadata Catalog.
+Use the video input transformer for ingesting video files into the Catalog.
 
 ====== Service Properties
 [cols="2,5a" options="header"]
@@ -5850,15 +5894,10 @@ The Catalog reference implementation currently does not include any resource wri
 
 ==== Developing a Resource Writer
 
-[NOTE]
-====
-Before implementing a Resource Writer, refer to the Content Framework for alternatives.
-====
-
 A `ResourceWriter` is an object used to store or delete a `Resource`. 
 `ResourceWriter` objects should be registered within the OSGi Service Registry, so clients can retrieve an instance when clients need to store a `Resource`. 
 
-===== Create a New ResourceWriter
+===== Create a New `ResourceWriter`
 
 Complete the following procedure to create a `ResourceWriter`.
 

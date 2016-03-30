@@ -232,15 +232,15 @@ LOGGER.trace("Executing search: {}", search);
 [ditaa,architecture_diagram_white_box,png]
 ----
 +-----------------------------------------------------------------------------------------------------------------------+
-|                        /----------------------\  /-------------------\ /----------------------\  /-------------------\|
-|      Components        |         New          |  |    New Security   | |         New          |  |       New         ||
-|                        |   Catalog Components |  |     Components    | |   Content Components |  |  App Components   ||
-|                        \----------------------/  \-------------------/ \----------------------/  \-------------------/|
-|                      /-=------------------------------------------------------------------------\                     |
-|                      | /----------------------\  /-------------------\ /----------------------\ |/-------------------\|
-|   DDF Applications   | |cDEF  DDF Catalog     |  |cDEFDDF Security   | |cDEF  DDF Content     | ||  New Application  ||
-|                      | |                      |  |                   | |                      | |\-------------------/|
-|                      | \----------------------/  \-------------------/ \----------------------/ \-------------------\ |
+|                        /----------------------\  /-------------------\             /-------------------\              |
+|      Components        |         New          |  |    New Security   |             |       New         |              |
+|                        |   Catalog Components |  |     Components    |             |  App Components   |              |
+|                        \----------------------/  \-------------------/             \-------------------/              |
+|                      /-=------------------------------------------------\                                             |
+|                      | /----------------------\  /-------------------\  |          /-------------------\              |
+|   DDF Applications   | |cDEF  DDF Catalog     |  |cDEFDDF Security   |  |          |  New Application  |              |
+|                      | |                      |  |                   |  |          \-------------------/              |
+|                      | \----------------------/  \-------------------/  \-------------------------------------------\ |
 | /--------------------/ /------------------------------------------------------------------------------------------\ | |
 | |       DDF            |cDEF                              DDF Framework                                           | | |
 | \--------------------\ |                                                                                          | | |
@@ -833,9 +833,9 @@ will do a look-up for all registered OSGi services that are implementing `Migrat
 The services that implement one of the migratable interfaces will be called one at a time, in any order, and do not need to be thread safe. A bundle
 or a feature can have as many services implementing the interfaces as needed.
 
-==== Migratable
+==== `Migratable`
 
-The contract for a migratable is stored here. It is used by both sub-interfaces `ConfigurationMigratable` and `DataMigratable`.
+The contract for a `migratable` is stored here. It is used by both sub-interfaces `ConfigurationMigratable` and `DataMigratable`.
 
 [WARNING]
 ====
@@ -843,7 +843,7 @@ Do not implement `Migratable` directly; it is intended for use only as a common 
 Instead, the appropriate sub-interface should be used.
 ====
 
-==== ConfigurationMigratable
+==== `ConfigurationMigratable`
 
 This is the base interface that must be implemented by all bundles or features that need to export and/or import system related settings
 (e.g. bundle specific Java properties, XML or JSON configuration files) during system migration.
@@ -854,7 +854,7 @@ Only bundle or feature specific settings need be handled. All configurations sto
 Also, any other data not related to the system's configuration and settings (e.g., data stored in Solr) should be handled by a different
 service that implements the `DataMigratable` interface, not by implementors of this class.
 
-==== DataMigratable
+==== `DataMigratable`
 
 This is the interface that must be implemented by all bundles or features that need to export and/or import data during system migration.
 The data is not mandatory for the system to come up (e.g., data stored in Solr) and doesn't affect the system's configuration,
@@ -862,6 +862,131 @@ i.e., without this data, the new system will still have the same configuration a
 
 Any system related configuration and settings should be handled by a different service that implements the
 `ConfigurationMigratable` interface, not by implementors of this class.
+
+=== Developing CometD Clients for Asynchronous Search and Retrieval
+
+${ddf-branding} uses the http://cometd.org/[CometD] framework to perform asynchronous operations on the catalog.
+This is most apparent in the UI application, which is able to perform multiple queries and display them asynchronously as the results are returned.
+CometD has a http://docs.cometd.org/2/reference/[comprehensive manual] that details how to interact with and best use the framework with a variety of clients (e.g., javascript, java, perl, and python).
+
+The SearchUI code can be used as reference implementation of how a JavaScript client can be created to integrate with the CometD endpoint.
+Examples are included below for convenience.
+
+==== General Operations
+
+===== Initialization
+
+CometD offers both Dojo and jQuery bindings that allow CometD to be easily used with those frameworks.
+For more information on the individual bindings, refer to the http://docs.cometd.org/2/reference/javascript.html[JavaScript Library page] in the CometD reference manual.
+The UI application uses the jQuery library.
+To initialize the CometD connection, an instance of CometD must be created and configured to point to the server and call the handshake, which creates the network connection.
+The CometD endpoint is exposed at `/cometd`, and it is recommended to not use websockets when connecting.
+
+.Example Initialization with JQuery
+[source,javascript,linenums]
+----
+// create a reference to the standard cometd object
+Cometd.Comet = $.cometd;
+
+// disable websocket protocol
+Cometd.Comet.websocketEnabled = false;
+
+// configure the location of the cometd endpoint on the server
+Cometd.Comet.configure({
+	url: 'http://server:8181/cometd'
+});
+
+// create network connection to server
+Cometd.Comet.handshake({});
+----
+
+===== Subscribe
+
+A client can asynchronously receive information from the server using subscriptions.
+Once the client subscribes to a particular topic, it is sent information when the server sends a response on that topic.
+Subscriptions are performed in the UI to retrieve information for notifications, tasks, and query results.
+
+.Example Subscription
+[source,javascript,linenums]
+----
+// subscribe to a topic, calling the function whenever a new message comes in
+var subscription = Cometd.Comet.subscribe("/ddf/notifications/**",
+function(resp) { ... } );
+
+// unsubscribe from a topic
+Cometd.Comet.unsubscribe(subscription);
+----
+
+[NOTE]
+====
+Further documentation is available from http://docs.cometd.org/2/reference[CometD]/javascript_subscribe.html.
+====
+
+===== Publish
+
+Publishing allows clients to send information to the server.
+This allows the clients to perform queries on the server and perform operations on tasks, such as canceling a download.
+
+.Example Publish
+[source,javascript,linenums]
+----
+// perform a query on the server where data contains the search criteria
+Cometd.Comet.publish('/service/query', { data: { ... } });
+----
+
+===== Publish Notifications
+
+Any application running in ${branding} can publish notifications that can be viewed by the Search UI or received by another notifications client.
+
+. Set a properties map containing entries for each of the parameters listed above in the Usage section.
+. Set the OSGi event topic to `ddf/notification/<application-name>/<notification-type>` Notice that there is no preceding slash on an OSGi event topic name, while there is one on the CometD channel name. The OSGi event topic corresponds to the CometD channel this is published on.
+. Post the notification to the OSGi event defined in the previous step.
+
+.Example for Publishing Notification
+[source,java,linenums]
+----
+Dictionary <String, Object> properties = new Hashtable<String,
+Object>();
+properties.put("application", "Downloads");
+properties.put("title", resourceResponse.getResource().getName());
+Long sysTimeMillis = System.currentTimeMillis();
+properties.put("message", generateMessage(status,
+resourceResponse.getResource().getName(), bytes, sysTimeMillis,
+detail));
+properties.put("user", getProperty(resourceResponse, USER));
+properties.put("status", "Completed");
+properties.put("bytes", 1024);
+properties.put("timestamp", sysTimeMillis);
+Event event = new Event("ddf/notification/catalog/downloads",
+properties);
+eventAdmin.postEvent(event);
+----
+
+[NOTE]
+====
+Futher documentation is available at http://docs.cometd.org/2/reference
+/javascript_publish.html.
+====
+
+===== Retrieving Persisted Notifications and Activities
+
+To retrieve persisted notifications or activities, publish an empty message on the corresponding base channel.
+This will trigger a response to an awaiting Cometd subscription.
+Refer to <<Developing CometD Clients for Asynchronous Search and Retrieval>> for instructions on how to publish to a CometD channel.
+
+.Example: Persistence Retrieval
+[source,javascript,linenums]
+----
+Cometd.Comet.publish("/ddf/notifications", {});
+Cometd.Comet.publish("/ddf/activities", {});
+----
+
+.Asynchronous Query
+[NOTE]
+====
+An asynchronous query is performed using the CometD Endpoint, which is currently
+packaged with the ${ddf-ui} application.
+====
 
 === Web Service Security Architecture
 
@@ -2385,3 +2510,4 @@ If calling endpoint from a non-secure client, at the point the of the initial ca
 First, the interceptor reads the configured policy, builds a security header, and gets an anonymous SAML assertion.
 Using this, it makes a `getSubject` call which is sent through Shiro to the STS realm.
 Upon success, the STS realm returns the subject and the call is made to the endpoint.
+

@@ -20,9 +20,6 @@ The ${branding} Catalog provides a framework for storing, searching, processing
 Clients typically perform local and/or federated query, create, read, update, and delete (QCRUD) operations against the Catalog.
 At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 
-${ddf-branding} Content Application::
-The ${ddf-branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data.
-
 ${ddf-branding} Platform Application::
 The Platform application is considered to be a core application of the distribution.
 The Platform application has fundamental building blocks that the distribution needs to run.
