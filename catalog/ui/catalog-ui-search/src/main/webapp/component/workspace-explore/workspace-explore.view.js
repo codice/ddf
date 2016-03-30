@@ -49,7 +49,7 @@ define([
         },
         onBeforeShow: function(){
             this.workspaceExploreQueries.show(new QuerySelectorView());
-            this.workspaceExploreResults.show(new ResultTabsView());
+            //this.workspaceExploreResults.show(new ResultTabsView());
         },
         openQueriesModal: function(){
             lightboxViewInstance.model.updateTitle('Queries');

@@ -12,6 +12,7 @@
 /*global define, window*/
 
 define([
+        'wreqr',
         'backbone',
         'js/model/Metacard',
         'js/model/Query',
@@ -19,7 +20,7 @@ define([
         'js/ColorGenerator',
         'backboneassociations'
     ],
-    function (Backbone, Metacard, Query, Common, ColorGenerator) {
+    function (wreqr, Backbone, Metacard, Query, Common, ColorGenerator) {
         "use strict";
         var Workspace = {};
 
@@ -34,6 +35,8 @@ define([
                 this._colorGenerator = ColorGenerator.getNewGenerator();
                 this.listenTo(this, 'add', function(query){
                     query.setColor(searchList._colorGenerator.getColor(query.getId()));
+                    console.log(query.id);
+                    console.log(query.getColor());
                     query.startSearch();
                     query.listenTo(query, 'change', function(){
                         query.startSearch();
@@ -179,11 +182,15 @@ define([
             url: '/service/workspaces',
             useAjaxSync: false,
             initialize: function() {
+                var self = this;
                 if(!this.get('workspaces')) {
                     this.set({workspaces: new Workspace.WorkspaceList()});
                 }
                 this.on({
                    'all': this.setDefaultCurrentWorkspace
+                });
+                wreqr.vent.on('workspace:save', function(){
+                    self.save();
                 });
                 /*this.on('nested-change', function () {
                     this.save();

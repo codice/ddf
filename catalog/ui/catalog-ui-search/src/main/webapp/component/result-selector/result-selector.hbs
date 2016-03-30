@@ -11,8 +11,6 @@
  *
  **/
  --}}
-<h6 align="center">Results</h6>
-
 <div class="resultSelector-result">
     <div class="resultSelector-resultTitle">
         <span>
@@ -32,25 +30,23 @@
 </div>
 <div class="resultSelector-list is-list">
     {{#each this}}
-        {{#with metacard}}
-            <div class="resultSelector-result is-button" data-metacardId="{{id}}"
-                 data-queryId="{{queryId}}">
+            <div class="resultSelector-result is-button" data-metacard-id="{{id}}" data-index="{{@key}}"
+                 data-query-id="{{metacard.queryId}}">
                 <div class="resultSelector-resultTitle">
                 <span>
-                    {{properties.title}}
+                    {{metacard.properties.title}}
                 </span>
                 </div>
                 <div class="resultSelector-resultSource">
                 <span>
-                    {{properties.source-id}}
+                    {{metacard.properties.source-id}}
                 </span>
                 </div>
                 <div class="resultSelector-resultLastModified">
                 <span>
-                    {{properties.modified}}
+                    {{metacard.properties.modified}}
                 </span>
                 </div>
             </div>
-        {{/with}}
     {{/each}}
 </div>

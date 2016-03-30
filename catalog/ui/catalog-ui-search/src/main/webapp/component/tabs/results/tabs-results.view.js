@@ -84,7 +84,7 @@ define([
             this.render();
         },
         onRender: function(){
-            Common.setupPopOver(this.$el.find('> .tabs-list'));
+            //Common.setupPopOver(this.$el.find('> .tabs-list'));
             TabsView.prototype.onRender.call(this);
         }
     });

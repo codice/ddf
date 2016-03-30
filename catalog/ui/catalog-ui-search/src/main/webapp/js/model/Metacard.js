@@ -189,7 +189,6 @@ define([
 
             initialize: function () {
                 this.listenTo(wreqr.vent, 'metacard:selected', _.bind(this.onAppContext, this));
-                this.set('id', this.get('properties').id);
             },
 
             onAppContext: function (direction, model) {
@@ -266,6 +265,12 @@ define([
                 }
                 return resp;
             },
+            setQueryId: function(queryId){
+                this.set('queryId', queryId);
+            },
+            setColor: function(color){
+                this.set('color', color);
+            },
             getQueryId: function(){
                 return this.get('queryId');
             },
@@ -294,6 +299,8 @@ define([
                                 result.get('metacard').get('selectedForSave') === true;
                         });
                         _.forEach(update.results, function (result) {
+                            result.metacard.id = result.metacard.properties.id;
+                            result.id = result.metacard.id;
                             result.metacard.queryId = queryId;
                             result.metacard.color = color;
                             if (_.some(selectedForSave, function (saved) {

@@ -492,9 +492,12 @@ define([
 
             buildSearchData: function(){
                 var data = this.toJSON();
-                if(this.filters.length === 0){
+
+                //commenting out for now, but we'll need to reconsider when we add advanced search
+                // I remember there being a bug with this
+                //if(this.filters.length === 0){
                     this.clearFilters(); // init filters from search parameters.
-                }
+                //}
                 // this overrides the cql generation with the filters cql.
                 data.cql = this.filters.toCQL();
 
@@ -516,6 +519,8 @@ define([
                 var result;
                 if (this.get('result')) {
                     result = this.get('result');
+                    result.setColor(this.getColor());
+                    result.setQueryId(this.getId());
                 } else {
                     result = new Metacard.SearchResult({
                         queryId: this.getId(),

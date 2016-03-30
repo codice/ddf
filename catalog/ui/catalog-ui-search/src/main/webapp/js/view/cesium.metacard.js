@@ -18,9 +18,10 @@ define([
         'cesium',
         'direction',
         'wreqr',
-        'application'
+        'application',
+        'js/store'
     ],
-    function (Backbone, Marionette, _, Cesium, dir, wreqr, Application) {
+    function (Backbone, Marionette, _, Cesium, dir, wreqr, Application, store) {
         "use strict";
         var Views = {},
             pointScale = 0.02,
@@ -41,8 +42,12 @@ define([
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
-                this.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
+                this.listenTo(store.getSelectedResults(), 'add', this.updateSelection.bind(this));
+                this.listenTo(store.getSelectedResults(), 'remove', this.updateSelection.bind(this));
+                this.listenTo(store.getSelectedResults(), 'update', this.updateSelection.bind(this));
+                this.color = Cesium.Color.fromCssColorString(this.model.get('color')) || options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
                 this.buildBillboard();
+                this.updateSelection();
             },
 
             isThisPrimitive : function(event){
@@ -97,6 +102,23 @@ define([
                     }
 
                     if (this.model.get('context')) {
+                        this.billboard.scale = selectedPointScale;
+                        this.billboard.image = this.billboards[1];
+                    } else {
+                        this.billboard.scale = pointScale;
+                        this.billboard.image = this.billboards[0];
+                    }
+                }
+            },
+            updateSelection: function(){
+                if (this.billboard) {
+                    if (this.billboard.eyeOffset.z < 0) {
+                        this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
+                    } else {
+                        this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
+                    }
+
+                    if (store.getSelectedResults().get(this.model.id)!==undefined) {
                         this.billboard.scale = selectedPointScale;
                         this.billboard.image = this.billboards[1];
                     } else {

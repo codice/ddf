@@ -91,7 +91,7 @@
 }
 
 .is-button {
-  @shadowStrength: 5px;
+  @shadowStrength: 1px;
   cursor: pointer;
 
   &:hover {
@@ -103,6 +103,7 @@
     color: lighten(@primary-color, 20%);
     box-shadow: inset 0px @shadowStrength @shadowStrength -@shadowStrength lighten(@primary-color, 20%),
     inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@primary-color, 20%);
+    background: rgba(100,100,200,.3);
   }
 }
 

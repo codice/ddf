@@ -301,9 +301,7 @@ define(['application',
             },
 
             showResults: function (results) {
-                if (this.mapViews) {
-                    this.mapViews.destroy();
-                }
+                this.clearResults();
                 this.mapViews = new CesiumMetacard.ResultsView({
                     collection: results,
                     geoController: this

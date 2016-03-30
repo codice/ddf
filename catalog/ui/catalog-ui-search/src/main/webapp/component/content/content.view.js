@@ -25,9 +25,10 @@ define([
     'component/tabs/query/tabs-query.view',
     'maptype',
     'text!templates/map.handlebars',
-    'js/store'
+    'js/store',
+    'component/tabs/metacard/tabs-metacard.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, WorkspaceContentTabs,
-             WorkspaceContentTabsView, QueryTabsView, maptype, map, store) {
+             WorkspaceContentTabsView, QueryTabsView, maptype, map, store, MetacardTabsView) {
 
     var ContentView = Marionette.LayoutView.extend({
         template: contentTemplate,
@@ -113,6 +114,7 @@ define([
             }
             this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.updatePanelOne);
             this.listenTo(store.get('content'), 'change:query', this.updatePanelTwo);
+            this.listenTo(store.get('content'), 'update:selectedResults', this.updatePanelTwo);
         },
         onRender: function(){
             this.updatePanelOne();
@@ -129,18 +131,30 @@ define([
         },
         updatePanelTwo: function(){
             var queryRef = store.getQuery();
-            if (queryRef === undefined){
+            var selectedResults = store.getSelectedResults();
+            if (queryRef === undefined && selectedResults.length === 0){
                 this.hidePanelTwo();
-            } else {
-                this.updatePanelTwoTitle();
+            } else if (queryRef !== undefined) {
+                console.log('query selected');
+                this.updatePanelTwoQueryTitle();
                 this.showPanelTwo();
                 this.panelTwo.show(new QueryTabsView());
+            } else {
+                console.log('results selected');
+                this.updatePanelTwoSelectedResultsTitle();
+                this.showPanelTwo();
+                this.panelTwo.show(new MetacardTabsView());
             }
             wreqr.vent.trigger('resize');
         },
-        updatePanelTwoTitle: function(){
+        updatePanelTwoQueryTitle: function(){
             var queryRef = store.getQuery();
             var title = queryRef._cloneOf === undefined ? 'New Query' : queryRef.get('cql');
+            this.$el.find('.content-panelTwo-title').html(title);
+        },
+        updatePanelTwoSelectedResultsTitle: function(){
+            var queryRef = store.getQuery();
+            var title = 'Metacard';
             this.$el.find('.content-panelTwo-title').html(title);
         },
         hidePanelTwo: function(){

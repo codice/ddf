@@ -331,6 +331,11 @@ define([
         template: menubarTemplate,
         className: 'navbar',
         tagName: CustomElements.register('menu-bar'),
+        events: {
+            'click .navbar-brand': function(){
+                wreqr.vent.trigger('workspace:save');
+            }
+        },
         regions: {
             welcome: '#welcome',
             notification: '#notification',

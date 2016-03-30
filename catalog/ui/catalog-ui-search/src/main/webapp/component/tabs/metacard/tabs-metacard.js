@@ -13,23 +13,17 @@
 define([
     'underscore',
     '../tabs',
-    'js/store'
-], function (_, Tabs, store) {
+    'js/store',
+    'component/metacard-basic/metacard-basic.view'
+], function (_, Tabs, store, MetacardBasicView) {
 
-    var WorkspaceContentTabs = Tabs.extend({
+    var MetacardTabs = Tabs.extend({
         defaults: {
             tabs: {
-                'Basic': QueryOldBasicView,
-                'Advanced': QueryOldBasicView,
-                'Preview': QueryOldBasicView,
-                'Updates': QueryOldBasicView,
-                'Status': QueryOldBasicView
+                'Basic': MetacardBasicView
             }
-        },
-        getAssociatedQuery: function(){
-            return store.getQuery();
         }
     });
 
-    return WorkspaceContentTabs;
+    return MetacardTabs;
 });

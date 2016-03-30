@@ -33,9 +33,7 @@ define([
         },
         determineContent: function(){
             var activeTab = this.model.getActiveView();
-            this.tabsContent.show(new activeTab({
-                model: this.model.getAssociatedQuery()
-            }));
+            this.tabsContent.show(new activeTab());
         }
     });
 

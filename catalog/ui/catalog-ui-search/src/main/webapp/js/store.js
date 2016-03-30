@@ -109,6 +109,18 @@ define([
         },
         filterQuery: function(queryId){
             this.get('content').filterQuery(this.getQueryById(queryId));
+        },
+        getSelectedResults: function(){
+            return this.get('content').get('selectedResults');
+        },
+        clearSelectedResults: function(){
+            this.getSelectedResults().reset();
+        },
+        addSelectedResult: function(metacard){
+            this.getSelectedResults().add(metacard);
+        },
+        removeSelectedResult: function(metacard){
+            this.getSelectedResults().remove(metacard);
         }
     });
 

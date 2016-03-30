@@ -20,6 +20,7 @@
                 {{#if this.color}}
                     <span class="results-tabs-tab" style="background: {{this.color}}" title="{{this.tooltip}}">
                     </span>
+                    {{this.tooltip}}
                 {{else}}
                     {{@key}}
                 {{/if}}
@@ -31,7 +32,7 @@
             <div class="tabs-tab-container">
             {{#each tabs}}
                 {{#unless this.filter}}
-                <span class="results-tabs-tab tabs-title" data-id="{{@key}}" style="background: {{this.color}}" data-popover-title="{{this.tooltip}}">
+                <span class="results-tabs-tab tabs-title" data-id="{{@key}}" style="background: {{this.color}}" title="{{this.tooltip}}">
                     {{#unless this.color}}
                         {{@key}}
                     {{/unless}}

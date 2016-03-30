@@ -14,13 +14,15 @@ define([
     'underscore',
     '../tabs',
     'component/workspace-explore/workspace-explore.view',
-    'component/workspace-saved/workspace-saved.view'
-], function (_, Tabs, workspaceExploreView, workspaceSavedView) {
+    'component/workspace-saved/workspace-saved.view',
+    'component/tabs/results/tabs-results.view'
+], function (_, Tabs, workspaceExploreView, workspaceSavedView, resultTabsView) {
     
     var WorkspaceContentTabs = Tabs.extend({
         defaults: {
             tabs: {
-                'Explore': workspaceExploreView,
+                'Queries': workspaceExploreView,
+                'Results': resultTabsView,
                 'Saved Items': workspaceSavedView
             }
         }
