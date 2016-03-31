@@ -448,5 +448,10 @@
             <artifactId>catalog-core-validator</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-clavin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

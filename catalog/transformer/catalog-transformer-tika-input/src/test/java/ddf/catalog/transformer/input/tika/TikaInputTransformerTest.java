@@ -45,9 +45,8 @@ public class TikaInputTransformerTest {
     public void testRegisterService() {
         BundleContext mockBundleContext = mock(BundleContext.class);
         TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(mockBundleContext);
-        verify(mockBundleContext).registerService(eq(InputTransformer.class),
-                eq(tikaInputTransformer),
-                any(Hashtable.class));
+        verify(mockBundleContext).registerService(eq(InputTransformer.class), eq(
+                tikaInputTransformer), any(Hashtable.class));
     }
 
     @Test(expected = CatalogTransformerException.class)
@@ -64,7 +63,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("CatalogFrameworkImpl"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString("DEFAULT_RESOURCE_NOT_FOUND_MESSAGE"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), is("application/java-vm"));
     }
 
@@ -124,7 +123,7 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString("HelloWorld"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), containsString("text/plain"));
     }
 
@@ -136,7 +135,7 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString("Hello world example"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), containsString("text/plain"));
     }
 
@@ -148,7 +147,7 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString("this is a comment"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), containsString("text/plain"));
     }
 
@@ -160,8 +159,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"tiff:BitsPerSample\" content=\"8\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"tiff:BitsPerSample\" content=\"8\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/tiff"));
     }
 
@@ -173,8 +172,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/x-ms-bmp"));
     }
 
@@ -186,8 +185,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Compression CompressionTypeName\" content=\"lzw\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Compression CompressionTypeName\" content=\"lzw\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/gif"));
     }
 
@@ -208,8 +207,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Model\" content=\"Canon EOS 40D\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Model\" content=\"Canon EOS 40D\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
@@ -238,8 +237,8 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("Tosteberga \u00C4ngar"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Keywords\" content=\"bird watching\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Keywords\" content=\"bird watching\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
 
@@ -255,8 +254,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Compression Lossless\" content=\"true\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Compression Lossless\" content=\"true\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/png"));
     }
 
@@ -269,8 +268,8 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("Test Title"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"xmpDM:artist\" content=\"Test Artist\"/>"));
         assertThat(metacard.getContentTypeName(), is("audio/mpeg"));
     }
 
@@ -285,8 +284,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2012-01-28 18:39:18 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2012-01-28 18:40:25 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"xmpDM:artist\" content=\"Test Artist\"/>"));
         assertThat(metacard.getContentTypeName(), is("audio/mp4"));
     }
 
@@ -301,8 +300,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-15 09:02:31 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-09-15 09:02:31 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"xmpTPg:NPages\" content=\"1\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"xmpTPg:NPages\" content=\"1\"/>"));
         assertThat(metacard.getContentTypeName(), is("application/pdf"));
     }
 
@@ -316,7 +315,7 @@ public class TikaInputTransformerTest {
         assertThat(metacard.getTitle(), is("Test Document"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2000-12-01 00:00:00 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString("John Smith"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), is("application/xml"));
     }
 
@@ -331,10 +330,9 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2008-12-11 16:04:00 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2010-11-12 16:21:00 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("<p>This is a sample Microsoft Word Document.</p>"));
-        assertThat(metacard.getContentTypeName(),
-                is("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
+        assertThat(metacard.getContentTypeName(), is(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
     }
 
     @Test
@@ -348,7 +346,7 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 17:33:12 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-09-14 19:16:39 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(), containsString("Created with Microsoft"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.ms-powerpoint"));
     }
 
@@ -363,10 +361,9 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-05-04 06:43:54 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2010-06-29 06:34:35 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("content as every other file being tested for tika content parsing"));
-        assertThat(metacard.getContentTypeName(),
-                is("application/vnd.openxmlformats-officedocument.presentationml.presentation"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
+        assertThat(metacard.getContentTypeName(), is(
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
     }
 
     @Test
@@ -380,8 +377,7 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-10-01 16:31:43 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("Written and saved in Microsoft Excel X for Mac Service Release 1."));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.ms-excel"));
     }
 
@@ -396,10 +392,9 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2008-12-11 16:02:17 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("Sample Excel Worksheet - Numbers and their Squares"));
-        assertThat(metacard.getContentTypeName(),
-                is("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
+        assertThat(metacard.getContentTypeName(), is(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
     }
 
     @Test
@@ -422,8 +417,7 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
+        assertThat(metacard.getMetadata(), containsString("<body/>"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
 
         // Reset timezone back to local time zone.
