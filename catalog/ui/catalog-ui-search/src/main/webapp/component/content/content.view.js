@@ -32,6 +32,8 @@ define([
              WorkspaceContentTabsView, QueryTabsView, maptype, map, store, MetacardTabsView,
             MetacardsTabsView) {
 
+    var debounceTime = 25;
+
     var ContentView = Marionette.LayoutView.extend({
         template: contentTemplate,
         tagName: CustomElements.register('content'),
@@ -115,11 +117,11 @@ define([
                 this._mapView = new Map2d();
             }
             this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.updatePanelOne);
-            this.listenTo(store.get('content'), 'change:query', _.debounce(this.updatePanelTwo, 200));
-            this.listenTo(store.getSelectedResults(), 'update',_.debounce(this.updatePanelTwo, 200));
-            this.listenTo(store.getSelectedResults(), 'add', _.debounce(this.updatePanelTwo, 200));
-            this.listenTo(store.getSelectedResults(), 'remove', _.debounce(this.updatePanelTwo, 200));
-            this.listenTo(store.getSelectedResults(), 'reset', _.debounce(this.updatePanelTwo, 200));
+            this.listenTo(store.get('content'), 'change:query', _.debounce(this.updatePanelTwo, debounceTime));
+            this.listenTo(store.getSelectedResults(), 'update',_.debounce(this.updatePanelTwo, debounceTime));
+            this.listenTo(store.getSelectedResults(), 'add', _.debounce(this.updatePanelTwo, debounceTime));
+            this.listenTo(store.getSelectedResults(), 'remove', _.debounce(this.updatePanelTwo, debounceTime));
+            this.listenTo(store.getSelectedResults(), 'reset', _.debounce(this.updatePanelTwo, debounceTime));
         },
         onRender: function(){
             this.updatePanelOne();
