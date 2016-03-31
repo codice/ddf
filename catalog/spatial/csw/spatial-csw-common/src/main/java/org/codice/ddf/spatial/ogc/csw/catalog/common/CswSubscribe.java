@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -154,4 +155,11 @@ public interface CswSubscribe {
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     Response deleteEvent(GetRecordsResponseType recordsResponse) throws CswException;
+
+    /**
+     * Consume a ping event
+     */
+    @HEAD
+    @Path("/event")
+    Response ping();
 }

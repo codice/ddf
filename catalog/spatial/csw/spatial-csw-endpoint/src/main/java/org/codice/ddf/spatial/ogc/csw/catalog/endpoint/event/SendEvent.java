@@ -13,43 +13,47 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.security.common.OutgoingSubjectRetrievalInterceptor;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.BinaryContent;
+import com.google.common.collect.ImmutableList;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.event.DeliveryMethod;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.catalog.plugin.AccessPlugin;
+import ddf.catalog.plugin.StopProcessingException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -68,7 +72,7 @@ public class SendEvent implements DeliveryMethod {
 
     private final TransformerManager transformerManager;
 
-    private final URI callbackUrl;
+    private final URL callbackUrl;
 
     private final String outputSchema;
 
@@ -84,20 +88,28 @@ public class SendEvent implements DeliveryMethod {
 
     private final QueryRequest query;
 
-    WebClient webClient;
+    private volatile Subject subject;
+
+    SecureCxfClientFactory<CswSubscribe> cxfClientFactory;
 
     public SendEvent(TransformerManager transformerManager, GetRecordsType request,
             QueryRequest query) throws CswException {
 
-        URI deliveryMethodUrl;
+        URL deliveryMethodUrl;
         if (request.getResponseHandler() != null && !request.getResponseHandler()
                 .isEmpty()) {
 
             try {
-                deliveryMethodUrl = new URI(request.getResponseHandler()
+                deliveryMethodUrl = new URL(request.getResponseHandler()
                         .get(0));
-            } catch (URISyntaxException e) {
+
+            } catch (MalformedURLException e) {
                 throw new CswException("Invalid ResponseHandler URL", e);
+            }
+            if (!"https".equals(deliveryMethodUrl.getProtocol())) {
+                throw new CswException(
+                        "Invalid protocol for response handler expected https but was "
+                                + deliveryMethodUrl.getProtocol());
             }
         } else {
             String msg = "Subscriptions require a ResponseHandler URL to be specified";
@@ -119,10 +131,16 @@ public class SendEvent implements DeliveryMethod {
                 null;
         this.resultType =
                 request.getResultType() == null ? ResultType.HITS : request.getResultType();
-        SecureCxfClientFactory<CswSubscribe> cxfClientFactory = new SecureCxfClientFactory<>(
-                callbackUrl.toString(),
-                CswSubscribe.class);
-        webClient = cxfClientFactory.getWebClient();
+
+        List providers = ImmutableList.builder().add(new CswRecordCollectionMessageBodyWriter(transformerManager)).build();
+
+        cxfClientFactory = new SecureCxfClientFactory<>(callbackUrl.toString(),
+                CswSubscribe.class,
+                providers,
+                null,
+                false,
+                false);
+        cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor());
     }
 
     private Response sendEvent(String operation, Metacard... metacards) {
@@ -132,50 +150,52 @@ public class SendEvent implements DeliveryMethod {
                     .map(ResultImpl::new)
                     .collect(Collectors.toList());
 
-            SourceResponse queryResponse = new QueryResponseImpl(query,
+            QueryResponse queryResponse = new QueryResponseImpl(query,
                     results,
                     true,
                     metacards.length);
+            CswRecordCollection recordCollection = new CswRecordCollection();
 
-            LOGGER.debug("Attempting to transform an Event with mime-type: {} & outputSchema: {}",
-                    mimeType,
-                    outputSchema);
+            recordCollection.setElementName(elementName);
+            recordCollection.setElementSetType(elementSetType);
+            recordCollection.setById(false);
+            recordCollection.setRequest(request);
+            recordCollection.setResultType(resultType);
+            recordCollection.setDoWriteNamespaces(false);
+            recordCollection.setMimeType(mimeType);
+            recordCollection.setOutputSchema(outputSchema);
 
-            QueryResponseTransformer transformer;
-            Map<String, Serializable> arguments = new HashMap<>();
-            if (StringUtils.isBlank(outputSchema) && StringUtils.isNotBlank(mimeType)
-                    && !XML_MIME_TYPES.contains(mimeType)) {
-                transformer = transformerManager.getTransformerByMimeType(mimeType);
-            } else {
-                transformer =
-                        transformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
-                if (elementName != null) {
-                    arguments.put(CswConstants.ELEMENT_NAMES, elementName.toArray());
-                }
-                arguments.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, outputSchema);
-                arguments.put(CswConstants.ELEMENT_SET_TYPE, elementSetType);
-                arguments.put(CswConstants.IS_BY_ID_QUERY, false);
-                arguments.put(CswConstants.GET_RECORDS, request);
-                arguments.put(CswConstants.RESULT_TYPE_PARAMETER, resultType);
-                arguments.put(CswConstants.WRITE_NAMESPACES, false);
+            if (subject == null && !ping()) {
+                return null;
             }
-            if (transformer == null) {
-                throw new WebApplicationException(new CatalogTransformerException(
-                        "Unable to locate Transformer."));
+            queryResponse.getRequest()
+                    .getProperties()
+                    .put(SecurityConstants.SECURITY_SUBJECT, subject);
+
+            for (AccessPlugin plugin : getAccessPlugins()) {
+
+                queryResponse = plugin.processPostQuery(queryResponse);
             }
 
-            BinaryContent binaryContent = transformer.transform(queryResponse, arguments);
-
-            if (binaryContent == null) {
-                throw new WebApplicationException(new CatalogTransformerException(
-                        "Transformer returned null."));
+            if (queryResponse.getResults()
+                    .isEmpty()) {
+                return null;
             }
+            recordCollection.setSourceResponse(queryResponse);
 
-            return webClient.invoke(operation, binaryContent.getByteArray());
-        } catch (IOException | CatalogTransformerException | RuntimeException e) {
-            LOGGER.error("Error sending event to {}.", callbackUrl, e);
+            return send(operation, recordCollection);
+        } catch (StopProcessingException | InvalidSyntaxException e) {
+            LOGGER.debug("Unable to send event error running AccessPlugin processPostQuery. ", e);
         }
         return null;
+    }
+
+    private Response send(String operation, CswRecordCollection recordCollection) {
+        WebClient webClient = cxfClientFactory.getWebClient();
+        Response response = webClient.invoke(operation, recordCollection);
+        subject = (Subject) response.getHeaders()
+                .getFirst(Subject.class.toString());
+        return response;
     }
 
     @Override
@@ -202,6 +222,22 @@ public class SendEvent implements DeliveryMethod {
         LOGGER.debug("Deleted {}", oldMetacard);
         sendEvent(HttpMethod.DELETE, oldMetacard);
 
+    }
+
+    public boolean ping() {
+        send(HttpMethod.HEAD, null);
+        return subject != null;
+    }
+
+    List<AccessPlugin> getAccessPlugins() throws InvalidSyntaxException {
+        BundleContext bundleContext =
+                FrameworkUtil.getBundle(OutgoingSubjectRetrievalInterceptor.class)
+                        .getBundleContext();
+        Collection<ServiceReference<AccessPlugin>> serviceCollection =
+                bundleContext.getServiceReferences(AccessPlugin.class, null);
+        return serviceCollection.stream()
+                .map(bundleContext::getService)
+                .collect(Collectors.toList());
     }
 
 }

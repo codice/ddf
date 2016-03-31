@@ -18,6 +18,12 @@
            xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <cm:property-placeholder id="eventpoll.placeholder" persistent-id="Csw_Subscription_Endpoint" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="pollInterval" value="180"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
         <argument value="csw"/>
@@ -209,5 +215,12 @@
     </cm:managed-service-factory>
 
     <service ref="CswSubscriptionSvc" interface="ddf.catalog.event.Subscriber"/>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="responseHandlerPoller">
+        <route>
+            <from uri="timer://responseHandlerPoller?delay=3m%26period={{pollInterval}}m" />
+            <to uri="bean:CswSubscriptionSvc?method=pingSubscriptionResponseHandlers" />
+        </route>
+    </camelContext>
 
 </blueprint>

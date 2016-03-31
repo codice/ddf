@@ -71,7 +71,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
-     * <p/>
+     * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      *
      * @param endpointUrl    the remote url to connect to
@@ -117,7 +117,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
-     * <p/>
+     * <p>
      * This factory can and should be cached. The clients it constructs should not be.
      *
      * @param endpointUrl       the remote url to connect to
@@ -143,9 +143,9 @@ public class SecureCxfClientFactory<T> {
     /**
      * Constructs a factory that will return security-aware cxf clients. Once constructed,
      * use the getClient* methods to retrieve a fresh client  with the same configuration.
-     * <p/>
+     * <p>
      * This factory can and should be cached. The clients it constructs should not be.
-     * <p/>
+     * <p>
      * This constructor represents a quick fix only.
      *
      * @param endpointUrl       the remote url to connect to
@@ -189,7 +189,7 @@ public class SecureCxfClientFactory<T> {
     /**
      * Clients produced by this method will be secured with two-way ssl
      * and the provided security subject.
-     * <p/>
+     * <p>
      * The returned client should NOT be reused between requests!
      * This method should be called for each new request in order to ensure
      * that the security token is up-to-date each time.
@@ -311,4 +311,8 @@ public class SecureCxfClientFactory<T> {
         httpConduit.setClient(httpClientPolicy);
     }
 
+    public void addOutInterceptors(Interceptor<? extends Message> inteceptor) {
+        this.clientFactory.getOutInterceptors()
+                .add(inteceptor);
+    }
 }
