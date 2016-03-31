@@ -426,7 +426,7 @@
                         <execution>
                             <id>attach-javadocs</id>
                             <goals>
-                                <goal>jar</goal>
+                                <goal>aggregate</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -434,9 +434,8 @@
                         <bottom>
                             <![CDATA[This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License<a>.]]></bottom>
                         <failOnError>false</failOnError>
-                        <aggregate>true</aggregate>
                         <show>protected</show>
-                        <skip>true</skip>
+                        <skip>false</skip>
                         <additionalparam>
                             -Xdoclint:none
                         </additionalparam>
