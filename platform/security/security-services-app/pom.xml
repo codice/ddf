@@ -159,13 +159,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.pep</groupId>
-            <artifactId>security-pep-userattr-map</artifactId>
+            <groupId>ddf.security.expansion</groupId>
+            <artifactId>security-expansion-userattr-map</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.pep</groupId>
-            <artifactId>security-pep-metacardattr-map</artifactId>
+            <groupId>ddf.security.expansion</groupId>
+            <artifactId>security-expansion-metacardattr-map</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

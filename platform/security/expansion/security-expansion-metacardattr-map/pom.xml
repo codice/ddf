@@ -14,24 +14,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>security-pep-pom</artifactId>
-        <groupId>ddf.security.pep</groupId>
+        <artifactId>security-expansion-pom</artifactId>
+        <groupId>ddf.security.expansion</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>security-pep-metacardattr-map</artifactId>
-    <name>DDF :: Security :: PEP :: Metacard Attributes Map</name>
+    <artifactId>security-expansion-metacardattr-map</artifactId>
+    <name>DDF :: Security :: Expansion :: Metacard Attributes Map</name>
     <packaging>bundle</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>ddf.security.expansion</groupId>
-            <artifactId>security-expansion-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.expansion</groupId>
-            <artifactId>security-expansion-impl</artifactId>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
             <plugin>
