@@ -491,7 +491,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
 
         } catch (RuntimeException re) {
-            LOGGER.warn("Exception during runtime while performing getSourceInfo", re);
+            LOGGER.warn(
+                    "Exception during runtime while performing getSourceInfo: {}",
+                    re.getMessage());
+            LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
             throw new SourceUnavailableException(
                     "Exception during runtime while performing getSourceInfo");
 

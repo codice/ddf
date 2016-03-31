@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -416,9 +418,15 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         try {
             capabilities = wfs.getCapabilities(new GetCapabilitiesRequest());
         } catch (WfsException wfse) {
-            LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
+            LOGGER.warn(WFS_ERROR_MESSAGE
+                            + " Received HTTP code '{}' from server for source with id='{}'",
+                    wfse.getHttpStatus(),
+                    getId());
+            LOGGER.debug(WFS_ERROR_MESSAGE, wfse);
         } catch (WebApplicationException wae) {
             handleWebApplicationException(wae);
+        } catch (Exception e) {
+            handleClientException(e);
         }
         return capabilities;
     }
@@ -1222,12 +1230,26 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String handleClientException(Exception ce) {
         String msg = "";
-        if (ce.getCause() instanceof WebApplicationException) {
-            msg = handleWebApplicationException((WebApplicationException) ce.getCause());
+        Throwable cause = ce.getCause();
+        String sourceId = getId();
+        if (cause instanceof WebApplicationException) {
+            msg = handleWebApplicationException((WebApplicationException) cause);
+        } else if (cause instanceof IllegalArgumentException) {
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'. The URI '"
+                    + getWfsUrl()
+                    + "' does not specify a valid protocol or could not be correctly parsed. "
+                    + ce.getMessage();
+        } else if (cause instanceof SSLHandshakeException) {
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' with URL '"
+                    + getWfsUrl() + "': " + ce.getMessage();
+        } else if (cause instanceof ConnectException) {
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "' may not be running.\n" +
+                    ce.getMessage();
         } else {
-            msg = "Error received from WFS Server " + getId();
+            msg = WFS_ERROR_MESSAGE + " Source '" + sourceId + "'\n" + ce;
         }
         LOGGER.warn(msg);
+        LOGGER.debug(msg, ce);
         return msg;
     }
 

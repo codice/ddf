@@ -389,7 +389,8 @@ public class RESTEndpoint implements RESTService {
                 resultsList.add(sourceObj);
             }
         } catch (SourceUnavailableException e) {
-            LOGGER.warn("Unable to retrieve Sources", e);
+            LOGGER.warn("Unable to retrieve Sources. {}", e.getMessage());
+            LOGGER.debug("Unable to retrieve Sources", e);
         }
 
         sourcesString = JSONValue.toJSONString(resultsList);
