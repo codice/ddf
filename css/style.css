@@ -49,3 +49,7 @@ body {
     margin-right: 10px;
     margin-left: 10px;
 }
+
+.spacer {
+    min-height: 40px;
+}
