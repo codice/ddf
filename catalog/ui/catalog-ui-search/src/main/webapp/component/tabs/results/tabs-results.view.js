@@ -59,6 +59,7 @@ define([
             store.getCurrentQueries().forEach(this.addTab.bind(this));
         },
         addTab: function(query){
+            var self = this;
             this.model.addTab(query.getId(), {
                 tooltip: Common.cqlToHumanReadable(query.get('cql')),
                 color: query.getColor(),
@@ -70,6 +71,10 @@ define([
                 }
             });
             this.render();
+            this.listenTo(query, 'all', function(){
+                self.model.get('tabs')[query.getId()].tooltip = Common.cqlToHumanReadable(query.get('cql'));
+                self.render();
+            });
         },
         removeTab: function(query){
             console.log(query);

@@ -534,6 +534,7 @@ define([
             });
         },
         save: function(){
+            this.model.setCql();
             store.saveQuery();
         },
         readOnly: function(){

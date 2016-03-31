@@ -406,7 +406,9 @@ define([
 
                 return cql;
             },
-
+            setCql: function(){
+                this.set('cql', this.getCql());
+            },
             logicalCql: function (filters, operator) {
                 var cql = '';
                 if (filters.length === 1) {
