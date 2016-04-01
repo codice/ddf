@@ -32,7 +32,7 @@ public class CreateStorageRequestImpl extends OperationImpl implements CreateSto
     private String id;
 
     public CreateStorageRequestImpl(Map<String, Serializable> properties) {
-        this(new ArrayList<>(), null, properties);
+        this(null, null, properties);
     }
 
     public CreateStorageRequestImpl(List<ContentItem> contentItems, Map<String, Serializable> properties) {
@@ -61,7 +61,4 @@ public class CreateStorageRequestImpl extends OperationImpl implements CreateSto
         return id;
     }
 
-    public void setContentItems(List<ContentItem> contentItems) {
-        this.contentItems = contentItems;
-    }
 }

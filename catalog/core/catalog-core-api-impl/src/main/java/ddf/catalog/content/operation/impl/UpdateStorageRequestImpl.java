@@ -32,7 +32,7 @@ public class UpdateStorageRequestImpl extends OperationImpl implements UpdateSto
     private String id;
 
     public UpdateStorageRequestImpl(Map<String, Serializable> properties) {
-        this(new ArrayList<>(), null, properties);
+        this(null, null, properties);
     }
 
     public UpdateStorageRequestImpl(List<ContentItem> contentItems, Map<String, Serializable> properties) {
@@ -61,7 +61,4 @@ public class UpdateStorageRequestImpl extends OperationImpl implements UpdateSto
         return id;
     }
 
-    public void setContentItems(List<ContentItem> contentItems) {
-        this.contentItems = contentItems;
-    }
 }

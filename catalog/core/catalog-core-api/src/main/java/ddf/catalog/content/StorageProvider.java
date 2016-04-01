@@ -19,6 +19,7 @@ import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.DeleteStorageResponse;
 import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 
@@ -90,7 +91,7 @@ public interface StorageProvider {
      * @param id the id associated with the request
      * @throws StorageException
      */
-    void commit(String id) throws StorageException;
+    void commit(StorageRequest id) throws StorageException;
 
     /**
      * Dispose will be called by the {@link ddf.catalog.CatalogFramework} to discard changes related to create, update, and delete requests
@@ -98,5 +99,5 @@ public interface StorageProvider {
      * @param id the id associated with the request
      * @throws StorageException
      */
-    void rollback(String id) throws StorageException;
+    void rollback(StorageRequest id) throws StorageException;
 }

@@ -18,9 +18,9 @@
 
     <ext:property-placeholder/>
 
-    <bean id="fileStoreService" class="org.codice.ddf.catalog.content.impl.StorageProviderImpl">
+    <bean id="fileStoreService" class="org.codice.ddf.catalog.content.impl.FileSystemStorageProvider">
         <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.content.impl.StorageProviderImpl"
+                persistent-id="org.codice.ddf.catalog.content.impl.FileSystemStorageProvider"
                 update-strategy="container-managed"/>
         <property name="baseContentDirectory" value="${ddf.home}/data"/>
         <property name="mimeTypeMapper" ref="mimeTypeMapper"/>

@@ -55,18 +55,9 @@ public interface ContentItem {
     String getUri();
 
     /**
-     * Sets the URI of the content item.
-     *
-     * This is used by the {@link ddf.catalog.content.StorageProvider} when the content item is stored in the content
-     * repository and will be of the form <code>content:&lt;GUID&gt;</code>.
-     *
-     * Or this is used by the endpoint when the client specifies the content item's location which
-     * means the content is stored remote/external to DDF.
-     *
-     * @param uri the URI for the content item
+     * Returns the filename of the content item
+     * @return filename
      */
-    void setUri(String uri);
-
     String getFilename(); // DDF-1856
 
     /**

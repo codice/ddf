@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteSource;
 
+import ddf.catalog.content.StorageException;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
@@ -66,7 +67,7 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
 
-public class StorageProviderImplTest {
+public class FileSystemStorageProviderTest {
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -81,9 +82,9 @@ public class StorageProviderImplTest {
 
     private static final String TEST_INPUT_FILENAME = "myfile.nitf";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StorageProviderImplTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemStorageProviderTest.class);
 
-    private StorageProviderImpl provider;
+    private FileSystemStorageProvider provider;
 
     @Before
     public void setUp() throws IOException {
@@ -91,11 +92,11 @@ public class StorageProviderImplTest {
         baseDir = tempFolder.getRoot()
                 .getAbsolutePath();
 
-        baseTmpDir = baseDir + File.separator + StorageProviderImpl.DEFAULT_TMP;
+        baseTmpDir = baseDir + File.separator + FileSystemStorageProvider.DEFAULT_TMP;
         MimeTypeResolver resolver = new MockMimeTypeResolver();
         MimeTypeMapper mapper = new MimeTypeMapperImpl(Collections.singletonList(resolver));
 
-        this.provider = new StorageProviderImpl();
+        this.provider = new FileSystemStorageProvider();
         try {
             provider.setBaseContentDirectory(baseDir);
         } catch (IOException e) {
@@ -150,8 +151,8 @@ public class StorageProviderImplTest {
 
         String[] parts = provider.getContentFilePathParts(new URI(uri).getSchemeSpecificPart());
         String expectedFilePath =
-                baseDir + File.separator + StorageProviderImpl.DEFAULT_CONTENT_REPOSITORY
-                        + File.separator + StorageProviderImpl.DEFAULT_CONTENT_STORE
+                baseDir + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_REPOSITORY
+                        + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_STORE
                         + File.separator + parts[0] + File.separator + parts[1] + File.separator
                         + parts[2] + File.separator + item.getFile()
                         .getName();
@@ -189,9 +190,9 @@ public class StorageProviderImplTest {
         assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
 
         String expectedFilePath =
-                baseDir + File.separator + StorageProviderImpl.DEFAULT_CONTENT_REPOSITORY
-                        + File.separator + StorageProviderImpl.DEFAULT_CONTENT_STORE
-                        + File.separator + StorageProviderImpl.DEFAULT_TMP + File.separator
+                baseDir + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_REPOSITORY
+                        + File.separator + FileSystemStorageProvider.DEFAULT_CONTENT_STORE
+                        + File.separator + FileSystemStorageProvider.DEFAULT_TMP + File.separator
                         + updateRequest.getId() + File.separator + id + File.separator
                         + item.getFile()
                         .getName();
@@ -221,12 +222,38 @@ public class StorageProviderImplTest {
                         .collect(Collectors.toList()), null);
 
         DeleteStorageResponse deleteResponse = provider.delete(deleteRequest);
+        provider.commit(deleteRequest);
         List<ContentItem> items = deleteResponse.getDeletedContentItems();
         ContentItem item = items.get(0);
 
         LOGGER.debug("Item retrieved: {}", item);
         assertEquals(id, item.getId());
         assertThat(item.getFilename(), is(""));
+    }
+
+    @Test(expected = StorageException.class)
+    public void testRollback() throws Exception {
+        String id = UUID.randomUUID()
+                .toString()
+                .replaceAll("-", "");
+        ByteSource byteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return IOUtils.toInputStream(TEST_INPUT_CONTENTS);
+            }
+        };
+        Metacard metacard = mock(Metacard.class);
+        when(metacard.getId()).thenReturn(id);
+        ContentItem contentItem = new ContentItemImpl(id, byteSource, NITF_MIME_TYPE, TEST_INPUT_FILENAME,
+                TEST_INPUT_CONTENTS.getBytes().length, metacard);
+        CreateStorageRequest createRequest = new CreateStorageRequestImpl(
+                Collections.singletonList(contentItem), null);
+
+        CreateStorageResponse createStorageResponse = provider.create(createRequest);
+        provider.rollback(createRequest);
+
+        ReadStorageRequest readStorageRequest = new ReadStorageRequestImpl(new URI("content:" + id), null);
+        ReadStorageResponse read = provider.read(readStorageRequest);
     }
 
     /**
@@ -261,7 +288,7 @@ public class StorageProviderImplTest {
         String contentUri = createdContentItem.getUri();
         LOGGER.debug("contentUri = {}", contentUri);
         assertNotNull(contentUri);
-        String expectedContentUri = StorageProviderImpl.CONTENT_URI_PREFIX + uuid;
+        String expectedContentUri = FileSystemStorageProvider.CONTENT_URI_PREFIX + uuid;
         assertThat(contentUri, equalTo(expectedContentUri));
 
         File file = createdContentItem.getFile();
@@ -300,7 +327,7 @@ public class StorageProviderImplTest {
                 Collections.singletonList(contentItem), null);
 
         CreateStorageResponse createStorageResponse = provider.create(createRequest);
-        provider.commit(createRequest.getId());
+        provider.commit(createRequest);
         return createStorageResponse;
     }
 

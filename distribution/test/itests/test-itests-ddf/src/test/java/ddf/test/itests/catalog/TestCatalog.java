@@ -61,6 +61,7 @@ import org.apache.commons.io.IOUtils;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.hamcrest.Matchers;
 import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -94,6 +95,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     private static final String METACARD_X_PATH = "/metacards/metacard[@id='%s']";
 
     private static final String SAMPLE_DATA = "sample data";
+
+    private static final String SAMPLE_IMAGE = "/9466484_b06f26d579_o.jpg";
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
@@ -165,6 +168,51 @@ public class TestCatalog extends AbstractIntegrationTest {
     public void tearDown() throws IOException {
         urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
                 DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS});
+    }
+
+    @Test
+    public void testCreateStorage() throws IOException {
+        String fileName = testName.getMethodName() + ".jpg";
+        File tmpFile = createTemporaryFile(fileName,
+                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .all()
+                .statusCode(201)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testReadStorage() throws IOException {
+        String fileName = testName.getMethodName() + ".jpg";
+        File tmpFile = createTemporaryFile(fileName,
+                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .all()
+                .statusCode(201)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        final String url = CSW_PATH.getUrl() + Library.getGetRecordByIdProductRetrievalUrl()
+                .replace("placeholder_id", id);
+
+        given().get(url)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
+
+        deleteMetacard(id);
     }
 
     @Test
@@ -261,8 +309,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         Response response = ingestCswRecord();
         ValidatableResponse validatableResponse = response.then();
 
-        validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted",
-                is("1")),
+        validatableResponse.body(
+                hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
@@ -402,8 +450,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .body(requestXml)
                 .post(CSW_PATH.getUrl())
                 .then();
-        validatableResponse.body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted",
-                is("0")),
+        validatableResponse.body(
+                hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
                 hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("1")));
 
@@ -706,8 +754,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         String productDirectory = new File(fileName).getAbsoluteFile()
                 .getParent();
-        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(new String[] {
-                DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
+        urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
+                new String[] {DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory});
 
         given().get(url)
                 .then()
@@ -955,8 +1003,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .deleteOnExit();
         Files.copy(this.getClass()
                         .getClassLoader()
-                        .getResourceAsStream("metacard5.xml"),
-                tmpFile,
+                        .getResourceAsStream("metacard5.xml"), tmpFile,
                 StandardCopyOption.REPLACE_EXISTING);
 
         Map<String, Object> cdmProperties = new HashMap<>();
@@ -1157,13 +1204,12 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id2)));
+            response.body(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id2)));
 
             // Search for all entries that are invalid
-            query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
-                    VALIDATION_WARNINGS,
+            query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, VALIDATION_WARNINGS,
                     "*")
                     .getQuery();
 
@@ -1188,9 +1234,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results AND not Metacard1
-            response.body(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id2)));
+            response.body(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id2)));
             response.body(not(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
@@ -1267,8 +1313,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
             // Configure invalid filtering
             config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
-                    null);
+                    "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin", null);
             properties = new Hashtable<>();
             property = new ArrayList<>();
             property.add("invalid-state=system-admin,guest");
@@ -1283,9 +1328,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard2 is in results AND Metacard1
-            response.body(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id1)));
+            response.body(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id1)));
             response.body(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
@@ -1376,9 +1421,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id2))));
+            response.body(not(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id2))));
 
             //Search for all entries that have validation-warnings from sample-validator or no validation warnings
             //Only search that will actually return all entries
@@ -1398,9 +1443,9 @@ public class TestCatalog extends AbstractIntegrationTest {
             response.body(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id2))));
+            response.body(not(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id2))));
 
             // Search for all metacards that have validation-warnings
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
@@ -1413,12 +1458,12 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .post(CSW_PATH.getUrl())
                     .then();
             // Assert Metacard1 and metacard2 are NOT in results
-            response.body(not(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id1))));
-            response.body(not(hasXPath(String.format(
-                    "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
-                    id2))));
+            response.body(not(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id1))));
+            response.body(not(hasXPath(
+                    String.format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
+                            id2))));
 
             deleteMetacard(id1);
             deleteMetacard(id2);
@@ -1545,6 +1590,15 @@ public class TestCatalog extends AbstractIntegrationTest {
         LOGGER.debug("File Location: {}", fileLocation);
         String metacardId = ingest(Library.getSimpleXml(fileLocation), "text/xml");
         return metacardId;
+    }
+
+    private File createTemporaryFile(String fileName, InputStream data) throws IOException {
+        File file = new File(fileName);
+        if (!file.createNewFile()) {
+            fail("Unable to create " + fileName + " file.");
+        }
+        FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(data));
+        return file;
     }
 
     public class PdpProperties extends HashMap<String, Object> {

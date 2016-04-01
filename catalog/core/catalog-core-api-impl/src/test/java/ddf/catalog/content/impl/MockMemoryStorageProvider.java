@@ -14,6 +14,7 @@
 package ddf.catalog.content.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ import ddf.catalog.content.operation.DeleteStorageRequest;
 import ddf.catalog.content.operation.DeleteStorageResponse;
 import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageResponseImpl;
@@ -38,11 +40,13 @@ public class MockMemoryStorageProvider implements StorageProvider {
 
     Map<String, ContentItem> itemMap = new HashMap<>();
 
+    Map<String, ContentItem> tempItemMap = new HashMap<>();
+
     @Override
     public CreateStorageResponse create(CreateStorageRequest createStorageRequest)
             throws StorageException {
         for (ContentItem contentItem : createStorageRequest.getContentItems()) {
-            itemMap.put(contentItem.getId(), contentItem);
+            tempItemMap.put(contentItem.getId(), contentItem);
         }
         return new CreateStorageResponseImpl(createStorageRequest,
                 createStorageRequest.getContentItems());
@@ -58,7 +62,7 @@ public class MockMemoryStorageProvider implements StorageProvider {
     public UpdateStorageResponse update(UpdateStorageRequest updateStorageRequest)
             throws StorageException {
         for (ContentItem contentItem : updateStorageRequest.getContentItems()) {
-            itemMap.put(contentItem.getId(), contentItem);
+            tempItemMap.put(contentItem.getId(), contentItem);
         }
         return new UpdateStorageResponseImpl(updateStorageRequest,
                 updateStorageRequest.getContentItems());
@@ -69,19 +73,20 @@ public class MockMemoryStorageProvider implements StorageProvider {
             throws StorageException {
         List<ContentItem> contentItems = deleteRequest.getMetacards()
                 .stream()
-                .map(metacard -> itemMap.remove(metacard.getId()))
+                .map(metacard -> tempItemMap.remove(metacard.getId()))
                 .collect(Collectors.toList());
         return new DeleteStorageResponseImpl(deleteRequest, contentItems);
     }
 
     @Override
-    public void commit(String id) throws StorageException {
-
+    public void commit(StorageRequest request) throws StorageException {
+        itemMap.putAll(tempItemMap);
+        new HashSet<>(tempItemMap.keySet()).forEach(tempItemMap::remove);
     }
 
     @Override
-    public void rollback(String id) throws StorageException {
-
+    public void rollback(StorageRequest request) throws StorageException {
+        new HashSet<>(tempItemMap.keySet()).forEach(tempItemMap::remove);
     }
 
     public int size() {

@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Content File System Storage Provider"
-         id="org.codice.ddf.catalog.content.impl.StorageProviderImpl">
+         id="org.codice.ddf.catalog.content.impl.FileSystemStorageProvider">
         <AD
                 description="Specifies the directory to use for the content repository. A shutdown of the server is necessary for this property to take effect. If a filepath is provided with directories that don't exist, File System Provider will attempt to create them. Out of the box (without configuration), the content repository is <INSTALL_DIR>/content/store."
                 name="Content Repository File Path" id="baseContentDirectory" required="true"
@@ -24,9 +24,9 @@
                    
     </OCD>
 
-    <Designate pid="org.codice.ddf.catalog.content.impl.StorageProviderImpl">
+    <Designate pid="org.codice.ddf.catalog.content.impl.FileSystemStorageProvider">
 
-        <Object ocdref="org.codice.ddf.catalog.content.impl.StorageProviderImpl"/>
+        <Object ocdref="org.codice.ddf.catalog.content.impl.FileSystemStorageProvider"/>
     </Designate>
 
 </metatype:MetaData>

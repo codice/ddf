@@ -13,23 +13,20 @@
  **/
 package ddf.catalog.content.operation;
 
-import java.util.List;
-
-import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.operation.Request;
+import ddf.catalog.operation.Response;
 
 /**
- * Response associated with creating content associated with a Metacard
- * <p>
+ * Base response interface for storage operations.
+ *
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
- * </p>
  */
-public interface CreateStorageResponse extends StorageResponse<CreateStorageRequest> {
-
+public interface StorageResponse<T extends Request> extends Response<T> {
     /**
-     * Returns the {@link List} of {@link ContentItem}s that have been created.
+     * Returns the ID associated with the request that resulted in this response
      *
-     * @return {@link List} of {@link ContentItem}s
+     * @return request ID
      */
-    List<ContentItem> getCreatedContentItems();
+    StorageRequest getStorageRequest();
 }

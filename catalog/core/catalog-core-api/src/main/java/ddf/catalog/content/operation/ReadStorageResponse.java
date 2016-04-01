@@ -14,7 +14,6 @@
 package ddf.catalog.content.operation;
 
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.operation.Response;
 
 /**
  * Response that contains the {@link ContentItem} that was specified in the request {@link java.net.URI}
@@ -23,7 +22,7 @@ import ddf.catalog.operation.Response;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface ReadStorageResponse extends Response<ReadStorageRequest> {
+public interface ReadStorageResponse extends StorageResponse<ReadStorageRequest> {
 
     /**
      * Returns a {@link ContentItem} representing a file associated with a Metacard
@@ -31,11 +30,4 @@ public interface ReadStorageResponse extends Response<ReadStorageRequest> {
      * @return {@link ContentItem}
      */
     ContentItem getContentItem();
-
-    /**
-     * Returns the ID associated with the request that resulted in this response
-     *
-     * @return request ID
-     */
-    String getId();
 }

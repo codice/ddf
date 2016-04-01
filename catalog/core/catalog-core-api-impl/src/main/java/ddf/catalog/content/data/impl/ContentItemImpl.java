@@ -32,30 +32,32 @@ public class ContentItemImpl implements ContentItem {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentItemImpl.class);
 
-    protected String id;
+    private String id;
 
-    protected String uri;
+    private String uri;
 
-    protected String filename;
+    private String filename;
 
-    protected String mimeTypeRawData;
+    private String mimeTypeRawData;
 
-    protected MimeType mimeType;
+    private MimeType mimeType;
 
-    protected ByteSource byteSource;
+    private ByteSource byteSource;
 
-    protected File file;
+    private File file;
 
-    protected long size;
+    private long size;
 
-    protected Metacard metacard;
+    private Metacard metacard;
 
     /**
-     * An incoming content item since the ID will initially be
+     * An incoming content item whose ID will initially be
      * <code>null</code> because the {@link ddf.catalog.CatalogFramework} will assign its GUID.
      *
-     * @param byteSource          the {@link ContentItem}'s input stream containing its actual data
+     * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
      * @param mimeTypeRawData the {@link ContentItem}'s mime type
+     * @param filename        the {@link ContentItem}'s file name - can be null
+     * @param metacard        the {@link ContentItem}'s associated metacard
      */
     public ContentItemImpl(ByteSource byteSource, String mimeTypeRawData, String filename,
             Metacard metacard) {
@@ -65,17 +67,28 @@ public class ContentItemImpl implements ContentItem {
     /**
      * An incoming content item where the item's GUID should be known.
      *
-     * @param id              the {@link ContentItem}'s GUID
-     * @param byteSource          the {@link ContentItem}'s input stream containing its actual data
+     * @param id              the {@link ContentItem}'s GUID - can be null
+     * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
      * @param mimeTypeRawData the {@link ContentItem}'s mime type
+     * @param metacard        the {@link ContentItem}'s associated metacard
      */
     public ContentItemImpl(String id, ByteSource byteSource, String mimeTypeRawData,
             Metacard metacard) {
         this(id, byteSource, mimeTypeRawData, null, 0, metacard);
     }
 
-    public ContentItemImpl(String id, ByteSource byteSource, String mimeTypeRawData, String filename, long size,
-            Metacard metacard) {
+    /**
+     * An incoming content item where the item's GUID and size should be known.
+     *
+     * @param id              the {@link ContentItem}'s GUID - can be null
+     * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
+     * @param mimeTypeRawData the {@link ContentItem}'s mime type
+     * @param filename        the {@link ContentItem}'s file name - can be null
+     * @param size            the {@link ContentItem}'s file size
+     * @param metacard        the {@link ContentItem}'s associated metacard
+     */
+    public ContentItemImpl(String id, ByteSource byteSource, String mimeTypeRawData,
+            String filename, long size, Metacard metacard) {
         this.byteSource = byteSource;
         this.id = id;
         this.mimeType = null;
@@ -107,16 +120,12 @@ public class ContentItemImpl implements ContentItem {
         return uri;
     }
 
-    @Override
     public void setUri(String uri) {
         this.uri = uri;
     }
 
     @Override
     public String getFilename() {
-        if (filename == null && file != null) {
-            filename = file.getAbsolutePath();
-        }
         return filename;
     }
 

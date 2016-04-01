@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.operation.impl.ResponseImpl;
@@ -55,7 +56,7 @@ public class UpdateStorageResponseImpl extends ResponseImpl<UpdateStorageRequest
     }
 
     @Override
-    public String getId() {
-        return request.getId();
+    public StorageRequest getStorageRequest() {
+        return request;
     }
 }

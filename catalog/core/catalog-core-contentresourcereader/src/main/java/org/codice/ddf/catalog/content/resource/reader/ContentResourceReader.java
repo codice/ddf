@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,12 +56,7 @@ public class ContentResourceReader implements ResourceReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentResourceReader.class);
 
-    private static Set<String> qualifierSet;
-
-    static {
-        qualifierSet = new HashSet<>(1);
-        qualifierSet.add(URL_CONTENT_SCHEME);
-    }
+    private static Set<String> qualifierSet = Collections.singleton(URL_CONTENT_SCHEME);
 
     private List<StorageProvider> storageProviders;
 
@@ -75,10 +69,16 @@ public class ContentResourceReader implements ResourceReader {
         }
     }
 
+    /*
+    Called by blueprint
+     */
     public void bind(StorageProvider storageProvider) {
         this.storage = storageProviders.get(0);
     }
 
+    /*
+    Called by blueprint
+     */
     public void unbind(StorageProvider storageProvider) {
         if (this.storageProviders.size() > 0) {
             this.storage = storageProviders.get(0);

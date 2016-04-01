@@ -16,7 +16,6 @@ package ddf.catalog.content.operation;
 import java.util.List;
 
 import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.operation.Response;
 
 /**
  * Response containing the updated {@link ContentItem}s
@@ -25,7 +24,7 @@ import ddf.catalog.operation.Response;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface UpdateStorageResponse extends Response<UpdateStorageRequest> {
+public interface UpdateStorageResponse extends StorageResponse<UpdateStorageRequest> {
 
     /**
      * Returns the {@link List} of updated {@link ContentItem}s
@@ -33,11 +32,4 @@ public interface UpdateStorageResponse extends Response<UpdateStorageRequest> {
      * @return {@link List} of updated {@link ContentItem}s
      */
     List<ContentItem> getUpdatedContentItems();
-
-    /**
-     * Returns the ID associated with the request that resulted in this response
-     *
-     * @return request ID
-     */
-    String getId();
 }

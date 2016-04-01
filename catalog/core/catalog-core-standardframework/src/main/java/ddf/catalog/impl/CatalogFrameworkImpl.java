@@ -67,6 +67,7 @@ import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.DeleteStorageRequest;
+import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
@@ -730,7 +731,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     }
 
-    private String guessFileExtension(String mimeTypeRaw, String fileName) {
+    private String updateFileExtension(String mimeTypeRaw, String fileName) {
         String extension = FilenameUtils.getExtension(fileName);
         if (ContentItem.DEFAULT_FILE_NAME.equals(fileName) && !ContentItem.DEFAULT_MIME_TYPE.equals(
                 mimeTypeRaw) || StringUtils.isEmpty(extension)) {
@@ -800,6 +801,53 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         return mimeTypeRaw;
     }
 
+    private void generateMetacardAndContentItems(StorageRequest storageRequest,
+            List<ContentItem> incomingContentItems, Map<String, Metacard> metacardMap,
+            List<ContentItem> contentItems, List<FileBackedOutputStream> fileBackedOutputStreams)
+            throws IngestException {
+        for (ContentItem contentItem : incomingContentItems) {
+            try {
+                FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+                fileBackedOutputStreams.add(fileBackedOutputStream);
+                long size;
+                try {
+                    if (contentItem.getInputStream() != null) {
+                        size = IOUtils.copyLarge(contentItem.getInputStream(),
+                                fileBackedOutputStream);
+                    } else {
+                        throw new IngestException(
+                                "Could not copy bytes of content message.  Message was NULL.");
+                    }
+                } catch (IOException e) {
+                    throw new IngestException("Could not copy bytes of content message.", e);
+                } finally {
+                    IOUtils.closeQuietly(contentItem.getInputStream());
+                }
+                String mimeTypeRaw = contentItem.getMimeTypeRawData();
+                mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(),
+                        fileBackedOutputStream);
+
+                String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
+                Metacard metacard = generateMetacard(mimeTypeRaw, contentItem.getId(), fileName, size,
+                        (Subject) storageRequest.getProperties()
+                                .get(SecurityConstants.SECURITY_SUBJECT), fileBackedOutputStream);
+                metacardMap.put(metacard.getId(), metacard);
+                if (metacard.getResourceURI() != null && metacard.getResourceURI()
+                        .getScheme()
+                        .equals(StorageProvider.CONTENT_URI_PREFIX)) {
+                    ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
+                            fileBackedOutputStream.asByteSource(), mimeTypeRaw, fileName, size,
+                            metacard);
+                    contentItems.add(generatedContentItem);
+                }
+            } catch (Exception e) {
+                fileBackedOutputStreams.stream()
+                        .forEach(IOUtils::closeQuietly);
+                throw new IngestException("Could not create metacard.", e);
+            }
+        }
+    }
+
     @Override
     public CreateResponse create(CreateStorageRequest streamCreateRequest)
             throws IngestException, SourceUnavailableException {
@@ -829,47 +877,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         List<FileBackedOutputStream> fileBackedOutputStreams = new ArrayList<>(
                 streamCreateRequest.getContentItems()
                         .size());
-        for (ContentItem contentItem : streamCreateRequest.getContentItems()) {
-            try {
-                FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
-                fileBackedOutputStreams.add(fileBackedOutputStream);
-                long size;
-                try {
-                    if (contentItem.getInputStream() != null) {
-                        size = IOUtils.copyLarge(contentItem.getInputStream(),
-                                fileBackedOutputStream);
-                    } else {
-                        throw new IngestException(
-                                "Could not copy bytes of content message.  Message was NULL.");
-                    }
-                } catch (IOException e) {
-                    throw new IngestException("Could not copy bytes of content message.", e);
-                } finally {
-                    IOUtils.closeQuietly(contentItem.getInputStream());
-                }
-                String mimeTypeRaw = contentItem.getMimeTypeRawData();
-                mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(),
-                        fileBackedOutputStream);
-
-                String fileName = guessFileExtension(mimeTypeRaw, contentItem.getFilename());
-                Metacard metacard = generateMetacard(mimeTypeRaw, null, fileName, size,
-                        (Subject) streamCreateRequest.getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT), fileBackedOutputStream);
-                metacardMap.put(metacard.getId(), metacard);
-                if (metacard.getResourceURI() != null && metacard.getResourceURI()
-                        .getScheme()
-                        .equals(StorageProvider.CONTENT_URI_PREFIX)) {
-                    ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
-                            fileBackedOutputStream.asByteSource(), mimeTypeRaw, fileName, size,
-                            metacard);
-                    contentItems.add(generatedContentItem);
-                }
-            } catch (Exception e) {
-                fileBackedOutputStreams.stream()
-                        .forEach(IOUtils::closeQuietly);
-                throw new IngestException("Could not create metacard.", e);
-            }
-        }
+        generateMetacardAndContentItems(streamCreateRequest, streamCreateRequest.getContentItems(),
+                metacardMap, contentItems, fileBackedOutputStreams);
 
         CreateStorageRequest createStorageRequest = null;
         CreateResponse createResponse;
@@ -916,10 +925,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (Exception e) {
             if (createStorageRequest != null) {
                 try {
-                    storage.rollback(createStorageRequest.getId());
+                    storage.rollback(createStorageRequest);
                 } catch (StorageException e1) {
                     LOGGER.error("Unable to remove temporary content for id: "
-                            + createStorageRequest.getId());
+                            + createStorageRequest.getId(), e1);
                 }
             }
             throw new IngestException(
@@ -927,15 +936,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } finally {
             if (createStorageRequest != null) {
                 try {
-                    storage.commit(createStorageRequest.getId());
+                    storage.commit(createStorageRequest);
                 } catch (StorageException e) {
                     LOGGER.error("Unable to commit content changes for id: "
                             + createStorageRequest.getId(), e);
                     try {
-                        storage.rollback(createStorageRequest.getId());
+                        storage.rollback(createStorageRequest);
                     } catch (StorageException e1) {
                         LOGGER.error("Unable to remove temporary content for id: "
-                                + createStorageRequest.getId());
+                                + createStorageRequest.getId(), e1);
                     }
                 }
             }
@@ -1112,47 +1121,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         List<FileBackedOutputStream> fileBackedOutputStreams = new ArrayList<>(
                 streamUpdateRequest.getContentItems()
                         .size());
-        for (ContentItem contentItem : streamUpdateRequest.getContentItems()) {
-            try {
-                FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
-                fileBackedOutputStreams.add(fileBackedOutputStream);
-                long size;
-                try {
-                    if (contentItem.getInputStream() != null) {
-                        size = IOUtils.copyLarge(contentItem.getInputStream(),
-                                fileBackedOutputStream);
-                    } else {
-                        throw new IngestException(
-                                "Could not copy bytes of content message.  Message was NULL.");
-                    }
-                } catch (IOException e) {
-                    throw new IngestException("Could not copy bytes of content message.", e);
-                } finally {
-                    IOUtils.closeQuietly(contentItem.getInputStream());
-                }
-                String mimeTypeRaw = contentItem.getMimeTypeRawData();
-                mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(),
-                        fileBackedOutputStream);
-
-                String fileName = guessFileExtension(mimeTypeRaw, contentItem.getFilename());
-                Metacard metacard = generateMetacard(mimeTypeRaw, contentItem.getId(), fileName,
-                        size, (Subject) streamUpdateRequest.getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT), fileBackedOutputStream);
-                metacardMap.put(metacard.getId(), metacard);
-                if (metacard.getResourceURI() != null && metacard.getResourceURI()
-                        .getScheme()
-                        .equals(StorageProvider.CONTENT_URI_PREFIX)) {
-                    ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
-                            fileBackedOutputStream.asByteSource(), mimeTypeRaw, fileName, size,
-                            metacard);
-                    contentItems.add(generatedContentItem);
-                }
-            } catch (Exception e) {
-                fileBackedOutputStreams.stream()
-                        .forEach(IOUtils::closeQuietly);
-                throw new IngestException("Could not create metacard.", e);
-            }
-        }
+        generateMetacardAndContentItems(streamUpdateRequest, streamUpdateRequest.getContentItems(),
+                metacardMap, contentItems, fileBackedOutputStreams);
 
         UpdateResponse updateResponse;
         UpdateStorageRequest updateStorageRequest = null;
@@ -1205,10 +1175,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (Exception e) {
             if (updateStorageRequest != null) {
                 try {
-                    storage.rollback(updateStorageRequest.getId());
+                    storage.rollback(updateStorageRequest);
                 } catch (StorageException e1) {
                     LOGGER.error("Unable to remove temporary content for id: "
-                            + streamUpdateRequest.getId());
+                            + streamUpdateRequest.getId(), e1);
                 }
             }
             throw new IngestException(
@@ -1216,15 +1186,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } finally {
             if (updateStorageRequest != null) {
                 try {
-                    storage.commit(updateStorageRequest.getId());
+                    storage.commit(updateStorageRequest);
                 } catch (StorageException e) {
                     LOGGER.error("Unable to commit content changes for id: "
                             + updateStorageRequest.getId(), e);
                     try {
-                        storage.rollback(updateStorageRequest.getId());
+                        storage.rollback(updateStorageRequest);
                     } catch (StorageException e1) {
                         LOGGER.error("Unable to remove temporary content for id: "
-                                + updateStorageRequest.getId());
+                                + updateStorageRequest.getId(), e1);
                     }
                 }
             }
@@ -1483,11 +1453,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 try {
                     storage.delete(deleteStorageRequest);
                 } catch (StorageException e) {
-                    LOGGER.warn(
+                    LOGGER.error(
                             "Unable to delete stored content items. Not removing stored metacards",
                             e);
                     throw new InternalIngestException(
-                            "Unable to delete stored content items. Not removing stored metacards.");
+                            "Unable to delete stored content items. Not removing stored metacards.", e);
                 }
                 deleteResponse = catalog.delete(deleteRequest);
             }
@@ -1548,7 +1518,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } finally {
             if (deleteStorageRequest != null) {
                 try {
-                    storage.commit(deleteStorageRequest.getId());
+                    storage.commit(deleteStorageRequest);
                 } catch (StorageException e) {
                     LOGGER.error("Unable to remove stored content items.", e);
                 }

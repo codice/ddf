@@ -32,7 +32,7 @@ public class DeleteStorageRequestImpl extends OperationImpl implements DeleteSto
     private String id;
 
     public DeleteStorageRequestImpl(Map<String, Serializable> properties) {
-        this(new ArrayList<>(), null, properties);
+        this(null, null, properties);
     }
 
     public DeleteStorageRequestImpl(List<Metacard> metacards, Map<String, Serializable> properties) {

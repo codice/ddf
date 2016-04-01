@@ -13,23 +13,21 @@
  **/
 package ddf.catalog.content.operation;
 
-import java.util.List;
-
-import ddf.catalog.content.data.ContentItem;
+import ddf.catalog.operation.Request;
 
 /**
- * Response associated with creating content associated with a Metacard
- * <p>
+ * Base request interface for storage operations.
+ *
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
- * </p>
  */
-public interface CreateStorageResponse extends StorageResponse<CreateStorageRequest> {
-
+public interface StorageRequest extends Request {
     /**
-     * Returns the {@link List} of {@link ContentItem}s that have been created.
+     * Returns the unique ID associated with this storage request. The ID should be used by the
+     * {@link ddf.catalog.content.StorageProvider} to {@link ddf.catalog.content.StorageProvider#commit(StorageRequest)}
+     * or {@link ddf.catalog.content.StorageProvider#rollback(StorageRequest)} changes.
      *
-     * @return {@link List} of {@link ContentItem}s
+     * @return ID
      */
-    List<ContentItem> getCreatedContentItems();
+    String getId();
 }

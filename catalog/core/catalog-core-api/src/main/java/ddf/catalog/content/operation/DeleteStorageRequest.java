@@ -16,7 +16,6 @@ package ddf.catalog.content.operation;
 import java.util.List;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.Request;
 
 /**
  * Request to remove content associated with a Metacard
@@ -25,7 +24,7 @@ import ddf.catalog.operation.Request;
  * removed in a future version of the library. </b>
  * </p>
  */
-public interface DeleteStorageRequest extends Request {
+public interface DeleteStorageRequest extends StorageRequest {
 
     /**
      * Returns the {@link List} of {@link Metacard}s being deleted
@@ -33,11 +32,4 @@ public interface DeleteStorageRequest extends Request {
      * @return {@link List} of {@link Metacard}s
      */
     List<Metacard> getMetacards();
-
-    /**
-     * Returns the ID associated with this delete storage request.
-     *
-     * @return ID
-     */
-    String getId();
 }
