@@ -11,9 +11,21 @@
   z-index: @zIndexContent;
   background: @background-color;
 
+
+  .content-panelOne {
+    width: 20%;
+  }
+
+  .content-panelTwo {
+    width: 30%;
+  }
+
+  .content-panelThree {
+    width: 50%;
+  }
+
   > div {
     display: inline-block;
-    width: 33.33%;
     height: 100%;
     vertical-align: top;
     transition: width @transitionTime linear;
@@ -26,7 +38,7 @@
       width: 0%;
     }
     > .content-panelThree {
-      width: 66.66%;
+      width: 80%;
     }
   }
 

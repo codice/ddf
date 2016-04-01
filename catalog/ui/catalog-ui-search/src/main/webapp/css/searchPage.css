@@ -656,24 +656,6 @@ table.metacard-table {
     background: none;
 }
 
-::-webkit-scrollbar {
-    -webkit-appearance: none;
-}
-
-::-webkit-scrollbar:vertical {
-    width: 11px;
-}
-
-::-webkit-scrollbar:horizontal {
-    height: 11px;
-}
-
-::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    border: 2px solid white; /* should match background, can't be transparent */
-    background-color: rgba(0, 0, 0, .5);
-}
-
 .notification-time {
     font-size: .8em;
     color: white;
@@ -1646,10 +1628,6 @@ a.pause:hover, a.pause:focus {
 .bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
     width: 80px;
 
-}
-
-::-webkit-scrollbar-thumb {
-    border: none;
 }
 
 .bootstrap-select.btn-group .btn .caret {

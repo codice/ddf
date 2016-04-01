@@ -17,29 +17,29 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./metacard-basic.hbs',
+    'text!./metacard-advanced.hbs',
     'js/CustomElements',
     'js/store',
     'component/input/metacard/input-metacard.collection.view',
     'component/input/metacard/input-metacard.collection'
-], function (Marionette, _, $, workspaceBasicTemplate, CustomElements, store, InputMetacardCollectionView,
-        InputMetacardCollection) {
+], function (Marionette, _, $, template, CustomElements, store, InputMetacardCollectionView,
+             InputMetacardCollection) {
 
-    var MetacardBasic = Marionette.LayoutView.extend({
+    return Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = store.getSelectedResults().first();
         },
-        template: workspaceBasicTemplate,
-        tagName: CustomElements.register('metacard-basic'),
+        template: template,
+        tagName: CustomElements.register('metacard-advanced'),
         modelEvents: {
         },
         events: {
-            'click .metacardBasic-edit': 'edit',
-            'click .metacardBasic-save': 'save',
-            'click .metacardBasic-cancel': 'cancel'
+            'click .metacardAdvanced-edit': 'edit',
+            'click .metacardAdvanced-save': 'save',
+            'click .metacardAdvanced-cancel': 'cancel'
         },
         regions: {
-            metacardProperties: '.metacardBasic-properties'
+            metacardProperties: '.metacardAdvanced-properties'
         },
         initialize: function (options) {
             if (options.model === undefined){
@@ -48,9 +48,10 @@ define([
         },
         onBeforeShow: function(){
             this.metacardProperties.show(new InputMetacardCollectionView({
-                collection: InputMetacardCollection.createBasic(this.model)
+                collection: InputMetacardCollection.create(this.model)
             }));
-            this.metacardProperties.currentView.turnOnLimitedWidth();
+            this.metacardProperties.currentView.$el.addClass("is-list");
+            //this.metacardProperties.currentView.turnOnLimitedWidth();
         },
         edit: function(){
             this.$el.addClass('is-editing');
@@ -68,6 +69,4 @@ define([
             this.metacardProperties.currentView.save();
         }
     });
-
-    return MetacardBasic;
 });

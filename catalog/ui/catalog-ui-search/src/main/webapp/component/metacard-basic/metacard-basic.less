@@ -1,17 +1,68 @@
 @{customElementNamespace}metacard-basic {
   .customElement;
-  padding: 0px 30px;
 
-  .metacardBasic-row {
-    .inlineBlockDisplay(div);
-    text-align: center;
-    padding: 10px 0px;
+  overflow: auto;
+  padding: 10px 50px;
+
+  .metacardBasic-header {
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
   }
 
-  .metacardBasic-row > div {
+  .metacardBasic-properties {
+    overflow: auto;
+    max-height: ~"calc(100% - 44px - 44px - 20px - 44px)";
+  }
+
+  .metacardBasic-properties ddf-input {
+    display: inline-block;
     width: 50%;
   }
 
+  .metacardBasic-properties [data-id=thumbnail] {
+    width: 100%;
+  }
+
+  .metacardBasic-footer {
+    margin-top: 20px;
+    height: 44px;
+    white-space: nowrap;
+    .inlineFix;
+
+    > button {
+      height: 100%;
+      padding: 10px;
+      display: inline-block;
+    }
+    > .metacardBasic-edit {
+      width: 100%;
+    }
+    > .metacardBasic-cancel {
+      width: 50%;
+      display: none;
+    }
+    > .metacardBasic-save {
+      width: 50%;
+      display: none;
+    }
+  }
+
+  &.is-editing {
+    .metacardBasic-footer {
+
+      > .metacardBasic-edit {
+        display: none;
+      }
+      > .metacardBasic-cancel {
+        display: inline-block;
+      }
+      > .metacardBasic-save {
+        display: inline-block;
+      }
+    }
+  }
 }
 
 @media (max-width: @smallScreenSize) {

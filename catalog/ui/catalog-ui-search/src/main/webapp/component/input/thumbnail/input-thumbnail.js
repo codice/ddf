@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,20 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="input-label">
-    <label for="{{cid}}">
-        <span class=""></span>
-        {{label}}
-        {{#unless label}}
-            {{id}}
-        {{/unless}}
-    </label>
-</div>
-<div class="input-value">
-    <input id="{{cid}}" value="{{value}}">
-    <span class="fa fa-undo input-revert is-button"></span>
-    <label>
-        {{value}}
-    </label>
-</div>
+/*global define*/
+define([
+    'underscore',
+    'backbone',
+    '../input'
+], function (_, Backbone, Input) {
+
+    return Input.extend({
+        type: 'thumbnail'
+    });
+});

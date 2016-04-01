@@ -43,7 +43,8 @@ define([
             state: undefined,
             results: [],  //list of metacards
             filteredQueries: [],
-            editing: true
+            editing: true,
+            metacardTypes: {}
         },
         initialize: function(){
         },
@@ -70,6 +71,9 @@ define([
             } else {
                 filteredQueries.add(queryRef);
             }
+        },
+        addMetacardTypes: function(metacardTypes){
+            _.extend(this.get('metacardTypes'), metacardTypes);
         }
     });
 

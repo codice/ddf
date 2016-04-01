@@ -1,7 +1,11 @@
 .is-list {
-  @shadowStrength: 3px;
+  @shadowStrength: 1px;
   > * {
     box-shadow: inset 0px @shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%),
     inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%);
+  }
+
+  > *:nth-child(even){
+    background: rgba(100,100,100,.2);
   }
 }

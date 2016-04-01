@@ -14,17 +14,19 @@ define([
     'underscore',
     '../tabs',
     'js/store',
-    'component/metacard-basic/metacard-basic.view'
-], function (_, Tabs, store, MetacardBasicView) {
+    'component/metacard-basic/metacard-basic.view',
+    'component/metacard-advanced/metacard-advanced.view'
+], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView) {
 
     var MetacardTabs = Tabs.extend({
         defaults: {
             tabs: {
                 'Basic': MetacardBasicView,
-                'Advanced': MetacardBasicView,
+                'Advanced': MetacardAdvancedView,
                 'History': MetacardBasicView,
                 'Associations': MetacardBasicView,
-                'Sharing': MetacardBasicView
+                'Sharing': MetacardBasicView,
+                'Actions': MetacardBasicView
             }
         }
     });

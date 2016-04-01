@@ -11,45 +11,30 @@
  *
  **/
  --}}
-<h5 align="center">{{metacard.properties.title}}</h5>
-<div class="metacardBasic-row">
-    <div class="metacardBasic-property">
-        <label>
-            Created
-        </label>
-        <div>
-            {{metacard.properties.created}}
-        </div>
-    </div>
-    <div class="metacardBasic-property">
-        <label>
-            Modified
-        </label>
-        <div>
-            {{metacard.properties.modified}}
-        </div>
-    </div>
+<div class="metacardBasic-properties">
+
 </div>
-<div class="metacardBasic-row">
-    <div class="metacardBasic-property">
-        <label>
-            Content Type
-        </label>
-        <div>
-            {{metacard.properties.metadata-content-type}}
-        </div>
-    </div>
-    <div class="metacardBasic-property">
-        <label>
-            Item Size
-        </label>
-        <div>
-            {{metacard.properties.resource-size}} mb
-        </div>
-    </div>
-</div>
-<div class="metacardBasic-row full">
-    <div class="metacardBasic-property">
-        <img class='thumbnail' alt='{{metacard.properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{metacard.properties.thumbnail}}' />
-    </div>
+<div class="metacardBasic-footer">
+    <button class="metacardBasic-edit is-neutral">
+        <span class="fa fa-pencil">
+
+        </span>
+        <span>
+            Edit
+        </span>
+    </button>
+    <button class="metacardBasic-cancel is-negative">
+         <span class="fa fa-times">
+         </span>
+        <span>
+            Cancel
+        </span>
+    </button>
+    <button class="metacardBasic-save is-positive">
+         <span class="fa fa-floppy-o">
+         </span>
+        <span>
+            Save
+        </span>
+    </button>
 </div>

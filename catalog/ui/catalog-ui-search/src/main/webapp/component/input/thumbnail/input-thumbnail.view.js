@@ -17,13 +17,13 @@ define([
     'marionette',
     'underscore',
     'jquery',
-    'text!./input.hbs',
+    'text!./input-thumbnail.hbs',
     'js/CustomElements'
-], function (Marionette, _, $, InputTemplate, CustomElements) {
+], function (Marionette, _, $, template, CustomElements) {
 
-    var InputView = Marionette.LayoutView.extend({
-        template: InputTemplate,
-        tagName: CustomElements.register('input'),
+    return Marionette.LayoutView.extend({
+        template: template,
+        tagName: CustomElements.register('input-thumbnail'),
         attributes: function(){
             return {
                 'data-id': this.model.get('id')
@@ -86,6 +86,4 @@ define([
         },
         _editMode: false
     });
-
-    return InputView;
 });

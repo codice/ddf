@@ -11,19 +11,38 @@
  *
  **/
  --}}
-<div class="input-label">
-    <label for="{{cid}}">
-        <span class=""></span>
-        {{label}}
-        {{#unless label}}
-            {{id}}
-        {{/unless}}
+<div class="metacardAdvanced-propertyHeader">
+    <label>
+        Property
+    </label>
+    <label>
+        Value
     </label>
 </div>
-<div class="input-value">
-    <input id="{{cid}}" value="{{value}}">
-    <span class="fa fa-undo input-revert is-button"></span>
-    <label>
-        {{value}}
-    </label>
+<div class="metacardAdvanced-properties">
+
+</div>
+<div class="metacardAdvanced-footer">
+    <button class="metacardAdvanced-edit is-neutral">
+        <span class="fa fa-pencil">
+
+        </span>
+        <span>
+            Edit
+        </span>
+    </button>
+    <button class="metacardAdvanced-cancel is-negative">
+         <span class="fa fa-times">
+         </span>
+        <span>
+            Cancel
+        </span>
+    </button>
+    <button class="metacardAdvanced-save is-positive">
+         <span class="fa fa-floppy-o">
+         </span>
+        <span>
+            Save
+        </span>
+    </button>
 </div>

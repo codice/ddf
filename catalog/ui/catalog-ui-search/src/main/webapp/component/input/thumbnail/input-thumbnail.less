@@ -1,9 +1,9 @@
-@{customElementNamespace}input {
+@{customElementNamespace}input-thumbnail {
   display: block;
   width: 100%;
   white-space: nowrap;
   padding: 10px;
-  
+
   &:hover {
     //background: @select-background-color;
   }
@@ -51,6 +51,8 @@
       display: none;
     }
     label {
+      width: 100%;
+      text-align: center;
       padding-left: 10px;
       line-height: @minimumButtonSize;
       margin: 0px;
@@ -118,7 +120,7 @@
 }
 
 @media (max-width: @mediumScreenSize) {
-  @{customElementNamespace}input {
+  @{customElementNamespace}input-thumbnail {
 
     white-space: normal;
     > div {

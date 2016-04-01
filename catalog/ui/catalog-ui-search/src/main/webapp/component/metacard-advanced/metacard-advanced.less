@@ -1,0 +1,80 @@
+@{customElementNamespace}metacard-advanced {
+  .customElement;
+
+  overflow: auto;
+  padding: 10px 50px;
+
+  .metacardAdvanced-header {
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+  }
+
+  .metacardAdvanced-propertyHeader {
+    white-space: nowrap;
+    .boxShadowBottom;
+  }
+
+  .metacardAdvanced-propertyHeader  > label:first-of-type {
+    text-align: right;
+  }
+
+  .metacardAdvanced-propertyHeader  > label {
+    display: inline-block;
+    width: 50%;
+    padding: 10px;
+    font-weight: bold;
+    color: grey;
+  }
+
+  .metacardAdvanced-properties {
+    overflow: auto;
+    max-height: ~"calc(100% - 44px - 44px - 20px - 44px)";
+  }
+
+  .metacardAdvanced-footer {
+    margin-top: 20px;
+    height: 44px;
+    white-space: nowrap;
+    .inlineFix;
+
+    > button {
+      height: 100%;
+      padding: 10px;
+      display: inline-block;
+    }
+    > .metacardAdvanced-edit {
+      width: 100%;
+    }
+    > .metacardAdvanced-cancel {
+      width: 50%;
+      display: none;
+    }
+    > .metacardAdvanced-save {
+      width: 50%;
+      display: none;
+    }
+  }
+
+  &.is-editing {
+    .metacardAdvanced-footer {
+
+      > .metacardAdvanced-edit {
+        display: none;
+      }
+      > .metacardAdvanced-cancel {
+        display: inline-block;
+      }
+      > .metacardAdvanced-save {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}metacard-advanced {
+
+  }
+}

@@ -50,6 +50,7 @@ define([
         handleUpdate: function(){
             wreqr.vent.trigger('map:clear');
             this.updateMap();
+            store.addMetacardTypes(this.model.get('result').get('metacard-types'));
             this.render();
         },
         serializeData: function(){

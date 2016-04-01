@@ -121,6 +121,9 @@ define([
         },
         removeSelectedResult: function(metacard){
             this.getSelectedResults().remove(metacard);
+        },
+        addMetacardTypes: function(metacardTypes){
+            this.get('content').addMetacardTypes(metacardTypes);
         }
     });
 

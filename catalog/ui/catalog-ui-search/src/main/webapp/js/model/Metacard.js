@@ -299,6 +299,8 @@ define([
                                 result.get('metacard').get('selectedForSave') === true;
                         });
                         _.forEach(update.results, function (result) {
+                            result.propertyTypes = update['metacard-types'][result.metacard.properties['metacard-type']];
+                            result.metacardType = result.metacard.properties['metacard-type'];
                             result.metacard.id = result.metacard.properties.id;
                             result.id = result.metacard.id;
                             result.metacard.queryId = queryId;
