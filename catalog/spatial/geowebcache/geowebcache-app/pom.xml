@@ -26,7 +26,7 @@
     <name>DDF :: Spatial :: GeoWebCache App</name>
 
     <properties>
-        <gwc-server.version>0.5</gwc-server.version>
+        <gwc-server.version>0.6</gwc-server.version>
     </properties>
     <dependencies>
         <dependency>
