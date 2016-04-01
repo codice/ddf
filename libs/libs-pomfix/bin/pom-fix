@@ -61,7 +61,8 @@ var options = {
     group: [/^org\.codice/, /^ddf/].concat(program.include || [])
   },
   exclude: {
-    artifact: ['docs', /^sample-/]
+    artifact: ['docs', /^sample-/],
+    type: ['javadoc']
   }
 }
 
