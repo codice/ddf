@@ -31,6 +31,8 @@ public class WorkspaceMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String WORKSPACE_QUERIES = "queries";
 
+    public static final String WORKSPACE_ROLES = "roles";
+
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
@@ -38,6 +40,13 @@ public class WorkspaceMetacardTypeImpl extends MetacardTypeImpl {
 
         DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_METACARDS,
                 true    /* indexed */,
+                true    /* stored */,
+                false   /* tokenized */,
+                true    /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
+        DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_ROLES,
+                false    /* indexed */,
                 true    /* stored */,
                 false   /* tokenized */,
                 true    /* multivalued */,
