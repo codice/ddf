@@ -164,6 +164,38 @@
         </profile>
         <profile>
             <id>javadoc-unpack</id>
+            <dependencies>
+                <dependency>
+                    <groupId>ddf.catalog.core</groupId>
+                    <artifactId>catalog-core-api</artifactId>
+                    <version>${project.version}</version>
+                    <type>javadoc</type>
+                </dependency>
+                <dependency>
+                    <groupId>ddf.mime.core</groupId>
+                    <artifactId>mime-core-api</artifactId>
+                    <version>${project.version}</version>
+                    <type>javadoc</type>
+                </dependency>
+                <dependency>
+                    <groupId>ddf.action.core</groupId>
+                    <artifactId>action-core-api</artifactId>
+                    <version>${project.version}</version>
+                    <type>javadoc</type>
+                </dependency>
+                <dependency>
+                    <groupId>ddf.security.core</groupId>
+                    <artifactId>security-core-api</artifactId>
+                    <version>${project.version}</version>
+                    <type>javadoc</type>
+                </dependency>
+                <dependency>
+                    <groupId>ddf.security.encryption</groupId>
+                    <artifactId>security-encryption-api</artifactId>
+                    <version>${project.version}</version>
+                    <type>javadoc</type>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -229,36 +261,7 @@
         </profile>
     </profiles>
     <dependencies>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api</artifactId>
-            <version>${project.version}</version>
-            <type>javadoc</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.mime.core</groupId>
-            <artifactId>mime-core-api</artifactId>
-            <version>${project.version}</version>
-            <type>javadoc</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.action.core</groupId>
-            <artifactId>action-core-api</artifactId>
-            <version>${project.version}</version>
-            <type>javadoc</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
-            <version>${project.version}</version>
-            <type>javadoc</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.encryption</groupId>
-            <artifactId>security-encryption-api</artifactId>
-            <version>${project.version}</version>
-            <type>javadoc</type>
-        </dependency>
+
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>kernel</artifactId>
