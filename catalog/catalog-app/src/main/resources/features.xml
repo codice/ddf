@@ -41,6 +41,9 @@
     <feature name="catalog-core" install="manual" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
         <feature prerequisite="true">catalog-core-api</feature>
+        <feature prerequisite="true">platform-configuration</feature>
+        <feature prerequisite="true">security-core</feature>
+        <feature prerequisite="true">action-core-api</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>

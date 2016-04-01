@@ -70,7 +70,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>ddf-security-common,platform-util-unavailableurls</Embed-Dependency>
+                        <Embed-Dependency>platform-util-unavailableurls</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.handler.api
                         </Export-Package>
