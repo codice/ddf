@@ -243,6 +243,12 @@ public interface CswConstants {
 
     String CSW_TRANSACTION_DELETE_NODE = "csw:Delete";
 
+    String CSW_CONSTRAINT = "csw:Constraint";
+
+    String CSW_CQL_TEXT = "ogc:CqlText";
+
+
+
     // Exception Codes
     String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";
     String MISSING_PARAMETER_VALUE = "MissingParameterValue";

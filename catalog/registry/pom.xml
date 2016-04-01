@@ -32,6 +32,51 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-api-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-cswinputtransformer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-federationadminservice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-federationadminserviceimpl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-identificationplugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-policyplugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.registry</groupId>
+                <artifactId>catalog-registry-schema-bindings</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-ogc-common</artifactId>
                 <version>${project.version}</version>
@@ -67,11 +112,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wcs-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
                 <version>1.4.4</version>
@@ -80,16 +120,6 @@
                 <groupId>org.jvnet.jaxb2_commons</groupId>
                 <artifactId>jaxb2-basics-runtime</artifactId>
                 <version>${jaxb2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.lucene</groupId>
-                <artifactId>lucene-core</artifactId>
-                <version>${lucene.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.spatial4j</groupId>
-                <artifactId>spatial4j</artifactId>
-                <version>${spatial4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -103,5 +133,6 @@
         <module>catalog-registry-api-impl</module>
         <module>catalog-registry-federationadminservice</module>
         <module>catalog-registry-federationadminserviceimpl</module>
+        <module>registry-app</module>
     </modules>
 </project>

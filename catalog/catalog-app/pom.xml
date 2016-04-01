@@ -364,36 +364,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-api-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-cswinputtransformer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-identificationplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-policyplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.security</groupId>
             <artifactId>catalog-security-policyplugin</artifactId>
             <version>${project.version}</version>
@@ -461,26 +431,6 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-directorymonitor</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-federationadminservice</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-federationadminserviceimpl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-schema-bindings</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.registry</groupId>
-            <artifactId>catalog-registry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
