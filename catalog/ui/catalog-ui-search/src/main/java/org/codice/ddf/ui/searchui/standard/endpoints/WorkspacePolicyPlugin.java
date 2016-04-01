@@ -16,6 +16,7 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,13 +38,7 @@ public class WorkspacePolicyPlugin implements PolicyPlugin {
     public static final String ROLE_CLAIM =
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
-    @Override
-    public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
-            throws StopProcessingException {
-        return null;
-    }
-
-    public static Boolean isWorkspaceMetacard(Metacard metacard) {
+    private static Boolean isWorkspaceMetacard(Metacard metacard) {
         if (metacard != null) {
             for (Serializable s : metacard.getTags()) {
                 if (WorkspaceMetacardTypeImpl.WORKSPACE_TAG.equals(s)) {
@@ -55,9 +50,7 @@ public class WorkspacePolicyPlugin implements PolicyPlugin {
         return false;
     }
 
-    @Override
-    public PolicyResponse processPreUpdate(Metacard metacard, Map<String, Serializable> properties)
-            throws StopProcessingException {
+    private static Set<String> getWorkspaceRoles(Metacard metacard) {
         if (isWorkspaceMetacard(metacard)) {
             Attribute attr = metacard.getAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
             if (attr != null) {
@@ -66,19 +59,48 @@ public class WorkspacePolicyPlugin implements PolicyPlugin {
                         .map(String::valueOf)
                         .collect(Collectors.toSet());
                 if (roles.size() > 0) {
-                    return new PolicyResponseImpl(new HashMap<>(), Collections.singletonMap(
-                            ROLE_CLAIM,
-                            roles));
+                    return roles;
                 }
             }
         }
+
+        return Collections.emptySet();
+    }
+
+    private static Set<String> getWorkspaceRoles(List<Metacard> metacards) {
+        return metacards.stream()
+                .map(WorkspacePolicyPlugin::getWorkspaceRoles)
+                .reduce(new HashSet<>(), (acc, val) -> {
+                    acc.addAll(val);
+                    return acc;
+                });
+    }
+
+    private static PolicyResponse getPolicyResponse(Set<String> roles) {
+        if (!roles.isEmpty()) {
+            return new PolicyResponseImpl(new HashMap<>(), Collections.singletonMap(ROLE_CLAIM,
+                    roles));
+        }
+
         return new PolicyResponseImpl();
+    }
+
+    @Override
+    public PolicyResponse processPreCreate(Metacard metacard, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return getPolicyResponse(getWorkspaceRoles(metacard));
+    }
+
+    @Override
+    public PolicyResponse processPreUpdate(Metacard metacard, Map<String, Serializable> properties)
+            throws StopProcessingException {
+        return getPolicyResponse(getWorkspaceRoles(metacard));
     }
 
     @Override
     public PolicyResponse processPreDelete(List<Metacard> metacards,
             Map<String, Serializable> properties) throws StopProcessingException {
-        return null;
+        return getPolicyResponse(getWorkspaceRoles(metacards));
     }
 
     @Override
@@ -96,7 +118,7 @@ public class WorkspacePolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPostQuery(Result input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return null;
+        return getPolicyResponse(getWorkspaceRoles(input.getMetacard()));
     }
 
     @Override
