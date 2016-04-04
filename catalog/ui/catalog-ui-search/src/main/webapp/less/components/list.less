@@ -5,7 +5,7 @@
     inset 0px -@shadowStrength @shadowStrength -@shadowStrength lighten(@border-color, 20%);
   }
 
-  > *:nth-child(even){
+  > *:nth-child(even):not(.is-selected){
     background: rgba(100,100,100,.2);
   }
 }

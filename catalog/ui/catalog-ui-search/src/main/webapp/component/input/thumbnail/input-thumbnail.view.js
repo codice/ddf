@@ -31,7 +31,7 @@ define([
         },
         events: {
             'click .input-revert': 'revert',
-            'keyup input': 'handleRevert'
+            'click button': 'upload'
         },
         modelEvents: {
             'change:value': 'render'
@@ -53,7 +53,7 @@ define([
             this.$el.toggleClass('is-editing', this._editMode);
         },
         handleValue: function(){
-            this.$el.find('input').val(this.model.getValue());
+            //this.$el.find('input').val(this.model.getValue());
         },
         turnOnEditing: function(){
             this._editMode = true;
@@ -83,6 +83,9 @@ define([
             } else {
                 this.$el.removeClass('is-changed');
             }
+        },
+        upload: function(){
+            this.$el.find('input').click();
         },
         _editMode: false
     });
