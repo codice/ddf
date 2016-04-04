@@ -34,6 +34,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -43,27 +44,29 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
-import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.ConfigurationMigratable;
+import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.mockito.MockitoAnnotations;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 import com.google.common.collect.ImmutableList;
 
-@RunWith(PowerMockRunner.class)
 @PrepareForTest(ConfigurationMigrationManager.class)
 public class ConfigurationMigrationManagerTest {
+
+    @Rule
+    public PowerMockRule powerMockRule = new PowerMockRule();
 
     private static ObjectName configMigrationServiceObjectName;
 
@@ -73,26 +76,22 @@ public class ConfigurationMigrationManagerTest {
     @Mock
     private MBeanServer mBeanServer;
 
-    @Mock
-    BundleContext bundleContext;
+    private List<ConfigurationMigratable> configurationMigratables;
 
-    private Collection<ServiceReference<Migratable>> serviceReferences;
-
-    @Mock
-    ServiceReference<Migratable> serviceReference1;
+    private List<DataMigratable> dataMigratables;
 
     @Mock
-    ServiceReference<Migratable> serviceReference2;
+    private ConfigurationMigratable configurationMigratable;
 
     @Mock
-    Migratable migratable1;
+    private DataMigratable dataMigratable;
 
     @Mock
-    Migratable migratable2;
+    Path exportDirectory;
 
-    MigrationMetadata noWarnings = new MigrationMetadata(ImmutableList.of());
+    private MigrationMetadata noWarnings = new MigrationMetadata(ImmutableList.of());
 
-    Path exportPath = Paths.get("/export/dir");
+    private Path exportPath = Paths.get("export", "dir");
 
     @BeforeClass
     public static void setupClass() throws MalformedObjectNameException {
@@ -102,28 +101,48 @@ public class ConfigurationMigrationManagerTest {
 
     @Before
     public void setup() throws InvalidSyntaxException {
-        serviceReferences = new ArrayList<>(2);
-        Collections.addAll(serviceReferences, serviceReference1, serviceReference2);
-
-        when(bundleContext.getServiceReferences(Migratable.class, null)).thenReturn(
-                serviceReferences);
-        when(bundleContext.getService(serviceReference1)).thenReturn(migratable1);
-        when(migratable1.export(any(Path.class))).thenReturn(noWarnings);
-        when(bundleContext.getService(serviceReference2)).thenReturn(migratable2);
-        when(migratable2.export(any(Path.class))).thenReturn(noWarnings);
+        MockitoAnnotations.initMocks(this);
 
         mockStatic(Files.class);
-        mockStatic(FrameworkUtil.class);
+        mockStatic(Paths.class);
+
+        configurationMigratables = Collections.singletonList(configurationMigratable);
+        dataMigratables = Collections.singletonList(dataMigratable);
+
+        when(configurationMigratable.export(any(Path.class))).thenReturn(noWarnings);
+        when(dataMigratable.export(any(Path.class))).thenReturn(noWarnings);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfigurationAdminMigrator() {
-        new ConfigurationMigrationManager(null, mBeanServer);
+        new ConfigurationMigrationManager(null,
+                mBeanServer,
+                new SortedServiceList<>(),
+                new SortedServiceList<>());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullMBeanServer() {
-        new ConfigurationMigrationManager(configurationAdminMigration, null);
+        new ConfigurationMigrationManager(configurationAdminMigration,
+                null,
+                new SortedServiceList<>(),
+                new SortedServiceList<>());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorWithNullConfigurationMigratablesList() {
+        new ConfigurationMigrationManager(configurationAdminMigration,
+                mBeanServer,
+                null,
+                new SortedServiceList<>());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorWithNullDataMigratablesList() {
+        new ConfigurationMigrationManager(configurationAdminMigration,
+                mBeanServer,
+                new SortedServiceList<>(),
+                null);
     }
 
     @Test
@@ -177,30 +196,25 @@ public class ConfigurationMigrationManagerTest {
         configurationMigrationManager.init();
     }
 
-    @Test(expected = MigrationException.class)
-    public void exportWhenServiceReferencesCannotBeRetrieved() throws Exception {
-        when(bundleContext.getServiceReferences(any(Class.class),
-                any(String.class))).thenThrow(new InvalidSyntaxException("", ""));
-        ConfigurationMigrationManager configurationMigrationManager =
-                createConfigurationMigrationManager();
-
-        export(() -> configurationMigrationManager.export(exportPath));
-    }
-
     @Test
     public void exportWithPath() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
                 createConfigurationMigrationManager();
 
+        when(exportDirectory.resolve(any(Path.class))).thenReturn(any(Path.class));
+
         Collection<MigrationWarning> migrationWarnings =
-                export(() -> configurationMigrationManager.export(exportPath));
+                export(() -> configurationMigrationManager.export(exportDirectory));
         assertThat(migrationWarnings, is(empty()));
+
     }
 
     @Test
     public void exportWithString() throws Exception {
         ConfigurationMigrationManager configurationMigrationManager =
                 createConfigurationMigrationManager();
+
+        when(Paths.get("/export/dir")).thenReturn(exportDirectory);
 
         Collection<MigrationWarning> migrationWarnings =
                 export(() -> configurationMigrationManager.export("/export/dir"));
@@ -234,11 +248,10 @@ public class ConfigurationMigrationManagerTest {
         warningList.add(migrationWarning);
         MigrationMetadata warning = new MigrationMetadata(warningList);
 
-        when(bundleContext.getService(serviceReference1)).thenReturn(migratable1);
-        when(migratable1.export(any(Path.class))).thenReturn(warning);
+        when(configurationMigratable.export(any(Path.class))).thenReturn(warning);
 
         Collection<MigrationWarning> migrationWarnings = configurationMigrationManager.export(
-                exportPath);
+                exportDirectory);
         assertThat(migrationWarnings, contains(migrationWarning));
     }
 
@@ -295,11 +308,12 @@ public class ConfigurationMigrationManagerTest {
                 createConfigurationMigrationManager();
 
         Collection<MigrationWarning> migrationWarnings =
-                export(() -> configurationMigrationManager.export(exportPath));
+                export(() -> configurationMigrationManager.export(exportDirectory));
 
         assertThat(migrationWarnings, is(empty()));
-        verify(migratable1).export(exportPath);
-        verify(migratable2).export(exportPath);
+
+        verify(configurationMigratable).export(exportDirectory);
+        verify(dataMigratable).export(exportDirectory);
     }
 
     @Test
@@ -310,18 +324,19 @@ public class ConfigurationMigrationManagerTest {
         MigrationWarning[] expectedWarnings = new MigrationWarning[] {new MigrationWarning(
                 "Warning1"), new MigrationWarning("Warning2")};
 
-        when(migratable1.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of(
-                expectedWarnings[0])));
+        when(configurationMigratable.export(any(Path.class))).thenReturn(new MigrationMetadata(
+                ImmutableList.of(expectedWarnings[0])));
 
-        when(migratable2.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of(
+        when(dataMigratable.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of(
                 expectedWarnings[1])));
 
         Collection<MigrationWarning> migrationWarnings =
-                export(() -> configurationMigrationManager.export(exportPath));
+                export(() -> configurationMigrationManager.export(exportDirectory));
 
         assertThat(migrationWarnings, containsInAnyOrder(expectedWarnings));
-        verify(migratable1).export(exportPath);
-        verify(migratable2).export(exportPath);
+
+        verify(configurationMigratable).export(exportDirectory);
+        verify(dataMigratable).export(exportDirectory);
     }
 
     @Test(expected = MigrationException.class)
@@ -329,14 +344,14 @@ public class ConfigurationMigrationManagerTest {
         ConfigurationMigrationManager configurationMigrationManager =
                 createConfigurationMigrationManager();
 
-        when(migratable1.export(any(Path.class))).thenThrow(new MigrationException(""));
-        when(migratable2.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of()));
+        when(configurationMigratable.export(any(Path.class))).thenThrow(new MigrationException(""));
+        when(dataMigratable.export(any(Path.class))).thenReturn(new MigrationMetadata(ImmutableList.of()));
 
         try {
             export(() -> configurationMigrationManager.export(exportPath));
         } finally {
-            verify(migratable1).export(exportPath);
-            verify(migratable2, never()).export(any(Path.class));
+            verify(configurationMigratable).export(exportPath);
+            verify(dataMigratable, never()).export(any(Path.class));
         }
     }
 
@@ -345,35 +360,34 @@ public class ConfigurationMigrationManagerTest {
         ConfigurationMigrationManager configurationMigrationManager =
                 createConfigurationMigrationManager();
 
-        when(migratable1.export(any(Path.class))).thenThrow(new RuntimeException());
+        when(configurationMigratable.export(any(Path.class))).thenThrow(new RuntimeException());
 
         try {
             export(() -> configurationMigrationManager.export(exportPath));
         } finally {
-            verify(migratable1).export(exportPath);
-            verify(migratable2, never()).export(any(Path.class));
+            verify(configurationMigratable).export(exportPath);
+            verify(dataMigratable, never()).export(any(Path.class));
         }
     }
 
     private ConfigurationMigrationManager createConfigurationMigrationManager() {
-        return new ConfigurationMigrationManager(configurationAdminMigration, mBeanServer) {
-            @Override
-            BundleContext getBundleContext() {
-                return bundleContext;
-            }
-        };
+        return new ConfigurationMigrationManager(configurationAdminMigration,
+                mBeanServer,
+                configurationMigratables,
+                dataMigratables);
     }
 
     private Collection<MigrationWarning> export(Supplier<Collection<MigrationWarning>> exportCall)
             throws Exception {
-        when(Files.createDirectories(exportPath)).thenReturn(exportPath);
+        when(Files.createDirectories(exportDirectory)).thenReturn(exportDirectory);
 
         Collection<MigrationWarning> migrationWarnings = exportCall.get();
 
         verifyStatic();
-        Files.createDirectories(exportPath);
 
-        verify(configurationAdminMigration, times(1)).export(exportPath);
+        Files.createDirectories(exportDirectory);
+
+        verify(configurationAdminMigration, times(1)).export(exportDirectory);
 
         return migrationWarnings;
     }

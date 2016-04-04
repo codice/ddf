@@ -49,6 +49,14 @@ public class SecurityMigratableTest {
 
     private static final String DESCRIPTION = "Exports Security system files";
 
+    private static final String ORGANIZATION = "organization";
+
+    private static final String TITLE = "title";
+
+    private static final String ID = "id";
+
+    private static final String VERSION = "version";
+
     private static final Path SERVER_ENCRYPTION_PROPERTIES_PATH = Paths.get("etc",
             "ws-security",
             "server",
@@ -106,7 +114,11 @@ public class SecurityMigratableTest {
         when(mockMigratableUtil.getJavaPropertyValue(ISSUER_SIGNATURE_PROPERTIES_PATH,
                 CRL_PROP_KEY)).thenReturn(EXPECTED_ISSUER_SIGNATURE_CRL_PATH.toString());
         SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
-                mockMigratableUtil);
+                mockMigratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
 
         // Perform Test
         securityMigratable.export(EXPORT_DIRECTORY);
@@ -126,7 +138,11 @@ public class SecurityMigratableTest {
                         Matchers.<Collection<MigrationWarning>>any());
 
         SecurityMigratable securityMigratable = new SecurityMigratable(DESCRIPTION,
-                migratableUtil);
+                migratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
         MigrationMetadata migrationMetadata = securityMigratable.export(EXPORT_DIRECTORY);
 
         assertThat(migrationMetadata.getMigrationWarnings(), containsInAnyOrder(expectedWarning));
@@ -141,7 +157,11 @@ public class SecurityMigratableTest {
                         eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                mockMigratableUtil);
+                mockMigratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
 
         platformMigratable.export(EXPORT_DIRECTORY);
     }
@@ -157,7 +177,11 @@ public class SecurityMigratableTest {
                         eq(EXPORT_DIRECTORY),
                         Matchers.<Collection<MigrationWarning>>any());
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                mockMigratableUtil);
+                mockMigratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
 
         // Perform test
         platformMigratable.export(EXPORT_DIRECTORY);
@@ -170,7 +194,11 @@ public class SecurityMigratableTest {
         when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
                 CRL_PROP_KEY)).thenReturn(null);
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                mockMigratableUtil);
+                mockMigratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
 
         // Perform test
         MigrationMetadata migrationMetadata = platformMigratable.export(EXPORT_DIRECTORY);
@@ -190,7 +218,11 @@ public class SecurityMigratableTest {
         when(mockMigratableUtil.getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH,
                 CRL_PROP_KEY)).thenReturn("");
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                mockMigratableUtil);
+                mockMigratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
 
         // Perform test
         platformMigratable.export(EXPORT_DIRECTORY);
@@ -203,7 +235,11 @@ public class SecurityMigratableTest {
         doThrow(MigrationException.class).when(mockMigratableUtil)
                 .getJavaPropertyValue(SERVER_ENCRYPTION_PROPERTIES_PATH, CRL_PROP_KEY);
         SecurityMigratable platformMigratable = new SecurityMigratable(DESCRIPTION,
-                mockMigratableUtil);
+                mockMigratableUtil,
+                ORGANIZATION,
+                TITLE,
+                ID,
+                VERSION);
 
         // Perform test
         platformMigratable.export(EXPORT_DIRECTORY);

@@ -104,7 +104,7 @@ class MigrationTaskManager implements AutoCloseable {
 
     /**
      * Resources are automatically released by finishing the export process.
-     *
+     * <p>
      * Must be called after all invocations to exportMetacardQuery. This will attempt
      * to gracefully shutdown the executor service and handle any exceptions that might have
      * occured in the asynchronous threads.
@@ -114,7 +114,7 @@ class MigrationTaskManager implements AutoCloseable {
      * within the scope of a try-with-resources block to utilize {@link AutoCloseable}.
      *
      * @throws MigrationException thrown if some of the some of the metacards couldn't be exported
-     * @throws Exception If an error occurs during closing.
+     * @throws Exception          If an error occurs during closing.
      */
     @Override
     public void close() throws Exception {

@@ -20,8 +20,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 import java.io.BufferedOutputStream;
@@ -36,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.migration.MigrationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -90,19 +87,6 @@ public class MigrationFileWriterTest {
                 .thenReturn(mockFileOutputStream);
         whenNew(BufferedOutputStream.class).withAnyArguments()
                 .thenReturn(mockBufferedOutputStream);
-    }
-
-    @Test
-    public void testInitCallsForceMkDir() throws Exception {
-        mockStatic(FileUtils.class);
-        fileWriter.createExportDirectory(mockPath);
-        verifyStatic();
-    }
-
-    @Test(expected = MigrationException.class)
-    public void testInitThrowsIOException() throws Exception {
-        when(mockPath.toFile()).thenThrow(IOException.class);
-        fileWriter.createExportDirectory(mockPath);
     }
 
     @Test

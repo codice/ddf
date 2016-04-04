@@ -34,6 +34,11 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.api</groupId>
+            <artifactId>platform-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -48,7 +53,10 @@
                             commons-lang,
                             validation-api
                         </Embed-Dependency>
-                    </instructions>
+                        <Import-Package>
+                            org.codice.ddf.platform.services.common
+                        </Import-Package>
+                     </instructions>
                 </configuration>
             </plugin>
             <plugin>

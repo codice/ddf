@@ -30,16 +30,14 @@ import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.migration.ConfigurationMigratable;
+import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.UnexpectedMigrationException;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,21 +62,36 @@ public class ConfigurationMigrationManager
 
     private final MBeanServer mBeanServer;
 
+    private final List<ConfigurationMigratable> configurationMigratables;
+
+    private final List<DataMigratable> dataMigratables;
+
     /**
      * Constructor.
      *
      * @param configurationAdminMigration object used to export {@link org.osgi.service.cm.Configuration}
      *                                    objects from {@link org.osgi.service.cm.ConfigurationAdmin}
      * @param mBeanServer                 object used to register this object as an MBean
+     * @param configurationMigratables    list of {@link ConfigurationMigratable} services. Needs
+     *                                    to be kept up-to-date by the client of this class.
+     * @param dataMigratables             list of {@link DataMigratable} services. Needs
+     *                                    to be kept up-to-date by the client of this class.
      */
     public ConfigurationMigrationManager(
             @NotNull ConfigurationAdminMigration configurationAdminMigration,
-            @NotNull MBeanServer mBeanServer) {
+            @NotNull MBeanServer mBeanServer,
+            @NotNull List<ConfigurationMigratable> configurationMigratables,
+            @NotNull List<DataMigratable> dataMigratables) {
         notNull(configurationAdminMigration, "ConfigurationAdminMigration cannot be null");
         notNull(mBeanServer, "MBeanServer cannot be null");
+        notNull(configurationMigratables,
+                "List of ConfigurationMigratable services cannot be null");
+        notNull(dataMigratables, "List of DataMigratable services cannot be null");
 
         this.configurationAdminMigration = configurationAdminMigration;
         this.mBeanServer = mBeanServer;
+        this.configurationMigratables = configurationMigratables;
+        this.dataMigratables = dataMigratables;
     }
 
     public void init() throws Exception {
@@ -120,7 +133,6 @@ public class ConfigurationMigrationManager
         return migrationWarnings;
     }
 
-    @Override
     public Collection<MigrationWarning> export(@NotNull String exportDirectory)
             throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
@@ -128,47 +140,43 @@ public class ConfigurationMigrationManager
         return export(Paths.get(exportDirectory));
     }
 
-    BundleContext getBundleContext() {
-        return FrameworkUtil.getBundle(ConfigurationMigrationManager.class)
-                .getBundleContext();
+    private Collection<MigrationWarning> exportMigratable(Migratable migratable,
+            Path exportDirectory) throws IOException {
+        Stopwatch stopwatch = null;
+
+        if (LOGGER.isDebugEnabled()) {
+            stopwatch = Stopwatch.createStarted();
+        }
+
+        MigrationMetadata migrationMetadata = migratable.export(exportDirectory);
+
+        if (LOGGER.isDebugEnabled() && stopwatch != null) {
+            LOGGER.debug("Export time: {}",
+                    stopwatch.stop()
+                            .toString());
+        }
+
+        return migrationMetadata.getMigrationWarnings();
     }
 
-    private Collection<MigrationWarning> exportMigratables(Path exportDirectory) {
+    private Collection<MigrationWarning> exportMigratables(Path exportDirectory)
+            throws IOException {
         List<MigrationWarning> warnings = new LinkedList<>();
 
-        for (ServiceReference<Migratable> serviceReference : getMigratableServiceReferences()) {
-            Migratable migratable = getBundleContext().getService(serviceReference);
+        for (ConfigurationMigratable configMigratable : configurationMigratables) {
+            warnings.addAll(exportMigratable(configMigratable, exportDirectory));
 
-            LOGGER.debug("Exporting {}", migratable.getDescription());
+        }
 
-            Stopwatch stopwatch = null;
+        for (DataMigratable dataMigratable : dataMigratables) {
 
-            if (LOGGER.isDebugEnabled()) {
-                stopwatch = Stopwatch.createStarted();
-            }
+            Path dataMigratableDirectory = exportDirectory.resolve(dataMigratable.getId());
+            Files.createDirectories(dataMigratableDirectory);
 
-            MigrationMetadata migrationMetadata = migratable.export(exportDirectory);
+            warnings.addAll(exportMigratable(dataMigratable, exportDirectory));
 
-            if (LOGGER.isDebugEnabled() && stopwatch != null) {
-                LOGGER.debug("Export time: {}",
-                        stopwatch.stop()
-                                .toString());
-            }
-
-            warnings.addAll(migrationMetadata.getMigrationWarnings());
         }
 
         return warnings;
-    }
-
-    private Collection<ServiceReference<Migratable>> getMigratableServiceReferences() {
-        try {
-            return getBundleContext().getServiceReferences(Migratable.class, null);
-        } catch (InvalidSyntaxException e) {
-            LOGGER.error(
-                    "Export failed: could not get list of Migratable service references from bundle context",
-                    e);
-            throw new UnexpectedMigrationException("Export failed", e);
-        }
     }
 }

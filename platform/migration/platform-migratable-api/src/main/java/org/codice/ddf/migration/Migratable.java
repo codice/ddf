@@ -17,6 +17,8 @@ import java.nio.file.Path;
 
 import javax.validation.constraints.NotNull;
 
+import org.codice.ddf.platform.services.common.Describable;
+
 /**
  * This interface provides the mechanism for implementers to define how their data shall be
  * exported for later import into a new system. The framework that handles the Migratables
@@ -34,7 +36,7 @@ import javax.validation.constraints.NotNull;
  * </b>
  * </p>
  */
-public interface Migratable {
+public interface Migratable extends Describable {
 
     /**
      * Exports all migratable data to the specified directory
@@ -46,12 +48,4 @@ public interface Migratable {
     @NotNull
     MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
 
-    /**
-     * Gets a description of the migratable data. This description will be
-     * used for display purposes by consumers of {@link Migratable} services.
-     *
-     * @return short description of the migratable data
-     */
-    @NotNull
-    String getDescription();
 }

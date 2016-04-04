@@ -20,8 +20,12 @@
           class="org.codice.ddf.security.migratable.impl.SecurityMigratable">
         <argument value="Exports Security system files"/>
         <argument ref="migratableUtil"/>
+        <argument value="1.0"/>
+        <argument value="org.codice.ddf.catalog"/>
+        <argument value="Catalog Migration"/>
+        <argument value="DDF"/>
     </bean>
 
     <service id="securityMigratableService" ref="securityMigratable"
-             interface="org.codice.ddf.migration.Migratable"/>
+             interface="org.codice.ddf.migration.ConfigurationMigratable"/>
 </blueprint>

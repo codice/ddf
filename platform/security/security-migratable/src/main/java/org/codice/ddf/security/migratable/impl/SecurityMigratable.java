@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.migration.AbstractDescribable;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
@@ -36,27 +39,31 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class handles the export process for all Security system files
  */
-public class SecurityMigratable implements ConfigurationMigratable {
+public class SecurityMigratable extends AbstractDescribable implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityMigratable.class);
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(
-            Paths.get("etc", "ws-security", "server", "encryption.properties"),
+    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(Paths.get("etc",
+            "ws-security",
+            "server",
+            "encryption.properties"),
             Paths.get("etc", "ws-security", "server", "signature.properties"),
             Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
             Paths.get("etc", "ws-security", "issuer", "signature.properties"));
-            
-    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
-    private final String description;
+    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
     private final MigratableUtil migratableUtil;
 
-    public SecurityMigratable(String description, MigratableUtil migratableUtil) {
-        notNull(description, "description cannot be null");
-        this.description = description;
+    public SecurityMigratable(@NotNull String description, MigratableUtil migratableUtil,
+            @NotNull String organization, @NotNull String title, @NotNull String id,
+            @NotNull String version) {
+
+        super(version, id, title, description, organization);
+
+        notNull(migratableUtil);
         this.migratableUtil = migratableUtil;
     }
 
@@ -67,12 +74,8 @@ public class SecurityMigratable implements ConfigurationMigratable {
         return new MigrationMetadata(migrationWarnings);
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    private void exportCrlFiles(Path exportDirectory, Collection<MigrationWarning> migrationWarnings)
-        throws MigrationException {
+    private void exportCrlFiles(Path exportDirectory,
+            Collection<MigrationWarning> migrationWarnings) throws MigrationException {
         for (Path propertiesPath : PROPERTIES_FILES) {
             exportCrlFile(propertiesPath, exportDirectory, migrationWarnings);
         }
@@ -80,7 +83,8 @@ public class SecurityMigratable implements ConfigurationMigratable {
 
     private void exportCrlFile(Path propertiesPath, Path exportDirectory,
             Collection<MigrationWarning> migrationWarnings) throws MigrationException {
-        LOGGER.debug("Exporting CRL from property [{}] in file [{}]...", CRL_PROP_KEY,
+        LOGGER.debug("Exporting CRL from property [{}] in file [{}]...",
+                CRL_PROP_KEY,
                 propertiesPath.toString());
         String crlPathStr = migratableUtil.getJavaPropertyValue(propertiesPath, CRL_PROP_KEY);
 
@@ -89,9 +93,11 @@ public class SecurityMigratable implements ConfigurationMigratable {
         }
 
         if (StringUtils.isWhitespace(crlPathStr)) {
-            String error = String
-                    .format("Failed to export CRL. No CRL path found in file [%s]. Property [%s] from properties file [%s] has a blank value.",
-                            propertiesPath, CRL_PROP_KEY, propertiesPath);
+            String error = String.format(
+                    "Failed to export CRL. No CRL path found in file [%s]. Property [%s] from properties file [%s] has a blank value.",
+                    propertiesPath,
+                    CRL_PROP_KEY,
+                    propertiesPath);
             throw new ExportMigrationException(error);
         }
 

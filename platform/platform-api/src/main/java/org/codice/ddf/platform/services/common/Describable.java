@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.platform.services.common;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Describable is used to capture a basic description of a service. This provides valuable runtime
  * information to the user regarding the application bundles and OSGi.
@@ -26,7 +28,7 @@ public interface Describable {
      *
      * @return the version of the item being described (example: 1.0)
      */
-    String getVersion();
+    @NotNull String getVersion();
 
     /**
      * Returns the name, aka ID, of the describable item. The name should be unique for each
@@ -36,7 +38,7 @@ public interface Describable {
      *
      * @return ID of the item
      */
-    String getId();
+    @NotNull String getId();
 
     /**
      * Returns the title of the describable item. It is generally more verbose than the name (aka
@@ -44,19 +46,19 @@ public interface Describable {
      *
      * @return title of the item (example: File System Provider)
      */
-    String getTitle();
+    @NotNull String getTitle();
 
     /**
      * Returns a description of the describable item.
      *
      * @return description of the item (example: Provider that returns back static results)
      */
-    String getDescription();
+    @NotNull String getDescription();
 
     /**
      * Returns the organization associated with the describable item.
      *
      * @return organizational name or acronym (example: USAF)
      */
-    String getOrganization();
+    @NotNull String getOrganization();
 }

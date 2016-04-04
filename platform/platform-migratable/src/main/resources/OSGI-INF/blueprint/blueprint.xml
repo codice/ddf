@@ -19,8 +19,12 @@
     <bean id="platformMigratable" class="org.codice.ddf.platform.migratable.impl.PlatformMigratable">
         <argument value="Exports Platform system files" />
         <argument ref="migrationUtil" />
+        <argument value="1.0"/>
+        <argument value="org.codice.ddf.catalog"/>
+        <argument value="Catalog Migration"/>
+        <argument value="DDF"/>
     </bean>
 
     <service id="platformMigratableService" ref="platformMigratable"
-        interface="org.codice.ddf.migration.Migratable" />
+        interface="org.codice.ddf.migration.ConfigurationMigratable" />
 </blueprint>

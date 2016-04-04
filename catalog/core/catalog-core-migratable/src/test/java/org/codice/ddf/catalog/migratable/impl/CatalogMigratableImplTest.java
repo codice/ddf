@@ -57,11 +57,17 @@ import ddf.catalog.source.UnsupportedQueryException;
 @RunWith(MockitoJUnitRunner.class)
 public class CatalogMigratableImplTest {
 
-    private static final String DESCRIPTION = "description";
-
     private static final Path EXPORT_PATH = Paths.get("etc", "exported");
 
-    private static final String EXPORT_DIR_NAME = "org.codice.ddf.catalog";
+    private static final String DESCRIPTION = "description";
+
+    private static final String VERSION = "version";
+
+    private static final String ID = "id";
+
+    private static final String TITLE = "title";
+
+    private static final String ORGANIZATION = "organization";
 
     @Captor
     private ArgumentCaptor<QueryRequest> argQueryRequest;
@@ -89,12 +95,16 @@ public class CatalogMigratableImplTest {
         config = new CatalogMigratableConfig();
         config.setExportQueryPageSize(2);
 
-        migratable = new CatalogMigratableImpl(DESCRIPTION,
-                mockFramework,
+        migratable = new CatalogMigratableImpl(mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
                 config,
-                mockTaskManager);
+                mockTaskManager,
+                VERSION,
+                ID,
+                TITLE,
+                DESCRIPTION,
+                ORGANIZATION);
 
         when(mockFilterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
@@ -110,37 +120,67 @@ public class CatalogMigratableImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullDescription() {
-        new CatalogMigratableImpl(null, mockFramework, mockFilterBuilder, mockFileWriter, config);
+        new CatalogMigratableImpl(mockFramework,
+                mockFilterBuilder,
+                mockFileWriter,
+                config,
+                VERSION,
+                ID,
+                TITLE,
+                null,
+                ORGANIZATION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullProvider() {
-        new CatalogMigratableImpl(DESCRIPTION, null, mockFilterBuilder, mockFileWriter, config);
+        new CatalogMigratableImpl(null,
+                mockFilterBuilder,
+                mockFileWriter,
+                config,
+                VERSION,
+                ID,
+                TITLE,
+                DESCRIPTION,
+                ORGANIZATION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFilterBuilder() {
-        new CatalogMigratableImpl(DESCRIPTION, mockFramework, null, mockFileWriter, config);
+        new CatalogMigratableImpl(mockFramework,
+                null,
+                mockFileWriter,
+                config,
+                VERSION,
+                ID,
+                TITLE,
+                DESCRIPTION,
+                ORGANIZATION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFileWriter() {
-        new CatalogMigratableImpl(DESCRIPTION, mockFramework, mockFilterBuilder, null, config);
+        new CatalogMigratableImpl(mockFramework,
+                mockFilterBuilder,
+                null,
+                config,
+                VERSION,
+                ID,
+                TITLE,
+                DESCRIPTION,
+                ORGANIZATION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfig() {
-        new CatalogMigratableImpl(DESCRIPTION,
-                mockFramework,
+        new CatalogMigratableImpl(mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
-                null);
-    }
-
-    @Test
-    public void exportSetsSubDirectory() {
-        migratable.export(EXPORT_PATH);
-        assertThat(config.getExportPath(), is(EXPORT_PATH.resolve(EXPORT_DIR_NAME)));
+                null,
+                VERSION,
+                ID,
+                TITLE,
+                DESCRIPTION,
+                ORGANIZATION);
     }
 
     @Test
@@ -153,12 +193,6 @@ public class CatalogMigratableImplTest {
         assertThat(argQueryRequest.getValue()
                 .getQuery()
                 .requestsTotalResultsCount(), is(false));
-    }
-
-    @Test
-    public void exportFileWriterCreatesExportDirectory() {
-        migratable.export(EXPORT_PATH);
-        verify(mockFileWriter).createExportDirectory(any(Path.class));
     }
 
     @Test(expected = ExportMigrationException.class)
@@ -247,11 +281,15 @@ public class CatalogMigratableImplTest {
     public void exportWhenProviderQueryFails() throws Exception {
         when(mockFramework.query(any())).thenThrow(new UnsupportedQueryException(""));
 
-        CatalogMigratableImpl migratable = new CatalogMigratableImpl(DESCRIPTION,
-                mockFramework,
+        CatalogMigratableImpl migratable = new CatalogMigratableImpl(mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
-                config);
+                config,
+                VERSION,
+                ID,
+                TITLE,
+                DESCRIPTION,
+                ORGANIZATION);
 
         migratable.export(EXPORT_PATH);
     }
