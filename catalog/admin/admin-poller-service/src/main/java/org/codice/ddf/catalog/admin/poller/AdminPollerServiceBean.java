@@ -12,9 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.catalog.admin.plugin;
+package org.codice.ddf.catalog.admin.poller;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -31,6 +33,7 @@ import javax.management.ObjectName;
 
 import org.apache.shiro.util.CollectionUtils;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
+import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -42,16 +45,37 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.service.ConfiguredService;
+import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 
-public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBeanMBean {
+public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(AdminSourcePollerServiceBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminPollerServiceBean.class);
 
     private static final String MAP_ENTRY_ID = "id";
 
@@ -75,26 +99,41 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
 
     private static final String SERVICE_NAME = ":service=admin-source-poller-service";
 
+    private static final String REGISTRY_ID = "registry-id";
+
+    private static final String PUBLISHED_LOCATIONS = "published-locations";
+
     private final ObjectName objectName;
 
     private final MBeanServer mBeanServer;
 
     private final AdminSourceHelper helper;
 
-    public AdminSourcePollerServiceBean(ConfigurationAdmin configurationAdmin) {
+    private CatalogFramework catalogFramework;
+
+    private FilterBuilder filterBuilder;
+
+    private Map<String, CatalogStore> catalogStoreMap;
+
+    public AdminPollerServiceBean(ConfigurationAdmin configurationAdmin,
+            CatalogFramework catalogFramework, FilterBuilder filterBuilder,
+            Map<String, CatalogStore> catalogStoreMap) {
         helper = getHelper();
         helper.configurationAdmin = configurationAdmin;
 
         mBeanServer = ManagementFactory.getPlatformMBeanServer();
         ObjectName objName = null;
         try {
-            objName = new ObjectName(AdminSourcePollerServiceBean.class.getName() + SERVICE_NAME);
+            objName = new ObjectName(AdminPollerServiceBean.class.getName() + SERVICE_NAME);
         } catch (MalformedObjectNameException e) {
             LOGGER.error("Unable to create Admin Source Poller Service MBean with name [{}].",
-                    AdminSourcePollerServiceBean.class.getName() + SERVICE_NAME,
+                    AdminPollerServiceBean.class.getName() + SERVICE_NAME,
                     e);
         }
         objectName = objName;
+        this.catalogFramework = catalogFramework;
+        this.filterBuilder = filterBuilder;
+        this.catalogStoreMap = catalogStoreMap;
     }
 
     public void init() {
@@ -215,6 +254,116 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
         return metatypes;
     }
 
+    @Override
+    public List<Serializable> updatePublications(String source, List<String> destinations)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        List<Serializable> updatedPublishedLocations = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(destinations)) {
+            return updatedPublishedLocations;
+        }
+
+        Filter filter = filterBuilder.attribute(REGISTRY_ID)
+                .is()
+                .equalTo()
+                .text(source);
+        Query query = new QueryImpl(filter);
+
+        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(query));
+
+        List<Result> metacards = queryResponse.getResults();
+        if (!CollectionUtils.isEmpty(metacards)) {
+            Metacard metacard = metacards.get(0)
+                    .getMetacard();
+            if (metacard == null) {
+                return updatedPublishedLocations;
+            }
+            List<Serializable> currentlyPublishedLocations = metacard.getAttribute(
+                    PUBLISHED_LOCATIONS)
+                    .getValues();
+
+            List<String> publishLocations = destinations.stream()
+                    .filter(destination -> !currentlyPublishedLocations.contains(destination))
+                    .collect(Collectors.toList());
+
+            List<String> unpublishLocations = currentlyPublishedLocations.stream()
+                    .map(destination -> (String) destination)
+                    .filter(destination -> !destinations.contains(destination))
+                    .collect(Collectors.toList());
+
+            updatedPublishedLocations.addAll(destinations.stream()
+                    .filter(destination -> !publishLocations.contains(destination))
+                    .collect(Collectors.toList()));
+
+            for (String id : publishLocations) {
+                CreateRequest createRequest = new CreateRequestImpl(metacard);
+                try {
+                    CreateResponse createResponse = catalogStoreMap.get(id)
+                            .create(createRequest);
+                    if (createResponse.getProcessingErrors()
+                            .isEmpty()) {
+                        updatedPublishedLocations.addAll(createResponse.getCreatedMetacards()
+                                .stream()
+                                .filter(createdMetacard -> createdMetacard.getAttribute(REGISTRY_ID)
+                                        .equals(metacard.getAttribute(REGISTRY_ID)))
+                                .map(createdMetacard -> id)
+                                .collect(Collectors.toList()));
+                    }
+                } catch (IngestException e) {
+                    LOGGER.error("Unable to create metacard in catalogStore {}", id, e);
+                    if (checkIfMetacardExists(id,
+                            metacard.getAttribute(REGISTRY_ID)
+                                    .getValue()
+                                    .toString())) {
+                        //The metacard is still in the catalogStore, thus it was persisted
+                        updatedPublishedLocations.add(id);
+                    }
+                }
+            }
+            for (String id : unpublishLocations) {
+                DeleteRequest deleteRequest = new DeleteRequestImpl(metacard.getId());
+                try {
+                    DeleteResponse deleteResponse = catalogStoreMap.get(id)
+                            .delete(deleteRequest);
+                } catch (IngestException e) {
+                    LOGGER.error("Unable to delete metacard from catalogStore {}", id, e);
+                    if (checkIfMetacardExists(id,
+                            metacard.getAttribute(REGISTRY_ID)
+                                    .getValue()
+                                    .toString())) {
+                        //The metacard is still in the catalogStore, thus wasn't unpublished
+                        updatedPublishedLocations.add(id);
+                    }
+
+                }
+            }
+
+            metacard.setAttribute(new AttributeImpl(PUBLISHED_LOCATIONS,
+                    updatedPublishedLocations));
+            try {
+                catalogFramework.update(new UpdateRequestImpl(metacard.getId(), metacard));
+            } catch (IngestException e) {
+                LOGGER.error("Unable to update metacard", e);
+            } catch (SourceUnavailableException e) {
+                LOGGER.error("Unable to update metacard, source unavailable", e);
+            }
+        }
+
+        return updatedPublishedLocations;
+    }
+
+    private Boolean checkIfMetacardExists(String storeId, String registryId)
+            throws UnsupportedQueryException {
+        Filter filter = filterBuilder.attribute(REGISTRY_ID)
+                .is()
+                .equalTo()
+                .text(registryId);
+        Query query = new QueryImpl(filter);
+        SourceResponse queryResponse = catalogStoreMap.get(storeId)
+                .query(new QueryRequestImpl(query));
+        return queryResponse.getHits() > 0;
+    }
+
     protected AdminSourceHelper getHelper() {
         return new AdminSourceHelper();
     }
@@ -223,7 +372,7 @@ public class AdminSourcePollerServiceBean implements AdminSourcePollerServiceBea
         protected ConfigurationAdmin configurationAdmin;
 
         private BundleContext getBundleContext() {
-            Bundle bundle = FrameworkUtil.getBundle(AdminSourcePollerServiceBean.class);
+            Bundle bundle = FrameworkUtil.getBundle(AdminPollerServiceBean.class);
             if (bundle != null) {
                 return bundle.getBundleContext();
             }

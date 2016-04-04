@@ -322,6 +322,12 @@
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
 
+    <feature name="admin-poller-service-bean" install="auto" version="${project.version}"
+             description="DDF Admin Poller">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.admin/catalog-admin-poller-service/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-streaming" install="manual" version="${project.version}"
              description="DDF Generic Input Transformer API">
         <feature prerequisite="true">catalog-app</feature>
@@ -364,5 +370,5 @@
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
-
+    
 </features>
