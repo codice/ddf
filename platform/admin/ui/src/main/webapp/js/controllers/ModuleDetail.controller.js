@@ -18,9 +18,11 @@ define([
     'marionette',
     'js/views/module/ModuleDetail.layout',
     'js/models/module/ModulePlugin',
+    'js/models/AppConfigPlugin',
     'js/views/application/application-detail/PluginTabContent.view',
-    'js/views/application/application-detail/PluginTab.view'
-],function (Backbone, Marionette, ModuleDetailLayout, ModulePlugin, PluginTabContentView, PluginTabView) {
+    'js/views/application/application-detail/PluginTab.view',
+    'q'
+],function (Backbone, Marionette, ModuleDetailLayout, ModulePlugin, AppConfigPlugin, PluginTabContentView, PluginTabView, Q) {
 
     var ModuleDetailController = Marionette.Controller.extend({
 
@@ -31,34 +33,62 @@ define([
             var layoutView = new ModuleDetailLayout();
             this.regions.applications.show(layoutView);
 
-            var staticModulePlugins = [
-                 new Backbone.Model({
-                    'id': 'systemInformationModuleTabID',
-                    'displayName': 'Information',
-                    'javascriptLocation': 'js/views/module/plugins/systeminformation/Plugin.view.js'
-                }),
-                new Backbone.Model({
-                    'id': 'featureModuleTabID',
-                    'displayName': 'Features',
-                    'javascriptLocation': 'js/views/module/plugins/feature/Plugin.view.js'
-                }),
-                new Backbone.Model({
-                    'id': 'configurationModuleTabID',
-                    'displayName': 'Configuration',
-                    'javascriptLocation': 'js/views/module/plugins/configuration/Plugin.view.js'
-                 })
-            ];
+            this.fetchSystemConfigPlugins().then(function(systemConfigPlugins){
+                var staticModulePlugins = [
+                     new Backbone.Model({
+                        'id': 'systemInformationModuleTabID',
+                        'displayName': 'Information',
+                        'javascriptLocation': 'js/views/module/plugins/systeminformation/Plugin.view.js'
+                    }),
+                    new Backbone.Model({
+                        'id': 'featureModuleTabID',
+                        'displayName': 'Features',
+                        'javascriptLocation': 'js/views/module/plugins/feature/Plugin.view.js'
+                    }),
+                    new Backbone.Model({
+                        'id': 'configurationModuleTabID',
+                        'displayName': 'Configuration',
+                        'javascriptLocation': 'js/views/module/plugins/configuration/Plugin.view.js'
+                     })
+                ];
 
-            var collection = new ModulePlugin.Collection();
-            collection.comparator = function(model) {
-                return model.get('displayName');
-            };
-            collection.add(staticModulePlugins);
-            collection.sort();
+                var staticList = new ModulePlugin.Collection();
+                staticList.comparator = function(model) {
+                    return model.get('displayName');
+                };
+                staticList.add(staticModulePlugins);
 
-            layoutView.tabs.show(new PluginTabView({collection: collection}));
-            layoutView.tabContent.show(new PluginTabContentView({collection: collection}));
-            layoutView.selectFirstTab();
+                var dynamicList = new Backbone.Collection();
+                dynamicList.comparator = function(model) {
+                    return model.get('displayName');
+                };
+                dynamicList.add(systemConfigPlugins.models);
+                dynamicList.sort();
+
+                var completeList = new Backbone.Collection();
+                completeList.add(staticList.models);
+                completeList.add(dynamicList.models);
+
+                layoutView.tabs.show(new PluginTabView({collection: completeList}));
+                layoutView.tabContent.show(new PluginTabContentView({collection: completeList}));
+                layoutView.selectFirstTab();
+            }).fail(function(error){
+                    throw error;
+            });
+        },
+        fetchSystemConfigPlugins: function(){
+            var pageName = 'system-module';
+            var collection = new AppConfigPlugin.Collection();
+            var defer = Q.defer();
+            collection.fetchByAppName(pageName, {
+                success: function(){
+                    defer.resolve(collection);
+                },
+                failure: function(){
+                    defer.reject(new Error("Error fetching system page plugins for {0}"));
+                }
+            });
+            return defer.promise;
         }
     });
 

@@ -74,6 +74,12 @@
         <bundle>mvn:ddf.admin.core/admin-core-migration-commands/${project.version}</bundle>
     </feature>
 
+    <feature name="admin-core-logviewer" install="auto" version="${project.version}"
+             description="Admin UI's logviewer page to display karaf logs">
+        <feature prerequisite="true">admin-core</feature>
+        <bundle>mvn:ddf.admin.core/admin-core-logviewer/${project.version}</bundle>
+    </feature>
+
     <feature name="admin-app" install="auto" version="${project.version}"
              description="Administration application for installing and managing DDF.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::DDF Admin">
         <feature prerequisite="true">security-services-app</feature>

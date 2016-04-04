@@ -1,0 +1,26 @@
+@keyframes slideAnimationKeyframes {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.row {
+  border-bottom: 1px #ccc solid;
+  padding: 5px;
+  word-wrap: break-word;
+}
+
+.dim {
+  opacity: 0.5;
+}
+
+.rowAnimation {
+  position: relative;
+  animation: slideAnimationKeyframes push ease 0.25s;
+}

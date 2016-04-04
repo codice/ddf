@@ -1,0 +1,61 @@
+{
+  "name": "logviewer-ui",
+  "author": "Codice",
+  "description": "UI for viewing the Karaf Logs in the Admin UI",
+  "version": "0.1.0",
+  "license": "LGPL-3.0",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "standard ./src/**/*.js",
+    "test": "browserify -d ./src/test/js/*.js | node",
+    "prebuild": "mkdirp ./target/webapp",
+    "build:less": "lessc src/main/webapp/js/index.less > ./target/webapp/index.css",
+    "build:js": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js",
+    "build": "npm run build:less; npm run build:js"
+  },
+  "keywords": [
+    "log",
+    "viewer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "dependencies": {
+    "color": "^0.11.1",
+    "concat-stream": "^1.5.1",
+    "event-stream": "^3.3.2",
+    "moment": "^2.11.2",
+    "random-item": "^1.0.0",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-visibility-sensor": "^3.0.0",
+    "redux": "^3.3.1"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "less": "^2.6.1",
+    "minifyify": "^7.3.2",
+    "mkdirp": "^0.5.1",
+    "standard": "^6.0.8",
+    "tape": "^4.5.1"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "stage-0",
+            "es2015",
+            "react"
+          ]
+        }
+      ]
+    ]
+  }
+}
