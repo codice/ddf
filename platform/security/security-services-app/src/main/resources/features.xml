@@ -58,8 +58,8 @@
     <feature name="security-pdp-authz" install="manual" version="${project.version}"
              description="DDF Security PDP.">
         <feature prerequisite="true">security-expansion</feature>
-        <feature prerequisite="true">security-pep-user-attributes</feature>
-        <feature prerequisite="true">security-pep-metacard-attributes</feature>
+        <feature prerequisite="true">security-expansion-user-attributes</feature>
+        <feature prerequisite="true">security-expansion-metacard-attributes</feature>
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
     </feature>
 
@@ -68,14 +68,14 @@
         <bundle>mvn:ddf.security.pep/security-pep-interceptor/${project.version}</bundle>
     </feature>
 
-    <feature name="security-pep-user-attributes" install="manual" version="${project.version}"
-             description="DDF Security PEP User Attributes Expansion">
-        <bundle>mvn:ddf.security.pep/security-pep-userattr-map/${project.version}</bundle>
+    <feature name="security-expansion-user-attributes" install="manual" version="${project.version}"
+             description="DDF Security Expansion User Attributes Expansion">
+        <bundle>mvn:ddf.security.expansion/security-expansion-userattr-map/${project.version}</bundle>
     </feature>
 
-    <feature name="security-pep-metacard-attributes" install="manual" version="${project.version}"
-             description="DDF Security PEP Metacard Attributes Expansion">
-        <bundle>mvn:ddf.security.pep/security-pep-metacardattr-map/${project.version}</bundle>
+    <feature name="security-expansion-metacard-attributes" install="manual" version="${project.version}"
+             description="DDF Security Expansion Metacard Attributes Expansion">
+        <bundle>mvn:ddf.security.expansion/security-expansion-metacardattr-map/${project.version}</bundle>
     </feature>
 
     <feature name="sts-prereqs" install="manual" version="${project.version}">
@@ -257,8 +257,8 @@
              description="Installs the default features needed for web-based SSO authentication.">
         <feature prerequisite="true">security-policy-context</feature>
         <feature prerequisite="true">security-expansion</feature>
-        <feature>security-pep-user-attributes</feature>
-        <feature>security-pep-metacard-attributes</feature>
+        <feature>security-expansion-user-attributes</feature>
+        <feature>security-expansion-metacard-attributes</feature>
         <feature>security-sts-server</feature>
         <feature>security-filter-web-sso</feature>
         <feature>security-filter-login</feature>
