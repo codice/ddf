@@ -24,7 +24,6 @@ define(['application',
         // Load non attached libs and plugins
         'datepicker',
         'datepickerOverride',
-        'datepickerAddon',
         'multiselect',
         'multiselectfilter'
     ],

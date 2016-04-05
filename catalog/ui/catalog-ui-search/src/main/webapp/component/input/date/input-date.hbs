@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,25 +10,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define */
-define(['application',
-        'marionette',
-        'backbone',
-        'component/content/content.view',
-        // Load non attached libs and plugins
-        'datepicker',
-        'datepickerOverride',
-        'multiselect',
-        'multiselectfilter'
-    ],
-    function(Application, Marionette, Backbone, ContentView) {
-
-        Application.App.module('ContentModule', function(ContentModule) {
-
-            ContentModule.addInitializer(function(){
-                var contentView = new ContentView();
-                contentView.render();
-            });
-        });
-
-});
+ --}}
+<div class="input-label">
+    <label for="{{cid}}">
+        <span class=""></span>
+        {{label}}
+        {{#unless label}}
+            {{id}}
+        {{/unless}}
+    </label>
+</div>
+<div class="input-value">
+    <div class='input-group date'>
+        <input type='text' class="form-control"/>
+        <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </span>
+    </div>
+    <span class="fa fa-undo input-revert is-button"></span>
+    <label>
+        {{humanReadableDate}}
+    </label>
+</div>

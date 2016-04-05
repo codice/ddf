@@ -16,9 +16,11 @@
     max-height: ~"calc(100% - 44px - 44px - 20px - 44px)";
   }
 
-  .metacardBasic-properties ddf-input {
+  .metacardBasic-properties @{customElementNamespace}input,
+  .metacardBasic-properties @{customElementNamespace}input-date{
     display: inline-block;
     width: 50%;
+    vertical-align: top;
   }
 
   .metacardBasic-properties [data-id=thumbnail] {

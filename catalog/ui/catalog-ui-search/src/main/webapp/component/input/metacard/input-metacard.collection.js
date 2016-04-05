@@ -14,14 +14,15 @@ define([
     'underscore',
     'backbone',
     'component/input/input',
-    'component/input/thumbnail/input-thumbnail'
-], function (_, Backbone, TextInput, ThumbnailInput) {
+    'component/input/thumbnail/input-thumbnail',
+    'component/input/date/input-date'
+], function (_, Backbone, TextInput, ThumbnailInput, DateInput) {
 
     var MetacardInputCollection = Backbone.Collection.extend({
         model: function(attrs, options){
             switch (options.type) {
                 case 'DATE':
-                    return new TextInput(attrs);
+                    return new DateInput(attrs);
                     break;
                 case 'STRING':
                     return new TextInput(attrs);

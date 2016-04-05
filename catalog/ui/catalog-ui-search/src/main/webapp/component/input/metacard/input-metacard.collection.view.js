@@ -19,13 +19,16 @@ define([
     'jquery',
     'js/CustomElements',
     '../input.view',
-    '../thumbnail/input-thumbnail.view'
-], function (Marionette, _, $, CustomElements, InputView, InputThumbnailView) {
+    '../thumbnail/input-thumbnail.view',
+    '../date/input-date.view'
+], function (Marionette, _, $, CustomElements, InputView, InputThumbnailView, InputDateView) {
 
     var InputCollectionView = Marionette.CollectionView.extend({
         tagName: CustomElements.register('input-metacard-collection'),
         getChildView: function (item) {
             switch (item.type) {
+                case 'date':
+                    return InputDateView;
                 case 'thumbnail':
                     return InputThumbnailView;
                 case 'text':

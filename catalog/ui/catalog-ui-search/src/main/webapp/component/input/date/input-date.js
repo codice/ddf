@@ -9,25 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define */
-define(['application',
-        'marionette',
-        'backbone',
-        'component/content/content.view',
-        // Load non attached libs and plugins
-        'datepicker',
-        'datepickerOverride',
-        'multiselect',
-        'multiselectfilter'
-    ],
-    function(Application, Marionette, Backbone, ContentView) {
+/*global define*/
+define([
+    'underscore',
+    'backbone',
+    '../input'
+], function (_, Backbone, Input) {
 
-        Application.App.module('ContentModule', function(ContentModule) {
-
-            ContentModule.addInitializer(function(){
-                var contentView = new ContentView();
-                contentView.render();
-            });
-        });
-
+    return Input.extend({
+        type: 'date'
+    });
 });

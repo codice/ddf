@@ -16,6 +16,7 @@ require.config({
         bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
         bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
         cometd: 'lib/cometd/org/cometd',
+        bootstrapDatepicker: 'lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
         moment: 'lib/moment/min/moment.min',
         perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
@@ -32,8 +33,8 @@ require.config({
         underscore: 'lib/lodash/lodash',
         marionette: 'lib/marionette/lib/backbone.marionette',
         // TODO test combining
-        modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
-        collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+        modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder',
+        collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder',
         // application
         application: 'js/application',
         cometdinit: 'js/cometd',
@@ -53,7 +54,6 @@ require.config({
         slider: 'lib/jquery-ui/ui/minified/jquery.ui.slider.min',
         mouse: 'lib/jquery-ui/ui/minified/jquery.ui.mouse.min',
         datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
-        datepickerAddon: 'lib/jqueryui-timepicker-addon/src/jquery-ui-timepicker-addon',
         purl: 'lib/purl/purl',
         multiselect: 'lib/multiselect/src/jquery.multiselect',
         multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
@@ -81,6 +81,13 @@ require.config({
                 'jquery'
             ],
             exports: 'Backbone'
+        },
+        bootstrapDatepicker: {
+            deps: [
+                'jquery',
+                'moment',
+                'bootstrap'
+            ]
         },
         modelbinder: {
             deps: [
@@ -129,7 +136,6 @@ require.config({
         slider: ['mouse'],
         datepicker: ['slider'],
         datepickerOverride: ['datepicker'],
-        datepickerAddon: ['datepicker'],
         progressbar: [
             'jquery',
             'jqueryuiCore',

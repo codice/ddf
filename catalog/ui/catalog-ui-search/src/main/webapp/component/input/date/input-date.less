@@ -1,0 +1,137 @@
+@{customElementNamespace}input-date {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: 10px;
+
+  &:hover {
+    //background: @select-background-color;
+  }
+
+  .inlineFix;
+
+  > div {
+    width: 50%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  label {
+    cursor: auto;
+  }
+
+  .input-label {
+    text-align: right;
+    > label {
+      color: grey;
+      font-weight: bold;
+      width: 100%;
+      margin: 0px;
+      line-height: @minimumButtonSize;
+      padding-right: 10px;
+    }
+  }
+
+  .input-value {
+    padding-right: 10px;
+    .input-group {
+      width: ~'calc(100% - @{minimumButtonSize})';
+      color: black;
+      display: none;
+      margin: 0px;
+      padding: 0px;
+    }
+    input {
+      padding: 6px 10px 5px 10px;
+      height: @minimumButtonSize;
+    }
+    > span {
+      cursor: pointer;
+      color: orange;
+      line-height: @minimumButtonSize;
+      text-align: center;
+      height: @minimumButtonSize;
+      width: @minimumButtonSize;
+      display: none;
+    }
+    > label {
+      padding-left: 10px;
+      line-height: @minimumButtonSize;
+      margin: 0px;
+      white-space: nowrap;
+      overflow: hidden;
+      -ms-text-overflow: ellipsis;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .input-revert {
+    font-size: 2rem;
+    vertical-align: bottom;
+    &:hover {
+      color: shade(orange, 10%);
+    }
+
+    &:focus {
+      color: shade(orange, 25%);
+    }
+  }
+
+  &.is-readOnly {
+
+    .input-value {
+      .input-group {
+        display: none;
+      }
+      > label {
+        display: block;
+      }
+    }
+  }
+
+  &.is-editing:not(.is-readOnly) {
+    > label {
+      cursor: pointer;
+    }
+
+    .input-value {
+      .input-group {
+        display: inline-table;
+      }
+
+      > label {
+        display: none;
+      }
+    }
+  }
+
+  &.is-editing.is-changed {
+    .input-revert {
+      display: inline-block;
+    }
+  }
+
+  &.has-limited-width {
+    white-space: normal;
+    > div {
+      width: 100%;
+    }
+    .input-label {
+      text-align: left;
+    }
+  }
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}input-date {
+
+    white-space: normal;
+    > div {
+      width: 100%;
+    }
+    .input-label {
+      text-align: left;
+    }
+  }
+
+}

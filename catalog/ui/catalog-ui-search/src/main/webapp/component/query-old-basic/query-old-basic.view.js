@@ -25,8 +25,15 @@ define([
     'maptype',
     'js/store',
     'js/CustomElements',
+    'moment',
     'bootstrapselect'
-], function ($, Backbone, Cesium, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate, dir, maptype, store, CustomElements) {
+], function ($, Backbone, Cesium, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate, dir, maptype, store, CustomElements, moment) {
+
+
+    var format = 'YYYY-MM-DDTHH:mm:ssZ';
+    function getHumanReadableDate(date) {
+        return moment(date).format(format);
+    }
 
     var QueryOldBasicView = Marionette.ItemView.extend({
         template: queryOldBasicTemplate,
@@ -232,6 +239,8 @@ define([
         },
         onRender: function () {
             var view = this;
+            this.initDateTimePicker('#absoluteStartTime');
+            this.initDateTimePicker('#absoluteEndTime');
             var radiusConverter = function (direction, value) {
                 var radiusUnitVal = view.model.get('radiusUnits');
                 switch (direction) {
@@ -286,8 +295,21 @@ define([
                     // to an array.
                     return value.split(',');
                 }
+            }, datetimeConverter = function(direction, value){
+                console.log(direction);
+                console.log(value);
+                if (direction === 'ViewToModel'){
+                    return getHumanReadableDate(value);
+                } else {
+                    if (value === undefined){
+                        return '';
+                    }
+                    return getHumanReadableDate(value);
+                }
             };
             var queryModelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+            queryModelBindings.dtstart.converter = datetimeConverter;
+            queryModelBindings.dtend.converter = datetimeConverter;
             queryModelBindings.radius.selector = '#radiusValue';
             queryModelBindings.radius.converter = radiusConverter;
             queryModelBindings.offsetTime.converter = offsetConverter;
@@ -307,6 +329,7 @@ define([
             this.modelBinder.bind(this.model, this.$el, queryModelBindings, {
                 changeTriggers: {
                     '': 'change',
+                    '': 'dp.change',
                     'input[name=q]': 'input'
                 }
             });
@@ -319,8 +342,6 @@ define([
             this.types.bind('add change remove', function () {
                 $('.select-types').selectpicker('refresh');
             });
-            this.initDateTimePicker('#absoluteStartTime');
-            this.initDateTimePicker('#absoluteEndTime');
             this.delegateEvents();
             var singleselectOptions = {
                 header: false,
@@ -512,25 +533,17 @@ define([
             }
         },
         resetDateTimePicker: function (selector) {
-            this.$(selector).datetimepicker('destroy');
+            this.$(selector).data('DateTimePicker').destroy();
             this.initDateTimePicker(selector);
         },
         initDateTimePicker: function (selector) {
             this.$(selector).datetimepicker({
-                dateFormat: $.datepicker.ATOM,
-                timeFormat: 'HH:mm:ss.lz',
-                separator: 'T',
-                timezoneIso8601: true,
-                useLocalTimezone: true,
-                showHour: true,
-                showMinute: true,
-                showSecond: false,
-                showMillisec: false,
-                showTimezone: false,
-                minDate: new Date(100, 0, 2),
-                maxDate: new Date(9999, 11, 30),
-                onClose: this.model.swapDatesIfNeeded,
-                beforeShow: this.beforeShowDatePicker
+                format: format
+            });
+            this.$(selector).on('dp.change', function(e){
+                //hack to get datetimepicker working with ironcook modelbinder
+                if (e.target.children.length > 0)
+                    e.target = e.target.children[0];
             });
         },
         save: function(){
