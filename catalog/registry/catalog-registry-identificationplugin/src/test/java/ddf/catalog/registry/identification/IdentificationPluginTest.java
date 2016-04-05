@@ -14,15 +14,20 @@
 package ddf.catalog.registry.identification;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,12 +41,22 @@ import org.junit.Test;
 
 import com.google.common.base.Charsets;
 
+import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
+import ddf.catalog.operation.impl.CreateResponseImpl;
+import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.DeleteResponseImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.operation.impl.UpdateResponseImpl;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.registry.common.RegistryConstants;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -167,6 +182,52 @@ public class IdentificationPluginTest {
             }
         }
 
+    }
+
+    @Test
+    public void testRemoteRequest() throws Exception {
+        String xml = convert("/registry-no-extid.xml");
+        sampleData.setAttribute(Metacard.METADATA, xml);
+        Map<String, Serializable> props = new HashMap<>();
+        props.put(Constants.LOCAL_DESTINATION_KEY, false);
+        CreateRequest result = idp.process(new CreateRequestImpl(Collections.singletonList(
+                sampleData), props));
+        assertThat(result.getMetacards()
+                .get(0)
+                .getMetadata(), equalTo(xml));
+    }
+
+    @Test(expected = StopProcessingException.class)
+    public void testDuplicateChecking() throws Exception {
+        String xml = convert("/registry-both-extid.xml");
+        sampleData.setAttribute(Metacard.METADATA, xml);
+        idp.process(new CreateResponseImpl(new CreateRequestImpl(sampleData),
+                null,
+                Collections.singletonList(sampleData)));
+        idp.process(new CreateRequestImpl(sampleData));
+    }
+
+    @Test
+    public void testDuplicateCheckingAfterDelete() throws Exception {
+        String xml = convert("/registry-both-extid.xml");
+        sampleData.setAttribute(Metacard.METADATA, xml);
+        idp.process(new CreateResponseImpl(new CreateRequestImpl(sampleData),
+                null,
+                Collections.singletonList(sampleData)));
+        idp.process(new DeleteResponseImpl(new DeleteRequestImpl(Collections.singletonList("abc123"),
+                RegistryObjectMetacardType.REGISTRY_ID,
+                null), null, Collections.singletonList(sampleData)));
+        idp.process(new CreateRequestImpl(sampleData));
+    }
+
+    @Test
+    public void testUnusedMethods() throws Exception {
+        UpdateRequest updateRequest = new UpdateRequestImpl("abc123", sampleData);
+        assertThat(updateRequest, equalTo(idp.process(updateRequest)));
+        DeleteRequest deleteRequest = new DeleteRequestImpl("abc123");
+        assertThat(deleteRequest, equalTo(idp.process(deleteRequest)));
+        UpdateResponse updateResponse = new UpdateResponseImpl(updateRequest, null, null);
+        assertThat(updateResponse, equalTo(idp.process(updateResponse)));
     }
 
     private String convert(String path) throws Exception {

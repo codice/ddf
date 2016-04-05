@@ -322,19 +322,6 @@
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-registry" install="manual" version="${project.version}"
-             description="DDF Registry">
-        <feature prerequisite="true">catalog-app</feature>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-api/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-schema-bindings/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-policyplugin/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-cswinputtransformer/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-identificationplugin/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminservice/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminserviceimpl/${project.version}</bundle>
-
-    </feature>
-
     <feature name="catalog-transformer-streaming" install="manual" version="${project.version}"
              description="DDF Generic Input Transformer API">
         <feature prerequisite="true">catalog-app</feature>
@@ -369,5 +356,5 @@
         <feature>catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
-    
+
 </features>

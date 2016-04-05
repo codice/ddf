@@ -11,12 +11,11 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
+package org.codice.ddf.spatial.ogc.csw.catalog.common.transformer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -38,6 +36,10 @@ public class TransformerManagerTest {
     private static InputTransformer transformerA = mock(InputTransformer.class);
 
     private static InputTransformer transformerB = mock(InputTransformer.class);
+
+    private static final String ID_A = "idA";
+
+    private static final String ID_B = "idB";
 
     private static final String MIME_TYPE_A = "mimeTypeA";
 
@@ -66,8 +68,14 @@ public class TransformerManagerTest {
     public static void setUp() {
         ServiceReference serviceRefA = mock(ServiceReference.class);
         ServiceReference serviceRefB = mock(ServiceReference.class);
+        when(serviceRefA.getPropertyKeys()).thenReturn(new String[] {TransformerManager.ID,
+                TransformerManager.SCHEMA, TransformerManager.MIME_TYPE});
+        when(serviceRefA.getProperty(TransformerManager.ID)).thenReturn(ID_A);
         when(serviceRefA.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_A);
         when(serviceRefA.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_A);
+        when(serviceRefB.getPropertyKeys()).thenReturn(new String[] {TransformerManager.ID,
+                TransformerManager.SCHEMA, TransformerManager.MIME_TYPE});
+        when(serviceRefB.getProperty(TransformerManager.ID)).thenReturn(ID_B);
         when(serviceRefB.getProperty(TransformerManager.MIME_TYPE)).thenReturn(MIME_TYPE_B);
         when(serviceRefB.getProperty(TransformerManager.SCHEMA)).thenReturn(SCHEMA_B);
         serviceReferences.add(serviceRefA);
@@ -104,9 +112,25 @@ public class TransformerManagerTest {
                 is(transformerB));
     }
 
-    @Ignore
     @Test
-    public void testGetCswQueryResponseTransformer() throws Exception {
-        fail();
+    public void testGetTransformerIdForSchema() throws Exception {
+        assertThat(manager.<InputTransformer>getTransformerIdForSchema(SCHEMA_A), is(ID_A));
+        assertThat(manager.<InputTransformer>getTransformerIdForSchema(SCHEMA_B), is(ID_B));
+    }
+
+    @Test
+    public void testGetTransformerSchemaForId() throws Exception {
+        assertThat(manager.<InputTransformer>getTransformerSchemaForId(ID_A), is(SCHEMA_A));
+        assertThat(manager.<InputTransformer>getTransformerSchemaForId(ID_B), is(SCHEMA_B));
+    }
+
+    @Test
+    public void testGetTransformerSchemaForInvalidId() throws Exception {
+        assertThat(manager.<InputTransformer>getTransformerSchemaForId("abc123"), is(""));
+    }
+
+    @Test
+    public void testGetTransformerIdForInvalidSchema() throws Exception {
+        assertThat(manager.<InputTransformer>getTransformerIdForSchema("abc123"), is(""));
     }
 }

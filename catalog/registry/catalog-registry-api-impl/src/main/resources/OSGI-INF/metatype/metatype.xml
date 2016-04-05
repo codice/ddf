@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Registry Store" id="Csw_Registry_Store" description="Registry CSW Store">
+
+        <AD description="The unique name of the store" name="Registry ID" id="id" required="true"
+            type="String"/>
+
+        <AD description="URL to the endpoint implementing CSW spec capable of returning ebrim formatted records"
+            name="CSW URL" id="cswUrl" required="true" type="String"/>
+
+        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+            required="false" type="String"/>
+        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+            required="false" type="Password"/>
+
+        <AD description="Enable push (write) to this registry store"
+            name="Allow Push" id="pushAllowed" required="true"
+            type="Boolean" default="true"/>
+
+        <AD description="Enable pull (read) from this registry store"
+            name="Allow Pull" id="pullAllowed" required="true"
+            type="Boolean" default="true"/>
+
+    </OCD>
+
+    <Designate pid="Csw_Registry_Store" factoryPid="Csw_Registry_Store">
+        <Object ocdref="Csw_Registry_Store"/>
+    </Designate>
+
+</metatype:MetaData>

@@ -16,11 +16,13 @@
 
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
+    <reference id="federationAdmin" interface="ddf.catalog.registry.federationadmin.service.FederationAdminService" availability="mandatory"/>
 
-    <bean id="identificationPlugin" class="ddf.catalog.registry.identification.IdentificationPlugin">
+    <bean id="identificationPlugin" class="ddf.catalog.registry.identification.IdentificationPlugin" init-method="init">
         <property name="parser" ref="xmlParser"/>
+        <property name="federationAdmin" ref="federationAdmin"/>
     </bean>
 
-    <service ref="identificationPlugin" interface="ddf.catalog.plugin.PreIngestPlugin" ranking="0"/>
+    <service ref="identificationPlugin" auto-export="interfaces" ranking="0"/>
 
 </blueprint>

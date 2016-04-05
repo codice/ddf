@@ -25,7 +25,7 @@
     <service ref="federationAdminService" interface="ddf.catalog.registry.federationadmin.service.FederationAdminService"/>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer" filter="(id=ebrim)"/>
+    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer" filter="(id=rim:RegistryPackage)"/>
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 

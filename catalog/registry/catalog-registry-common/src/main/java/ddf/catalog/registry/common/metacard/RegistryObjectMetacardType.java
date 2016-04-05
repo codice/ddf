@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.registry.api.metacard;
+package ddf.catalog.registry.common.metacard;
 
 import java.util.Set;
 
@@ -67,6 +67,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String REGISTRY_IDENTITY_NODE = "registry-identity-node";
 
+    public static final String REGISTRY_BASE_URL = "registry-base-url";
+
     public RegistryObjectMetacardType() {
         this(REGISTRY_METACARD_TYPE_NAME, null);
     }
@@ -106,6 +108,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(SERVICE_BINDING_TYPES, true);
         addQueryableString(REGISTRY_ID, false);
         addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
+        addQueryableString(REGISTRY_BASE_URL, false);
     }
 
     /**

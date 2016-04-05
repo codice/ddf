@@ -35,6 +35,7 @@ import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
@@ -80,6 +81,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
         argumentHolder.put(CswConstants.AXIS_ORDER_PROPERTY, configuration.getCswAxisOrder());
         argumentHolder.put(Metacard.RESOURCE_URI, configuration.getMetacardMapping(Metacard.RESOURCE_URI));
         argumentHolder.put(Metacard.THUMBNAIL, configuration.getMetacardMapping(Metacard.THUMBNAIL));
+        argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.SCHEMA);
+        argumentHolder.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, configuration.getOutputSchema());
     }
 
     @Override

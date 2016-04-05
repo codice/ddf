@@ -42,8 +42,8 @@ import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
 import ddf.catalog.registry.common.RegistryConstants;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import net.opengis.cat.wrs.v_1_0_2.AnyValueType;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.AssociationType1;
@@ -420,6 +420,11 @@ public class RegistryPackageConverter {
                     metacard.setId(extId.getValue());
                 }
             }
+        }
+
+        if (registryObject.isSetHome()) {
+            metacard.setAttribute(RegistryObjectMetacardType.REGISTRY_BASE_URL,
+                    registryObject.getHome());
         }
     }
 

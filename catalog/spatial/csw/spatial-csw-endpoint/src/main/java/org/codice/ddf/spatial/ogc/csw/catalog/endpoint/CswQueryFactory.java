@@ -27,14 +27,12 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.feature.NameImpl;
@@ -62,7 +60,6 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.permission.Permissions;
-
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -110,8 +107,7 @@ public class CswQueryFactory {
         QueryType query = (QueryType) request.getAbstractQuery()
                 .getValue();
 
-        CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint(),
-                query.getTypeNames());
+        CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint());
         QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
         frameworkQuery.setSortBy(buildSort(query.getSortBy()));
 
@@ -141,18 +137,16 @@ public class CswQueryFactory {
         return queryRequest;
     }
 
-    public QueryRequest getQuery(QueryConstraintType constraint, List<QName> qNames)
-            throws CswException {
-        Filter filter = buildFilter(constraint, qNames).getVisitedFilter();
+    public QueryRequest getQuery(QueryConstraintType constraint) throws CswException {
+        Filter filter = buildFilter(constraint).getVisitedFilter();
         QueryImpl query = new QueryImpl(filter);
         query.setPageSize(-1);
 
         return new QueryRequestImpl(query);
     }
 
-    private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint,
-            List<QName> typeNames) throws CswException {
-
+    private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint)
+            throws CswException {
         CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
         Filter filter = null;
         if (constraint != null) {
@@ -180,21 +174,11 @@ public class CswQueryFactory {
                     CswConstants.NO_APPLICABLE_CODE,
                     null);
         }
-        visitor.setVisitedFilter(filter);
-        boolean isTypeNameCsw = typeNames.contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                CswConstants.CSW_RECORD_LOCAL_NAME,
-                CswConstants.CSW_NAMESPACE_PREFIX));
-        boolean isTypeNameGmd = typeNames.contains(new QName(GmdMetacardType.GMD_NAMESPACE,
-                GmdMetacardType.GMD_LOCAL_NAME));
 
-        if (isTypeNameCsw || isTypeNameGmd) {
-            try {
-                visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
-            } catch (UnsupportedOperationException ose) {
-                throw new CswException(ose.getMessage(),
-                        CswConstants.INVALID_PARAMETER_VALUE,
-                        null);
-            }
+        try {
+            visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
+        } catch (UnsupportedOperationException ose) {
+            throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE, null);
         }
 
         return visitor;

@@ -66,7 +66,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionR
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -222,7 +222,7 @@ public class CswEndpoint implements Csw {
             "Unable to retrieve product for ID: %s";
 
     private static final List<String> TYPE_NAMES_LIST = Arrays.asList(CswConstants.CSW_RECORD,
-            GmdMetacardType.GMD_METACARD_TYPE_NAME);
+            GmdMetacardType.GMD_METACARD_TYPE_NAME, CswConstants.EBRIM_RECORD);
 
     private static Map<String, Element> documentElements = new HashMap<>();
 
@@ -650,10 +650,12 @@ public class CswEndpoint implements Csw {
     private int deleteRecords(DeleteAction deleteAction)
             throws CswException, FederationException, IngestException, SourceUnavailableException,
             UnsupportedQueryException {
-        List<QName> qNames = typeStringToQNames(deleteAction.getTypeName(),
-                deleteAction.getPrefixToUriMappings());
 
-        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint(), qNames);
+        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint());
+
+        queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
+                schemaTransformerManager.getTransformerSchemaForId(deleteAction.getTypeName()));
+
         QueryResponse response = framework.query(queryRequest);
 
         List<String> ids = new ArrayList<>();
@@ -700,9 +702,11 @@ public class CswEndpoint implements Csw {
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
-            QueryRequest queryRequest = queryFactory.getQuery(constraint, typeStringToQNames(
-                    updateAction.getTypeName(),
-                    updateAction.getPrefixToUriMappings()));
+            QueryRequest queryRequest = queryFactory.getQuery(constraint);
+
+            queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
+                    schemaTransformerManager.getTransformerSchemaForId(updateAction.getTypeName()));
+
             QueryResponse response = framework.query(queryRequest);
 
             if (response.getHits() > 0) {
@@ -865,6 +869,11 @@ public class CswEndpoint implements Csw {
                     GmdMetacardType.GMD_LOCAL_NAME))) {
                 schemas.add(getSchemaComponentType(GmdMetacardType.GMD_NAMESPACE));
             }
+
+            if (types.contains(new QName(CswConstants.EBRIM_SCHEMA,
+                    CswConstants.EBRIM_RECORD_LOCAL_NAME))) {
+                schemas.add(getSchemaComponentType(CswConstants.EBRIM_SCHEMA));
+            }
         }
 
         response.setSchemaComponent(schemas);
@@ -941,6 +950,8 @@ public class CswEndpoint implements Csw {
             listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
         } else if (outputSchema.equals(GmdMetacardType.GMD_NAMESPACE)) {
             listOfObject.add(getDocElementFromResourcePath("gmd/record_gmd.xsd"));
+        } else if (outputSchema.equals(CswConstants.EBRIM_SCHEMA)) {
+            listOfObject.add(getDocElementFromResourcePath("csw-ebrim.1.0.2/csw-ebrim.xsd"));
         }
 
         schemaComponentType.setContent(listOfObject);

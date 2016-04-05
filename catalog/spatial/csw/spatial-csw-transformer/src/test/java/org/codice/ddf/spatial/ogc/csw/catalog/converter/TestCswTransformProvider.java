@@ -33,7 +33,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
@@ -97,8 +97,8 @@ public class TestCswTransformProvider {
 
     @Test
     public void testMarshalOtherSchema() throws Exception {
-        when(mockMetacardManager.getTransformerBySchema(OTHER_SCHEMA)).thenReturn(
-                mockMetacardTransformer);
+        when(mockMetacardManager.getTransformerByProperty(TransformerManager.SCHEMA,
+                OTHER_SCHEMA)).thenReturn(mockMetacardTransformer);
 
         when(mockMetacardTransformer.transform(any(Metacard.class),
                 any(Map.class))).thenReturn(new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
@@ -108,14 +108,16 @@ public class TestCswTransformProvider {
         HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
         CswTransformProvider provider = new CswTransformProvider(mockMetacardManager, null);
         MarshallingContext context = new TreeMarshaller(writer, null, null);
-        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
+        context.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.SCHEMA);
+        context.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, OTHER_SCHEMA);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         provider.marshal(getMetacard(), writer, context);
 
         // Verify the context arguments were set correctly
-        verify(mockMetacardManager, times(1)).getTransformerBySchema(captor.capture());
+        verify(mockMetacardManager, times(1)).getTransformerByProperty(captor.capture(),
+                captor.capture());
 
         String outputSchema = captor.getValue();
 
@@ -195,7 +197,8 @@ public class TestCswTransformProvider {
     @Test
     public void testUnmarshalOtherSchema() throws Exception {
         InputTransformer mockInputTransformer = mock(InputTransformer.class);
-        when(mockInputManager.getTransformerBySchema(OTHER_SCHEMA)).thenReturn(mockInputTransformer);
+        when(mockInputManager.getTransformerByProperty(TransformerManager.SCHEMA,
+                OTHER_SCHEMA)).thenReturn(mockInputTransformer);
 
         when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(getMetacard());
 
@@ -206,14 +209,16 @@ public class TestCswTransformProvider {
                         .newPullParser());
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
-        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
+        context.put(CswConstants.TRANSFORMER_LOOKUP_KEY, TransformerManager.SCHEMA);
+        context.put(CswConstants.TRANSFORMER_LOOKUP_VALUE, OTHER_SCHEMA);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         Metacard metacard = (Metacard) provider.unmarshal(reader, context);
 
         // Verify the context arguments were set correctly
-        verify(mockInputManager, times(1)).getTransformerBySchema(captor.capture());
+        verify(mockInputManager, times(1)).getTransformerByProperty(captor.capture(),
+                captor.capture());
 
         String outputSchema = captor.getValue();
 

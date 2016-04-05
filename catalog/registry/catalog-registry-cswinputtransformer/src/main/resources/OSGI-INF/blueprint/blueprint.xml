@@ -20,9 +20,9 @@
     <!-- Register the Transformers -->
     <service auto-export="interfaces">
         <service-properties>
-            <entry key="id" value="ebrim"/>
+            <entry key="id" value="rim:RegistryPackage"/>
             <entry key="mime-type" value="text/xml"/>
-            <entry key="schema" value="http://www.opengis.net/cat/wrs/1.0"/>
+            <entry key="schema" value="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"/>
         </service-properties>
         <bean class="ddf.catalog.registry.transformer.RegistryTransformer">
             <property name="parser" ref="xmlParser"/>

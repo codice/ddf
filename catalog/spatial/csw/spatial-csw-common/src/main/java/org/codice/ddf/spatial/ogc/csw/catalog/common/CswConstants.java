@@ -89,6 +89,10 @@ public interface CswConstants {
 
     String OUTPUT_SCHEMA_PARAMETER = "OutputSchema";
 
+    String TRANSFORMER_LOOKUP_KEY = "TransformerLookupKey";
+
+    String TRANSFORMER_LOOKUP_VALUE = "TransformerLookupValue";
+
     String CONSTRAINT_LANGUAGE_PARAMETER = "ConstraintLanguage";
 
     String CONSTRAINT_LANGUAGE_FILTER = "Filter";
@@ -141,17 +145,23 @@ public interface CswConstants {
 
     String CSW_NAMESPACE_PREFIX = "csw";
 
+    String EBRIM_NAMESPACE_PREFIX = "rim";
+
     String DUBLIN_CORE_NAMESPACE_PREFIX = "dc";
 
     String DUBLIN_CORE_TERMS_NAMESPACE_PREFIX = "dct";
 
     String CSW_RECORD_LOCAL_NAME = "Record";
 
+    String EBRIM_RECORD_LOCAL_NAME = "RegistryPackage";
+
     String CSW_SUMMARY_RECORD_LOCAL_NAME = "SummaryRecord";
 
     String CSW_BRIEF_RECORD_LOCAL_NAME = "BriefRecord";
 
     String CSW_RECORD = CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_RECORD_LOCAL_NAME;
+
+    String EBRIM_RECORD = EBRIM_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + EBRIM_RECORD_LOCAL_NAME;
 
     String CSW_SUMMARY_RECORD =
             CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_SUMMARY_RECORD_LOCAL_NAME;
@@ -164,6 +174,8 @@ public interface CswConstants {
     String OGC_SCHEMA = "http://www.opengis.net/ogc";
 
     String GML_SCHEMA = "http://www.opengis.net/gml";
+
+    String EBRIM_SCHEMA = "urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0";
 
     String DUBLIN_CORE_SCHEMA = "http://purl.org/dc/elements/1.1/";
 
@@ -222,6 +234,20 @@ public interface CswConstants {
     double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
 
     double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
+
+    String CSW_TRANSACTION = "csw:Transaction";
+
+    String CSW_TRANSACTION_INSERT_NODE = "csw:Insert";
+
+    String CSW_TRANSACTION_UPDATE_NODE = "csw:Update";
+
+    String CSW_TRANSACTION_DELETE_NODE = "csw:Delete";
+
+    String CSW_CONSTRAINT = "csw:Constraint";
+
+    String CSW_CQL_TEXT = "ogc:CqlText";
+
+
 
     // Exception Codes
     String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";

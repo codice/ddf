@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 
@@ -71,7 +71,8 @@ public class Validator {
             QName typeName = types.get(0);
             QName cswOutputSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME);
             QName gmdOutputSchema = new QName(GmdMetacardType.GMD_NAMESPACE, GmdMetacardType.GMD_LOCAL_NAME);
-            if (!typeName.equals(cswOutputSchema) && !typeName.equals(gmdOutputSchema)) {
+            QName ebrimOutputSchema = new QName(CswConstants.EBRIM_SCHEMA, CswConstants.EBRIM_RECORD_LOCAL_NAME);
+            if (!typeName.equals(cswOutputSchema) && !typeName.equals(gmdOutputSchema) && !typeName.equals(ebrimOutputSchema)) {
                 throw createUnknownTypeException(types.get(0)
                         .toString());
             }

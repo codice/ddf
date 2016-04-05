@@ -44,7 +44,7 @@ import org.mockito.Mockito;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.registry.api.metacard.RegistryObjectMetacardType;
+import ddf.catalog.registry.common.metacard.RegistryObjectMetacardType;
 import ddf.catalog.transform.CatalogTransformerException;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -210,11 +210,11 @@ public class RegistryTransformerTest {
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testMetacardToXmlBadContentType() throws Exception {
+    public void testMetacardToXmlBadTag() throws Exception {
         String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
         Metacard m = rit.transform(IOUtils.toInputStream(in));
 
-        m.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, "JustSomeMadeUpStuf"));
+        m.setAttribute(new AttributeImpl(Metacard.TAGS, "JustSomeMadeUpStuf"));
         String out = IOUtils.toString(rit.transform(m, null)
                 .getInputStream());
         assertThat(in, is(out));
