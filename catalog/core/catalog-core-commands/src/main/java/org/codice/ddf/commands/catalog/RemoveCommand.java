@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -37,13 +37,11 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 
 /**
  * Deletes records by ID.
- *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "remove", description = "Deletes a record from the Catalog.")
 public class RemoveCommand extends CatalogCommands {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory
-            .getLogger(RemoveCommand.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveCommand.class);
 
     @Argument(name = "IDs", description = "The id(s) of the document(s) (space delimited) to be deleted.", index = 0, multiValued = true, required = false)
     List<String> ids = null;
@@ -61,7 +59,7 @@ public class RemoveCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-        if (ids == null || ids.isEmpty()) {
+        if ((ids == null || ids.isEmpty()) && cqlFilter == null) {
             printErrorMessage("Nothing to remove.");
             return null;
         }
@@ -93,8 +91,7 @@ public class RemoveCommand extends CatalogCommands {
         CatalogFacade catalogProvider = getCatalog();
 
         if (cqlFilter != null) {
-            Filter filter = null;
-            filter = CQL.toFilter(cqlFilter);
+            Filter filter = CQL.toFilter(cqlFilter);
 
             QueryImpl query = new QueryImpl(filter);
 
@@ -104,27 +101,33 @@ public class RemoveCommand extends CatalogCommands {
             Map<String, Serializable> properties = new HashMap<>();
             properties.put("mode", "native");
 
-            SourceResponse queryResponse = catalogProvider
-                    .query(new QueryRequestImpl(query, properties));
+            SourceResponse queryResponse = catalogProvider.query(
+                    new QueryRequestImpl(query, properties));
 
-            if (queryResponse.getResults().isEmpty()) {
+            if (queryResponse.getResults()
+                    .isEmpty()) {
                 printErrorMessage("No records found using CQL expression.");
                 return null;
             }
-            printSuccessMessage(
-                    "Found " + queryResponse.getResults().size() + " metacards to remove.");
-            ids = new ArrayList<String>();
-            for (Result result : queryResponse.getResults()) {
-                ids.add(result.getMetacard().getId());
-            }
 
+            List<String> tmpIds = new ArrayList<>();
+            if (ids != null) {
+                tmpIds.addAll(ids);
+            }
+            for (Result result : queryResponse.getResults()) {
+                tmpIds.add(result.getMetacard().getId());
+            }
+            ids = tmpIds;
         }
 
-        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[0]));
+        printSuccessMessage("Found " + ids.size() + " metacards to remove.");
+
+        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
 
         DeleteResponse response = catalogProvider.delete(request);
 
-        if (response.getDeletedMetacards().size() > 0) {
+        if (response.getDeletedMetacards()
+                .size() > 0) {
             printSuccessMessage(ids + " successfully deleted.");
             LOGGER.info(ids + " removed using catalog:remove command");
         } else {
