@@ -30,7 +30,7 @@ define([
 ], function ($, Backbone, Cesium, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate, dir, maptype, store, CustomElements, moment) {
 
 
-    var format = 'YYYY-MM-DDTHH:mm:ssZ';
+    var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
     function getHumanReadableDate(date) {
         return moment(date).format(format);
     }

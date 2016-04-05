@@ -38,7 +38,7 @@ define([
         },
         events: {
             'click .input-revert': 'revert',
-            'click button': 'upload'
+            'dp.change .input-group.date': 'handleRevert'
         },
         modelEvents: {
             'change:value': 'render'
@@ -95,15 +95,11 @@ define([
         },
         handleRevert: function(){
             var value = this.$el.find('input').val();
-            console.log(moment(value).format());
-            if (value !== this.model.getInitialValue()){
+            if (value !== getHumanReadableDate(this.model.getInitialValue())){
                 this.$el.addClass('is-changed');
             } else {
                 this.$el.removeClass('is-changed');
             }
-        },
-        upload: function(){
-            this.$el.find('input').click();
         },
         _editMode: false
     });
