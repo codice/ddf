@@ -125,15 +125,6 @@
                                                 <outputDirectory>${project.build.directory}/adoc/_catalog</outputDirectory>
                                             </artifactItem>
                                             <artifactItem>
-                                                <groupId>ddf.content</groupId>
-                                                <artifactId>docs</artifactId>
-                                                <classifier>adoc-files</classifier>
-                                                <version>${project.version}</version>
-                                                <type>zip</type>
-                                                <overWrite>true</overWrite>
-                                                <outputDirectory>${project.build.directory}/adoc/_content</outputDirectory>
-                                            </artifactItem>
-                                            <artifactItem>
                                                 <groupId>ddf.platform</groupId>
                                                 <artifactId>docs</artifactId>
                                                 <classifier>adoc-files</classifier>
