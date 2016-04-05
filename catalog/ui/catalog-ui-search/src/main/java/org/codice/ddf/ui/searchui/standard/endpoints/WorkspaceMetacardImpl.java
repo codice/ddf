@@ -52,4 +52,8 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
         return getValues(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES);
     }
 
+    public void setRoles(List<String> roles) {
+        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES, new ArrayList<>(roles));
+    }
+
 }

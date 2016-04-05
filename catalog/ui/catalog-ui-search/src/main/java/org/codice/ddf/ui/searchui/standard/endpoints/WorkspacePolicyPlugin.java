@@ -106,13 +106,13 @@ public class WorkspacePolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPostDelete(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return null;
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPreQuery(Query query, Map<String, Serializable> properties)
             throws StopProcessingException {
-        return null;
+        return new PolicyResponseImpl();
     }
 
     @Override
@@ -124,12 +124,12 @@ public class WorkspacePolicyPlugin implements PolicyPlugin {
     @Override
     public PolicyResponse processPreResource(ResourceRequest resourceRequest)
             throws StopProcessingException {
-        return null;
+        return new PolicyResponseImpl();
     }
 
     @Override
     public PolicyResponse processPostResource(ResourceResponse resourceResponse, Metacard metacard)
             throws StopProcessingException {
-        return null;
+        return new PolicyResponseImpl();
     }
 }

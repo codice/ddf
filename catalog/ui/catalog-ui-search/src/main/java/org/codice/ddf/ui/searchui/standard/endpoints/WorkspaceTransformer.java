@@ -81,6 +81,11 @@ public class WorkspaceTransformer {
             m.setTitle((String) w.get(Metacard.TITLE));
         }
 
+        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES), List.class)) {
+            List<String> roles = (List<String>) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
+            m.setRoles(roles);
+        }
+
         if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), List.class)) {
             List<Map<String, Object>> queries = (List<Map<String, Object>>) w.get(
                     WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES);
