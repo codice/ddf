@@ -116,7 +116,7 @@ import net.shibboleth.utilities.java.support.logic.ConstraintViolationException;
 @Path("/")
 public class IdpEndpoint implements Idp {
 
-    public static final String SERVICES_IDP_PATH = "/services/idp";
+    public static final String SERVICES_IDP_PATH = SystemBaseUrl.getRootContext() + "/idp";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
 
