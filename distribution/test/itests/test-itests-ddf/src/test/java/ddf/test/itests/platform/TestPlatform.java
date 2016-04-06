@@ -47,6 +47,7 @@ public class TestPlatform extends AbstractIntegrationTest {
     public void beforeTest() throws Exception {
         try {
             basePort = getBasePort();
+            getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             // Start the services needed for testing.

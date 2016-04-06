@@ -31,9 +31,9 @@ public class AdminConfig {
 
     public static final String LOGGER_PREFIX = "log4j.logger.";
 
-    public static final String DEFAULT_LOG_LEVEL = "TRACE";
+    public static final String DEFAULT_LOG_LEVEL = "WARN";
 
-    public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
+    public static final String TEST_LOGLEVEL_PROPERTY = "itestLogLevel";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminConfig.class);
 
@@ -119,11 +119,12 @@ public class AdminConfig {
 
         Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID, null);
         Dictionary<String, Object> properties = logConfig.getProperties();
-        if (StringUtils.isEmpty(logLevel)) {
-            properties.put(LOGGER_PREFIX + "ddf", DEFAULT_LOG_LEVEL);
-            properties.put(LOGGER_PREFIX + "org.codice", DEFAULT_LOG_LEVEL);
-        } else {
-            properties.put(LOGGER_PREFIX + "*", logLevel);
+
+        properties.put(LOGGER_PREFIX + "*", DEFAULT_LOG_LEVEL);
+
+        if (!StringUtils.isEmpty(logLevel)) {
+            properties.put(LOGGER_PREFIX + "ddf", logLevel);
+            properties.put(LOGGER_PREFIX + "org.codice", logLevel);
         }
 
         logConfig.update(properties);
