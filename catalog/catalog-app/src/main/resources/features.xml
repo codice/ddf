@@ -337,6 +337,14 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-validation/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-core-validator" install="manual" version="${project.version}"
+             description="DDF Metacard and attribute validation services">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-attribute-registry/${project.version}</bundle>
+        <feature>catalog-plugin-metacard-validation</feature>
+    </feature>
+
     <feature name="catalog-transformer-pdf" install="auto" version="${project.version}"
              description="DDF PDF Input Transformer">
         <feature prerequisite="true">catalog-app</feature>

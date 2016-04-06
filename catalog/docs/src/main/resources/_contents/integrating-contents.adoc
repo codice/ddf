@@ -1394,9 +1394,294 @@ Schematron files may reference other schematron files using an include statement
 However, when using the document function within a schematron ruleset to reference another file, the path must be absolute or relative to the ${ddf-branding} installation home directory.
 ====
 
-===== Configuring
+==== Configuring
 
 Schematron validation services are configured with a namespace and one or more schematron rule sets.
 Additionally, warnings may be suppressed so that only errors are reported.
 To create a new service, ensure that catalog-schematron-plugin is started and then click Schematron Validation Services.
 
+=== Adding New Attribute Types, Metacard Types, and Validators Using JSON Files
+
+[WARNING]
+====
+This section concerns capabilities that are considered experimental. The features described in this section may change or be removed in a future version of the application.
+====
+
+==== Definition File Format
+
+Metacard Types, Attribute Types, and global Attribute Validators can be defined within a definition file. A definition file follows the JSON format as specified in ECMA-404. All definition files must be valid JSON in order to be parsed. There are three main types that can be defined in a definition file.
+
+- Metacard Types
+- Attribute Types
+- Global Attribute Validators
+
+Within a definition file you may define as many of the three types as you wish. This means that types can be defined across multiple files for grouping or clarity. 
+
+==== Deploying 
+The file must have a `.json` extension in order to be picked up by the deployer. Once the definition file is ready to be deployed, put the definition file `<filename>.json` into the `etc/definitions` folder.
+
+* * *
+==== Attribute Type Definition
+
+To define Attribute Types, your definition file must have an `attributeTypes` key in the root object.
+
+[source,json]
+----
+{
+    "attributeTypes": {...}
+}
+----
+
+The value of `attributeTypes` must be a map where each key is the attribute type's name and each value is a map that includes the data type and whether the attribute type is stored, indexed, tokenized, or multi-valued.
+
+[source,json]
+----
+{
+    "attributeTypes": {
+        "temperature": {
+            "type": "DOUBLE_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
+    }
+}
+----
+
+The attributes `stored`, `indexed`, `tokenized`, and `multivalued` must be included and must have a boolean value. The `type` attribute must also be included and must have one of the following values:
+
+ - `DATE_TYPE`
+ - `STRING_TYPE`
+ - `XML_TYPE`
+ - `LONG_TYPE`
+ - `BINARY_TYPE`
+ - `GEO_TYPE`
+ - `BOOLEAN_TYPE`
+ - `DOUBLE_TYPE`
+ - `FLOAT_TYPE`
+ - `INTEGER_TYPE`
+ - `OBJECT_TYPE`
+ - `SHORT_TYPE`
+
+An example with multiple attributes defined:
+
+[source,json]
+----
+{
+    "attributeTypes": {
+        "resolution": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "target-areas": {
+            "type": "GEO_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        }
+    }
+}
+----
+
+* * *
+
+==== Metacard Type Definition
+
+To define Metacard Types, your definition file must have a `metacardTypes` key in the root object.
+
+[source,javascript]
+----
+{
+    "metacardTypes": [...]
+}
+----
+
+The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys. 
+
+[source,json]
+----
+{
+    "metacardTypes": [
+        {
+            "type": "my-metacard-type",
+            "attributes": {...}
+        }
+    ]
+}
+----
+
+The value of the `type` key is the name of the metacard type being defined.
+
+The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
+
+[source,json]
+----
+{
+    "metacardTypes": [
+        {
+            "type": "my-metacard-type",
+            "attributes": {
+                "resolution": {
+                    "required": true
+                },
+                "target-areas": {
+                    "required": false
+                },
+                "point-of-contact": {
+                    "required": true
+                }
+            }
+        }
+    ]
+}
+----
+
+[NOTE]
+====
+The DDF basic metacard attribute types are added to custom metacard types by default. If you wish to make any of them required by your metacard type, just include them in your `attributes` map and set `required` to `true`, as shown in the above example with `point-of-contact`.
+====
+
+You can define multiple metacard types in a single file:
+[source,json]
+----
+{
+    "metacardTypes": [
+        {
+            "type": "my-metacard-type",
+            "attributes": {
+                "resolution": {
+                    "required": true
+                },
+                "target-areas": {
+                    "required": false
+                }
+            }
+        },
+        {
+            "type": "another-metacard-type",
+            "attributes": {
+                "effective": {
+                    "required": true
+                },
+                "resolution": {
+                    "required": false
+                }
+            }
+        }
+    ]
+}
+----
+
+==== Validator Definition
+
+To define Validators, your definition file must have a `validators` key in the root object.
+
+[source,json]
+----
+{
+    "validators": {...}
+}
+----
+
+The value of `validators` is a map of the attribute name to a list of validators for that attribute.
+
+[source,json]
+----
+{
+    "validators": {
+        "point-of-contact": [...]
+    }
+}
+----
+
+Each object in the list of validators is the validator name and list of arguments for that validator.
+
+[source,json]
+----
+{
+    "validators": {
+        "point-of-contact": [
+            {
+                "validator": "pattern",
+                "arguments": [".*regex.+\\s"]
+            }
+        ]
+    }
+}
+----
+
+[WARNING]
+====
+The value of the `arguments` key must always be an array of strings, even for numeric arguments, e.g. `["1", "10"]`
+====
+
+The `validator` key must have a value of one of the following:
+
+ - `size` (validates the size of Strings, Arrays, Collections, and Maps)
+ * `arguments`: (2) [integer: lower bound (inclusive), integer: upper bound (inclusive)]
+ - `pattern`
+ * `arguments`: (1) [regular expression]
+ - `pastdate`
+ * `arguments`: (0) [NO ARGUMENTS]
+ - `futuredate`
+ * `arguments`: (0) [NO ARGUMENTS]
+ - `range`
+ ** (2) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound]
+ *** uses a default epsilon of 1E-6 on either side of the range to account for floating point representation inaccuracies
+ ** (3) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound, decimal number: epsilon (the maximum tolerable error on either side of the range)]
+ - `enumeration`
+ * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
+
+Examples:
+[source, json]
+----
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "size",
+                "arguments": ["1", "50"]
+            },
+            {
+                "validator": "pattern",
+                "arguments": ["\\D+"]
+            }
+        ],
+        "created": [
+            {
+                "validator": "pastdate",
+                "arguments": []
+            }
+        ],
+        "expiration": [
+            {
+                "validator": "futuredate",
+                "arguments": []
+            }
+        ],
+        "page-count": [
+            {
+                "validator": "range",
+                "arguments": ["1", "500"]
+            }
+        ],
+        "temperature": [
+            {
+                "validator": "range",
+                "arguments": ["12.2", "19.8", "0.01"]
+            }
+        ],
+        "resolution": [
+            {
+                "validator": "enumeration",
+                "arguments": ["1080p", "1080i", "720p"]
+            }
+        ]
+    }
+}
+----

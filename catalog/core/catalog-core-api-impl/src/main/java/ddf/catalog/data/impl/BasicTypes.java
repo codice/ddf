@@ -15,7 +15,10 @@ package ddf.catalog.data.impl;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -29,14 +32,13 @@ import ddf.catalog.data.MetacardType;
  * @author ddf.isgs@lmco.com
  */
 public class BasicTypes {
-
     /**
      * A Constant for a {@link MetacardType} with the required {@link AttributeType}s.
      */
     public static final MetacardType BASIC_METACARD;
 
     /**
-     * A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE} .
+     * A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE}.
      */
     public static final AttributeType<Date> DATE_TYPE;
 
@@ -51,7 +53,7 @@ public class BasicTypes {
     public static final AttributeType<String> XML_TYPE;
 
     /**
-     * A Constant for an {@link AttributeType} with {@link AttributeFormat#LONG} .
+     * A Constant for an {@link AttributeType} with {@link AttributeFormat#LONG}.
      */
     public static final AttributeType<Long> LONG_TYPE;
 
@@ -99,190 +101,60 @@ public class BasicTypes {
 
     public static final String VALIDATION_ERRORS = "validation-errors";
 
+    private static final Map<String, AttributeType> ATTRIBUTE_TYPE_MAP = new HashMap<>();
+
     static {
+        DATE_TYPE = addAttributeType("DATE_TYPE", AttributeFormat.DATE, Date.class);
 
-        AttributeType<Boolean> booleanType = new AttributeType<Boolean>() {
+        STRING_TYPE = addAttributeType("STRING_TYPE", AttributeFormat.STRING, String.class);
+
+        XML_TYPE = addAttributeType("XML_TYPE", AttributeFormat.XML, String.class);
+
+        LONG_TYPE = addAttributeType("LONG_TYPE", AttributeFormat.LONG, Long.class);
+
+        BINARY_TYPE = addAttributeType("BINARY_TYPE", AttributeFormat.BINARY, byte[].class);
+
+        GEO_TYPE = addAttributeType("GEO_TYPE", AttributeFormat.GEOMETRY, String.class);
+
+        BOOLEAN_TYPE = addAttributeType("BOOLEAN_TYPE", AttributeFormat.BOOLEAN, Boolean.class);
+
+        DOUBLE_TYPE = addAttributeType("DOUBLE_TYPE", AttributeFormat.DOUBLE, Double.class);
+
+        FLOAT_TYPE = addAttributeType("FLOAT_TYPE", AttributeFormat.FLOAT, Float.class);
+
+        INTEGER_TYPE = addAttributeType("INTEGER_TYPE", AttributeFormat.INTEGER, Integer.class);
+
+        OBJECT_TYPE = addAttributeType("OBJECT_TYPE", AttributeFormat.OBJECT, Serializable.class);
+
+        SHORT_TYPE = addAttributeType("SHORT_TYPE", AttributeFormat.SHORT, Short.class);
+
+        BASIC_METACARD = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                getBasicAttributeDescriptors());
+    }
+
+    private static <T extends Serializable> AttributeType<T> addAttributeType(final String typeName,
+            final AttributeFormat format, final Class<T> bindingClass) {
+        final AttributeType<T> attributeType = new AttributeType<T>() {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.BOOLEAN;
+            public Class<T> getBinding() {
+                return bindingClass;
             }
-
-            @Override
-            public Class<Boolean> getBinding() {
-                return Boolean.class;
-            }
-        };
-        BOOLEAN_TYPE = booleanType;
-
-        AttributeType<Double> doubleType = new AttributeType<Double>() {
-            private static final long serialVersionUID = 1L;
 
             @Override
             public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.DOUBLE;
-            }
-
-            @Override
-            public Class<Double> getBinding() {
-                return Double.class;
+                return format;
             }
         };
-        DOUBLE_TYPE = doubleType;
 
-        AttributeType<Float> floatType = new AttributeType<Float>() {
-            private static final long serialVersionUID = 1L;
+        ATTRIBUTE_TYPE_MAP.put(typeName, attributeType);
 
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.FLOAT;
-            }
+        return attributeType;
+    }
 
-            @Override
-            public Class<Float> getBinding() {
-                return Float.class;
-            }
-        };
-        FLOAT_TYPE = floatType;
-
-        AttributeType<Integer> integerType = new AttributeType<Integer>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.INTEGER;
-            }
-
-            @Override
-            public Class<Integer> getBinding() {
-                return Integer.class;
-            }
-        };
-        INTEGER_TYPE = integerType;
-
-        AttributeType<Serializable> objectType = new AttributeType<Serializable>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.OBJECT;
-            }
-
-            @Override
-            public Class<Serializable> getBinding() {
-                return Serializable.class;
-            }
-        };
-        OBJECT_TYPE = objectType;
-
-        AttributeType<Short> shortType = new AttributeType<Short>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.SHORT;
-            }
-
-            @Override
-            public Class<Short> getBinding() {
-                return Short.class;
-            }
-        };
-        SHORT_TYPE = shortType;
-
-        AttributeType<Date> dateType = new AttributeType<Date>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.DATE;
-            }
-
-            @Override
-            public Class<Date> getBinding() {
-                return Date.class;
-            }
-        };
-        DATE_TYPE = dateType;
-
-        AttributeType<String> stringType = new AttributeType<String>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.STRING;
-            }
-
-            @Override
-            public Class<String> getBinding() {
-                return String.class;
-            }
-        };
-        STRING_TYPE = stringType;
-
-        AttributeType<String> xmlType = new AttributeType<String>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.XML;
-            }
-
-            @Override
-            public Class<String> getBinding() {
-                return String.class;
-            }
-        };
-        XML_TYPE = xmlType;
-
-        AttributeType<Long> longType = new AttributeType<Long>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.LONG;
-            }
-
-            @Override
-            public Class<Long> getBinding() {
-                return Long.class;
-            }
-        };
-        LONG_TYPE = longType;
-
-        AttributeType<byte[]> binaryType = new AttributeType<byte[]>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.BINARY;
-            }
-
-            @Override
-            public Class<byte[]> getBinding() {
-                return byte[].class;
-            }
-        };
-        BINARY_TYPE = binaryType;
-
-        AttributeType<String> geoType = new AttributeType<String>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public AttributeFormat getAttributeFormat() {
-                return AttributeFormat.GEOMETRY;
-            }
-
-            @Override
-            public Class<String> getBinding() {
-                return String.class;
-            }
-        };
-        GEO_TYPE = geoType;
-
-        MetacardType basic = null;
-        HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
+    private static Set<AttributeDescriptor> getBasicAttributeDescriptors() {
+        Set<AttributeDescriptor> descriptors = new HashSet<>();
         descriptors.add(new AttributeDescriptorImpl(Metacard.MODIFIED,
                 true /* indexed */,
                 true /* stored */,
@@ -403,15 +275,10 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
-
-        basic = new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME, descriptors);
-
-        BASIC_METACARD = basic;
+        return descriptors;
     }
 
-    /**
-     * Constructor - does nothing
-     */
-    public BasicTypes() {
+    public static AttributeType getAttributeType(String type) {
+        return ATTRIBUTE_TYPE_MAP.get(type);
     }
 }
