@@ -22,12 +22,5 @@
     <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
              ref="catalogPlugin"/>
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="adminSourcePoller"
-          class="org.codice.ddf.catalog.admin.plugin.AdminSourcePollerServiceBean"
-          init-method="init"
-          destroy-method="destroy">
-        <argument ref="configurationAdmin"/>
-    </bean>
 </blueprint>

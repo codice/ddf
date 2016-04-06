@@ -439,6 +439,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.admin</groupId>
+            <artifactId>catalog-admin-poller-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-attribute-registry</artifactId>
             <version>${project.version}</version>

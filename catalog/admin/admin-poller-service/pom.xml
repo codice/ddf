@@ -12,42 +12,48 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>catalog-admin-module</artifactId>
+        <artifactId>catalog-admin</artifactId>
         <groupId>ddf.catalog.admin</groupId>
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>DDF :: Catalog :: Admin :: Module :: Sources</name>
-    <artifactId>catalog-admin-module-sources</artifactId>
+    <name>DDF :: Catalog :: Admin :: Poller Service</name>
+    <artifactId>catalog-admin-poller-service</artifactId>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <version>${project.version}</version>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-appservice</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.opensearch</groupId>
             <artifactId>catalog-opensearch-source</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -62,32 +68,17 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>grunt install</id>
-                        <goals>
-                            <goal>grunt</goal>
-                        </goals>
-                        <phase>install</phase>
-                        <configuration>
-                            <arguments>build</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
                         <!--we will use this servlet filter once it has been made generic to protect this app-->
                         <!--<Embed-Dependency>search-securityservletfilter</Embed-Dependency>-->
-                        <Web-ContextPath>/admin/sources</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
+                        <Embed-Dependency>
+                            catalog-core-api-impl;scope=!test,platform-util
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
@@ -109,22 +100,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>.59</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>.60</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>.40</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>.57</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -67,6 +67,8 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String REGISTRY_IDENTITY_NODE = "registry-identity-node";
 
+    public static final String PUBLISHED_LOCATIONS = "published-locations";
+
     public static final String REGISTRY_BASE_URL = "registry-base-url";
 
     public RegistryObjectMetacardType() {
@@ -109,6 +111,7 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(REGISTRY_ID, false);
         addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
         addQueryableString(REGISTRY_BASE_URL, false);
+        addQueryableString(PUBLISHED_LOCATIONS, true);
     }
 
     /**
