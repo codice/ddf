@@ -105,7 +105,6 @@
                         </ul>
                     </div>
 
-
                     {{#if properties.thumbnail}}
                         <div class="col-sm-12 holder-row">
                             <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
@@ -197,6 +196,7 @@
                         <h4 class="title">No Actions Available</h4>
                     {{/each}}
                 </table>
+                <div id="map-actions"></div>
             </div>
         </div>
     </div>

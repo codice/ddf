@@ -120,6 +120,15 @@ for (var i = 0; i < shared.iterations; i++) {
                     .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('record-actions.png'));
             });
 
+            it("should be able to display metacard map actions", function () {
+                return this.browser
+                    .waitForElementByLinkText('Actions').click()
+                    .waitForElementByCssSelector('#actions.active', asserters.isDisplayed, shared.timeout)
+                    .waitForElementById('map-actions', asserters.isDisplayed, shared.timeout)
+                    .waitForConditionInBrowser('document.querySelectorAll("a.overlay-link").length === 1', shared.timeout)
+                    .waitForElementByCssSelector('a.overlay-link', asserters.textInclude('Overlay thumbnail on the map'), shared.timeout);
+            });
+
             it("should allow previous and next navigation", function () {
                 return this.browser
                     .waitForElementByCssSelector('#prevRecord.disabled')
