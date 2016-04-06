@@ -134,6 +134,7 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -2322,12 +2323,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
             }
-
+        } catch(DataUsageLimitExceededException e) {
+            LOGGER.error("RuntimeException caused by: ", e);
+            throw e;
         } catch (RuntimeException e) {
             LOGGER.error("RuntimeException caused by: ", e);
             throw new ResourceNotFoundException("Unable to find resource");
         } catch (StopProcessingException e) {
-            LOGGER.error("resource not supported", e);
+            LOGGER.error("Resource not supported", e);
             throw new ResourceNotSupportedException(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
         }
 

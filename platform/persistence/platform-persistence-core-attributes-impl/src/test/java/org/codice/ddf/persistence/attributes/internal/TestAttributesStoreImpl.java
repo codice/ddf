@@ -62,9 +62,12 @@ public class TestAttributesStoreImpl {
 
     private static final Long LONG_5 = 500L;
 
+    private static final Long DEFAULT_USAGE_LIMIT = 750L;
+
     @Before
     public void setup() {
         attributesStore = new AttributesStoreImpl(persistentStore);
+        attributesStore.setDefaultLimit(DEFAULT_USAGE_LIMIT);
     }
 
     @Test

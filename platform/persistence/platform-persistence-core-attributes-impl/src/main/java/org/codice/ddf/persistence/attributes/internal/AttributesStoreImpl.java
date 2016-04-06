@@ -37,6 +37,8 @@ public class AttributesStoreImpl implements AttributesStore {
 
     private static final String EMPTY_USERNAME_ERROR = "Empty username specified";
 
+    private Long defaultLimit;
+
     public AttributesStoreImpl(PersistentStore persistentStore) {
         this.persistentStore = persistentStore;
     }
@@ -63,7 +65,7 @@ public class AttributesStoreImpl implements AttributesStore {
 
     @Override
     public long getDataLimitByUser(final String username) throws PersistenceException {
-        long dataLimit = DEFAULT_DATA_USAGE_LIMIT;
+        long dataLimit = defaultLimit;
 
         if (StringUtils.isEmpty(username)) {
             throw new PersistenceException(EMPTY_USERNAME_ERROR);
@@ -122,7 +124,7 @@ public class AttributesStoreImpl implements AttributesStore {
                 LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
                 persistentStore.add(PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username,
                         dataUsage,
-                        DEFAULT_DATA_USAGE_LIMIT));
+                        defaultLimit));
             } finally {
                 readWriteLock.writeLock()
                         .unlock();
@@ -226,7 +228,7 @@ public class AttributesStoreImpl implements AttributesStore {
     }
 
     private long getDataLimitByUserNoLock(final String username) throws PersistenceException {
-        long dataLimit = DEFAULT_DATA_USAGE_LIMIT;
+        long dataLimit = defaultLimit;
         List<Map<String, Object>> attributesList;
         attributesList = persistentStore.get(PersistentStore.USER_ATTRIBUTE_TYPE, String.format(
                 "%s = '%s'",
@@ -242,4 +244,11 @@ public class AttributesStoreImpl implements AttributesStore {
         return dataLimit;
     }
 
+    public void setDefaultLimit(Long defaultLimit) {
+        this.defaultLimit = defaultLimit;
+    }
+
+    public Long getDefaultLimit() {
+        return this.defaultLimit;
+    }
 }
