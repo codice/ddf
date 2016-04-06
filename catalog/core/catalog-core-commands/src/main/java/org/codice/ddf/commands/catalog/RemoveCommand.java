@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -19,7 +19,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -28,7 +30,6 @@ import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Result;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
@@ -59,7 +60,7 @@ public class RemoveCommand extends CatalogCommands {
 
     @Override
     protected Object executeWithSubject() throws Exception {
-        if (ids == null || ids.isEmpty()) {
+        if (CollectionUtils.isEmpty(ids) && cqlFilter == null) {
             printErrorMessage("Nothing to remove.");
             return null;
         }
@@ -91,8 +92,7 @@ public class RemoveCommand extends CatalogCommands {
         CatalogFacade catalogProvider = getCatalog();
 
         if (cqlFilter != null) {
-            Filter filter = null;
-            filter = CQL.toFilter(cqlFilter);
+            Filter filter = CQL.toFilter(cqlFilter);
 
             QueryImpl query = new QueryImpl(filter);
 
@@ -102,25 +102,30 @@ public class RemoveCommand extends CatalogCommands {
             Map<String, Serializable> properties = new HashMap<>();
             properties.put("mode", "native");
 
-            SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query,
-                    properties));
+            SourceResponse queryResponse = catalogProvider.query(
+                    new QueryRequestImpl(query, properties));
 
             if (queryResponse.getResults()
                     .isEmpty()) {
                 printErrorMessage("No records found using CQL expression.");
                 return null;
             }
-            printSuccessMessage("Found " + queryResponse.getResults()
-                    .size() + " metacards to remove.");
-            ids = new ArrayList<String>();
-            for (Result result : queryResponse.getResults()) {
-                ids.add(result.getMetacard()
-                        .getId());
-            }
 
+            List<String> tmpIds = new ArrayList<>();
+            if (ids != null) {
+                tmpIds.addAll(ids);
+            }
+            tmpIds.addAll(queryResponse.getResults()
+                    .stream()
+                    .map(result -> result.getMetacard()
+                            .getId())
+                    .collect(Collectors.toList()));
+            ids = tmpIds;
         }
 
-        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[0]));
+        printSuccessMessage("Found " + ids.size() + " metacards to remove.");
+
+        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
 
         DeleteResponse response = catalogProvider.delete(request);
 
