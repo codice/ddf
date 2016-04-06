@@ -24,6 +24,7 @@
     <name>DDF :: Spatial :: GeoWebCache</name>
 
     <modules>
+        <module>geowebcache-admin-plugin</module>
         <module>geowebcache-app</module>
     </modules>
 

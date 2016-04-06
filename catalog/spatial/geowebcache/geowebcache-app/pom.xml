@@ -42,6 +42,11 @@
             <classifier>geowebcache</classifier>
             <type>xml</type>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>geowebcache-admin-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
