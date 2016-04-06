@@ -13,13 +13,10 @@
  */
 package org.codice.ddf.platform.services.common;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * Describable is used to capture a basic description of a service. This provides valuable runtime
  * information to the user regarding the application bundles and OSGi.
- *
- * This interface is not meant to be a concrete store of data and does not have a default implementation.
+ * <p>
  * It is expected that the children are services that perform specific tasks.
  */
 public interface Describable {
@@ -28,17 +25,23 @@ public interface Describable {
      *
      * @return the version of the item being described (example: 1.0)
      */
-    @NotNull String getVersion();
+    String getVersion();
 
     /**
      * Returns the name, aka ID, of the describable item. The name should be unique for each
-     * instance with the scope of a service or a component. For example, this is unique for any
+     * instance within the scope of a service or a component. For example, this is unique for any
      * Migratable in a set of Migratables. It is not necessarily unique between Migratables and
      * Metacards.
+     * <p>
+     * Format should be [<b>product</b>].[<b>component</b>] such as ddf.metacards, or ddf.platform;
+     * while the [<b>component</b>] within a [<b>product</b>] may simply be a module or bundle name,
+     * the [<b>product</b>] itself should be the unique name of the plug-in or integration that
+     * belongs to the organization listed in {@link Describable#getOrganization()}. Note that 'ddf'
+     * as a [<b>product</b>] is reserved for core features only.
      *
      * @return ID of the item
      */
-    @NotNull String getId();
+    String getId();
 
     /**
      * Returns the title of the describable item. It is generally more verbose than the name (aka
@@ -46,19 +49,19 @@ public interface Describable {
      *
      * @return title of the item (example: File System Provider)
      */
-    @NotNull String getTitle();
+    String getTitle();
 
     /**
      * Returns a description of the describable item.
      *
      * @return description of the item (example: Provider that returns back static results)
      */
-    @NotNull String getDescription();
+    String getDescription();
 
     /**
      * Returns the organization associated with the describable item.
      *
      * @return organizational name or acronym (example: USAF)
      */
-    @NotNull String getOrganization();
+    String getOrganization();
 }

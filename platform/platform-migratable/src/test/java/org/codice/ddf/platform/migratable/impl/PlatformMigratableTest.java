@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
@@ -71,6 +72,12 @@ public class PlatformMigratableTest {
 
     private static final String VERSION = "version";
 
+    private static final DescribableBean DESCRIBABLE_BEAN = new DescribableBean(VERSION,
+            ID,
+            TITLE,
+            DESCRIPTION,
+            ORGANIZATION);
+
     private Path ddfHome;
 
     private Path exportDirectory;
@@ -85,12 +92,8 @@ public class PlatformMigratableTest {
     public void testExportValidRelativePaths() throws Exception {
         // Setup
         MigratableUtil mockMigratableUtil = mock(MigratableUtil.class);
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform Test
         platformMigratable.export(exportDirectory);
@@ -126,12 +129,8 @@ public class PlatformMigratableTest {
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform Test
         MigrationMetadata migrationMetadata = platformMigratable.export(exportDirectory);
@@ -160,12 +159,8 @@ public class PlatformMigratableTest {
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform Test
         MigrationMetadata migrationMetadata = platformMigratable.export(exportDirectory);
@@ -188,12 +183,8 @@ public class PlatformMigratableTest {
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform Test
         MigrationMetadata migrationMetadata = platformMigratable.export(exportDirectory);
@@ -211,12 +202,8 @@ public class PlatformMigratableTest {
                 .copyFile(any(Path.class),
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform test
         platformMigratable.export(exportDirectory);
@@ -230,12 +217,8 @@ public class PlatformMigratableTest {
                 .copyDirectory(any(Path.class),
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform test
         platformMigratable.export(exportDirectory);
@@ -249,12 +232,8 @@ public class PlatformMigratableTest {
                 .copyFileFromSystemPropertyValue(any(String.class),
                         eq(exportDirectory),
                         Matchers.<Collection<MigrationWarning>>any());
-        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIPTION,
-                mockMigratableUtil,
-                ORGANIZATION,
-                TITLE,
-                ID,
-                VERSION);
+        PlatformMigratable platformMigratable = new PlatformMigratable(DESCRIBABLE_BEAN,
+                mockMigratableUtil);
 
         // Perform test
         platformMigratable.export(exportDirectory);

@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
@@ -55,7 +56,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CatalogMigratableImplTest {
+public class MetacardsMigratableTest {
 
     private static final Path EXPORT_PATH = Paths.get("etc", "exported");
 
@@ -68,6 +69,12 @@ public class CatalogMigratableImplTest {
     private static final String TITLE = "title";
 
     private static final String ORGANIZATION = "organization";
+
+    private static final DescribableBean DESCRIBABLE_BEAN = new DescribableBean(VERSION,
+            ID,
+            TITLE,
+            DESCRIPTION,
+            ORGANIZATION);
 
     @Captor
     private ArgumentCaptor<QueryRequest> argQueryRequest;
@@ -84,7 +91,7 @@ public class CatalogMigratableImplTest {
     @Mock
     private MigrationTaskManager mockTaskManager;
 
-    private CatalogMigratableImpl migratable;
+    private MetacardsMigratable migratable;
 
     private CatalogMigratableConfig config;
 
@@ -95,16 +102,12 @@ public class CatalogMigratableImplTest {
         config = new CatalogMigratableConfig();
         config.setExportQueryPageSize(2);
 
-        migratable = new CatalogMigratableImpl(mockFramework,
+        migratable = new MetacardsMigratable(DESCRIBABLE_BEAN,
+                mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
                 config,
-                mockTaskManager,
-                VERSION,
-                ID,
-                TITLE,
-                DESCRIPTION,
-                ORGANIZATION);
+                mockTaskManager);
 
         when(mockFilterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
@@ -119,68 +122,63 @@ public class CatalogMigratableImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructorWithNullDescription() {
-        new CatalogMigratableImpl(mockFramework,
+    public void constructorWithNullDescribable() {
+        new MetacardsMigratable(null,
+                mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
                 config,
-                VERSION,
-                ID,
-                TITLE,
-                null,
-                ORGANIZATION);
+                mockTaskManager);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructorWithNullProvider() {
-        new CatalogMigratableImpl(null,
+    public void constructorWithNullFramework() {
+        new MetacardsMigratable(DESCRIBABLE_BEAN,
+                null,
                 mockFilterBuilder,
                 mockFileWriter,
                 config,
-                VERSION,
-                ID,
-                TITLE,
-                DESCRIPTION,
-                ORGANIZATION);
+                mockTaskManager);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFilterBuilder() {
-        new CatalogMigratableImpl(mockFramework,
+        new MetacardsMigratable(DESCRIBABLE_BEAN,
+                mockFramework,
                 null,
                 mockFileWriter,
                 config,
-                VERSION,
-                ID,
-                TITLE,
-                DESCRIPTION,
-                ORGANIZATION);
+                mockTaskManager);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullFileWriter() {
-        new CatalogMigratableImpl(mockFramework,
+        new MetacardsMigratable(DESCRIBABLE_BEAN,
+                mockFramework,
                 mockFilterBuilder,
                 null,
                 config,
-                VERSION,
-                ID,
-                TITLE,
-                DESCRIPTION,
-                ORGANIZATION);
+                mockTaskManager);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfig() {
-        new CatalogMigratableImpl(mockFramework,
+        new MetacardsMigratable(DESCRIBABLE_BEAN,
+                mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
                 null,
-                VERSION,
-                ID,
-                TITLE,
-                DESCRIPTION,
-                ORGANIZATION);
+                mockTaskManager);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorWithNullTaskManager() {
+        new MetacardsMigratable(DESCRIBABLE_BEAN,
+                mockFramework,
+                mockFilterBuilder,
+                mockFileWriter,
+                config,
+                null);
     }
 
     @Test
@@ -281,15 +279,12 @@ public class CatalogMigratableImplTest {
     public void exportWhenProviderQueryFails() throws Exception {
         when(mockFramework.query(any())).thenThrow(new UnsupportedQueryException(""));
 
-        CatalogMigratableImpl migratable = new CatalogMigratableImpl(mockFramework,
+        MetacardsMigratable migratable = new MetacardsMigratable(DESCRIBABLE_BEAN,
+                mockFramework,
                 mockFilterBuilder,
                 mockFileWriter,
                 config,
-                VERSION,
-                ID,
-                TITLE,
-                DESCRIPTION,
-                ORGANIZATION);
+                mockTaskManager);
 
         migratable.export(EXPORT_PATH);
     }

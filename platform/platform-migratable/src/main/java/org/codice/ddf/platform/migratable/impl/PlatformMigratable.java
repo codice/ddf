@@ -22,8 +22,8 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.migration.AbstractDescribable;
 import org.codice.ddf.migration.ConfigurationMigratable;
+import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
@@ -31,11 +31,10 @@ import org.codice.ddf.migration.util.MigratableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class handles the export process for all Platform system files.
  */
-public class PlatformMigratable extends AbstractDescribable implements ConfigurationMigratable {
+public class PlatformMigratable extends DescribableBean implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
 
@@ -54,11 +53,10 @@ public class PlatformMigratable extends AbstractDescribable implements Configura
 
     private final MigratableUtil migratableUtil;
 
-    public PlatformMigratable(@NotNull String description, @NotNull MigratableUtil migratableUtil,
-            @NotNull String organization, @NotNull String title, @NotNull String id,
-            @NotNull String version) {
+    public PlatformMigratable(@NotNull DescribableBean info,
+            @NotNull MigratableUtil migratableUtil) {
 
-        super(version, id, title, description, organization);
+        super(info);
 
         notNull(migratableUtil, "migratable utility should not be null");
         this.migratableUtil = migratableUtil;

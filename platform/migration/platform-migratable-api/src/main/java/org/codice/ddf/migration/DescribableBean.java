@@ -20,7 +20,17 @@ import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.platform.services.common.Describable;
 
-public abstract class AbstractDescribable implements Describable {
+/**
+ * This class may serve as a base for any service that provides the {@link Describable} methods
+ * from injectable data. It is not abstract; otherwise it could not neatly be created in the
+ * blueprint files or reduce the count of constructor args on its children.
+ * <p>
+ * The class is referred to as a 'Bean' since it only wraps data and provides no significant
+ * business logic.
+ * <p>
+ * {@inheritDoc}
+ */
+public class DescribableBean implements Describable {
 
     private String version;
 
@@ -41,8 +51,8 @@ public abstract class AbstractDescribable implements Describable {
      * @param description  description of this describable
      * @param organization organization where this describable belongs
      */
-    public AbstractDescribable(@NotNull String version, @NotNull String id, @NotNull String title, @NotNull String description,
-            @NotNull String organization) {
+    public DescribableBean(@NotNull String version, @NotNull String id, @NotNull String title,
+            @NotNull String description, @NotNull String organization) {
 
         notNull(description, "description cannot be null");
         notNull(organization, "organization cannot be null");
@@ -58,28 +68,44 @@ public abstract class AbstractDescribable implements Describable {
 
     }
 
+    /**
+     * Copy constructor to support simplicity of child object constructors.
+     *
+     * @param describableInfo object containing required info to be copied into
+     *                        this describable.
+     */
+    public DescribableBean(@NotNull DescribableBean describableInfo) {
+        notNull(describableInfo, "describable info cannot be null");
+
+        this.version = describableInfo.getVersion();
+        this.id = describableInfo.getId();
+        this.title = describableInfo.getTitle();
+        this.description = describableInfo.getDescription();
+        this.organization = describableInfo.getOrganization();
+    }
+
     @Override
-    @NotNull public String getVersion() {
+    public String getVersion() {
         return version;
     }
 
     @Override
-    @NotNull public String getId() {
+    public String getId() {
         return id;
     }
 
     @Override
-    @NotNull public String getTitle() {
+    public String getTitle() {
         return title;
     }
 
     @Override
-    @NotNull public String getDescription() {
+    public String getDescription() {
         return description;
     }
 
     @Override
-    @NotNull public String getOrganization() {
+    public String getOrganization() {
         return organization;
     }
 

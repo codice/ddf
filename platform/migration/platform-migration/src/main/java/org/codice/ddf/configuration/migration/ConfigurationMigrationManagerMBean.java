@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.platform.services.common.Describable;
 
 /**
  * Interface to expose {@link ConfigurationMigrationManager} as an MBean.
@@ -34,4 +35,12 @@ public interface ConfigurationMigrationManagerMBean {
      * @throws MigrationException thrown if one or more Configurations couldn't be exported
      */
     Collection<MigrationWarning> export(@NotNull String exportDirectory) throws MigrationException;
+
+    /**
+     * Gets detailed information about all the {@link org.codice.ddf.migration.DataMigratable}
+     * services currently registered.
+     *
+     * @return A collection of type {@link Describable}.
+     */
+    Collection<Describable> getOptionalMigratableInfo();
 }

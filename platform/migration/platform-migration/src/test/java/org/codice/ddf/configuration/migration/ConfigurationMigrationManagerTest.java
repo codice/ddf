@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,13 +43,16 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
+import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.platform.services.common.Describable;
 import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -111,6 +115,36 @@ public class ConfigurationMigrationManagerTest {
 
         when(configurationMigratable.export(any(Path.class))).thenReturn(noWarnings);
         when(dataMigratable.export(any(Path.class))).thenReturn(noWarnings);
+    }
+
+    @Test
+    public void testGetOptionalMigratableInfo() {
+        DescribableBean bean1 = new DescribableBean("1.0",
+                "ddf.platform",
+                "Platform Migratable",
+                "Exports platform config",
+                "Codice");
+        DescribableBean bean2 = new DescribableBean("2.0",
+                "ddf.catalog",
+                "Catalog Migratable",
+                "Exports catalog metacards",
+                "Codice");
+
+        List<ConfigurationMigratable> mockConfigs = mock(List.class);
+        List<DataMigratable> migratables = new ArrayList<>();
+        migratables.add(new TestMigratable(bean1, 3));
+        migratables.add(new TestMigratable(bean2, 4));
+
+        ConfigurationMigrationManager manager = new ConfigurationMigrationManager(
+                configurationAdminMigration,
+                mBeanServer,
+                mockConfigs,
+                migratables);
+
+        Collection<Describable> describables = manager.getOptionalMigratableInfo();
+
+        verifyDescriptionEqual((Describable) describables.toArray()[0], bean1);
+        verifyDescriptionEqual((Describable) describables.toArray()[1], bean2);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -390,5 +424,36 @@ public class ConfigurationMigrationManagerTest {
         verify(configurationAdminMigration, times(1)).export(exportDirectory);
 
         return migrationWarnings;
+    }
+
+    private void verifyDescriptionEqual(Describable describable, DescribableBean bean) {
+        assert (describable.getId()
+                .equals(bean.getId()));
+        assert (describable.getTitle()
+                .equals(bean.getTitle()));
+        assert (describable.getDescription()
+                .equals(bean.getDescription()));
+        assert (describable.getOrganization()
+                .equals(bean.getOrganization()));
+        assert (describable.getVersion()
+                .equals(bean.getVersion()));
+    }
+}
+
+class TestMigratable extends DescribableBean implements DataMigratable {
+    private int wrappedNumber;
+
+    public TestMigratable(DescribableBean info, int wrappedNumber) {
+        super(info);
+        this.wrappedNumber = wrappedNumber;
+    }
+
+    @Override
+    public MigrationMetadata export(@NotNull Path exportPath) throws MigrationException {
+        return null;
+    }
+
+    public int getWrappedNumber() {
+        return wrappedNumber;
     }
 }

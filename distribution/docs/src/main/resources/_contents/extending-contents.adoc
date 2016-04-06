@@ -678,6 +678,25 @@ A KAR file is a Karaf-specific archive format (*K*araf *AR*chive).
 It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files.
 The feature descriptor file identifies the application's name, the set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
 
+==== Describing Application Services
+
+Given the modular nature of OSGi, some applications perform operations on the services themselves.
+In order to present, identify, and manipulate the services, they need descriptive identifying information.
+Any service that implements the `Describable` interface in `org.codice.ddf.platform.services.common` will
+have an obligation to provide this information. The relevant fields are as follows:
+
+* ID: a unique identifier for the service
+* Title: the informal name for the service
+* Description: a short, human-consumable description of the service
+* Organization: the name of the organization that wrote the service
+* Version: the current version of the service (example: 1.0)
+
+The only field with stringent requirements is the ID field. Format should be `[*product*].[*component*]`
+such as `ddf.metacards` or `ddf.platform`; while the [*component*] within a [*product*] may simply be
+a module or bundle name, the [*product*] itself should be the unique name of the plug-in or integration
+that belongs to the organization provided. Note that `ddf` as a [*product*] is reserved for core features
+only and is not meant to be used during extension or integration.
+
 ==== Creating a KAR File
 
 The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal.
