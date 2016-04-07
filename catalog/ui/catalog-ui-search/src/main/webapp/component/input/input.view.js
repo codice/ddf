@@ -73,6 +73,11 @@ define([
             var value = this.$el.find('input').val();
             this.model.save(value);
         },
+        toJSON: function(){
+            var attributeToVal = {};
+            attributeToVal[this.model.getId()] = this.model.getValue();
+            return attributeToVal;
+        },
         focus: function(){
             this.$el.find('input').select();
         },

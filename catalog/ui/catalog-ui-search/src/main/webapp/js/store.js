@@ -55,7 +55,8 @@ define([
             }));
             this.set('workspaces', this.initModel(Workspace.Collection, {
                 listeners: {
-                    'sync': this.handleWorkspaceSync
+                    'sync': this.handleWorkspaceSync,
+                    'remove': this.handleWorkspaceDestruction
                 }
             }));
             this.set('sources', this.initModel(Source, {
@@ -70,13 +71,24 @@ define([
                 persisted: false
             }));
         },
+        handleWorkspaceDestruction: function(model, workspaceCollection){
+            if (workspaceCollection.length === 0){
+                console.log('creating a workspace for you');
+                this.get('content').set('currentWorkspace', this.get('workspaces').createWorkspace('My First Workspace'));
+            }
+            if (this.get('content').attributes.currentWorkspace === model) {
+                this.get('content').set('currentWorkspace', workspaceCollection.first());
+            }
+        },
         handleWorkspaceSync: function(workspaceCollection){
+            console.log('syncing');
             if (this.get('content').get('currentWorkspace') === undefined){
                 if (workspaceCollection.length === undefined){
                     this.get('content').set('currentWorkspace', workspaceCollection);
                 } else if (workspaceCollection.length > 0) {
                     this.get('content').set('currentWorkspace', workspaceCollection.first());
                 } else {
+                    console.log('creating a workspace for you');
                     this.get('content').set('currentWorkspace', this.get('workspaces').createWorkspace('My First Workspace'));
                 }
             }

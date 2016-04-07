@@ -51,6 +51,11 @@ define([
                 childView.save();
             });
         },
+        toJSON: function(){
+            return this.children.map(function (childView){
+                childView.toJSON();
+            });
+        },
         focus: function () {
             this.children.first().focus();
         }

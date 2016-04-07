@@ -29,6 +29,10 @@ define([
                 collection: InputMetacardCollection.createWorkspaceBasic(this.model)
             }));
             this.editorProperties.currentView.$el.addClass("is-list");
+        },
+        onSave: function(attributeToVal){
+            this.model.set(attributeToVal);
+            this.model.save();
         }
     });
 });

@@ -59,6 +59,13 @@ define([
             this.$el.removeClass('is-editing');
             this.editorProperties.currentView.turnOffEditing();
             this.editorProperties.currentView.save();
+            this.onSave(this.editorProperties.currentView.toJSON());
+        },
+        onSave: function(){
+            //override
+        },
+        toJSON: function(){
+            return this.editorProperties.currentView.toJSON();
         }
     });
 });

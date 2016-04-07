@@ -20,15 +20,16 @@ define([
     'text!./input-date.hbs',
     'js/CustomElements',
     'moment',
-    'bootstrapDatepicker',
-], function (Marionette, _, $, template, CustomElements, moment) {
+    '../input.view',
+    'bootstrapDatepicker'
+], function (Marionette, _, $, template, CustomElements, moment, InputView) {
 
     var format = 'DD MMM YYYY HH:mm:ss.SSS';
     function getHumanReadableDate(date) {
         return moment(date).format(format);
     }
 
-    return Marionette.LayoutView.extend({
+    return InputView.extend({
         template: template,
         tagName: CustomElements.register('input-date'),
         attributes: function(){
@@ -90,7 +91,7 @@ define([
         },
         save: function(){
             var value = this.$el.find('input').val();
-            this.model.save(value);
+            this.model.save(moment(value).toJSON());
         },
         focus: function(){
             this.$el.find('input').select();

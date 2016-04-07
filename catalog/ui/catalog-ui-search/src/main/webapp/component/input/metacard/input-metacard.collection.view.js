@@ -60,6 +60,11 @@ define([
                 childView.save();
             });
         },
+        toJSON: function(){
+            return this.children.reduce(function (attributeToVal, childView){
+                return _.extend(attributeToVal, childView.toJSON());
+            }, {});
+        },
         focus: function () {
             this.children.first().focus();
         }
