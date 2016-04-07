@@ -13,17 +13,18 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-<!-- Create the bean-->
-<bean id="checkSum" class="org.codice.ddf.catalog.content.plugin.checksum.Checksum">
-    <argument ref="checksumProvider"/>
-</bean>
+    <!-- Create the bean-->
+    <bean id="checkSum" class="org.codice.ddf.catalog.content.plugin.checksum.Checksum">
+        <argument ref="checksumProvider"/>
+    </bean>
 
-<!-- export the bean on the service registry -->
-<service ref="checkSum" interface="ddf.catalog.content.plugin.PreCreateStoragePlugin">
+    <!-- export the bean on the service registry -->
+    <service ref="checkSum" interface="ddf.catalog.content.plugin.PreCreateStoragePlugin"/>
 
-</service>
+    <!-- export the bean on the service registry -->
+    <service ref="checkSum" interface="ddf.catalog.content.plugin.PreUpdateStoragePlugin"/>
 
-<!-- import service from the registry -->
-<reference id="checksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
+    <!-- import service from the registry -->
+    <reference id="checksumProvider" interface="org.codice.ddf.checksum.ChecksumProvider"/>
 
 </blueprint>

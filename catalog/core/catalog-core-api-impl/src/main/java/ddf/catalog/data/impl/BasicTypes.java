@@ -38,7 +38,7 @@ public class BasicTypes {
     public static final MetacardType BASIC_METACARD;
 
     /**
-     * A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE}.
+     * A Constant for an {@link AttributeType} with {@link AttributeFormat#DATE} .
      */
     public static final AttributeType<Date> DATE_TYPE;
 
@@ -53,7 +53,7 @@ public class BasicTypes {
     public static final AttributeType<String> XML_TYPE;
 
     /**
-     * A Constant for an {@link AttributeType} with {@link AttributeFormat#LONG}.
+     * A Constant for an {@link AttributeType} with {@link AttributeFormat#LONG} .
      */
     public static final AttributeType<Long> LONG_TYPE;
 
@@ -275,6 +275,19 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CHECKSUM_ALGORITHM,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CHECKSUM,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                false /* multivalued */,
+                STRING_TYPE));
+
         return descriptors;
     }
 
