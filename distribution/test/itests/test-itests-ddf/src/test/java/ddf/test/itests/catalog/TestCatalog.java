@@ -17,6 +17,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -24,6 +25,7 @@ import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static com.jayway.restassured.RestAssured.delete;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
@@ -180,7 +182,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
-                .all()
+                .headers()
                 .statusCode(201)
                 .when()
                 .post(REST_PATH.getUrl())
@@ -197,7 +199,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         String id = given().multiPart(tmpFile)
                 .expect()
                 .log()
-                .all()
+                .headers()
                 .statusCode(201)
                 .when()
                 .post(REST_PATH.getUrl())
@@ -209,7 +211,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         given().get(url)
                 .then()
                 .log()
-                .all()
+                .headers()
                 .assertThat()
                 .statusCode(equalTo(200))
                 .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
@@ -772,6 +774,43 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .body(is(SAMPLE_DATA));
 
         deleteMetacard(metacardId);
+    }
+
+    @Test
+    public void testCachedContentLengthHeader() throws IOException {
+        String fileName = "testCachedContentLengthHeader" + ".jpg";
+        File tmpFile = createTemporaryFile(fileName,
+                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(201)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        final String url =
+                REST_PATH.getUrl() + "sources/ddf.distribution/"+id+"?transform=resource";
+
+        LOGGER.error("URL: "+url);
+
+        //Get the product once
+        get(url)
+                .then()
+                .log()
+                .headers();
+
+        //Get again to hit the cache
+        get(url)
+                .then()
+                .log()
+                .headers()
+                .assertThat()
+                .header(HttpHeaders.CONTENT_LENGTH, notNullValue());
+
+        deleteMetacard(id);
     }
 
     @Test

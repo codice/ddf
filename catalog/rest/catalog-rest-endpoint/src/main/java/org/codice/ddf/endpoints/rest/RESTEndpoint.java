@@ -513,6 +513,11 @@ public class RESTEndpoint implements RESTService {
                             "inline; filename=\"" + filename + "\"");
                 }
 
+                long size = content.getSize();
+                if (size > 0) {
+                    responseBuilder.header(HEADER_CONTENT_LENGTH, size);
+                }
+
                 response = responseBuilder.build();
             } catch (FederationException e) {
                 String exceptionMessage = "READ failed due to unexpected exception: ";
