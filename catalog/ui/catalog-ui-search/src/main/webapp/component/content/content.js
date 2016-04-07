@@ -14,11 +14,17 @@ define([
     'underscore',
     'backbone',
     'js/model/Metacard',
-    'js/model/Query'
-], function (_, Backbone, Metacard, Query) {
+    'js/model/Query',
+    'js/model/Workspace'
+], function (_, Backbone, Metacard, Query, Workspace) {
 
-    var Content = Backbone.AssociatedModel.extend({
+    return Backbone.AssociatedModel.extend({
         relations: [
+            {
+                type: Backbone.One,
+                key: 'currentWorkspace',
+                relatedModel: Workspace.Model
+            },
             {
                 type: Backbone.Many,
                 key: 'selectedResults',
@@ -36,6 +42,7 @@ define([
             }
         ],
         defaults: {
+            currentWorkspace: undefined,
             selectedResults: [],
             queryId: undefined,
             savedItems: undefined,
@@ -76,6 +83,4 @@ define([
             _.extend(this.get('metacardTypes'), metacardTypes);
         }
     });
-
-    return Content;
 });

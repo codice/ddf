@@ -45,9 +45,7 @@ define([
         initialize: function(){
         },
         onRender: function(){
-            var workspaceSelectorView = new WorkspaceSelectorView({
-                model: store.get('workspaces')
-            });
+            var workspaceSelectorView = new WorkspaceSelectorView();
             this.workspaceSelector.show(workspaceSelectorView);
             this.changeWorkspace();
         },

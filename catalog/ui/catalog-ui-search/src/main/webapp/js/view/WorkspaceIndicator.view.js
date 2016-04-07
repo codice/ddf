@@ -24,18 +24,24 @@ define([
     'component/workspaces/Workspaces.view'
 ], function (Marionette, _, $, workspaceIndicatorTemplate, CustomElements, lightboxViewInstance, store,
             WorkspacesView) {
-    var WorkspaceIndicatorView = Marionette.ItemView.extend({
+
+    return Marionette.ItemView.extend({
+        setDefaultModel: function(){
+            this.model = store.get('content');
+        },
         template: workspaceIndicatorTemplate,
         tagName: CustomElements.register('workspace-indicator'),
-        modelEvents: { 'all': 'rerender' },
-        events: { 'click': 'openWorkspaces' },
-        initialize: function () {
+        events: {
+            'click': 'openWorkspaces'
         },
-        serializeData: function () {
-            return _.extend(this.model.toJSON(), { currentWorkspace: this.model.getCurrentWorkspaceName() });
+        initialize: function (options) {
+            if (options.model === undefined){
+                this.setDefaultModel();
+            }
+            this.listenTo(this.model, 'change:currentWorkspace', this.render);
         },
-        rerender: function () {
-            this.render();
+        onRender: function(){
+            console.log(this.model.toJSON());
         },
         openWorkspaces: function () {
             lightboxViewInstance.model.updateTitle('Workspaces');
@@ -45,5 +51,4 @@ define([
             }));
         }
     });
-    return WorkspaceIndicatorView;
 });

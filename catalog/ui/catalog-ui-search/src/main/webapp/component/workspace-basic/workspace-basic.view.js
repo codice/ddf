@@ -58,29 +58,29 @@ define([
         _inputCollectionView: undefined,
         _inputCollection: undefined,
         properties: {
-            name: {
+            title: {
                 label: 'Name',
                 validation: undefined,
                 description: 'Workspace Name',
                 readOnly: false,
                 value: '',
-                id: 'name'
+                id: 'title'
             },
-            createdDate: {
+            created: {
                 label: 'Created Date',
                 validation: undefined,
                 description: 'The date the workspace was created.',
                 readOnly: true,
                 value: '',
-                id: 'createdDate'
+                id: 'created'
             },
-            lastModifiedDate: {
+            modified: {
                 label: 'Last Modified Date',
                 validation: undefined,
                 description: 'The last date the workspace was modified.',
                 readOnly: true,
                 value: '',
-                id: 'lastModifiedDate'
+                id: 'modified'
             }
         },
         onBeforeShow: function(){

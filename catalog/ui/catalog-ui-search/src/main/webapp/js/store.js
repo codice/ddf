@@ -22,46 +22,70 @@ define([
     'component/content/content'
 ], function (Backbone, poller, _, Workspace, Source, Workspaces, Selected, Content) {
 
-    // initialize a backbone model and fetch it's state from the server
-    var init = function (Model, opts) {
-        opts = _.extend({
-            persisted: true,
-            poll: false
-        }, opts);
-        var m = new Model();
-        if (opts.persisted) {
-            m.fetch();
-            if (opts.poll) {
-                poller.get(m, opts.poll).start();
+    return new (Backbone.Model.extend({
+        setupListeners: function(model, listeners){
+            if (listeners !== undefined){
+                this.listenTo(model, listeners);
             }
-        }
-        return m;
-    };
-
-    var Store = Backbone.Model.extend({
+        },
+        setupPolling: function(model, opts){
+            if (opts.persisted){
+                model.fetch();
+                if (opts.poll) {
+                    poller.get(model, opts.poll).start();
+                }
+            }
+        },
+        initModel: function (Model, opts) {
+            opts = _.extend({
+                persisted: true,
+                poll: false
+            }, opts);
+            var model = new Model();
+            this.setupListeners(model, opts.listeners);
+            this.setupPolling(model, opts);
+            return model;
+        },
         initialize: function () {
-            this.set('workspaces', init(Workspace.WorkspaceResult));
-            this.set('sources', init(Source, {
+            this.set('content', this.initModel(Content, {
+                persisted: false,
+                listeners: {
+                    'change:currentWorkspace': this.clearResults
+                }
+            }));
+            this.set('workspaces', this.initModel(Workspace.Collection, {
+                listeners: {
+                    'sync': this.handleWorkspaceSync
+                }
+            }));
+            this.set('sources', this.initModel(Source, {
                 poll: {
                     delay: 60000
                 }
             }));
-            this.set('componentWorkspaces', init(Workspaces, {
+            this.set('componentWorkspaces', this.initModel(Workspaces, {
                 persisted: false
             }));
-            this.set('selected', init(Selected, {
+            this.set('selected', this.initModel(Selected, {
                 persisted: false
             }));
-            this.set('content', init(Content, {
-                persisted: false
-            }));
-            this.listenTo(this.get('workspaces'), 'change:currentWorkspace', this.clearResults);
+        },
+        handleWorkspaceSync: function(workspaceCollection){
+            if (this.get('content').get('currentWorkspace') === undefined){
+                if (workspaceCollection.length === undefined){
+                    this.get('content').set('currentWorkspace', workspaceCollection);
+                } else if (workspaceCollection.length > 0) {
+                    this.get('content').set('currentWorkspace', workspaceCollection.first());
+                } else {
+                    this.get('content').set('currentWorkspace', this.get('workspaces').createWorkspace('My First Workspace'));
+                }
+            }
         },
         getCurrentWorkspace: function () {
-            return this.get('workspaces').get('workspaces').get(this.get('workspaces').get('currentWorkspace'));
+            return this.get('content').get('currentWorkspace');
         },
         getCurrentQueries: function () {
-            return this.getCurrentWorkspace().get('searches');
+            return this.getCurrentWorkspace().get('queries');
         },
         setQueryById: function (queryId) {
             var queryRef = this.getCurrentQueries().get(queryId);
@@ -125,7 +149,5 @@ define([
         addMetacardTypes: function(metacardTypes){
             this.get('content').addMetacardTypes(metacardTypes);
         }
-    });
-
-    return new Store();
+    }))();
 });

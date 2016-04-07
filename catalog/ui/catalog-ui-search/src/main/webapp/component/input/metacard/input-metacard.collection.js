@@ -107,6 +107,63 @@ define([
                 type: 'BINARY'
             });
             return metacardInputCollection;
+        },
+        createWorkspaceBasic: function(workspace){
+            var metacardInputCollection = new MetacardInputCollection();
+            metacardInputCollection.add({
+                id: 'title',
+                value: workspace.get('title'),
+                label: 'Title'
+            }, {
+                type: 'STRING'
+            });
+            metacardInputCollection.add({
+                id: 'created',
+                value: workspace.get('created'),
+                label: 'Created'
+            }, {
+                type: 'DATE'
+            });
+            metacardInputCollection.add({
+                id: 'modified',
+                value: workspace.get('modified'),
+                label: 'Modified'
+            }, {
+                type: 'DATE'
+            });
+            return metacardInputCollection;
+        },
+        createWorkspaceAdvanced: function(workspace){
+            var metacardInputCollection = new MetacardInputCollection();
+            metacardInputCollection.add({
+                id: 'title',
+                value: workspace.get('title'),
+                label: 'Title'
+            }, {
+                type: 'STRING'
+            });
+            metacardInputCollection.add({
+                id: 'created',
+                value: workspace.get('created'),
+                label: 'Created'
+            }, {
+                type: 'DATE'
+            });
+            metacardInputCollection.add({
+                id: 'modified',
+                value: workspace.get('modified'),
+                label: 'Modified'
+            }, {
+                type: 'DATE'
+            });
+            metacardInputCollection.add({
+                id: 'id',
+                value: workspace.get('id'),
+                label: 'ID'
+            }, {
+                type: 'STRING'
+            });
+            return metacardInputCollection;
         }
     });
 

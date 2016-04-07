@@ -11,7 +11,20 @@
  *
  **/
  --}}
-<button class="currentWorkspace is-button">
-    {{currentWorkspace.title}}
-    <i class="fa fa-chevron-down"></i>
-</button>
+<div class="confirmation-container">
+    <div class="confirmation-prompt">
+        {{prompt}}
+    </div>
+    <div class="confirmation-choices">
+        <button class="confirmation-no is-neutral">
+            <span>
+                {{no}}
+            </span>
+        </button>
+        <button class="confirmation-yes is-negative">
+            <span>
+                {{yes}}
+            </span>
+        </button>
+    </div>
+</div>

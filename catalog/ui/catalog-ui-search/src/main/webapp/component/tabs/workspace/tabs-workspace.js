@@ -14,8 +14,8 @@ define([
     'underscore',
     '../tabs',
     'js/store',
-    'component/workspace-basic/workspace-basic.view',
-    'component/workspace-advanced/workspace-advanced.view',
+    'component/editor/workspace-basic/workspace-basic.view',
+    'component/editor/workspace-advanced/workspace-advanced.view',
     'component/workspace-history/workspace-history.view',
     'component/workspace-associations/workspace-associations.view',
     'component/workspace-sharing/workspace-sharing.view'
@@ -34,7 +34,7 @@ workspaceAssociationsView, workspaceSharingView) {
             workspaceId: undefined
         },
         getAssociatedWorkspace: function() {
-            return store.get('workspaces').get('workspaces').get(this.get('workspaceId'));
+            return store.get('workspaces').get(this.get('workspaceId'));
         }
     });
 

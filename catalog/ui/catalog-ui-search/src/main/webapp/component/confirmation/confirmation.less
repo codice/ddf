@@ -1,0 +1,47 @@
+@{customElementNamespace}confirmation {
+  .customElement;
+
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  z-index: @zIndexConfirmation;
+  background: @confirmationIndicator;
+
+  .confirmation-container {
+    position: relative;
+    left: ~'calc(50% - 200px)';
+    top: 50%;
+    height: auto;
+    width: 400px;
+    background: @background-color;
+    .boxShadow;
+  }
+
+  .confirmation-prompt {
+    width: 100%;
+    text-align: center;
+    min-height: @minimumButtonSize;
+    padding: 10px;
+  }
+
+  .confirmation-choices {
+    .inlineBlockDisplay(div);
+  }
+
+  .confirmation-no {
+    width: 50%;
+  }
+  .confirmation-yes {
+    width: 50%;
+  }
+
+
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}confirmation {
+
+  }
+}

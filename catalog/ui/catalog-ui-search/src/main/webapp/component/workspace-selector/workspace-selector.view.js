@@ -19,8 +19,10 @@ define([
     'jquery',
     'text!./workspace-selector.hbs',
     'js/CustomElements',
-    'js/store'
-], function (Marionette, _, $, workspaceSelectorTemplate, CustomElements, store) {
+    'js/store',
+    'component/confirmation/confirmation.view',
+    'component/confirmation/confirmation'
+], function (Marionette, _, $, workspaceSelectorTemplate, CustomElements, store, ConfirmationView, Confirmation) {
 
     function getWorkspaceId(){
         return store.get('componentWorkspaces').getWorkspaceId();
@@ -39,6 +41,9 @@ define([
     }
 
     var WorkspaceSelector = Marionette.LayoutView.extend({
+        setDefaultModel: function(){
+            this.model = store.get('workspaces');
+        },
         template: workspaceSelectorTemplate,
         tagName: CustomElements.register('workspace-selector'),
         modelEvents: {
@@ -46,6 +51,7 @@ define([
         events: {
             'click .workspaces-list .workspace': 'clickWorkspace',
             'click .workspaces-add': 'createWorkspace',
+            'click .workspace-delete': 'deleteWorkspace',
             'dblclick .workspaces-list .workspace': 'openWorkspace'
         },
         ui: {
@@ -53,11 +59,11 @@ define([
         },
         regions: {
         },
-        initialize: function(){
-            this.listenTo(this.model.get('workspaces'), 'all', this.rerender);
-        },
-        serializeData: function(){
-            return _.extend(this.model.toJSON(), {currentWorkspace: this.model.getCurrentWorkspaceName()});
+        initialize: function(options){
+            if (options.model === undefined){
+                this.setDefaultModel();
+            }
+            this.listenTo(this.model, 'all', this.rerender);
         },
         rerender: function(){
             this.render();
@@ -81,13 +87,34 @@ define([
         },
         highlightSelectedWorkspace: function(){
             this.$el.find('.workspaces-list .workspace').removeClass('is-selected');
-            this.$el.find('[data-id='+getWorkspaceId()+']').addClass('is-selected');
+            this.$el.find('.workspaces-list .workspace[data-id='+getWorkspaceId()+']').addClass('is-selected');
         },
         createWorkspace: function(){
             turnOnEditing();
             setWorkspaceId(this.model.createWorkspace());
             this.scrollToSelectedWorkspace();
             this.changeWorkspace();
+        },
+        deleteWorkspace: function(event){
+            event.stopPropagation();
+            var workspace = event.currentTarget.getAttribute('data-id');
+            this.listenTo(ConfirmationView.generateConfirmation({
+                    prompt: 'Are you sure you want to delete this workspace?',
+                    yes: 'Delete',
+                    no: 'Cancel'
+                }),
+                'change:choice',
+                function(model, value){
+                    this.handleChoice(value, workspace);
+                });
+        },
+        handleChoice: function(shouldDelete, workspace){
+            if (shouldDelete){
+                setWorkspaceId(undefined);
+                this.model.get(workspace).destroy();
+            } else {
+
+            }
         },
         scrollToSelectedWorkspace: function(){
             var selectedWorkspace = this.$el.find('[data-id='+getWorkspaceId()+']')[0];

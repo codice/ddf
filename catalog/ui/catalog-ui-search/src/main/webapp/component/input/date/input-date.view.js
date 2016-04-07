@@ -38,7 +38,9 @@ define([
         },
         events: {
             'click .input-revert': 'revert',
-            'dp.change .input-group.date': 'handleRevert'
+            'dp.change .input-group.date': 'handleRevert',
+            'dp.show .input-group.date': 'handleOpen',
+            'dp.hide .input-group.date': 'removeResizeHandler'
         },
         modelEvents: {
             'change:value': 'render'
@@ -60,7 +62,7 @@ define([
         initializeDatepicker: function(){
             this.$el.find('.input-group.date').datetimepicker({
                 format: format,
-                debug: true
+                widgetParent: 'body'
             });
         },
         handleReadOnly: function () {
@@ -100,6 +102,22 @@ define([
             } else {
                 this.$el.removeClass('is-changed');
             }
+        },
+        handleOpen: function(){
+            this.updatePosition();
+            this.addResizeHandler();
+        },
+        updatePosition: function(){
+            var inputCoordinates = this.$el.find('.input-group.date')[0].getBoundingClientRect();
+            $('body > .bootstrap-datetimepicker-widget').css('left', inputCoordinates.left)
+                .css('top', inputCoordinates.top + inputCoordinates.height)
+                .css('width', inputCoordinates.width);
+        },
+        addResizeHandler: function(){
+            $(window).on('resize.datePicker', this.updatePosition.bind(this));
+        },
+        removeResizeHandler: function(){
+            $(window).off('resize.datePicker');
         },
         _editMode: false
     });

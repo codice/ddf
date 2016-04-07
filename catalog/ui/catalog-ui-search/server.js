@@ -10,22 +10,30 @@
  *
  **/
 /*global require,__dirname*/
-var express = require('express'),
-    server = require('./server-impl');
+var express = require('express');
+var httpProxy = require('http-proxy');
+var morgan = require('morgan')
+var server = require('./server-impl');
+
+var proxy = new httpProxy.createProxyServer({ secure: false });
+proxy.on('error', function (error) {
+    console.error('http-proxy', error);
+});
 
 var app = express();
-// uncomment to get some debugging
-//app.use(express.logger());
-//enable the live reload
+// enable the live reload
 app.use(require('connect-livereload')());
 
 // our compiled css gets moved to /target/webapp/css so use it there
 app.use('/search/catalog/', express.static(__dirname + '/target/webapp/'));
 app.use('/search/catalog/', express.static(__dirname + '/src/main/webapp'));
 
+app.use(morgan('dev'));
+
 //if we're mocking, it is being run by grunt
-console.log('setting up proxy only');
-app.all('*', server.requestProxy);
+app.use(function (req, res) {
+    proxy.web(req, res, { target: 'https://localhost:8993' });
+});
 
 exports = module.exports = app;
 

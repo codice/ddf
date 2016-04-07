@@ -12,24 +12,18 @@
 /*global define*/
 define([
     'underscore',
-    '../tabs',
-    'js/store',
-    'component/editor/metacard-basic/metacard-basic.view',
-    'component/editor/metacard-advanced/metacard-advanced.view'
-], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView) {
+    'backbone'
+], function (_, Backbone) {
 
-    var MetacardTabs = Tabs.extend({
+    return Backbone.Model.extend({
         defaults: {
-            tabs: {
-                'Basic': MetacardBasicView,
-                'Advanced': MetacardAdvancedView,
-                'History': MetacardBasicView,
-                'Associations': MetacardBasicView,
-                'Sharing': MetacardBasicView,
-                'Actions': MetacardBasicView
-            }
+            prompt: 'Default prompt.',
+            no: 'Default no',
+            yes: 'Default yes',
+            choice: undefined
+        },
+        makeChoice: function(choice){
+            this.set('choice', choice);
         }
     });
-
-    return MetacardTabs;
 });

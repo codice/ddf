@@ -1,0 +1,63 @@
+@{customElementNamespace}editor {
+  .customElement;
+
+  overflow: auto;
+  padding: 10px 50px;
+
+  .editor-header {
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+  }
+
+  .editor-properties {
+    overflow: auto;
+    max-height: ~"calc(100% - 44px - 44px - 20px - 44px)";
+  }
+
+  .editor-footer {
+    margin-top: 20px;
+    height: 44px;
+    white-space: nowrap;
+    .inlineFix;
+
+    > button {
+      height: 100%;
+      padding: 10px;
+      display: inline-block;
+    }
+    > .editor-edit {
+      width: 100%;
+    }
+    > .editor-cancel {
+      width: 50%;
+      display: none;
+    }
+    > .editor-save {
+      width: 50%;
+      display: none;
+    }
+  }
+
+  &.is-editing {
+    .editor-footer {
+
+      > .editor-edit {
+        display: none;
+      }
+      > .editor-cancel {
+        display: inline-block;
+      }
+      > .editor-save {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}editor {
+
+  }
+}

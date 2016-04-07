@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window*/
+/*global define*/
 
 define([
         'wreqr',
@@ -21,22 +21,19 @@ define([
         'backboneassociations'
     ],
     function (wreqr, Backbone, Metacard, Query, Common, ColorGenerator) {
-        "use strict";
         var Workspace = {};
 
-        Workspace.MetacardList = Backbone.Collection.extend({
+        Workspace.MetacardCollection = Backbone.Collection.extend({
             model: Metacard.Metacard
         });
 
-        Workspace.SearchList = Backbone.Collection.extend({
+        Workspace.QueryCollection = Backbone.Collection.extend({
             model: Query.Model,
             initialize: function(){
                 var searchList = this;
                 this._colorGenerator = ColorGenerator.getNewGenerator();
                 this.listenTo(this, 'add', function(query){
                     query.setColor(searchList._colorGenerator.getColor(query.getId()));
-                    console.log(query.id);
-                    console.log(query.getColor());
                     query.startSearch();
                     query.listenTo(query, 'change', function(){
                         query.startSearch();
@@ -51,109 +48,43 @@ define([
             }
         });
 
-        var fakeUsers = ['Andrew', 'Chris', 'Korben', 'Leon', 'Krauser','Wesker'];
-        var fakeShares = ['Andrew', 'Chris', 'Team 1', 'Team 2'];
-        var fakeSources = ['local', 'Remote 1', 'Remote 2'];
-        var getRandomValue = function(arr){
-            return arr[Math.floor(arr.length*Math.random())];
-        };
-        var getMultipleRandomValue = function(arr){
-            var randomValues = [];
-            var multiple = Math.ceil(Math.random()*2);
-            for (var i = 0; i<multiple; i++){
-                randomValues.push(getRandomValue(arr));
-            }
-            return randomValues;
-        };
-
         Workspace.Model = Backbone.AssociatedModel.extend({
+            useAjaxSync: true,
+            defaults: {
+                queries: [],
+                metacards: []
+            },
             relations: [
                 {
                     type: Backbone.Many,
-                    key: 'searches',
-                    collectionType: Workspace.SearchList
+                    key: 'queries',
+                    collectionType: Workspace.QueryCollection
                 },
                 {
                     type: Backbone.Many,
                     key: 'metacards',
-                    relatedModel: Metacard.MetacardResult
+                    collectionType: Workspace.MetacardCollection
                 }
             ],
             canAddQuery: function(){
-              return this.get('searches').length < 10;
+              return this.get('queries').length < 10;
             },
             addQuery: function () {
-                var query = new Query.Model({title: 'New Workspace'});
-                this.get('searches').add(query);
+                var query = new Query.Model();
+                this.get('queries').add(query);
                 return query.get('id');
             },
-            getSelectedQuery: function () {
-                return this.get('searches').find(function (query) {
-                    return query.get('selected');
-                });
-            },
             initialize: function() {
-                if(!this.get('searches')) {
-                    this.set({searches: new Workspace.SearchList()});
-                }
-                if(!this.get('metacards')) {
-                    this.set({metacards: new Workspace.MetacardList()});
-                }
-                this.addMetacardProperties();
-                this.get('searches').on('add',function(){
+                this.get('queries').on('add',function(){
                     this.trigger('change');
                 });
-                this.on('nested-change',function(){
-                    var attributesChanged = Object.keys(this.changedAttributes());
-                    if (!(attributesChanged.length === 1 && attributesChanged[0] === 'lastModifiedDate' && attributesChanged[0] === 'history')){
-                        this.updateLastModifiedDate();
-                    }
-                });
-                this.on('change',function(){
-                    var attributesChanged = Object.keys(this.changedAttributes());
-                    if (!(attributesChanged.length === 1 && attributesChanged[0] === 'lastModifiedDate' && attributesChanged[0] === 'history')){
-                        this.updateLastModifiedDate();
-                    }
-                });
-            },
-            updateLastModifiedDate: function(){
-                this.set('lastModifiedDate',(new Date()).toLocaleString());
-                this.addNewHistory();
-            },
-            addNewHistory: function(){
-                var history = this.get('history') || [];
-                history.unshift({
-                    version: history.length + 1,
-                    date: this.get('lastModifiedDate'),
-                    user: getRandomValue(fakeUsers),
-                    id: Common.generateUUID()
-                });
-                this.set('history',history);
-            },
-            addMetacardProperties: function(){
-                if (this.get('id')===undefined){
-                    this.set('id', Common.generateUUID());
-                }
-                if (this.get('createdDate')===undefined){
-                    this.set('createdDate', (new Date()).toLocaleString());
-                }
-                if (this.get('lastModifiedDate')===undefined){
-                    this.updateLastModifiedDate();
-                }
-                if (this.get('sharedWith') === undefined){
-                    this.set('sharedWith',getMultipleRandomValue(fakeShares));
-                }
-                if (this.get('source')=== undefined){
-                    this.set('source',getRandomValue(fakeSources));
-                }
-                if (this.get('local')=== undefined){
-                    this.set('local',this.get('source')==='local');
-                }
             }
         });
 
-        Workspace.WorkspaceList = Backbone.Collection.extend({
+        Workspace.Collection = Backbone.Collection.extend({
             model: Workspace.Model,
+            url: '/services/search/catalog/workspaces',
+            useAjaxSync: true,
             initialize: function(){
                 var collection = this;
                 collection.on('add',function(workspace){
@@ -161,89 +92,17 @@ define([
                         collection.sort();
                     });
                 });
+                wreqr.vent.on('workspace:save', function(){
+                    collection.save();
+                });
             },
             comparator: function(workspace){
                 return -(new Date(workspace.get('lastModifiedDate'))).getTime();
-            }
+            },
+            createWorkspace: function(title){
+               this.create({title: title || 'New Workspace'});
+             }
         });
-
-        Workspace.WorkspaceResult = Backbone.AssociatedModel.extend({
-            relations: [
-                {
-                    type: Backbone.Many,
-                    key: 'workspaces',
-                    relatedModel: Workspace.Model,
-                    collectionType: Workspace.WorkspaceList
-                }
-            ],
-            defaults: {
-                currentWorkspace: undefined
-            },
-            url: '/service/workspaces',
-            useAjaxSync: false,
-            initialize: function() {
-                var self = this;
-                if(!this.get('workspaces')) {
-                    this.set({workspaces: new Workspace.WorkspaceList()});
-                }
-                this.on({
-                   'all': this.setDefaultCurrentWorkspace
-                });
-                wreqr.vent.on('workspace:save', function(){
-                    self.save();
-                });
-                /*this.on('nested-change', function () {
-                    this.save();
-                });
-                this.on('change', function () {
-                    this.save();
-                });*/
-            },
-            parse: function (resp) {
-                if (resp.data) {
-                    return resp.data;
-                }
-                return resp;
-            },
-            clearDeletedWorkspace: function(){
-                var currentWorkspace = this.get('currentWorkspace');
-                if (currentWorkspace && !this.get('workspaces').get(currentWorkspace)){
-                    this.set('currentWorkspace',undefined);
-                }
-            },
-            setDefaultCurrentWorkspace: function(){
-                this.clearDeletedWorkspace();
-                var currentWorkspace = this.get('currentWorkspace');
-                var workspaces = this.get('workspaces');
-                if (!currentWorkspace && workspaces.length !==0){
-                    this.set('currentWorkspace',workspaces.models[0].get('id'));
-                }
-            },
-            getCurrentWorkspace: function () {
-                return this.getWorkspace(this.get('currentWorkspace'));
-            },
-            getCurrentWorkspaceName: function(){
-                var currentWorkspace = this.getCurrentWorkspace();
-                if (currentWorkspace){
-                    return currentWorkspace.get('name');
-                }
-            },
-            createWorkspace: function(){
-                var workspace = new Workspace.Model({name: 'New Workspace'});
-                this.get('workspaces').add(workspace);
-                this.save();
-                return workspace.get('id');
-            },
-            setCurrentWorkspace: function(workspaceId){
-                console.log(workspaceId);
-                this.set('currentWorkspace', workspaceId);
-            },
-            getWorkspace: function(workspaceId){
-                return this.get('workspaces').get(workspaceId);
-            }
-        });
-
-        window.Workspace = Workspace;
 
         return Workspace;
 

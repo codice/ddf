@@ -926,7 +926,6 @@ button.ui-multiselect {
     background-size: 100% 100%;
     -webkit-box-shadow: none;
     /*box-shadow: 0 2px 2px rgba(54,54,54,.8);*/
-    border-bottom: solid 1px rgba(54, 54, 54, .8);
     text-shadow: none;
     -webkit-transition: none;
     -moz-transition: none;

@@ -47,6 +47,27 @@
       }
     }
   }
+
+  .workspace-container {
+    .inlineBlockDisplay(div);
+    .inlineBlockDisplay(button);
+
+    > .workspace {
+      width: ~'calc(100% - @{minimumButtonSize})';
+    }
+    > .workspace-delete {
+      width: @minimumButtonSize;
+      height: 2*@minimumLineSize;
+      text-align: center;
+      margin: 0px;
+      > span {
+        font-size: 2rem;
+        height: inherit;
+        width: inherit;
+        line-height: 2*@minimumLineSize;
+      }
+    }
+  }
 }
 
 @media (max-width: @smallScreenSize) {

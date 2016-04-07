@@ -4,7 +4,7 @@
 
 @positive-color: shade(#00b843, 25%);
 @negative-color: spin(@primary-color, 180);
-@neutral-color: @default-color;
+@neutral-color: lighten(@default-color, 20%);
 
 @navbar-header-color: #999999;
 
@@ -18,6 +18,7 @@
 @customElementNamespace: ddf-;
 @minimumButtonSize: 44px;
 @minimumLineSize: 30px;
+@border-radius: 1px;
 
 //@border-color: rgba(54, 54, 54, .8);
 @border-color: rgba(104, 104, 104, .8);
@@ -27,6 +28,7 @@
 @hover-background-color: rgba(66,66,66,.9);
 
 @lightboxIndicator: rgba(255,255,255,.5);
+@confirmationIndicator: rgba(0,0,0,.5);
 
 @smallScreenSize: 600px;
 @mediumScreenSize: 1200px;
@@ -35,6 +37,7 @@
 @zIndexMenubar: 101;
 @zIndexLightbox: 102;
 @zIndexContent: 101;
+@zIndexConfirmation: 103;
 
 //transitions
 @transitionTime: .0s;

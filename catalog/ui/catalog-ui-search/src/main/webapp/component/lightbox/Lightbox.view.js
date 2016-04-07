@@ -26,7 +26,7 @@ define([
         template: LightboxTemplate,
         tagName: CustomElements.register('lightbox'),
         modelEvents: {
-            'all': 'rerender',
+            'all': 'render',
             'change:open': 'handleOpen'
         },
         events: {
@@ -39,9 +39,6 @@ define([
         initialize: function () {
             $('body').append(this.el);
             this.listenTo(store.get('workspaces'),'change:currentWorkspace',this.close);
-        },
-        rerender: function () {
-            this.render();
         },
         handleOpen: function () {
             this.$el.toggleClass('is-open', this.model.isOpen());

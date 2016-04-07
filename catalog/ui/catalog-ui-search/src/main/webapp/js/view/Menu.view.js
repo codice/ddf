@@ -40,7 +40,7 @@ define([
 ], function (Marionette, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate,
              notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate,
              taskCategoryTemplate, helpTemplate, Cometd, $, IngestMenu, PreferencesMenu, Application,
-             properties, CustomElements, WorkspaceIndicator, store) {
+             properties, CustomElements, WorkspaceIndicator) {
     var iconOnly = false;
     var Menu = {};
     var MenuItem = Backbone.Model.extend({});
@@ -581,7 +581,7 @@ define([
                 })
             });
             this.preferences.show(preferences);
-            var workspaces = new WorkspaceIndicator({model: store.get('workspaces')});
+            var workspaces = new WorkspaceIndicator();
             this.workspaces.show(workspaces);
             this._turnOnCollapsibleMenu();
         },

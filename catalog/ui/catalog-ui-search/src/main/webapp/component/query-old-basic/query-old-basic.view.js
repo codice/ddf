@@ -13,7 +13,6 @@
 define([
     'jquery',
     'backbone',
-    'cesium',
     'marionette',
     'underscore',
     'properties',
@@ -27,7 +26,7 @@ define([
     'js/CustomElements',
     'moment',
     'bootstrapselect'
-], function ($, Backbone, Cesium, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate, dir, maptype, store, CustomElements, moment) {
+], function ($, Backbone, Marionette, _, properties, MetaCard, Progress, wreqr, queryOldBasicTemplate, dir, maptype, store, CustomElements, moment) {
 
 
     var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
@@ -253,7 +252,7 @@ define([
                     case 'ModelToView':
                         var distanceFromMeters = view.getDistanceFromMeters(view.model.get('radius'), radiusUnitVal);
                         var currentValue = this.boundEls[0].value;
-                        var deltaThreshold = Cesium.Math.EPSILON7;
+                        var deltaThreshold = 0.0000001;
                         // same used in cesium.bbox.js
                         // only update the view's value if it's significantly different from the model's value
                         return Math.abs(currentValue - distanceFromMeters) > deltaThreshold ? distanceFromMeters : currentValue;

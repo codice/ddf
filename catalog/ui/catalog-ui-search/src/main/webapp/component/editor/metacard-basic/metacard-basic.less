@@ -1,0 +1,20 @@
+@{customElementNamespace}editor {
+  &.is-metacard-basic {
+    .editor-properties @{customElementNamespace}input,
+    .editor-properties @{customElementNamespace}input-date{
+      display: inline-block;
+      width: 50%;
+      vertical-align: top;
+    }
+
+    .editor-properties [data-id=thumbnail] {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}editor {
+
+  }
+}
