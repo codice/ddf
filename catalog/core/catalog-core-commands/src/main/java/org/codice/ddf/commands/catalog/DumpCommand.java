@@ -254,14 +254,21 @@ public class DumpCommand extends CatalogCommands {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
+                        boolean transformationFailed = false;
                         for (final Result result : results) {
                             Metacard metacard = result.getMetacard();
                             try {
                                 exportMetacard(dumpDir, metacard);
                             } catch (IOException | CatalogTransformerException e) {
+                                transformationFailed = true;
+                                LOGGER.debug("Failed to dump metacard {}", metacard.getId(), e);
                                 executorService.shutdownNow();
                             }
                             printStatus(resultCount.incrementAndGet());
+                        }
+                        if (transformationFailed) {
+                            LOGGER.error(
+                                    "One or more metacards failed to transform. Enable debug log for more details.");
                         }
                     }
                 });
