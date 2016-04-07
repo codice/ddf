@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,6 +13,8 @@
  */
 package ddf.catalog.impl;
 
+import static ddf.catalog.Constants.CONTENT_PATHS;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +22,9 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +42,7 @@ import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -54,7 +60,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
-import com.google.common.io.FileBackedOutputStream;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
@@ -176,17 +181,20 @@ import ddf.security.permission.KeyValueCollectionPermission;
 @SuppressWarnings("deprecation")
 public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFramework {
 
-    protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
+    protected static final String FAILED_BY_GET_RESOURCE_PLUGIN =
+            "Error during Pre/PostResourcePlugin.";
 
     static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private static final String PRE_INGEST_ERROR = "Error during pre-ingest service invocation:\n\n";
+    private static final String PRE_INGEST_ERROR =
+            "Error during pre-ingest service invocation:\n\n";
 
     private static final String DEFAULT_RESOURCE_NOT_FOUND_MESSAGE = "Unknown resource request";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImpl.class);
 
-    private static final String FANOUT_MESSAGE = "Fanout proxy does not support create, update, and delete operations";
+    private static final String FANOUT_MESSAGE =
+            "Fanout proxy does not support create, update, and delete operations";
 
     protected boolean notificationEnabled = true;
 
@@ -301,7 +309,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -323,7 +331,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -352,7 +360,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local storage provider will be set to the first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework.
      *
@@ -370,7 +378,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local storage provider will be reset to the new first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
      * currently empty, then the local storage provider will be set to <code>null</code>.
@@ -447,8 +455,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             // If it is an enterprise request than add all source information for the enterprise
             if (sourceInfoRequest.isEnterprise()) {
 
-                sourceDescriptors = getFederatedSourceDescriptors(
-                        frameworkProperties.getFederatedSources()
+                sourceDescriptors =
+                        getFederatedSourceDescriptors(frameworkProperties.getFederatedSources()
                                 .values(), true);
                 // If Ids are specified check if they are known sources
             } else if (requestedSourceIds != null) {
@@ -528,9 +536,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             if (ids != null && !ids.isEmpty()) {
                 for (String id : ids) {
                     if (!id.equals(this.getId())) {
-                        SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
-                                "Unknown source: " + id);
-                        LOGGER.warn("Throwing SourceUnavilableExcption for unknown source: {}", id,
+                        SourceUnavailableException sourceUnavailableException =
+                                new SourceUnavailableException("Unknown source: " + id);
+                        LOGGER.warn("Throwing SourceUnavailableException for unknown source: {}",
+                                id,
                                 sourceUnavailableException);
                         throw sourceUnavailableException;
 
@@ -558,7 +567,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (RuntimeException re) {
             LOGGER.warn("Exception during runtime while performing create", re);
             throw new SourceUnavailableException(
-                    "Exception during runtime while performing getSourceInfo", re);
+                    "Exception during runtime while performing getSourceInfo",
+                    re);
 
         }
         return response;
@@ -658,7 +668,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     }
 
     private Metacard generateMetacard(String mimeTypeRaw, String id, String fileName, long size,
-            Subject subject, FileBackedOutputStream fileBackedOutputStream)
+            Subject subject, Path tmpContentPath)
             throws MetacardCreationException, MimeTypeParseException {
 
         Metacard generatedMetacard = null;
@@ -667,15 +677,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         try {
             MimeType mimeType = new MimeType(mimeTypeRaw);
 
-            List<InputTransformer> listOfCandidates = frameworkProperties.getMimeTypeToTransformerMapper()
-                    .findMatches(InputTransformer.class, mimeType);
+            List<InputTransformer> listOfCandidates =
+                    frameworkProperties.getMimeTypeToTransformerMapper()
+                            .findMatches(InputTransformer.class, mimeType);
 
             LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
             for (InputTransformer candidate : listOfCandidates) {
                 transformer = candidate;
 
-                try (InputStream transformerStream = fileBackedOutputStream.asByteSource()
+                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
                         .openStream()) {
                     generatedMetacard = transformer.transform(transformerStream);
                 }
@@ -709,16 +720,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         if (id != null) {
             generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
         } else {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, UUID.randomUUID()
-                    .toString()
-                    .replaceAll("-", "")));
-        }
-
-        if (generatedMetacard.getResourceURI() == null) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
-                    StorageProvider.CONTENT_URI_PREFIX + ":" + generatedMetacard.getId()));
-            generatedMetacard.setAttribute(
-                    new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(size)));
+            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID,
+                    UUID.randomUUID()
+                            .toString()
+                            .replaceAll("-", "")));
         }
 
         if (StringUtils.isBlank(generatedMetacard.getTitle())) {
@@ -727,8 +732,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         String name = SubjectUtils.getName(subject);
 
-        generatedMetacard.setAttribute(
-                new AttributeImpl(Metacard.POINT_OF_CONTACT, name == null ? "" : name));
+        generatedMetacard.setAttribute(new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                name == null ? "" : name));
 
         return generatedMetacard;
 
@@ -753,9 +758,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     }
 
     private String guessMimeType(String mimeTypeRaw, String fileName,
-            FileBackedOutputStream fileBackedOutputStream) throws IOException {
+            Path tmpContentPath) throws IOException {
         if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
-            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+            try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
                     .openStream()) {
                 String mimeTypeGuess = frameworkProperties.getMimeTypeMapper()
                         .guessMimeType(inputStreamMessageCopy,
@@ -768,7 +773,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
                 Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
                         .openStream()) {
                     MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
                     mimeTypeRaw = mediaType.toString();
@@ -777,11 +782,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
             if (mimeTypeRaw.equals("text/plain")) {
-                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
                         .openStream();
-                        BufferedReader bufferedReader = new BufferedReader(
-                                new InputStreamReader(inputStreamMessageCopy,
-                                        Charset.forName("UTF-8")))) {
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
+                                inputStreamMessageCopy,
+                                Charset.forName("UTF-8")))) {
                     String line = "";
                     while (bufferedReader.ready()) {
                         line = bufferedReader.readLine();
@@ -806,46 +811,62 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     private void generateMetacardAndContentItems(StorageRequest storageRequest,
             List<ContentItem> incomingContentItems, Map<String, Metacard> metacardMap,
-            List<ContentItem> contentItems, List<FileBackedOutputStream> fileBackedOutputStreams)
+            List<ContentItem> contentItems, Map<String, Path> tmpContentPaths)
             throws IngestException {
         for (ContentItem contentItem : incomingContentItems) {
             try {
-                FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
-                fileBackedOutputStreams.add(fileBackedOutputStream);
+                Path tmpPath = null;
                 long size;
                 try {
                     if (contentItem.getInputStream() != null) {
-                        size = IOUtils.copyLarge(contentItem.getInputStream(),
-                                fileBackedOutputStream);
+                        tmpPath =
+                                Files.createTempFile(FilenameUtils.getBaseName(contentItem.getFilename()),
+                                        FilenameUtils.getExtension(contentItem.getFilename()));
+                        Files.copy(contentItem.getInputStream(),
+                                tmpPath,
+                                StandardCopyOption.REPLACE_EXISTING);
+                        size = Files.size(tmpPath);
+                        tmpContentPaths.put(contentItem.getId(), tmpPath);
                     } else {
                         throw new IngestException(
                                 "Could not copy bytes of content message.  Message was NULL.");
                     }
                 } catch (IOException e) {
+                    if (tmpPath != null) {
+                        FileUtils.deleteQuietly(tmpPath.toFile());
+                    }
                     throw new IngestException("Could not copy bytes of content message.", e);
                 } finally {
                     IOUtils.closeQuietly(contentItem.getInputStream());
                 }
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
-                mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(),
-                        fileBackedOutputStream);
+                mimeTypeRaw = guessMimeType(mimeTypeRaw,
+                        contentItem.getFilename(),
+                        tmpPath);
 
                 String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
-                Metacard metacard = generateMetacard(mimeTypeRaw, contentItem.getId(), fileName, size,
+                Metacard metacard = generateMetacard(mimeTypeRaw,
+                        contentItem.getId(),
+                        fileName,
+                        size,
                         (Subject) storageRequest.getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT), fileBackedOutputStream);
+                                .get(SecurityConstants.SECURITY_SUBJECT),
+                        tmpPath);
                 metacardMap.put(metacard.getId(), metacard);
-                if (metacard.getResourceURI() != null && metacard.getResourceURI()
-                        .getScheme()
-                        .equals(StorageProvider.CONTENT_URI_PREFIX)) {
-                    ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
-                            fileBackedOutputStream.asByteSource(), mimeTypeRaw, fileName, size,
-                            metacard);
-                    contentItems.add(generatedContentItem);
-                }
+
+                ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
+                        com.google.common.io.Files.asByteSource(tmpPath.toFile()),
+                        mimeTypeRaw,
+                        fileName,
+                        size,
+                        metacard);
+                contentItems.add(generatedContentItem);
+
             } catch (Exception e) {
-                fileBackedOutputStreams.stream()
-                        .forEach(IOUtils::closeQuietly);
+                tmpContentPaths.values()
+                        .stream()
+                        .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
+                tmpContentPaths.clear();
                 throw new IngestException("Could not create metacard.", e);
             }
         }
@@ -877,18 +898,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems()
                 .size());
-        List<FileBackedOutputStream> fileBackedOutputStreams = new ArrayList<>(
-                streamCreateRequest.getContentItems()
-                        .size());
-        generateMetacardAndContentItems(streamCreateRequest, streamCreateRequest.getContentItems(),
-                metacardMap, contentItems, fileBackedOutputStreams);
+        HashMap<String, Path> tmpContentPaths = new HashMap<>(streamCreateRequest.getContentItems()
+                .size());
+
+        generateMetacardAndContentItems(streamCreateRequest,
+                streamCreateRequest.getContentItems(),
+                metacardMap,
+                contentItems,
+                tmpContentPaths);
+        streamCreateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
 
         CreateStorageRequest createStorageRequest = null;
         CreateResponse createResponse;
         try {
             if (contentItems.size() > 0) {
                 createStorageRequest = new CreateStorageRequestImpl(contentItems,
-                        streamCreateRequest.getId(), streamCreateRequest.getProperties());
+                        streamCreateRequest.getId(),
+                        streamCreateRequest.getProperties());
                 for (final PreCreateStoragePlugin plugin : frameworkProperties.getPreCreateStoragePlugins()) {
                     try {
                         createStorageRequest = plugin.process(createStorageRequest);
@@ -902,6 +928,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 CreateStorageResponse createStorageResponse;
                 try {
                     createStorageResponse = storage.create(createStorageRequest);
+                    createStorageResponse.getProperties().put(CONTENT_PATHS, tmpContentPaths);
                 } catch (StorageException e) {
                     throw new IngestException("Could not store content items.", e);
                 }
@@ -917,12 +944,22 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
 
                 for (ContentItem contentItem : createStorageResponse.getCreatedContentItems()) {
+                    if (contentItem.getMetacard()
+                            .getResourceURI() == null) {
+                        contentItem.getMetacard()
+                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI,
+                                        contentItem.getUri()));
+                        contentItem.getMetacard()
+                                .setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                        String.valueOf(contentItem.getSize())));
+                    }
                     metacardMap.put(contentItem.getId(), contentItem.getMetacard());
                 }
             }
 
-            CreateRequest createRequest = new CreateRequestImpl(
-                    new ArrayList<>(metacardMap.values()), streamCreateRequest.getProperties());
+            CreateRequest createRequest =
+                    new CreateRequestImpl(new ArrayList<>(metacardMap.values()),
+                            streamCreateRequest.getProperties());
 
             createResponse = create(createRequest);
         } catch (Exception e) {
@@ -951,8 +988,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
                 }
             }
-            fileBackedOutputStreams.stream()
-                    .forEach(IOUtils::closeQuietly);
+            tmpContentPaths.values()
+                    .stream()
+                    .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
+            tmpContentPaths.clear();
         }
 
         return createResponse;
@@ -995,10 +1034,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse policyResponse = plugin.processPreCreate(metacard,
                             unmodifiablePropertiesMap);
-                    buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy()
-                            .entrySet());
-                    buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy()
-                            .entrySet());
+                    buildPolicyMap(itemPolicyMap,
+                            policyResponse.itemPolicy()
+                                    .entrySet());
+                    buildPolicyMap(requestPolicyMap,
+                            policyResponse.operationPolicy()
+                                    .entrySet());
                 }
                 metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
             }
@@ -1119,18 +1160,23 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         Map<String, Metacard> metacardMap = new HashMap<>();
         List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems()
                 .size());
-        List<FileBackedOutputStream> fileBackedOutputStreams = new ArrayList<>(
-                streamUpdateRequest.getContentItems()
-                        .size());
-        generateMetacardAndContentItems(streamUpdateRequest, streamUpdateRequest.getContentItems(),
-                metacardMap, contentItems, fileBackedOutputStreams);
+        HashMap<String, Path> tmpContentPaths = new HashMap<>(streamUpdateRequest.getContentItems()
+                .size());
+
+        generateMetacardAndContentItems(streamUpdateRequest,
+                streamUpdateRequest.getContentItems(),
+                metacardMap,
+                contentItems,
+                tmpContentPaths);
+        streamUpdateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
 
         UpdateResponse updateResponse;
         UpdateStorageRequest updateStorageRequest = null;
         try {
             if (contentItems.size() > 0) {
                 updateStorageRequest = new UpdateStorageRequestImpl(contentItems,
-                        streamUpdateRequest.getId(), streamUpdateRequest.getProperties());
+                        streamUpdateRequest.getId(),
+                        streamUpdateRequest.getProperties());
 
                 for (final PreUpdateStoragePlugin plugin : frameworkProperties.getPreUpdateStoragePlugins()) {
                     try {
@@ -1145,9 +1191,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 UpdateStorageResponse updateStorageResponse;
                 try {
                     updateStorageResponse = storage.update(updateStorageRequest);
+                    updateStorageResponse.getProperties().put(CONTENT_PATHS, tmpContentPaths);
                 } catch (StorageException e) {
                     throw new IngestException(
-                            "Could not store content items. Removed created metacards.", e);
+                            "Could not store content items. Removed created metacards.",
+                            e);
                 }
 
                 for (final PostUpdateStoragePlugin plugin : frameworkProperties.getPostUpdateStoragePlugins()) {
@@ -1165,12 +1213,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
 
-            UpdateRequestImpl updateRequest = new UpdateRequestImpl(Iterables.toArray(
-                    metacardMap.values()
+            UpdateRequestImpl updateRequest =
+                    new UpdateRequestImpl(Iterables.toArray(metacardMap.values()
                             .stream()
                             .map(Metacard::getId)
                             .collect(Collectors.toList()), String.class),
-                    new ArrayList<>(metacardMap.values()));
+                            new ArrayList<>(metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             updateResponse = update(updateRequest);
         } catch (Exception e) {
@@ -1199,8 +1247,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
                 }
             }
-            fileBackedOutputStreams.stream()
-                    .forEach(IOUtils::closeQuietly);
+            tmpContentPaths.values()
+                    .stream()
+                    .forEach(path -> FileUtils.deleteQuietly(path.toFile()));
+            tmpContentPaths.clear();
         }
 
         return updateResponse;
@@ -1238,8 +1288,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             QueryImpl queryImpl = new QueryImpl(frameworkProperties.getFilterBuilder()
-                    .allOf(getTagsQueryFilter(), frameworkProperties.getFilterBuilder()
-                            .anyOf(idFilters)));
+                    .allOf(getTagsQueryFilter(),
+                            frameworkProperties.getFilterBuilder()
+                                    .anyOf(idFilters)));
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(updateReq.getUpdates()
                     .size());
@@ -1272,18 +1323,21 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             Collections.unmodifiableMap(updateReq.getProperties()));
                     PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
                             Collections.unmodifiableMap(updateReq.getProperties()));
-                    buildPolicyMap(itemPolicyMap, updatePolicyResponse.itemPolicy()
-                            .entrySet());
-                    buildPolicyMap(oldItemPolicyMap, oldPolicyResponse.itemPolicy()
-                            .entrySet());
-                    buildPolicyMap(requestPolicyMap, updatePolicyResponse.operationPolicy()
-                            .entrySet());
+                    buildPolicyMap(itemPolicyMap,
+                            updatePolicyResponse.itemPolicy()
+                                    .entrySet());
+                    buildPolicyMap(oldItemPolicyMap,
+                            oldPolicyResponse.itemPolicy()
+                                    .entrySet());
+                    buildPolicyMap(requestPolicyMap,
+                            updatePolicyResponse.operationPolicy()
+                                    .entrySet());
                 }
                 update.getValue()
                         .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
                 if (oldMetacard != null) {
-                    oldMetacard.setAttribute(
-                            new AttributeImpl(Metacard.SECURITY, oldItemPolicyMap));
+                    oldMetacard.setAttribute(new AttributeImpl(Metacard.SECURITY,
+                            oldItemPolicyMap));
                 }
             }
             updateReq.getProperties()
@@ -1308,8 +1362,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             validateUpdateRequest(updateReq);
 
             // Call the create on the catalog
-            LOGGER.debug("Calling catalog.update() with {} updates.", updateRequest.getUpdates()
-                    .size());
+            LOGGER.debug("Calling catalog.update() with {} updates.",
+                    updateRequest.getUpdates()
+                            .size());
 
             if (Requests.isLocal(updateReq)) {
                 updateResponse = catalog.update(updateReq);
@@ -1383,8 +1438,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             QueryImpl queryImpl = new QueryImpl(frameworkProperties.getFilterBuilder()
-                    .allOf(getTagsQueryFilter(), frameworkProperties.getFilterBuilder()
-                            .anyOf(idFilters)));
+                    .allOf(getTagsQueryFilter(),
+                            frameworkProperties.getFilterBuilder()
+                                    .anyOf(idFilters)));
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(deleteRequest.getAttributeValues()
                     .size());
@@ -1423,8 +1479,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                 PolicyResponse policyResponse = plugin.processPreDelete(metacards,
                         unmodifiableProperties);
-                buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy()
-                        .entrySet());
+                buildPolicyMap(requestPolicyMap,
+                        policyResponse.operationPolicy()
+                                .entrySet());
             }
             deleteRequest.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
@@ -1462,7 +1519,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             "Unable to delete stored content items. Not removing stored metacards",
                             e);
                     throw new InternalIngestException(
-                            "Unable to delete stored content items. Not removing stored metacards.", e);
+                            "Unable to delete stored content items. Not removing stored metacards.",
+                            e);
                 }
                 deleteResponse = catalog.delete(deleteRequest);
             }
@@ -1487,10 +1545,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                         PolicyResponse policyResponse = plugin.processPostDelete(metacard,
                                 unmodifiableProperties);
-                        buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy()
-                                .entrySet());
-                        buildPolicyMap(responsePolicyMap, policyResponse.operationPolicy()
-                                .entrySet());
+                        buildPolicyMap(itemPolicyMap,
+                                policyResponse.itemPolicy()
+                                        .entrySet());
+                        buildPolicyMap(responsePolicyMap,
+                                policyResponse.operationPolicy()
+                                        .entrySet());
                     }
                     metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
                 }
@@ -1571,19 +1631,22 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
             if (fanoutEnabled) {
                 // Force an enterprise query
-                queryReq = new QueryRequestImpl(queryRequest.getQuery(), true, null,
+                queryReq = new QueryRequestImpl(queryRequest.getQuery(),
+                        true,
+                        null,
                         queryRequest.getProperties());
             }
 
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            Map<String, Serializable> unmodifiableProperties = Collections.unmodifiableMap(
-                    queryReq.getProperties());
+            Map<String, Serializable> unmodifiableProperties =
+                    Collections.unmodifiableMap(queryReq.getProperties());
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                 try {
                     PolicyResponse policyResponse = plugin.processPreQuery(queryReq.getQuery(),
                             unmodifiableProperties);
-                    buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy()
-                            .entrySet());
+                    buildPolicyMap(requestPolicyMap,
+                            policyResponse.operationPolicy()
+                                    .entrySet());
                 } catch (StopProcessingException e) {
                     throw new FederationException("Query could not be executed.", e);
                 }
@@ -1635,10 +1698,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     try {
                         PolicyResponse policyResponse = plugin.processPostQuery(result,
                                 unmodifiableProperties);
-                        buildPolicyMap(itemPolicyMap, policyResponse.itemPolicy()
-                                .entrySet());
-                        buildPolicyMap(responsePolicyMap, policyResponse.operationPolicy()
-                                .entrySet());
+                        buildPolicyMap(itemPolicyMap,
+                                policyResponse.itemPolicy()
+                                        .entrySet());
+                        buildPolicyMap(responsePolicyMap,
+                                policyResponse.operationPolicy()
+                                        .entrySet());
                     } catch (StopProcessingException e) {
                         throw new FederationException("Query could not be executed.", e);
                     }
@@ -1679,12 +1744,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     private Filter getTagsQueryFilter() {
         return frameworkProperties.getFilterBuilder()
                 .anyOf(frameworkProperties.getFilterBuilder()
-                        .attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text(FilterDelegate.WILDCARD_CHAR), frameworkProperties.getFilterBuilder()
-                        .attribute(Metacard.TAGS)
-                        .empty());
+                                .attribute(Metacard.TAGS)
+                                .is()
+                                .like()
+                                .text(FilterDelegate.WILDCARD_CHAR),
+                        frameworkProperties.getFilterBuilder()
+                                .attribute(Metacard.TAGS)
+                                .empty());
     }
 
     private void setFlagsOnRequest(Request request) {
@@ -1696,8 +1762,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             ids.isEmpty() || (catalog != null && ids.contains(catalog.getId())));
             request.getProperties()
                     .put(Constants.REMOTE_DESTINATION_KEY,
-                            (Requests.isLocal(request) && ids.size() > 1) || (
-                                    !Requests.isLocal(request) && !ids.isEmpty()));
+                            (Requests.isLocal(request) && ids.size() > 1) || (!Requests.isLocal(
+                                    request) && !ids.isEmpty()));
         }
     }
 
@@ -1733,7 +1799,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     results.add(frameworkProperties.getCatalogStoresMap()
                             .get(destination));
                 } else if (!hasCatalogProvider() || !destination.equals(catalog.getId())) {
-                    exceptions.add(new ProcessingDetailsImpl(destination, null,
+                    exceptions.add(new ProcessingDetailsImpl(destination,
+                            null,
                             "CatalogStore does not exist"));
                 }
             }
@@ -1750,20 +1817,24 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         for (CatalogStore store : stores) {
             try {
                 if (!store.isAvailable()) {
-                    exceptions.add(new ProcessingDetailsImpl(store.getId(), null,
+                    exceptions.add(new ProcessingDetailsImpl(store.getId(),
+                            null,
                             "CatalogStore is not available"));
                 } else {
                     CreateResponse response = store.create(createRequest);
                     properties.put(store.getId(), new ArrayList<>(response.getCreatedMetacards()));
                 }
             } catch (IngestException e) {
-                INGEST_LOGGER.error("Error creating metacards for CatalogStore {}", store.getId(),
+                INGEST_LOGGER.error("Error creating metacards for CatalogStore {}",
+                        store.getId(),
                         e);
                 exceptions.add(new ProcessingDetailsImpl(store.getId(), e));
             }
         }
 
-        return new CreateResponseImpl(createRequest, properties, createRequest.getMetacards(),
+        return new CreateResponseImpl(createRequest,
+                properties,
+                createRequest.getMetacards(),
                 exceptions);
     }
 
@@ -1778,7 +1849,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         for (CatalogStore store : stores) {
             try {
                 if (!store.isAvailable()) {
-                    exceptions.add(new ProcessingDetailsImpl(store.getId(), null,
+                    exceptions.add(new ProcessingDetailsImpl(store.getId(),
+                            null,
                             "CatalogStore is not available"));
                 } else {
                     UpdateResponse response = store.update(updateRequest);
@@ -1786,7 +1858,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     updates = response.getUpdatedMetacards();
                 }
             } catch (IngestException e) {
-                INGEST_LOGGER.error("Error updating metacards for CatalogStore {}", store.getId(),
+                INGEST_LOGGER.error("Error updating metacards for CatalogStore {}",
+                        store.getId(),
                         e);
                 exceptions.add(new ProcessingDetailsImpl(store.getId(), e));
             }
@@ -1805,7 +1878,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         for (CatalogStore store : stores) {
             try {
                 if (!store.isAvailable()) {
-                    exceptions.add(new ProcessingDetailsImpl(store.getId(), null,
+                    exceptions.add(new ProcessingDetailsImpl(store.getId(),
+                            null,
                             "CatalogStore is not available"));
                 } else {
                     DeleteResponse response = store.delete(deleteRequest);
@@ -1813,7 +1887,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     metacards = response.getDeletedMetacards();
                 }
             } catch (IngestException e) {
-                INGEST_LOGGER.error("Error deleting metacards for CatalogStore {}", store.getId(),
+                INGEST_LOGGER.error("Error deleting metacards for CatalogStore {}",
+                        store.getId(),
                         e);
                 exceptions.add(new ProcessingDetailsImpl(store.getId(), e));
             }
@@ -1886,15 +1961,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         sourceFound = true;
                         if (frameworkProperties.getFederatedSources()
                                 .get(id)
-                                .isAvailable() && canAccessSource(
-                                frameworkProperties.getFederatedSources()
-                                        .get(id), queryRequest)) {
+                                .isAvailable()
+                                && canAccessSource(frameworkProperties.getFederatedSources()
+                                .get(id), queryRequest)) {
                             sourcesToQuery.add(frameworkProperties.getFederatedSources()
                                     .get(id));
                         } else {
-                            exceptions.add(createUnavailableProcessingDetails(
-                                    frameworkProperties.getFederatedSources()
-                                            .get(id)));
+                            exceptions.add(createUnavailableProcessingDetails(frameworkProperties.getFederatedSources()
+                                    .get(id)));
                         }
                     }
 
@@ -1961,7 +2035,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             Subject subject = (Subject) requestSubject;
 
             KeyValueCollectionPermission kvCollection = new KeyValueCollectionPermission(
-                    CollectionPermission.READ_ACTION, securityAttributes);
+                    CollectionPermission.READ_ACTION,
+                    securityAttributes);
             return subject.isPermitted(kvCollection);
         }
         return false;
@@ -2053,8 +2128,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new IllegalArgumentException(
                     "Transformer " + transformerShortname + " not found");
         } else {
-            MetacardTransformer transformer = (MetacardTransformer) frameworkProperties.getBundleContext()
-                    .getService(refs[0]);
+            MetacardTransformer transformer =
+                    (MetacardTransformer) frameworkProperties.getBundleContext()
+                            .getService(refs[0]);
             if (metacard != null) {
                 return transformer.transform(metacard, arguments);
             } else {
@@ -2083,8 +2159,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new IllegalArgumentException(
                     "Transformer " + transformerShortname + " not found");
         } else {
-            QueryResponseTransformer transformer = (QueryResponseTransformer) frameworkProperties.getBundleContext()
-                    .getService(refs[0]);
+            QueryResponseTransformer transformer =
+                    (QueryResponseTransformer) frameworkProperties.getBundleContext()
+                            .getService(refs[0]);
             if (response != null) {
                 return transformer.transform(response, arguments);
             } else {
@@ -2168,8 +2245,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                 PolicyResponse policyResponse = plugin.processPreResource(resourceReq);
-                buildPolicyMap(requestPolicyMap, policyResponse.operationPolicy()
-                        .entrySet());
+                buildPolicyMap(requestPolicyMap,
+                        policyResponse.operationPolicy()
+                                .entrySet());
             }
             resourceReq.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
@@ -2207,8 +2285,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             // If so, the metacard needs to be found and the Resource URI
             StringBuilder resolvedSourceIdHolder = new StringBuilder();
 
-            ResourceInfo resourceInfo = getResourceInfo(resourceReq, resourceSourceName,
-                    isEnterprise, resolvedSourceIdHolder, requestProperties);
+            ResourceInfo resourceInfo = getResourceInfo(resourceReq,
+                    resourceSourceName,
+                    isEnterprise,
+                    resolvedSourceIdHolder,
+                    requestProperties);
             if (resourceInfo == null) {
                 throw new ResourceNotFoundException(
                         "Resource could not be found for the given attribute value: "
@@ -2244,7 +2325,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 Resource resource = frameworkProperties.getResourceCache()
                         .getValid(key, metacard);
                 if (resource != null) {
-                    resourceResponse = new ResourceResponseImpl(resourceRequest, requestProperties,
+                    resourceResponse = new ResourceResponseImpl(resourceRequest,
+                            requestProperties,
                             resource);
                     LOGGER.info("Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
@@ -2272,10 +2354,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     if (source != null) {
                         LOGGER.debug("Retrieving product from remote source {}", source.getId());
                         ResourceRetriever retriever = new RemoteResourceRetriever(source,
-                                responseURI, requestProperties);
+                                responseURI,
+                                requestProperties);
                         try {
-                            resourceResponse = frameworkProperties.getReliableResourceDownloadManager()
-                                    .download(resourceRequest, metacard, retriever);
+                            resourceResponse =
+                                    frameworkProperties.getReliableResourceDownloadManager()
+                                            .download(resourceRequest, metacard, retriever);
                         } catch (DownloadException e) {
                             LOGGER.info("Unable to download resource", e);
                         }
@@ -2284,9 +2368,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
                 } else {
                     LOGGER.debug("Retrieving product from local source {}", resourceSourceName);
-                    ResourceRetriever retriever = new LocalResourceRetriever(
-                            frameworkProperties.getResourceReaders(), responseURI,
-                            requestProperties);
+                    ResourceRetriever retriever =
+                            new LocalResourceRetriever(frameworkProperties.getResourceReaders(),
+                                    responseURI,
+                                    requestProperties);
                     try {
                         resourceResponse = frameworkProperties.getReliableResourceDownloadManager()
                                 .download(resourceRequest, metacard, retriever);
@@ -2302,8 +2387,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                 PolicyResponse policyResponse = plugin.processPostResource(resourceResponse,
                         metacard);
-                buildPolicyMap(responsePolicyMap, policyResponse.operationPolicy()
-                        .entrySet());
+                buildPolicyMap(responsePolicyMap,
+                        policyResponse.operationPolicy()
+                                .entrySet());
             }
             resourceResponse.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, responsePolicyMap);
@@ -2351,7 +2437,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p/>
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -2383,8 +2469,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 if (value instanceof URI) {
                     resourceUri = (URI) value;
 
-                    Query propertyEqualToUriQuery = createPropertyIsEqualToQuery(
-                            Metacard.RESOURCE_URI, resourceUri.toString());
+                    Query propertyEqualToUriQuery =
+                            createPropertyIsEqualToQuery(Metacard.RESOURCE_URI,
+                                    resourceUri.toString());
 
                     // if isEnterprise, go out and obtain the actual source
                     // where the product's metacard is stored.
@@ -2401,7 +2488,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                                 .getMetacard();
                         federatedSite.append(metacard.getSourceId());
                         LOGGER.debug("Trying to lookup resource URI {} for metacardId: {}",
-                                resourceUri, resourceUri);
+                                resourceUri,
+                                resourceUri);
 
                         if (!requestProperties.containsKey(Metacard.ID)) {
                             requestProperties.put(Metacard.ID, metacard.getId());
@@ -2428,8 +2516,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 if (value instanceof String) {
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
-                    QueryRequest queryRequest = new QueryRequestImpl(
-                            createMetacardIdQuery(metacardId), isEnterprise,
+                    QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
+                            metacardId),
+                            isEnterprise,
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
 
@@ -2442,7 +2531,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         resourceUri = metacard.getResourceURI();
                         federatedSite.append(metacard.getSourceId());
                         LOGGER.debug("Trying to lookup resource URI {} for metacardId: {}",
-                                resourceUri, metacardId);
+                                resourceUri,
+                                metacardId);
                     } else {
                         throw new ResourceNotFoundException(
                                 "Could not resolve source id for URI by doing an id based query: "
@@ -2553,7 +2643,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (createResponse.getRequest() == null) {
                 createResponse = new CreateResponseImpl(createRequest,
-                        createResponse.getProperties(), createResponse.getCreatedMetacards());
+                        createResponse.getProperties(),
+                        createResponse.getCreatedMetacards());
             }
         } else {
             throw new IngestException("CatalogProvider returned null CreateResponse Object.");
@@ -2581,7 +2672,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         "CatalogProvider returned null list of results from update method.");
             }
             if (updateResp.getRequest() == null) {
-                updateResp = new UpdateResponseImpl(updateRequest, updateResponse.getProperties(),
+                updateResp = new UpdateResponseImpl(updateRequest,
+                        updateResponse.getProperties(),
                         updateResponse.getUpdatedMetacards());
             }
         } else {
@@ -2610,7 +2702,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         "CatalogProvider returned null list of results from delete method.");
             }
             if (delResponse.getRequest() == null) {
-                delResponse = new DeleteResponseImpl(deleteRequest, delResponse.getProperties(),
+                delResponse = new DeleteResponseImpl(deleteRequest,
+                        delResponse.getProperties(),
                         delResponse.getDeletedMetacards());
             }
         } else {
@@ -2639,7 +2732,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (getResourceResponse.getRequest() == null) {
                 resourceResponse = new ResourceResponseImpl(getResourceRequest,
-                        getResourceResponse.getProperties(), getResourceResponse.getResource());
+                        getResourceResponse.getProperties(),
+                        getResourceResponse.getResource());
             }
         } else {
             throw new ResourceNotFoundException(
@@ -2671,7 +2765,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         "CatalogProvider returned null list of results from query method.");
             }
             if (sourceResp.getRequest() == null) {
-                sourceResp = new SourceResponseImpl(queryRequest, sourceResp.getProperties(),
+                sourceResp = new SourceResponseImpl(queryRequest,
+                        sourceResp.getProperties(),
                         sourceResp.getResults());
             }
         } else {
@@ -2854,11 +2949,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 for (String querySourceId : sources) {
                     LOGGER.debug("validating requested sourceId {}", querySourceId);
                     if (!querySourceId.equals(this.getId())) {
-                        UnsupportedQueryException unsupportedQueryException = new UnsupportedQueryException(
-                                "Unknown source: " + querySourceId);
+                        UnsupportedQueryException unsupportedQueryException =
+                                new UnsupportedQueryException("Unknown source: " + querySourceId);
                         LOGGER.debug(
                                 "Throwing unsupportedQueryException due to unknown sourceId: {}",
-                                querySourceId, unsupportedQueryException);
+                                querySourceId,
+                                unsupportedQueryException);
                         throw unsupportedQueryException;
                     }
                 }
@@ -2907,7 +3003,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         Map<String, Set<String>> optionsMap;
         try {
             QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                    false, Collections.singletonList(getId()), null);
+                    false,
+                    Collections.singletonList(getId()),
+                    null);
             QueryResponse queryResponse = query(queryRequest);
             List<Result> results = queryResponse.getResults();
 
@@ -2954,7 +3052,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
         try {
             QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                    true, null, null);
+                    true,
+                    null,
+                    null);
             QueryResponse queryResponse = query(queryRequest);
             List<Result> results = queryResponse.getResults();
 
@@ -3006,7 +3106,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         try {
             LOGGER.debug("source id to get options from: {}", sourceId);
             QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),
-                    false, Collections.singletonList(sourceId == null ? this.getId() : sourceId),
+                    false,
+                    Collections.singletonList(sourceId == null ? this.getId() : sourceId),
                     null);
             QueryResponse queryResponse = query(queryRequest);
             List<Result> results = queryResponse.getResults();

@@ -46,25 +46,37 @@ public final class Constants {
      */
     public static final String SERVICE_ID = "id";
 
-    /** The constant SERVICE_TITLE. */
+    /**
+     * The constant SERVICE_TITLE.
+     */
     public static final String SERVICE_TITLE = "title";
 
-    /** The constant SERVICE_DESCRIPTION. */
+    /**
+     * The constant SERVICE_DESCRIPTION.
+     */
     public static final String SERVICE_DESCRIPTION = "description";
 
-    /** The constant HTTP_INVOCATION_ABSOLUTE_PATH_URI */
+    /**
+     * The constant HTTP_INVOCATION_ABSOLUTE_PATH_URI
+     */
     public static final String HTTP_INVOCATION_ABSOLUTE_PATH_URI = "http-absolute-path";
 
     // /** The Constant FACTORY_PID. */
     // public final static String FACTORY_PID = "factory-pid";
 
-    /** The constant FEDERATED_SITE_STATE. */
+    /**
+     * The constant FEDERATED_SITE_STATE.
+     */
     public static final String FEDERATED_SITE_STATE = "federated-site-state";
 
-    /** The constant FEDERATED_SITE_STATE_ACTIVE. */
+    /**
+     * The constant FEDERATED_SITE_STATE_ACTIVE.
+     */
     public static final String FEDERATED_SITE_STATE_ACTIVE = "active";
 
-    /** The constant FEDERATED_SITE_STATE_INACTIVE. */
+    /**
+     * The constant FEDERATED_SITE_STATE_INACTIVE.
+     */
     public static final String FEDERATED_SITE_STATE_INACTIVE = "inactive";
 
     /**
@@ -102,7 +114,9 @@ public final class Constants {
      */
     public static final String EVENTS_TOPIC_DELETED = EventProcessor.EVENTS_TOPIC_DELETED;
 
-    /** The constant DEFAULT_PAGE_SIZE. */
+    /**
+     * The constant DEFAULT_PAGE_SIZE.
+     */
     public static final Integer DEFAULT_PAGE_SIZE = 20;
 
     /**
@@ -142,4 +156,6 @@ public final class Constants {
     public static final String LOCAL_DESTINATION_KEY = "local-destination";
 
     public static final String OPERATION_TRANSACTION_KEY = "operation-transaction";
+
+    public static final String CONTENT_PATHS = "content-paths";
 }

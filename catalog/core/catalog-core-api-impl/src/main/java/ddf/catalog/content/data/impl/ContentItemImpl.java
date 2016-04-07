@@ -13,13 +13,16 @@
  **/
 package ddf.catalog.content.data.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +37,7 @@ public class ContentItemImpl implements ContentItem {
 
     private String id;
 
-    private String uri;
+    protected URI uri;
 
     private String filename;
 
@@ -44,11 +47,11 @@ public class ContentItemImpl implements ContentItem {
 
     private ByteSource byteSource;
 
-    private File file;
-
     private long size;
 
     private Metacard metacard;
+
+    protected String qualifier;
 
     /**
      * An incoming content item whose ID will initially be
@@ -61,7 +64,8 @@ public class ContentItemImpl implements ContentItem {
      */
     public ContentItemImpl(ByteSource byteSource, String mimeTypeRawData, String filename,
             Metacard metacard) {
-        this(null, byteSource, mimeTypeRawData, filename, 0, metacard);
+        this(UUID.randomUUID()
+                .toString(), byteSource, mimeTypeRawData, filename, 0, metacard);
     }
 
     /**
@@ -81,6 +85,20 @@ public class ContentItemImpl implements ContentItem {
      * An incoming content item where the item's GUID and size should be known.
      *
      * @param id              the {@link ContentItem}'s GUID - can be null
+     * @param qualifier       the {@link ContentItem}'s qualifier - can be null
+     * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
+     * @param mimeTypeRawData the {@link ContentItem}'s mime type
+     * @param metacard        the {@link ContentItem}'s associated metacard
+     */
+    public ContentItemImpl(String id, String qualifier, ByteSource byteSource,
+            String mimeTypeRawData, Metacard metacard) {
+        this(id, qualifier, byteSource, mimeTypeRawData, null, 0, metacard);
+    }
+
+    /**
+     * An incoming content item where the item's GUID and size should be known.
+     *
+     * @param id              the {@link ContentItem}'s GUID - can be null
      * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
      * @param mimeTypeRawData the {@link ContentItem}'s mime type
      * @param filename        the {@link ContentItem}'s file name - can be null
@@ -89,8 +107,25 @@ public class ContentItemImpl implements ContentItem {
      */
     public ContentItemImpl(String id, ByteSource byteSource, String mimeTypeRawData,
             String filename, long size, Metacard metacard) {
+        this(id, "", byteSource, mimeTypeRawData, filename, size, metacard);
+    }
+
+    /**
+     * An incoming content item where the item's GUID and size should be known.
+     *
+     * @param id              the {@link ContentItem}'s GUID - can be null
+     * @param qualifier       the {@link ContentItem}'s qualifier - can be null
+     * @param byteSource      the {@link ContentItem}'s input stream containing its actual data
+     * @param mimeTypeRawData the {@link ContentItem}'s mime type
+     * @param filename        the {@link ContentItem}'s file name - can be null
+     * @param size            the {@link ContentItem}'s file size
+     * @param metacard        the {@link ContentItem}'s associated metacard
+     */
+    public ContentItemImpl(String id, String qualifier, ByteSource byteSource,
+            String mimeTypeRawData, String filename, long size, Metacard metacard) {
         this.byteSource = byteSource;
         this.id = id;
+        this.qualifier = qualifier;
         this.mimeType = null;
         this.size = size;
         if (filename != null) {
@@ -100,13 +135,22 @@ public class ContentItemImpl implements ContentItem {
         }
         this.metacard = metacard;
         this.mimeTypeRawData = DEFAULT_MIME_TYPE;
-        if (mimeTypeRawData != null) {
+        if (StringUtils.isNotBlank(mimeTypeRawData)) {
             this.mimeTypeRawData = mimeTypeRawData;
         }
         try {
             this.mimeType = new MimeType(this.mimeTypeRawData);
         } catch (MimeTypeParseException e) {
             LOGGER.debug("Unable to create MimeType from raw data " + mimeTypeRawData);
+        }
+        try {
+            if (StringUtils.isNotBlank(this.qualifier)) {
+                uri = new URI(CONTENT_SCHEME, this.id, this.qualifier);
+            } else {
+                uri = new URI(CONTENT_SCHEME, this.id, null);
+            }
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Unable to create content URI.", e);
         }
     }
 
@@ -117,11 +161,12 @@ public class ContentItemImpl implements ContentItem {
 
     @Override
     public String getUri() {
-        return uri;
+        return uri.toString();
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    @Override
+    public String getQualifier() {
+        return qualifier;
     }
 
     @Override
@@ -142,14 +187,6 @@ public class ContentItemImpl implements ContentItem {
     @Override
     public InputStream getInputStream() throws IOException {
         return byteSource.openStream();
-    }
-
-    @Override
-    public File getFile() throws IOException {
-        if (file == null && filename != null) {
-            file = new File(filename);
-        }
-        return file;
     }
 
     @Override

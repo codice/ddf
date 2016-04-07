@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.content.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -27,7 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
+import javax.activation.MimeType;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -37,6 +42,7 @@ import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
+import ddf.catalog.content.data.impl.ContentItemValidator;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.DeleteStorageRequest;
@@ -58,8 +64,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * File system storage provider.
  */
 public class FileSystemStorageProvider implements StorageProvider {
-
-    public static final String CONTENT_URI_PREFIX = "content:";
 
     public static final String DEFAULT_CONTENT_REPOSITORY = "content";
 
@@ -87,6 +91,8 @@ public class FileSystemStorageProvider implements StorageProvider {
 
     private Map<String, List<Metacard>> deletionMap = new ConcurrentHashMap<>();
 
+    private Map<String, List<String>> updateMap = new ConcurrentHashMap<>();
+
     /**
      * Default constructor, invoked by blueprint.
      */
@@ -105,23 +111,25 @@ public class FileSystemStorageProvider implements StorageProvider {
                 .size());
 
         for (ContentItem contentItem : contentItems) {
-
-            String id = contentItem.getId();
-
-            Path contentIdDir = Paths.get(baseContentTmpDirectory.toAbsolutePath()
-                    .toString(), createRequest.getId(), id);
-
             try {
+                ContentItemValidator.validate(contentItem);
+                Path contentIdDir = getTempContentItemDir(createRequest.getId(),
+                        new URI(contentItem.getUri()));
+
                 Path contentDirectory = Files.createDirectories(contentIdDir);
 
                 createdContentItems.add(generateContentFile(contentItem, contentDirectory));
-            } catch (IOException e) {
+            } catch (IOException | URISyntaxException | IllegalArgumentException e) {
                 throw new StorageException(e);
             }
         }
 
         CreateStorageResponse response = new CreateStorageResponseImpl(createRequest,
                 createdContentItems);
+        updateMap.put(createRequest.getId(),
+                createdContentItems.stream()
+                        .map(ContentItem::getUri)
+                        .collect(Collectors.toList()));
 
         LOGGER.trace("EXITING: create");
 
@@ -133,11 +141,222 @@ public class FileSystemStorageProvider implements StorageProvider {
         LOGGER.trace("ENTERING: read");
 
         URI uri = readRequest.getResourceUri();
-        String id = uri.getSchemeSpecificPart();
-        Path file = getContentFilePath(id);
+        ContentItem returnItem = readContent(uri);
+        return new ReadStorageResponseImpl(readRequest, returnItem);
+
+    }
+
+    @Override
+    public UpdateStorageResponse update(UpdateStorageRequest updateRequest)
+            throws StorageException {
+        LOGGER.trace("ENTERING: update");
+
+        List<ContentItem> contentItems = updateRequest.getContentItems();
+
+        List<ContentItem> updatedItems = new ArrayList<>(updateRequest.getContentItems()
+                .size());
+
+        for (ContentItem contentItem : contentItems) {
+            try {
+                ContentItemValidator.validate(contentItem);
+
+                ContentItem updateItem = contentItem;
+                if (StringUtils.isBlank(contentItem.getFilename())
+                        || StringUtils.equals(contentItem.getFilename(),
+                        ContentItem.DEFAULT_FILE_NAME)) {
+                    ContentItem existingItem = readContent(new URI(contentItem.getUri()));
+                    updateItem = new ContentItemDecorator(contentItem, existingItem);
+                }
+
+                Path contentIdDir = getTempContentItemDir(updateRequest.getId(),
+                        new URI(updateItem.getUri()));
+
+                updatedItems.add(generateContentFile(updateItem, contentIdDir));
+            } catch (IOException | URISyntaxException | IllegalArgumentException e) {
+                throw new StorageException(e);
+            }
+        }
+
+        UpdateStorageResponse response = new UpdateStorageResponseImpl(updateRequest, updatedItems);
+        updateMap.put(updateRequest.getId(),
+                updatedItems.stream()
+                        .map(ContentItem::getUri)
+                        .collect(Collectors.toList()));
+
+        LOGGER.trace("EXITING: update");
+
+        return response;
+    }
+
+    @Override
+    public DeleteStorageResponse delete(DeleteStorageRequest deleteRequest)
+            throws StorageException {
+        LOGGER.trace("ENTERING: delete");
+
+        List<Metacard> itemsToBeDeleted = new ArrayList<>();
+
+        List<ContentItem> deletedContentItems = new ArrayList<>(deleteRequest.getMetacards()
+                .size());
+        for (Metacard metacard : deleteRequest.getMetacards()) {
+            LOGGER.debug("File to be deleted: {}", metacard.getId());
+
+            ContentItem deletedContentItem = new ContentItemImpl(metacard.getId(),
+                    "",
+                    null,
+                    "",
+                    "",
+                    0,
+                    metacard);
+            try {
+                // For deletion we can ignore the qualifier and assume everything under a given ID is
+                // to be removed.
+                Path contentIdDir = getContentItemDir(new URI(deletedContentItem.getUri()));
+                List<Path> paths = new ArrayList<>();
+                if (Files.isDirectory(contentIdDir)) {
+                    paths = listPaths(contentIdDir);
+                } else {
+                    paths.add(contentIdDir);
+                }
+
+                for (Path path : paths) {
+                    if (Files.exists(path)) {
+                        deletedContentItems.add(deletedContentItem);
+                    }
+                }
+                itemsToBeDeleted.add(metacard);
+            } catch (IOException | URISyntaxException e) {
+                throw new StorageException("Could not delete file: " + metacard.getId(), e);
+            }
+        }
+
+        deletionMap.put(deleteRequest.getId(), itemsToBeDeleted);
+
+        DeleteStorageResponse response = new DeleteStorageResponseImpl(deleteRequest,
+                deletedContentItems);
+
+        LOGGER.trace("EXITING: delete");
+
+        return response;
+    }
+
+    @Override
+    public void commit(StorageRequest request) throws StorageException {
+        if (deletionMap.containsKey(request.getId())) {
+            commitDeletes(request);
+        } else if (updateMap.containsKey(request.getId())) {
+            commitUpdates(request);
+        } else {
+            LOGGER.warn("Nothing to commit for request: {}", request.getId());
+        }
+    }
+
+    private void commitDeletes(StorageRequest request) throws StorageException {
+        List<Metacard> itemsToBeDeleted = deletionMap.get(request.getId());
+        try {
+            for (Metacard metacard : itemsToBeDeleted) {
+                LOGGER.debug("File to be deleted: {}", metacard.getId());
+
+                String metacardId = metacard.getId();
+
+                List<String> parts = getContentFilePathParts(metacardId, "");
+
+                Path contentIdDir = Paths.get(baseContentDirectory.toAbsolutePath()
+                        .toString(), parts.toArray(new String[parts.size()]));
+
+                if (!Files.exists(contentIdDir)) {
+                    throw new StorageException("File doesn't exist for id: " + metacard.getId());
+                }
+
+                try {
+                    FileUtils.deleteDirectory(contentIdDir.toFile());
+
+                    Path part1 = contentIdDir.getParent();
+                    if (Files.isDirectory(part1) && isDirectoryEmpty(part1)) {
+                        FileUtils.deleteDirectory(part1.toFile());
+                        Path part0 = part1.getParent();
+                        if (Files.isDirectory(part0) && isDirectoryEmpty(part0)) {
+                            FileUtils.deleteDirectory(part0.toFile());
+                        }
+                    }
+
+                } catch (IOException e) {
+                    throw new StorageException("Could not delete file: " + metacard.getId(), e);
+                }
+            }
+        } finally {
+            rollback(request);
+        }
+    }
+
+    private boolean isDirectoryEmpty(Path dir) throws IOException {
+        DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir);
+        return !dirStream.iterator()
+                .hasNext();
+    }
+
+    private void commitUpdates(StorageRequest request) throws StorageException {
+        try {
+            for (String contentUri : updateMap.get(request.getId())) {
+                Path contentIdDir = getTempContentItemDir(request.getId(), new URI(contentUri));
+                Path target = getContentItemDir(new URI(contentUri));
+                try {
+                    if (Files.exists(target)) {
+                        List<Path> files = listPaths(target);
+                        for (Path file : files) {
+                            if (!Files.isDirectory(file)) {
+                                Files.deleteIfExists(file);
+                            }
+                        }
+                    }
+                    Files.createDirectories(target.getParent());
+                    Files.move(contentIdDir, target, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    LOGGER.warn(
+                            "Unable to move files by simple rename, resorting to copy. This will impact performance.",
+                            e);
+                    try {
+                        Path createdTarget = Files.createDirectories(target);
+                        List<Path> files = listPaths(contentIdDir);
+                        Files.copy(files.get(0),
+                                Paths.get(createdTarget.toAbsolutePath()
+                                                .toString(),
+                                        files.get(0)
+                                                .getFileName()
+                                                .toString()));
+                    } catch (IOException e1) {
+                        throw new StorageException(
+                                "Unable to commit changes for request: " + request.getId(), e1);
+                    }
+                }
+            }
+        } catch (URISyntaxException e) {
+            throw new StorageException(e);
+        } finally {
+            rollback(request);
+        }
+    }
+
+    @Override
+    public void rollback(StorageRequest request) throws StorageException {
+        String id = request.getId();
+        Path requestIdDir = Paths.get(baseContentTmpDirectory.toAbsolutePath()
+                .toString(), id);
+        deletionMap.remove(id);
+        updateMap.remove(id);
+        try {
+            FileUtils.deleteDirectory(requestIdDir.toFile());
+        } catch (IOException e) {
+            throw new StorageException(
+                    "Unable to remove temporary content storage for request: " + id, e);
+        }
+    }
+
+    private ContentItem readContent(URI uri) throws StorageException {
+        Path file = getContentFilePath(uri);
 
         if (file == null) {
-            throw new StorageException("Unable to find file for content ID: " + id);
+            throw new StorageException(
+                    "Unable to find file for content ID: " + uri.getSchemeSpecificPart());
         }
 
         String extension = FilenameUtils.getExtension(file.getFileName()
@@ -149,7 +368,8 @@ public class FileSystemStorageProvider implements StorageProvider {
             mimeType = mimeTypeMapper.guessMimeType(fileInputStream, extension);
         } catch (Exception e) {
             LOGGER.warn("Could not determine mime type for file extension = {}; defaulting to {}",
-                    extension, DEFAULT_MIME_TYPE);
+                    extension,
+                    DEFAULT_MIME_TYPE);
             mimeType = DEFAULT_MIME_TYPE;
         }
         if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
@@ -166,213 +386,19 @@ public class FileSystemStorageProvider implements StorageProvider {
         try {
             size = Files.size(file);
         } catch (IOException e) {
-            LOGGER.warn("Unable to retrieve size of file: {}", file.toAbsolutePath().toString(), e);
+            LOGGER.warn("Unable to retrieve size of file: {}",
+                    file.toAbsolutePath()
+                            .toString(),
+                    e);
         }
-        ContentItem returnItem = new ContentItemImpl(id,
-                com.google.common.io.Files.asByteSource(file.toFile()), mimeType,
-                file.toAbsolutePath()
-                        .toString(), size, null);
-        return new ReadStorageResponseImpl(readRequest, returnItem);
-
-    }
-
-    @Override
-    public UpdateStorageResponse update(UpdateStorageRequest updateRequest)
-            throws StorageException {
-        LOGGER.trace("ENTERING: update");
-
-        List<ContentItem> contentItems = updateRequest.getContentItems();
-
-        List<ContentItem> updatedItems = new ArrayList<>(updateRequest.getContentItems()
-                .size());
-
-        for (ContentItem contentItem : contentItems) {
-
-            String id = contentItem.getId();
-
-            Path contentIdDir = Paths.get(baseContentTmpDirectory.toAbsolutePath()
-                    .toString(), updateRequest.getId(), id);
-
-            try {
-                updatedItems.add(generateContentFile(contentItem, contentIdDir));
-            } catch (IOException e) {
-                throw new StorageException(e);
-            }
-        }
-
-        UpdateStorageResponse response = new UpdateStorageResponseImpl(updateRequest, updatedItems);
-
-        LOGGER.trace("EXITING: update");
-
-        return response;
-    }
-
-    @Override
-    public synchronized DeleteStorageResponse delete(DeleteStorageRequest deleteRequest)
-            throws StorageException {
-        LOGGER.trace("ENTERING: delete");
-
-        List<Metacard> itemsToBeDeleted = new ArrayList<>();
-
-        List<ContentItem> deletedContentItems = new ArrayList<>(deleteRequest.getMetacards()
-                .size());
-        for (Metacard metacard : deleteRequest.getMetacards()) {
-            LOGGER.debug("File to be deleted: {}", metacard.getId());
-
-            String[] parts = getContentFilePathParts(metacard.getId());
-            Path contentIdDir = Paths.get(baseContentDirectory.toAbsolutePath()
-                    .toString(), parts[0], parts[1], parts[2]);
-            if (Files.exists(contentIdDir)) {
-                ContentItemImpl deletedContentItem = new ContentItemImpl(metacard.getId(), null, "", "",
-                        0, metacard);
-                String contentUri = CONTENT_URI_PREFIX + deletedContentItem.getId();
-                LOGGER.debug("contentUri = {}", contentUri);
-                deletedContentItem.setUri(contentUri);
-                deletedContentItems.add(deletedContentItem);
-                itemsToBeDeleted.add(metacard);
-            }
-        }
-
-        deletionMap.put(deleteRequest.getId(), itemsToBeDeleted);
-
-        DeleteStorageResponse response = new DeleteStorageResponseImpl(deleteRequest,
-                deletedContentItems);
-
-        LOGGER.trace("EXITING: delete");
-
-        return response;
-    }
-
-    @Override
-    public synchronized void commit(StorageRequest request) throws StorageException {
-        String id = request.getId();
-        Path requestIdDir = Paths.get(baseContentTmpDirectory.toAbsolutePath()
-                .toString(), id);
-        if (Files.exists(requestIdDir)) {
-            commitUpdates(request, id, requestIdDir);
-        } else if (deletionMap.containsKey(id)) {
-            commitDeletes(request, id);
-        } else {
-            LOGGER.warn("Nothing to commit for request: {}", request.getId());
-        }
-    }
-
-    private void commitDeletes(StorageRequest request, String id) throws StorageException {
-        List<Metacard> itemsToBeDeleted = deletionMap.get(id);
-        try {
-            for (Metacard metacard : itemsToBeDeleted) {
-                LOGGER.debug("File to be deleted: {}", metacard.getId());
-
-                String metacardId = metacard.getId();
-
-                String[] parts = getContentFilePathParts(metacardId);
-
-                Path contentIdDir = Paths.get(baseContentDirectory.toAbsolutePath()
-                        .toString(), parts[0], parts[1], parts[2]);
-
-                if (!Files.exists(contentIdDir)) {
-                    throw new StorageException("File doesn't exist for id: " + metacard.getId());
-                }
-
-                try {
-                    List<Path> files = listPaths(contentIdDir);
-                    for (Path file : files) {
-                        Files.deleteIfExists(file);
-                    }
-                    Files.deleteIfExists(contentIdDir);
-                    Path part1 = contentIdDir.getParent();
-                    List<Path> part1Files = listPaths(part1);
-                    if (part1Files.size() == 0) {
-                        Files.deleteIfExists(part1);
-                    }
-                    Path part0 = part1.getParent();
-                    List<Path> part0Files = listPaths(part0);
-                    if (part0Files.size() == 0) {
-                        Files.deleteIfExists(part0);
-                    }
-                } catch (IOException e) {
-                    throw new StorageException("Could not delete file: " + metacard.getId(), e);
-                }
-            }
-        } finally {
-            rollback(request);
-        }
-    }
-
-    private void commitUpdates(StorageRequest request, String id, Path requestIdDir)
-            throws StorageException {
-        List<Path> contentIdDirs;
-        try {
-            contentIdDirs = listPaths(requestIdDir);
-        } catch (IOException e) {
-            throw new StorageException(
-                    "Unable to retrieve contents of temporary content storage for id: " + id, e);
-        }
-        try {
-            for (Path contentIdDir : contentIdDirs) {
-                String[] parts = getContentFilePathParts(contentIdDir.getFileName()
-                        .toString());
-                Path target = Paths.get(baseContentDirectory.toAbsolutePath()
-                        .toString(), parts[0], parts[1], parts[2]);
-                try {
-                    if (Files.exists(target)) {
-                        List<Path> files = listPaths(target);
-                        for (Path file : files) {
-                            Files.deleteIfExists(file);
-                        }
-                    }
-                    if (Files.deleteIfExists(target)) {
-                        LOGGER.debug("Remove existing content id directory for commit: " + id);
-                    }
-                    Files.createDirectories(target.getParent());
-                    Files.move(contentIdDir, target, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    LOGGER.warn(
-                            "Unable to move files by simple rename, resorting to copy. This will impact performance.",
-                            e);
-                    try {
-                        if (Files.deleteIfExists(target)) {
-                            LOGGER.debug("Remove existing content id directory for commit: " + id);
-                        }
-                        Path createdTarget = Files.createDirectories(target);
-                        List<Path> files = listPaths(contentIdDir);
-                        Files.copy(files.get(0), Paths.get(createdTarget.toAbsolutePath()
-                                .toString(), files.get(0)
-                                .getFileName()
-                                .toString()));
-                    } catch (IOException e1) {
-                        throw new StorageException("Unable to commit changes for request: " + id,
-                                e1);
-                    }
-                }
-            }
-        } finally {
-            rollback(request);
-        }
-    }
-
-    @Override
-    public synchronized void rollback(StorageRequest request) throws StorageException {
-        String id = request.getId();
-        Path requestIdDir = Paths.get(baseContentTmpDirectory.toAbsolutePath()
-                .toString(), id);
-        deletionMap.remove(id);
-        try {
-            List<Path> items = listPaths(requestIdDir);
-            for (Path item : items) {
-                List<Path> files = listPaths(item);
-                for (Path file : files) {
-                    Files.deleteIfExists(file);
-                }
-                Files.deleteIfExists(item);
-            }
-            if (Files.deleteIfExists(requestIdDir)) {
-                LOGGER.debug("Remove existing content id directory for commit: " + id);
-            }
-        } catch (IOException e) {
-            throw new StorageException(
-                    "Unable to remove temporary content storage for request: " + id, e);
-        }
+        return new ContentItemImpl(uri.getSchemeSpecificPart(),
+                uri.getFragment(),
+                com.google.common.io.Files.asByteSource(file.toFile()),
+                mimeType,
+                file.getFileName()
+                        .toString(),
+                size,
+                null);
     }
 
     private List<Path> listPaths(Path dir) throws IOException {
@@ -390,26 +416,44 @@ public class FileSystemStorageProvider implements StorageProvider {
         return result;
     }
 
+    private Path getTempContentItemDir(String requestId, URI contentUri) {
+        List<String> pathParts = new ArrayList<>();
+        pathParts.add(requestId);
+        pathParts.addAll(getContentFilePathParts(contentUri.getSchemeSpecificPart(),
+                contentUri.getFragment()));
+
+        return Paths.get(baseContentTmpDirectory.toAbsolutePath()
+                .toString(), pathParts.toArray(new String[pathParts.size()]));
+    }
+
+    private Path getContentItemDir(URI contentUri) {
+        List<String> pathParts = getContentFilePathParts(contentUri.getSchemeSpecificPart(),
+                contentUri.getFragment());
+
+        return Paths.get(baseContentDirectory.toAbsolutePath()
+                .toString(), pathParts.toArray(new String[pathParts.size()]));
+    }
+
     //separating into 2 directories of 3 characters each allows us to
     //get to 361,000,000,000 records before we would run up against the
     //NTFS file system limits for a single directory
-    String[] getContentFilePathParts(String id) {
+    List<String> getContentFilePathParts(String id, String qualifier) {
         String partsId = id;
         if (id.length() < 6) {
             partsId = StringUtils.rightPad(id, 6, "0");
         }
-
-        String[] parts = new String[3];
-        parts[0] = partsId.substring(0, 3);
-        parts[1] = partsId.substring(3, 6);
-        parts[2] = id;
+        List<String> parts = new ArrayList<>();
+        parts.add(partsId.substring(0, 3));
+        parts.add(partsId.substring(3, 6));
+        parts.add(partsId);
+        if (StringUtils.isNotBlank(qualifier)) {
+            parts.add(qualifier);
+        }
         return parts;
     }
 
-    private Path getContentFilePath(String id) throws StorageException {
-        String[] parts = getContentFilePathParts(id);
-        Path contentIdDir = Paths.get(baseContentDirectory.toAbsolutePath()
-                .toString(), parts[0], parts[1], parts[2]);
+    private Path getContentFilePath(URI uri) throws StorageException {
+        Path contentIdDir = getContentItemDir(uri);
         List<Path> contentFiles;
         if (Files.exists(contentIdDir)) {
             try {
@@ -418,8 +462,11 @@ public class FileSystemStorageProvider implements StorageProvider {
                 throw new StorageException(e);
             }
 
+            contentFiles.removeIf(Files::isDirectory);
+
             if (contentFiles.size() != 1) {
-                throw new StorageException("Content ID: " + id + " storage folder is corrupted.");
+                throw new StorageException("Content ID: " + uri.getSchemeSpecificPart()
+                        + " storage folder is corrupted.");
             }
 
             //there should only be one file
@@ -443,17 +490,20 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         if (copy != item.getSize()) {
             LOGGER.warn("Created content item {} size {} does not match expected size {}",
-                    item.getId(), copy, item.getSize());
+                    item.getId(),
+                    copy,
+                    item.getSize());
         }
 
         ContentItemImpl contentItem = new ContentItemImpl(item.getId(),
+                item.getQualifier(),
                 com.google.common.io.Files.asByteSource(contentItemPath.toFile()),
                 item.getMimeType()
-                        .toString(), contentItemPath.toAbsolutePath()
-                .toString(), copy, item.getMetacard());
-        String contentUri = CONTENT_URI_PREFIX + contentItem.getId();
-        LOGGER.debug("contentUri = {}", contentUri);
-        contentItem.setUri(contentUri);
+                        .toString(),
+                contentItemPath.getFileName()
+                        .toString(),
+                copy,
+                item.getMetacard());
 
         LOGGER.trace("EXITING: generateContentFile");
 
@@ -488,8 +538,9 @@ public class FileSystemStorageProvider implements StorageProvider {
         Path directories;
         if (!Files.exists(directory)) {
             directories = Files.createDirectories(directory);
-            LOGGER.debug("Setting base content directory to: {}", directories.toAbsolutePath()
-                    .toString());
+            LOGGER.debug("Setting base content directory to: {}",
+                    directories.toAbsolutePath()
+                            .toString());
         } else {
             directories = directory;
         }
@@ -499,13 +550,71 @@ public class FileSystemStorageProvider implements StorageProvider {
                 .toString(), DEFAULT_TMP);
         if (!Files.exists(tmpDirectory)) {
             tmpDirectories = Files.createDirectories(tmpDirectory);
-            LOGGER.debug("Setting base content directory to: {}", tmpDirectory.toAbsolutePath()
-                    .toString());
+            LOGGER.debug("Setting base content directory to: {}",
+                    tmpDirectory.toAbsolutePath()
+                            .toString());
         } else {
             tmpDirectories = tmpDirectory;
         }
 
         this.baseContentDirectory = directories;
         this.baseContentTmpDirectory = tmpDirectories;
+    }
+
+    private static class ContentItemDecorator implements ContentItem {
+
+        private final ContentItem updateContentItem;
+
+        private final ContentItem existingItem;
+
+        public ContentItemDecorator(ContentItem contentItem, ContentItem existingItem) {
+            this.updateContentItem = contentItem;
+            this.existingItem = existingItem;
+        }
+
+        @Override
+        public String getId() {
+            return updateContentItem.getId();
+        }
+
+        @Override
+        public String getUri() {
+            return updateContentItem.getUri();
+        }
+
+        @Override
+        public String getQualifier() {
+            return updateContentItem.getQualifier();
+        }
+
+        @Override
+        public String getFilename() {
+            return existingItem.getFilename();
+        }
+
+        @Override
+        public MimeType getMimeType() {
+            return existingItem.getMimeType();
+        }
+
+        @Override
+        public String getMimeTypeRawData() {
+            return existingItem.getMimeTypeRawData();
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return updateContentItem.getInputStream();
+        }
+
+        @Override
+        public long getSize() throws IOException {
+            return updateContentItem.getSize();
+        }
+
+        @Override
+        public Metacard getMetacard() {
+            return updateContentItem.getMetacard();
+        }
     }
 }

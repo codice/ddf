@@ -130,7 +130,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.86</minimum>
                                         </limit>
                                         <!--
                                         The branch and complexity coverages are low primarily
@@ -150,7 +150,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.92</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

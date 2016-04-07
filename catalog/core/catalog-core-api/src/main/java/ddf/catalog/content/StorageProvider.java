@@ -32,8 +32,6 @@ import ddf.catalog.content.operation.UpdateStorageResponse;
  */
 public interface StorageProvider {
 
-    String CONTENT_URI_PREFIX = "content";
-
     /**
      * Creates an item in the content repository.
      *
@@ -94,7 +92,7 @@ public interface StorageProvider {
     void commit(StorageRequest id) throws StorageException;
 
     /**
-     * Dispose will be called by the {@link ddf.catalog.CatalogFramework} to discard changes related to create, update, and delete requests
+     * Rollback will be called by the {@link ddf.catalog.CatalogFramework} to discard changes related to create, update, and delete requests
      *
      * @param id the id associated with the request
      * @throws StorageException
