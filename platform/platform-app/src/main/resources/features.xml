@@ -689,6 +689,12 @@
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
     </feature>
 
+    <feature name="security-logger" install="manual" version="${project.version}"
+             description="Logs incoming and outgoing requests">
+        <feature prerequisite="true">security-core-api</feature>
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-logger/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-commands" install="manual" version="${project.version}"
              description="Platform Command line tools">
         <feature prerequisite="true">platform-configuration</feature>
@@ -994,6 +1000,7 @@
         <feature>security-core-api</feature>
         <feature>metrics-reporting</feature>
         <feature>metrics-services</feature>
+        <feature>security-logger</feature>
         <feature>solr</feature>
         <feature>persistence-core</feature>
         <feature>error</feature>

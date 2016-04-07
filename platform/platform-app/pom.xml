@@ -277,6 +277,11 @@
             <artifactId>platform-logging</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.interceptor</groupId>
+            <artifactId>security-interceptor-logger</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <!-- CXF Properties used in used in platform-app's features.xml
