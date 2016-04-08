@@ -1,16 +1,21 @@
 @{customElementNamespace}content {
   @titleBarFontSize: 3rem;
   .customElement;
-  .inlineFix;
-  .whiteSpaceFix;
 
-  position: fixed;
-  left: 0%;
-  top: 37px;
-  height: ~"calc(100% - 37px)";
+  position: relative;
   z-index: @zIndexContent;
   background: @background-color;
 
+  .content-menu {
+    width: 100%;
+    height: 36px;
+  }
+
+  .content-content{
+    height: ~'calc(100% - 36px)';
+    .inlineBlockDisplay(div);
+    .whiteSpaceFix;
+  }
 
   .content-panelOne {
     width: 20%;
@@ -24,25 +29,23 @@
     width: 50%;
   }
 
-  > div {
-    display: inline-block;
+  .content-panel {
     height: 100%;
     vertical-align: top;
     transition: width @transitionTime linear;
     overflow: hidden;
-    .boxShadow;
   }
 
   &.hide-panelTwo {
-    > .content-panelTwo {
+    .content-panelTwo {
       width: 0%;
     }
-    > .content-panelThree {
+    .content-panelThree {
       width: 80%;
     }
   }
 
-  > .content-panelTwo {
+  .content-panelTwo {
     > .content-panelTwo-titleBar {
       position: relative;
       font-size: @titleBarFontSize;
@@ -74,8 +77,15 @@
       overflow: hidden;
     }
   }
+}
 
+body.has-header @{customElementNamespace}content,
+body.has-footer @{customElementNamespace}content{
+  height: ~'calc(100% - 20px)';
+}
 
+body.has-header.has-footer @{customElementNamespace}content {
+  height: ~'calc(100% - 40px)';
 }
 
 @media (max-width: @mediumScreenSize) {

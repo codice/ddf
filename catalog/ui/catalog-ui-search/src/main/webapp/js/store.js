@@ -23,6 +23,9 @@ define([
 ], function (Backbone, poller, _, Workspace, Source, Workspaces, Selected, Content) {
 
     return new (Backbone.Model.extend({
+        defaults: {
+            initialized: false
+        },
         setupListeners: function(model, listeners){
             if (listeners !== undefined){
                 this.listenTo(model, listeners);
@@ -81,7 +84,7 @@ define([
             }
         },
         handleWorkspaceSync: function(workspaceCollection){
-            console.log('syncing');
+            this.set('initialized', true);
             if (this.get('content').get('currentWorkspace') === undefined){
                 if (workspaceCollection.length === undefined){
                     this.get('content').set('currentWorkspace', workspaceCollection);

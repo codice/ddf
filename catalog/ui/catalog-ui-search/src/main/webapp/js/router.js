@@ -15,20 +15,23 @@ define([
     'marionette',
     'component/lightbox/lightbox.view.instance',
     'component/workspaces/Workspaces.view',
-    'js/store',
+    'js/store'
 ], function (Marionette, lightboxViewInstance, WorkspacesView, store) {
 
     var Router = Marionette.AppRouter.extend({
         controller: {
-            openWorkspace: function(workspaceId){
-                store.get('workspaces').setCurrentWorkspace(workspaceId);
+            openWorkspace: function(){
             },
             home: function(){
+            },
+            workspaces: function(){
+                console.log('routing happened!');
             }
         },
         appRoutes: {
             'workspace/:id': 'openWorkspace',
-            'home': 'home'
+            'home': 'home',
+            'workspaces': 'workspaces'
         }
     });
 

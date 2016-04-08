@@ -20,6 +20,8 @@ define([
     'jquery',
     'text!./content.hbs',
     'js/CustomElements',
+    'js/view/Menu.view',
+    'properties',
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',
     'component/tabs/query/tabs-query.view',
@@ -28,9 +30,9 @@ define([
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
     'component/tabs/metacards/tabs-metacards.view'
-], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, WorkspaceContentTabs,
-             WorkspaceContentTabsView, QueryTabsView, maptype, map, store, MetacardTabsView,
-            MetacardsTabsView) {
+], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
+             WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
+             MetacardTabsView, MetacardsTabsView) {
 
     var debounceTime = 25;
 
@@ -45,12 +47,13 @@ define([
         ui: {
         },
         regions: {
+            'menu': '.content-menu',
             'panelOne': '.content-panelOne',
             'panelTwo': '.content-panelTwo-content',
             'panelThree': '.content-panelThree'
         },
         initialize: function(){
-            $('body').append(this.el);
+            $('header').after(this.el);
             var contentView = this;
             if (maptype.is3d()) {
                 var Map3d = Marionette.LayoutView.extend({
@@ -127,8 +130,7 @@ define([
             this.updatePanelOne();
             this.hidePanelTwo();
             this.panelThree.show(this._mapView);
-        },
-        onBeforeShow: function(){
+            this.menu.show(new MenuView.Bar({model: new Backbone.Model(properties)}));
         },
         updatePanelOne: function(){
             this.panelOne.show(new WorkspaceContentTabsView({

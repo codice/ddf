@@ -44,10 +44,8 @@ define([
     // Set up the main regions that will be available at the Application level.
     Application.App.addRegions({
         loadingRegion: '#loading',
-        mapRegion: '#map',
         headerRegion: 'header',
         footerRegion: 'footer',
-        menuRegion: '#menu',
         controlPanelRegion: '#controlPanel',
         modalRegion: '#modalRegion'
     });
@@ -63,6 +61,9 @@ define([
             className: 'header-layout',
             model: Application.AppModel
         }));
+        if (Application.AppModel.get('ui').header !== ""){
+            $('body').addClass('has-header');
+        }
     });
     //setup the footer
     Application.App.addInitializer(function () {
@@ -71,13 +72,15 @@ define([
             className: 'footer-layout',
             model: Application.AppModel
         }));
+        if (Application.AppModel.get('ui').footer !== ""){
+            $('body').addClass('has-footer');
+        }
     });
     //load all modules
     Application.App.addInitializer(function () {
         require([
             'js/module/Notification.module',
             'js/module/Tasks.module',
-            'js/module/Menu.module',
             'js/module/Content.module'
         ]);
     });
