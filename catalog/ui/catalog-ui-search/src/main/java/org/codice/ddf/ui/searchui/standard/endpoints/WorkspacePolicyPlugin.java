@@ -35,8 +35,7 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
 public class WorkspacePolicyPlugin implements PolicyPlugin {
 
-    public static final String ROLE_CLAIM =
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
+    public static final String ROLE_CLAIM = "roles";
 
     private static Boolean isWorkspaceMetacard(Metacard metacard) {
         if (metacard != null) {

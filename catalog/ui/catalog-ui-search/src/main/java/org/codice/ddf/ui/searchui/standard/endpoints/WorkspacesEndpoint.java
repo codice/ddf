@@ -14,8 +14,10 @@
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +35,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.opengis.filter.Filter;
 
+import com.google.common.collect.Sets;
+
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -47,7 +52,7 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-@Path("/")
+@Path("/workspaces")
 public class WorkspacesEndpoint {
 
     private final CatalogFramework cf;
@@ -63,15 +68,37 @@ public class WorkspacesEndpoint {
         this.transformer = transformer;
     }
 
+    private Set getRoles(Metacard metacard) {
+        Attribute attr = metacard.getAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
+
+        if (attr != null) {
+            return new HashSet<>(attr.getValues());
+        }
+
+        return new HashSet<>();
+    }
+
+    private Set getUpdatedRoles(String id, Metacard newMetacard) throws Exception {
+        Set newRoles = getRoles(newMetacard);
+
+        List<Metacard> metacards = queryWorkspaces(byId(id));
+        if (!metacards.isEmpty()) {
+            Set oldRoles = getRoles(metacards.get(0));
+            return Sets.symmetricDifference(oldRoles, newRoles);
+        }
+
+        return newRoles;
+    }
+
     @GET
-    @Path("/workspaces/{id}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Map getDocument(@PathParam("id") String id, @Context HttpServletResponse res)
             throws Exception {
-        List<Map> workspaces = query(builder().allOf(byId(id), byWorkspaceTag()));
+        List<Metacard> workspaces = queryWorkspaces(byId(id));
 
         if (workspaces.size() > 0) {
-            return workspaces.get(0);
+            return transformer.transform(workspaces.get(0));
         }
 
         res.setStatus(404);
@@ -79,14 +106,14 @@ public class WorkspacesEndpoint {
     }
 
     @GET
-    @Path("/workspaces")
+    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Map> getDocuments(@Context HttpServletRequest req) throws Exception {
-        return query(byWorkspaceTag());
+        return transformer.transform(queryWorkspaces());
     }
 
     @POST
-    @Path("/workspaces")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Map postDocument(Map<String, Object> workspace, @Context HttpServletResponse res)
@@ -107,17 +134,18 @@ public class WorkspacesEndpoint {
     }
 
     @PUT
-    @Path("/workspaces/{id}")
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Map putDocument(Map<String, Object> workspace, @PathParam("id") String id)
             throws Exception {
+        Set updatedRoles = getUpdatedRoles(id, transformer.transform(workspace));
         Metacard updated = updateMetacard(id, transformer.transform(workspace));
         return transformer.transform(updated);
     }
 
     @DELETE
-    @Path("/workspaces/{id}")
+    @Path("/{id}")
     public void deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
             throws Exception {
         cf.delete(new DeleteRequestImpl(id));
@@ -142,13 +170,22 @@ public class WorkspacesEndpoint {
                 .text(WorkspaceMetacardTypeImpl.WORKSPACE_TAG);
     }
 
-    private List<Map> query(Filter f)
+    private List<Metacard> queryWorkspaces()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return query(byWorkspaceTag());
+    }
+
+    private List<Metacard> queryWorkspaces(Filter f)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return query(builder().allOf(f, byWorkspaceTag()));
+    }
+
+    private List<Metacard> query(Filter f)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         return cf.query(new QueryRequestImpl(new QueryImpl(f)))
                 .getResults()
                 .stream()
                 .map(Result::getMetacard)
-                .map(transformer::transform)
                 .collect(Collectors.toList());
     }
 

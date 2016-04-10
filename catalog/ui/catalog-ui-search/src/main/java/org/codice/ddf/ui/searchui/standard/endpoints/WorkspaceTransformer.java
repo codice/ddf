@@ -150,4 +150,10 @@ public class WorkspaceTransformer {
 
         return h;
     }
+
+    public List<Map> transform(List<Metacard> metacards) {
+        return metacards.stream()
+                .map(this::transform)
+                .collect(Collectors.toList());
+    }
 }
