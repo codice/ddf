@@ -17,10 +17,11 @@ import color from 'color'
 
 const levels = {
   ERROR: 'red',
-  INFO: 'white',
   WARN: 'yellow',
+  INFO: 'white',
+  DEBUG: '#0f0',
   TRACE: 'blue',
-  DEBUG: '#0f0'
+  ALL: undefined
 }
 
 // log level colors
@@ -29,5 +30,5 @@ export default (level) => {
     return color(levels[level]).lighten(0.9).hslString()
   }
 
-  return ['ALL'].concat(Object.keys(levels))
+  return Object.keys(levels)
 }

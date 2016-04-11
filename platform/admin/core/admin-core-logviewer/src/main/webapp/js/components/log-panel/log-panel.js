@@ -16,14 +16,35 @@
 import React from 'react'
 import LogViewer from '../log-viewer/log-viewer'
 
+const panelClass = () => {
+  if (window === window.top) {
+    return 'panel'
+  } else {
+    return 'panel-iframe'
+  }
+}
+
+const iframeNewTab = () => {
+  if (window !== window.top) {
+    return (
+      <a href='/admin/logviewer/index.html' target='_blank' className='newTabLink'>
+        Open Viewer in New Tab
+      </a>
+    )
+  }
+}
+
 export default ({ state, dispatch }) => {
   return (
-    <div className='panel'>
-      <LogViewer
-        filter={state.filter}
-        logs={state.logs}
-        displaySize={state.displaySize}
-        dispatch={dispatch} />
+    <div>
+      {iframeNewTab()}
+      <div className={panelClass()}>
+        <LogViewer
+          filter={state.filter}
+          logs={state.logs}
+          displaySize={state.displaySize}
+          dispatch={dispatch} />
+      </div>
     </div>
   )
 }
