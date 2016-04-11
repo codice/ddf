@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -210,8 +210,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 userFilter = userFilter.replaceAll(Pattern.quote("%u"),
                         Matcher.quoteReplacement(user));
                 userFilter = userFilter.replace("\\", "\\\\");
-                ConnectionEntryReader entryReader = connection.search(userBaseDN,
-                        scope,
+                ConnectionEntryReader entryReader = connection.search(userBaseDN, scope,
                         userFilter);
                 try {
                     if (!entryReader.hasNext()) {
@@ -294,9 +293,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 roleFilter = roleFilter.replaceAll(Pattern.quote("%fqdn"),
                         Matcher.quoteReplacement(userDn));
                 roleFilter = roleFilter.replace("\\", "\\\\");
-                ConnectionEntryReader entryReader = connection.search(roleBaseDN,
-                        scope,
-                        roleFilter,
+                ConnectionEntryReader entryReader = connection.search(roleBaseDN, scope, roleFilter,
                         roleNameAttribute);
                 SearchResultEntry entry;
                 try {
@@ -359,16 +356,16 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                         ref);
 
                 if (encryptionService != null) {
-                    String decryptedPassword = encryptionService.decryptValue(option.get(
-                            CONNECTION_PASSWORD));
+                    String decryptedPassword = encryptionService.decryptValue(
+                            option.get(CONNECTION_PASSWORD));
                     option.put(CONNECTION_PASSWORD, decryptedPassword);
                 } else {
                     LOGGER.error("Encryption service reference for ldap was null.");
                 }
 
             } catch (SecurityException | IllegalStateException e) {
-                LOGGER.error("Error decrypting connection password passed into ldap configuration: ",
-                        e);
+                LOGGER.error(
+                        "Error decrypting connection password passed into ldap configuration: ", e);
             } finally {
                 if (ref != null) {
                     bundleContext.ungetService(ref);
@@ -426,17 +423,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 if (sslKeystore != null && sslTrustStore != null) {
                     BundleContext bundleContext = getContext();
                     if (null != bundleContext) {
-                        ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref =
-                                bundleContext.getServiceReference(org.apache.karaf.jaas.config.KeystoreManager.class);
-                        org.apache.karaf.jaas.config.KeystoreManager manager =
-                                bundleContext.getService(ref);
-                        sslContext = manager.createSSLContext(sslProvider,
-                                sslProtocol,
-                                sslAlgorithm,
-                                sslKeystore,
-                                sslKeyAlias,
-                                sslTrustStore,
-                                sslTimeout);
+                        ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext.getServiceReference(
+                                org.apache.karaf.jaas.config.KeystoreManager.class);
+                        org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext.getService(
+                                ref);
+                        sslContext = manager.createSSLContext(sslProvider, sslProtocol,
+                                sslAlgorithm, sslKeystore, sslKeyAlias, sslTrustStore, sslTimeout);
                     } else {
                         LOGGER.error("Unable to retrieve Bundle Context!");
                     }
@@ -475,15 +467,15 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             boolean isLoggedIn = doLogin();
 
             if (isLoggedIn) {
-                SecurityLogger.logInfo("Username [" + user
+                SecurityLogger.audit("Username [" + user
                         + "] successfully logged in using LDAP authentication.");
             } else {
-                SecurityLogger.logWarn("Username [" + user + "] failed LDAP authentication.");
+                SecurityLogger.audit("Username [" + user + "] failed LDAP authentication.");
             }
             return isLoggedIn;
 
         } catch (Exception le) {
-            SecurityLogger.logWarn("Username [" + user
+            SecurityLogger.audit("Username [" + user
                             + "] could not log in successfuly using LDAP authentication due to an exception",
                     le);
             throw new LoginException("Username [" + user

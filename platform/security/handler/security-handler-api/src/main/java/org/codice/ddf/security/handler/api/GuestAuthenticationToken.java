@@ -37,7 +37,7 @@ public class GuestAuthenticationToken extends BSTAuthenticationToken {
         setTokenId(BST_GUEST_LN);
 
         if (!StringUtils.isEmpty(ip)) {
-            SecurityLogger.logInfo("Guest token generated for IP address: " + ip);
+            SecurityLogger.audit("Guest token generated for IP address: " + ip);
         }
     }
 

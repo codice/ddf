@@ -344,11 +344,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.security</groupId>
-            <artifactId>catalog-security-auditplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.admin</groupId>
             <artifactId>catalog-admin-module-sources</artifactId>
             <version>${project.version}</version>

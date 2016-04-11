@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,235 +13,309 @@
  */
 package ddf.security.common.audit;
 
-import java.security.Principal;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.security.SecurityContext;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.cxf.ws.security.tokenstore.TokenStore;
-import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
-import org.apache.wss4j.common.principal.SAMLTokenPrincipal;
-import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
-import org.apache.wss4j.dom.handler.WSHandlerResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Supplier;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 import ddf.security.SecurityConstants;
+import ddf.security.SubjectUtils;
 
 /**
  * Class that contains utility methods for logging common security messages.
  */
 public final class SecurityLogger {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
+
+    private static final Logger LOGGER = LogManager.getLogger(SecurityConstants.SECURITY_LOGGER);
+
+    private static final String NO_USER = "UNKNOWN";
 
     private SecurityLogger() {
 
     }
 
-    private static String requestIpAndPortMessage(Message message) {
+    private static String getUser(Subject subject) {
+        String user;
+        try {
+            if (subject == null) {
+                subject = SecurityUtils.getSubject();
+            }
+            user = SubjectUtils.getName(subject, NO_USER);
+        } catch (Exception e) {
+            user = NO_USER;
+        }
+
+        return user;
+    }
+
+    private static void requestIpAndPortAndUserMessage(Message message,
+            StringBuilder messageBuilder) {
+        requestIpAndPortAndUserMessage(null, message, messageBuilder);
+    }
+
+    private static void requestIpAndPortAndUserMessage(Subject subject, Message message,
+            StringBuilder messageBuilder) {
+        String user = getUser(subject);
         if (message != null) {
             HttpServletRequest servletRequest = (HttpServletRequest) message.get(
                     AbstractHTTPDestination.HTTP_REQUEST);
             // pull out the ip and port of the incoming connection so we know
             // who is trying to get access
             if (servletRequest != null) {
-                return " Request IP: " + servletRequest.getRemoteAddr() + ", Port: "
-                        + servletRequest.getRemotePort();
+                messageBuilder.append("Subject: ")
+                        .append(user)
+                        .append(" Request IP: ")
+                        .append(servletRequest.getRemoteAddr())
+                        .append(", Port: ")
+                        .append(servletRequest.getRemotePort())
+                        .append(" ");
+            } else if (MessageUtils.isOutbound(message)) {
+                messageBuilder.append("Subject: ")
+                        .append(user)
+                        .append(" Outbound endpoint: ")
+                        .append(message.get(Message.ENDPOINT_ADDRESS))
+                        .append(" ");
             }
-
-            if (MessageUtils.isOutbound(message)) {
-                return " Outbound endpoint: " + message.get(Message.ENDPOINT_ADDRESS);
-            }
+        } else {
+            messageBuilder.append("Subject: ")
+                    .append(user)
+                    .append(" ");
         }
-        return "";
     }
 
     /**
-     * Log all of the information associated with the security assertion for this message
+     * Logs a message object with the {@link org.apache.logging.log4j.Level#INFO INFO} level.
      *
-     * @param message CXF Message containing the SAML assertion.
+     * @param message the message string to log.
+     * @param subject the user subject to log
      */
-    public static void logSecurityAssertionInfo(Message message) {
-        if (message != null) {
-            SecurityToken token = getToken(message);
-            String requestLogInfo = requestIpAndPortMessage(message);
-
-            // grab the SAML assertion associated with this Message from the
-            // token store
-            if (token != null) {
-                LOGGER.info("SAML assertion successfully extracted from incoming Message.{}",
-                        requestLogInfo);
-                logSecurityAssertionInfo(token);
-            } else {
-                LOGGER.info("No SAML assertion exists on the incoming Message.{}", requestLogInfo);
-            }
-        }
-    }
-
-    public static void logSecurityAssertionInfo(SecurityToken token) {
-        if (LOGGER.isDebugEnabled() && token != null) {
-            LOGGER.debug(getFormattedXml(token.getToken()));
-        }
+    public static void audit(String message, Subject subject) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString());
     }
 
     /**
-     * Transform into formatted XML.
+     * Logs a message object with the {@link org.apache.logging.log4j.Level#INFO INFO} level.
+     *
+     * @param message the message string to log.
      */
-    public static String getFormattedXml(Node node) {
-        DOMImplementation impl = node.getOwnerDocument()
-                .getImplementation();
-        if (null != impl) {
-            Document document = impl.createDocument("", "fake", null);
-            Element copy = (Element) document.importNode(node, true);
-            document.importNode(node, false);
-            document.removeChild(document.getDocumentElement());
-            document.appendChild(copy);
-            DOMImplementation domImpl = document.getImplementation();
-            if (domImpl != null) {
-                DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS",
-                        "3.0");
-                if (domImplLs != null) {
-                    LSSerializer serializer = domImplLs.createLSSerializer();
-                    serializer.getDomConfig()
-                            .setParameter("format-pretty-print", true);
-                    return serializer.writeToString(document);
-                }
-            }
-        }
-        return "";
+    public static void audit(String message) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString());
     }
 
-    public static void logTrace(String log, Throwable throwable) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.trace("{}{}", log, requestIpAndPortMessage(message), throwable);
+    /**
+     * Logs a message with parameters at the {@link org.apache.logging.log4j.Level#INFO INFO} level.
+     *
+     * @param message the message to log; the format depends on the message factory.
+     * @param subject the user subject to log
+     * @param params  parameters to the message.
+     */
+    public static void audit(String message, Subject subject, Object... params) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString(), params);
     }
 
-    public static void logTrace(String log) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.trace("{}{}", log, requestIpAndPortMessage(message));
+    /**
+     * Logs a message with parameters at the {@link org.apache.logging.log4j.Level#INFO INFO} level.
+     *
+     * @param message the message to log; the format depends on the message factory.
+     * @param params  parameters to the message.
+     */
+    public static void audit(String message, Object... params) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString(), params);
     }
 
-    public static void logDebug(String log, Throwable throwable) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.debug("{}{}", log, requestIpAndPortMessage(message), throwable);
+    /**
+     * Logs a message with parameters which are only to be constructed if the logging level is the {@link org.apache.logging.log4j.Level#INFO
+     * INFO} level.
+     *
+     * @param message        the message to log; the format depends on the message factory.
+     * @param subject        the user subject to log
+     * @param paramSuppliers An array of functions, which when called, produce the desired log message parameters.
+     */
+    public static void audit(String message, Subject subject, Supplier... paramSuppliers) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString(), paramSuppliers);
     }
 
-    public static void logDebug(String log) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.debug("{}{}", log, requestIpAndPortMessage(message));
+    /**
+     * Logs a message with parameters which are only to be constructed if the logging level is the {@link org.apache.logging.log4j.Level#INFO
+     * INFO} level.
+     *
+     * @param message        the message to log; the format depends on the message factory.
+     * @param paramSuppliers An array of functions, which when called, produce the desired log message parameters.
+     */
+    public static void audit(String message, Supplier... paramSuppliers) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString(), paramSuppliers);
     }
 
-    public static void logInfo(String log, Throwable throwable) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.info("{}{}", log, requestIpAndPortMessage(message), throwable);
+    /**
+     * Logs a message at the {@link org.apache.logging.log4j.Level#INFO INFO} level including the stack trace of the {@link Throwable}
+     * <code>t</code> passed as parameter.
+     *
+     * @param message the message object to log.
+     * @param subject the user subject to log
+     * @param t       the exception to log, including its stack trace.
+     */
+    public static void audit(String message, Subject subject, Throwable t) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString(), t);
     }
 
-    public static void logInfo(String log) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.info("{}{}", log, requestIpAndPortMessage(message));
+    /**
+     * Logs a message at the {@link org.apache.logging.log4j.Level#INFO INFO} level including the stack trace of the {@link Throwable}
+     * <code>t</code> passed as parameter.
+     *
+     * @param message the message object to log.
+     * @param t       the exception to log, including its stack trace.
+     */
+    public static void audit(String message, Throwable t) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.info(messageBuilder.append(message)
+                .toString(), t);
     }
 
-    public static void logWarn(String log, Throwable throwable) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.warn("{}{}", log, requestIpAndPortMessage(message), throwable);
+    /**
+     * Logs a message object with the {@link org.apache.logging.log4j.Level#WARN WARN} level.
+     *
+     * @param message the message string to log.
+     * @param subject the user subject to log
+     */
+    public static void auditWarn(String message, Subject subject) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString());
     }
 
-    public static void logWarn(String log) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.warn("{}{}", log, requestIpAndPortMessage(message));
+    /**
+     * Logs a message object with the {@link org.apache.logging.log4j.Level#WARN WARN} level.
+     *
+     * @param message the message string to log.
+     */
+    public static void auditWarn(String message) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString());
     }
 
-    public static void logError(String log, Throwable throwable) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.error("{}{}", log, requestIpAndPortMessage(message), throwable);
+    /**
+     * Logs a message with parameters at the {@link org.apache.logging.log4j.Level#WARN WARN} level.
+     *
+     * @param message the message to log; the format depends on the message factory.
+     * @param subject the user subject to log
+     * @param params  parameters to the message.
+     */
+    public static void auditWarn(String message, Subject subject, Object... params) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString(), params);
     }
 
-    public static void logError(String log) {
-        Message message = PhaseInterceptorChain.getCurrentMessage();
-        LOGGER.error("{}{}", log, requestIpAndPortMessage(message));
+    /**
+     * Logs a message with parameters at the {@link org.apache.logging.log4j.Level#WARN WARN} level.
+     *
+     * @param message the message to log; the format depends on the message factory.
+     * @param params  parameters to the message.
+     */
+    public static void auditWarn(String message, Object... params) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString(), params);
     }
 
-    public static boolean isDebugEnabled() {
-        return LOGGER.isDebugEnabled();
+    /**
+     * Logs a message with parameters which are only to be constructed if the logging level is the {@link org.apache.logging.log4j.Level#WARN
+     * WARN} level.
+     *
+     * @param message        the message to log; the format depends on the message factory.
+     * @param subject        the user subject to log
+     * @param paramSuppliers An array of functions, which when called, produce the desired log message parameters.
+     */
+    public static void auditWarn(String message, Subject subject, Supplier... paramSuppliers) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString(), paramSuppliers);
     }
 
-    public static boolean isInfoEnabled() {
-        return LOGGER.isInfoEnabled();
+    /**
+     * Logs a message with parameters which are only to be constructed if the logging level is the {@link org.apache.logging.log4j.Level#WARN
+     * WARN} level.
+     *
+     * @param message        the message to log; the format depends on the message factory.
+     * @param paramSuppliers An array of functions, which when called, produce the desired log message parameters.
+     */
+    public static void auditWarn(String message, Supplier... paramSuppliers) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString(), paramSuppliers);
     }
 
-    private static SecurityToken getToken(Message message) {
-        SecurityToken token = null;
-        if (message != null) {
-            TokenStore tokenStore = getTokenStore(message);
-            Principal principal = null;
-            SecurityContext context = message.get(SecurityContext.class);
-            if (context != null) {
-                principal = context.getUserPrincipal();
-            }
-            if (!(principal instanceof SAMLTokenPrincipal)) {
-                // Try to find the SAMLTokenPrincipal if it exists
-                List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
-                if (wsResults != null) {
-                    for (Object wsResult : wsResults) {
-                        if (wsResult instanceof WSHandlerResult) {
-                            List<WSSecurityEngineResult> wsseResults =
-                                    ((WSHandlerResult) wsResult).getResults();
-                            for (WSSecurityEngineResult wsseResult : wsseResults) {
-                                Object principalResult =
-                                        wsseResult.get(WSSecurityEngineResult.TAG_PRINCIPAL);
-                                if (principalResult instanceof SAMLTokenPrincipal) {
-                                    principal = (SAMLTokenPrincipal) principalResult;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (tokenStore != null && principal != null
-                    && principal instanceof SAMLTokenPrincipal) {
-                token = tokenStore.getToken(((SAMLTokenPrincipal) principal).getId());
-            }
-        }
-        return token;
+    /**
+     * Logs a message at the {@link org.apache.logging.log4j.Level#WARN WARN} level including the stack trace of the {@link Throwable}
+     * <code>t</code> passed as parameter.
+     *
+     * @param message the message object to log.
+     * @param subject the user subject to log
+     * @param t       the exception to log, including its stack trace.
+     */
+    public static void auditWarn(String message, Subject subject, Throwable t) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+                messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString(), t);
     }
 
-    private static TokenStore getTokenStore(Message message) {
-        EndpointInfo info = message.getExchange()
-                .get(Endpoint.class)
-                .getEndpointInfo();
-        synchronized (info) {
-            TokenStore tokenStore =
-                    (TokenStore) message.getContextualProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
-            if (tokenStore == null) {
-                tokenStore =
-                        (TokenStore) info.getProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
-            }
-            if (tokenStore == null) {
-                TokenStoreFactory tokenStoreFactory = TokenStoreFactory.newInstance();
-                tokenStore =
-                        tokenStoreFactory.newTokenStore(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE,
-                                message);
-                info.setProperty(org.apache.cxf.ws.security.SecurityConstants.TOKEN_STORE_CACHE_INSTANCE,
-                        tokenStore);
-            }
-            return tokenStore;
-        }
+    /**
+     * Logs a message at the {@link org.apache.logging.log4j.Level#WARN WARN} level including the stack trace of the {@link Throwable}
+     * <code>t</code> passed as parameter.
+     *
+     * @param message the message object to log.
+     * @param t       the exception to log, including its stack trace.
+     */
+    public static void auditWarn(String message, Throwable t) {
+        StringBuilder messageBuilder = new StringBuilder();
+        requestIpAndPortAndUserMessage(PhaseInterceptorChain.getCurrentMessage(), messageBuilder);
+        LOGGER.warn(messageBuilder.append(message)
+                .toString(), t);
     }
 
 }

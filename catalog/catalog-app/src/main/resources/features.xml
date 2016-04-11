@@ -69,6 +69,7 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-videothumbnail/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
 
         <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
@@ -283,18 +284,6 @@
              description="DDF Security Plugins">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-security-logging" install="manual" version="${project.version}"
-             description="DDF Security Logging">
-        <feature prerequisite="true">catalog-app</feature>
-        <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-security-auditplugin" install="manual" version="${project.version}"
-             description="DDF Security Audit Plugins">
-        <feature prerequisite="true">catalog-app</feature>
-        <bundle>mvn:ddf.catalog.security/catalog-security-auditplugin/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-policyplugin" install="auto" version="${project.version}"

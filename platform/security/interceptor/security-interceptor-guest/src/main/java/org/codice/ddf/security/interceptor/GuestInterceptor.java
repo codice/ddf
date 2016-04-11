@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -80,6 +80,7 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
 import org.apache.wss4j.dom.validate.Validator;
 import org.apache.wss4j.policy.SP12Constants;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -108,8 +109,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuestInterceptor.class);
 
     //Token Assertions
-    private static final String TOKEN_SAML20 =
-            "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
+    private static final String TOKEN_SAML20 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
     private static final ThreadLocal<DocumentBuilder> BUILDER = new ThreadLocal<DocumentBuilder>() {
         @Override
@@ -191,8 +191,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                 if ((assertionInfoMap != null) || overrideEndpointPolicies) {
                     RequestData reqData = new CXFRequestData();
 
-                    WSSConfig config =
-                            (WSSConfig) message.getContextualProperty(WSSConfig.class.getName());
+                    WSSConfig config = (WSSConfig) message.getContextualProperty(
+                            WSSConfig.class.getName());
                     WSSecurityEngine engine = null;
                     if (config != null) {
                         engine = new WSSecurityEngine();
@@ -215,8 +215,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                         //Create security header
                         try {
                             securityHeader = soapFactory.createElement(WSConstants.WSSE_LN,
-                                    WSConstants.WSSE_PREFIX,
-                                    WSConstants.WSSE_NS);
+                                    WSConstants.WSSE_PREFIX, WSConstants.WSSE_NS);
                             securityHeader.addAttribute(new QName(WSConstants.URI_SOAP11_ENV,
                                     WSConstants.ATTR_MUST_UNDERSTAND), "1");
                         } catch (SOAPException e) {
@@ -242,14 +241,10 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                     if (policyEngine != null) {
                         if (MessageUtils.isRequestor(message)) {
                             effectivePolicy = policyEngine.getEffectiveClientResponsePolicy(
-                                    endpointInfo,
-                                    bindingOperationInfo,
-                                    message);
+                                    endpointInfo, bindingOperationInfo, message);
                         } else {
                             effectivePolicy = policyEngine.getEffectiveServerRequestPolicy(
-                                    endpointInfo,
-                                    bindingOperationInfo,
-                                    message);
+                                    endpointInfo, bindingOperationInfo, message);
                         }
                     }
                 }
@@ -277,15 +272,13 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                     Policy policy = effectivePolicy.getPolicy();
                     if (policy != null) {
                         AssertionInfoMap infoMap = new AssertionInfoMap(policy);
-                        Set<Map.Entry<QName, Collection<AssertionInfo>>> entries =
-                                infoMap.entrySet();
+                        Set<Map.Entry<QName, Collection<AssertionInfo>>> entries = infoMap.entrySet();
                         for (Map.Entry<QName, Collection<AssertionInfo>> entry : entries) {
                             Collection<AssertionInfo> assetInfoList = entry.getValue();
                             for (AssertionInfo info : assetInfoList) {
-                                LOGGER.debug("Assertion Name: {}",
-                                        info.getAssertion()
-                                                .getName()
-                                                .getLocalPart());
+                                LOGGER.debug("Assertion Name: {}", info.getAssertion()
+                                        .getName()
+                                        .getLocalPart());
                                 QName qName = info.getAssertion()
                                         .getName();
                                 StringWriter out = new StringWriter();
@@ -326,10 +319,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                                 } else if (qName.equals(SP12Constants.LAYOUT)) {
                                     String xpathLax = "/Layout/Policy/Lax";
                                     String xpathStrict = "/Layout/Policy/Strict";
-                                    String xpathLaxTimestampFirst =
-                                            "/Layout/Policy/LaxTimestampFirst";
-                                    String xpathLaxTimestampLast =
-                                            "/Layout/Policy/LaxTimestampLast";
+                                    String xpathLaxTimestampFirst = "/Layout/Policy/LaxTimestampFirst";
+                                    String xpathLaxTimestampLast = "/Layout/Policy/LaxTimestampLast";
 
                                 } else if (qName.equals(SP12Constants.TRANSPORT_TOKEN)) {
 
@@ -337,18 +328,17 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                                     String xpath = "/HttpsToken/Policy/RequireClientCertificate";
 
                                 } else if (qName.equals(SP12Constants.SIGNED_SUPPORTING_TOKENS)) {
-                                    String xpath =
-                                            "/SignedSupportingTokens/Policy//IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                    String xpath = "/SignedSupportingTokens/Policy//IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                     tokenType = retrieveXmlValue(xml, xpath);
                                     supportingTokenAssertion = qName;
 
                                 } else if (qName.equals(SP12Constants.SUPPORTING_TOKENS)) {
-                                    String xpath =
-                                            "/SupportingTokens/Policy//IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                    String xpath = "/SupportingTokens/Policy//IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                     tokenType = retrieveXmlValue(xml, xpath);
                                     supportingTokenAssertion = qName;
 
-                                } else if (qName.equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
+                                } else if (qName.equals(
+                                        org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
                                     createAddressing(message, soapMessage, soapFactory);
 
                                 } else if (qName.equals(SP12Constants.TRUST_13)) {
@@ -400,14 +390,13 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                     if (soapFactory != null) {
                         HttpServletRequest request = (HttpServletRequest) message.get(
                                 AbstractHTTPDestination.HTTP_REQUEST);
-                        createSecurityToken(version,
-                                soapFactory,
-                                securityHeader,
+                        createSecurityToken(version, soapFactory, securityHeader,
                                 request.getRemoteAddr());
                         try {
                             // Add security header to SOAP message
                             soapMessage.getSOAPHeader()
                                     .addChildElement(securityHeader);
+                            SecurityLogger.audit("Added Guest credentials to SOAP message.");
                         } catch (SOAPException e) {
                             LOGGER.error("Issue when adding security header to SOAP message:"
                                     + e.getMessage());
@@ -422,9 +411,9 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             }
             if (LOGGER.isTraceEnabled()) {
                 try {
-                    LOGGER.trace("SOAP request after guest interceptor: {}",
-                            SecurityLogger.getFormattedXml(soapMessage.getSOAPHeader()
-                                    .getParentNode()));
+                    LOGGER.trace("SOAP request after guest interceptor: {}", XMLUtils.prettyFormat(
+                                    soapMessage.getSOAPHeader()
+                                            .getParentNode()));
                 } catch (SOAPException e) {
                     //ignore
                 }
@@ -467,8 +456,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
     private synchronized Subject getSubject(String ipAddress) {
         Subject subject = cachedGuestSubjectMap.get(ipAddress);
         if (Security.tokenAboutToExpire(subject)) {
-            GuestAuthenticationToken token =
-                    new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
+            GuestAuthenticationToken token = new GuestAuthenticationToken(
+                    BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
             LOGGER.debug("Getting new Guest user token for {}", ipAddress);
             try {
                 subject = securityManager.getSubject(token);
@@ -487,16 +476,13 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
         SOAPElement timestamp = null;
         try {
             timestamp = soapFactory.createElement(WSConstants.TIMESTAMP_TOKEN_LN,
-                    WSConstants.WSU_PREFIX,
-                    WSConstants.WSU_NS);
+                    WSConstants.WSU_PREFIX, WSConstants.WSU_NS);
             SOAPElement created = soapFactory.createElement(WSConstants.CREATED_LN,
-                    WSConstants.WSU_PREFIX,
-                    WSConstants.WSU_NS);
+                    WSConstants.WSU_PREFIX, WSConstants.WSU_NS);
             DateTime dateTime = new DateTime();
             created.addTextNode(dateTime.toString());
             SOAPElement expires = soapFactory.createElement(WSConstants.EXPIRES_LN,
-                    WSConstants.WSU_PREFIX,
-                    WSConstants.WSU_NS);
+                    WSConstants.WSU_PREFIX, WSConstants.WSU_NS);
             expires.addTextNode(dateTime.plusMinutes(5)
                     .toString());
             timestamp.addChildElement(created);
@@ -510,8 +496,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
     private void createAddressing(SoapMessage message, SOAPMessage soapMessage,
             SOAPFactory soapFactory) {
 
-        String addressingProperty =
-                org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
+        String addressingProperty = org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
         AddressingProperties addressingProperties = new AddressingProperties();
         SOAPElement action = null;
 
@@ -521,8 +506,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
                     org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             action.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             AttributedURIType attributedString = new AttributedURIType();
-            String actionValue = StringUtils.defaultIfEmpty((String) message.get(
-                    SoapBindingConstants.SOAP_ACTION), "");
+            String actionValue = StringUtils.defaultIfEmpty(
+                    (String) message.get(SoapBindingConstants.SOAP_ACTION), "");
             attributedString.setValue(actionValue);
             addressingProperties.setAction(attributedString);
         } catch (SOAPException e) {
@@ -531,10 +516,10 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
 
         SOAPElement messageId = null;
         try {
-            messageId =
-                    soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_MESSAGEID_NAME,
-                            org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-                            org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            messageId = soapFactory.createElement(
+                    org.apache.cxf.ws.addressing.Names.WSA_MESSAGEID_NAME,
+                    org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+                    org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             String uuid = "urn:uuid:" + UUID.randomUUID()
                     .toString();
             messageId.addTextNode(uuid);
@@ -553,7 +538,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             to.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             EndpointReferenceType endpointReferenceType = new EndpointReferenceType();
             AttributedURIType attributedString = new AttributedURIType();
-            attributedString.setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
+            attributedString.setValue(
+                    (String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             endpointReferenceType.setAddress(attributedString);
             addressingProperties.setTo(endpointReferenceType);
         } catch (SOAPException e) {
@@ -565,10 +551,10 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             replyTo = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_REPLYTO_NAME,
                     org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
                     org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
-            SOAPElement address =
-                    soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_ADDRESS_NAME,
-                            org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-                            org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            SOAPElement address = soapFactory.createElement(
+                    org.apache.cxf.ws.addressing.Names.WSA_ADDRESS_NAME,
+                    org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
+                    org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             address.addTextNode(org.apache.cxf.ws.addressing.Names.WSA_ANONYMOUS_ADDRESS);
             replyTo.addChildElement(address);
 

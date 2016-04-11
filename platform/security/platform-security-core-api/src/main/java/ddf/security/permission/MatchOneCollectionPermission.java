@@ -43,7 +43,7 @@ public class MatchOneCollectionPermission extends CollectionPermission {
     @Override
     public boolean implies(Permission p) {
         if (permissionList.isEmpty()) {
-            SecurityLogger.logDebug(
+            SecurityLogger.audit(
                     PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
                             + PERMISSION_END_MSG);
             return false;
@@ -88,13 +88,13 @@ public class MatchOneCollectionPermission extends CollectionPermission {
                     }
                 }
                 if (!result) {
-                    SecurityLogger.logDebug(
+                    SecurityLogger.audit(
                             PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
                                     + p.toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }
-            SecurityLogger.logDebug(
+            SecurityLogger.audit(
                     PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
                             + PERMISSION_END_MSG);
             return true;
@@ -105,13 +105,13 @@ public class MatchOneCollectionPermission extends CollectionPermission {
             // Shiro permissions are always a "match all" condition so we need to flip the implies
             // to make it match one
             if (p.implies(permission)) {
-                SecurityLogger.logDebug(
+                SecurityLogger.audit(
                         PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
                                 + PERMISSION_END_MSG);
                 return true;
             }
         }
-        SecurityLogger.logDebug(
+        SecurityLogger.audit(
                 PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
                         + PERMISSION_END_MSG);
         return false;

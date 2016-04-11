@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -220,15 +220,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     String metacardKey = keyValuePermission.getKey();
                     // user specified this key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
-                        KeyValuePermission kvp =
-                                new KeyValuePermission(matchAllMap.get(metacardKey),
-                                        keyValuePermission.getValues());
+                        KeyValuePermission kvp = new KeyValuePermission(
+                                matchAllMap.get(metacardKey), keyValuePermission.getValues());
                         matchAllPermissions.add(kvp);
                         // user specified this key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
-                        KeyValuePermission kvp =
-                                new KeyValuePermission(matchOneMap.get(metacardKey),
-                                        keyValuePermission.getValues());
+                        KeyValuePermission kvp = new KeyValuePermission(
+                                matchOneMap.get(metacardKey), keyValuePermission.getValues());
                         matchOnePermissions.add(kvp);
                         // this key was not specified in either - default to match all with the
                         // same key value
@@ -242,17 +240,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                 }
 
                 CollectionPermission subjectAllCollection = new CollectionPermission(
-                        CollectionPermission.UNKNOWN_ACTION,
-                        perms);
+                        CollectionPermission.UNKNOWN_ACTION, perms);
                 KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(),
-                        matchAllPermissions);
-                KeyValueCollectionPermission matchAllPreXacmlCollection =
-                        new KeyValueCollectionPermission(kvcp.getAction(),
-                                matchAllPreXacmlPermissions);
+                        kvcp.getAction(), matchAllPermissions);
+                KeyValueCollectionPermission matchAllPreXacmlCollection = new KeyValueCollectionPermission(
+                        kvcp.getAction(), matchAllPreXacmlPermissions);
                 KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(),
-                        matchOnePermissions);
+                        kvcp.getAction(), matchOnePermissions);
 
                 matchAllCollection = isPermittedByExtensionAll(subjectAllCollection,
                         matchAllCollection);
@@ -260,53 +254,54 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                         matchAllPreXacmlCollection);
                 matchOneCollection = isPermittedByExtensionOne(subjectAllCollection,
                         matchOneCollection);
-                MatchOneCollectionPermission subjectOneCollection =
-                        new MatchOneCollectionPermission(perms);
+                MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(
+                        perms);
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchAllXacml = subjectAllCollection.implies(matchAllPreXacmlCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
-                if (SecurityLogger.isDebugEnabled()) {
-                    if (matchAll && matchOne) {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied.");
-                    } else {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is not implied.");
-                    }
+                if (matchAll && matchOne) {
+                    SecurityLogger.audit(
+                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
+                                    + "] is implied.");
+                } else {
+                    SecurityLogger.audit(
+                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
+                                    + "] is not implied.");
                 }
 
                 //if we weren't able to automatically imply these permissions, call out to XACML
                 if (!matchAllXacml) {
-                    KeyValueCollectionPermission xacmlPermissions =
-                            new KeyValueCollectionPermission(kvcp.getAction(),
-                                    matchAllPreXacmlPermissions);
-                    matchAllXacml = xacmlPdp.isPermitted(curUser,
-                            authorizationInfo,
+                    KeyValueCollectionPermission xacmlPermissions = new KeyValueCollectionPermission(
+                            kvcp.getAction(), matchAllPreXacmlPermissions);
+                    matchAllXacml = xacmlPdp.isPermitted(curUser, authorizationInfo,
                             xacmlPermissions);
+                    if (matchAllXacml) {
+                        SecurityLogger.audit(
+                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
+                                        + permission + "] is implied via XACML.");
+                    } else {
+                        SecurityLogger.audit(
+                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
+                                        + permission + "] is not implied via XACML.");
+                    }
                 }
                 return matchAll && matchOne && matchAllXacml;
             }
 
             for (Permission perm : perms) {
                 if (permission != null && perm.implies(permission)) {
-                    if (SecurityLogger.isDebugEnabled()) {
-                        SecurityLogger.logDebug(
-                                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                                        + permission + "] is implied.");
-                    }
+                    SecurityLogger.audit(
+                            PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
+                                    + "] is implied.");
                     return true;
                 }
             }
         }
 
-        if (SecurityLogger.isDebugEnabled()) {
-            SecurityLogger.logDebug(
-                    PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
-                            + "] is not implied.");
-        }
+        SecurityLogger.audit(
+                PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission
+                        + "] is not implied.");
         return false;
     }
 
@@ -321,7 +316,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     resultCollection = policyExtension.isPermittedMatchAll(subjectAllCollection,
                             resultCollection);
                 } catch (Exception e) {
-                    SecurityLogger.logWarn("Policy Extension plugin did not complete correctly.",
+                    SecurityLogger.auditWarn("Policy Extension plugin did not complete correctly.",
                             e);
                     LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
                 }
@@ -342,7 +337,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     resultCollection = policyExtension.isPermittedMatchOne(subjectAllCollection,
                             resultCollection);
                 } catch (Exception e) {
-                    SecurityLogger.logWarn("Policy Extension plugin did not complete correctly.",
+                    SecurityLogger.auditWarn("Policy Extension plugin did not complete correctly.",
                             e);
                     LOGGER.warn("Policy Extension plugin did not complete correctly.", e);
                 }
@@ -465,8 +460,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.",
-                            values[1].trim(),
+                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(),
                             values[0].trim());
                     matchAllMap.put(values[1].trim(), values[0].trim());
                 } else {
@@ -499,8 +493,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.",
-                            values[1].trim(),
+                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(),
                             values[0].trim());
                     matchOneMap.put(values[1].trim(), values[0].trim());
                 } else {

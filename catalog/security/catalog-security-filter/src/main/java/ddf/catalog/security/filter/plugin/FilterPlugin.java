@@ -209,8 +209,8 @@ public class FilterPlugin implements AccessPlugin {
         }
 
         if (filteredMetacards > 0) {
-            SecurityLogger.logInfo(
-                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
+            SecurityLogger.audit(
+                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(), subject);
         }
 
         input.getDeletedMetacards()
@@ -263,8 +263,8 @@ public class FilterPlugin implements AccessPlugin {
         }
 
         if (filteredMetacards > 0) {
-            SecurityLogger.logInfo(
-                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size());
+            SecurityLogger.audit(
+                    "Filtered " + filteredMetacards + " metacards, returned " + newResults.size(), subject);
         }
 
         input.getResults()

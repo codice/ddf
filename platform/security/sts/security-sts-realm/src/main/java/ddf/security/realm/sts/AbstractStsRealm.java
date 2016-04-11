@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -60,13 +60,12 @@ import com.google.common.base.Splitter;
 import ddf.security.PropertiesLoader;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class AbstractStsRealm extends AuthenticatingRealm
         implements STSClientConfiguration {
-    private static final XLogger LOGGER =
-            new XLogger(LoggerFactory.getLogger(AbstractStsRealm.class));
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(AbstractStsRealm.class));
 
     private static final String NAME = AbstractStsRealm.class.getSimpleName();
 
@@ -141,12 +140,10 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         }
 
         if (supported) {
-            LOGGER.debug("Token {} is supported by {}.",
-                    token.getClass(),
+            LOGGER.debug("Token {} is supported by {}.", token.getClass(),
                     AbstractStsRealm.class.getName());
         } else if (token != null) {
-            LOGGER.debug("Token {} is not supported by {}.",
-                    token.getClass(),
+            LOGGER.debug("Token {} is not supported by {}.", token.getClass(),
                     AbstractStsRealm.class.getName());
         } else {
             LOGGER.debug("The supplied authentication token is null. Sending back not supported.");
@@ -176,8 +173,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                     .toString();
         }
         if (credential == null) {
-            String msg =
-                    "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
+            String msg = "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
             LOGGER.error(msg);
             throw new AuthenticationException(msg);
         } else {
@@ -228,8 +224,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             if (authToken != null) {
                 LOGGER.debug(
                         "Telling the STS to request a security token on behalf of the auth token");
-                SecurityLogger.logInfo(
-                        "Telling the STS to request a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setOnBehalfOf(authToken);
                 stsClient.setTokenType(getAssertionType());
@@ -237,14 +231,10 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 stsClient.setKeySize(Integer.parseInt(getKeySize()));
                 token = stsClient.requestSecurityToken(stsAddress);
                 LOGGER.debug("Finished requesting security token.");
-                SecurityLogger.logInfo("Finished requesting security token.");
-
-                SecurityLogger.logSecurityAssertionInfo(token);
             }
         } catch (Exception e) {
             String msg = "Error requesting the security token from STS at: " + stsAddress + ".";
             LOGGER.error(msg, e);
-            SecurityLogger.logError(msg);
             throw new AuthenticationException(msg, e);
         }
 
@@ -265,8 +255,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             LOGGER.debug("Renewing security token from STS at: " + stsAddress + ".");
 
             if (securityToken != null) {
-                LOGGER.debug("Telling the STS to renew a security token on behalf of the auth token");
-                SecurityLogger.logInfo(
+                LOGGER.debug(
                         "Telling the STS to renew a security token on behalf of the auth token");
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setTokenType(getAssertionType());
@@ -275,14 +264,10 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
                 stsClient.setAllowRenewing(true);
                 token = stsClient.renewSecurityToken(securityToken);
                 LOGGER.debug("Finished renewing security token.");
-                SecurityLogger.logInfo("Finished renewing security token.");
-
-                SecurityLogger.logSecurityAssertionInfo(token);
             }
         } catch (Exception e) {
             String msg = "Error renewing the security token from STS at: " + stsAddress + ".";
             LOGGER.error(msg, e);
-            SecurityLogger.logError(msg);
             throw new AuthenticationException(msg, e);
         }
 
@@ -331,8 +316,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         String signaturePropertiesPath = getSignatureProperties();
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
             LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
-            Properties signatureProperties =
-                    PropertiesLoader.loadProperties(signaturePropertiesPath);
+            Properties signatureProperties = PropertiesLoader.loadProperties(
+                    signaturePropertiesPath);
             map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
 
@@ -431,8 +416,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         claims.addAll(getClaims());
 
         if (contextPolicyManager != null) {
-            Collection<ContextPolicy> contextPolicies =
-                    contextPolicyManager.getAllContextPolicies();
+            Collection<ContextPolicy> contextPolicies = contextPolicyManager.getAllContextPolicies();
             Set<String> attributes = new LinkedHashSet<>();
             if (contextPolicies != null && contextPolicies.size() > 0) {
                 for (ContextPolicy contextPolicy : contextPolicies) {
@@ -458,8 +442,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
                 for (String claim : claims) {
                     LOGGER.trace("Claim: " + claim);
-                    writer.writeStartElement("ic",
-                            "ClaimType",
+                    writer.writeStartElement("ic", "ClaimType",
                             "http://schemas.xmlsoap.org/ws/2005/05/identity");
                     writer.writeAttribute("Uri", claim);
                     writer.writeAttribute("Optional", "true");
