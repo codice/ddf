@@ -28,7 +28,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>search-ui</module>
-        <module>docs</module>
     </modules>
     <properties>
         <cometd.version>3.0.9</cometd.version>

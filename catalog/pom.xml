@@ -505,7 +505,6 @@
         <module>solr</module>
         <module>ui</module>
         <module>spatial</module>
-        <module>docs</module>
         <module>resourcemanagement</module>
     </modules>
     <build>

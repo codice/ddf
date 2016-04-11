@@ -36,49 +36,51 @@ include::./_contents/troubleshooting-contents.adoc[]
 == Managing ${ddf-admin}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/managing-admin-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-catalog}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/installing-catalog-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/configuring-catalog-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-platform}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/managing-platform-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_security/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-contents/managing-security-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-solr}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/managing-solr-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-spatial}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/managing-spatial-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-ui}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/managing-ui-contents.adoc[]
 
 <<<
 
@@ -92,49 +94,49 @@ include::./_contents/integrating-contents.adoc[]
 == Integrating ${ddf-admin}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/integrating-admin-contents.adoc[]
 
 <<<
 
 == Integrating ${branding} Catalog
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/integrating-catalog-contents.adoc[]
 
 <<<
 
 == Integrating ${ddf-platform}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/integrating-platform-contents.adoc[]
 
 <<<
 
 == Integrating ${ddf-security}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_security/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-contents/integrating-security-contents.adoc[]
 
 <<<
 
 == Integrating ${ddf-solr}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/integrating-solr-contents.adoc[]
 
 <<<
 
 == Integrating ${ddf-spatial}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/integrating-spatial-contents.adoc[]
 
 <<<
 
 == Integrating ${ddf-ui}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/integrating-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/integrating-ui-contents.adoc[]
 
 <<<
 
@@ -152,7 +154,7 @@ include::./_contents/extending-contents.adoc[]
 == Extending ${ddf-admin}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/extending-contents.adoc[]]
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/extending-admin-contents.adoc[]]
 
 <<<
 
@@ -160,39 +162,39 @@ include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/
 == Extending ${ddf-catalog}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/extending-catalog-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-platform}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/extending-platform-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-security}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_security/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-contents/extending-security-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-solr}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/extending-solr-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-spatial}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/extending-spatial-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-ui}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/extending-ui-contents.adoc[]

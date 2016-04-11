@@ -14,7 +14,7 @@ include::./_contents/extending-contents.adoc[]
 == Extending ${ddf-admin}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/extending-admin-contents.adoc[]
 
 <<<
 
@@ -22,39 +22,39 @@ include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/
 == Extending ${ddf-catalog}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/extending-catalog-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-platform}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/extending-platform-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-security}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_security/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-contents/extending-security-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-solr}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/extending-solr-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-spatial}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/extending-spatial-contents.adoc[]
 
 <<<
 
 == Extending ${ddf-ui}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/extending-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/extending-ui-contents.adoc[]

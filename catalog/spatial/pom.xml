@@ -177,6 +177,5 @@
         <module>geowebcache</module>
         <module>spatial-commands</module>
         <module>spatial-app</module>
-        <module>docs</module>
     </modules>
 </project>
