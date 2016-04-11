@@ -76,7 +76,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-registry-common,
-                            catalog-core-api-impl
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util,

@@ -39,6 +39,8 @@
         <bundle>mvn:ddf.catalog.registry/catalog-registry-identificationplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminservice/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminserviceimpl/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminapi/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.registry/catalog-registry-federationadminimpl/${project.version}</bundle>
     </feature>
 
 </features>
