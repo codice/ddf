@@ -66,6 +66,7 @@ import org.apache.wss4j.dom.validate.Validator;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.security.common.FailedLoginDelayer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -81,12 +82,15 @@ public class UsernameTokenValidator implements TokenValidator {
 
     private final Parser parser;
 
+    private final FailedLoginDelayer failedLoginDelayer;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UsernameTokenValidator.class);
 
     protected Map<String, Validator> validators = new ConcurrentHashMap<>();
 
-    public UsernameTokenValidator(Parser parser) {
+    public UsernameTokenValidator(Parser parser, FailedLoginDelayer failedLoginDelayer) {
         this.parser = parser;
+        this.failedLoginDelayer = failedLoginDelayer;
     }
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
@@ -136,8 +140,12 @@ public class UsernameTokenValidator implements TokenValidator {
     public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
         LOGGER.info("Validating UsernameToken");
 
-        if (null == parser) {
+        if (parser == null) {
             throw new IllegalStateException("XMLParser must be configured.");
+        }
+
+        if (failedLoginDelayer == null) {
+            throw new IllegalStateException("Failed Login Delayer must be configured");
         }
 
         STSPropertiesMBean stsProperties = tokenParameters.getStsProperties();
@@ -197,6 +205,8 @@ public class UsernameTokenValidator implements TokenValidator {
             // The parsed principal is set independent whether validation is successful or not
             response.setPrincipal(new CustomTokenPrincipal(ut.getName()));
             if (ut.getPassword() == null) {
+                failedLoginDelayer.delay(ut.getName());
+
                 return response;
             }
 
@@ -215,6 +225,8 @@ public class UsernameTokenValidator implements TokenValidator {
                 }
             }
             if (ReceivedToken.STATE.INVALID.equals(validateTarget.getState())) {
+                failedLoginDelayer.delay(ut.getName());
+
                 return response;
             }
             //end new section

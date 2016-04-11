@@ -41,9 +41,12 @@
     <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
                availability="mandatory"/>
 
+    <bean id="failedLoginDelayer" class="org.codice.ddf.security.common.FailedLoginDelayer"/>
+
     <bean class="org.codice.ddf.security.validator.username.UsernameTokenValidator"
           id="userValidator">
         <argument ref="xmlParser"/>
+        <argument ref="failedLoginDelayer"/>
     </bean>
 
     <reference-list interface="org.apache.karaf.jaas.config.JaasRealm">

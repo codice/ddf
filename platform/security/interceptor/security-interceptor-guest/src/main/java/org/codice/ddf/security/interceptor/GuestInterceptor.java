@@ -17,10 +17,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
@@ -137,7 +137,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
 
     private boolean overrideEndpointPolicies = false;
 
-    private Map<String, Subject> cachedGuestSubjectMap = new HashMap<>();
+    private Map<String, Subject> cachedGuestSubjectMap = new ConcurrentHashMap<>();
 
     public GuestInterceptor(SecurityManager securityManager,
             ContextPolicyManager contextPolicyManager) {
@@ -453,7 +453,7 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
         }
     }
 
-    private synchronized Subject getSubject(String ipAddress) {
+    private Subject getSubject(String ipAddress) {
         Subject subject = cachedGuestSubjectMap.get(ipAddress);
         if (Security.tokenAboutToExpire(subject)) {
             GuestAuthenticationToken token = new GuestAuthenticationToken(

@@ -13,15 +13,15 @@
  */
 package org.codice.ddf.security.validator.uname;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Collection;
 
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
@@ -38,6 +38,7 @@ import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
 import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.security.common.FailedLoginDelayer;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.junit.Before;
@@ -48,18 +49,20 @@ import junit.framework.Assert;
 
 public class UPBSTValidatorTest {
 
-    final JAASUsernameTokenValidator niceValidator = new JAASUsernameTokenValidator() {
+    private final JAASUsernameTokenValidator niceValidator = new JAASUsernameTokenValidator() {
         public Credential validate(Credential credential, RequestData data) {
 
             return null;
         }
     };
 
-    final JAASUsernameTokenValidator meanValidator = new JAASUsernameTokenValidator();
+    private final JAASUsernameTokenValidator meanValidator = new JAASUsernameTokenValidator();
 
-    JAXBElement<BinarySecurityTokenType> upbstToken;
+    private JAXBElement<BinarySecurityTokenType> upbstToken;
 
-    STSPropertiesMBean stsPropertiesMBean;
+    private STSPropertiesMBean stsPropertiesMBean;
+
+    private FailedLoginDelayer failedLoginDelayer;
 
     @Before
     public void setup() {
@@ -67,12 +70,8 @@ public class UPBSTValidatorTest {
         meanValidator.setContextName("realm");
         stsPropertiesMBean = mock(STSPropertiesMBean.class);
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(new Merlin());
-        when(stsPropertiesMBean.getCallbackHandler()).thenReturn(new CallbackHandler() {
-            @Override
-            public void handle(Callback[] callbacks)
-                    throws IOException, UnsupportedCallbackException {
+        when(stsPropertiesMBean.getCallbackHandler()).thenReturn(callbacks -> {
 
-            }
         });
         UPAuthenticationToken upAuthenticationToken = new UPAuthenticationToken("good",
                 "password",
@@ -85,15 +84,14 @@ public class UPBSTValidatorTest {
         upbstToken = new JAXBElement<>(new QName(
                 "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                 "BinarySecurityToken"), BinarySecurityTokenType.class, binarySecurityTokenType);
+
+        failedLoginDelayer = mock(FailedLoginDelayer.class);
     }
 
     @Test
     public void testValidateGoodTokenNoCache() {
-        UPBSTValidator upbstValidator = new UPBSTValidator(new XmlParser()) {
-            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-                validators.put("realm", niceValidator);
-            }
-        };
+        UPBSTValidator upbstValidator = getUpbstValidator(new XmlParser(), niceValidator);
+
         upbstValidator.addRealm(null);
         TokenValidatorParameters tokenParameters = new TokenValidatorParameters();
         ReceivedToken validateTarget = new ReceivedToken(upbstToken);
@@ -104,15 +102,14 @@ public class UPBSTValidatorTest {
         Assert.assertEquals(ReceivedToken.STATE.VALID,
                 response.getToken()
                         .getState());
+
+        verify(failedLoginDelayer, never()).delay(anyString());
     }
 
     @Test
     public void testValidateGoodTokenCache() {
-        UPBSTValidator upbstValidator = new UPBSTValidator(new XmlParser()) {
-            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-                validators.put("realm", meanValidator);
-            }
-        };
+        UPBSTValidator upbstValidator = getUpbstValidator(new XmlParser(), meanValidator);
+
         upbstValidator.addRealm(null);
         TokenValidatorParameters tokenParameters = new TokenValidatorParameters();
         tokenParameters.setTokenStore(new TokenStore() {
@@ -151,15 +148,14 @@ public class UPBSTValidatorTest {
         Assert.assertEquals(ReceivedToken.STATE.VALID,
                 response.getToken()
                         .getState());
+
+        verify(failedLoginDelayer, never()).delay(anyString());
     }
 
     @Test
     public void testValidateBadTokenNoCache() {
-        UPBSTValidator upbstValidator = new UPBSTValidator(new XmlParser()) {
-            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-                validators.put("realm", meanValidator);
-            }
-        };
+        UPBSTValidator upbstValidator = getUpbstValidator(new XmlParser(), meanValidator);
+
         upbstValidator.addRealm(null);
         TokenValidatorParameters tokenParameters = new TokenValidatorParameters();
         ReceivedToken validateTarget = new ReceivedToken(upbstToken);
@@ -170,15 +166,14 @@ public class UPBSTValidatorTest {
         Assert.assertEquals(ReceivedToken.STATE.INVALID,
                 response.getToken()
                         .getState());
+
+        verify(failedLoginDelayer, times(1)).delay(anyString());
     }
 
     @Test
     public void testValidateBadTokenCache() {
-        UPBSTValidator upbstValidator = new UPBSTValidator(new XmlParser()) {
-            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-                validators.put("realm", meanValidator);
-            }
-        };
+        UPBSTValidator upbstValidator = getUpbstValidator(new XmlParser(), meanValidator);
+
         upbstValidator.addRealm(null);
         TokenValidatorParameters tokenParameters = new TokenValidatorParameters();
         tokenParameters.setTokenStore(new TokenStore() {
@@ -217,15 +212,14 @@ public class UPBSTValidatorTest {
         Assert.assertEquals(ReceivedToken.STATE.INVALID,
                 response.getToken()
                         .getState());
+
+        verify(failedLoginDelayer, times(1)).delay(anyString());
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testIllegalStateException() {
-        UPBSTValidator upbstValidator = new UPBSTValidator(null) {
-            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
-                validators.put("realm", meanValidator);
-            }
-        };
+    public void testNoParser() {
+        UPBSTValidator upbstValidator = getUpbstValidator(null, meanValidator);
+
         upbstValidator.addRealm(null);
         TokenValidatorParameters tokenParameters = new TokenValidatorParameters();
         tokenParameters.setTokenStore(new TokenStore() {
@@ -259,6 +253,59 @@ public class UPBSTValidatorTest {
         ReceivedToken validateTarget = new ReceivedToken(upbstToken);
         tokenParameters.setToken(validateTarget);
         tokenParameters.setStsProperties(stsPropertiesMBean);
-        TokenValidatorResponse response = upbstValidator.validateToken(tokenParameters);
+        upbstValidator.validateToken(tokenParameters);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testNoFailedDelayer() {
+        UPBSTValidator upbstValidator = new UPBSTValidator(new XmlParser(), null) {
+            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+                validators.put("realm", meanValidator);
+            }
+        };
+
+        upbstValidator.addRealm(null);
+        TokenValidatorParameters tokenParameters = new TokenValidatorParameters();
+        tokenParameters.setTokenStore(new TokenStore() {
+            @Override
+            public void add(SecurityToken token) {
+
+            }
+
+            @Override
+            public void add(String identifier, SecurityToken token) {
+
+            }
+
+            @Override
+            public void remove(String identifier) {
+
+            }
+
+            @Override
+            public Collection<String> getTokenIdentifiers() {
+                return null;
+            }
+
+            @Override
+            public SecurityToken getToken(String identifier) {
+                SecurityToken securityToken = new SecurityToken();
+                securityToken.setTokenHash(584149325);
+                return securityToken;
+            }
+        });
+        ReceivedToken validateTarget = new ReceivedToken(upbstToken);
+        tokenParameters.setToken(validateTarget);
+        tokenParameters.setStsProperties(stsPropertiesMBean);
+        upbstValidator.validateToken(tokenParameters);
+    }
+
+    private UPBSTValidator getUpbstValidator(final XmlParser parser,
+            final JAASUsernameTokenValidator validator) {
+        return new UPBSTValidator(parser, failedLoginDelayer) {
+            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+                validators.put("realm", validator);
+            }
+        };
     }
 }

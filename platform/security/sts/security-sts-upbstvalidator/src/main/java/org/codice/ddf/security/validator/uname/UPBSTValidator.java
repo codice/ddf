@@ -71,6 +71,7 @@ import org.apache.wss4j.dom.validate.Validator;
 import org.codice.ddf.parser.Parser;
 import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.security.common.FailedLoginDelayer;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.osgi.framework.Bundle;
@@ -89,10 +90,13 @@ public class UPBSTValidator implements TokenValidator {
 
     private final Parser parser;
 
+    private final FailedLoginDelayer failedLoginDelayer;
+
     protected Map<String, Validator> validators = new ConcurrentHashMap<>();
 
-    public UPBSTValidator(Parser parser) {
+    public UPBSTValidator(Parser parser, FailedLoginDelayer failedLoginDelayer) {
         this.parser = parser;
+        this.failedLoginDelayer = failedLoginDelayer;
     }
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
@@ -172,8 +176,12 @@ public class UPBSTValidator implements TokenValidator {
     public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
         LOGGER.trace("Validating UPBST Token");
 
-        if (null == parser) {
+        if (parser == null) {
             throw new IllegalStateException("XMLParser must be configured.");
+        }
+
+        if (failedLoginDelayer == null) {
+            throw new IllegalStateException("Failed Login Delayer must be configured");
         }
 
         STSPropertiesMBean stsProperties = tokenParameters.getStsProperties();
@@ -324,6 +332,12 @@ public class UPBSTValidator implements TokenValidator {
             validateTarget.setPrincipal(principal);
         } catch (WSSecurityException ex) {
             LOGGER.warn("", ex);
+        }
+
+        if (response.getToken().getState() != STATE.VALID) {
+            failedLoginDelayer.delay(response.getToken()
+                    .getPrincipal()
+                    .getName());
         }
 
         return response;

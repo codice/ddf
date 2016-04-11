@@ -37,7 +37,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -129,9 +128,8 @@ public class LoginFilter implements Filter {
 
     private static SAMLObjectBuilder<Issuer> issuerBuilder;
 
-    private static XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
-
-    private final Object lock = new Object();
+    private static XMLObjectBuilderFactory builderFactory =
+            XMLObjectProviderRegistrySupport.getBuilderFactory();
 
     private SecurityManager securityManager;
 
@@ -233,9 +231,7 @@ public class LoginFilter implements Filter {
     }
 
     public void setSessionFactory(SessionFactory sessionFactory) {
-        synchronized (lock) {
-            this.sessionFactory = sessionFactory;
-        }
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -258,7 +254,6 @@ public class LoginFilter implements Filter {
             final FilterChain chain) throws IOException, ServletException {
         LOGGER.debug("Performing doFilter() on LoginFilter");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ?
                 httpRequest.getContextPath() :
@@ -269,7 +264,7 @@ public class LoginFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             // perform validation
-            final Subject subject = validateRequest(httpRequest, httpResponse);
+            final Subject subject = validateRequest(httpRequest);
             if (subject != null) {
                 httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
                 LOGGER.debug("Now performing request as user {} for {}", subject.getPrincipal(),
@@ -303,8 +298,8 @@ public class LoginFilter implements Filter {
 
     }
 
-    private Subject validateRequest(final HttpServletRequest httpRequest,
-            final HttpServletResponse httpResponse) throws IOException, ServletException {
+    private Subject validateRequest(final HttpServletRequest httpRequest)
+            throws IOException, ServletException {
 
         Subject subject = null;
 
@@ -370,68 +365,64 @@ public class LoginFilter implements Filter {
             SAMLAuthenticationToken newToken = renewSecurityToken(httpRequest.getSession(false),
                     token);
 
-            synchronized (lock) {
-                SecurityToken securityToken;
-                if (newToken != null) {
-                    securityToken = (SecurityToken) newToken.getCredentials();
-                } else {
-                    securityToken = (SecurityToken) token.getCredentials();
-                }
-                if (!wasReference) {
-                    // wrap the token
-                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(
-                            securityToken.getToken());
-
-                    // get the crypto junk
-                    Crypto crypto = getSignatureCrypto();
-                    Response samlResponse = createSamlResponse(httpRequest.getRequestURI(),
-                            assertion.getIssuerString(),
-                            createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS,
-                                    null));
-
-                    BUILDER.get()
-                            .reset();
-                    Document doc = BUILDER.get()
-                            .newDocument();
-                    Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
-                    doc.appendChild(policyElement);
-
-                    Credential credential = new Credential();
-                    credential.setSamlAssertion(assertion);
-
-                    RequestData requestData = new RequestData();
-                    requestData.setSigVerCrypto(crypto);
-                    WSSConfig wssConfig = WSSConfig.getNewInstance();
-                    requestData.setWssConfig(wssConfig);
-
-                    X509Certificate[] x509Certs = (X509Certificate[]) httpRequest.getAttribute(
-                            "javax.servlet.request.X509Certificate");
-                    requestData.setTlsCerts(x509Certs);
-
-                    validateHolderOfKeyConfirmation(assertion, x509Certs);
-
-                    if (assertion.isSigned()) {
-                        // Verify the signature
-                        WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor = new WSSSAMLKeyInfoProcessor(
-                                requestData, new WSDocInfo(samlResponse.getDOM()
-                                .getOwnerDocument()));
-                        assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
-
-                        assertion.parseSubject(new WSSSAMLKeyInfoProcessor(requestData,
-                                        new WSDocInfo(samlResponse.getDOM()
-                                                .getOwnerDocument())),
-                                requestData.getSigVerCrypto(), requestData.getCallbackHandler());
-                    }
-
-                    // Validate the Assertion & verify trust in the signature
-                    assertionValidator.validate(credential, requestData);
-                }
-
-                // if it is all good, then we'll create our subject
-                subject = securityManager.getSubject(securityToken);
-
-                addSamlToSession(httpRequest, token.getRealm(), securityToken);
+            SecurityToken securityToken;
+            if (newToken != null) {
+                securityToken = (SecurityToken) newToken.getCredentials();
+            } else {
+                securityToken = (SecurityToken) token.getCredentials();
             }
+            if (!wasReference) {
+                // wrap the token
+                SamlAssertionWrapper assertion = new SamlAssertionWrapper(securityToken.getToken());
+
+                // get the crypto junk
+                Crypto crypto = getSignatureCrypto();
+                Response samlResponse = createSamlResponse(httpRequest.getRequestURI(),
+                        assertion.getIssuerString(),
+                        createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
+
+                BUILDER.get()
+                        .reset();
+                Document doc = BUILDER.get()
+                        .newDocument();
+                Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
+                doc.appendChild(policyElement);
+
+                Credential credential = new Credential();
+                credential.setSamlAssertion(assertion);
+
+                RequestData requestData = new RequestData();
+                requestData.setSigVerCrypto(crypto);
+                WSSConfig wssConfig = WSSConfig.getNewInstance();
+                requestData.setWssConfig(wssConfig);
+
+                X509Certificate[] x509Certs = (X509Certificate[]) httpRequest.getAttribute(
+                        "javax.servlet.request.X509Certificate");
+                requestData.setTlsCerts(x509Certs);
+
+                validateHolderOfKeyConfirmation(assertion, x509Certs);
+
+                if (assertion.isSigned()) {
+                    // Verify the signature
+                    WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor = new WSSSAMLKeyInfoProcessor(
+                            requestData, new WSDocInfo(samlResponse.getDOM()
+                            .getOwnerDocument()));
+                    assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
+
+                    assertion.parseSubject(new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(
+                                    samlResponse.getDOM()
+                                            .getOwnerDocument())), requestData.getSigVerCrypto(),
+                            requestData.getCallbackHandler());
+                }
+
+                // Validate the Assertion & verify trust in the signature
+                assertionValidator.validate(credential, requestData);
+            }
+
+            // if it is all good, then we'll create our subject
+            subject = securityManager.getSubject(securityToken);
+
+            addSamlToSession(httpRequest, token.getRealm(), securityToken);
         } catch (SecurityServiceException e) {
             LOGGER.error("Unable to get subject from SAML request.", e);
             throw new ServletException(e);
@@ -520,10 +511,10 @@ public class LoginFilter implements Filter {
                                 ASN1OctetString tlsOs = ASN1OctetString.getInstance(tlsSKI);
                                 ASN1OctetString assertionOs = ASN1OctetString.getInstance(
                                         assertionSKI);
-                                SubjectKeyIdentifier tlsSubjectKeyIdentifier = SubjectKeyIdentifier.getInstance(
-                                        tlsOs.getOctets());
-                                SubjectKeyIdentifier assertSubjectKeyIdentifier = SubjectKeyIdentifier.getInstance(
-                                        assertionOs.getOctets());
+                                SubjectKeyIdentifier tlsSubjectKeyIdentifier =
+                                        SubjectKeyIdentifier.getInstance(tlsOs.getOctets());
+                                SubjectKeyIdentifier assertSubjectKeyIdentifier =
+                                        SubjectKeyIdentifier.getInstance(assertionOs.getOctets());
                                 //HoK spec section 2.5:
                                 //relying party MUST ensure that the value bound to the assertion matches the Subject Key Identifier (SKI) extension bound to the X.509 certificate.
                                 //Matching is done by comparing the base64-decoded SKI values byte-for-byte. If the X.509 certificate does not contain an SKI extension,
@@ -573,44 +564,43 @@ public class LoginFilter implements Filter {
             }
 
             if (timeoutMillis <= 60000) { // within 60 seconds
-                synchronized (lock) {
-                    try {
-                        LOGGER.debug("Attempting to refresh user's SAML assertion.");
+                try {
+                    LOGGER.debug("Attempting to refresh user's SAML assertion.");
 
-                        Subject subject = securityManager.getSubject(savedToken);
-                        LOGGER.debug("Refresh of user assertion successful");
-                        for (Object principal : subject.getPrincipals()) {
-                            if (principal instanceof SecurityAssertion) {
-                                SecurityToken token = ((SecurityAssertion) principal).getSecurityToken();
-                                SAMLAuthenticationToken samlAuthenticationToken = new SAMLAuthenticationToken(
-                                        (java.security.Principal) savedToken.getPrincipal(), token,
-                                        savedToken.getRealm());
-                                if (LOGGER.isTraceEnabled()) {
-                                    LOGGER.trace(
-                                            "Setting session token - class: {}  classloader: {}",
-                                            token.getClass()
-                                                    .getName(), token.getClass()
-                                                    .getClassLoader());
-                                }
-                                ((SecurityTokenHolder) session.getAttribute(
-                                        SecurityConstants.SAML_ASSERTION)).addSecurityToken(
-                                        savedToken.getRealm(), token);
-
-                                LOGGER.debug("Saved new user assertion to session.");
-
-                                return samlAuthenticationToken;
+                    Subject subject = securityManager.getSubject(savedToken);
+                    LOGGER.debug("Refresh of user assertion successful");
+                    for (Object principal : subject.getPrincipals()) {
+                        if (principal instanceof SecurityAssertion) {
+                            SecurityToken token =
+                                    ((SecurityAssertion) principal).getSecurityToken();
+                            SAMLAuthenticationToken samlAuthenticationToken =
+                                    new SAMLAuthenticationToken(
+                                            (java.security.Principal) savedToken.getPrincipal(),
+                                            token, savedToken.getRealm());
+                            if (LOGGER.isTraceEnabled()) {
+                                LOGGER.trace("Setting session token - class: {}  classloader: {}",
+                                        token.getClass()
+                                                .getName(), token.getClass()
+                                                .getClassLoader());
                             }
-                        }
+                            ((SecurityTokenHolder) session.getAttribute(
+                                    SecurityConstants.SAML_ASSERTION)).addSecurityToken(
+                                    savedToken.getRealm(), token);
 
-                    } catch (SecurityServiceException e) {
-                        LOGGER.warn(
-                                "Unable to refresh user's SAML assertion. User will log out prematurely.",
-                                e);
-                        session.invalidate();
-                    } catch (Exception e) {
-                        LOGGER.warn("Unhandled exception occurred.", e);
-                        session.invalidate();
+                            LOGGER.debug("Saved new user assertion to session.");
+
+                            return samlAuthenticationToken;
+                        }
                     }
+
+                } catch (SecurityServiceException e) {
+                    LOGGER.warn(
+                            "Unable to refresh user's SAML assertion. User will log out prematurely.",
+                            e);
+                    session.invalidate();
+                } catch (Exception e) {
+                    LOGGER.warn("Unhandled exception occurred.", e);
+                    session.invalidate();
                 }
             }
         }
@@ -619,47 +609,45 @@ public class LoginFilter implements Filter {
 
     private Subject handleAuthenticationToken(HttpServletRequest httpRequest,
             BaseAuthenticationToken token) throws ServletException {
-        Subject subject = null;
-        synchronized (lock) {
-            HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
-            //if we already have an assertion inside the session and it has not expired, then use that instead
-            SecurityToken sessionToken = getSecurityToken(session, token.getRealm());
+        Subject subject;
+        HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
+        //if we already have an assertion inside the session and it has not expired, then use that instead
+        SecurityToken sessionToken = getSecurityToken(session, token.getRealm());
 
-            if (sessionToken == null) {
+        if (sessionToken == null) {
 
-                /*
-                 * The user didn't have a SAML token from a previous authentication, but they do have the
-                 * credentials to log in - perform that action here.
-                 */
-                try {
-                    // login with the specified authentication credentials (AuthenticationToken)
-                    subject = securityManager.getSubject(token);
+            /*
+             * The user didn't have a SAML token from a previous authentication, but they do have the
+             * credentials to log in - perform that action here.
+             */
+            try {
+                // login with the specified authentication credentials (AuthenticationToken)
+                subject = securityManager.getSubject(token);
 
-                    for (Object principal : subject.getPrincipals()
-                            .asList()) {
-                        if (principal instanceof SecurityAssertion) {
-                            if (LOGGER.isTraceEnabled()) {
-                                Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
-                                        .getToken();
+                for (Object principal : subject.getPrincipals()
+                        .asList()) {
+                    if (principal instanceof SecurityAssertion) {
+                        if (LOGGER.isTraceEnabled()) {
+                            Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
+                                    .getToken();
 
-                                LOGGER.trace("SAML Assertion returned: {}",
-                                        XMLUtils.prettyFormat(samlToken));
-                            }
-                            SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
-                            addSamlToSession(httpRequest, token.getRealm(), securityToken);
+                            LOGGER.trace("SAML Assertion returned: {}",
+                                    XMLUtils.prettyFormat(samlToken));
                         }
+                        SecurityToken securityToken =
+                                ((SecurityAssertion) principal).getSecurityToken();
+                        addSamlToSession(httpRequest, token.getRealm(), securityToken);
                     }
-                } catch (SecurityServiceException e) {
-                    LOGGER.error("Unable to get subject from auth request.", e);
-                    throw new ServletException(e);
                 }
-            } else {
-                LOGGER.trace("Creating SAML authentication token with session.");
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
-                        session.getId(), token.getRealm());
-                return handleAuthenticationToken(httpRequest, samlToken);
-
+            } catch (SecurityServiceException e) {
+                LOGGER.error("Unable to get subject from auth request.", e);
+                throw new ServletException(e);
             }
+        } else {
+            LOGGER.trace("Creating SAML authentication token with session.");
+            SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(),
+                    token.getRealm());
+            return handleAuthenticationToken(httpRequest, samlToken);
         }
         return subject;
     }
@@ -708,20 +696,18 @@ public class LoginFilter implements Filter {
             return;
         }
 
-        synchronized (lock) {
-            HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
-            SecurityToken sessionToken = getSecurityToken(session, realm);
-            if (sessionToken == null) {
-                addSecurityToken(session, realm, securityToken);
-            }
-            int minutes = getExpirationTime();
-            //we just want to set this to some non-zero value if the configuration is messed up
-            int seconds = 60;
-            if (minutes > 0) {
-                seconds = minutes * 60;
-            }
-            session.setMaxInactiveInterval(seconds);
+        HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
+        SecurityToken sessionToken = getSecurityToken(session, realm);
+        if (sessionToken == null) {
+            addSecurityToken(session, realm, securityToken);
         }
+        int minutes = getExpirationTime();
+        //we just want to set this to some non-zero value if the configuration is messed up
+        int seconds = 60;
+        if (minutes > 0) {
+            seconds = minutes * 60;
+        }
+        session.setMaxInactiveInterval(seconds);
     }
 
     /**
