@@ -10,12 +10,12 @@
  *
  **//* global require */
 
-(function (undefined) {
-    "use strict";
-    var _ = require('underscore'),
-        $ = require('jquery'),
-        Backbone = require('backbone'),
-        Cometd = require('cometdinit');
+define([
+    'underscore',
+    'jquery',
+    'backbone',
+    'cometdinit'
+    ], function (_, $, Backbone, Cometd) {
 
     var cometdUnbind = function () {
         if(this && this.subscription){
@@ -137,4 +137,4 @@
         }
     };
 
-}(undefined));
+});
