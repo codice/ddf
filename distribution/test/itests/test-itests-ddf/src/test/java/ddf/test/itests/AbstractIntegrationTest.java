@@ -78,15 +78,11 @@ import ddf.test.itests.common.UrlResourceReaderConfigurator;
  */
 public abstract class AbstractIntegrationTest {
 
-    public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
     protected static final String LOG_CONFIG_PID = AdminConfig.LOG_CONFIG_PID;
 
     protected static final String LOGGER_PREFIX = AdminConfig.LOGGER_PREFIX;
-
-    protected static final String DEFAULT_LOG_LEVEL = AdminConfig.DEFAULT_LOG_LEVEL;
 
     protected static final String KARAF_VERSION = "4.0.4";
 
@@ -387,7 +383,8 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configurePaxExam() {
-        return options(logLevel(LogLevelOption.LogLevel.INFO), useOwnExamBundlesStartLevel(100),
+        return options(logLevel(LogLevelOption.LogLevel.WARN),
+                useOwnExamBundlesStartLevel(100),
                 // increase timeout for CI environment
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)), when(Boolean.getBoolean(
                         "keepRuntimeFolder")).useOptions(keepRuntimeFolder()), cleanCaches(true));
@@ -500,9 +497,9 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureSystemSettings() {
-        return options(when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
-                        systemProperty(TEST_LOGLEVEL_PROPERTY).value(System.getProperty(
-                                TEST_LOGLEVEL_PROPERTY,
+        return options(when(System.getProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY) != null).useOptions(
+                systemProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY).value(System.getProperty(
+                        AdminConfig.TEST_LOGLEVEL_PROPERTY,
                                 ""))),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(vmOption(
                         "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
