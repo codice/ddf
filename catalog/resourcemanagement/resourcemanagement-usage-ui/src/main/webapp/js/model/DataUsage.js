@@ -31,7 +31,6 @@ define(['backbone',
                 this.getCronTime();
             },
             getUsageData: function() {
-                console.log("getUsageData");
                 var url = "/jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/";
                 var that = this;
                 $.ajax({
@@ -78,12 +77,13 @@ define(['backbone',
                     }
 
                     var usageRemaining = that.constructUsageRemainingString(dataLimit, dataUsage);
+                    var displayUsage = that.constructUsageRemainingString(dataUsage, 0);
 
                     var displayLimit;
                     var displaySize;
 
                     if(dataLimit >= GB_SIZE) {
-                        displayLimit = Math.round(dataLimit / GB_SIZE);
+                        displayLimit = (dataLimit / GB_SIZE).toFixed(1);
                         displaySize = "GB";
                     } else {
                         displayLimit = Math.round(dataLimit / MB_SIZE);
@@ -92,7 +92,8 @@ define(['backbone',
 
                     var object = {user : key, usagePercent : usagePercent, usageRemaining : usageRemaining,
                         usageLimit : dataLimit, displayLimit: displayLimit, displaySize : displaySize,
-                        notify : (usageRemaining === "0 MB" || usageRemaining === "0 GB")};
+                        notify : (usageRemaining === "0 MB" || usageRemaining === "0 GB"),
+                        usage: displayUsage};
                     dataModel.push(object);
                 }));
                return dataModel;
@@ -158,14 +159,12 @@ define(['backbone',
                 return isLimitChanged;
             },
             constructUsageRemainingString : function(dataLimit, dataUsage) {
-                    var gb = GB_SIZE;
-                    var mb = MB_SIZE;
                     var bytesRemaining = dataLimit - dataUsage;
                     var usageRemaining;
-                    if(bytesRemaining >= gb) {
-                         usageRemaining = (bytesRemaining / gb).toFixed(1) + " GB";
+                    if(bytesRemaining >= GB_SIZE) {
+                         usageRemaining = (bytesRemaining / GB_SIZE).toFixed(1) + " GB";
                     } else if(bytesRemaining >= 0) {
-                         usageRemaining = Math.round(bytesRemaining / mb) + " MB";
+                         usageRemaining = Math.round(bytesRemaining / MB_SIZE) + " MB";
                     } else {
                          usageRemaining = "0 MB";
                     }

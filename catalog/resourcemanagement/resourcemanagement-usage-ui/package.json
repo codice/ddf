@@ -1,7 +1,7 @@
 {
-  "name": "spatial-geocoding-admin-module",
+  "name": "resourcemanagement-usage-ui",
   "author": "Codice",
-  "description": "A frontend UI for GeoNames offline configuration on DDF.",
+  "description": "A frontend UI for Data Usage on DDF.",
   "version": "0.1.0",
   "license": "LGPL-3.0",
   "keywords": [

@@ -91,15 +91,29 @@ define([
                 var data = {};
                 var updateAllUsers = $('.data-limit-all').val();
                 var allDataSize = $('.data-size-all').find(":selected").text();
-                var dataAllUsersByteLimit = this.getToBytes(parseInt(updateAllUsers), allDataSize);
+                var dataAllUsersByteLimit;
+
+                if(allDataSize === "GB") {
+                    dataAllUsersByteLimit = this.getToBytes(parseFloat(updateAllUsers), allDataSize);
+                } else {
+                    dataAllUsersByteLimit = this.getToBytes(parseInt(updateAllUsers), allDataSize);
+                }
+
                 var that = this;
 
                 $('.usertabledata tr').each(function (i, row){
                     var $row = $(row);
                     var user = $row.find('td[name*="user"]').html();
-                    var usageLimit = parseInt($row.find('input[name*="'+ user + '"]').val());
 
                     var dataSize = $row.find(":selected").text();
+                    var usageLimit;
+
+                    if(dataSize === "GB") {
+                        usageLimit = parseFloat($row.find('input[name*="'+ user + '"]').val());
+                    } else {
+                        usageLimit = parseInt($row.find('input[name*="'+ user + '"]').val());
+                    }
+
                     var dataByteLimit = that.getToBytes(usageLimit, dataSize);
 
                     if(updateAllUsers !== "" &&  updateAllUsers >= 0 && dataAllUsersByteLimit !== dataByteLimit && dataAllUsersByteLimit !== userData[i].usageLimit) {

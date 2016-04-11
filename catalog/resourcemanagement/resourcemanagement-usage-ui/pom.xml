@@ -22,8 +22,8 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <artifactId>resourcemanagement-usage-ui</artifactId>
-    <packaging>bundle</packaging>
     <name>DDF :: Resource Management :: Usage UI Plugin</name>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>

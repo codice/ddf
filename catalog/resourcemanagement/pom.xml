@@ -26,6 +26,9 @@
     <modules>
         <module>resourcemanagement-usage-ui</module>
         <module>resourcemanagement-usage-plugin</module>
+        <module>resourcemanagement-querymonitor-ui</module>
+        <module>resourcemanagement-querymonitor-plugin</module>
+        <module>resourcemanagement-querymonitor-commands</module>
         <module>resourcemanagement-app</module>
     </modules>
 </project>

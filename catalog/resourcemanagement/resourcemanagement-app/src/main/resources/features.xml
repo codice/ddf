@@ -37,11 +37,28 @@
         <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-usage-ui/${project.version}</bundle>
     </feature>
 
+    <feature name="resourcemanagement-querymonitor-plugin" install="manual" version="${project.version}"
+             description="DDF Resource Plugin tracking data usage ">
+        <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-plugin/${project.version}</bundle>
+    </feature>
+
+    <feature name="resourcemanagement-querymonitor-ui" version="${project.version}">
+        <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-ui/${project.version}</bundle>
+    </feature>
+
+    <feature name="resourcemanagement-querymonitor-commands" version="${project.version}">
+        <feature prerequisite="true">resourcemanagement-querymonitor-plugin</feature>
+        <bundle>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-querymonitor-commands/${project.version}</bundle>
+    </feature>
+
     <feature name="resourcemanagement-app" install="auto" version="${project.version}"
              description="The DDF Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.::DDF Resource Management">
         <feature prerequisite="true">catalog-app</feature>
         <feature>resourcemanagement-usage-ui</feature>
         <feature>resourcemanagement-usage-plugin</feature>
+        <feature>resourcemanagement-querymonitor-plugin</feature>
+        <feature>resourcemanagement-querymonitor-ui</feature>
+        <feature>resourcemanagement-querymonitor-commands</feature>
     </feature>
 
 </features>

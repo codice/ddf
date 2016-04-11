@@ -20,8 +20,8 @@
     <bean id="spatialPlugin" class="org.codice.ddf.resourcemanagement.usage.DataUsagePlugin" />
 
     <bean id="dataUsage" class="org.codice.ddf.resourcemanagement.usage.service.DataUsage" init-method="init" destroy-method="destroy">
-        <property name="attributesStore" ref="attributesStoreService" />
-        <property name="persistentStore" ref="persistentStoreService" />
+        <argument ref="attributesStoreService" />
+        <argument ref="persistentStoreService" />
     </bean>
 
     <reference id="attributesStoreService" interface="org.codice.ddf.persistence.attributes.AttributesStore" />
