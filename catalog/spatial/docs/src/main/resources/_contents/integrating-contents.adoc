@@ -9,6 +9,7 @@ Catalog Services for Web (_CSW_) is an Open Geospatial Consortium (OGC) standard
 
 The CSW endpoint provides an XML-RPC endpoint that a client accesses to search collections of descriptive information (metadata) about geospatial data and services.
 The CSW endpoint implements version 2.0.2 of the http://www.opengeospatial.org/standards/cat[CSW specification].
+The CSW endpoint also supports the Application Profile based on ISO 19115/ISO19119
 
 ===== Using the CSW Endpoint
 
@@ -2234,6 +2235,20 @@ The configurable properties for the CSW source are accessed from the CSW Federat
 |
 |Yes
 
+|Event Service Address
+|`eventServiceAddress`
+|String
+|DDF Event Service endpoint.
+|
+|No
+
+|Register for Events
+|`registerForEvents`
+|Boolean
+|Check to register for events from this source.
+|false
+|No
+
 |Username
 |`username`
 |String
@@ -2251,7 +2266,7 @@ The configurable properties for the CSW source are accessed from the CSW Federat
 |Disable CN Check
 |`disableCnCheck`
 |Boolean
-|Disable the CN Check for the server certificate
+|Disable CN check for the server certificate. This should only be used when testing.
 |false
 |Yes
 
@@ -2263,60 +2278,17 @@ The configurable properties for the CSW source are accessed from the CSW Federat
 |Yes
 
 |Use `posList` in `LinearRing`
-|
+|`usePosList`
 |Boolean
 |Use a `<posList>` element rather that a series of `<pos>` elements when issuing geospatial queries containing a `LinearRing`
 |false
 |Yes
 
-|Effective Date maps to
-|`effectiveDateMapping`
+|Metacard Mappings
+|`metacardMappings`
 |String
-|The field in the CSW Record that should be mapped to a Metacard's effective date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include `dateSubmitted`, `created` and `modified`. If no value is specified, the default value of created will be used. Note that the same CSW Record field cannot be used more than once in these date mapping properties.
-|`created`
-|No
-￼
-|Created Date maps to
-|`createdDateMapping`
-|String
-|The field in the CSW Record that should be mapped to a Metacard's created date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include `dateSubmitted`, `created` and `modified`. If no value is specified, the default value of `dateSubmitted` will be used.
-Note that the same CSW Record field cannot be used more than once in these date mapping properties.
-|`dateSubmitted`
-|No
-
-|Modified Date maps to
-|`modifiedDateMapping`
-|String
-|The field in the CSW Record that should be mapped to a Metacard's effective date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include `dateSubmitted`, `created` and `modified`. If no value is specified, the default value of created will be used. Note that the same CSW Record field cannot be used more than once in these date mapping properties.
-|`modified`
-|No
-￼
-|Resource URI maps to
-|`resourceUriMapping`
-|String
-|CSW field to map to Metacard's resource URI to retrieve product associated with the CSW record.
-|source
-|No
-
-|Thumbnail maps to
-|`thumbnailMapping`
-|String
-|CSW field to map to Metacard's thumbnail URI to retrieve thumbnail data associated with the CSW record.
-|references
-|No
-￼
-|Content type maps to
-|`contentTypemapping`
-|String
-|CSW field to map to Metacard's content type.
-|type
-|No
-￼￼￼
-|Content Types
-|`contentTypeNames`
-|List of Strings
-|A list of content types that can be searched on. The user can add any content types to the list, e.g., doc, or even wildcarded types. The list of content types currently in the CSW source will be added to this list during configuration when the `GetCapabilities` response is returned.
-|
+|Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'.
+|`effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source`
 |No
 
 |Poll Interval
@@ -2347,6 +2319,20 @@ Note that the same CSW Record field cannot be used more than once in these date 
 |http://www.opengis.net/cat/csw/2.0.2
 |Yes
 
+|Query Type Name
+|`queryTypeName`
+|String
+|Qualified Name for the Query Type used in the CSW GetRecords request
+|csw:Record
+|Yes
+
+|Query Type Namespace
+|`queryTypeNamespace`
+|String
+|Namespace for the Query Type used in the CSW GetRecords request
+|http://www.opengis.net/cat/csw/2.0.2
+|Yes
+
 |Force CQL Text as the Query Language
 |`isCqlForced`
 |Boolean
@@ -2369,6 +2355,162 @@ Note that the same CSW Record field cannot be used more than once in these date 
 * All contextual searches are case sensitive; case-insensitive searches are not supported.
 * Nearest neighbor spatial searches are not supported.
 * Fuzzy contextual searches are not supported.
+
+=== GMD CSW APISO v2.0.2 Source
+
+The GMD CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects, based on the Application Profile ISO 19115/ISO19119.
+
+==== Using
+
+Use the GMD CSW source if querying a GMD CSW APISO compliant service.
+
+==== Installing and Uninstalling
+
+The GMD CSW source can be installed and uninstalled using the normal processes described in the Configuring ${branding} section.
+
+==== Configuring
+
+The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Web Console or Admin Console.
+
+===== Configure the CSW Source
+
+[cols="6*", options="header"]
+.Configurable Properties
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+￼
+|Source ID
+|`id`
+|String
+|Unique Name of this Source.
+|CSW
+|Yes
+
+|CSW URL
+|`cswUrl`
+|String
+|URL to the Catalogue Services for the Web site that will be queried by this source
+|
+|Yes
+
+|Event Service Address
+|`eventServiceAddress`
+|String
+|DDF Event Service endpoint.
+|
+|No
+
+|Register for Events
+|`registerForEvents`
+|Boolean
+|Check to register for events from this source.
+|false
+|No
+
+|Username
+|`username`
+|String
+|Username to log into the CSW service
+|
+|No
+￼
+|Password
+|`password`
+|String
+|Password to log into the CSW service
+|
+|No
+￼
+|Disable CN Check
+|`disableCnCheck`
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|Yes
+
+|Force Longitude/Latitude coordinate order
+|`isLonLatOrder`
+|Boolean
+|Force Longitude/Latitude coordinate order
+|false
+|Yes
+
+|Use `posList` in `LinearRing`
+|`usePosList`
+|Boolean
+|Use a `<posList>` element rather that a series of `<pos>` elements when issuing geospatial queries containing a `LinearRing`
+|false
+|Yes
+
+|Metacard Mappings
+|`metacardMappings`
+|String
+|Mapping of the Metacad Attribute names to their CSW property names. The format should be 'title=dc:title'.
+|`id=apiso:Identifier,effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox`
+|No
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll Interval to Check if the Source is available (in minutes - minimum 1)
+|5
+|Yes
+
+|Connection Timeout
+|`connectionTimeout`
+|Integer
+|Amount of time (in milliseconds) to attempt to establish a connection before timing out.
+|30000
+|Yes
+￼
+|Receive Timeout
+|`receiveTimeout`
+|Integer
+|Amount of time (in milliseconds) to attempt to establish a connection before timing out.
+|60000
+|Yes
+
+|Output schema
+|`outputSchema`
+|String
+|Output Schema
+|http://www.isotc211.org/2005/gmd
+|Yes
+
+|Query Type Name
+|`queryTypeName`
+|String
+|Qualified Name for the Query Type used in the CSW GetRecords request
+|gmd:MD_Metadata
+|Yes
+
+|Query Type Namespace
+|`queryTypeNamespace`
+|String
+|Namespace for the Query Type used in the CSW GetRecords request
+|http://www.isotc211.org/2005/gmd
+|Yes
+
+|Force CQL Text as the Query Language
+|`isCqlForced`
+|Boolean
+|Force CQL Text
+|false
+|Yes
+
+|Forced Spatial Filter Type
+|`forceSpatialFilter`
+|String
+|Force only the selected None No Spatial Filter Type as the only available Spatial Filter.
+|
+|
+
+|===
 
 === Integrating ${branding} with KML
 

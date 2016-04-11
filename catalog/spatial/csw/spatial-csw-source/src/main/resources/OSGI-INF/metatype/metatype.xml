@@ -23,12 +23,12 @@
             name="CSW URL" id="cswUrl" required="true" type="String"/>
 
         <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
-            description="DDF Event Service endpoint. Do NOT include .wsdl or ?wsdl.">
+            description="DDF Event Service endpoint.">
         </AD>
 
         <AD name="Register for Events" id="registerForEvents" required="false" type="Boolean"
             default="false"
-            description="Check to register for events from this connected source.">
+            description="Check to register for events from this source.">
         </AD>
 
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
@@ -76,7 +76,7 @@
             name="Query Type Name" id="queryTypeName" required="true" type="String"
             default="csw:Record"/>
 
-        <AD description="Namespace prefix for the Query Type used in the CSW GetRecords request"
+        <AD description="Namespace for the Query Type used in the CSW GetRecords request"
             name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
             default="http://www.opengis.net/cat/csw/2.0.2"/>
 
@@ -191,7 +191,7 @@
         </AD>
     </OCD>
 
-    <OCD name="GMD CSW Federated Source" id="Gmd_Csw_Federated_Source"
+    <OCD name="GMD CSW ISO Federated Source" id="Gmd_Csw_Federated_Source"
          description="CSW Federated Source using the Geographic MetaData (GMD) format (ISO 19115:2003)">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
