@@ -21,7 +21,6 @@ define([
     // Templates
     'text!templates/header.layout.handlebars',
     'text!templates/footer.layout.handlebars',
-    'js/controllers/application.controller',
     'js/controllers/Modal.controller',
     'js/controllers/SystemUsage.controller',
     'js/model/user',
@@ -33,9 +32,8 @@ define([
     'modelbinder',
     'collectionbinder',
     'js/router'
-], function ($, _, Marionette, Backbone, properties, maptype, header, footer, ApplicationController, ModalController, SystemUsageController, User) {
-    'use strict';
-    var Application = {};    // Setup templates
+], function ($, _, Marionette, Backbone, properties, maptype, header, footer, ModalController, SystemUsageController, User) {
+    var Application = {};
     Application.App = new Marionette.Application();
     Application.AppModel = new Backbone.Model(properties);
     Application.UserModel = new User.Response();
@@ -50,10 +48,7 @@ define([
         modalRegion: '#modalRegion'
     });
     Application.Router = new Marionette.AppRouter({ routes: { '': 'index' } });
-    // Initialize the application controller
-    Application.App.addInitializer(function () {
-        Application.Controllers.applicationController = new ApplicationController({ Application: Application });
-    });
+
     //setup the header
     Application.App.addInitializer(function () {
         Application.App.headerRegion.show(new Marionette.ItemView({
@@ -76,6 +71,7 @@ define([
             $('body').addClass('has-footer');
         }
     });
+
     //load all modules
     Application.App.addInitializer(function () {
         require([
@@ -84,18 +80,24 @@ define([
             'js/module/Content.module'
         ]);
     });
+
     //get rid of the loading screen
     Application.App.addInitializer(function () {
         Application.App.loadingRegion.show(new Backbone.View());
     });
+
     // show System Notification Banner
     Application.App.addInitializer(function () {
         new SystemUsageController();
     });
+
+
     // Once the application has been initialized (i.e. all initializers have completed), start up
     // Backbone.history.
     Application.App.on('start', function () {
         Backbone.history.start();
     });
+
+
     return Application;
 });
