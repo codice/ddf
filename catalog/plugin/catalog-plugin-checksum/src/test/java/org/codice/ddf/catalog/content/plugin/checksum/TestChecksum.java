@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.plugin.PluginExecutionException;
@@ -44,7 +45,9 @@ public class TestChecksum {
 
     private Checksum checksum;
 
-    private CreateStorageRequest mockRequest;
+    private CreateStorageRequest mockCreateRequest;
+
+    private UpdateStorageRequest mockUpdateRequest;
 
     private static final String SAMPLE_CHECKSUM_ALGORITHM = "MD5";
 
@@ -68,13 +71,33 @@ public class TestChecksum {
         when(mockContentItem.getMetacard()).thenReturn(new MetacardImpl());
         mockContentItems.add(mockContentItem);
 
-        mockRequest = mock(CreateStorageRequest.class);
-        when(mockRequest.getContentItems()).thenReturn(mockContentItems);
+        mockCreateRequest = mock(CreateStorageRequest.class);
+        when(mockCreateRequest.getContentItems()).thenReturn(mockContentItems);
+        mockUpdateRequest = mock(UpdateStorageRequest.class);
+        when(mockUpdateRequest.getContentItems()).thenReturn(mockContentItems);
     }
 
     @Test
-    public void testProcessWithValidInput() throws PluginExecutionException {
-        CreateStorageRequest request = checksum.process(mockRequest);
+    public void testProcessCreateWithValidInput() throws PluginExecutionException {
+        CreateStorageRequest request = checksum.process(mockCreateRequest);
+
+        String checksumResult = (String) request.getContentItems()
+                .get(0)
+                .getMetacard()
+                .getAttribute(Metacard.RESOURCE_CHECKSUM)
+                .getValue();
+        String checksumAlgorithm = (String) request.getContentItems()
+                .get(0)
+                .getMetacard()
+                .getAttribute(Metacard.RESOURCE_CHECKSUM_ALGORITHM)
+                .getValue();
+        assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
+        assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));
+    }
+
+    @Test
+    public void testProcessUpdateWithValidInput() throws PluginExecutionException {
+        UpdateStorageRequest request = checksum.process(mockUpdateRequest);
 
         String checksumResult = (String) request.getContentItems()
                 .get(0)
@@ -91,17 +114,35 @@ public class TestChecksum {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testProcessWithNullInput() throws PluginExecutionException {
-        checksum.process(null);
+    public void testProcessCreateWithNullInput() throws PluginExecutionException {
+        checksum.process((CreateStorageRequest)null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testProcessUpdateWithNullInput() throws PluginExecutionException {
+        checksum.process((UpdateStorageRequest)null);
     }
 
     @Test
-    public void testChecksumCalculationIOException() throws Exception {
+    public void testProcessCreateChecksumCalculationIOException() throws Exception {
         doThrow(IOException.class).when(mockChecksumProvider)
                 .calculateChecksum(any(InputStream.class));
 
         try {
-            checksum.process(mockRequest);
+            checksum.process(mockCreateRequest);
+            fail("Checksum plugin should have thrown an exception.");
+        } catch (PluginExecutionException e) {
+            assertThat(e.getCause(), instanceOf(IOException.class));
+        }
+    }
+
+    @Test
+    public void testProcessUpdateChecksumCalculationIOException() throws Exception {
+        doThrow(IOException.class).when(mockChecksumProvider)
+                .calculateChecksum(any(InputStream.class));
+
+        try {
+            checksum.process(mockUpdateRequest);
             fail("Checksum plugin should have thrown an exception.");
         } catch (PluginExecutionException e) {
             assertThat(e.getCause(), instanceOf(IOException.class));

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * A {@link Metacard} is a container for Metadata.
- *
+ * <p/>
  * It is modeled after the OGC SimpleFeature and does two additional things:
  * <ol>
  * <li/>Represents a resource.
@@ -33,9 +33,6 @@ import java.util.stream.Collectors;
  * The {@link Metacard} can include key/value-style {@link Attribute}s, and includes several
  * standard properties: id, title, document, location, source name, dates(created, modified,
  * effective, expiration), and thumbnail.
- *
- * @see BasicTypes
- * @see BasicTypes#BASIC_METACARD
  */
 public interface Metacard extends Serializable {
 
@@ -44,124 +41,124 @@ public interface Metacard extends Serializable {
      * Attribute name for querying all text of all textual properties of a {@link Metacard}.
      * <em>Used in Queries only</em>
      */
-    public static final String ANY_TEXT = "anyText";
+    String ANY_TEXT = "anyText";
 
     /**
      * Attribute name for querying all geometries of all geometric properties of a {@link Metacard}
      * <em>Used in Queries only</em>
      */
-    public static final String ANY_GEO = "anyGeo";
+    String ANY_GEO = "anyGeo";
 
     /**
      * Attribute name for querying all dates of all temporal properties of a {@link Metacard}.
      * <em>Used in Queries only</em>
      */
-    public static final String ANY_DATE = "anyDate";
+    String ANY_DATE = "anyDate";
 
     /**
      * Attribute name for the ID of the source where the {@link Metacard} is cataloged.
      *
      * @deprecated
      */
-    public static final String SOURCE_ID = "source-id";
+    String SOURCE_ID = "source-id";
 
     /**
      * Attribute name for querying the metadata content type of a {@link Metacard}.
      *
      * @see MetacardType
      */
-    public static final String CONTENT_TYPE = "metadata-content-type";
+    String CONTENT_TYPE = "metadata-content-type";
 
     /**
      * Attribute name for querying the version of the metadata content type of a {@link Metacard}.
      */
-    public static final String CONTENT_TYPE_VERSION = "metadata-content-type-version";
+    String CONTENT_TYPE_VERSION = "metadata-content-type-version";
 
     /**
      * Attribute name for querying the target namespace of the metadata content type of a
      * {@link Metacard}.
      */
-    public static final String TARGET_NAMESPACE = "metadata-target-namespace";
+    String TARGET_NAMESPACE = "metadata-target-namespace";
 
     // Stored Metacard properties
     /**
      * {@link Attribute} name for accessing the ID of the {@link Metacard}. <br/>
      * Every {@link ddf.catalog.source.Source} is required to return this attribute.
      */
-    public static final String ID = "id";
+    String ID = "id";
 
     /**
      * {@link Attribute} name for accessing the tags of the {@link Metacard}. <br/>
      */
-    public static final String TAGS = "metacard-tags";
+    String TAGS = "metacard-tags";
 
     /**
      * {@link Attribute} name for accessing the title of the {@link Metacard}. <br/>
      */
-    public static final String TITLE = "title";
+    String TITLE = "title";
 
     /**
      * {@link Attribute} name for accessing the XML metadata for this {@link Metacard}. <br/>
      */
-    public static final String METADATA = "metadata";
+    String METADATA = "metadata";
 
     /**
      * {@link Attribute} name for accessing the location for this {@link Metacard}. <br/>
      */
-    public static final String GEOGRAPHY = "location";
+    String GEOGRAPHY = "location";
 
     /**
      * {@link Attribute} name for accessing the date/time this {@link Metacard} was created. <br/>
      */
-    public static final String CREATED = "created";
+    String CREATED = "created";
 
     /**
      * {@link Attribute} name for accessing the date/time this {@link Metacard} was last modified. <br/>
      */
-    public static final String MODIFIED = "modified";
+    String MODIFIED = "modified";
 
     /**
      * {@link Attribute} name for accessing the date/time the {@link Metacard} is no longer valid
      * and could be removed. <br/>
      */
-    public static final String EXPIRATION = "expiration";
+    String EXPIRATION = "expiration";
 
     /**
      * {@link Attribute} name for accessing the date/time the {@link Metacard} was last known to be
      * up-to-date. <br/>
      */
-    public static final String EFFECTIVE = "effective";
+    String EFFECTIVE = "effective";
 
     /**
      * {@link Attribute} name for accessing the point of contact to the product this
      * {@link Metacard} represents. <br/>
      */
-    public static final String POINT_OF_CONTACT = "point-of-contact";
+    String POINT_OF_CONTACT = "point-of-contact";
 
     /**
      * {@link Attribute} name for accessing the {@link URI} reference to the product this
      * {@link Metacard} represents. <br/>
      */
-    public static final String RESOURCE_URI = "resource-uri";
+    String RESOURCE_URI = "resource-uri";
 
     /**
      * {@link Attribute} name for accessing the resource download URL for the product this
      * {@link Metacard} represents. <br/>
      */
-    public static final String RESOURCE_DOWNLOAD_URL = "resource-download-url";
+    String RESOURCE_DOWNLOAD_URL = "resource-download-url";
 
     /**
      * {@link Attribute} name for accessing the size (in bytes) of the product this {@link Metacard}
      * represents. <br/>
      */
-    public static final String RESOURCE_SIZE = "resource-size";
+    String RESOURCE_SIZE = "resource-size";
 
     /**
      * {@link Attribute} name for accessing the thumbnail image of the product this {@link Metacard}
      * represents. The thumbnail must be of MIME Type <code>image/jpeg</code> and 128 kilobytes or
      * less. <br/>
      */
-    public static final String THUMBNAIL = "thumbnail";
+    String THUMBNAIL = "thumbnail";
 
     /**
      * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -169,7 +166,7 @@ public interface Metacard extends Serializable {
      *
      * @deprecated Not to be used anymore, replaced with SECURITY attribute.
      */
-    public static final String SECURITY_MATCH_ALL = "security-match-all";
+    String SECURITY_MATCH_ALL = "security-match-all";
 
     /**
      * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -177,7 +174,7 @@ public interface Metacard extends Serializable {
      *
      * @deprecated Not to be used anymore, replaced with SECURITY attribute.
      */
-    public static final String SECURITY_MATCH_ONE = "security-match-one";
+    String SECURITY_MATCH_ONE = "security-match-one";
 
     /**
      * {@link Attribute} name for accessing the security relevant markings on the product that this
@@ -185,38 +182,47 @@ public interface Metacard extends Serializable {
      *
      * @since DDF-2.2.0.RC1
      */
-    public static final String SECURITY = "security";
+    String SECURITY = "security";
 
     /**
      * {@link Attribute} description associated with the {@link Metacard}
      *
      * @since DDF-2.8.0
      */
-    public static final String DESCRIPTION = "description";
+    String DESCRIPTION = "description";
 
     /**
      * The default tag type for all metacards
      */
-    public static final String DEFAULT_TAG = "resource";
+    String DEFAULT_TAG = "resource";
 
+    /**
+     * {@link Attribute} algorithm used to calculate the checksum on the {@link Metacard#RESOURCE_URI}
+     * for local resources
+     *
+     * @since DDF-2.9.0
+     */
     String RESOURCE_CHECKSUM_ALGORITHM = "resource-checksum-algorithm";
 
+    /**
+     * {@link Attribute} checksum value for the {@link Metacard#RESOURCE_URI}
+     *
+     * @since DDF-2.9.0
+     */
     String RESOURCE_CHECKSUM = "resource-checksum";
 
     /**
      * Returns {@link Attribute} for given attribute name.
      *
-     * @param name
-     *            name of attribute
+     * @param name name of attribute
      * @return {@link Attribute} for given name, or <code>null</code> if not available
      */
-    public Attribute getAttribute(String name);
+    Attribute getAttribute(String name);
 
     /**
      * Sets {@link Attribute} with new attribute.
      *
-     * @param attribute
-     *            new {@link Attribute} to set
+     * @param attribute new {@link Attribute} to set
      */
     void setAttribute(Attribute attribute);
 
@@ -224,31 +230,29 @@ public interface Metacard extends Serializable {
      * Return the {@link MetacardType} of this {@link Metacard}.
      *
      * @return {@link MetacardType} - the type of this {@link Metacard}, MetacardType is required
-     *         and must not be <code>null</code>
+     * and must not be <code>null</code>
      */
-    public MetacardType getMetacardType();
+    MetacardType getMetacardType();
 
     // Shortcuts
 
     /**
-     *
      * Returns the ID of this {@link Metacard}. <br/>
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#ID})
      * </code>
      *
      * @return unique identifier of the Metacard
-     *
      * @see Metacard#ID
      */
-    public String getId();
+    String getId();
 
     /**
      * Returns the tags associated with this metacard.
      *
      * @return Returns the TAGS attribute values if it exists otherwise return null
      */
-    public default Set<String> getTags() {
+    default Set<String> getTags() {
         Attribute attribute = getAttribute(TAGS);
         if (attribute == null || attribute.getValue() == null) {
             return new HashSet<>();
@@ -267,10 +271,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return XML metadata
-     *
      * @see Metacard#METADATA
      */
-    public String getMetadata();
+    String getMetadata();
 
     /**
      * Returns the date/time this {@link Metacard} was created. <br/>
@@ -279,10 +282,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link Date} - when this {@link Metacard} was created.
-     *
      * @see Metacard#CREATED
      */
-    public Date getCreatedDate();
+    Date getCreatedDate();
 
     /**
      * Returns the date/time this {@link Metacard} was last modifed. <br/>
@@ -291,10 +293,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link Date} - when this {@link Metacard} was last modified.
-     *
      * @see Metacard#MODIFIED
      */
-    public Date getModifiedDate();
+    Date getModifiedDate();
 
     /**
      * Returns the date/time this {@link Metacard} is no longer valid and could be removed. <br/>
@@ -303,11 +304,10 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link Date} - when this {@link Metacard} expires and should be removed from any
-     *         stores.
-     *
+     * stores.
      * @see Metacard#EXPIRATION
      */
-    public Date getExpirationDate();
+    Date getExpirationDate();
 
     /**
      * Returns the date/time this {@link Metacard} was last known to be valid. <br/>
@@ -316,11 +316,10 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link Date} - when the information represented by this {@link Metacard} was last
-     *         known to be valid.
-     *
+     * known to be valid.
      * @see Metacard#EFFECTIVE
      */
-    public Date getEffectiveDate();
+    Date getEffectiveDate();
 
     /**
      * Returns the WKT representation of the geometry. <br/>
@@ -329,24 +328,21 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link String} - WKT-defined geospatial object, returns null if not applicable
-     *
      * @see Metacard#GEOGRAPHY
      */
-    public String getLocation();
+    String getLocation();
 
     /**
      * Returns the source ID of the source the metacard is located. <br/>
-     *
      */
-    public String getSourceId();
+    String getSourceId();
 
     /**
      * Sets the source ID of the source the metacard is located. <br/>
      *
-     * @param sourceId
-     *            unique name of source location of metacard
+     * @param sourceId unique name of source location of metacard
      */
-    public void setSourceId(String sourceId);
+    void setSourceId(String sourceId);
 
     /**
      * Returns the title of this {@link Metacard}. <br/>
@@ -355,10 +351,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return Title of the {@link Metacard}
-     *
      * @see Metacard#TITLE
      */
-    public String getTitle();
+    String getTitle();
 
     /**
      * Get the value of this {@link Metacard}s Resource URI and in the form of a {@link URI} Object. <br/>
@@ -367,17 +362,17 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link URI} - a {@link URI} representation of the {@link Metacard}'s
-     *         {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
-     *         {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
+     * {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
+     * {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
      */
-    public URI getResourceURI();
+    URI getResourceURI();
 
     /**
      * This is the size of the resource which may or may not contain a unit.
      *
      * @return {@link String} - {@link String} representation of the size
      */
-    public String getResourceSize();
+    String getResourceSize();
 
     /**
      * Returns the thumbnail associated with this {@link Metacard}. <br/>
@@ -386,10 +381,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return thumbnail for the {@link Metacard}
-     *
      * @see Metacard#THUMBNAIL
      */
-    public byte[] getThumbnail();
+    byte[] getThumbnail();
 
     /**
      * Returns the name of the content type of the {@link Metacard}. <br/>
@@ -398,10 +392,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return name of content type of the {@link Metacard}
-     *
      * @see Metacard#CONTENT_TYPE
      */
-    public String getContentTypeName();
+    String getContentTypeName();
 
     /**
      * Returns the version of the content type of the {@link Metacard}. <br/>
@@ -410,10 +403,9 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return version of content type of the {@link Metacard}
-     *
      * @see Metacard#CONTENT_TYPE_VERSION
      */
-    public String getContentTypeVersion();
+    String getContentTypeVersion();
 
     /**
      * Some types of metadata use different content types. If utilized, returns the {@link URI} of
@@ -423,8 +415,7 @@ public interface Metacard extends Serializable {
      * </code>
      *
      * @return {@link URI} - the sub-type, null if unused
-     *
      * @see Metacard#TARGET_NAMESPACE
      */
-    public URI getContentTypeNamespace();
+    URI getContentTypeNamespace();
 }

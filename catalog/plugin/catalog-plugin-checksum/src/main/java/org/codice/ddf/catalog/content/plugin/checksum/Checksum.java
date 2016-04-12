@@ -16,17 +16,20 @@ package org.codice.ddf.catalog.content.plugin.checksum;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.codice.ddf.checksum.ChecksumProvider;
 
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
+import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.plugin.PreCreateStoragePlugin;
+import ddf.catalog.content.plugin.PreUpdateStoragePlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 
-public class Checksum implements PreCreateStoragePlugin {
+public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin {
     private final ChecksumProvider checksumProvider;
 
     public Checksum(ChecksumProvider checksumProvider) {
@@ -37,10 +40,26 @@ public class Checksum implements PreCreateStoragePlugin {
     public CreateStorageRequest process(CreateStorageRequest input)
             throws PluginExecutionException {
         if (input == null) {
-            throw new IllegalArgumentException("CreateRequest input cannot be null");
+            throw new IllegalArgumentException("CreateStorageRequest cannot be null");
         }
+        runChecksum(input.getContentItems());
 
-        for (ContentItem contentItem : input.getContentItems()) {
+        return input;
+    }
+
+    @Override
+    public UpdateStorageRequest process(UpdateStorageRequest input)
+            throws PluginExecutionException {
+        if (input == null) {
+            throw new IllegalArgumentException("UpdateStorageRequest cannot be null");
+        }
+        runChecksum(input.getContentItems());
+
+        return input;
+    }
+
+    private void runChecksum(List<ContentItem> contentItems) throws PluginExecutionException {
+        for (ContentItem contentItem : contentItems) {
             try (InputStream inputStream = contentItem.getInputStream()) {
                 //calculate checksum so that it can be added as an attribute on metacard
                 String checksumAlgorithm = checksumProvider.getChecksumAlgorithm();
@@ -57,17 +76,16 @@ public class Checksum implements PreCreateStoragePlugin {
                 addChecksumAttributes(contentItem.getMetacard(), checksumAlgorithm, checksumValue);
             } catch (IOException e) {
                 throw new PluginExecutionException(
-                        "Unable to retrieve input stream for content item", e);
+                        "Unable to retrieve input stream for content item",
+                        e);
             }
         }
-
-        return input;
     }
 
     private void addChecksumAttributes(Metacard metacard, final String checksumAlgorithm,
             final String checksumValue) {
-        metacard.setAttribute(
-                new AttributeImpl(Metacard.RESOURCE_CHECKSUM_ALGORITHM, checksumAlgorithm));
+        metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CHECKSUM_ALGORITHM,
+                checksumAlgorithm));
         metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CHECKSUM, checksumValue));
     }
 }
