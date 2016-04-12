@@ -84,12 +84,12 @@ public class TestChecksum {
         String checksumResult = (String) request.getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.RESOURCE_CHECKSUM)
+                .getAttribute(Metacard.CHECKSUM)
                 .getValue();
         String checksumAlgorithm = (String) request.getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.RESOURCE_CHECKSUM_ALGORITHM)
+                .getAttribute(Metacard.CHECKSUM_ALGORITHM)
                 .getValue();
         assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
         assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));
@@ -102,12 +102,12 @@ public class TestChecksum {
         String checksumResult = (String) request.getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.RESOURCE_CHECKSUM)
+                .getAttribute(Metacard.CHECKSUM)
                 .getValue();
         String checksumAlgorithm = (String) request.getContentItems()
                 .get(0)
                 .getMetacard()
-                .getAttribute(Metacard.RESOURCE_CHECKSUM_ALGORITHM)
+                .getAttribute(Metacard.CHECKSUM_ALGORITHM)
                 .getValue();
         assertThat(checksumResult, is(SAMPLE_CHECKSUM_VALUE));
         assertThat(checksumAlgorithm, is(SAMPLE_CHECKSUM_ALGORITHM));

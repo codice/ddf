@@ -275,13 +275,13 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CHECKSUM_ALGORITHM,
+        descriptors.add(new AttributeDescriptorImpl(Metacard.CHECKSUM_ALGORITHM,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,
                 false /* multivalued */,
                 STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_CHECKSUM,
+        descriptors.add(new AttributeDescriptorImpl(Metacard.CHECKSUM,
                 true /* indexed */,
                 true /* stored */,
                 false /* tokenized */,

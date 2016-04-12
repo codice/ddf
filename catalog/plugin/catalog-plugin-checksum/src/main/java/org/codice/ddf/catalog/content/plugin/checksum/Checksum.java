@@ -84,8 +84,8 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
 
     private void addChecksumAttributes(Metacard metacard, final String checksumAlgorithm,
             final String checksumValue) {
-        metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CHECKSUM_ALGORITHM,
+        metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM_ALGORITHM,
                 checksumAlgorithm));
-        metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_CHECKSUM, checksumValue));
+        metacard.setAttribute(new AttributeImpl(Metacard.CHECKSUM, checksumValue));
     }
 }
