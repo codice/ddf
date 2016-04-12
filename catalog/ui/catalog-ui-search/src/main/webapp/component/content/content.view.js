@@ -156,7 +156,7 @@ define([
                 this.showPanelTwo();
                 this.panelTwo.show(new MetacardsTabsView());
             }
-            //wreqr.vent.trigger('resize');
+            wreqr.vent.trigger('resize');
         },
         updatePanelTwoQueryTitle: function(){
             var queryRef = store.getQuery();
