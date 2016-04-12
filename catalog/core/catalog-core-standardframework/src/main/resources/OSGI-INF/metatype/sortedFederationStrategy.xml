@@ -48,6 +48,12 @@
 
         <AD description="Cache remote ingest results" name="Cache Remote Ingests"
             id="cacheRemoteIngests" required="true" type="Boolean" default="false"/>
+
+        <AD
+            description="Show invalid metacards in search results"
+            name="Show Invalid Metacards" id="showInvalidMetacards" required="true"
+            type="Boolean"
+            default="false"/>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">

@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import org.osgi.framework.BundleContext;
 
 import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.cache.solr.impl.ValidationQueryFactory;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
@@ -111,6 +112,8 @@ public class FrameworkProperties {
     private List<PreUpdateStoragePlugin> preUpdateStoragePlugins = new ArrayList<>();
 
     private List<PostUpdateStoragePlugin> postUpdateStoragePlugins = new ArrayList<>();
+
+    private ValidationQueryFactory validationQueryFactory;
 
     public List<CatalogProvider> getCatalogProviders() {
         return catalogProviders;
@@ -348,5 +351,13 @@ public class FrameworkProperties {
     public void setPostUpdateStoragePlugins(
             List<PostUpdateStoragePlugin> postUpdateStoragePlugins) {
         this.postUpdateStoragePlugins = postUpdateStoragePlugins;
+    }
+
+    public void setValidationQueryFactory(ValidationQueryFactory validationQueryFactory) {
+        this.validationQueryFactory = validationQueryFactory;
+    }
+
+    public ValidationQueryFactory getValidationQueryFactory() {
+        return this.validationQueryFactory;
     }
 }

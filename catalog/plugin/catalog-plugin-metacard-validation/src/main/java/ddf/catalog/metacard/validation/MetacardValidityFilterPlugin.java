@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.Query;
@@ -44,6 +46,12 @@ public class MetacardValidityFilterPlugin implements PolicyPlugin {
     }
 
     public void setAttributeMap(List<String> attributeMappings) {
+        if (CollectionUtils.isEmpty(attributeMappings)|| (
+                attributeMappings.size() == 1 && attributeMappings.get(0)
+                        .isEmpty())) {
+            attributeMap = new HashMap<>();
+            return;
+        }
         for (String attributeMapping : attributeMappings) {
             String[] keyValue = attributeMapping.split("=");
             attributeMap.put(keyValue[0].trim(),
