@@ -78,12 +78,9 @@ define([
             'js/module/Notification.module',
             'js/module/Tasks.module',
             'js/module/Content.module'
-        ]);
-    });
-
-    //get rid of the loading screen
-    Application.App.addInitializer(function () {
-        Application.App.loadingRegion.show(new Backbone.View());
+        ], function(){
+            Application.App.loadingRegion.$el.addClass('is-hidden');
+        });
     });
 
     // show System Notification Banner
