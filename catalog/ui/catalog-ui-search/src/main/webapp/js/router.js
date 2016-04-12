@@ -12,11 +12,8 @@
 /*global define*/
 
 define([
-    'marionette',
-    'component/lightbox/lightbox.view.instance',
-    'component/workspaces/Workspaces.view',
-    'js/store'
-], function (Marionette, lightboxViewInstance, WorkspacesView, store) {
+    'marionette'
+], function (Marionette) {
 
     var Router = Marionette.AppRouter.extend({
         controller: {
