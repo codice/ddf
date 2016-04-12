@@ -27,5 +27,6 @@
     <modules>
         <module>security-interceptor-guest</module>
         <module>security-interceptor-guest-wrapper</module>
+        <module>security-interceptor-logger</module>
     </modules>
 </project>
