@@ -43,8 +43,7 @@
         </service-properties>
 
         <cm:managed-component
-                class="org.codice.ddf.transformer.xml.streaming.lib.XmlInputTransformer"
-                init-method="init" destroy-method="destroy">
+                class="org.codice.ddf.transformer.xml.streaming.lib.XmlInputTransformer">
             <!--Defines the methods to be invoked when the OpenSearch Source
                 instance is created and when it is deleted. The init method is called after
                 all of the setter methods have been called. -->
