@@ -1,0 +1,29 @@
+{
+  "properties": {
+    "title": "GeoJson far",
+    "thumbnail": "CA==",
+    "site": "ddf.distribution",
+    "resource-uri": "http://example.com",
+    "created": "2012-12-26T00:09:19.368+0000",
+    "metadata-content-type-version": "myVersion",
+    "metadata-content-type": "myType",
+    "metadata": "<xml>GeoJson far</xml>",
+    "modified": "2012-12-26T00:09:19.368+0000",
+    "effective": "2012-12-26T00:09:19.368+0000",
+    "id": "362ac66837804bb997663a3db5026733"
+  },
+  "type": "Feature",
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [
+        25.0,
+        31.0
+      ],
+      [
+        27.0,
+        32.0
+      ]
+    ]
+  }
+}
