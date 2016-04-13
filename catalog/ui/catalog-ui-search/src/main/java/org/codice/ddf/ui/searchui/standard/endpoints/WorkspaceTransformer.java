@@ -77,6 +77,10 @@ public class WorkspaceTransformer {
     public Metacard transform(Map w) {
         WorkspaceMetacardImpl m = new WorkspaceMetacardImpl();
 
+        if (check(w.get(Metacard.ID), String.class)) {
+            m.setId((String) w.get(Metacard.ID));
+        }
+
         if (check(w.get(Metacard.TITLE), String.class)) {
             m.setTitle((String) w.get(Metacard.TITLE));
         }

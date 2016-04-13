@@ -271,7 +271,36 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>prepare-package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>src/main/resources/etc/ddf.security.pdp.realm.AuthzRealm.config</file>
+                                    <type>config</type>
+                                    <classifier>workspace-roles</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>src/main/resources/etc/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin.config</file>
+                                    <type>config</type>
+                                    <classifier>workspace-metacard-security-attributes</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
     </build>
     <profiles>
         <profile>

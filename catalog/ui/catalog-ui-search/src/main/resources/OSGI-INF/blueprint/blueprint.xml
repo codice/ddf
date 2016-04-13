@@ -78,8 +78,4 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-    <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacePolicyPlugin"/>
-    </service>
-
 </blueprint>

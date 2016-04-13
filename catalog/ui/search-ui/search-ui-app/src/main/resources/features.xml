@@ -21,11 +21,17 @@
         <feature prerequisite="true">camel-http</feature>
         <feature prerequisite="true">search-ui-app</feature>
         <bundle>mvn:ddf.ui.search/standard/${project.version}</bundle>
-        <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-redirect/${project.version}</bundle>
         <bundle>mvn:ddf.ui.search/search-htmltransformer/${project.version}</bundle>
-        
+
         <bundle>mvn:ddf.ui.search/search-endpoint/${project.version}</bundle>
+        <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
+        <configfile finalname="/etc/ddf.security.pdp.realm.AuthzRealm.config">
+            mvn:ddf.ui/catalog-ui-search/${project.version}/config/workspace-roles
+        </configfile>
+        <configfile finalname="/etc/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin.config">
+            mvn:ddf.ui/catalog-ui-search/${project.version}/config/workspace-metacard-security-attributes
+        </configfile>
     </feature>
 
     <feature name="simple-search-ui" install="auto" version="${project.version}">

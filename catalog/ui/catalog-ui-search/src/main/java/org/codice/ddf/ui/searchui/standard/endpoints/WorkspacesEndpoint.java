@@ -13,7 +13,8 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -125,9 +127,14 @@ public class WorkspacesEndpoint {
             response = transformer.transform(saved);
             res.setStatus(201);
         } catch (Exception ex) {
-            res.setStatus(400);
-            response = new HashMap<>();
-            response.put("message", "bad request");
+            if (ex.getMessage()
+                    .contains("not permitted")) {
+                response = Collections.singletonMap("message", ex.getMessage());
+                res.setStatus(401);
+            } else {
+                response = Collections.singletonMap("message", "bad request");
+                res.setStatus(400);
+            }
         }
 
         return response;
@@ -137,19 +144,33 @@ public class WorkspacesEndpoint {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Map putDocument(Map<String, Object> workspace, @PathParam("id") String id)
-            throws Exception {
+    public Map putDocument(Map<String, Object> workspace, @PathParam("id") String id,
+            @Context HttpServletResponse res) throws Exception {
         Set updatedRoles = getUpdatedRoles(id, transformer.transform(workspace));
-        Metacard updated = updateMetacard(id, transformer.transform(workspace));
-        return transformer.transform(updated);
+        Metacard m = transformer.transform(workspace);
+        m.setAttribute(new AttributeImpl(Metacard.ID, id));
+        m.setAttribute(new AttributeImpl(WorkspaceMetacardTypeImpl.WORKSPACE_UPDATED_ROLES,
+                (List) new ArrayList<>(updatedRoles)));
+        try {
+            Metacard updated = updateMetacard(id, m);
+            return transformer.transform(updated);
+        } catch (IngestException ex) {
+            res.setStatus(400);
+            return Collections.singletonMap("message", ex.getMessage());
+        }
     }
 
     @DELETE
     @Path("/{id}")
     public void deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
             throws Exception {
-        cf.delete(new DeleteRequestImpl(id));
-        res.setStatus(200);
+        try {
+            cf.delete(new DeleteRequestImpl(id));
+            res.setStatus(200);
+        } catch (IngestException ex) {
+            // couldn't remove workspace with given id
+            res.setStatus(404);
+        }
     }
 
     private FilterBuilder builder() {

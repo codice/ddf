@@ -33,6 +33,8 @@ public class WorkspaceMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String WORKSPACE_ROLES = "roles";
 
+    public static final String WORKSPACE_UPDATED_ROLES = "updated-roles";
+
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
