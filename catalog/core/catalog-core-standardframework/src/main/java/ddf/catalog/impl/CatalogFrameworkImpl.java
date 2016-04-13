@@ -969,18 +969,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             throw new IngestException(FANOUT_MESSAGE);
         }
 
-        CreateRequest createReq = createRequest;
+        validateCreateRequest(createRequest);
 
-        validateCreateRequest(createReq);
-
-        if (Requests.isLocal(createReq) && !sourceIsAvailable(catalog)) {
+        if (Requests.isLocal(createRequest) && !sourceIsAvailable(catalog)) {
             SourceUnavailableException sourceUnavailableException = new SourceUnavailableException(
                     "Local provider is not available, cannot perform create operation.");
             if (INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn(
                         "Error on create operation, local provider not available. {} metacards failed to ingest. {}",
-                        createReq.getMetacards()
-                                .size(), buildIngestLog(createReq), sourceUnavailableException);
+                        createRequest.getMetacards()
+                                .size(), buildIngestLog(createRequest), sourceUnavailableException);
             }
             throw sourceUnavailableException;
         }
@@ -990,9 +988,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         Exception ingestError = null;
         try {
             Map<String, Serializable> unmodifiablePropertiesMap = Collections.unmodifiableMap(
-                    createReq.getProperties());
+                    createRequest.getProperties());
             HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-            for (Metacard metacard : createReq.getMetacards()) {
+            for (Metacard metacard : createRequest.getMetacards()) {
                 HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
                 for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
                     PolicyResponse policyResponse = plugin.processPreCreate(metacard,
@@ -1004,34 +1002,34 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
                 metacard.setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
             }
-            createReq.getProperties()
+            createRequest.getProperties()
                     .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
 
             for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-                createReq = plugin.processPreCreate(createReq);
+                createRequest = plugin.processPreCreate(createRequest);
             }
 
-            createReq.getProperties()
+            createRequest.getProperties()
                     .put(Constants.OPERATION_TRANSACTION_KEY,
                             new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
                                     new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
-                    createReq = plugin.process(createReq);
+                    createRequest = plugin.process(createRequest);
                 } catch (PluginExecutionException e) {
                     LOGGER.info(
                             "Plugin processing failed. This is allowable. Skipping to next plugin.",
                             e);
                 }
             }
-            validateCreateRequest(createReq);
+            validateCreateRequest(createRequest);
 
             // Call the create on the catalog
-            LOGGER.debug("Calling catalog.create() with {} entries.", createReq.getMetacards()
+            LOGGER.debug("Calling catalog.create() with {} entries.", createRequest.getMetacards()
                     .size());
 
-            if (Requests.isLocal(createReq)) {
+            if (Requests.isLocal(createRequest)) {
                 createResponse = catalog.create(createRequest);
             }
 
@@ -1062,13 +1060,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } finally {
             if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
-                        createReq.getMetacards()
-                                .size(), buildIngestLog(createReq), ingestError);
+                        createRequest.getMetacards()
+                                .size(), buildIngestLog(createRequest), ingestError);
             }
         }
 
         try {
-            createResponse = validateFixCreateResponse(createResponse, createReq);
+            createResponse = validateFixCreateResponse(createResponse, createRequest);
             for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
                 try {
                     createResponse = plugin.process(createResponse);
@@ -1089,8 +1087,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         // building
         if (INGEST_LOGGER.isDebugEnabled()) {
             INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
-                    createReq.getMetacards()
-                            .size(), buildIngestLog(createReq));
+                    createRequest.getMetacards()
+                            .size(), buildIngestLog(createRequest));
         }
         return createResponse;
     }
