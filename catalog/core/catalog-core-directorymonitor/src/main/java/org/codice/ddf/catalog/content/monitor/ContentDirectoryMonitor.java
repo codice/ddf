@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -43,6 +45,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     private CamelContext camelContext;
 
     private List<RouteDefinition> routeCollection;
+
+    private List<String> parameters;
 
     Processor systemSubjectBinder = new SystemSubjectBinder();
 
@@ -108,6 +112,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (properties != null) {
             setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
             setCopyIngestedFiles((Boolean) properties.get("copyIngestedFiles"));
+            String[] parameterArray = (String[])properties.get("parameters");
+            if (parameterArray != null) {
+                setParameters(Arrays.asList(parameterArray));
+            }
             init();
         }
 
@@ -132,9 +140,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         this.copyIngestedFiles = copyIngestedFiles;
     }
 
-    /**
-     *
-     */
+    public void setParameters(List<String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public List<String> getParameters() {
+        return this.parameters;
+    }
+
     private void configureCamelRoute() {
         LOGGER.trace("ENTERING: configureCamelRoute");
 
@@ -155,8 +168,18 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 }
                 LOGGER.debug("inbox = {}", inbox);
 
-                from(inbox).process(systemSubjectBinder)
-                        .to("content:framework");
+                RouteDefinition routeDefinition = from(inbox);
+
+                if (parameters != null) {
+                    for (String parameter : parameters) {
+                        String[] parameters = parameter.split("=");
+                        if (parameters.length == 2) {
+                            routeDefinition.setHeader(parameters[0], simple(parameters[1]));
+                            LOGGER.debug("Adding Header to RouteDefinition : {} {}", parameters[0], parameters[1]);
+                        }
+                    }
+                }
+                routeDefinition.process(systemSubjectBinder).to("content:framework");
             }
         };
 
