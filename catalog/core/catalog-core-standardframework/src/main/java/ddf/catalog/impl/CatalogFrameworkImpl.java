@@ -2407,6 +2407,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
             }
+
+            resourceResponse.getProperties().put(Constants.METACARD_PROPERTY, metacard);
         } catch(DataUsageLimitExceededException e) {
             LOGGER.error("RuntimeException caused by: ", e);
             throw e;
@@ -2416,12 +2418,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         } catch (StopProcessingException e) {
             LOGGER.error("Resource not supported", e);
             throw new ResourceNotSupportedException(FAILED_BY_GET_RESOURCE_PLUGIN + e.getMessage());
-        }
-
-        if (resourceResponse == null) {
-            throw new ResourceNotFoundException(
-                    "Resource could not be found for the given attribute value: "
-                            + resourceReq.getAttributeValue());
         }
 
         return resourceResponse;

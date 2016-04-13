@@ -1659,6 +1659,8 @@ public class CatalogFrameworkImplTest {
         ResourceResponse response = framework.getResource(request, federatedSite1Name);
 
         assertThat(response, is(ResourceResponse.class));
+        Metacard responseMetacard = (Metacard) response.getProperties().get("metacard");
+        assertThat(responseMetacard, is(Metacard.class));
     }
 
     @Test
