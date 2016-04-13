@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -79,7 +79,6 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             // grab the SAML assertion associated with this Message from the
             // token store
             SecurityAssertion assertion = SecurityAssertionStore.getSecurityAssertion(message);
-            SecurityLogger.logSecurityAssertionInfo(message);
             boolean isPermitted = false;
 
             if ((assertion != null) && (assertion.getSecurityToken() != null)) {
@@ -101,14 +100,11 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
 
                     logger.debug("Checking for permission");
-                    SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] authenticated: "
-                            + user.isAuthenticated());
+                    SecurityLogger.audit("Is Subject authenticated? " + user.isAuthenticated(),
+                            user);
 
                     if (StringUtils.isEmpty(actionURI)) {
-                        logger.info("Denying access : unable to determine action for {}",
-                                user.getPrincipal());
-                        SecurityLogger.logWarn("Denying access to [" + user.getPrincipal()
-                                + "] for unknown action.");
+                        SecurityLogger.audit("Denying access to Subject for unknown action.", user);
                         throw new AccessDeniedException("Unauthorized");
                     }
 
@@ -118,39 +114,30 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     isPermitted = user.isPermitted(action);
 
                     logger.debug("Result of permission: {}", isPermitted);
-                    SecurityLogger.logInfo(
-                            "Is user [" + user.getPrincipal() + "] permitted: " + isPermitted);
+                    SecurityLogger.audit("Is Subject  permitted? " + isPermitted, user);
                     // store the subject so the DDF framework can use it later
                     ThreadContext.bind(user);
                     message.put(SecurityConstants.SAML_ASSERTION, user);
                     logger.debug("Added assertion information to message at key {}",
                             SecurityConstants.SAML_ASSERTION);
                 } catch (SecurityServiceException e) {
-                    logger.warn("Caught exception when trying to perform AuthZ.", e);
-                    SecurityLogger.logWarn(
+                    SecurityLogger.audit(
                             "Denying access : Caught exception when trying to authenticate user for service ["
-                                    + actionURI + "]",
-                            e);
+                                    + actionURI + "]", e);
                     throw new AccessDeniedException("Unauthorized");
                 }
                 if (!isPermitted) {
-                    if (action != null) {
-                        logger.info("Denying access to {} for service {}",
-                                user.getPrincipal(),
-                                action.getAction());
-                        SecurityLogger.logWarn(
-                                "Denying access to [" + user.getPrincipal() + "] for service "
-                                        + action.getAction());
-                    }
+                    SecurityLogger.audit(
+                            "Denying access to Subject for service: " + action.getAction(), user);
                     throw new AccessDeniedException("Unauthorized");
                 }
             } else {
-                logger.warn(
+                SecurityLogger.audit(
                         "Unable to retrieve the security assertion associated with the web service call.");
                 throw new AccessDeniedException("Unauthorized");
             }
         } else {
-            logger.warn(
+            SecurityLogger.audit(
                     "Unable to retrieve the current message associated with the web service call.");
             throw new AccessDeniedException("Unauthorized");
         }

@@ -38,7 +38,6 @@ import org.jasig.cas.client.validation.TicketValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 
 /**
@@ -164,7 +163,6 @@ public class WebSSOTokenValidator implements TokenValidator {
         } catch (WSSecurityException wsse) {
             String msg = "Unable to decode BST into ticket and service for validation to CAS.";
             LOGGER.error(msg, wsse);
-            SecurityLogger.logError(msg, wsse);
             return response;
         }
 
@@ -173,24 +171,19 @@ public class WebSSOTokenValidator implements TokenValidator {
         //
         try {
             LOGGER.debug("Validating ticket [{}] for service [{}].", ticket, service);
-            SecurityLogger.logInfo(
-                    "Validating ticket [" + ticket + "] for service [" + service + "].");
 
             // validate either returns an assertion or throws an exception
             Assertion assertion = validate(ticket, service);
 
             AttributePrincipal principal = assertion.getPrincipal();
             LOGGER.debug("User name retrieved from CAS: {}", principal.getName());
-            SecurityLogger.logInfo("User name retrieved from CAS: " + principal.getName());
 
             response.setPrincipal(principal);
             LOGGER.debug("CAS ticket successfully validated, setting state to valid.");
-            SecurityLogger.logInfo("CAS ticket successfully validated, setting state to valid.");
             validateTarget.setState(STATE.VALID);
 
         } catch (TicketValidationException e) {
             LOGGER.error("Unable to validate CAS token.", e);
-            SecurityLogger.logError("Unable to validate CAS token.");
         }
 
         return response;

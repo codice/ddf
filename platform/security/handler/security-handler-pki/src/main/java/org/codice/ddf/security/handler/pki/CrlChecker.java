@@ -58,7 +58,6 @@ public class CrlChecker {
         if (crl == null) {
             String errorMsg = "CRL is not set. Skipping CRL check";
             LOGGER.trace(errorMsg);
-            SecurityLogger.logTrace(errorMsg);
             return true;
         }
         LOGGER.trace("Checking request certs against CRL.");
@@ -76,11 +75,8 @@ public class CrlChecker {
             LOGGER.debug("Got {} certificate(s) in the incoming request", certs.length);
             for (X509Certificate curCert : certs) {
                 if (crl.isRevoked(curCert)) {
-                    SecurityLogger.logInfo("Denying access for user" + curCert.getSubjectDN()
+                    SecurityLogger.audit("Denying access for subject DN: " + curCert.getSubjectDN()
                             + " due to certificate being revoked by CRL.");
-                    LOGGER.warn(
-                            "Denying access for user {} due to certificate being revoked by CRL.",
-                            curCert.getSubjectDN());
                     return false;
                 }
             }
@@ -102,7 +98,6 @@ public class CrlChecker {
         if (location == null) {
             String errorMsg = "CRL property in " + encryptionPropertiesLocation
                     + "is not set. Certs will not be checked against a CRL";
-            SecurityLogger.logTrace(errorMsg);
             LOGGER.warn(errorMsg);
             crl = null;
         } else {

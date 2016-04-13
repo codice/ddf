@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -53,11 +53,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeQueryClaimsHandler.class);
 
-    protected static final String ERROR_RETRIEVING_ATTRIBUTES =
-            "Error retrieving attributes from external attribute store [{}] for DN [{}]. ";
-
-    protected static final String ERROR_RETRIEVING_ATTRIBUTES_SEC_LOG =
-            "Error retrieving attributes from external attribute store [%s] for DN [%s]. ";
+    protected static final String ERROR_RETRIEVING_ATTRIBUTES = "Error retrieving attributes from external attribute store [{}] for DN [{}]. ";
 
     private Object signatureProperties;
 
@@ -131,10 +127,9 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
             }
         } catch (URISyntaxException e) {
             LOGGER.error(ERROR_RETRIEVING_ATTRIBUTES, externalAttributeStoreUrl, nameId, e);
-            SecurityLogger.logError(String.format(ERROR_RETRIEVING_ATTRIBUTES_SEC_LOG,
-                    externalAttributeStoreUrl,
-                    nameId), e);
         }
+        SecurityLogger.audit("Returning claim values [{}] for Subject: " + principal.getName(),
+                claimCollection.toString());
         return claimCollection;
     }
 
@@ -164,10 +159,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         AttributeQueryClient attributeQueryClient;
         Assertion assertion;
         try {
-            attributeQueryClient = createAttributeQueryClient(simpleSign,
-                    externalAttributeStoreUrl,
-                    issuer,
-                    destination);
+            attributeQueryClient = createAttributeQueryClient(simpleSign, externalAttributeStoreUrl,
+                    issuer, destination);
             if (attributeQueryClient == null) {
                 return null;
             }
@@ -207,8 +200,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
                     String claimValue = attribute.getDOM()
                             .getTextContent();
                     if (attributeMap.containsKey(claimValue)) {
-                        claimsCollection.add(createSingleValuedClaim(claimType,
-                                attributeMap.get(claimValue)));
+                        claimsCollection.add(
+                                createSingleValuedClaim(claimType, attributeMap.get(claimValue)));
                     } else {
                         claimsCollection.add(createSingleValuedClaim(claimType, claimValue));
                     }
@@ -254,10 +247,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
         if (dispatcher == null) {
             return null;
         }
-        return new AttributeQueryClient(dispatcher,
-                simpleSign,
-                externalAttributeStoreUrl,
-                issuer,
+        return new AttributeQueryClient(dispatcher, simpleSign, externalAttributeStoreUrl, issuer,
                 destination);
     }
 
@@ -286,8 +276,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     protected Dispatch<StreamSource> createDispatcher(Service service) {
         Dispatch<StreamSource> dispatch = null;
         if (service != null) {
-            dispatch = service.createDispatch(QName.valueOf(portName),
-                    StreamSource.class,
+            dispatch = service.createDispatch(QName.valueOf(portName), StreamSource.class,
                     Service.Mode.MESSAGE);
             dispatch.getRequestContext()
                     .put(Dispatch.ENDPOINT_ADDRESS_PROPERTY, externalAttributeStoreUrl);
@@ -344,10 +333,10 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     }
 
     public void setAttributeMapLocation(String attributeMapLocation) {
-        if (StringUtils.isNotBlank(attributeMapLocation)
-                && !attributeMapLocation.equals(this.attributeMapLocation)) {
-            attributeMap = PropertiesLoader.toMap(PropertiesLoader.loadProperties(
-                    attributeMapLocation));
+        if (StringUtils.isNotBlank(attributeMapLocation) && !attributeMapLocation.equals(
+                this.attributeMapLocation)) {
+            attributeMap = PropertiesLoader.toMap(
+                    PropertiesLoader.loadProperties(attributeMapLocation));
             this.attributeMapLocation = attributeMapLocation;
         }
     }

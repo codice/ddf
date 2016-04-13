@@ -211,7 +211,7 @@ public class SecurityTest {
 
         assertThat(result, is("Success!"));
         verifyStatic();
-        SecurityLogger.logInfo("Elevating current user permissions to use System subject");
+        SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
         verifyZeroInteractions(shiroSubject);
     }
 
@@ -226,7 +226,7 @@ public class SecurityTest {
             security.runWithSubjectOrElevate(callable);
         } catch (SecurityServiceException e) {
             verifyStatic();
-            SecurityLogger.logInfo(
+            SecurityLogger.audit(
                     "Current user doesn't have sufficient privileges to run this command");
             throw e;
         }
@@ -250,7 +250,7 @@ public class SecurityTest {
 
         assertThat(securityExceptionThrown, is(true));
         verifyStatic();
-        SecurityLogger.logInfo("Current user doesn't have sufficient privileges to run this command");
+        SecurityLogger.audit("Current user doesn't have sufficient privileges to run this command");
         verifyZeroInteractions(shiroSubject);
     }
 

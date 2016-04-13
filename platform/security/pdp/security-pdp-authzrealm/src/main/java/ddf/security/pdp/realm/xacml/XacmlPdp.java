@@ -61,7 +61,7 @@ public class XacmlPdp {
                 primaryPrincipal,
                 curPermission.getAction());
 
-        SecurityLogger.logInfo("Checking if [" + primaryPrincipal + "] has access for action "
+        SecurityLogger.audit("Checking if [" + primaryPrincipal + "] has access for action "
                 + curPermission.getAction());
 
         if (CollectionUtils.isEmpty(info.getObjectPermissions())

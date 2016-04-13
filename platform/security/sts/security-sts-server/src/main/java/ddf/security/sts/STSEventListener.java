@@ -56,10 +56,10 @@ public class STSEventListener implements MapEventListener {
         if (status != null && FAILURE_STATUS.equals(status.toString())) {
             appendNotNull(eventProps, builder, KEYS.EXCEPTION);
             // on failure send as warn
-            SecurityLogger.logWarn(builder.toString());
+            SecurityLogger.auditWarn(builder.toString());
         } else {
             // otherwise throw as info
-            SecurityLogger.logInfo(builder.toString());
+            SecurityLogger.audit(builder.toString());
         }
 
     }

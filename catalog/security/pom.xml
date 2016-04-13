@@ -29,7 +29,6 @@
         <module>catalog-security-filter</module>
         <module>catalog-security-plugin</module>
         <module>catalog-security-logging</module>
-        <module>catalog-security-auditplugin</module>
         <module>catalog-security-policyplugin</module>
         <module>catalog-security-operationplugin</module>
         <module>catalog-security-xmlattributeplugin</module>

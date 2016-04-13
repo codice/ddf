@@ -112,7 +112,7 @@ public class CollectionPermission implements Permission {
     @Override
     public boolean implies(Permission p) {
         if (permissionList.isEmpty()) {
-            SecurityLogger.logDebug(
+            SecurityLogger.audit(
                     PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
                             + PERMISSION_END_MSG);
             return false;
@@ -128,13 +128,13 @@ public class CollectionPermission implements Permission {
                     }
                 }
                 if (!result) {
-                    SecurityLogger.logDebug(
+                    SecurityLogger.audit(
                             PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
                                     + p.toString() + PERMISSION_END_MSG);
                     return false;
                 }
             }
-            SecurityLogger.logDebug(
+            SecurityLogger.audit(
                     PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
                             + PERMISSION_END_MSG);
             return true;
@@ -142,13 +142,13 @@ public class CollectionPermission implements Permission {
 
         for (Permission permission : permissionList) {
             if (permission.implies(p)) {
-                SecurityLogger.logDebug(
+                SecurityLogger.audit(
                         PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p.toString()
                                 + PERMISSION_END_MSG);
                 return true;
             }
         }
-        SecurityLogger.logDebug(
+        SecurityLogger.audit(
                 PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
                         + PERMISSION_END_MSG);
         return false;

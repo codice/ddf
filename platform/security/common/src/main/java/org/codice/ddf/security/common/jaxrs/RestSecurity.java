@@ -84,7 +84,7 @@ public final class RestSecurity {
                             "CAUTION: Passing username & password on an un-encrypted protocol [{}]."
                                     + " This is a security issue. ",
                             client.getCurrentURI());
-                    SecurityLogger.logWarn(
+                    SecurityLogger.auditWarn(
                             "Passing username & password on an un-encrypted protocol ["
                                     + client.getCurrentURI() + "].");
                 } else {
