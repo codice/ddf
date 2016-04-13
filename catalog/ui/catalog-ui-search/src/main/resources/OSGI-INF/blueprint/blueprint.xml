@@ -59,7 +59,8 @@
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
                filter="(|(mime-type=application/xml)(mime-type=text/xml))"/>
 
-    <bean id="workspaceTransformer" class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceTransformer">
+    <bean id="workspaceTransformer"
+          class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceTransformer">
         <argument ref="catalogFramework"/>
         <argument ref="inputTransformer"/>
     </bean>
@@ -70,6 +71,37 @@
                 <argument ref="catalogFramework"/>
                 <argument ref="filterBuilder"/>
                 <argument ref="workspaceTransformer"/>
+            </bean>
+            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.AssociationsEndpoint">
+                <argument ref="catalogFramework"/>
+                <argument ref="filterBuilder"/>
+            </bean>
+            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.MetacardEditEndpoint">
+                <argument ref="catalogFramework"/>
+                <argument ref="filterBuilder"/>
+                <argument>
+                    <reference interface="ddf.catalog.data.AttributeRegistry"/>
+                </argument>
+            </bean>
+            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.ValidationEndpoint">
+                <argument ref="catalogFramework"/>
+                <argument ref="filterBuilder"/>
+                <argument>
+                    <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+                </argument>
+            </bean>
+            <bean class="org.codice.ddf.ui.searchui.standard.endpoints.RealEndpoint">
+                <argument ref="catalogFramework"/>
+                <argument ref="filterBuilder"/>
+                <argument>
+                    <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+                </argument>
+                <argument>
+                    <reference-list interface="ddf.catalog.data.MetacardType" />
+                </argument>
+                <argument>
+                    <reference interface="ddf.catalog.validation.ReportingMetacardValidator" />
+                </argument>
             </bean>
         </jaxrs:serviceBeans>
         <jaxrs:providers>

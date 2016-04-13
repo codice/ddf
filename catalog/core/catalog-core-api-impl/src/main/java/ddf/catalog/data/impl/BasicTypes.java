@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
