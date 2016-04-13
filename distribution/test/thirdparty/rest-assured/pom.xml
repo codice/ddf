@@ -97,6 +97,7 @@
                             com.jayway.restassured.path.json;version="${restassured.version}",
                             com.jayway.restassured.path.xml;version="${restassured.version}",
                             com.jayway.restassured.path.xml.element;version="${restassured.version}",
+                            com.jayway.restassured.path.xml.config;version="${restassured.version}",
                             com.jayway.restassured.response;version="${restassured.version}",
                             com.jayway.restassured.specification;version="${restassured.version}",
                             com.jayway.restassured.spi;version="${restassured.version}"
