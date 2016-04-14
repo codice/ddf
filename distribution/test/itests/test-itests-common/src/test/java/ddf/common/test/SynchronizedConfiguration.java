@@ -25,7 +25,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 public class SynchronizedConfiguration {
 
-    private static final long CONFIG_UPDATE_MAX_WAIT_MILLIS = TimeUnit.MINUTES.toMillis(1);
+    private static final long CONFIG_UPDATE_MAX_WAIT_MILLIS = TimeUnit.MINUTES.toMillis(2);
 
     private static final int LOOP_SLEEP_MILLIS = 5;
 

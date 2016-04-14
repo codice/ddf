@@ -54,6 +54,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,6 +214,8 @@ public class TestConfiguration extends AbstractIntegrationTest {
     private static ManagedServiceConfigFile invalidStartupConfigFile = new ManagedServiceConfigFile(
             "ddf.test.itests.platform.TestPlatform.startup.invalid");
 
+    private static final String FELIX_FILE_INSTALLER = "org.apache.felix.fileinstall";
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -327,6 +330,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testExport() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         console.runCommand(EXPORT_COMMAND);
@@ -336,6 +340,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testExportToDirectory() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         String response = console.runCommand(
@@ -351,6 +356,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testExportOnTopOfFile() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         File file = getDefaultExportDirectory().toFile();
@@ -366,6 +372,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testExportOnTopOfNestedFile() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         File file = getDefaultExportDirectory().toFile();
@@ -389,6 +396,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportAfterSavingAConfiguration() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         managedServiceNewConfig1.addConfigurationFileAndWait(configAdmin);
@@ -408,6 +416,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportAfterDeletingAConfiguration() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         managedServiceNewConfig2.addConfigurationFileAndWait(configAdmin);
@@ -429,13 +438,13 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportWarningForAbsolutePathOutsideDdfHome() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         FileUtils.copyFile(SYSTEM_PROPERTIES.toFile(), new File(TEST_FILE));
         System.setProperty(KEYSTORE_PROPERTY, ddfHome + File.separator + TEST_FILE);
 
         String response = console.runCommand(EXPORT_COMMAND);
-
         assertThat(String.format("Should not have been able to export to %s.",
                 getDefaultExportDirectory()),
                 response,
@@ -450,6 +459,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportWarningForAbsolutePathInsideDdfHome() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         System.setProperty(KEYSTORE_PROPERTY,
@@ -502,6 +512,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportWarningForRelativePathOutsideDdfHome() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         File systemProperties = new File(
@@ -511,7 +522,6 @@ public class TestConfiguration extends AbstractIntegrationTest {
         System.setProperty(KEYSTORE_PROPERTY, TEST_FILE);
 
         String response = console.runCommand(EXPORT_COMMAND);
-
         assertThat(String.format("Should not have been able to export to %s.",
                 getDefaultExportDirectory()),
                 response,
@@ -526,6 +536,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportFailureWithoutSystemPropertiesFile() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         FileUtils.moveFile(SYSTEM_PROPERTIES.toFile(), SYSTEM_PROPERTIES_COPY.toFile());
@@ -546,6 +557,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportFailureWithoutUsersPropertiesFile() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         FileUtils.moveFile(USERS_PROPERTIES.toFile(), USERS_PROPERTIES_COPY.toFile());
@@ -564,6 +576,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportFailureWithoutWSSecurityDirectory() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         FileUtils.moveDirectory(WS_SECURITY.toFile(), WS_SECURITY_COPY.toFile());
@@ -581,6 +594,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportCrlsEnabled() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
         enableCrls();
 
@@ -596,6 +610,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportFailureWithoutPDPDirectory() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         FileUtils.moveDirectory(PDP.toFile(), PDP_COPY.toFile());
@@ -615,6 +630,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
      */
     @Test
     public void testExportOverridesPreviousExport() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         String firstExportMessage = console.runCommand(EXPORT_COMMAND);
@@ -644,11 +660,13 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testConfigStatusImportSuccessful() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         addConfigurationFileAndWaitForSuccessfulProcessing(VALID_CONFIG_FILE_1,
                 getResourceAsStream(VALID_CONFIG_FILE_1));
         String output = console.runCommand(STATUS_COMMAND);
+
         assertThat(output, containsString(SUCCESSFUL_IMPORT_MESSAGE));
         assertThat(Files.exists(getPathToProcessedDirectory().resolve(VALID_CONFIG_FILE_1)),
                 is(true));
@@ -656,6 +674,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testConfigStatusFailedImports() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         addConfigurationFileAndWaitForFailedProcessing(INVALID_CONFIG_FILE_1,
@@ -663,6 +682,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
         addConfigurationFileAndWaitForFailedProcessing(INVALID_CONFIG_FILE_2,
                 getResourceAsStream(INVALID_CONFIG_FILE_2));
         String output = console.runCommand(STATUS_COMMAND);
+
         assertThat(output,
                 containsString(String.format(FAILED_IMPORT_MESSAGE, INVALID_CONFIG_FILE_1)));
         assertThat(output,
@@ -675,6 +695,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testConfigStatusFailedImportReimportSuccessful() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         InputStream is = getResourceAsStream(VALID_CONFIG_FILE_1);
@@ -700,6 +721,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
     @Test
     public void testExportMetacards() throws Exception {
+        closeFileHandlesInEtc();
         resetInitialState();
 
         List<String> metacardIds = ingestMetacardsForExport();
@@ -710,12 +732,21 @@ public class TestConfiguration extends AbstractIntegrationTest {
 
         console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
 
-        console.runCommand(String.format("%s %s",
+        console.runCommand(String.format("%s \"%s\"",
                 CATALOG_INGEST_COMMAND,
                 getDefaultExportDirectory().resolve("ddf.metacards")),
                 new RolePrincipal("admin"));
 
         assertMetacardsIngested(metacardIds.size());
+    }
+
+    /**
+     * The felix file installer keeps open file handles on files and directories in the etc directory on Windows.
+     * This prevents files and directories from being deleted in some of the TestConfiguration itests when running 
+     * the itests on Windows. This method stops the felix file installer which releases the file handles.
+     */
+    private void closeFileHandlesInEtc() throws BundleException {
+        getServiceManager().stopBundle(FELIX_FILE_INSTALLER);
     }
 
     private void assertMetacardsIngested(int expectedumberOfMetacards) throws Exception {
