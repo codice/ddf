@@ -379,6 +379,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-pptx</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.security</groupId>
             <artifactId>catalog-security-metacardattributeplugin</artifactId>
             <version>${project.version}</version>
