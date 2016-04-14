@@ -71,3 +71,35 @@ test('same timestamp, different entry', function (t) {
   d.write(onePointFive)
   d.end()
 })
+
+test('same hashes from identical objects.', function (t) {
+  t.timeoutAfter(25)
+  t.plan(1)
+
+  var d = uniq()
+  var list = []
+
+  d.on('data', function (entry) {
+    list.push(entry.hash)
+  })
+
+  d.write(one)
+  d.write(one)
+  t.equal(list[1], list[2])
+})
+
+test('different hashes from different objects.', function (t) {
+  t.timeoutAfter(25)
+  t.plan(1)
+
+  var d = uniq()
+  var list = []
+
+  d.on('data', function (entry) {
+    list.push(entry.hash)
+  })
+
+  d.write(one)
+  d.write(two)
+  t.notEqual(list[1], list[2])
+})

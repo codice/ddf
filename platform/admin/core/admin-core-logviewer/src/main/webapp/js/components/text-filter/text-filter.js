@@ -15,6 +15,8 @@
 
 import React from 'react'
 
+import './text-filter.less'
+
 export default ({ field, value, onChange }) => {
   const change = (e) => {
     var o = {}

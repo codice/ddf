@@ -17,6 +17,8 @@ import React from 'react'
 import moment from 'moment'
 import VisibilitySensor from 'react-visibility-sensor'
 
+import './log-viewer.less'
+
 import LevelSelector from '../level-selector/level-selector'
 import TextFilter from '../text-filter/text-filter'
 import LogEntry from '../log-entry/log-entry'

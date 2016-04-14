@@ -16,6 +16,8 @@
 import React from 'react'
 import moment from 'moment'
 
+import './log-entry.less'
+
 import levels from '../../levels'
 
 const format = (time) => {

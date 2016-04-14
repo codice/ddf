@@ -6,12 +6,11 @@
   "license": "LGPL-3.0",
   "main": "index.js",
   "scripts": {
+    "start": "hotreloadify src/main/webapp/js/index.js --proxy=https://localhost:8993 --open",
     "pretest": "standard ./src/**/*.js",
     "test": "browserify -d ./src/test/js/*.js | node",
     "prebuild": "mkdirp ./target/webapp",
-    "build:less": "lessc src/main/webapp/js/index.less > ./target/webapp/index.css",
-    "build:js": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js",
-    "build": "npm run build:less; npm run build:js"
+    "build": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js"
   },
   "keywords": [
     "log",
@@ -38,14 +37,16 @@
     "babel-preset-stage-0": "^6.5.0",
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
-    "less": "^2.6.1",
+    "hotreloadify": "0.0.5",
     "minifyify": "^7.3.2",
     "mkdirp": "^0.5.1",
+    "node-lessify": "^0.1.4",
     "standard": "^6.0.8",
     "tape": "^4.5.1"
   },
   "browserify": {
     "transform": [
+      "node-lessify",
       [
         "babelify",
         {

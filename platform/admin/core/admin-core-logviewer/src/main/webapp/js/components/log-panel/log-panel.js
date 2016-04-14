@@ -16,6 +16,8 @@
 import React from 'react'
 import LogViewer from '../log-viewer/log-viewer'
 
+import './log-panel.less'
+
 const panelClass = () => {
   if (window === window.top) {
     return 'panel'
