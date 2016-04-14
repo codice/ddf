@@ -19,13 +19,14 @@ import moment from 'moment'
 import './log-entry.less'
 
 import levels from '../../levels'
+import * as actions from '../../actions'
 
 const format = (time) => {
   return moment(time).format('D MMM YYYY, HH:mm:ss')
 }
 
 // log entry to display
-export default ({ entry, marks }) => {
+export default ({ entry, marks, expandedHash, dispatch }) => {
   // check if marks exist for filter highlighting
   const tryMark = (key) => {
     const mark = marks[key]
@@ -48,20 +49,37 @@ export default ({ entry, marks }) => {
     }
   }
 
+  const expandEntry = () => {
+    dispatch(actions.expandEntry(entry.hash))
+  }
+
+  const getMessageClasses = () => {
+    return (entry.hash === expandedHash) ? 'rowData messageExpanded' : 'rowData message'
+  }
+
+  const getRowClasses = () => {
+    if (entry.hash === expandedHash) {
+      return 'rowAnimation selectedRow ' + levels(entry.level)
+    } else {
+      return 'rowAnimation ' + levels(entry.level)
+    }
+  }
+
   return (
-    <tr className='rowAnimation'>
-      <td className='row' style={{ background: levels(entry.level) }} width={175}>
+    <tr onClick={expandEntry} className={getRowClasses()}>
+      <td className='rowData timestampColumn'>
         {format(entry.timestamp)}
       </td>
-      <td className='row' style={{ background: levels(entry.level) }} width={75}>
+      <td className='rowData levelColumn'>
         {entry.level}
       </td>
-      <td className='row' style={{ background: levels(entry.level) }}>
+      <td className={getMessageClasses()}>
         {tryMark('message')}
       </td>
-      <td className='row' style={{ background: levels(entry.level) }} width={200}>
+      <td className='rowData bundleColumn'>
         {tryMark('bundleName')}
       </td>
     </tr>
   )
 }
+

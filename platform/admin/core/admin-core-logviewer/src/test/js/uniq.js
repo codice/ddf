@@ -15,6 +15,7 @@
 
 import test from 'tape'
 import uniq from '../../main/webapp/js/uniq'
+import eventStream from 'event-stream'
 
 const one = { message: '1', timestamp: 1 }
 const two = { message: '2', timestamp: 2 }
@@ -24,82 +25,72 @@ test('old entry (duplicate)', function (t) {
   t.plan(2)
 
   var d = uniq()
+  var seq = [one]
 
-  d.on('data', function (entry) {
-    t.equal(entry.message, one.message)
-    t.equal(entry.timestamp, one.timestamp)
-  })
+  d.pipe(eventStream.writeArray(function (err, list) {
+    t.notOk(err)
+    t.deepEqual(list, seq)
+  }))
 
-  d.write(one)
-  d.write(one)
-  d.end()
+  eventStream.readArray([one, one]).pipe(d)
 })
 
 test('new entry', function (t) {
   t.timeoutAfter(25)
-  t.plan(4)
+  t.plan(2)
 
   var d = uniq()
-  var count = 0
   var seq = [one, two]
 
-  d.on('data', function (entry) {
-    t.equal(entry.message, seq[count].message)
-    t.equal(entry.timestamp, seq[count++].timestamp)
-  })
+  d.pipe(eventStream.writeArray(function (err, list) {
+    t.notOk(err)
+    t.deepEqual(list, seq)
+  }))
 
-  d.write(one)
-  d.write(two)
-  d.end()
+  eventStream.readArray([one, two]).pipe(d)
 })
 
 test('same timestamp, different entry', function (t) {
   t.timeoutAfter(25)
-  t.plan(4)
+  t.plan(2)
 
   var d = uniq()
   var onePointFive = { message: '.5', timestamp: 1 }
 
-  var count = 0
   var seq = [one, onePointFive]
-  d.on('data', function (entry) {
-    t.equal(entry.message, seq[count].message)
-    t.equal(entry.timestamp, seq[count++].timestamp)
-  })
 
-  d.write(one)
-  d.write(onePointFive)
-  d.end()
+  d.pipe(eventStream.writeArray(function (err, list) {
+    t.notOk(err)
+    t.deepEqual(list, seq)
+  }))
+
+  eventStream.readArray([one, onePointFive]).pipe(d)
 })
 
 test('same hashes from identical objects.', function (t) {
   t.timeoutAfter(25)
-  t.plan(1)
+  t.plan(2)
 
   var d = uniq()
-  var list = []
 
-  d.on('data', function (entry) {
-    list.push(entry.hash)
-  })
+  d.pipe(eventStream.writeArray(function (err, list) {
+    t.notOk(err)
+    t.equal(list[1], list[2])
+  }))
 
-  d.write(one)
-  d.write(one)
-  t.equal(list[1], list[2])
+  eventStream.readArray([one, one]).pipe(d)
 })
 
 test('different hashes from different objects.', function (t) {
   t.timeoutAfter(25)
-  t.plan(1)
+  t.plan(2)
 
   var d = uniq()
-  var list = []
 
-  d.on('data', function (entry) {
-    list.push(entry.hash)
-  })
+  d.pipe(eventStream.writeArray(function (err, list) {
+    t.notOk(err)
+    t.notEqual(list[1], list[2])
+  }))
 
-  d.write(one)
-  d.write(two)
-  t.notEqual(list[1], list[2])
+  eventStream.readArray([one, two]).pipe(d)
 })

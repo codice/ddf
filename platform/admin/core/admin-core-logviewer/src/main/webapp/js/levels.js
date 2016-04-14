@@ -13,21 +13,21 @@
  *
  **/
 
-import color from 'color'
-
+// Correspond to classes in log-entry.less
+// Also used to populate level-selector drop down list
 const levels = {
-  ERROR: 'red',
-  WARN: 'yellow',
-  INFO: 'white',
-  DEBUG: '#0f0',
-  TRACE: 'blue',
+  ERROR: 'errorLevel',
+  WARN: 'warnLevel',
+  INFO: 'infoLevel',
+  DEBUG: 'debugLevel',
+  TRACE: 'traceLevel',
   ALL: undefined
 }
 
 // log level colors
 export default (level) => {
   if (level !== undefined) {
-    return color(levels[level]).lighten(0.9).hslString()
+    return levels[level]
   }
 
   return Object.keys(levels)

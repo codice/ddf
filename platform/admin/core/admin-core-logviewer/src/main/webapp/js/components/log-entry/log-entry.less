@@ -10,10 +10,15 @@
   }
 }
 
-.row {
+.rowData {
   border-bottom: 1px #ccc solid;
   padding: 5px;
   word-wrap: break-word;
+  cursor: pointer;
+}
+
+.selectedRow {
+  opacity: 1;
 }
 
 .dim {
@@ -23,4 +28,48 @@
 .rowAnimation {
   position: relative;
   animation: slideAnimationKeyframes push ease 0.25s;
+}
+
+.timestampColumn {
+  width: 175px;
+}
+
+.levelColumn {
+  width: 75px;
+}
+
+.message {
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: inherit;
+}
+
+.messageExpanded {
+  white-space: normal;
+}
+
+.bundleColumn {
+  width: 200px;
+}
+
+.errorLevel {
+  background: #ffe6e6;
+}
+
+.warnLevel {
+  background: #ffffe6;
+}
+
+.infoLevel {
+  background: white;
+}
+
+.debugLevel {
+  background: #e6ffe6;
+}
+
+.traceLevel {
+  background: #e6e6ff;
 }

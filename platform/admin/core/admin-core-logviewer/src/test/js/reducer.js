@@ -18,6 +18,9 @@ import reducer from '../../main/webapp/js/reducers'
 import * as actions from '../../main/webapp/js/actions'
 import random from './random-entry'
 
+const hashOne = 'e59ff97941044f85df5297e1c302d260'
+const hashTwo = '3d98044ff54aa08c6e57cec51a21966a'
+
 test('initial state', function (t) {
   t.plan(2)
 
@@ -39,4 +42,31 @@ test('append logs', function (t) {
   var entries = [random()]
   var state = reducer(reducer(), actions.append(entries))
   t.deepEqual(state.logs, entries)
+})
+
+test('set expandEntry, undefined + hashOne = hashOne', function (t) {
+  t.plan(2)
+
+  var state = reducer()
+  t.equal(state.expandedHash, undefined, 'state has an undefined hash')
+  state = reducer(state, actions.expandEntry(hashOne))
+  t.equal(state.expandedHash, hashOne, 'state hash is changed to the new hash')
+})
+
+test('toggle expandEntry, hashOne + hashOne = undefined', function (t) {
+  t.plan(2)
+
+  var state = reducer(reducer(), actions.expandEntry(hashOne))
+  t.equal(state.expandedHash, hashOne, 'state hash is set to hashOne')
+  state = reducer(state, actions.expandEntry(hashOne))
+  t.equal(state.expandedHash, undefined, 'state hash is changed from hashOne to undefined')
+})
+
+test('change expandEntry, hashOne + hashTwo = hashTwo', function (t) {
+  t.plan(2)
+
+  var state = reducer(reducer(), actions.expandEntry(hashOne))
+  t.equal(state.expandedHash, hashOne, 'state hash is set to hashOne')
+  state = reducer(state, actions.expandEntry(hashTwo))
+  t.equal(state.expandedHash, hashTwo, 'state hash is changed to hashTwo')
 })

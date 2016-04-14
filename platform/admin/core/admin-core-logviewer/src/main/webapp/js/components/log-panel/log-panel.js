@@ -45,6 +45,7 @@ export default ({ state, dispatch }) => {
           filter={state.filter}
           logs={state.logs}
           displaySize={state.displaySize}
+          expandedHash={state.expandedHash}
           dispatch={dispatch} />
       </div>
     </div>
