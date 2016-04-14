@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,10 +17,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.net.MediaType;
 
+import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.UpdateStorageResponse;
@@ -50,6 +54,7 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 
 public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdateStoragePlugin {
@@ -109,7 +114,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
     /**
      * Deletes the directory that holds the FFmpeg binary.
-     * <p>
+     * <p/>
      * Called by Blueprint.
      */
     public void destroy() {
@@ -136,32 +141,47 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     }
 
     @Override
-    public CreateStorageResponse process(final CreateStorageResponse input) throws
-            PluginExecutionException {
+    public CreateStorageResponse process(final CreateStorageResponse input)
+            throws PluginExecutionException {
         // TODO: How to handle application/octet-stream?
-        final List<ContentItem> contentItems = input.getCreatedContentItems();
-        for (ContentItem contentItem : contentItems) {
-            process(contentItem);
+        try {
+            processContentItems(input.getCreatedContentItems(), input.getProperties());
+        } catch (IllegalArgumentException e) {
+            input.getProcessingErrors()
+                    .add(new ProcessingDetailsImpl(this.getClass()
+                            .getName(), e));
         }
-
         return input;
     }
 
     @Override
-    public UpdateStorageResponse process(final UpdateStorageResponse input) throws PluginExecutionException {
+    public UpdateStorageResponse process(final UpdateStorageResponse input)
+            throws PluginExecutionException {
         // TODO: How to handle application/octet-stream?
-        final List<ContentItem> contentItems = input.getUpdatedContentItems();
-        for (ContentItem contentItem : contentItems) {
-            process(contentItem);
+        try {
+            processContentItems(input.getUpdatedContentItems(), input.getProperties());
+        } catch (IllegalArgumentException e) {
+            input.getProcessingErrors()
+                    .add(new ProcessingDetailsImpl(this.getClass()
+                            .getName(), e));
         }
-
         return input;
     }
 
-    private void process(final ContentItem contentItem)
-            throws PluginExecutionException {
-        if (isVideo(contentItem)) {
-            createThumbnail(contentItem);
+    private void processContentItems(final List<ContentItem> contentItems,
+            final Map<String, Serializable> properties)
+            throws PluginExecutionException, IllegalArgumentException {
+        Map<String, Path> tmpContentPaths = (Map) properties.get(Constants.CONTENT_PATHS);
+        for (ContentItem contentItem : contentItems) {
+            if (isVideo(contentItem)) {
+                Path contentPath = tmpContentPaths.get(contentItem.getId());
+                if (contentPath == null) {
+                    throw new IllegalArgumentException(
+                            "No path for contentItem " + contentItem.getId()
+                                    + " provided. Skipping.");
+                }
+                createThumbnail(contentItem, contentPath);
+            }
         }
     }
 
@@ -172,15 +192,16 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         return createdMediaType.is(MediaType.ANY_VIDEO_TYPE);
     }
 
-    private void createThumbnail(final ContentItem contentItem) throws PluginExecutionException {
+    private void createThumbnail(final ContentItem contentItem, final Path contentPath)
+            throws PluginExecutionException {
         LOGGER.debug("About to create video thumbnail.");
 
         try {
             limitFFmpegProcessesSemaphore.acquire();
 
             try {
-                final byte[] thumbnailBytes = createThumbnail(contentItem.getFile()
-                        .getCanonicalPath());
+                final byte[] thumbnailBytes = createThumbnail(contentPath.toAbsolutePath()
+                        .toString());
                 addThumbnailAttribute(contentItem, thumbnailBytes);
                 LOGGER.debug("Successfully created video thumbnail.");
             } finally {
@@ -193,9 +214,9 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         }
     }
 
-    private void addThumbnailAttribute(final ContentItem contentItem,
-            final byte[] thumbnailBytes) {
-        contentItem.getMetacard().setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
+    private void addThumbnailAttribute(final ContentItem contentItem, final byte[] thumbnailBytes) {
+        contentItem.getMetacard()
+                .setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
     }
 
     private byte[] createThumbnail(final String videoFilePath)

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.content.StorageProvider;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateRequest;
@@ -39,19 +39,20 @@ import ddf.catalog.plugin.groomer.AbstractMetacardGroomerPlugin;
  */
 public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            StandardMetacardGroomerPlugin.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(StandardMetacardGroomerPlugin.class);
 
     private Pattern hexPattern = Pattern.compile("^[0-9A-Fa-f]+$");
 
     protected void applyCreatedOperationRules(CreateRequest createRequest, Metacard aMetacard,
             Date now) {
         LOGGER.debug("Applying standard rules on CreateRequest");
-        if (!isCatalogResourceUri(aMetacard.getResourceURI()) || !isCorrectFormatId(
-                aMetacard.getId())) {
-            aMetacard.setAttribute(new AttributeImpl(Metacard.ID, UUID.randomUUID()
-                    .toString()
-                    .replaceAll("-", "")));
+        if (!isCatalogResourceUri(aMetacard.getResourceURI())
+                || !isCorrectFormatId(aMetacard.getId())) {
+            aMetacard.setAttribute(new AttributeImpl(Metacard.ID,
+                    UUID.randomUUID()
+                            .toString()
+                            .replaceAll("-", "")));
         }
 
         if (aMetacard.getCreatedDate() == null) {
@@ -73,7 +74,7 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
     }
 
     private boolean isCatalogResourceUri(URI uri) {
-        return uri != null && StorageProvider.CONTENT_URI_PREFIX.equals(uri.getScheme());
+        return uri != null && ContentItem.CONTENT_SCHEME.equals(uri.getScheme());
     }
 
     private boolean isCorrectFormatId(String id) {
@@ -91,7 +92,11 @@ public class StandardMetacardGroomerPlugin extends AbstractMetacardGroomerPlugin
 
             LOGGER.info(
                     "{} in metacard must match the Update {}, overwriting metacard {} [{}] with the update identifier [{}]",
-                    Metacard.ID, Metacard.ID, Metacard.ID, aMetacard.getId(), anUpdate.getKey());
+                    Metacard.ID,
+                    Metacard.ID,
+                    Metacard.ID,
+                    aMetacard.getId(),
+                    anUpdate.getKey());
             aMetacard.setAttribute(new AttributeImpl(Metacard.ID, anUpdate.getKey()));
 
         }

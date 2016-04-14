@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.content.resource.reader;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -42,8 +41,6 @@ import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.impl.ResourceImpl;
 
 public class ContentResourceReader implements ResourceReader {
-    private static final String URL_CONTENT_SCHEME = "content";
-
     private static final String VERSION = "1.0";
 
     private static final String ID = "ContentResourceReader";
@@ -56,7 +53,7 @@ public class ContentResourceReader implements ResourceReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentResourceReader.class);
 
-    private static Set<String> qualifierSet = Collections.singleton(URL_CONTENT_SCHEME);
+    private static Set<String> qualifierSet = Collections.singleton(ContentItem.CONTENT_SCHEME);
 
     private List<StorageProvider> storageProviders;
 
@@ -139,7 +136,7 @@ public class ContentResourceReader implements ResourceReader {
         }
 
         if (resourceUri.getScheme()
-                .equals(URL_CONTENT_SCHEME)) {
+                .equals(ContentItem.CONTENT_SCHEME)) {
             LOGGER.debug("Resource URI is content scheme");
             String contentId = resourceUri.getSchemeSpecificPart();
             if (contentId != null && !contentId.isEmpty()) {
@@ -147,12 +144,12 @@ public class ContentResourceReader implements ResourceReader {
                 try {
                     ReadStorageResponse readResponse = storage.read(readRequest);
                     ContentItem contentItem = readResponse.getContentItem();
-                    File filePathName = contentItem.getFile();
-                    String fileName = filePathName.getName();
+                    String fileName = contentItem.getFilename();
                     LOGGER.debug("resource name: " + fileName);
                     InputStream is = contentItem.getInputStream();
-                    response = new ResourceResponseImpl(
-                            new ResourceImpl(new BufferedInputStream(is), contentItem.getMimeType(),
+                    response =
+                            new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is),
+                                    contentItem.getMimeType(),
                                     fileName));
                 } catch (StorageException e) {
                     throw new ResourceNotFoundException(e);

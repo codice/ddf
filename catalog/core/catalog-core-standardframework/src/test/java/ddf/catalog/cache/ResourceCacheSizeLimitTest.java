@@ -297,8 +297,7 @@ public class ResourceCacheSizeLimitTest {
 
     private ReliableResource simulateAddFileToProductCache(String key, String fileName,
             String destFileName, IMap<String, ReliableResource> cacheMap) throws IOException {
-        String productOriginalLocation =
-                System.getProperty("user.dir") + "/src/test/resources/" + fileName;
+        String productOriginalLocation = this.getClass().getResource("/" + fileName).getFile();
         File rrCachedFile = new File(productCacheDir + "/" + destFileName);
         FileUtils.copyFile(new File(productOriginalLocation), rrCachedFile);
         ReliableResource rr = new ReliableResource(key,

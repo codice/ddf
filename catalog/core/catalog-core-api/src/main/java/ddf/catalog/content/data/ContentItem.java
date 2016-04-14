@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,7 +13,6 @@
  */
 package ddf.catalog.content.data;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -24,17 +23,18 @@ import ddf.catalog.data.Metacard;
 /**
  * ContentItem is the POJO representing the information about the content to be stored in the
  * {@link ddf.catalog.content.StorageProvider}.
- *
+ * <p>
  * A ContentItem encapsulates the content's globally unique ID, mime type, and input stream (i.e.,
  * the actual content).
- *
+ * <p>
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
- *
  */
 public interface ContentItem {
+
+    String CONTENT_SCHEME = "content";
 
     String DEFAULT_MIME_TYPE = "application/octet-stream";
 
@@ -49,16 +49,30 @@ public interface ContentItem {
 
     /**
      * Return the URI of the content item.
+     * <p>
+     * This is used by the {@link ddf.catalog.content.StorageProvider} when the content item is stored in the content
+     * repository and will be of the form <code>content:&lt;GUID&gt;#&lt;qualifier&gt;</code>.
+     * <p>
+     * Or this is used by the endpoint when the client specifies the content item's location which
+     * means the content is stored remote/external to DDF.
      *
      * @return the URI of the content item
      */
     String getUri();
 
     /**
-     * Returns the filename of the content item
-     * @return filename
+     * An optional field to provide additional information about a {@link ContentItem}
+     *
+     * @return the qualifier of the {@link ContentItem}
      */
-    String getFilename(); // DDF-1856
+    String getQualifier();
+
+    /**
+     * The filename of the {@link ContentItem}. If not set it will default to {@link #DEFAULT_FILE_NAME}
+     *
+     * @return the filename of the {@link ContentItem}
+     */
+    String getFilename();
 
     /**
      * Return the mime type for the content item, e.g., image/nitf or application/pdf
@@ -83,14 +97,6 @@ public interface ContentItem {
     InputStream getInputStream() throws IOException;
 
     /**
-     * Return the file associated with the content item.
-     *
-     * @return the content item's associated file
-     * @throws IOException if the content cannot be resolved to be an actual file
-     */
-    File getFile() throws IOException;
-
-    /**
      * Return the total number of bytes in the item's input stream.
      *
      * @return returns the total number of bytes that can be read from the input stream
@@ -101,6 +107,7 @@ public interface ContentItem {
 
     /**
      * Returns the metacard associated with this product.
+     *
      * @return Metacard
      */
     Metacard getMetacard();

@@ -24,9 +24,14 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.UUID;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -42,6 +47,7 @@ import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.CreateStorageResponse;
@@ -59,6 +65,11 @@ public class TestVideoThumbnailPlugin {
     private VideoThumbnailPlugin videoThumbnailPlugin;
 
     private ContentItem mockContentItem;
+
+    private static final String ID = UUID.randomUUID()
+            .toString();
+
+    private HashMap<String, Serializable> properties;
 
     @Before
     public void setUp() throws IOException, MimeTypeParseException, URISyntaxException {
@@ -120,20 +131,25 @@ public class TestVideoThumbnailPlugin {
         doReturn(mockMetacard).when(mockContentItem)
                 .getMetacard();
 
+        doReturn(ID).when(mockContentItem)
+                .getId();
+
         doReturn(new MimeType("video/mp4")).when(mockContentItem)
                 .getMimeType();
 
-        doReturn(new File(getClass().getClassLoader()
-                .getResource(resource)
-                .toURI())).when(mockContentItem)
-                .getFile();
+        HashMap<String, Path> contentPaths = new HashMap<>();
+        Path tmpPath = Paths.get(getClass().getResource(resource)
+                .toURI());
+        contentPaths.put(ID, tmpPath);
+        properties = new HashMap<>();
+        properties.put(Constants.CONTENT_PATHS, contentPaths);
     }
 
     @Test
     public void testMediumCreatedItemGifThumbnail() throws Exception {
         // This file is short enough that the plugin won't try to grab thumbnails from different
         // portions of the video but is long enough that the resulting thumbnail will be a GIF.
-        final byte[] thumbnail = getCreatedItemThumbnail("medium.mp4");
+        final byte[] thumbnail = getCreatedItemThumbnail("/medium.mp4");
         assertThat(thumbnail, notNullValue());
         verifyThumbnailIsGif(thumbnail);
     }
@@ -142,7 +158,7 @@ public class TestVideoThumbnailPlugin {
     public void testShortCreatedItemStaticImageThumbnail() throws Exception {
         // This file is short enough that FFmpeg will only generate one thumbnail for it even if we
         // request more than one.
-        final byte[] thumbnail = getCreatedItemThumbnail("short.mp4");
+        final byte[] thumbnail = getCreatedItemThumbnail("/short.mp4");
         assertThat(thumbnail, notNullValue());
         verifyThumbnailIsPng(thumbnail);
     }
@@ -151,7 +167,7 @@ public class TestVideoThumbnailPlugin {
     public void testLongCreatedItemGifThumbnail() throws Exception {
         // This file is long enough that the plugin will try to grab thumbnails from different
         // portions of the video.
-        final byte[] thumbnail = getCreatedItemThumbnail("long.mp4");
+        final byte[] thumbnail = getCreatedItemThumbnail("/long.mp4");
         assertThat(thumbnail, notNullValue());
         verifyThumbnailIsGif(thumbnail);
     }
@@ -168,6 +184,9 @@ public class TestVideoThumbnailPlugin {
 
         doReturn(mockCreateRequest).when(mockCreateResponse)
                 .getRequest();
+
+        doReturn(properties).when(mockCreateResponse)
+                .getProperties();
 
         final CreateStorageResponse processedCreateResponse = videoThumbnailPlugin.process(
                 mockCreateResponse);
@@ -203,7 +222,7 @@ public class TestVideoThumbnailPlugin {
 
     @Test
     public void testUpdatedItemGifThumbnail() throws Exception {
-        setUpMockContentItem("medium.mp4");
+        setUpMockContentItem("/medium.mp4");
 
         final UpdateStorageResponse mockUpdateResponse = mock(UpdateStorageResponse.class);
 
@@ -214,6 +233,9 @@ public class TestVideoThumbnailPlugin {
 
         doReturn(mockUpdateRequest).when(mockUpdateResponse)
                 .getRequest();
+
+        doReturn(properties).when(mockUpdateResponse)
+                .getProperties();
 
         final UpdateStorageResponse processedUpdateResponse = videoThumbnailPlugin.process(
                 mockUpdateResponse);
@@ -274,15 +296,15 @@ public class TestVideoThumbnailPlugin {
                 mockUpdateResponse);
 
         assertThat(processedUpdateResponse.getUpdatedContentItems()
-                        .get(0)
-                        .getMetacard()
-                        .getAttribute(Metacard.THUMBNAIL), CoreMatchers.is(nullValue()));
+                .get(0)
+                .getMetacard()
+                .getAttribute(Metacard.THUMBNAIL), CoreMatchers.is(nullValue()));
     }
 
     @Test
     public void testCorruptedVideo() {
         try {
-            getCreatedItemThumbnail("corrupted.mp4");
+            getCreatedItemThumbnail("/corrupted.mp4");
             fail("The video thumbnail plugin should have thrown an exception.");
         } catch (Exception e) {
             assertThat(e, instanceOf(PluginExecutionException.class));
