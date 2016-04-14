@@ -17,12 +17,10 @@ import static org.codice.ddf.ui.searchui.standard.endpoints.EndpointUtil.getStri
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -31,22 +29,20 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
-import javax.xml.ws.Endpoint;
+import javax.ws.rs.core.Response;
 
-import org.opengis.filter.Filter;
+import org.boon.json.JsonFactory;
+import org.boon.json.JsonParserFactory;
+import org.boon.json.JsonSerializerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
@@ -67,20 +63,53 @@ public class AssociationsEndpoint {
 
     @GET
     @Path("/{id}")
-    public Associated getAssociations(@PathParam("id") String id) throws Exception {
-        return getAssociatedMetacardsIds(id);
+    public Response getAssociations(@PathParam("id") String id) throws Exception {
+        Associated associated = getAssociatedMetacardsIds(id);
+
+        AndrewAssociations aaRelated = new AndrewAssociations();
+        aaRelated.type = "related";
+        aaRelated.ids = associated.related;
+
+        AndrewAssociations aaDerived = new AndrewAssociations();
+        aaDerived.type = "derived";
+        aaDerived.ids = associated.derived;
+
+        List<AndrewAssociations> associations = new ArrayList<>();
+        associations.add(aaDerived);
+        associations.add(aaRelated);
+        return Response.ok(JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(associations), MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @GET
     @Path("/{id}/related")
-    public List<String> getRelatedAssociations(@PathParam("id") String id) throws Exception {
-        return getAssociatedMetacardsIds(id).related;
+    public Response getRelatedAssociations(@PathParam("id") String id) throws Exception {
+        List<String> related = getAssociatedMetacardsIds(id).related;
+        AndrewAssociations aaRelated = new AndrewAssociations();
+        aaRelated.type = "related";
+        aaRelated.ids = related;
+        return Response.ok(JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(aaRelated), MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @GET
     @Path("/{id}/derived")
-    public List<String> getDerivedAssociations(@PathParam("id") String id) throws Exception {
-        return getAssociatedMetacardsIds(id).derived;
+    public Response getDerivedAssociations(@PathParam("id") String id) throws Exception {
+        List<String> derived = getAssociatedMetacardsIds(id).derived;
+        AndrewAssociations aaDerived = new AndrewAssociations();
+        aaDerived.type = "derived";
+        aaDerived.ids = derived;
+        return Response.ok(JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(aaDerived), MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @PUT
@@ -168,6 +197,7 @@ public class AssociationsEndpoint {
         Associated associated = new Associated();
         associated.related = getStringList(related);
         associated.derived = getStringList(derived);
+
         return associated;
     }
 
@@ -175,6 +205,11 @@ public class AssociationsEndpoint {
         List<String> related;
 
         List<String> derived;
+    }
+
+    private class AndrewAssociations {
+        String type;
+        List<String> ids;
     }
 }
 

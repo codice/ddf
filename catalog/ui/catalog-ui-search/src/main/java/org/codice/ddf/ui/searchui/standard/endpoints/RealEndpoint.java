@@ -113,9 +113,8 @@ public class RealEndpoint {
         Map<String, Object> metacardMap = JsonFactory.create()
                 .parser()
                 .parseMap(metacard);
-        Metacard newMetacard = getMetacard.apply((String)metacardMap.get(Metacard.ID));
+        Metacard newMetacard = getMetacard.apply((String) metacardMap.get(Metacard.ID));
         MetacardType metacardType = newMetacard.getMetacardType();
-
 
         for (Map.Entry<String, Object> entry : metacardMap.entrySet()) {
             if (entry.getValue() == null) {
@@ -123,7 +122,8 @@ public class RealEndpoint {
             }
 
             if (Metacard.THUMBNAIL.equals(entry.getKey())) {
-                newMetacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, (String) entry.getValue()));
+                newMetacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL,
+                        (String) entry.getValue()));
             }
 
             if (metacardType.getAttributeDescriptor(entry.getKey())
@@ -137,13 +137,12 @@ public class RealEndpoint {
                     data = getSerializableList((List) entry.getValue()).get(0);
                 } else if (entry.getValue() instanceof Long) {
                     data = (Long) entry.getValue();
-                } else if (entry.getValue() instanceof String){
+                } else if (entry.getValue() instanceof String) {
                     data = (String) entry.getValue();
                 } else {
                     throw new GoldPlatingException();
                 }
-                newMetacard.setAttribute(new AttributeImpl(entry.getKey(),
-                        data));
+                newMetacard.setAttribute(new AttributeImpl(entry.getKey(), data));
             }
         }
 
@@ -169,8 +168,29 @@ public class RealEndpoint {
 
         return Response.ok(JsonFactory.create(new JsonParserFactory(),
                 new JsonSerializerFactory().includeNulls()
-                        .includeEmpty()).toJson(transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
+                        .includeEmpty())
+                .toJson(transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
                 .build();
+    }
+
+    @GET
+    @Path("/metacard/{id}/validation")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response validateMetacard(@PathParam("id") String id) throws Exception {
+        Metacard newMetacard = getMetacard.apply(id);
+        MetacardType metacardType = newMetacard.getMetacardType();
+
+        // TODO (RCZ) - don't assume this only service, do for real
+        Optional<MetacardValidationReport> metacardValidationReport =
+                reportingMetacardValidator.validateMetacard(newMetacard);
+
+        if (metacardValidationReport.isPresent()) {
+            return Response.status(400)
+                    .entity(metacardValidationReport.get()
+                            .getAttributeValidationViolations())
+                    .build();
+        }
+        return Response.ok("[]",MediaType.APPLICATION_JSON).build();
     }
 
     private List<Serializable> getSerializableList(List list) {
