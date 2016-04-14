@@ -212,6 +212,17 @@ public interface Metacard extends Serializable {
     String RESOURCE_CHECKSUM = "resource-checksum";
 
     /**
+     * {@link Attribute} that provides URIs for derived formats of the {@literal Metacard.RESOURCE_URI}
+     */
+    String DERIVED_RESOURCE_URI = "resource.dervied-resource-uri";
+
+    /**
+     * {@link Attribute} name for accessing the derived resource download URL for the derived
+     * products of this {@link Metacard}. <br/>
+     */
+    String DERIVED_RESOURCE_DOWNLOAD_URL = "resource.derived-download-url";
+
+    /**
      * Returns {@link Attribute} for given attribute name.
      *
      * @param name name of attribute

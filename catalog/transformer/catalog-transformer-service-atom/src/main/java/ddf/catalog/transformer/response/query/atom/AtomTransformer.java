@@ -426,13 +426,13 @@ public class AtomTransformer implements QueryResponseTransformer {
         if (actionProvider != null) {
             try {
 
-                Action action = actionProvider.getAction(metacard);
+                List<Action> actions = actionProvider.getActions(metacard);
 
-                if (action != null && action.getUrl() != null) {
+                if (actions != null && !actions.isEmpty()) {
                     if (actionProvider.equals(resourceActionProvider)
                             && metacard.getResourceURI() != null) {
 
-                        Link viewLink = addLinkHelper(action,
+                        Link viewLink = addLinkHelper(actions.get(0),
                                 entry,
                                 linkType,
                                 MIME_TYPE_OCTET_STREAM);
@@ -447,11 +447,11 @@ public class AtomTransformer implements QueryResponseTransformer {
                     } else if (actionProvider.equals(thumbnailActionProvider)
                             && metacard.getThumbnail() != null) {
 
-                        addLinkHelper(action, entry, linkType, MIME_TYPE_JPEG);
+                        addLinkHelper(actions.get(0), entry, linkType, MIME_TYPE_JPEG);
                     } else if (!actionProvider.equals(resourceActionProvider)
                             && !actionProvider.equals(thumbnailActionProvider)) {
 
-                        addLinkHelper(action, entry, linkType, MIME_TYPE_OCTET_STREAM);
+                        addLinkHelper(actions.get(0), entry, linkType, MIME_TYPE_OCTET_STREAM);
                     }
 
                 }

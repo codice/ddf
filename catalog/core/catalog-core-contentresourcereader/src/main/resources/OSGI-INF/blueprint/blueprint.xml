@@ -40,5 +40,16 @@
             <entry key="shortname" value="ContentResourceReader"/>
         </service-properties>
     </service>
+
+    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)"/>
+
+    <service interface="ddf.action.ActionProvider" >
+        <service-properties>
+            <entry key="id" value="catalog.data.metacard.derived-content"/>
+        </service-properties>
+        <bean class="org.codice.ddf.catalog.content.resource.reader.DerivedContentActionProvider">
+            <argument ref="resourceActionProvider"/>
+        </bean>
+    </service>
   
 </blueprint>

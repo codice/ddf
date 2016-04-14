@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,9 +14,9 @@
 package org.codice.ddf.endpoints.rest.action;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,8 +53,9 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertNull("A bad url should have been caught and a null action returned.",
-                actionProvider.getAction(metacard));
+        assertThat("A bad url should have been caught and an empty list returned.",
+                actionProvider.getActions(metacard),
+                hasSize(0));
 
     }
 
@@ -74,8 +75,9 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertNull("A bad url should have been caught and a null action returned.",
-                actionProvider.getAction(metacard));
+        assertThat("A bad url should have been caught and an empty list returned.",
+                actionProvider.getActions(metacard),
+                hasSize(0));
 
     }
 
@@ -93,7 +95,8 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         this.configureActionProvider();
 
         // when
-        Action action = actionProvider.getAction(metacard);
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
 
         // then
         assertEquals(MetacardTransformerActionProvider.TITLE_PREFIX + SAMPLE_TRANSFORMER_ID,
@@ -151,7 +154,8 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         this.configureActionProvider();
 
         // when
-        Action action = actionProvider.getAction(metacard);
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
 
         // then
         assertThat(action.getUrl()

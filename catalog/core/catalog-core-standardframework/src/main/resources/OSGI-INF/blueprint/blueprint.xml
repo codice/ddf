@@ -221,9 +221,13 @@
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider"
                filter="id=catalog.data.metacard.resource"
                availability="optional"/>
+    <reference id="derivedActionProvider" interface="ddf.action.ActionProvider"
+               filter="id=catalog.data.metacard.derived-content"
+               availability="optional"/>
 
     <bean id="queryResponsePostProcessor" class="ddf.catalog.impl.QueryResponsePostProcessor">
         <argument ref="resourceActionProvider"/>
+        <argument ref="derivedActionProvider"/>
     </bean>
 
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>

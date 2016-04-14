@@ -119,5 +119,10 @@
             <artifactId>sdk-sample-metacard-validator</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.distribution.sdk</groupId>
+            <artifactId>sample-storageplugins</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

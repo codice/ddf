@@ -18,11 +18,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,6 +142,14 @@ public class ContentResourceReader implements ResourceReader {
             LOGGER.debug("Resource URI is content scheme");
             String contentId = resourceUri.getSchemeSpecificPart();
             if (contentId != null && !contentId.isEmpty()) {
+                if (arguments != null && StringUtils.isNotBlank((String)arguments.get("options"))){
+                    try {
+                        resourceUri = new URI(resourceUri.getScheme(), resourceUri.getSchemeSpecificPart(), (String)arguments.get("options"));
+                    } catch (URISyntaxException e) {
+                        throw new ResourceNotFoundException("Unable to create with qualifier", e);
+                    }
+                }
+
                 ReadStorageRequest readRequest = new ReadStorageRequestImpl(resourceUri, arguments);
                 try {
                     ReadStorageResponse readResponse = storage.read(readRequest);

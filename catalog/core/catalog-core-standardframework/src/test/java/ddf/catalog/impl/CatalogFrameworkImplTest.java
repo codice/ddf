@@ -2095,7 +2095,7 @@ public class CatalogFrameworkImplTest {
         frameworkProperties.setFederatedSources(sources);
         frameworkProperties.setConnectedSources(new ArrayList<>());
         frameworkProperties.setFederationStrategy(federationStrategy);
-        frameworkProperties.setQueryResponsePostProcessor(new QueryResponsePostProcessor(null));
+        frameworkProperties.setQueryResponsePostProcessor(new QueryResponsePostProcessor(null, null));
         frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(frameworkProperties);

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -69,8 +70,8 @@ public class TestLogoutService {
     public void testLogout() throws IOException, ParseException, SecurityServiceException {
         KarafLogoutAction karafLogoutActionProvider = new KarafLogoutAction();
         LdapLogoutAction ldapLogoutActionProvider = new LdapLogoutAction();
-        Action karafLogoutAction = karafLogoutActionProvider.getAction(null);
-        Action ldapLogoutAction = ldapLogoutActionProvider.getAction(null);
+        List<Action> karafLogoutActions = karafLogoutActionProvider.getActions(null);
+        List<Action> ldapLogoutActions = ldapLogoutActionProvider.getActions(null);
 
         LogoutService logoutService = new LogoutService();
         logoutService.setHttpSessionFactory(sessionFactory);
@@ -86,26 +87,40 @@ public class TestLogoutService {
         assertEquals(2, actionProperties.size());
         JSONObject karafActionProperty = ((JSONObject) actionProperties.get(0));
 
-        assertEquals(karafActionProperty.get("description"), karafLogoutAction.getDescription());
+        assertEquals(karafActionProperty.get("description"),
+                karafLogoutActions.get(0)
+                        .getDescription());
         assertEquals(karafActionProperty.get("realm"),
-                karafLogoutAction.getId()
-                        .substring(karafLogoutAction.getId()
+                karafLogoutActions.get(0)
+                        .getId()
+                        .substring(karafLogoutActions.get(0)
+                                .getId()
                                 .lastIndexOf(".") + 1));
-        assertEquals(karafActionProperty.get("title"), karafLogoutAction.getTitle());
+        assertEquals(karafActionProperty.get("title"),
+                karafLogoutActions.get(0)
+                        .getTitle());
         assertEquals(karafActionProperty.get("url"),
-                karafLogoutAction.getUrl()
+                karafLogoutActions.get(0)
+                        .getUrl()
                         .toString());
 
         JSONObject ldapActionProperty = ((JSONObject) actionProperties.get(1));
 
-        assertEquals(ldapActionProperty.get("description"), ldapLogoutAction.getDescription());
+        assertEquals(ldapActionProperty.get("description"),
+                ldapLogoutActions.get(0)
+                        .getDescription());
         assertEquals(ldapActionProperty.get("realm"),
-                ldapLogoutAction.getId()
-                        .substring(ldapLogoutAction.getId()
+                ldapLogoutActions.get(0)
+                        .getId()
+                        .substring(ldapLogoutActions.get(0)
+                                .getId()
                                 .lastIndexOf(".") + 1));
-        assertEquals(ldapActionProperty.get("title"), ldapLogoutAction.getTitle());
+        assertEquals(ldapActionProperty.get("title"),
+                ldapLogoutActions.get(0)
+                        .getTitle());
         assertEquals(ldapActionProperty.get("url"),
-                ldapLogoutAction.getUrl()
+                ldapLogoutActions.get(0)
+                        .getUrl()
                         .toString());
     }
 }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,8 @@ package org.codice.ddf.security.servlet.logout;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
@@ -46,12 +48,17 @@ public class LdapLogoutAction implements ActionProvider {
     }
 
     @Override
-    public <T> Action getAction(T subject) {
-        return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
+    public <T> List<Action> getActions(T subject) {
+        return Arrays.asList(new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl));
     }
 
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public <T> boolean canHandle(T subject) {
+        return true;
     }
 }

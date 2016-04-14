@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import junit.framework.Assert;
 
-import ddf.action.impl.ActionImpl;
+import ddf.action.Action;
 import ddf.security.encryption.EncryptionService;
 
 public class IdpLogoutActionProviderTest {
@@ -51,7 +51,8 @@ public class IdpLogoutActionProviderTest {
         Subject subject = mock(Subject.class);
         HashMap map = new HashMap();
         map.put("idp", subject);
-        ActionImpl action = (ActionImpl) idpLogoutActionProvider.getAction(map);
+        Action action = idpLogoutActionProvider.getActions(map)
+                .get(0);
         Assert.assertTrue("Expected the encrypted nameId and time",
                 action.getUrl()
                         .getQuery()
@@ -64,7 +65,8 @@ public class IdpLogoutActionProviderTest {
         HashMap map = new HashMap();
         map.put("idp", notsubject);
         when(encryptionService.encrypt(any(String.class))).thenReturn(nameIdTime);
-        ActionImpl action = (ActionImpl) idpLogoutActionProvider.getAction(map);
+        Action action = idpLogoutActionProvider.getActions(map)
+                .get(0);
         Assert.assertNull("Expected the url to be null", action.getUrl());
     }
 

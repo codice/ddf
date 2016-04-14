@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -89,7 +90,7 @@ public class TestKMLTransformerImpl {
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         ActionProvider mockActionProvider = mock(ActionProvider.class);
         Action mockAction = mock(Action.class);
-        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
+        when(mockActionProvider.getActions(any(Metacard.class))).thenReturn(Arrays.asList(mockAction));
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
         kmlTransformer = new KMLTransformerImpl(mockContext,
                 DEFAULT_STYLE_LOCATION,

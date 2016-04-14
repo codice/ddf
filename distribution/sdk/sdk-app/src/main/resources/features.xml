@@ -37,7 +37,15 @@
     </feature>
     <feature name="sample-validator" version="${project.version}" install="manual"
              description="SDK sample metacard validator">
-        <bundle>mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}</bundle>
+        <bundle>
+            mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/${project.version}
+        </bundle>
+    </feature>
+
+    <feature name="sample-storageplugins" version="${project.version}" install="manual"
+             description="SDK sample storage plugin">
+        <bundle>mvn:ddf.distribution.sdk/sample-storageplugins/${project.version}
+        </bundle>
     </feature>
 
     <feature name="sdk-app" version="${project.version}" description="SDK app." install="auto">
@@ -50,6 +58,7 @@
         <feature>sdk-soap</feature>
         <feature>sdk-rest</feature>
         <feature>sample-validator</feature>
+        <feature>sample-storageplugins</feature>
     </feature>
 
 </features>

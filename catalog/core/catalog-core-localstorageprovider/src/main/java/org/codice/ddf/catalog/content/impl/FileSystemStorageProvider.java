@@ -27,6 +27,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -91,7 +92,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
     private Map<String, List<Metacard>> deletionMap = new ConcurrentHashMap<>();
 
-    private Map<String, List<String>> updateMap = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> updateMap = new ConcurrentHashMap<>();
 
     /**
      * Default constructor, invoked by blueprint.
@@ -129,7 +130,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         updateMap.put(createRequest.getId(),
                 createdContentItems.stream()
                         .map(ContentItem::getUri)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toSet()));
 
         LOGGER.trace("EXITING: create");
 
@@ -181,7 +182,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         updateMap.put(updateRequest.getId(),
                 updatedItems.stream()
                         .map(ContentItem::getUri)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toSet()));
 
         LOGGER.trace("EXITING: update");
 
@@ -211,19 +212,21 @@ public class FileSystemStorageProvider implements StorageProvider {
                 // For deletion we can ignore the qualifier and assume everything under a given ID is
                 // to be removed.
                 Path contentIdDir = getContentItemDir(new URI(deletedContentItem.getUri()));
-                List<Path> paths = new ArrayList<>();
-                if (Files.isDirectory(contentIdDir)) {
-                    paths = listPaths(contentIdDir);
-                } else {
-                    paths.add(contentIdDir);
-                }
-
-                for (Path path : paths) {
-                    if (Files.exists(path)) {
-                        deletedContentItems.add(deletedContentItem);
+                if (Files.exists(contentIdDir)) {
+                    List<Path> paths = new ArrayList<>();
+                    if (Files.isDirectory(contentIdDir)) {
+                        paths = listPaths(contentIdDir);
+                    } else {
+                        paths.add(contentIdDir);
                     }
+
+                    for (Path path : paths) {
+                        if (Files.exists(path)) {
+                            deletedContentItems.add(deletedContentItem);
+                        }
+                    }
+                    itemsToBeDeleted.add(metacard);
                 }
-                itemsToBeDeleted.add(metacard);
             } catch (IOException | URISyntaxException e) {
                 throw new StorageException("Could not delete file: " + metacard.getId(), e);
             }
@@ -300,18 +303,20 @@ public class FileSystemStorageProvider implements StorageProvider {
                 Path contentIdDir = getTempContentItemDir(request.getId(), new URI(contentUri));
                 Path target = getContentItemDir(new URI(contentUri));
                 try {
-                    if (Files.exists(target)) {
-                        List<Path> files = listPaths(target);
-                        for (Path file : files) {
-                            if (!Files.isDirectory(file)) {
-                                Files.deleteIfExists(file);
+                    if (Files.exists(contentIdDir)) {
+                        if (Files.exists(target)) {
+                            List<Path> files = listPaths(target);
+                            for (Path file : files) {
+                                if (!Files.isDirectory(file)) {
+                                    Files.deleteIfExists(file);
+                                }
                             }
                         }
+                        Files.createDirectories(target.getParent());
+                        Files.move(contentIdDir, target, StandardCopyOption.REPLACE_EXISTING);
                     }
-                    Files.createDirectories(target.getParent());
-                    Files.move(contentIdDir, target, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
-                    LOGGER.warn(
+                    LOGGER.debug(
                             "Unable to move files by simple rename, resorting to copy. This will impact performance.",
                             e);
                     try {

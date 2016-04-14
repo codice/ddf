@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.Subject;
 
@@ -69,23 +70,30 @@ public class LogoutService {
         List<Map<String, String>> realmToPropMaps = new ArrayList<>();
 
         for (ActionProvider actionProvider : logoutActionProviders) {
-            Action action = actionProvider.getAction(realmSubjectMap);
-            String realm = StringUtils.substringAfterLast(action.getId(), ".");
+            List<Action> actions = actionProvider.getActions(realmSubjectMap);
+            if (!CollectionUtils.isEmpty(actions)) {
+                for (Action action : actions) {
+                    String realm = StringUtils.substringAfterLast(action.getId(), ".");
 
-            //if the user is logged in and isn't a guest, add them
-            if (realmTokenMap.get(realm) != null) {
-                Map<String, String> actionProperties = new HashMap<>();
-                String displayName = SubjectUtils.getName(realmSubjectMap.get(realm), "", true);
+                    //if the user is logged in and isn't a guest, add them
+                    if (realmTokenMap.get(realm) != null) {
+                        Map<String, String> actionProperties = new HashMap<>();
+                        String displayName = SubjectUtils.getName(realmSubjectMap.get(realm),
+                                "",
+                                true);
 
-                if (displayName != null && !displayName.equals(SubjectUtils.GUEST_DISPLAY_NAME)) {
-                    actionProperties.put("title", action.getTitle());
-                    actionProperties.put("realm", realm);
-                    actionProperties.put("auth", displayName);
-                    actionProperties.put("description", action.getDescription());
-                    actionProperties.put("url",
-                            action.getUrl()
-                                    .toString());
-                    realmToPropMaps.add(actionProperties);
+                        if (displayName != null
+                                && !displayName.equals(SubjectUtils.GUEST_DISPLAY_NAME)) {
+                            actionProperties.put("title", action.getTitle());
+                            actionProperties.put("realm", realm);
+                            actionProperties.put("auth", displayName);
+                            actionProperties.put("description", action.getDescription());
+                            actionProperties.put("url",
+                                    action.getUrl()
+                                            .toString());
+                            realmToPropMaps.add(actionProperties);
+                        }
+                    }
                 }
             }
         }
