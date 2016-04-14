@@ -223,6 +223,12 @@
                     serviceName="ns1:SecurityTokenService"
                     endpointName="ns1:STS_Port"
                     depends-on="propertyWrapper">
+        <jaxws:executor>
+            <bean id="executor" class="java.util.concurrent.Executors"
+                  factory-method="newFixedThreadPool">
+                <argument value="16"/>
+            </bean>
+        </jaxws:executor>
         <jaxws:inInterceptors>
             <ref component-id="crlInterceptor"/>
             <ref component-id="SubjectDNConstraintsInterceptor"/>

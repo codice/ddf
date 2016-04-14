@@ -101,10 +101,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     List<String> claims = new ArrayList<>();
 
-    private STSClient stsClient;
-
-    private boolean settingsConfigured;
-
     private ContextPolicyManager contextPolicyManager;
 
     private String assertionType = null;
@@ -181,13 +177,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             LOGGER.debug("Received credentials.");
         }
 
-        if (!settingsConfigured) {
-            configureStsClient();
-            settingsConfigured = true;
-        } else {
-            setClaimsOnStsClient(createClaimsElement());
-        }
-
         SecurityToken securityToken;
         if (token instanceof SAMLAuthenticationToken && credential instanceof SecurityToken) {
             securityToken = renewSecurityToken((SecurityToken) credential);
@@ -224,6 +213,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             if (authToken != null) {
                 LOGGER.debug(
                         "Telling the STS to request a security token on behalf of the auth token");
+                STSClient stsClient = configureStsClient();
+
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setOnBehalfOf(authToken);
                 stsClient.setTokenType(getAssertionType());
@@ -257,6 +248,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
             if (securityToken != null) {
                 LOGGER.debug(
                         "Telling the STS to renew a security token on behalf of the auth token");
+                STSClient stsClient = configureStsClient();
+
                 stsClient.setWsdlLocation(stsAddress);
                 stsClient.setTokenType(getAssertionType());
                 stsClient.setKeyType(getKeyType());
@@ -276,8 +269,9 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     /**
      * Logs the current STS client configuration.
+     * @param stsClient
      */
-    private void logStsClientConfiguration() {
+    private void logStsClientConfiguration(STSClient stsClient) {
         StringBuilder builder = new StringBuilder();
 
         builder.append("\nSTS Client configuration:\n");
@@ -309,8 +303,9 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
     /**
      * Helper method to setup STS Client.
+     * @param stsClient
      */
-    private void addStsProperties() {
+    private void addStsProperties(STSClient stsClient) {
         Map<String, Object> map = new HashMap<>();
 
         String signaturePropertiesPath = getSignatureProperties();
@@ -351,8 +346,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     /**
      * Helper method to setup STS Client.
      */
-    private void configureBaseStsClient() {
-        stsClient = new STSClient(bus);
+    private STSClient configureBaseStsClient() {
+        STSClient stsClient = new STSClient(bus);
         String stsAddress = getAddress();
         String stsServiceName = getServiceName();
         String stsEndpointName = getEndpointName();
@@ -374,29 +369,33 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
 
         LOGGER.debug("Setting addressing namespace on STSClient: " + ADDRESSING_NAMESPACE);
         stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
+
+        return stsClient;
     }
 
     /**
      * Helper method to setup STS Client.
      */
-    protected void configureStsClient() {
+    protected STSClient configureStsClient() {
         LOGGER.debug("Configuring the STS client.");
 
-        configureBaseStsClient();
+        STSClient stsClient = configureBaseStsClient();
 
-        addStsProperties();
+        addStsProperties(stsClient);
 
-        setClaimsOnStsClient(createClaimsElement());
+        setClaimsOnStsClient(stsClient, createClaimsElement());
 
         if (LOGGER.isDebugEnabled()) {
-            logStsClientConfiguration();
+            logStsClientConfiguration(stsClient);
         }
+
+        return stsClient;
     }
 
     /**
      * Set the claims on the sts client.
      */
-    private void setClaimsOnStsClient(Element claimsElement) {
+    private void setClaimsOnStsClient(STSClient stsClient, Element claimsElement) {
         if (claimsElement != null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(" Setting STS claims to:\n" + this.getFormattedXml(claimsElement));

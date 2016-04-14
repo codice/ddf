@@ -28,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
@@ -110,7 +111,8 @@ public class TestStsRealm {
                 return securityToken;
             }
 
-            protected void configureStsClient() {
+            protected STSClient configureStsClient() {
+                return null;
             }
         };
         Element issuedAssertion = this.readDocument("/saml.xml")
@@ -140,7 +142,8 @@ public class TestStsRealm {
                 return token;
             }
 
-            protected void configureStsClient() {
+            protected STSClient configureStsClient() {
+                return null;
             }
         };
 
