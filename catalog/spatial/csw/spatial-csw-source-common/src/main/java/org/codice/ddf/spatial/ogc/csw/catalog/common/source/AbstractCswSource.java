@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -112,6 +114,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.common.util.Security;
 import ddf.security.service.SecurityManager;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -1262,7 +1265,11 @@ public abstract class AbstractCswSource extends MaskableImpl
                     CswConstants.VERSION_2_0_2 + "," + CswConstants.VERSION_2_0_1);
             caps = csw.getCapabilities(request);
         } catch (CswException cswe) {
-            LOGGER.error(CSW_SERVER_ERROR, cswe);
+            LOGGER.warn(CSW_SERVER_ERROR
+                            + " Received HTTP code '{}' from server for source with id='{}'",
+                    cswe.getHttpStatus(),
+                    cswSourceConfiguration.getId());
+            LOGGER.debug(CSW_SERVER_ERROR, cswe);
         } catch (WebApplicationException wae) {
             LOGGER.error(wae.getMessage(), wae);
             handleWebApplicationException(wae);
@@ -1530,21 +1537,36 @@ public abstract class AbstractCswSource extends MaskableImpl
         // meaningful since it will not show the root cause of the exception
         // because the ExceptionReport was sent from CSW as an "OK" JAX-RS
         // status rather than an error status.
-        String msg = "Error received from CSW Server " + cswSourceConfiguration.getId() + "\n"
+        String msg = CSW_SERVER_ERROR + " " + cswSourceConfiguration.getId() + "\n"
                 + cswException.getMessage();
-        LOGGER.error(msg, wae);
+        LOGGER.warn(msg, wae.getMessage());
 
         return msg;
     }
 
-    private String handleClientException(Exception ce) {
+    protected String handleClientException(Exception ce) {
         String msg;
-        if (ce.getCause() instanceof WebApplicationException) {
-            msg = handleWebApplicationException((WebApplicationException) ce.getCause());
+        Throwable cause = ce.getCause();
+        String sourceId = cswSourceConfiguration.getId();
+        if (cause instanceof WebApplicationException) {
+            msg = handleWebApplicationException((WebApplicationException) cause);
+        } else if (cause instanceof IllegalArgumentException) {
+            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "'. The URI '"
+                    + cswSourceConfiguration.getCswUrl()
+                    + "' does not specify a valid protocol or could not be correctly parsed. "
+                    + ce.getMessage();
+        } else if (cause instanceof SSLHandshakeException) {
+            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' with URL '"
+                    + cswSourceConfiguration.getCswUrl() + "': " + cause;
+        } else if (cause instanceof ConnectException) {
+            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "' may not be running.\n" +
+                    ce.getMessage();
         } else {
-            msg = "Error received from CSW Server " + cswSourceConfiguration.getId();
+            msg = CSW_SERVER_ERROR + " Source '" + sourceId + "'\n" + ce;
         }
-        LOGGER.error(msg);
+
+        LOGGER.warn(msg);
+        LOGGER.debug(msg, ce);
         return msg;
     }
 
