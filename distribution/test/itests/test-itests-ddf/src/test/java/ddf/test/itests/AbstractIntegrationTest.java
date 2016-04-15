@@ -709,8 +709,14 @@ public abstract class AbstractIntegrationTest {
 
         public static final String FACTORY_PID = "Csw_Federated_Source";
 
+        public static final String GMD_FACTORY_PID = "Gmd_Csw_Federated_Source";
+
         public CswSourceProperties(String sourceId) {
-            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+            this(sourceId, FACTORY_PID);
+        }
+
+        public CswSourceProperties(String sourceId, String factoryPid) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, factoryPid));
 
             this.put("id", sourceId);
             this.put("cswUrl", CSW_PATH.getUrl());

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -111,6 +111,8 @@ public class TestFederation extends AbstractIntegrationTest {
 
     private static final String CSW_SOURCE_WITH_METACARD_XML_ID = "cswSource2";
 
+    private static final String GMD_SOURCE_ID = "gmdSource";
+
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
 
     private static final String DEFAULT_SAMPLE_PRODUCT_FILE_NAME = "sample.txt";
@@ -161,14 +163,21 @@ public class TestFederation extends AbstractIntegrationTest {
             getServiceManager().createManagedService(CswSourceProperties.FACTORY_PID,
                     cswProperties2);
 
+            CswSourceProperties gmdProperties = new CswSourceProperties(GMD_SOURCE_ID,
+                    CswSourceProperties.GMD_FACTORY_PID);
+            getServiceManager().createManagedService(CswSourceProperties.GMD_FACTORY_PID,
+                    gmdProperties);
+
             getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
             getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
             getCatalogBundle().waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+            getCatalogBundle().waitForFederatedSource(GMD_SOURCE_ID);
 
             getServiceManager().waitForSourcesToBeAvailable(REST_PATH.getUrl(),
                     OPENSEARCH_SOURCE_ID,
                     CSW_SOURCE_ID,
-                    CSW_SOURCE_WITH_METACARD_XML_ID);
+                    CSW_SOURCE_WITH_METACARD_XML_ID,
+                    GMD_SOURCE_ID);
 
             metacardIds[GEOJSON_RECORD_INDEX] = TestCatalog.ingest(Library.getSimpleGeoJson(),
                     "application/json");
@@ -447,18 +456,18 @@ public class TestFederation extends AbstractIntegrationTest {
     /**
      * Tests Source CANNOT retrieve existing product. The product is NOT located in one of the
      * URLResourceReader's root resource directories, so it CANNOT be downloaded.
-     * <p>
+     * <p/>
      * For example:
      * The resource uri in the metacard is:
      * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
      * which really means:
      * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
-     * <p>
+     * <p/>
      * The URLResourceReader's root resource directories are:
      * <ddf.home>/data/products
      * and
      * /Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
-     * <p>
+     * <p/>
      * So the product (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt) is
      * not located under either of the URLResourceReader's root resource directories.
      *
@@ -667,6 +676,24 @@ public class TestFederation extends AbstractIntegrationTest {
                                 + "']",
                         containsString("/services/catalog/sources/" + CSW_SOURCE_ID)));
         // @formatter:on
+    }
+
+    @Test
+    public void testOpensearchToGmdSourceToGmdEndpointQuery() throws Exception {
+
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + GMD_SOURCE_ID;
+
+        when().get(queryUrl)
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .body(containsString(RECORD_TITLE_1),
+                        containsString(RECORD_TITLE_2),
+                        hasXPath(
+                                "/metacards/metacard/stringxml/value/MD_Metadata/fileIdentifier/CharacterString",
+                                is(metacardIds[GEOJSON_RECORD_INDEX])));
     }
 
     @Test
