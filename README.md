@@ -38,7 +38,7 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
      - OpenSearch federated services
      - REST API for catalog operations
      - Integrated content framework to store actual products associated with the indexed metadata
-     - Tika parser for extracting metadata from products
+     - Tika parser for extracting metadata from common file formats (Office, PDF, etc)
      - Plugin support for pre and post processing on all operations
      - Eventing for notifications
      - Metrics
@@ -63,8 +63,8 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
      - Attribute based filtering for searches performed throughout the system
      - Federated identity through metadata catalog
  * Search user interface
-    - 3D WebGL map built off of Cesium
-    - 2D map built off of OpenLayers 3
+    - 3D WebGL map based on Cesium
+    - 2D map based on OpenLayers 3
     - USNG/MGRS grid support
     - GeoNames geocoder integrated into both maps
     - CometD integration for push notifications
