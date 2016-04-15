@@ -137,7 +137,7 @@ solrAdminApp.config([
   IS_ROOT_PAGE: 1,
   IS_CORE_PAGE: 2,
   IS_COLLECTION_PAGE: 3,
-  ROOT_URL: "/index.html"
+  ROOT_URL: "/"
 })
 .filter('highlight', function($sce) {
   return function(input, lang) {
@@ -787,16 +787,5 @@ var solr_admin = function( app_config )
               },
               error : function()
               {
-                show_global_error
-                (
-                  '<div class="message"><p>Unable to load environment info from <code>' + system_url.esc() + '</code>.</p>' +
-                  '<p>This interface requires that you activate the admin request handlers in all SolrCores by adding the ' +
-                  'following configuration to your <code>solrconfig.xml</code>:</p></div>' + "\n" +
-
-                  '<div class="code"><pre class="syntax language-xml"><code>' +
-                  '<!-- Admin Handlers - This will register all the standard admin RequestHandlers. -->'.esc() + "\n" +
-                  '<requestHandler name="/admin/" class="solr.admin.AdminHandlers" />'.esc() +
-                  '</code></pre></div>'
-                );
   };
 */
