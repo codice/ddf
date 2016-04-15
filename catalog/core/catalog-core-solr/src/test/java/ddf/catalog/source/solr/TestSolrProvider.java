@@ -134,6 +134,10 @@ public class TestSolrProvider extends SolrProviderTestCase {
             "GEOMETRYCOLLECTION (" + GULF_OF_GUINEA_POINT_WKT + ", " + GULF_OF_GUINEA_LINESTRING_WKT
                     + ", " + GULF_OF_GUINEA_MULTIPOLYGON_WKT + ")";
 
+    protected static final String ARABIAN_SEA_OVERLAPPING_GEOMETRYCOLLECTION_WKT = "GEOMETRYCOLLECTION (MULTIPOLYGON (((56 9, 64 9, 60 14, 56 9)), ((61 9, 69 9, 65 14, 61 9)), ((51 9, 59 9, 55 14, 51 9))), LINESTRING (50 8, 50 15, 70 15, 70 8, 50 8), MULTIPOINT ((62.5 14), (67.5 14), (57.5 14), (52.5 14)))";
+
+    protected static final String ARABIAN_SEA_POINT_WKT = "POINT (62.5 14)";
+
     protected static final String LAS_VEGAS_POINT_WKT = "POINT (-115.136389 36.175)";
 
     protected static final String MIDWAY_ISLANDS_POINT_WKT = "POINT (-177.372736 28.208365)";
@@ -5160,6 +5164,13 @@ public class TestSolrProvider extends SolrProviderTestCase {
     public void testSpatialPolygonIntersectsGeometryCollection() throws Exception {
         testSpatialIntersectsWithWkt(ARIZONA_POLYGON_WKT,
                 ARIZONA_INTERSECTING_GEOMETRYCOLLECTION_WKT,
+                GULF_OF_GUINEA_GEOMETRYCOLLECTION_WKT);
+    }
+
+    @Test
+    public void testSpatialGeometryCollectionIntersectsPoint() throws Exception {
+        testSpatialIntersectsWithWkt(ARABIAN_SEA_OVERLAPPING_GEOMETRYCOLLECTION_WKT,
+                ARABIAN_SEA_POINT_WKT,
                 GULF_OF_GUINEA_GEOMETRYCOLLECTION_WKT);
     }
 

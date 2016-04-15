@@ -58,7 +58,7 @@
     that avoids logging every request
 -->
 
-<schema name="dynamic" version="1.5">
+<schema name="dynamic" version="1.6">
     <!-- attribute "name" is the name of this schema and is only used for display purposes.
          version="x.y" is Solr's version number for the schema syntax and
          semantics.  It should not normally be changed by applications.
@@ -1108,7 +1108,9 @@
 
     <fieldType name="geohash"
                class="solr.SpatialRecursivePrefixTreeFieldType"
-               spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory"
-               distanceUnits="degrees"/>
+               spatialContextFactory="org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory"
+               distanceUnits="degrees"
+               autoIndex="true"
+               allowMultiOverlap="true" />
 
 </schema>
