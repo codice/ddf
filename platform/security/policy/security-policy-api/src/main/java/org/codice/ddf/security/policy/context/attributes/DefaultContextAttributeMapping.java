@@ -60,4 +60,16 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
     public String getContext() {
         return context;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Context: ");
+        sb.append(context);
+        sb.append(", Attribute Name: ");
+        sb.append(attributeName);
+        sb.append(", Attribute Value: ");
+        sb.append(attributeValue);
+        return sb.toString();
+    }
 }

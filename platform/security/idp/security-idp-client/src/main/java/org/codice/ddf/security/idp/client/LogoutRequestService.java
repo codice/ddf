@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +38,7 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
@@ -51,7 +53,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ddf.security.SecurityConstants;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.LogoutMessage;
@@ -77,6 +82,12 @@ public class LogoutRequestService {
 
     private static final String SIGNATURE = "Signature";
 
+    static {
+        OpenSAMLUtil.initSamlEngine();
+    }
+
+    private final RelayStates<String> relayStates;
+
     private SimpleSign simpleSign;
 
     private IdpMetadata idpMetadata;
@@ -90,8 +101,6 @@ public class LogoutRequestService {
 
     private String redirectPage;
 
-    private final RelayStates<String> relayStates;
-
     private EncryptionService encryptionService;
 
     private SessionFactory sessionFactory;
@@ -104,10 +113,6 @@ public class LogoutRequestService {
         this.idpMetadata = idpMetadata;
         this.relayStates = relayStates;
 
-    }
-
-    static {
-        OpenSAMLUtil.initSamlEngine();
     }
 
     public void init() {
@@ -383,6 +388,23 @@ public class LogoutRequestService {
 
         SecurityTokenHolder tokenHolder = ((SecurityTokenHolder) session.getAttribute(
                 SecurityConstants.SAML_ASSERTION));
+
+        SecurityAssertion securityAssertion =
+                new SecurityAssertionImpl(tokenHolder.getSecurityToken("idp"));
+
+        boolean hasSecurityAuditRole = Arrays.stream(System.getProperty("security.audit.roles")
+                .split(","))
+                .filter(role -> securityAssertion.getPrincipals()
+                        .contains(new RolePrincipal(role)))
+                .findFirst()
+                .isPresent();
+
+        if (hasSecurityAuditRole) {
+            SecurityLogger.audit("Subject with admin privileges has logged out: {}",
+                    securityAssertion.getPrincipal()
+                            .getName());
+        }
+
         tokenHolder.remove("idp");
     }
 

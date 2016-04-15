@@ -33,11 +33,17 @@ import org.codice.ddf.security.policy.context.attributes.DefaultContextAttribute
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.common.audit.SecurityLogger;
+
 /**
  * Implementation of ContextPolicyManager. This implementation starts with a default empty policy
  * at the "/" context and accepts new policies as a Map&lt;String, String&gt; orMap&lt;String, String[]&gt;
  */
 public class PolicyManager implements ContextPolicyManager {
+
+    public static final String DEFAULT_REALM = "DDF";
+
+    public static final String DEFAULT_REALM_CONTEXT_VALUE = "karaf";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PolicyManager.class);
 
@@ -48,10 +54,6 @@ public class PolicyManager implements ContextPolicyManager {
     private static final String REQ_ATTRS = "requiredAttributes";
 
     private static final String WHITE_LIST = "whiteListContexts";
-
-    public static final String DEFAULT_REALM = "DDF";
-
-    public static final String DEFAULT_REALM_CONTEXT_VALUE = "karaf";
 
     private static final String[] DEFAULT_REALM_CONTEXTS =
             new String[] {"/=" + DEFAULT_REALM_CONTEXT_VALUE};
@@ -175,6 +177,8 @@ public class PolicyManager implements ContextPolicyManager {
         }
 
         LOGGER.debug("setPolicies called: {}", properties);
+        Map<String, ContextPolicy> originalPolicyStore = getPolicyStore();
+
         Object realmsObj = properties.get(REALMS);
         List<String> realmContexts = new ArrayList<>();
         String[] authContexts = (String[]) properties.get(AUTH_TYPES);
@@ -249,6 +253,10 @@ public class PolicyManager implements ContextPolicyManager {
             setPolicyStore(contextToRealm, contextToAuth, contextToAttr);
         }
         LOGGER.debug("Policy store initialized, now contains {} entries", policyStore.size());
+
+        SecurityLogger.audit("Policy store changed from:\n{} \nto:\n{}",
+                originalPolicyStore,
+                getPolicyStore());
     }
 
     private void setPolicyStore(Map<String, String> allContextsToRealms,
@@ -315,6 +323,13 @@ public class PolicyManager implements ContextPolicyManager {
         List<String> copiedWhiteListContexts = new ArrayList<>();
         copiedWhiteListContexts.addAll(whiteListContexts);
         return copiedWhiteListContexts;
+    }
+
+    public void setWhiteListContexts(List<String> contexts) {
+        LOGGER.debug("setWhiteListContexts(List<String>) called with {}", contexts);
+        if (contexts != null && !contexts.isEmpty()) {
+            this.whiteListContexts = PropertyResolver.resolveProperties(contexts);
+        }
     }
 
     /**
@@ -445,13 +460,6 @@ public class PolicyManager implements ContextPolicyManager {
             policyProperties.put(REALMS, realms.toArray(new String[realms.size()]));
         } else {
             policyProperties.put(REALMS, null);
-        }
-    }
-
-    public void setWhiteListContexts(List<String> contexts) {
-        LOGGER.debug("setWhiteListContexts(List<String>) called with {}", contexts);
-        if (contexts != null && !contexts.isEmpty()) {
-            this.whiteListContexts = PropertyResolver.resolveProperties(contexts);
         }
     }
 

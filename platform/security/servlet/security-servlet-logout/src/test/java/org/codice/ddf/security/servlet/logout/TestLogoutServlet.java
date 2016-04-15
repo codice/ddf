@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.junit.Test;
 
 import ddf.security.SecurityConstants;
@@ -44,6 +46,12 @@ public class TestLogoutServlet {
         LocalLogoutServlet localLogoutServlet = new MockLocalLogoutServlet();
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
+        Subject subject = mock(Subject.class);
+        when(subject.hasRole(anyString())).thenReturn(false);
+        ThreadContext.bind(subject);
+
+        System.setProperty("security.audit.roles", "none");
+
         HttpSession httpSession = mock(HttpSession.class);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
         when(request.getSession(anyBoolean())
@@ -88,5 +96,7 @@ public class TestLogoutServlet {
                     RequestDispatcher.class));
             return servletContext;
         }
+
     }
+
 }
