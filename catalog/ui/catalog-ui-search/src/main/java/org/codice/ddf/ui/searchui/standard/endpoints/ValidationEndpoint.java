@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -29,14 +28,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.boon.json.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.validation.AttributeValidator;
@@ -48,20 +44,14 @@ import ddf.catalog.validation.violation.ValidationViolation;
 public class ValidationEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationEndpoint.class);
 
-    private final CatalogFramework catalogFramework;
-
-    private final FilterBuilder filterBuilder;
-
-    private final Function<String, Metacard> getMetacard;
 
     private final AttributeValidatorRegistry attributeValidatorRegistry;
 
-    public ValidationEndpoint(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
-            AttributeValidatorRegistry attributeValidatorRegistry) {
-        this.catalogFramework = catalogFramework;
-        this.filterBuilder = filterBuilder;
+    private final EndpointUtil endpointUtil;
+
+    public ValidationEndpoint(AttributeValidatorRegistry attributeValidatorRegistry, EndpointUtil endpointUtil) {
         this.attributeValidatorRegistry = attributeValidatorRegistry;
-        this.getMetacard = EndpointUtil.getMetacardFunction(catalogFramework, filterBuilder);
+        this.endpointUtil = endpointUtil;
     }
 
     @PUT

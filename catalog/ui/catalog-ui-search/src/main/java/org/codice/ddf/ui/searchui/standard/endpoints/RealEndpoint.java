@@ -15,13 +15,9 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 import javax.ws.rs.Consumes;
@@ -38,11 +34,9 @@ import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
@@ -53,31 +47,21 @@ import ddf.catalog.validation.report.MetacardValidationReport;
 public class RealEndpoint {
     private final CatalogFramework catalogFramework;
 
-    private final FilterBuilder filterBuilder;
-
-    private final AttributeValidatorRegistry attributeValidatorRegistry;
-
-    private final Function<String, Metacard> getMetacard;
-
-    private final List<MetacardType> metacardTypes;
-
     private final ReportingMetacardValidator reportingMetacardValidator;
 
-    public RealEndpoint(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
-            AttributeValidatorRegistry attributeValidatorRegistry, List<MetacardType> metacardTypes,
-            ReportingMetacardValidator reportingMetacardValidator) {
+    private final EndpointUtil endpointUtil;
+
+    public RealEndpoint(CatalogFramework catalogFramework,
+            ReportingMetacardValidator reportingMetacardValidator, EndpointUtil endpointUtil) {
         this.catalogFramework = catalogFramework;
-        this.filterBuilder = filterBuilder;
-        this.attributeValidatorRegistry = attributeValidatorRegistry;
         this.reportingMetacardValidator = reportingMetacardValidator;
-        this.getMetacard = EndpointUtil.getMetacardFunction(catalogFramework, filterBuilder);
-        this.metacardTypes = metacardTypes;
+        this.endpointUtil = endpointUtil;
     }
 
     @GET
     @Path("/metacardtype")
     public Response getMetacardType() throws Exception {
-        Map<String, Object> resultTypes = getMetacardTypeMap();
+        Map<String, Object> resultTypes = endpointUtil.getMetacardTypeMap();
         return Response.ok(JsonFactory.create()
                 .toJson(resultTypes), MediaType.APPLICATION_JSON)
                 .build();
@@ -86,8 +70,8 @@ public class RealEndpoint {
     @GET
     @Path("/metacard/{id}")
     public Response getMetacard(@PathParam("id") String id) throws Exception {
-        Metacard metacard = getMetacard.apply(id);
-        Map<String, Object> response = transformToJson(metacard);
+        Metacard metacard = endpointUtil.getMetacard(id);
+        Map<String, Object> response = endpointUtil.transformToJson(metacard);
 
         return Response.ok(JsonFactory.create(new JsonParserFactory(),
                 new JsonSerializerFactory().includeNulls()
@@ -113,7 +97,7 @@ public class RealEndpoint {
         Map<String, Object> metacardMap = JsonFactory.create()
                 .parser()
                 .parseMap(metacard);
-        Metacard newMetacard = getMetacard.apply((String) metacardMap.get(Metacard.ID));
+        Metacard newMetacard = endpointUtil.getMetacard((String) metacardMap.get(Metacard.ID));
         MetacardType metacardType = newMetacard.getMetacardType();
 
         for (Map.Entry<String, Object> entry : metacardMap.entrySet()) {
@@ -169,7 +153,7 @@ public class RealEndpoint {
         return Response.ok(JsonFactory.create(new JsonParserFactory(),
                 new JsonSerializerFactory().includeNulls()
                         .includeEmpty())
-                .toJson(transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
+                .toJson(endpointUtil.transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -177,7 +161,7 @@ public class RealEndpoint {
     @Path("/metacard/{id}/validation")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response validateMetacard(@PathParam("id") String id) throws Exception {
-        Metacard newMetacard = getMetacard.apply(id);
+        Metacard newMetacard = endpointUtil.getMetacard(id);
         MetacardType metacardType = newMetacard.getMetacardType();
 
         // TODO (RCZ) - don't assume this only service, do for real
@@ -190,91 +174,12 @@ public class RealEndpoint {
                             .getAttributeValidationViolations())
                     .build();
         }
-        return Response.ok("[]",MediaType.APPLICATION_JSON).build();
+        return Response.ok("[]", MediaType.APPLICATION_JSON)
+                .build();
     }
 
     private List<Serializable> getSerializableList(List list) {
         return new ArrayList<>(list);
-    }
-
-    private Optional<MetacardType> getMetacardType(String name) {
-        return metacardTypes.stream()
-                .filter(mt -> mt.getName()
-                        .equals(name))
-                .findFirst();
-    }
-
-    private Map<String, Object> transformToJson(Metacard metacard) {
-        Set<AttributeDescriptor> attributeDescriptors = metacard.getMetacardType()
-                .getAttributeDescriptors();
-        Map<String, Object> result = new HashMap<>();
-        for (AttributeDescriptor descriptor : attributeDescriptors) {
-            if (metacard.getAttribute(descriptor.getName()) == null) {
-                if (descriptor.isMultiValued()) {
-                    result.put(descriptor.getName(), Collections.emptyList());
-                } else {
-                    result.put(descriptor.getName(), null);
-                }
-                continue;
-            }
-            if (Metacard.THUMBNAIL.equals(descriptor.getName())) {
-                if (metacard.getThumbnail() != null) {
-                    result.put(descriptor.getName(),
-                            Base64.getEncoder()
-                                    .encodeToString(metacard.getThumbnail()));
-                } else {
-                    result.put(descriptor.getName(), null);
-                }
-                continue;
-
-            }
-            if (descriptor.isMultiValued()) {
-                result.put(descriptor.getName(),
-                        metacard.getAttribute(descriptor.getName())
-                                .getValues());
-            } else {
-                result.put(descriptor.getName(),
-                        metacard.getAttribute(descriptor.getName())
-                                .getValue());
-            }
-        }
-
-        Map<String, Object> typeMap = new HashMap<>();
-        typeMap.put("type",
-                getMetacardTypeMap().get(metacard.getMetacardType()
-                        .getName()));
-        typeMap.put("type-name",
-                metacard.getMetacardType()
-                        .getName());
-        typeMap.put("ids", Collections.singletonList(metacard.getId()));
-
-        List<Object> typeList = new ArrayList<>();
-        typeList.add(typeMap);
-
-        Map<String, Object> outerMap = new HashMap<>();
-        outerMap.put("metacards", Collections.singletonList(result));
-        outerMap.put("metacard-types", typeList);
-
-        return outerMap;
-    }
-
-    private Map<String, Object> getMetacardTypeMap() {
-        Map<String, Object> resultTypes = new HashMap<>();
-        for (MetacardType metacardType : metacardTypes) {
-            List<Object> attributes = new ArrayList<>();
-            for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
-                Map<String, Object> attributeProperties = new HashMap<>();
-                attributeProperties.put("type",
-                        descriptor.getType()
-                                .getAttributeFormat()
-                                .name());
-                attributeProperties.put("multivalued", descriptor.isMultiValued());
-                attributeProperties.put("id", descriptor.getName());
-                attributes.add(attributeProperties);
-            }
-            resultTypes.put(metacardType.getName(), attributes);
-        }
-        return resultTypes;
     }
 
 }

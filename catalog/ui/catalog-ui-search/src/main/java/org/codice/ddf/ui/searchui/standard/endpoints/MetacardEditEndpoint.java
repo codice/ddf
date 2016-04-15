@@ -15,11 +15,11 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -52,25 +52,22 @@ public class MetacardEditEndpoint {
 
     private final CatalogFramework catalogFramework;
 
-    private final FilterBuilder filterBuilder;
-
     private final AttributeRegistry attributeRegistry;
 
-    private final Function<String, Metacard> getMetacard;
+    private final EndpointUtil endpointUtil;
 
-    public MetacardEditEndpoint(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
-            AttributeRegistry attributeRegistry) {
+    public MetacardEditEndpoint(CatalogFramework catalogFramework,
+            AttributeRegistry attributeRegistry, EndpointUtil endpointUtil) {
         this.catalogFramework = catalogFramework;
-        this.filterBuilder = filterBuilder;
         this.attributeRegistry = attributeRegistry;
-        this.getMetacard = EndpointUtil.getMetacardFunction(catalogFramework, filterBuilder);
+        this.endpointUtil = endpointUtil;
     }
 
     @GET
     @Path("/{id}/{attribute}")
     public Response getAttribute(@Context HttpServletResponse response, @PathParam("id") String id,
             @PathParam("attribute") String attribute) throws Exception {
-        Metacard metacard = getMetacard.apply(id);
+        Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         if (metacardAttribute == null) {
             response.setStatus(404);
@@ -103,7 +100,7 @@ public class MetacardEditEndpoint {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response setAttribute(@Context HttpServletResponse response, @PathParam("id") String id,
             @PathParam("attribute") String attribute, String value) throws Exception {
-        Metacard metacard = getMetacard.apply(id);
+        Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         Optional<AttributeDescriptor> attributeDescriptor =
                 attributeRegistry.getAttributeDescriptor(attribute);
@@ -116,12 +113,16 @@ public class MetacardEditEndpoint {
         AttributeDescriptor descriptor = attributeDescriptor.get();
 
         if (descriptor.isMultiValued()) {
-            List<Serializable> values = new ArrayList<>(metacardAttribute.getValues());
-            if (!values.contains(value)) {
-                values.add(value);
+            if (metacardAttribute == null || metacardAttribute.getValues() == null) {
+                metacard.setAttribute(new AttributeImpl(attribute,
+                        Collections.singletonList(value)));
+            } else {
+                List<Serializable> values = new ArrayList<>(metacardAttribute.getValues());
+                if (!values.contains(value)) {
+                    values.add(value);
+                }
+                metacard.setAttribute(new AttributeImpl(attribute, values));
             }
-            metacard.setAttribute(new AttributeImpl(attribute, values));
-
         } else { // not multivalued
             metacard.setAttribute(new AttributeImpl(attribute, value));
         }
@@ -141,7 +142,7 @@ public class MetacardEditEndpoint {
     public Response setBinaryAttribute(@Context HttpServletResponse response,
             @PathParam("id") String id, @PathParam("attribute") String attribute, byte[] value)
             throws Exception {
-        Metacard metacard = getMetacard.apply(id);
+        Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         Optional<AttributeDescriptor> attributeDescriptor =
                 attributeRegistry.getAttributeDescriptor(attribute);
@@ -184,7 +185,7 @@ public class MetacardEditEndpoint {
     public Response deleteAttribute(@Context HttpServletResponse response,
             @PathParam("id") String id, @PathParam("attribute") String attribute, String value)
             throws Exception {
-        Metacard metacard = getMetacard.apply(id);
+        Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
 
         if (metacardAttribute == null) {

@@ -13,14 +13,11 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import static org.codice.ddf.ui.searchui.standard.endpoints.EndpointUtil.getStringList;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -54,11 +51,11 @@ public class AssociationsEndpoint {
 
     private final CatalogFramework catalogFramework;
 
-    private Function<String, Metacard> getMetacard;
+    private final EndpointUtil endpointUtil;
 
-    public AssociationsEndpoint(CatalogFramework catalogFramework, FilterBuilder filterBuilder) {
+    public AssociationsEndpoint(CatalogFramework catalogFramework, EndpointUtil endpointUtil) {
         this.catalogFramework = catalogFramework;
-        getMetacard = EndpointUtil.getMetacardFunction(catalogFramework, filterBuilder);
+        this.endpointUtil = endpointUtil;
     }
 
     @GET
@@ -145,8 +142,9 @@ public class AssociationsEndpoint {
     private Set<String> deleteAssociation(String id, String associatedId, String attributeId)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             IngestException, StandardSearchException {
-        Metacard target = getMetacard.apply(id);
-        Set<String> values = new HashSet<>(getStringList(target.getAttribute(attributeId)
+        Metacard target = endpointUtil.getMetacard(id);
+        Set<String> values = new HashSet<>(endpointUtil.getStringList(target.getAttribute(
+                attributeId)
                 .getValues()));
         if (!values.contains(associatedId)) {
             LOGGER.info("Metacard [{}] does not contain association [{}]", id, associatedId);
@@ -164,9 +162,9 @@ public class AssociationsEndpoint {
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             StandardSearchException, IngestException {
 
-        Metacard target = getMetacard.apply(id);
+        Metacard target = endpointUtil.getMetacard(id);
         Attribute attribute = target.getAttribute(attributeId);
-        Set<String> values = new HashSet<>(getStringList(
+        Set<String> values = new HashSet<>(endpointUtil.getStringList(
                 attribute != null ? attribute.getValues() : null));
 
         if (values.contains(associatedId)) {
@@ -184,7 +182,7 @@ public class AssociationsEndpoint {
     private Associated getAssociatedMetacardsIds(String id)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             StandardSearchException {
-        Metacard result = getMetacard.apply(id);
+        Metacard result = endpointUtil.getMetacard(id);
         List<Serializable> related = new ArrayList<>();
         List<Serializable> derived = new ArrayList<>();
 
@@ -195,8 +193,8 @@ public class AssociationsEndpoint {
         derived = derivedAttribute != null ? derivedAttribute.getValues() : derived;
 
         Associated associated = new Associated();
-        associated.related = getStringList(related);
-        associated.derived = getStringList(derived);
+        associated.related = endpointUtil.getStringList(related);
+        associated.derived = endpointUtil.getStringList(derived);
 
         return associated;
     }
@@ -209,6 +207,7 @@ public class AssociationsEndpoint {
 
     private class AndrewAssociations {
         String type;
+
         List<String> ids;
     }
 }
