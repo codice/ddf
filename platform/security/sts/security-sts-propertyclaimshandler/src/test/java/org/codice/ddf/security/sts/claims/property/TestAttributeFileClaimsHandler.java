@@ -13,6 +13,7 @@
  **/
 package org.codice.ddf.security.sts.claims.property;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +34,8 @@ import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -162,5 +165,15 @@ public class TestAttributeFileClaimsHandler {
         ProcessedClaimCollection processedClaims = attributeFileClaimsHandler.retrieveClaimValues(
                 claimCollection, unknownClaimsParameters);
         assertThat(processedClaims.size(), is(0));
+    }
+
+    @Test
+    public void testRetrieveClaimsValuesNullPrincipal() {
+        ClaimsParameters claimsParameters = new ClaimsParameters();
+        ClaimCollection claimCollection = new ClaimCollection();
+        ProcessedClaimCollection processedClaims = attributeFileClaimsHandler.retrieveClaimValues(
+                claimCollection, claimsParameters);
+
+        Assert.assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
     }
 }

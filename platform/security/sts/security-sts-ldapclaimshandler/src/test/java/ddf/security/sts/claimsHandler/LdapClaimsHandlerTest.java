@@ -14,6 +14,7 @@
 
 package ddf.security.sts.claimsHandler;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -28,6 +29,8 @@ import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.responses.BindResult;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -66,4 +69,14 @@ public class LdapClaimsHandlerTest {
         assertThat(testClaimCollection.isEmpty(), is(true));
     }
 
+    @Test
+    public void testRetrieveClaimsValuesNullPrincipal() {
+        LdapClaimsHandler claimsHandler = new LdapClaimsHandler();
+        ClaimsParameters claimsParameters = new ClaimsParameters();
+        ClaimCollection claimCollection = new ClaimCollection();
+        ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(
+                claimCollection, claimsParameters);
+
+        Assert.assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
+    }
 }

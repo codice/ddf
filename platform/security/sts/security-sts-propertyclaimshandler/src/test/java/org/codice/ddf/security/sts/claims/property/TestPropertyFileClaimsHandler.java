@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.sts.claims.property;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -29,6 +30,8 @@ import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestPropertyFileClaimsHandler {
@@ -77,5 +80,16 @@ public class TestPropertyFileClaimsHandler {
         principal = new KerberosPrincipal("mykman@SOMEDOMAIN.COM");
         user = propertyFileClaimsHandler.getUser(principal);
         assertEquals("mykman", user);
+    }
+
+    @Test
+    public void testRetrieveClaimsValuesNullPrincipal() {
+        PropertyFileClaimsHandler claimsHandler = new PropertyFileClaimsHandler();
+        ClaimsParameters claimsParameters = new ClaimsParameters();
+        ClaimCollection claimCollection = new ClaimCollection();
+        ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(
+                claimCollection, claimsParameters);
+
+        Assert.assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
     }
 }
