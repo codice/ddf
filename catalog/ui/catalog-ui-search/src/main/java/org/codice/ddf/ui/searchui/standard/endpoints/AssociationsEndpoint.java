@@ -25,6 +25,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -112,6 +113,7 @@ public class AssociationsEndpoint {
     @PUT
     @Path("/{id}/related")
     @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public List<String> putRelatedAssociation(@PathParam("id") String id, String associatedId)
             throws Exception {
         return new ArrayList<>(putAssociation(id, associatedId, Metacard.RELATED));
@@ -120,6 +122,7 @@ public class AssociationsEndpoint {
     @PUT
     @Path("/{id}/derived")
     @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public List<String> putDerivedAssociations(@PathParam("id") String id, String associatedId)
             throws Exception {
         return new ArrayList<>(putAssociation(id, associatedId, Metacard.DERIVED));

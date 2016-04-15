@@ -85,7 +85,7 @@ public class MetacardEditEndpoint {
         /* Yes i'm using a raw map. get off my back yo */
         Map<String, Object> result = getResponseMap(attribute, metacardAttribute, descriptor);
         return Response.ok(JsonFactory.create()
-                .toJson(result))
+                .toJson(result), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -132,7 +132,7 @@ public class MetacardEditEndpoint {
                 metacard.getAttribute(attribute),
                 descriptor);
         return Response.ok(JsonFactory.create()
-                .toJson(responseMap))
+                .toJson(responseMap), MediaType.APPLICATION_JSON)
                 .build();
     }
 
