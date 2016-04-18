@@ -29,18 +29,12 @@ public class ContentItemValidator {
 
     private static final Pattern QUALIFIER_PATTERN = Pattern.compile("\\w[a-zA-Z0-9_\\-]+");
 
-    private static final Pattern FILENAME_PATTERN = Pattern.compile("\\w[a-zA-Z0-9\\-_.]+");
-
     private ContentItemValidator() {
     }
 
     public static void validate(ContentItem item) throws IllegalArgumentException {
         if (StringUtils.isNotBlank(item.getQualifier())) {
             validateInput(item.getQualifier(), QUALIFIER_PATTERN);
-        }
-
-        if (item.getFilename() != null) {
-            validateInput(item.getFilename(), FILENAME_PATTERN);
         }
 
         if (StringUtils.isNotBlank(item.getUri())) {

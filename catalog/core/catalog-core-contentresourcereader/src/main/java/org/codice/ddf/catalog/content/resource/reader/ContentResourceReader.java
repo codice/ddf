@@ -142,12 +142,12 @@ public class ContentResourceReader implements ResourceReader {
             LOGGER.debug("Resource URI is content scheme");
             String contentId = resourceUri.getSchemeSpecificPart();
             if (contentId != null && !contentId.isEmpty()) {
-                if (arguments != null && arguments.get("options") instanceof String &&
-                        StringUtils.isNotBlank((String) arguments.get("options"))) {
+                if (arguments != null && arguments.get(ContentItem.QUALIFIER) instanceof String &&
+                        StringUtils.isNotBlank((String) arguments.get(ContentItem.QUALIFIER))) {
                     try {
                         resourceUri = new URI(resourceUri.getScheme(),
                                 resourceUri.getSchemeSpecificPart(),
-                                (String) arguments.get("options"));
+                                (String) arguments.get(ContentItem.QUALIFIER));
                     } catch (URISyntaxException e) {
                         throw new ResourceNotFoundException("Unable to create with qualifier", e);
                     }

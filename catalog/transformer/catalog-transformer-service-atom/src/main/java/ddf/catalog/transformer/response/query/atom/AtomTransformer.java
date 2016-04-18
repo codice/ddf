@@ -429,7 +429,7 @@ public class AtomTransformer implements QueryResponseTransformer {
 
                 List<Action> actions = actionProvider.getActions(metacard);
 
-                if (CollectionUtils.isEmpty(actions)) {
+                if (!CollectionUtils.isEmpty(actions)) {
                     if (actionProvider.equals(resourceActionProvider)
                             && metacard.getResourceURI() != null) {
 

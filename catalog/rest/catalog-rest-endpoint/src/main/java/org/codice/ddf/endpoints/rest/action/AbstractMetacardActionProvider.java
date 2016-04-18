@@ -49,7 +49,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     @Override
     public <T> List<Action> getActions(T input) {
 
-        if (input != null && Metacard.class.isAssignableFrom(input.getClass())) {
+        if (input instanceof Metacard) {
 
             Metacard metacard = (Metacard) input;
 
@@ -105,10 +105,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
 
     @Override
     public <T> boolean canHandle(T subject) {
-        if (subject != null && Metacard.class.isAssignableFrom(subject.getClass())) {
-            return true;
-        }
-        return false;
+        return subject instanceof Metacard;
     }
 
 }

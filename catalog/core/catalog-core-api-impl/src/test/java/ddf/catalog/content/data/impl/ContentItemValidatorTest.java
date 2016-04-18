@@ -21,19 +21,12 @@ import org.junit.Test;
 import ddf.catalog.content.data.ContentItem;
 
 public class ContentItemValidatorTest {
-
-    private static final String ILLEGAL_FILENAME = "../bad.txt";
-
+    
     private static final String ILLEGAL_QUALIFIER = "bad.txt";
 
     private static final String VALID_FILENAME = "good.txt";
 
     private static final String VALID_QUALIFIER = "good-qualifier";
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidFilename() throws Exception {
-        ContentItemValidator.validate(new ContentItemImpl(null, "", ILLEGAL_FILENAME, null));
-    }
 
     @Test
     public void testValidFilename() throws Exception {

@@ -35,7 +35,7 @@ public interface ActionProvider {
      * @return an {@link Action} object. If no action can be taken on the input, then
      * <code>Collections.emptyList()</code> shall be returned
      */
-    public <T> List<Action> getActions(T subject);
+    <T> List<Action> getActions(T subject);
 
     /**
      * @return a unique identifier to distinguish the type of service this {@link ActionProvider}

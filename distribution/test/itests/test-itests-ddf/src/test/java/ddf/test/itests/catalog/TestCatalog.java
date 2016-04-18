@@ -234,7 +234,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .getHeader("id");
 
         final String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + id
-                + "?transform=resource&options=preview";
+                + "?transform=resource&qualifier=preview";
 
         given().get(url)
                 .then()

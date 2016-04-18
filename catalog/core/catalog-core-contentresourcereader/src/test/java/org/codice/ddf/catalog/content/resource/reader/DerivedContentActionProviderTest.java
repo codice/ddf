@@ -60,12 +60,12 @@ public class DerivedContentActionProviderTest {
 
     private static URI derivedResourceUri;
 
-    private static final String QUALIFIER = "qualifier";
+    private static final String QUALIFIER_VALUE = "value";
 
     @BeforeClass
     public static void init() throws URISyntaxException {
         actionUri = new URI("https://example.com/download?transform=resource");
-        derivedResourceUri = new URI(ContentItem.CONTENT_SCHEME, CONTENT_ID, QUALIFIER);
+        derivedResourceUri = new URI(ContentItem.CONTENT_SCHEME, CONTENT_ID, QUALIFIER_VALUE);
         actionProvider = new DerivedContentActionProvider(mockResourceActionProvider);
 
     }
@@ -93,7 +93,7 @@ public class DerivedContentActionProviderTest {
                 .getUrl(), notNullValue());
         assertThat(actions.get(0)
                 .getUrl()
-                .getQuery(), containsString("options=" + QUALIFIER));
+                .getQuery(), containsString(ContentItem.QUALIFIER + "=" + QUALIFIER_VALUE));
 
     }
 

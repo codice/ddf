@@ -37,13 +37,12 @@ public class DerivedContentActionProvider implements ActionProvider {
 
     private static final String ID = "catalog.data.metacard.derived-content";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DerivedContentActionProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DerivedContentActionProvider.class);
 
     private final ActionProvider resourceActionProvider;
 
     private static final String DESCRIPTION_PREFIX = "Retrieves derived resource: ";
-
-    private static final String OPTIONS = "options";
 
     public DerivedContentActionProvider(ActionProvider actionProvider) {
         this.resourceActionProvider = actionProvider;
@@ -72,7 +71,7 @@ public class DerivedContentActionProvider implements ActionProvider {
                         if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {
                             String qualifier = uri.getFragment();
 
-                            builder.addParameters(Arrays.asList(new BasicNameValuePair(OPTIONS,
+                            builder.addParameters(Arrays.asList(new BasicNameValuePair(ContentItem.QUALIFIER,
                                     qualifier)));
                             ActionImpl newAction = new ActionImpl(ID,
                                     "View " + qualifier,
@@ -101,7 +100,7 @@ public class DerivedContentActionProvider implements ActionProvider {
 
     @Override
     public <T> boolean canHandle(T subject) {
-        if (subject != null && Metacard.class.isAssignableFrom(subject.getClass())) {
+        if (subject instanceof Metacard) {
             Metacard metacard = (Metacard) subject;
             if (metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI) != null
                     && !metacard.getAttribute(Metacard.DERIVED_RESOURCE_URI)
