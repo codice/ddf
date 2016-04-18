@@ -241,6 +241,19 @@ public class TestAttributeQueryClaimsHandler {
     }
 
     @Test
+    public void testRetrieveClaimsValuesNullPrincipal() {
+        ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
+        when(claimsParameters.getPrincipal()).thenReturn(null);
+
+        ClaimCollection claimCollection = new ClaimCollection();
+        ProcessedClaimCollection processedClaims =
+                spyAttributeQueryClaimsHandler.retrieveClaimValues(claimCollection,
+                        claimsParameters);
+
+        assertThat(processedClaims.size(), is(equalTo(0)));
+    }
+
+    @Test
     public void testSupportedClaimsTypes() {
         List<URI> supportedClaimTypes = spyAttributeQueryClaimsHandler.getSupportedClaimTypes();
 

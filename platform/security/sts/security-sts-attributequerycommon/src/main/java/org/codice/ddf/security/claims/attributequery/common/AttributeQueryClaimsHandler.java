@@ -112,11 +112,14 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
     @Override
     public ProcessedClaimCollection retrieveClaimValues(ClaimCollection claims,
             ClaimsParameters parameters) {
+        ProcessedClaimCollection claimCollection = new ProcessedClaimCollection();
         Principal principal = parameters.getPrincipal();
+        if (principal == null) {
+            return claimCollection;
+        }
 
         String nameId = getNameId(principal);
 
-        ProcessedClaimCollection claimCollection = new ProcessedClaimCollection();
         try {
             if (!StringUtils.isEmpty(nameId)) {
                 ProcessedClaimCollection securityClaimCollection = getAttributes(nameId);

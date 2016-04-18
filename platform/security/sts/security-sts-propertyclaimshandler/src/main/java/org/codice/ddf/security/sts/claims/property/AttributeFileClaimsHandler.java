@@ -103,6 +103,10 @@ public class AttributeFileClaimsHandler implements ClaimsHandler, RealmSupport {
             ClaimsParameters claimsParameters) {
         ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         Principal principal = claimsParameters.getPrincipal();
+        if (principal == null) {
+            return claimsColl;
+        }
+
         String name;
         if (principal instanceof X500Principal) {
             name = SubjectUtils.getCommonName((X500Principal) principal);
