@@ -16,6 +16,7 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -224,7 +225,25 @@ public class RealEndpoint {
                                     .stream())
                             .collect(Collectors.toSet());
 
-            return Response.ok(resultViolations, MediaType.APPLICATION_JSON)
+            /* This is probably the worst code ever written.. plz i hope no oen ever finds it. */
+            /* Ima rewrite it in a second dont worry its just so andrew can keep working */
+            Map<String, AndrewsActualValidationViolation> realResultViolations = new HashMap<>();
+            for (AndrewsValidationViolation avv : resultViolations) {
+                if (!realResultViolations.containsKey(avv.attribute)) {
+                    realResultViolations.put(avv.attribute, new AndrewsActualValidationViolation());
+                }
+                AndrewsActualValidationViolation v = realResultViolations.get(avv.attribute);
+                v.attribute = avv.attribute;
+                if (avv.severity.equals(ValidationViolation.Severity.ERROR)) {
+                    v.errors.add(avv.message);
+                } else if (avv.severity.equals(ValidationViolation.Severity.WARNING)) {
+                    v.warnings.add(avv.message);
+                } else {
+                    throw new RuntimeException("Unexpected Severity level!");
+                }
+            }
+
+            return Response.ok(realResultViolations, MediaType.APPLICATION_JSON)
                     .build();
 
         }
@@ -234,6 +253,14 @@ public class RealEndpoint {
 
     private List<Serializable> getSerializableList(List list) {
         return new ArrayList<>(list);
+    }
+
+    private class AndrewsActualValidationViolation {
+        String attribute;
+
+        List<String> errors = new ArrayList<>();
+
+        List<String> warnings = new ArrayList<>();
     }
 
     private class AndrewsValidationViolation {
