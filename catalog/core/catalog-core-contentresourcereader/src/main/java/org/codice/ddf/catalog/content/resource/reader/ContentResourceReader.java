@@ -20,10 +20,12 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,10 +115,26 @@ public class ContentResourceReader implements ResourceReader {
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        LOGGER.trace("ENTERING/EXITING: getOptions");
-        LOGGER.debug(
-                "ContentResourceReader getOptions doesn't support options, returning empty set.");
-
+        if (metacard != null
+                && metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL) != null
+                && !CollectionUtils.isEmpty(metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                .getValues())) {
+            Set<String> options = new HashSet<>();
+            for (Serializable value : metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                    .getValues()) {
+                try {
+                    URI contentUri = new URI((String) value);
+                    if (ContentItem.CONTENT_SCHEME.equals(contentUri.getScheme())) {
+                        if (StringUtils.isNotBlank(contentUri.getFragment())) {
+                            options.add(contentUri.getFragment());
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    // Ignore - nothing to do
+                }
+            }
+            return options;
+        }
         return Collections.emptySet();
     }
 

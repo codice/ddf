@@ -16,10 +16,10 @@ package org.codice.ddf.catalog.content.resource.reader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -58,11 +58,11 @@ public class DerivedContentActionProvider implements ActionProvider {
         if (resourceActions.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Action> actions = new ArrayList<>();
-        ((Metacard) input).getAttribute(Metacard.DERIVED_RESOURCE_URI)
+
+        return ((Metacard) input).getAttribute(Metacard.DERIVED_RESOURCE_URI)
                 .getValues()
                 .stream()
-                .forEach(value -> {
+                .map(value -> {
                     try {
                         URI uri = new URI(value.toString());
                         URIBuilder builder = new URIBuilder(resourceActions.get(0)
@@ -71,26 +71,28 @@ public class DerivedContentActionProvider implements ActionProvider {
                         if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {
                             String qualifier = uri.getFragment();
 
-                            builder.addParameters(Arrays.asList(new BasicNameValuePair(ContentItem.QUALIFIER,
+                            builder.addParameters(Collections.singletonList(new BasicNameValuePair(
+                                    ContentItem.QUALIFIER,
                                     qualifier)));
-                            ActionImpl newAction = new ActionImpl(ID,
+                            return Optional.of(new ActionImpl(ID,
                                     "View " + qualifier,
                                     DESCRIPTION_PREFIX + qualifier,
                                     builder.build()
-                                            .toURL());
-                            actions.add(newAction);
+                                            .toURL()));
                         } else {
-                            ActionImpl newAction = new ActionImpl(ID,
+                            return Optional.of(new ActionImpl(ID,
                                     "View " + uri.toString(),
                                     DESCRIPTION_PREFIX + uri.toString(),
-                                    uri.toURL());
-                            actions.add(newAction);
+                                    uri.toURL()));
                         }
                     } catch (URISyntaxException | MalformedURLException e) {
                         LOGGER.debug("Unable to create action URL.", e);
+                        return Optional.<Action>empty();
                     }
-                });
-        return actions;
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @Override

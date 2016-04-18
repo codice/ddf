@@ -13,8 +13,8 @@
  **/
 package ddf.sdk.plugin.storage;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.io.ByteSource;
 
@@ -56,29 +56,24 @@ public class PreviewStoragePlugin implements PreCreateStoragePlugin, PreUpdateSt
     }
 
     private List<ContentItem> createPreviewItems(List<ContentItem> items) {
-        List<ContentItem> previewItems = new ArrayList<>();
-        items.stream()
-                .forEach(item -> {
-                    if (item.getMetacard()
-                            .getThumbnail() != null) {
-                        ContentItem previewItem = createPreviewItem(item.getMetacard());
-                        previewItems.add(previewItem);
-                        item.getMetacard()
-                                .setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_URI,
-                                        previewItem.getUri()));
-                    }
-                });
-        return previewItems;
+        return items.stream()
+                .filter(item -> item.getMetacard()
+                        .getThumbnail() != null)
+                .map(ContentItem::getMetacard)
+                .map(this::createPreviewItem)
+                .collect(Collectors.toList());
     }
 
     private ContentItem createPreviewItem(Metacard metacard) {
-        return new ContentItemImpl(metacard.getId(),
+        ContentItem preview = new ContentItemImpl(metacard.getId(),
                 "preview",
                 ByteSource.wrap(metacard.getThumbnail()),
                 "image/jpg",
                 metacard.getTitle(),
                 metacard.getThumbnail().length,
                 metacard);
+        metacard.setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_URI, preview.getUri()));
+        return preview;
     }
 
 }

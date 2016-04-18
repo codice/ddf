@@ -214,7 +214,7 @@ public interface Metacard extends Serializable {
     /**
      * {@link Attribute} that provides URIs for derived formats of the {@literal Metacard.RESOURCE_URI}
      */
-    String DERIVED_RESOURCE_URI = "resource.dervied-resource-uri";
+    String DERIVED_RESOURCE_URI = "resource.derived-uri";
 
     /**
      * {@link Attribute} name for accessing the derived resource download URL for the derived
