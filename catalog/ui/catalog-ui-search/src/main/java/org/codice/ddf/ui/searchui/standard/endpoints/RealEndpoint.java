@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
+import static ddf.catalog.validation.violation.ValidationViolation.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -214,36 +216,31 @@ public class RealEndpoint {
             Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
                     .getAttributeValidationViolations();
 
-            Set<AndrewsValidationViolation> resultViolations =
-                    attributeValidationViolations.stream()
-                            .flatMap(v -> v.getAttributes()
-                                    .stream()
-                                    .map(attribute -> new AndrewsValidationViolation(attribute,
-                                            v.getMessage(),
-                                            v.getSeverity()))
-                                    .collect(Collectors.toList())
-                                    .stream())
-                            .collect(Collectors.toSet());
+            Map<String, AndrewsActualValidationViolation> violationsResult = new HashMap<>();
+            for (ValidationViolation violation : attributeValidationViolations) {
+                for (String attribute : violation.getAttributes()) {
+                    if (!violationsResult.containsKey(attribute)) {
+                        violationsResult.put(attribute, new AndrewsActualValidationViolation());
+                    }
+                    AndrewsActualValidationViolation violationResponse = violationsResult.get(
+                            attribute);
+                    violationResponse.attribute = attribute;
 
-            /* This is probably the worst code ever written.. plz i hope no oen ever finds it. */
-            /* Ima rewrite it in a second dont worry its just so andrew can keep working */
-            Map<String, AndrewsActualValidationViolation> realResultViolations = new HashMap<>();
-            for (AndrewsValidationViolation avv : resultViolations) {
-                if (!realResultViolations.containsKey(avv.attribute)) {
-                    realResultViolations.put(avv.attribute, new AndrewsActualValidationViolation());
-                }
-                AndrewsActualValidationViolation v = realResultViolations.get(avv.attribute);
-                v.attribute = avv.attribute;
-                if (avv.severity.equals(ValidationViolation.Severity.ERROR)) {
-                    v.errors.add(avv.message);
-                } else if (avv.severity.equals(ValidationViolation.Severity.WARNING)) {
-                    v.warnings.add(avv.message);
-                } else {
-                    throw new RuntimeException("Unexpected Severity level!");
+                    if (Severity.ERROR.equals(violation.getSeverity())) {
+                        violationResponse.errors.add(violation.getMessage());
+                    } else if (Severity.WARNING.equals(violation.getSeverity())) {
+                        violationResponse.warnings.add(violation.getMessage());
+                    } else {
+                        throw new RuntimeException("Unexpected Severity Level");
+                    }
                 }
             }
+            List<AndrewsActualValidationViolation> result = violationsResult.entrySet()
+                    .stream()
+                    .map(Map.Entry::getValue)
+                    .collect(Collectors.toList());
 
-            return Response.ok(realResultViolations, MediaType.APPLICATION_JSON)
+            return Response.ok(result, MediaType.APPLICATION_JSON)
                     .build();
 
         }
@@ -268,10 +265,9 @@ public class RealEndpoint {
 
         String message;
 
-        ValidationViolation.Severity severity;
+        Severity severity;
 
-        private AndrewsValidationViolation(String attribute, String message,
-                ValidationViolation.Severity severity) {
+        private AndrewsValidationViolation(String attribute, String message, Severity severity) {
             this.attribute = attribute;
             this.message = message;
             this.severity = severity;
