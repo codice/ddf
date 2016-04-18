@@ -17,14 +17,11 @@ import static ddf.catalog.validation.violation.ValidationViolation.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -44,12 +41,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.impl.UpdateRequestImpl;
-import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.ReportingMetacardValidator;
-import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
 
@@ -155,33 +147,14 @@ public class RealEndpoint {
             Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
                     .getAttributeValidationViolations();
 
-            /*Set<ValidationViolation> resultViolations = new HashSet<>();
-            for (ValidationViolation violation : attributeValidationViolations) {
-                if (violation.getAttributes()
-                        .size() <= 1) {
-                    resultViolations.add(violation);
-                    continue;
-                }
-                resultViolations.addAll(violation.getAttributes()
-                        .stream()
-                        .map(attribute -> new ValidationViolationImpl(Collections.singleton(
-                                attribute), violation.getMessage(), violation.getSeverity()))
-                        .collect(Collectors.toList()));
-            }*/
+            Map<String, ViolationResult> violationsResult = getViolationsResult(
+                    attributeValidationViolations);
+            List<ViolationResult> result = violationsResult.entrySet()
+                    .stream()
+                    .map(Map.Entry::getValue)
+                    .collect(Collectors.toList());
 
-            Set<AndrewsValidationViolation> resultViolations =
-                    attributeValidationViolations.stream()
-                            .flatMap(v -> v.getAttributes()
-                                    .stream()
-                                    .map(attribute -> new AndrewsValidationViolation(attribute,
-                                            v.getMessage(),
-                                            v.getSeverity()))
-                                    .collect(Collectors.toList())
-                                    .stream())
-                            .collect(Collectors.toSet());
-
-            return Response.status(400)
-                    .entity(resultViolations)
+            return Response.ok(result, MediaType.APPLICATION_JSON)
                     .build();
         }
 
@@ -194,10 +167,7 @@ public class RealEndpoint {
                     .build();
         }*/
 
-        return Response.ok(JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(endpointUtil.transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
+        return Response.ok(getJson(endpointUtil.transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -216,61 +186,59 @@ public class RealEndpoint {
             Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
                     .getAttributeValidationViolations();
 
-            Map<String, AndrewsActualValidationViolation> violationsResult = new HashMap<>();
-            for (ValidationViolation violation : attributeValidationViolations) {
-                for (String attribute : violation.getAttributes()) {
-                    if (!violationsResult.containsKey(attribute)) {
-                        violationsResult.put(attribute, new AndrewsActualValidationViolation());
-                    }
-                    AndrewsActualValidationViolation violationResponse = violationsResult.get(
-                            attribute);
-                    violationResponse.attribute = attribute;
-
-                    if (Severity.ERROR.equals(violation.getSeverity())) {
-                        violationResponse.errors.add(violation.getMessage());
-                    } else if (Severity.WARNING.equals(violation.getSeverity())) {
-                        violationResponse.warnings.add(violation.getMessage());
-                    } else {
-                        throw new RuntimeException("Unexpected Severity Level");
-                    }
-                }
-            }
-            List<AndrewsActualValidationViolation> result = violationsResult.entrySet()
+            Map<String, ViolationResult> violationsResult = getViolationsResult(
+                    attributeValidationViolations);
+            List<ViolationResult> result = violationsResult.entrySet()
                     .stream()
                     .map(Map.Entry::getValue)
                     .collect(Collectors.toList());
 
-            return Response.ok(result, MediaType.APPLICATION_JSON)
+            return Response.ok(getJson(result), MediaType.APPLICATION_JSON)
                     .build();
-
         }
         return Response.ok("[]", MediaType.APPLICATION_JSON)
                 .build();
+    }
+
+    private String getJson(Object result) {
+        return JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(result);
+    }
+
+    private Map<String, ViolationResult> getViolationsResult(
+            Set<ValidationViolation> attributeValidationViolations) {
+        Map<String, ViolationResult> violationsResult = new HashMap<>();
+        for (ValidationViolation violation : attributeValidationViolations) {
+            for (String attribute : violation.getAttributes()) {
+                if (!violationsResult.containsKey(attribute)) {
+                    violationsResult.put(attribute, new ViolationResult());
+                }
+                ViolationResult violationResponse = violationsResult.get(attribute);
+                violationResponse.attribute = attribute;
+
+                if (Severity.ERROR.equals(violation.getSeverity())) {
+                    violationResponse.errors.add(violation.getMessage());
+                } else if (Severity.WARNING.equals(violation.getSeverity())) {
+                    violationResponse.warnings.add(violation.getMessage());
+                } else {
+                    throw new RuntimeException("Unexpected Severity Level");
+                }
+            }
+        }
+        return violationsResult;
     }
 
     private List<Serializable> getSerializableList(List list) {
         return new ArrayList<>(list);
     }
 
-    private class AndrewsActualValidationViolation {
+    private class ViolationResult {
         String attribute;
 
         List<String> errors = new ArrayList<>();
 
         List<String> warnings = new ArrayList<>();
-    }
-
-    private class AndrewsValidationViolation {
-        String attribute;
-
-        String message;
-
-        Severity severity;
-
-        private AndrewsValidationViolation(String attribute, String message, Severity severity) {
-            this.attribute = attribute;
-            this.message = message;
-            this.severity = severity;
-        }
     }
 }
