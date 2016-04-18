@@ -49,9 +49,15 @@ public class HistoryEndpoint {
     @Path("/{id}")
     public Response getHistory(@PathParam("id") String id) throws Exception {
         List<Result> queryResponse = getMetacardHistory(id);
+        if (queryResponse == null || queryResponse.isEmpty()) {
+            return Response.status(404).build();
+        }
+
         List<HistoryResponse> response = queryResponse.stream()
                 .map(Result::getMetacard)
                 .map(mc -> new HistoryResponse(mc.getId(),
+                        (String) mc.getAttribute(HistoryMetacardImpl.EDITED_BY)
+                                .getValue(),
                         (Date) mc.getAttribute(HistoryMetacardImpl.VERSIONED)
                                 .getValue()))
                 .sorted(compareBy(mc -> mc.versioned))
@@ -69,6 +75,10 @@ public class HistoryEndpoint {
     public Response revertHistory(@PathParam("id") String id,
             @PathParam("revertId") String revertId) throws Exception {
         Metacard versionMetacard = endpointUtil.getMetacard(revertId);
+        if (versionMetacard == null) {
+            return Response.status(404).build();
+        }
+
         if (((String) versionMetacard.getAttribute(HistoryMetacardImpl.ACTION)
                 .getValue()).equals(HistoryMetacardImpl.Action.DELETED.getKey())) {
             /* can't revert to a deleted.. right now */
@@ -114,13 +124,17 @@ public class HistoryEndpoint {
 
         String id;
 
-        private HistoryResponse(String historyId, Instant versioned) {
+        String editedBy;
+
+        private HistoryResponse(String historyId, String editedBy, Instant versioned) {
             this.id = historyId;
+            this.editedBy = editedBy;
             this.versioned = versioned;
         }
 
-        private HistoryResponse(String historyId, Date versioned) {
+        private HistoryResponse(String historyId, String editedBy, Date versioned) {
             this.id = historyId;
+            this.editedBy = editedBy;
             this.versioned = versioned.toInstant();
         }
 
@@ -128,5 +142,4 @@ public class HistoryEndpoint {
             return this.versioned;
         }
     }
-
 }

@@ -70,15 +70,13 @@ public class MetacardEditEndpoint {
         Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         if (metacardAttribute == null) {
-            response.setStatus(404);
-            return null;
+            return Response.status(404).build();
         }
         Optional<AttributeDescriptor> attributeDescriptor =
                 attributeRegistry.getAttributeDescriptor(attribute);
         if (!attributeDescriptor.isPresent()) {
             /* Could not find attribute descriptor for requested attribute */
-            response.setStatus(404);
-            return null;
+            return Response.status(404).build();
         }
 
         AttributeDescriptor descriptor = attributeDescriptor.get();
@@ -89,29 +87,26 @@ public class MetacardEditEndpoint {
                 .build();
     }
 
-    /*private MediaType getMediaType(AttributeDescriptor attributeDescriptor) {
-        switch (attributeDescriptor.getType().getAttributeFormat()) {
-        case: AttributeFormat.
-        }
-    }*/
-
     @PUT
     @Path("/{id}/{attribute}")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response setAttribute(@Context HttpServletResponse response, @PathParam("id") String id,
             @PathParam("attribute") String attribute, String value) throws Exception {
         Metacard metacard = endpointUtil.getMetacard(id);
+        if (metacard == null) {
+            return Response.status(404).build();
+        }
+
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         Optional<AttributeDescriptor> attributeDescriptor =
                 attributeRegistry.getAttributeDescriptor(attribute);
         if (!attributeDescriptor.isPresent()) {
             /* Could not find attribute descriptor for requested attribute */
-            response.setStatus(404);
             return Response.status(404)
                     .build();
         }
-        AttributeDescriptor descriptor = attributeDescriptor.get();
 
+        AttributeDescriptor descriptor = attributeDescriptor.get();
         if (descriptor.isMultiValued()) {
             if (metacardAttribute == null || metacardAttribute.getValues() == null) {
                 metacard.setAttribute(new AttributeImpl(attribute,
@@ -143,6 +138,10 @@ public class MetacardEditEndpoint {
             @PathParam("id") String id, @PathParam("attribute") String attribute, byte[] value)
             throws Exception {
         Metacard metacard = endpointUtil.getMetacard(id);
+        if (metacard == null) {
+            return Response.status(404).build();
+        }
+
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         Optional<AttributeDescriptor> attributeDescriptor =
                 attributeRegistry.getAttributeDescriptor(attribute);
@@ -161,7 +160,12 @@ public class MetacardEditEndpoint {
         }
 
         if (descriptor.isMultiValued()) {
-            List<Serializable> values = metacardAttribute.getValues();
+            List<Serializable> values;
+            if (metacardAttribute == null) {
+                values = new ArrayList<>();
+            } else {
+                values = metacardAttribute.getValues();
+            }
             if (!values.contains(value)) {
                 values.add(value);
             }

@@ -15,10 +15,14 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -42,7 +46,9 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.ReportingMetacardValidator;
+import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
+import ddf.catalog.validation.violation.ValidationViolation;
 
 public class RealEndpoint {
     private final CatalogFramework catalogFramework;
@@ -71,6 +77,11 @@ public class RealEndpoint {
     @Path("/metacard/{id}")
     public Response getMetacard(@PathParam("id") String id) throws Exception {
         Metacard metacard = endpointUtil.getMetacard(id);
+        if (metacard == null) {
+            return Response.status(404)
+                    .build();
+        }
+
         Map<String, Object> response = endpointUtil.transformToJson(metacard);
 
         return Response.ok(JsonFactory.create(new JsonParserFactory(),
@@ -98,6 +109,10 @@ public class RealEndpoint {
                 .parser()
                 .parseMap(metacard);
         Metacard newMetacard = endpointUtil.getMetacard((String) metacardMap.get(Metacard.ID));
+        if (newMetacard == null) {
+            return Response.status(404)
+                    .build();
+        }
         MetacardType metacardType = newMetacard.getMetacardType();
 
         for (Map.Entry<String, Object> entry : metacardMap.entrySet()) {
@@ -112,7 +127,6 @@ public class RealEndpoint {
 
             if (metacardType.getAttributeDescriptor(entry.getKey())
                     .isMultiValued()) {
-                // TODO (RCZ) - this is bad and i should feel bad. Don't cast , do something better
                 newMetacard.setAttribute(new AttributeImpl(entry.getKey(),
                         getSerializableList((List) entry.getValue())));
             } else {
@@ -135,20 +149,47 @@ public class RealEndpoint {
                 reportingMetacardValidator.validateMetacard(newMetacard);
 
         if (metacardValidationReport.isPresent()) {
+            Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
+                    .getAttributeValidationViolations();
+
+            /*Set<ValidationViolation> resultViolations = new HashSet<>();
+            for (ValidationViolation violation : attributeValidationViolations) {
+                if (violation.getAttributes()
+                        .size() <= 1) {
+                    resultViolations.add(violation);
+                    continue;
+                }
+                resultViolations.addAll(violation.getAttributes()
+                        .stream()
+                        .map(attribute -> new ValidationViolationImpl(Collections.singleton(
+                                attribute), violation.getMessage(), violation.getSeverity()))
+                        .collect(Collectors.toList()));
+            }*/
+
+            Set<AndrewsValidationViolation> resultViolations =
+                    attributeValidationViolations.stream()
+                            .flatMap(v -> v.getAttributes()
+                                    .stream()
+                                    .map(attribute -> new AndrewsValidationViolation(attribute,
+                                            v.getMessage(),
+                                            v.getSeverity()))
+                                    .collect(Collectors.toList())
+                                    .stream())
+                            .collect(Collectors.toSet());
+
             return Response.status(400)
-                    .entity(metacardValidationReport.get()
-                            .getAttributeValidationViolations())
+                    .entity(resultViolations)
                     .build();
         }
 
-        UpdateResponse updateResponse =
+        /*UpdateResponse updateResponse =
                 catalogFramework.update(new UpdateRequestImpl(newMetacard.getId(), newMetacard));
         if (updateResponse.getProcessingErrors() != null && !updateResponse.getProcessingErrors()
                 .isEmpty()) {
             // TODO (RCZ) - should probably pull actual processing errors?
             return Response.status(400)
                     .build();
-        }
+        }*/
 
         return Response.ok(JsonFactory.create(new JsonParserFactory(),
                 new JsonSerializerFactory().includeNulls()
@@ -169,10 +210,23 @@ public class RealEndpoint {
                 reportingMetacardValidator.validateMetacard(newMetacard);
 
         if (metacardValidationReport.isPresent()) {
-            return Response.status(400)
-                    .entity(metacardValidationReport.get()
-                            .getAttributeValidationViolations())
+            Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
+                    .getAttributeValidationViolations();
+
+            Set<AndrewsValidationViolation> resultViolations =
+                    attributeValidationViolations.stream()
+                            .flatMap(v -> v.getAttributes()
+                                    .stream()
+                                    .map(attribute -> new AndrewsValidationViolation(attribute,
+                                            v.getMessage(),
+                                            v.getSeverity()))
+                                    .collect(Collectors.toList())
+                                    .stream())
+                            .collect(Collectors.toSet());
+
+            return Response.ok(resultViolations, MediaType.APPLICATION_JSON)
                     .build();
+
         }
         return Response.ok("[]", MediaType.APPLICATION_JSON)
                 .build();
@@ -182,4 +236,18 @@ public class RealEndpoint {
         return new ArrayList<>(list);
     }
 
+    private class AndrewsValidationViolation {
+        String attribute;
+
+        String message;
+
+        ValidationViolation.Severity severity;
+
+        private AndrewsValidationViolation(String attribute, String message,
+                ValidationViolation.Severity severity) {
+            this.attribute = attribute;
+            this.message = message;
+            this.severity = severity;
+        }
+    }
 }
