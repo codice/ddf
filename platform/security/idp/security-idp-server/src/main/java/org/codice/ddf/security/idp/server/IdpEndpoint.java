@@ -492,9 +492,8 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
-    protected synchronized org.opensaml.saml.saml2.core.Response handleLogin(
-            AuthnRequest authnRequest, String authMethod, HttpServletRequest request,
-            boolean passive, boolean hasCookie)
+    protected org.opensaml.saml.saml2.core.Response handleLogin(AuthnRequest authnRequest,
+            String authMethod, HttpServletRequest request, boolean passive, boolean hasCookie)
             throws SecurityServiceException, WSSecurityException, SimpleSign.SignatureException,
             ConstraintViolationException {
         LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
@@ -571,12 +570,12 @@ public class IdpEndpoint implements Idp {
                 true)), SamlProtocol.createStatus(statusCode), authnRequest.getID(), samlToken);
     }
 
-    private synchronized Cookie getCookie(HttpServletRequest request) {
+    private Cookie getCookie(HttpServletRequest request) {
         Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
         return cookies.get(COOKIE);
     }
 
-    private synchronized Element getSamlAssertion(HttpServletRequest request) {
+    private Element getSamlAssertion(HttpServletRequest request) {
         Element samlToken = null;
         Cookie cookie = getCookie(request);
         if (cookie != null) {
@@ -590,7 +589,7 @@ public class IdpEndpoint implements Idp {
         return samlToken;
     }
 
-    private synchronized boolean hasValidCookie(HttpServletRequest request, boolean forceAuthn) {
+    private boolean hasValidCookie(HttpServletRequest request, boolean forceAuthn) {
         Cookie cookie = getCookie(request);
         if (cookie != null) {
             LOGGER.debug("Retrieving cookie {}:{} from cache.",
@@ -615,7 +614,7 @@ public class IdpEndpoint implements Idp {
         return false;
     }
 
-    private synchronized LogoutState getLogoutState(HttpServletRequest request) {
+    private LogoutState getLogoutState(HttpServletRequest request) {
         LogoutState logoutState = null;
         Cookie cookie = getCookie(request);
         if (cookie != null) {
@@ -624,7 +623,7 @@ public class IdpEndpoint implements Idp {
         return logoutState;
     }
 
-    private synchronized NewCookie createCookie(HttpServletRequest request,
+    private NewCookie createCookie(HttpServletRequest request,
             org.opensaml.saml.saml2.core.Response response) {
         LOGGER.debug("Creating cookie for user.");
         if (response.getAssertions() != null && response.getAssertions()
@@ -1030,11 +1029,11 @@ public class IdpEndpoint implements Idp {
                 .build();
     }
 
-    public synchronized void setSecurityManager(SecurityManager securityManager) {
+    public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
     }
 
-    public synchronized void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+    public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
         this.tokenFactory = tokenFactory;
     }
 
