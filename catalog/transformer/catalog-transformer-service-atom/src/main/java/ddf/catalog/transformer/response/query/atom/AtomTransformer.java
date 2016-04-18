@@ -38,6 +38,7 @@ import org.apache.abdera.model.Element;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
 import org.apache.abdera.model.Link;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.SystemInfo;
@@ -428,7 +429,7 @@ public class AtomTransformer implements QueryResponseTransformer {
 
                 List<Action> actions = actionProvider.getActions(metacard);
 
-                if (actions != null && !actions.isEmpty()) {
+                if (CollectionUtils.isEmpty(actions)) {
                     if (actionProvider.equals(resourceActionProvider)
                             && metacard.getResourceURI() != null) {
 

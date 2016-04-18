@@ -43,6 +43,8 @@ import ddf.catalog.data.Metacard;
 
 public class DerivedContentActionProviderTest {
 
+    public static final String EXMAPLE_URL = "https://exmaple.com/other";
+
     private static DerivedContentActionProvider actionProvider;
 
     private static ActionProvider mockResourceActionProvider = mock(ActionProvider.class);
@@ -103,14 +105,14 @@ public class DerivedContentActionProviderTest {
                 actionUri.toURL());
         when(mockResourceActionProvider.getActions(any(Metacard.class))).thenReturn(Arrays.asList(
                 expectedAction));
-        when(attribute.getValues()).thenReturn(Arrays.asList("https://exmaple.com/other"));
+        when(attribute.getValues()).thenReturn(Arrays.asList(EXMAPLE_URL));
         List<Action> actions = actionProvider.getActions(metacard);
         assertThat(actions, hasSize(1));
         assertThat(actions.get(0), notNullValue());
         assertThat(actions.get(0)
                 .getUrl(), notNullValue());
         assertThat(actions.get(0)
-                .getUrl(), is(new URL("https://exmaple.com/other")));
+                .getUrl(), is(new URL(EXMAPLE_URL)));
     }
 
     @Test

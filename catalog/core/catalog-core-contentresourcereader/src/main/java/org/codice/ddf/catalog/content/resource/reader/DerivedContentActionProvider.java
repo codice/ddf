@@ -43,6 +43,8 @@ public class DerivedContentActionProvider implements ActionProvider {
 
     private static final String DESCRIPTION_PREFIX = "Retrieves derived resource: ";
 
+    private static final String OPTIONS = "options";
+
     public DerivedContentActionProvider(ActionProvider actionProvider) {
         this.resourceActionProvider = actionProvider;
     }
@@ -70,7 +72,7 @@ public class DerivedContentActionProvider implements ActionProvider {
                         if (StringUtils.equals(uri.getScheme(), ContentItem.CONTENT_SCHEME)) {
                             String qualifier = uri.getFragment();
 
-                            builder.addParameters(Arrays.asList(new BasicNameValuePair("options",
+                            builder.addParameters(Arrays.asList(new BasicNameValuePair(OPTIONS,
                                     qualifier)));
                             ActionImpl newAction = new ActionImpl(ID,
                                     "View " + qualifier,
