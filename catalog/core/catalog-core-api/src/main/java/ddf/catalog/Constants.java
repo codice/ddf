@@ -24,6 +24,12 @@ import ddf.catalog.event.EventProcessor;
 public final class Constants {
 
     /**
+     * This constant is the name used to pass the metacard as part of a CatalogResponse.
+     *
+     */
+    public static final String METACARD_PROPERTY = "metacard";
+
+    /**
      * This constant should be used to pass the users credentials in the form of a Subject object
      * through any request/response property map.
      */
