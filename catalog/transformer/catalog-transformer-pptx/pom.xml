@@ -98,12 +98,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.54</version>
+            <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.54</version>
+            <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
@@ -180,10 +180,6 @@
                             platform-util,
                             catalog-transformer-common,
 
-                            <!-- external -->
-
-                            bcprov-jdk15on,
-                            bcpkix-jdk15on,
                             <!--
 
                             TODO Big nasty hack. Should not normally embed another bundle. But we

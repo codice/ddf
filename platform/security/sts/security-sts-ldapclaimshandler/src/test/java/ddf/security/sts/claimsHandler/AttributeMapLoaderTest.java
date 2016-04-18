@@ -13,6 +13,7 @@
  */
 package ddf.security.sts.claimsHandler;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -44,6 +45,13 @@ public class AttributeMapLoaderTest {
 
     private static final String X500_DN = "CN=" + TEST_USER + ", OU=LDAP, O=DDF, C=US";
 
+    private static final String DEFAULT_BASE_DN = "OU=LDAP, OU=DEFAULT, O=DDF, C=US";
+
+    private static final String[] X500_BASE_DN_ARR = {"OU=LDAP", "O=DDF", "C=US"};
+
+    private static final String[] X500_DEFAULT_BASE_DN_ARR =
+            {"OU=LDAP", "OU=DEFAULT", "O=DDF", "C=US"};
+
     /**
      * Tests loading the attributes from a file.
      *
@@ -52,9 +60,8 @@ public class AttributeMapLoaderTest {
     @Test
     public void testAttributeFile() {
         Map<String, String> returnedMap = AttributeMapLoader.buildClaimsMapFile(MAP_FILE);
-        assertEquals("uid",
-                returnedMap.get(
-                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
+        assertEquals("uid", returnedMap.get(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
         assertTrue(returnedMap.containsKey(
                 "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"));
         assertFalse(returnedMap.containsKey(BAD_KEY));
@@ -92,4 +99,33 @@ public class AttributeMapLoaderTest {
         assertEquals(TEST_USER, AttributeMapLoader.getUser(principal));
     }
 
+    @Test
+    public void testGetBaseDnX500() {
+        Principal principal = new X500Principal(X500_DN);
+
+        String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN);
+
+        String[] split = baseDN.replaceAll("\\s", "").split(",");
+        assertArrayEquals(X500_BASE_DN_ARR, split);
+    }
+
+    @Test
+    public void testGetBaseDnX500EmptyDN() {
+        Principal principal = new X500Principal("CN=FOOBAR");
+
+        String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN);
+
+        String[] split = baseDN.replaceAll("\\s", "").split(",");
+        assertArrayEquals(X500_DEFAULT_BASE_DN_ARR, split);
+    }
+
+    @Test
+    public void testGetBaseDnNonX500() {
+        Principal principal = new KerberosPrincipal(KERBEROS_PRINCIPAL);
+
+        String baseDN = AttributeMapLoader.getBaseDN(principal, DEFAULT_BASE_DN);
+
+        String[] split = baseDN.replaceAll("\\s", "").split(",");
+        assertArrayEquals(X500_DEFAULT_BASE_DN_ARR, split);
+    }
 }

@@ -65,7 +65,7 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
     @Override
     public List<Alert> validate() {
         resetAlerts();
-        Properties properties = readFile();
+        Properties properties = readFile(false);
 
         if (properties != null && properties.size() > 0) {
             validateAdminUser(properties);

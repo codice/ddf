@@ -98,12 +98,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.53</version>
+            <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.53</version>
+            <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
@@ -141,8 +141,6 @@
                             platform-util,
                             common-system,
                             ddf-security-common,
-                            bcpkix-jdk15on,
-                            bcprov-jdk15on,
                             httpclient,httpcore,
                             platform-util-unavailableurls
                         </Embed-Dependency>

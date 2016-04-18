@@ -59,11 +59,8 @@ public class UsersPropertiesFileValidatorTest {
         List<Alert> alerts = propertiesFileValidator.validate();
 
         // Verify
-        assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0)
-                        .getMessage(),
-                is(String.format(UsersPropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        Paths.get(FAKE_USERS_PROPERTIES_FILE))));
+        // It is acceptable for there to be no users.properties file
+        assertThat(alerts.size(), is(0));
     }
 
     @Test

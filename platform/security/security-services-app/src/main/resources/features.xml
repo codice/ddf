@@ -95,9 +95,6 @@
         <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}</bundle>
         <bundle dependency="true">
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15on/1.51_1
-        </bundle>
-        <bundle dependency="true">
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_5
         </bundle>
         <bundle dependency="true">

@@ -46,6 +46,14 @@ public abstract class PropertiesFileValidator implements Validator {
     public abstract List<Alert> validate();
 
     protected Properties readFile() {
+        return readFile(true);
+    }
+
+    protected Properties readFile(boolean validateExists) {
+        if (!validateExists && !path.toFile().exists()) {
+            LOGGER.warn("No properties file found at {}", path.toFile().getName());
+            return null;
+        }
 
         Properties properties = PropertiesLoader.loadProperties(path.toString());
         if (properties.isEmpty()) {
