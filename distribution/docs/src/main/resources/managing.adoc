@@ -16,46 +16,48 @@ include::./_contents/troubleshooting-contents.adoc[]
 
 == Managing ${ddf-admin}
 [small]#Version: ${project.version}#
-include::${project.build.directory}/doc-contents/_admin/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_admin-contents/managing-admin-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-catalog}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_catalog/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/installing-catalog-contents.adoc[]
+
+include::${project.build.directory}/doc-contents/_contents/_catalog-contents/configuring-catalog-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-platform}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_platform/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_platform-contents/managing-platform-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-security}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_security/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_security-contents/managing-security-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-solr}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_solr/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_solr-contents/managing-solr-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-spatial}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_spatial/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_spatial-contents/managing-spatial-contents.adoc[]
 
 <<<
 
 == Managing ${ddf-ui}
 [small]#Version: ${project.version}#
 
-include::${project.build.directory}/doc-contents/_ui/docs-${project.version}/managing-contents.adoc[]
+include::${project.build.directory}/doc-contents/_contents/_ui-contents/managing-ui-contents.adoc[]

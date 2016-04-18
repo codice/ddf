@@ -29,7 +29,6 @@
         <module>ui</module>
         <module>modules</module>
         <module>admin-app</module>
-        <module>docs</module>
     </modules>
     <build>
         <plugins>
