@@ -17,15 +17,18 @@
 
     <OCD name="Catalog Content Directory Monitor"
          id="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
-        <AD
-                description="Specifies the directory to be monitored"
-                name="Directory Path" id="monitoredDirectoryPath" required="true"
-                type="String" default=""/>
+        <AD description="Specifies the directory to be monitored"
+            name="Directory Path" id="monitoredDirectoryPath" required="true"
+            type="String" default=""/>
 
-        <AD
-                description="Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository."
-                name="Copy Files to Backup Directory" id="copyIngestedFiles" required="false"
-                type="Boolean" default="false"/>
+        <AD description="Optional: Copy the ingested files into a backup directory under the monitored directory named /.ingested  -  NOTE: this will double the amount of disk space required for ingested files in this monitored directory if its Processing Directive includes storing the file in the DDF Content Repository."
+            name="Copy Files to Backup Directory" id="copyIngestedFiles" required="false"
+            type="Boolean" default="false"/>
+
+        <AD description="Optional: Parameters (Key-Value pairs) that are available to any registered ingest plugin.  The format should be 'key=value'."
+            name="Parameters" id="parameters" required="false" type="String"
+            cardinality="100"
+            default="" />
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"

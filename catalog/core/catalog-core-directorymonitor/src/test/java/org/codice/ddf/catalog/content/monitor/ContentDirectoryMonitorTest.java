@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -13,10 +13,12 @@
  */
 package org.codice.ddf.catalog.content.monitor;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private static final String INPUT_FILEPATH = "target/" + INPUT_FILENAME;
 
+    private static final String MONITORED_DIRECTORY = "target/inbox";
+
     private ModelCamelContext camelContext;
 
     private ContentDirectoryMonitor contentDirectoryMonitor;
@@ -50,10 +54,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private Processor noOpProcessor = exchange -> {
     };
 
+    private static final List<String> PARAMETERS = Arrays.asList("test1=someParameter1",
+            "test2=someParameter2");
+
     @After
     public void tearDown() throws Exception {
         LOGGER.debug("INSIDE tearDown");
-        //context = null;
 
         // This will also stop all routes/components/endpoints, etc. 
         // and clear internal state/cache
@@ -63,22 +69,20 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     @Test
     public void testRouteCreationWithCopyIngestedFiles() throws Exception {
-        String monitoredDirectory = "target/inbox";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, copyIngestedFiles);
+        RouteDefinition routeDefinition = createRoute(MONITORED_DIRECTORY, copyIngestedFiles);
 
-        verifyRoute(routeDefinition, monitoredDirectory, copyIngestedFiles);
+        verifyRoute(routeDefinition, MONITORED_DIRECTORY, copyIngestedFiles);
     }
 
     @Test
     public void testRouteCreationWithoutCopyIngestedFiles() throws Exception {
-        String monitoredDirectory = "target/inbox";
         boolean copyIngestedFiles = false;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, copyIngestedFiles);
+        RouteDefinition routeDefinition = createRoute(MONITORED_DIRECTORY, copyIngestedFiles);
 
-        verifyRoute(routeDefinition, monitoredDirectory, copyIngestedFiles);
+        verifyRoute(routeDefinition, MONITORED_DIRECTORY, copyIngestedFiles);
     }
 
     @Test
@@ -108,26 +112,27 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     @Test
     public void testMoveFolder() throws Exception {
-        String monitoredDirectory = "target/inbox";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, copyIngestedFiles);
+        createRoute(MONITORED_DIRECTORY, copyIngestedFiles);
 
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
 
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+        template.sendBodyAndHeader("file://" + MONITORED_DIRECTORY,
+                fileContents,
+                Exchange.FILE_NAME,
                 INPUT_FILENAME);
 
         Thread.sleep(3000);
 
         // Verify the file moved to the .ingested directory
-        File target = new File(monitoredDirectory + "/.ingested/" + INPUT_FILENAME);
+        File target = new File(MONITORED_DIRECTORY + "/.ingested/" + INPUT_FILENAME);
         assertTrue("File not moved to .ingested folder", target.exists());
 
         // Cleanup
-        FileUtils.deleteDirectory(new File(monitoredDirectory));
+        FileUtils.deleteDirectory(new File(MONITORED_DIRECTORY));
     }
 
     /**
@@ -137,23 +142,23 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
      * @throws Exception
      */
     @Test
-    // @Ignore
     public void testUpdateExistingDirectoryMonitor() throws Exception {
-        String monitoredDirectory = "target/inbox";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition routeDefinition = createRoute(monitoredDirectory, copyIngestedFiles);
+        createRoute(MONITORED_DIRECTORY, copyIngestedFiles);
 
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+        template.sendBodyAndHeader("file://" + MONITORED_DIRECTORY,
+                fileContents,
+                Exchange.FILE_NAME,
                 INPUT_FILENAME);
 
         Thread.sleep(3000);
 
         // Verify the file moved to the .ingested directory
-        File target = new File(monitoredDirectory + "/.ingested/" + INPUT_FILENAME);
+        File target = new File(MONITORED_DIRECTORY + "/.ingested/" + INPUT_FILENAME);
         assertTrue("File 1 not moved to .ingested folder", target.exists());
 
         // Update the existing directory monitor to point to different directory
@@ -166,8 +171,10 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in new monitored directory
         fileContents = "Dummy data in second text file";
         FileUtils.writeStringToFile(new File("target/input_2.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + newMonitoredDirectory, fileContents,
-                Exchange.FILE_NAME, "input_2.txt");
+        template.sendBodyAndHeader("file://" + newMonitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
+                "input_2.txt");
 
         Thread.sleep(3000);
 
@@ -178,20 +185,22 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in original monitored directory
         fileContents = "Dummy data in third text file";
         FileUtils.writeStringToFile(new File("target/input_3.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+        template.sendBodyAndHeader("file://" + MONITORED_DIRECTORY,
+                fileContents,
+                Exchange.FILE_NAME,
                 "input_3.txt");
 
         Thread.sleep(3000);
 
         // Verify the file is not moved to the .ingested directory since it is
         // no longer monitored
-        target = new File(monitoredDirectory + "/.ingested/input_3.txt");
+        target = new File(MONITORED_DIRECTORY + "/.ingested/input_3.txt");
         assertFalse("File 3 moved to .ingested folder", target.exists());
-        target = new File(monitoredDirectory + "/input_3.txt");
+        target = new File(MONITORED_DIRECTORY + "/input_3.txt");
         assertTrue("File 3 not in old monitored folder", target.exists());
 
         // Cleanup
-        FileUtils.deleteDirectory(new File(monitoredDirectory));
+        FileUtils.deleteDirectory(new File(MONITORED_DIRECTORY));
         FileUtils.deleteDirectory(new File(newMonitoredDirectory));
     }
 
@@ -200,25 +209,27 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         String firstMonitoredDirectory = "target/inbox_1";
         boolean copyIngestedFiles = true;
 
-        RouteDefinition firstRouteDefinition = createRoute(firstMonitoredDirectory,
-                copyIngestedFiles);
+        createRoute(firstMonitoredDirectory, copyIngestedFiles);
 
         String secondMonitoredDirectory = "target/inbox_2";
         copyIngestedFiles = true;
 
-        RouteDefinition secondRouteDefinition = createRoute(secondMonitoredDirectory,
-                copyIngestedFiles);
+        createRoute(secondMonitoredDirectory, copyIngestedFiles);
 
         // Put file in first monitored directory
         String fileContents = "text file 1";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
-        template.sendBodyAndHeader("file://" + firstMonitoredDirectory, fileContents,
-                Exchange.FILE_NAME, INPUT_FILENAME);
+        template.sendBodyAndHeader("file://" + firstMonitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
+                INPUT_FILENAME);
 
         fileContents = "text file 2";
         FileUtils.writeStringToFile(new File("target/input_2.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + secondMonitoredDirectory, fileContents,
-                Exchange.FILE_NAME, "input_2.txt");
+        template.sendBodyAndHeader("file://" + secondMonitoredDirectory,
+                fileContents,
+                Exchange.FILE_NAME,
+                "input_2.txt");
 
         Thread.sleep(3000);
 
@@ -232,6 +243,28 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Cleanup
         FileUtils.deleteDirectory(new File(firstMonitoredDirectory));
         FileUtils.deleteDirectory(new File(secondMonitoredDirectory));
+    }
+
+    @Test
+    public void testDirectoryMonitorWithParameters() throws Exception {
+        boolean copyIngestedFiles = true;
+
+        camelContext = (ModelCamelContext) super.createCamelContext();
+        camelContext.start();
+        camelContext.addComponent("content", new MockComponent());
+
+        contentDirectoryMonitor = new ContentDirectoryMonitor(camelContext);
+        contentDirectoryMonitor.systemSubjectBinder = noOpProcessor;
+        contentDirectoryMonitor.setMonitoredDirectoryPath(MONITORED_DIRECTORY);
+        contentDirectoryMonitor.setCopyIngestedFiles(copyIngestedFiles);
+        contentDirectoryMonitor.setParameters(PARAMETERS);
+        contentDirectoryMonitor.init();
+        RouteDefinition routeDefinition = camelContext.getRouteDefinitions()
+                .get(0);
+        assertThat(routeDefinition.toString(), containsString(
+                "SetHeader[test1, simple{Simple: someParameter1"));
+        assertThat(routeDefinition.toString(), containsString(
+                "SetHeader[test2, simple{Simple: someParameter2"));
     }
 
     /**

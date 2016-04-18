@@ -33,6 +33,9 @@
                               init-method="init" destroy-method="destroy">
             <argument ref="camelContext"/>
             <property name="monitoredDirectoryPath" value=""/>
+            <property name="parameters">
+                <list/>
+            </property>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed"
                                    update-method="updateCallback"/>
