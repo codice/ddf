@@ -38,10 +38,12 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.UnexpectedMigrationException;
+import org.codice.ddf.platform.services.common.Describable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Implementation of the {@link ConfigurationMigrationService} that allows migration of
@@ -138,6 +140,11 @@ public class ConfigurationMigrationManager
         notNull(exportDirectory, "Export directory cannot be null");
 
         return export(Paths.get(exportDirectory));
+    }
+
+    @Override
+    public Collection<Describable> getOptionalMigratableInfo() {
+        return ImmutableList.copyOf(dataMigratables);
     }
 
     private Collection<MigrationWarning> exportMigratable(Migratable migratable,

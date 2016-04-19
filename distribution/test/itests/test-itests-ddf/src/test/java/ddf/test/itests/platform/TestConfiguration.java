@@ -699,20 +699,20 @@ public class TestConfiguration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testExportCatalog() throws Exception {
+    public void testExportMetacards() throws Exception {
         resetInitialState();
 
         List<String> metacardIds = ingestMetacardsForExport();
 
         console.runCommand(EXPORT_COMMAND);
 
-        assertExportCatalog(getDefaultExportDirectory().resolve("org.codice.ddf.catalog"));
+        assertExportCatalog(getDefaultExportDirectory().resolve("ddf.metacards"));
 
         console.runCommand(CATALOG_REMOVE_ALL_COMMAND, new RolePrincipal("admin"));
 
         console.runCommand(String.format("%s %s",
                 CATALOG_INGEST_COMMAND,
-                getDefaultExportDirectory().resolve("org.codice.ddf.catalog")),
+                getDefaultExportDirectory().resolve("ddf.metacards")),
                 new RolePrincipal("admin"));
 
         assertMetacardsIngested(metacardIds.size());

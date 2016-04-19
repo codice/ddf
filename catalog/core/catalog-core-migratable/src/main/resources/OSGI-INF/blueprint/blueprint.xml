@@ -26,16 +26,21 @@
     </bean>
 
     <bean id="catalogMigratable"
-          class="org.codice.ddf.catalog.migratable.impl.CatalogMigratableImpl">
+          class="org.codice.ddf.catalog.migratable.impl.MetacardsMigratable">
+        <argument ref="catalogDescribable"/>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="catalogFileWriter"/>
         <argument ref="catalogMigratableConfig"/>
+    </bean>
+
+    <bean id="catalogDescribable"
+          class="org.codice.ddf.migration.DescribableBean">
         <argument value="1.0"/>
-        <argument value="org.codice.ddf.catalog"/>
-        <argument value="Catalog Migration"/>
+        <argument value="ddf.metacards"/>
+        <argument value="Metacard Migration"/>
         <argument value="Exports Catalog metacards"/>
-        <argument value="DDF"/>
+        <argument value="Codice"/>
     </bean>
 
     <bean id="catalogFileWriter"

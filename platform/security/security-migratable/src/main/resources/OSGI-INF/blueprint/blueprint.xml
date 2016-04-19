@@ -18,12 +18,17 @@
 
     <bean id="securityMigratable"
           class="org.codice.ddf.security.migratable.impl.SecurityMigratable">
-        <argument value="Exports Security system files"/>
+        <argument ref="securityDescribable"/>
         <argument ref="migratableUtil"/>
+    </bean>
+
+    <bean id="securityDescribable"
+          class="org.codice.ddf.migration.DescribableBean">
         <argument value="1.0"/>
-        <argument value="org.codice.ddf.catalog"/>
-        <argument value="Catalog Migration"/>
-        <argument value="DDF"/>
+        <argument value="ddf.security"/>
+        <argument value="Security Migration"/>
+        <argument value="Exports Security system files"/>
+        <argument value="Codice"/>
     </bean>
 
     <service id="securityMigratableService" ref="securityMigratable"

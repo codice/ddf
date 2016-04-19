@@ -24,8 +24,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.migration.AbstractDescribable;
 import org.codice.ddf.migration.ConfigurationMigratable;
+import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class handles the export process for all Security system files
  */
-public class SecurityMigratable extends AbstractDescribable implements ConfigurationMigratable {
+public class SecurityMigratable extends DescribableBean implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityMigratable.class);
 
@@ -57,11 +57,10 @@ public class SecurityMigratable extends AbstractDescribable implements Configura
 
     private final MigratableUtil migratableUtil;
 
-    public SecurityMigratable(@NotNull String description, MigratableUtil migratableUtil,
-            @NotNull String organization, @NotNull String title, @NotNull String id,
-            @NotNull String version) {
+    public SecurityMigratable(@NotNull DescribableBean info,
+            @NotNull MigratableUtil migratableUtil) {
 
-        super(version, id, title, description, organization);
+        super(info);
 
         notNull(migratableUtil);
         this.migratableUtil = migratableUtil;
