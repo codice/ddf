@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 
 public class HttpSessionFactory implements SessionFactory {
@@ -34,6 +35,8 @@ public class HttpSessionFactory implements SessionFactory {
         HttpSession session = httpRequest.getSession(true);
         if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
             session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder());
+            SecurityLogger.audit("Creating a new session with id {} for client {}.",
+                    session.getId(), httpRequest.getRemoteAddr());
         }
         return session;
     }
