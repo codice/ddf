@@ -75,10 +75,7 @@ public class AssociationsEndpoint {
         List<AndrewAssociations> associations = new ArrayList<>();
         associations.add(aaDerived);
         associations.add(aaRelated);
-        return Response.ok(JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(associations), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(associations), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -89,10 +86,7 @@ public class AssociationsEndpoint {
         AndrewAssociations aaRelated = new AndrewAssociations();
         aaRelated.type = "related";
         aaRelated.ids = related;
-        return Response.ok(JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(aaRelated), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(aaRelated), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -103,10 +97,7 @@ public class AssociationsEndpoint {
         AndrewAssociations aaDerived = new AndrewAssociations();
         aaDerived.type = "derived";
         aaDerived.ids = derived;
-        return Response.ok(JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(aaDerived), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(aaDerived), MediaType.APPLICATION_JSON)
                 .build();
     }
 

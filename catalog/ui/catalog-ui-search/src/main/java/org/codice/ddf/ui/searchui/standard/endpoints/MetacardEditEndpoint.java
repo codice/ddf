@@ -70,20 +70,21 @@ public class MetacardEditEndpoint {
         Metacard metacard = endpointUtil.getMetacard(id);
         Attribute metacardAttribute = metacard.getAttribute(attribute);
         if (metacardAttribute == null) {
-            return Response.status(404).build();
+            return Response.status(404)
+                    .build();
         }
         Optional<AttributeDescriptor> attributeDescriptor =
                 attributeRegistry.getAttributeDescriptor(attribute);
         if (!attributeDescriptor.isPresent()) {
             /* Could not find attribute descriptor for requested attribute */
-            return Response.status(404).build();
+            return Response.status(404)
+                    .build();
         }
 
         AttributeDescriptor descriptor = attributeDescriptor.get();
         /* Yes i'm using a raw map. get off my back yo */
         Map<String, Object> result = getResponseMap(attribute, metacardAttribute, descriptor);
-        return Response.ok(JsonFactory.create()
-                .toJson(result), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(result), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -94,7 +95,8 @@ public class MetacardEditEndpoint {
             @PathParam("attribute") String attribute, String value) throws Exception {
         Metacard metacard = endpointUtil.getMetacard(id);
         if (metacard == null) {
-            return Response.status(404).build();
+            return Response.status(404)
+                    .build();
         }
 
         Attribute metacardAttribute = metacard.getAttribute(attribute);
@@ -126,8 +128,7 @@ public class MetacardEditEndpoint {
         Map<String, Object> responseMap = getResponseMap(attribute,
                 metacard.getAttribute(attribute),
                 descriptor);
-        return Response.ok(JsonFactory.create()
-                .toJson(responseMap), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -139,7 +140,8 @@ public class MetacardEditEndpoint {
             throws Exception {
         Metacard metacard = endpointUtil.getMetacard(id);
         if (metacard == null) {
-            return Response.status(404).build();
+            return Response.status(404)
+                    .build();
         }
 
         Attribute metacardAttribute = metacard.getAttribute(attribute);
@@ -178,8 +180,7 @@ public class MetacardEditEndpoint {
         Map<String, Object> responseMap = getResponseMap(attribute,
                 metacard.getAttribute(attribute),
                 descriptor);
-        return Response.ok(JsonFactory.create()
-                .toJson(response))
+        return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)
                 .build();
 
     }

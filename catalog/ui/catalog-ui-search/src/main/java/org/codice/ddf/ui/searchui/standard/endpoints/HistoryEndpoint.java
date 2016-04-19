@@ -50,7 +50,8 @@ public class HistoryEndpoint {
     public Response getHistory(@PathParam("id") String id) throws Exception {
         List<Result> queryResponse = getMetacardHistory(id);
         if (queryResponse == null || queryResponse.isEmpty()) {
-            return Response.status(404).build();
+            return Response.status(404)
+                    .build();
         }
 
         List<HistoryResponse> response = queryResponse.stream()
@@ -63,10 +64,7 @@ public class HistoryEndpoint {
                 .sorted(compareBy(mc -> mc.versioned))
                 .collect(Collectors.toList());
 
-        return Response.ok(JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(response), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -76,7 +74,8 @@ public class HistoryEndpoint {
             @PathParam("revertId") String revertId) throws Exception {
         Metacard versionMetacard = endpointUtil.getMetacard(revertId);
         if (versionMetacard == null) {
-            return Response.status(404).build();
+            return Response.status(404)
+                    .build();
         }
 
         if (((String) versionMetacard.getAttribute(HistoryMetacardImpl.ACTION)
@@ -89,7 +88,8 @@ public class HistoryEndpoint {
         Metacard revertMetacard = HistoryMetacardImpl.toBasicMetacard(versionMetacard);
         catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
 
-        return null;
+        return Response.ok()
+                .build();
     }
 
     // TODO (RCZ) - move this into a util class

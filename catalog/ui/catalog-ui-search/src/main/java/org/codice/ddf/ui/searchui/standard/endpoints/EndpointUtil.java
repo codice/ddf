@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.boon.json.JsonFactory;
+import org.boon.json.JsonParserFactory;
+import org.boon.json.JsonSerializerFactory;
 import org.opengis.filter.Filter;
 
 import ddf.catalog.CatalogFramework;
@@ -29,7 +32,9 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class EndpointUtil {
     private final List<MetacardType> metacardTypes;
+
     private final CatalogFramework catalogFramework;
+
     private final FilterBuilder filterBuilder;
 
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
@@ -39,7 +44,7 @@ public class EndpointUtil {
         this.filterBuilder = filterBuilder;
     }
 
-    public Metacard getMetacard( String id)
+    public Metacard getMetacard(String id)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             StandardSearchException {
         Filter idFilter = filterBuilder.attribute(Metacard.ID)
@@ -59,7 +64,8 @@ public class EndpointUtil {
             throw new StandardSearchException("Could not find metacard for that metacard id");
         }
 
-        Result result = queryResponse.getResults().get(0);
+        Result result = queryResponse.getResults()
+                .get(0);
         return result.getMetacard();
     }
 
@@ -143,6 +149,13 @@ public class EndpointUtil {
         outerMap.put("metacard-types", typeList);
 
         return outerMap;
+    }
+
+    public String getJson(Object result) {
+        return JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(result);
     }
 
     public Optional<MetacardType> getMetacardType(String name) {

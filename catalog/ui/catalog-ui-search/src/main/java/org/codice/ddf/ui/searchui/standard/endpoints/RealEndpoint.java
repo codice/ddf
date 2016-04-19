@@ -167,7 +167,8 @@ public class RealEndpoint {
                     .build();
         }*/
 
-        return Response.ok(getJson(endpointUtil.transformToJson(newMetacard)), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(endpointUtil.transformToJson(newMetacard)),
+                MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -193,18 +194,11 @@ public class RealEndpoint {
                     .map(Map.Entry::getValue)
                     .collect(Collectors.toList());
 
-            return Response.ok(getJson(result), MediaType.APPLICATION_JSON)
+            return Response.ok(endpointUtil.getJson(result), MediaType.APPLICATION_JSON)
                     .build();
         }
         return Response.ok("[]", MediaType.APPLICATION_JSON)
                 .build();
-    }
-
-    private String getJson(Object result) {
-        return JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(result);
     }
 
     private Map<String, ViolationResult> getViolationsResult(
