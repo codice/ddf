@@ -82,6 +82,7 @@
             </bean>
             <bean class="org.codice.ddf.ui.searchui.standard.endpoints.AssociationsEndpoint">
                 <argument ref="catalogFramework"/>
+                <argument ref="filterBuilder"/>
                 <argument ref="endpointUtil" />
             </bean>
             <bean class="org.codice.ddf.ui.searchui.standard.endpoints.MetacardEditEndpoint">

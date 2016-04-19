@@ -15,32 +15,35 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.boon.json.JsonFactory;
-import org.boon.json.JsonParserFactory;
-import org.boon.json.JsonSerializerFactory;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.core.versioning.HistoryMetacardImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
@@ -52,10 +55,14 @@ public class AssociationsEndpoint {
 
     private final CatalogFramework catalogFramework;
 
+    private final FilterBuilder filterBuilder;
+
     private final EndpointUtil endpointUtil;
 
-    public AssociationsEndpoint(CatalogFramework catalogFramework, EndpointUtil endpointUtil) {
+    public AssociationsEndpoint(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
+            EndpointUtil endpointUtil) {
         this.catalogFramework = catalogFramework;
+        this.filterBuilder = filterBuilder;
         this.endpointUtil = endpointUtil;
     }
 
@@ -64,13 +71,23 @@ public class AssociationsEndpoint {
     public Response getAssociations(@PathParam("id") String id) throws Exception {
         Associated associated = getAssociatedMetacardsIds(id);
 
+        List<String> ids = new ArrayList<>();
+        ids.addAll(associated.derived);
+        ids.addAll(associated.related);
+
+        Map<String, Result> results = getAssociatedMetacards(ids);
+
         AndrewAssociations aaRelated = new AndrewAssociations();
         aaRelated.type = "related";
-        aaRelated.ids = associated.related;
+        for (String relatedId : associated.related) {
+            aaRelated.metacards.add(new AssociationItem(relatedId, results.get(relatedId).getMetacard().getTitle()));
+        }
 
         AndrewAssociations aaDerived = new AndrewAssociations();
         aaDerived.type = "derived";
-        aaDerived.ids = associated.derived;
+        for (String derivedId : associated.derived) {
+            aaRelated.metacards.add(new AssociationItem(derivedId, results.get(derivedId).getMetacard().getTitle()));
+        }
 
         List<AndrewAssociations> associations = new ArrayList<>();
         associations.add(aaDerived);
@@ -79,59 +96,7 @@ public class AssociationsEndpoint {
                 .build();
     }
 
-    @GET
-    @Path("/{id}/related")
-    public Response getRelatedAssociations(@PathParam("id") String id) throws Exception {
-        List<String> related = getAssociatedMetacardsIds(id).related;
-        AndrewAssociations aaRelated = new AndrewAssociations();
-        aaRelated.type = "related";
-        aaRelated.ids = related;
-        return Response.ok(endpointUtil.getJson(aaRelated), MediaType.APPLICATION_JSON)
-                .build();
-    }
 
-    @GET
-    @Path("/{id}/derived")
-    public Response getDerivedAssociations(@PathParam("id") String id) throws Exception {
-        List<String> derived = getAssociatedMetacardsIds(id).derived;
-        AndrewAssociations aaDerived = new AndrewAssociations();
-        aaDerived.type = "derived";
-        aaDerived.ids = derived;
-        return Response.ok(endpointUtil.getJson(aaDerived), MediaType.APPLICATION_JSON)
-                .build();
-    }
-
-    @PUT
-    @Path("/{id}/related")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> putRelatedAssociation(@PathParam("id") String id, String associatedId)
-            throws Exception {
-        return new ArrayList<>(putAssociation(id, associatedId, Metacard.RELATED));
-    }
-
-    @PUT
-    @Path("/{id}/derived")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<String> putDerivedAssociations(@PathParam("id") String id, String associatedId)
-            throws Exception {
-        return new ArrayList<>(putAssociation(id, associatedId, Metacard.DERIVED));
-    }
-
-    @DELETE
-    @Path("/{id}/related")
-    public List<String> deleteRelatedAssociation(@PathParam("id") String id, String associatedId)
-            throws Exception {
-        return new ArrayList<>(deleteAssociation(id, associatedId, Metacard.RELATED));
-    }
-
-    @DELETE
-    @Path("/{id}/derived")
-    public List<String> deleteDerivedAssociation(@PathParam("id") String id, String associatedId)
-            throws Exception {
-        return new ArrayList<>(deleteAssociation(id, associatedId, Metacard.DERIVED));
-    }
 
     private Set<String> deleteAssociation(String id, String associatedId, String attributeId)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
@@ -193,16 +158,61 @@ public class AssociationsEndpoint {
         return associated;
     }
 
+    private Map<String, Result> getAssociatedMetacards(List<String> ids)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        if (ids.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        List<Filter> filters = new ArrayList<>(ids.size());
+        for (String id : ids) {
+            Filter historyFilter = filterBuilder.attribute(Metacard.ID)
+                    .is()
+                    .equalTo()
+                    .text(id);
+            Filter idFilter = filterBuilder.attribute(Metacard.TAGS)
+                    .is()
+                    .like()
+                    .text("*");
+            Filter filter = filterBuilder.allOf(historyFilter, idFilter);
+            filters.add(filter);
+        }
+
+        Filter queryFilter = filterBuilder.anyOf(filters);
+        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(queryFilter,
+                1,
+                -1,
+                SortBy.NATURAL_ORDER,
+                false,
+                TimeUnit.SECONDS.toMillis(10)), false));
+        Map<String, Result> results = new HashMap<>();
+        for (Result result : response.getResults()) {
+            results.put(result.getMetacard().getId(), result);
+        }
+        return results;
+    }
+
     private class Associated {
         List<String> related;
 
         List<String> derived;
     }
 
+    private class AssociationItem {
+        String id;
+
+        String title;
+
+        private AssociationItem(String id, String title) {
+            this.id = id;
+            this.title = title;
+        }
+    }
+
     private class AndrewAssociations {
         String type;
 
-        List<String> ids;
+        List<AssociationItem> metacards = new ArrayList<>();
     }
 }
 

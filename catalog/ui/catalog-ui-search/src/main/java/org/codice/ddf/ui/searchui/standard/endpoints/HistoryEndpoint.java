@@ -19,6 +19,8 @@ import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.core.versioning.HistoryMetacardImpl;
@@ -32,6 +34,8 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 
 @Path("/history")
 public class HistoryEndpoint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HistoryEndpoint.class);
+
     private final CatalogFramework catalogFramework;
 
     private final FilterBuilder filterBuilder;
@@ -53,7 +57,7 @@ public class HistoryEndpoint {
             return Response.status(404)
                     .build();
         }
-
+        long start = System.nanoTime();
         List<HistoryResponse> response = queryResponse.stream()
                 .map(Result::getMetacard)
                 .map(mc -> new HistoryResponse(mc.getId(),
@@ -61,9 +65,9 @@ public class HistoryEndpoint {
                                 .getValue(),
                         (Date) mc.getAttribute(HistoryMetacardImpl.VERSIONED)
                                 .getValue()))
-                .sorted(compareBy(mc -> mc.versioned))
+//                .sorted(compareBy(mc -> mc.versioned))
                 .collect(Collectors.toList());
-
+        LOGGER.error("Time taken to do the history stuff: {} ns", System.nanoTime() - start);
         return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)
                 .build();
     }
