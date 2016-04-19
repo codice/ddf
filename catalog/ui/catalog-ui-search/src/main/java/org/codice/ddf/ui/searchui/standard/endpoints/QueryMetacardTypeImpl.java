@@ -31,7 +31,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
     public static final String QUERY_CQL = "cql";
 
     public static final String  QUERY_SOURCES = "sources";
-a
+
     public static final String QUERY_ENTERPRISE = "enterprise";
 
     private static final Set<AttributeDescriptor> DESCRIPTORS;
