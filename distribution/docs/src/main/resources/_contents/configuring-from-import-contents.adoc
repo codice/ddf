@@ -20,7 +20,7 @@ This is useful for migrating from one running instance to another.
 To do so, follow these instructions:
 
 . Select the `System` tab (next to the Applications tab) image:exporting_configuration_step1.png[Exporting Step 1,${image.width}]
-. Click the `Export` button image:exporting_configuration_step2.png[Exporting Step 2,${image.width}]
+. Click the `Export Configuration` button image:exporting_configuration_step2.png[Exporting Step 2,${image.width}]
 . Fill out the form, specifying the destination for the export.  A relative path will be relative to ${branding} home. image:exporting_configuration_step3.png[Exporting Step 3,${image.width}]
 . Click the `Start Export` button
 . If there are no warnings or errors, the form will automatically close upon finishing the export
