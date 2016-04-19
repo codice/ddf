@@ -22,8 +22,7 @@
 
     <ext:property-placeholder />
 
-    <bean id="soapImpl" class="org.codice.ddf.sdk.soap.SoapEndpoint">
-    </bean>
+    <bean id="soapImpl" class="org.codice.ddf.sdk.soap.SoapEndpoint"/>
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
@@ -36,8 +35,42 @@
     </bean>
 
     <jaxws:endpoint id="soapEndpoint" implementor="#soapImpl"
-                    wsdlLocation="classpath:META-INF/wsdl/sdk.wsdl"
-                    address="/sdk/SoapService">
+                    wsdlLocation="classpath:META-INF/wsdl/sdk-transport.wsdl"
+                    address="/sdk/SoapTransportService">
+        <jaxws:inInterceptors>
+            <bean class="org.codice.ddf.security.interceptor.GuestInterceptorWrapper">
+            </bean>
+            <bean class="ddf.security.pep.interceptor.PEPAuthorizingInterceptor">
+                <property name="securityManager" ref="securityManager"/>
+            </bean>
+        </jaxws:inInterceptors>
+        <jaxws:properties>
+            <entry key="ws-security.validate.audience-restriction" value="false" />
+            <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
+            <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
+        </jaxws:properties>
+    </jaxws:endpoint>
+
+    <jaxws:endpoint id="soapAsymEndpoint" implementor="#soapImpl"
+                    wsdlLocation="classpath:META-INF/wsdl/sdk-asymmetric.wsdl"
+                    address="/sdk/SoapAsymmetricService">
+        <jaxws:inInterceptors>
+            <bean class="org.codice.ddf.security.interceptor.GuestInterceptorWrapper">
+            </bean>
+            <bean class="ddf.security.pep.interceptor.PEPAuthorizingInterceptor">
+                <property name="securityManager" ref="securityManager"/>
+            </bean>
+        </jaxws:inInterceptors>
+        <jaxws:properties>
+            <entry key="ws-security.validate.audience-restriction" value="false" />
+            <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
+            <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
+        </jaxws:properties>
+    </jaxws:endpoint>
+
+    <jaxws:endpoint id="soapSymEndpoint" implementor="#soapImpl"
+                    wsdlLocation="classpath:META-INF/wsdl/sdk-symmetric.wsdl"
+                    address="/sdk/SoapSymmetricService">
         <jaxws:inInterceptors>
             <bean class="org.codice.ddf.security.interceptor.GuestInterceptorWrapper">
             </bean>

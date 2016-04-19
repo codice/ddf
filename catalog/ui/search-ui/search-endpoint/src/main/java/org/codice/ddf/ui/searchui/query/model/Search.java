@@ -131,7 +131,6 @@ public class Search {
      * Adds a query response to the cached set of results.
      *
      * @param queryResponse - Query response to add
-     *
      * @throws InterruptedException
      */
     public synchronized void update(String sourceId, QueryResponse queryResponse) {
@@ -336,7 +335,13 @@ public class Search {
             actionJson.put(ACTIONS_ID, action.getId() + action.getTitle());
             actionJson.put(ACTIONS_TITLE, action.getTitle());
             actionJson.put(ACTIONS_DESCRIPTION, action.getDescription());
-            actionJson.put(ACTIONS_URL, action.getUrl());
+            //user were seeing an issue where the json url was not quoted, we were not able to
+            //reproduce the issue but resolved it by converting the url to a string
+            actionJson.put(ACTIONS_URL,
+                    action.getUrl() != null ?
+                            action.getUrl()
+                                    .toString() :
+                            null);
             actionsJson.add(actionJson);
         }
         return actionsJson;
