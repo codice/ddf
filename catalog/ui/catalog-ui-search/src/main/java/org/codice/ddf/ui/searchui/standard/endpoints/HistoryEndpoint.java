@@ -111,7 +111,7 @@ public class HistoryEndpoint {
 
         Filter filter = filterBuilder.allOf(historyFilter, idFilter);
         QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter,
-                0,
+                1,
                 -1,
                 SortBy.NATURAL_ORDER,
                 false,
