@@ -681,7 +681,7 @@ public class TestFederation extends AbstractIntegrationTest {
     @Test
     public void testOpensearchToGmdSourceToGmdEndpointQuery() throws Exception {
 
-        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+        String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=" + RECORD_TITLE_1 + "&format=xml&src="
                 + GMD_SOURCE_ID;
 
         when().get(queryUrl)
@@ -690,7 +690,6 @@ public class TestFederation extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 .body(containsString(RECORD_TITLE_1),
-                        containsString(RECORD_TITLE_2),
                         hasXPath(
                                 "/metacards/metacard/stringxml/value/MD_Metadata/fileIdentifier/CharacterString",
                                 is(metacardIds[GEOJSON_RECORD_INDEX])));
