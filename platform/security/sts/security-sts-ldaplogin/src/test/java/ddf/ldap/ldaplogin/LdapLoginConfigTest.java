@@ -13,6 +13,10 @@
  */
 package ddf.ldap.ldaplogin;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -22,9 +26,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.karaf.jaas.config.JaasRealm;
+import org.apache.karaf.jaas.config.impl.Module;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -33,7 +39,6 @@ import org.osgi.framework.ServiceRegistration;
 
 /**
  * Tests out LdapLoginConfig functionality.
- *
  */
 public class LdapLoginConfigTest {
 
@@ -42,9 +47,8 @@ public class LdapLoginConfigTest {
     private ServiceRegistration<JaasRealm> jaasRealm;
 
     /**
-     * Sets up a new context and jaasrealm before each test
+     * Sets up a new context and JaasRealm before each test.
      */
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         context = mock(BundleContext.class);
@@ -55,22 +59,63 @@ public class LdapLoginConfigTest {
     }
 
     /**
-     * Verifies that the jaasrealm is property registered and unregistered.
+     * Verifies that the JaasRealm is properly registered and that multiple ldap modules can be
+     * created, updated and deleted.
      */
     @Test
-    public void testRegisterLdapModule() {
-        Map<String, String> ldapProps = new HashMap<String, String>();
+    public void testLdapLoginConfig() {
+        LdapService ldapService = new LdapService(context);
 
-        System.setProperty("https.cipherSuites",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
-        System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
+        LdapLoginConfig ldapConfigOne = createLdapConfig(ldapService);
+        ldapConfigOne.configure();
+        String configIdOne = ldapConfigOne.getId();
 
-        LdapLoginConfig ldapConfig = new LdapLoginConfig() {
-            @Override
-            protected BundleContext getContext() {
-                return context;
+        // Verify the JaasRealm is registered.
+        verify(context).registerService(eq(JaasRealm.class),
+                any(JaasRealm.class),
+                Matchers.<Dictionary<String, Object>>any());
+
+        LdapLoginConfig ldapConfigTwo = createLdapConfig(ldapService);
+        ldapConfigTwo.configure();
+        String configIdTwo = ldapConfigTwo.getId();
+
+        Map<String, String> ldapPropsOne = createLdapProperties("cn=user1");
+        ldapConfigOne.update(ldapPropsOne);
+        Map<String, String> ldapPropsTwo = createLdapProperties("cn=user2");
+        ldapConfigTwo.update(ldapPropsTwo);
+
+        List<Module> ldapModules = ldapService.getModules();
+        for (Module module : ldapModules) {
+            String moduleName = module.getName();
+            String username = module.getOptions()
+                    .getProperty("connection.username");
+            // Assert the ldap modules were updated.
+            if (moduleName.equals(configIdOne)) {
+                assertThat(username, is(equalTo("cn=user1")));
+            } else if (moduleName.equals(configIdTwo)) {
+                assertThat(username, is(equalTo("cn=user2")));
+            } else {
+                fail("The ldap modules did not update correctly.");
             }
-        };
+        }
+
+        // Verify the JaasRealm has only been registered once.
+        verify(context, times(1)).registerService(eq(JaasRealm.class),
+                any(JaasRealm.class),
+                Matchers.<Dictionary<String, Object>>any());
+
+        // Destroy the first ldap module.
+        ldapConfigOne.destroy(1);
+        // Assert that the ldap module had already been removed.
+        assertThat(ldapService.delete(configIdOne), is(equalTo(false)));
+
+        // Assert the second ldap module is removed.
+        assertThat(ldapService.delete(configIdTwo), is(equalTo(true)));
+    }
+
+    private LdapLoginConfig createLdapConfig(LdapService ldapService) {
+        LdapLoginConfig ldapConfig = new LdapLoginConfig();
+        ldapConfig.setLdapService(ldapService);
         ldapConfig.setLdapBindUserDn("cn=admin");
         ldapConfig.setLdapBindUserPass("password");
         ldapConfig.setLdapUrl("ldaps://ldap:1636");
@@ -78,26 +123,19 @@ public class LdapLoginConfigTest {
         ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
         ldapConfig.setKeyAlias("server");
         ldapConfig.setStartTls(false);
-        ldapConfig.configure();
+        return ldapConfig;
+    }
 
-        verify(context).registerService(eq(JaasRealm.class),
-                any(JaasRealm.class),
-                Matchers.<Dictionary<String, Object>>any());
-
-        ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_DN, "cn=admin");
+    private Map<String, String> createLdapProperties(String userDn) {
+        Map<String, String> ldapProps = new HashMap<>();
+        ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_DN, userDn);
         ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_PASS, "secret");
+        ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
         ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.KEY_ALIAS, "server");
-        ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
         ldapProps.put(LdapLoginConfig.START_TLS, "false");
-        ldapConfig.update(ldapProps);
-        // verify previous service was unregistered
-        verify(jaasRealm).unregister();
-        verify(context, times(2)).registerService(eq(JaasRealm.class),
-                any(JaasRealm.class),
-                Matchers.<Dictionary<String, Object>>any());
-
+        return ldapProps;
     }
-
 }
+

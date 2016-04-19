@@ -505,9 +505,11 @@ Complete the following procedure to provide your own keystore information for th
 
 . The embedded LDAP server is not recommended for production use as it has hardcoded keystores and truststores with localhost certificates. These cannot be changed unless the embedded server bundle is re-built with new stores.
 
-==== Connect to a Standalone LDAP Server
+==== Connect to Standalone LDAP Servers
 
-${branding} instances can connect to an external LDAP server by installing and configuring the `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features detailed here.
+${branding} instances can connect to external LDAP servers by installing and configuring the `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features detailed here.
+
+In order to connect to more than one LDAP server, configure these features for each LDAP server.
 
 ==== Embedded LDAP Configuration
 

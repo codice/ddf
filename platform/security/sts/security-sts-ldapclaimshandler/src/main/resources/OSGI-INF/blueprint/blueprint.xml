@@ -33,30 +33,33 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
-		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
-        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
-
+      http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-    <bean id="claimsHandlerManager" class="ddf.security.sts.claimsHandler.ClaimsHandlerManager"
-          init-method="configure" destroy-method="destroy">
-        <cm:managed-properties persistent-id="ddf.security.sts.claimsHandler"
-                               update-strategy="component-managed" update-method="update"/>
-        <argument ref="encryptionService"/>
-        <!-- Default properties -->
-        <property name="url" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
-        <property name="startTls" value="false"/>
-        <property name="ldapBindUserDn" value="cn=admin"/>
-        <property name="password" value="secret"/>
-        <property name="userNameAttribute" value="uid"/>
-        <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
-        <property name="objectClass" value="groupOfNames"/>
-        <property name="memberNameAttribute" value="member"/>
-        <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-        <property name="propertyFileLocation" value="etc/ws-security/attributeMap.properties"/>
-    </bean>
+    <cm:managed-service-factory
+            id="ddf.security.sts.claimsHandler.ClaimsHandlerManager.id"
+            factory-pid="Claims_Handler_Manager"
+            interface="ddf.security.sts.claimsHandler.ClaimsHandlerManager">
+        <cm:managed-component class="ddf.security.sts.claimsHandler.ClaimsHandlerManager"
+                              init-method="configure" destroy-method="destroy">
+            <argument ref="encryptionService"/>
+            <!-- Default properties -->
+            <property name="url" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
+            <property name="startTls" value="false"/>
+            <property name="ldapBindUserDn" value="cn=admin"/>
+            <property name="password" value="secret"/>
+            <property name="userNameAttribute" value="uid"/>
+            <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
+            <property name="objectClass" value="groupOfNames"/>
+            <property name="memberNameAttribute" value="member"/>
+            <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
+            <property name="propertyFileLocation" value="etc/ws-security/attributeMap.properties"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="component-managed" update-method="update"/>
+        </cm:managed-component>
+    </cm:managed-service-factory>
 
 </blueprint>
+
 

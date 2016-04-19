@@ -16,21 +16,15 @@ package ddf.ldap.ldaplogin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
-import org.apache.karaf.jaas.config.JaasRealm;
-import org.apache.karaf.jaas.config.impl.Config;
 import org.apache.karaf.jaas.config.impl.Module;
 import org.codice.ddf.configuration.PropertyResolver;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Registers LDAP as a JAAS realm.
- *
  */
 public class LdapLoginConfig {
 
@@ -48,81 +42,44 @@ public class LdapLoginConfig {
 
     public static final String START_TLS = "startTls";
 
-    private static final String CONFIG_NAME = "ldap";
-
     private static final String SUFFICIENT_FLAG = "sufficient";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
     private static final String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
 
-    private ServiceRegistration<JaasRealm> registration = null;
+    private String id = "LDAP:" + UUID.randomUUID()
+            .toString();
 
     private Map<String, Object> ldapProperties = new HashMap<>();
 
-    /**
-     * Registers the passed-in modules under a new JaasRealm.
-     *
-     * @param modules
-     *            Modules to add to the JaasRealm.
-     */
-    private void registerConfig(Module[] modules) {
-        if (registration != null) {
-            LOGGER.debug("Found previous registration, unregistering old service.");
-            try {
-                registration.unregister();
-            } catch (IllegalStateException ise) {
-                LOGGER.debug(
-                        "Service was already unregistered, continuing on to register new service.");
-            }
-        }
-        Config config = new Config();
-        BundleContext context = getContext();
-        config.setBundleContext(context);
-        config.setName(CONFIG_NAME);
-        config.setRank(2);
-        config.setModules(modules);
-        LOGGER.debug("Registering new service as a JaasRealm.");
-        if (context != null) {
-            registration = context.registerService(JaasRealm.class, config, null);
-        }
-    }
-
-    protected BundleContext getContext() {
-        Bundle cxfBundle = FrameworkUtil.getBundle(LdapLoginConfig.class);
-        if (cxfBundle != null) {
-            return cxfBundle.getBundleContext();
-        }
-        return null;
-    }
+    private LdapService ldapService;
 
     /**
      * Update method that receives new properties.
      *
-     * @param props
-     *            Map of properties.
+     * @param props Map of properties.
      */
     public void update(Map<String, ?> props) {
         if (props != null) {
             LOGGER.debug("Received an updated set of configurations for the LDAP Login Config.");
             // create modules from the newly updated config
             Module ldapModule = createLdapModule(props);
-            registerConfig(new Module[] {ldapModule});
+            ldapService.update(ldapModule);
         }
     }
 
     /**
      * Creates a new module with the given properties.
      *
-     * @param properties
-     *            Map of properties.
+     * @param properties Map of properties.
      * @return newly created module.
      */
     private Module createLdapModule(Map<String, ?> properties) {
         Module ldapModule = new Module();
         ldapModule.setClassName(LDAP_MODULE);
         ldapModule.setFlags(SUFFICIENT_FLAG);
-        ldapModule.setName("ldapModule");
+        ldapModule.setName(id);
         Properties props = new Properties();
         props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
         props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
@@ -148,6 +105,10 @@ public class LdapLoginConfig {
         ldapModule.setOptions(props);
 
         return ldapModule;
+    }
+
+    String getId() {
+        return id;
     }
 
     public void setLdapBindUserDn(String ldapBindUserDn) {
@@ -193,5 +154,14 @@ public class LdapLoginConfig {
     public void configure() {
         LOGGER.trace("configure called - calling update");
         update(ldapProperties);
+    }
+
+    public void destroy(int arg) {
+        LOGGER.trace("configure called - calling delete");
+        ldapService.delete(id);
+    }
+
+    public void setLdapService(LdapService ldapService) {
+        this.ldapService = ldapService;
     }
 }

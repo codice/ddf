@@ -18,24 +18,35 @@
         <bean class="ddf.security.sts.PropertiesConverter"/>
     </type-converters>
 
-    <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig" init-method="configure">
-        <cm:managed-properties persistent-id="ddf.security.sts.ldap"
-                               update-strategy="component-managed"
-                               update-method="update"/>
-        <!-- Default properties -->
-        <property name="ldapBindUserDn" value="cn=admin"/>
-        <property name="ldapBindUserPass" value="secret"/>
-        <property name="ldapUrl" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
-        <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
-        <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
-        <property name="keyAlias" value="${org.codice.ddf.system.hostname}"/>
-        <property name="startTls" value="false"/>
+
+    <cm:managed-service-factory
+            id="ddf.ldap.ldaplogin.LdapLoginConfig.id"
+            factory-pid="Ldap_Login_Config"
+            interface="ddf.ldap.ldaplogin.LdapLoginConfig">
+        <cm:managed-component class="ddf.ldap.ldaplogin.LdapLoginConfig"
+                              init-method="configure" destroy-method="destroy">
+            <!-- Default properties -->
+            <property name="ldapBindUserDn" value="cn=admin"/>
+            <property name="ldapBindUserPass" value="secret"/>
+            <property name="ldapUrl" value="ldaps://${org.codice.ddf.system.hostname}:1636"/>
+            <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
+            <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
+            <property name="keyAlias" value="${org.codice.ddf.system.hostname}"/>
+            <property name="startTls" value="false"/>
+            <property name="ldapService" ref="ldapService"/>
+            <cm:managed-properties persistent-id=""
+                                   update-strategy="component-managed" update-method="update"/>
+        </cm:managed-component>
+    </cm:managed-service-factory>
+
+    <bean id="ldapService" class="ddf.ldap.ldaplogin.LdapService">
+        <argument ref="blueprintBundleContext"/>
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="keystoreManager" class="ddf.ldap.ldaplogin.KeystoreManager">
-        <cm:managed-properties persistent-id="ddf.security.sts.ldap"
+        <cm:managed-properties persistent-id="Ldap_Login_Config"
                                update-strategy="container-managed"/>
         <argument ref="encryptionService"/>
         <argument value="${org.codice.ddf.system.hostname}"/>

@@ -16,7 +16,7 @@
                    xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
 
 	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Login"
-         id="ddf.security.sts.ldap">
+         id="Ldap_Login_Config">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
             default="ldaps://${org.codice.ddf.system.hostname}:1636"
@@ -60,8 +60,8 @@
 	    
 	</OCD>
 	
-	<Designate pid="ddf.security.sts.ldap">
-	    <Object ocdref="ddf.security.sts.ldap"/>
+	<Designate factoryPid="Ldap_Login_Config" pid="ddf.Ldap_Login_Config">
+	    <Object ocdref="Ldap_Login_Config"/>
   	</Designate>
   	
 </metatype:MetaData>
