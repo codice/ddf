@@ -98,6 +98,12 @@
             cardinality="10000"
             required="false" />
 
+        <AD id="isWorkspacePrivate"
+            name="Private Workspaces"
+            description="Are workspaces hidden on initial creation, until shared?"
+            default="true"
+            required="true"
+            type="Boolean"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">

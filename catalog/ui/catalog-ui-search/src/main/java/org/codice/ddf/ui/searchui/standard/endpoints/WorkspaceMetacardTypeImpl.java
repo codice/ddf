@@ -33,13 +33,19 @@ public class WorkspaceMetacardTypeImpl extends MetacardTypeImpl {
 
     public static final String WORKSPACE_ROLES = "roles";
 
-    public static final String WORKSPACE_UPDATED_ROLES = "updated-roles";
+    public static final String WORKSPACE_OWNER = "owner";
 
     private static final Set<AttributeDescriptor> DESCRIPTORS;
 
     static {
         DESCRIPTORS = new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
+        DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_OWNER,
+                false   /* indexed */,
+                true    /* stored */,
+                false   /* tokenized */,
+                false   /* multivalued */,
+                BasicTypes.STRING_TYPE));
         DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_ROLES,
                 false    /* indexed */,
                 true    /* stored */,

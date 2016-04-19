@@ -16,6 +16,7 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ public class WorkspaceTransformer {
     }
 
     @SuppressWarnings("unchecked")
-    public Metacard transform(Map w) {
+    public WorkspaceMetacardImpl transform(Map w) {
         WorkspaceMetacardImpl m = new WorkspaceMetacardImpl();
 
         if (check(w.get(Metacard.ID), String.class)) {
@@ -94,8 +95,7 @@ public class WorkspaceTransformer {
         }
 
         if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES), List.class)) {
-            List<String> roles = (List<String>) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
-            m.setRoles(roles);
+            m.setRoles(new HashSet<>((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES)));
         }
 
         if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES), List.class)) {

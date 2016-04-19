@@ -57,6 +57,19 @@
         <bean class="org.codice.ddf.ui.searchui.standard.endpoints.QueryMetacardTypeImpl"/>
     </service>
 
+    <service interface="ddf.catalog.plugin.PreIngestPlugin">
+        <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacePreIngestPlugin"/>
+    </service>
+
+    <bean id="workspacePolicyExtension" class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacePolicyExtension">
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.standard.endpoints"
+                               update-strategy="container-managed"/>
+    </bean>
+
+    <service interface="ddf.security.policy.extension.PolicyExtension">
+        <ref component-id="workspacePolicyExtension"/>
+    </service>
+
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>

@@ -13,12 +13,9 @@
  */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,14 +32,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.opengis.filter.Filter;
-
-import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -57,39 +52,25 @@ import ddf.catalog.source.UnsupportedQueryException;
 @Path("/workspaces")
 public class WorkspacesEndpoint {
 
-    private final CatalogFramework cf;
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspacesEndpoint.class);
 
-    private final FilterBuilder fb;
+    private static final String UPDATE_ERROR_MESSAGE =
+            "Workspace is either restricted or not found.";
+
+    private static final String NOT_PERMITTED_ERROR_MESSAGE =
+            "User not permitted to create workpsace.";
+
+    private final CatalogFramework catalogFramework;
+
+    private final FilterBuilder filterBuilder;
 
     private final WorkspaceTransformer transformer;
 
-    public WorkspacesEndpoint(CatalogFramework cf, FilterBuilder fb,
+    public WorkspacesEndpoint(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             WorkspaceTransformer transformer) {
-        this.cf = cf;
-        this.fb = fb;
+        this.catalogFramework = catalogFramework;
+        this.filterBuilder = filterBuilder;
         this.transformer = transformer;
-    }
-
-    private Set getRoles(Metacard metacard) {
-        Attribute attr = metacard.getAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
-
-        if (attr != null) {
-            return new HashSet<>(attr.getValues());
-        }
-
-        return new HashSet<>();
-    }
-
-    private Set getUpdatedRoles(String id, Metacard newMetacard) throws Exception {
-        Set newRoles = getRoles(newMetacard);
-
-        List<Metacard> metacards = queryWorkspaces(byId(id));
-        if (!metacards.isEmpty()) {
-            Set oldRoles = getRoles(metacards.get(0));
-            return Sets.symmetricDifference(oldRoles, newRoles);
-        }
-
-        return newRoles;
     }
 
     @GET
@@ -104,7 +85,8 @@ public class WorkspacesEndpoint {
         }
 
         res.setStatus(404);
-        return null;
+        LOGGER.warn("Could not find workspace {}.", id);
+        return Collections.singletonMap("message", UPDATE_ERROR_MESSAGE);
     }
 
     @GET
@@ -120,24 +102,15 @@ public class WorkspacesEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Map postDocument(Map<String, Object> workspace, @Context HttpServletResponse res)
             throws Exception {
-        Map<String, Object> response;
-
         try {
             Metacard saved = saveMetacard(transformer.transform(workspace));
-            response = transformer.transform(saved);
             res.setStatus(201);
-        } catch (Exception ex) {
-            if (ex.getMessage()
-                    .contains("not permitted")) {
-                response = Collections.singletonMap("message", ex.getMessage());
-                res.setStatus(401);
-            } else {
-                response = Collections.singletonMap("message", "bad request");
-                res.setStatus(400);
-            }
+            return transformer.transform(saved);
+        } catch (IngestException ex) {
+            LOGGER.warn("Could not create workspace {}.", workspace, ex);
+            res.setStatus(401);
+            return Collections.singletonMap("message", NOT_PERMITTED_ERROR_MESSAGE);
         }
-
-        return response;
     }
 
     @PUT
@@ -146,17 +119,15 @@ public class WorkspacesEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public Map putDocument(Map<String, Object> workspace, @PathParam("id") String id,
             @Context HttpServletResponse res) throws Exception {
-        Set updatedRoles = getUpdatedRoles(id, transformer.transform(workspace));
-        Metacard m = transformer.transform(workspace);
-        m.setAttribute(new AttributeImpl(Metacard.ID, id));
-        m.setAttribute(new AttributeImpl(WorkspaceMetacardTypeImpl.WORKSPACE_UPDATED_ROLES,
-                (List) new ArrayList<>(updatedRoles)));
+        WorkspaceMetacardImpl update = transformer.transform(workspace);
+        update.setId(id);
+
         try {
-            Metacard updated = updateMetacard(id, m);
-            return transformer.transform(updated);
+            return transformer.transform(updateMetacard(id, update));
         } catch (IngestException ex) {
-            res.setStatus(400);
-            return Collections.singletonMap("message", ex.getMessage());
+            res.setStatus(404);
+            LOGGER.warn("Could not update workspace {} {}.", id, workspace, ex);
+            return Collections.singletonMap("message", UPDATE_ERROR_MESSAGE);
         }
     }
 
@@ -165,18 +136,17 @@ public class WorkspacesEndpoint {
     public Map deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
             throws Exception {
         try {
-            cf.delete(new DeleteRequestImpl(id));
-            res.setStatus(200);
+            catalogFramework.delete(new DeleteRequestImpl(id));
+            return Collections.singletonMap("message", "success");
         } catch (IngestException ex) {
-            // couldn't remove workspace with given id
             res.setStatus(404);
+            LOGGER.warn("Could not delete workspace {}.", id, ex);
+            return Collections.singletonMap("message", UPDATE_ERROR_MESSAGE);
         }
-
-        return Collections.EMPTY_MAP;
     }
 
     private FilterBuilder builder() {
-        return fb;
+        return filterBuilder;
     }
 
     private Filter byId(String id) {
@@ -205,7 +175,7 @@ public class WorkspacesEndpoint {
 
     private List<Metacard> query(Filter f)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        return cf.query(new QueryRequestImpl(new QueryImpl(f)))
+        return catalogFramework.query(new QueryRequestImpl(new QueryImpl(f)))
                 .getResults()
                 .stream()
                 .map(Result::getMetacard)
@@ -214,7 +184,7 @@ public class WorkspacesEndpoint {
 
     private Metacard updateMetacard(String id, Metacard metacard)
             throws SourceUnavailableException, IngestException {
-        return cf.update(new UpdateRequestImpl(id, metacard))
+        return catalogFramework.update(new UpdateRequestImpl(id, metacard))
                 .getUpdatedMetacards()
                 .get(0)
                 .getNewMetacard();
@@ -222,7 +192,7 @@ public class WorkspacesEndpoint {
 
     private Metacard saveMetacard(Metacard metacard)
             throws IngestException, SourceUnavailableException {
-        return cf.create(new CreateRequestImpl(metacard))
+        return catalogFramework.create(new CreateRequestImpl(metacard))
                 .getCreatedMetacards()
                 .get(0);
 
