@@ -23,18 +23,19 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.boon.json.JsonFactory;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.core.versioning.HistoryMetacardImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -42,6 +43,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
@@ -71,32 +73,64 @@ public class AssociationsEndpoint {
     public Response getAssociations(@PathParam("id") String id) throws Exception {
         Associated associated = getAssociatedMetacardsIds(id);
 
+        return getAssociationsResponse(associated);
+    }
+
+    private Response getAssociationsResponse(Associated associated)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         List<String> ids = new ArrayList<>();
         ids.addAll(associated.derived);
         ids.addAll(associated.related);
 
         Map<String, Result> results = getAssociatedMetacards(ids);
 
-        AndrewAssociations aaRelated = new AndrewAssociations();
+        AndrewAssociation aaRelated = new AndrewAssociation();
         aaRelated.type = "related";
         for (String relatedId : associated.related) {
-            aaRelated.metacards.add(new AssociationItem(relatedId, results.get(relatedId).getMetacard().getTitle()));
+            aaRelated.metacards.add(new AssociationItem(relatedId,
+                    results.get(relatedId)
+                            .getMetacard()
+                            .getTitle()));
         }
 
-        AndrewAssociations aaDerived = new AndrewAssociations();
+        AndrewAssociation aaDerived = new AndrewAssociation();
         aaDerived.type = "derived";
         for (String derivedId : associated.derived) {
-            aaRelated.metacards.add(new AssociationItem(derivedId, results.get(derivedId).getMetacard().getTitle()));
+            aaDerived.metacards.add(new AssociationItem(derivedId,
+                    results.get(derivedId)
+                            .getMetacard()
+                            .getTitle()));
         }
 
-        List<AndrewAssociations> associations = new ArrayList<>();
+        List<AndrewAssociation> associations = new ArrayList<>();
         associations.add(aaDerived);
         associations.add(aaRelated);
         return Response.ok(endpointUtil.getJson(associations), MediaType.APPLICATION_JSON)
                 .build();
     }
 
+    private static final String ASSOCIATION_PREFIX = "metacard.associations.";
 
+    @PUT
+    @Path("/{id}")
+    public Response putAssociations(@PathParam("id") String id, String body) throws Exception {
+        List<AndrewAssociation> associations = JsonFactory.create()
+                .parser()
+                .parseList(AndrewAssociation.class, body);
+        Metacard metacard = endpointUtil.getMetacard(id);
+        List<Attribute> updatedAttributes = new ArrayList<>();
+        for (AndrewAssociation association : associations) {
+            ArrayList<String> newIds = new ArrayList<>();
+            for (AssociationItem ai : association.metacards) {
+                newIds.add(ai.id);
+            }
+            updatedAttributes.add(new AttributeImpl(ASSOCIATION_PREFIX + association.type, newIds));
+        }
+        updatedAttributes.forEach(metacard::setAttribute);
+        UpdateResponse update = catalogFramework.update(new UpdateRequestImpl(id, metacard));
+
+        return getAssociationsResponse(getAssociatedMetacardIdsFromMetacard(update.getUpdatedMetacards().get(0).getNewMetacard()));
+    }
 
     private Set<String> deleteAssociation(String id, String associatedId, String attributeId)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
@@ -141,7 +175,10 @@ public class AssociationsEndpoint {
     private Associated getAssociatedMetacardsIds(String id)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException,
             StandardSearchException {
-        Metacard result = endpointUtil.getMetacard(id);
+        return getAssociatedMetacardIdsFromMetacard(endpointUtil.getMetacard(id));
+    }
+
+    private Associated getAssociatedMetacardIdsFromMetacard(Metacard result) {
         List<Serializable> related = new ArrayList<>();
         List<Serializable> derived = new ArrayList<>();
 
@@ -179,7 +216,8 @@ public class AssociationsEndpoint {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(queryFilter,
+        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+                queryFilter,
                 1,
                 -1,
                 SortBy.NATURAL_ORDER,
@@ -187,7 +225,8 @@ public class AssociationsEndpoint {
                 TimeUnit.SECONDS.toMillis(10)), false));
         Map<String, Result> results = new HashMap<>();
         for (Result result : response.getResults()) {
-            results.put(result.getMetacard().getId(), result);
+            results.put(result.getMetacard()
+                    .getId(), result);
         }
         return results;
     }
@@ -209,7 +248,7 @@ public class AssociationsEndpoint {
         }
     }
 
-    private class AndrewAssociations {
+    private class AndrewAssociation {
         String type;
 
         List<AssociationItem> metacards = new ArrayList<>();
