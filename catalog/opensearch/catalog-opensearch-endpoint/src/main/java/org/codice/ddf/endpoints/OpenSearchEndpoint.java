@@ -230,7 +230,7 @@ public class OpenSearchEndpoint implements OpenSearch {
         } catch (RuntimeException re) {
             LOGGER.warn("Exception while executing a query", re);
             response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(re.getMessage()))
+                    .entity(wrapStringInPreformattedTags("Exception while executing a query"))
                     .build();
         }
         LOGGER.trace("EXITING: " + methodName);
@@ -360,24 +360,24 @@ public class OpenSearchEndpoint implements OpenSearch {
                 }
             }
         } catch (UnsupportedQueryException ce) {
-            LOGGER.warn("Error executing query", ce);
-            response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(ce.getMessage()))
+            LOGGER.warn("Unsupported query", ce);
+            response = Response.status(Response.Status.BAD_REQUEST)
+                    .entity(wrapStringInPreformattedTags("Unsupported query"))
                     .build();
         } catch (CatalogTransformerException e) {
-            LOGGER.warn("Error tranforming response", e);
+            LOGGER.warn("Error transforming response", e);
             response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+                    .entity(wrapStringInPreformattedTags("Error transforming response"))
                     .build();
         } catch (FederationException e) {
             LOGGER.warn("Error executing query", e);
             response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+                    .entity(wrapStringInPreformattedTags("Error executing query"))
                     .build();
         } catch (SourceUnavailableException e) {
             LOGGER.warn("Error executing query because the underlying source was unavailable.", e);
             response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+                    .entity(wrapStringInPreformattedTags("Error executing query because the underlying source was unavailable."))
                     .build();
         } catch (RuntimeException e) {
             // Account for any runtime exceptions and send back a server error
@@ -385,7 +385,7 @@ public class OpenSearchEndpoint implements OpenSearch {
             // this allows for a graceful server error to be returned
             LOGGER.warn("RuntimeException on executing query", e);
             response = Response.serverError()
-                    .entity(wrapStringInPreformattedTags(e.getMessage()))
+                    .entity(wrapStringInPreformattedTags("RuntimeException on executing query"))
                     .build();
         }
         return response;
