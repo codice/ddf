@@ -35,9 +35,8 @@ define(['underscore',
         },
         makeMap: function (options) {
             var layers = [];
-
             this.collection.forEach(function (model) {
-                var widgetLayer = this.makeWidgetLayer(model);
+                var widgetLayer = this.makeWidgetLayer(model, properties.projection);
                 layers.push(widgetLayer);
                 this.layerForCid[model.cid] = widgetLayer;
             }, this);
@@ -82,7 +81,7 @@ define(['underscore',
                 olMapLayers.push(widgetLayer);
             }, this);
         },
-        makeWidgetLayer: function (model) {
+        makeWidgetLayer: function (model, projection) {
             var typeStr = model.get('type');
             var type = imageryProviderTypes[typeStr];
             var initObj = _.omit(model.attributes, 'type', 'label', 'index', 'show', 'alpha', 'modelCid');
@@ -99,7 +98,12 @@ define(['underscore',
             } else if (typeStr === 'WMS') {
                 if (!initObj.params) {
                     initObj.params = {
-                        LAYERS: initObj.layers
+                        LAYERS: initObj.layers,
+                        /*
+                            WMS < 1.3.0 in OpenLayers requires SRS.
+                            See http://openlayers.org/en/v3.15.0/apidoc/ol.source.TileWMS.html
+                        */
+                        srs: projection
                     };
                     _.extend(initObj.params, initObj.parameters);
                 }

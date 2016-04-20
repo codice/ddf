@@ -13,49 +13,26 @@
 
 # GeoWebCache 
 ## Introduction
-This module is a a bundled distribution of the GeoWebCache war. GeoWebCache is a server providing a tile cache and tile service aggregation.  See (http://geowebcache.org) for more information.
-**The GeoWebCache DDF app is considered experimental.  Basic capabilities have been tested, but full integration into DDF including administration of GeoWebCache is incomplete.**
+This module is a bundled distribution of the GeoWebCache war. GeoWebCache is a server providing a tile cache and tile service aggregation.  See (http://geowebcache.org) for more information.  This application also provides an administrative plugin for the management of GeoWebCached layers.  GeoWebCache also provides a user interface that can be used to preview layers and truncate or seed them (https://localhost:8993/geowebcache/).
 
 By installing this application in DDF, all of the GeoWebCache capabilities are available running in the DDF container.  This includes
 - WMS/WMTS endpoints (/geowebcache/service)
 - Connections to external tile services configured via RESTful services (/geowebcache/rest)
 - Caching of tiles
 - Seeding of tiles by zoom level
-
-## Building and deploying
-GWC in DDF utilizes the GWC 1.5.0 war: http://sourceforge.net/projects/geowebcache/files/geowebcache/1.5.0/geowebcache-1.5.0-war.zip/download
-- Download and install GWC war into your maven repo (this will eventually be installed in the codice maven repo)
-
-`mvn install:install-file -Dfile=geowebcache.war -DgroupId=org.geowebcache -DartifactId=geowebcache -Dversion=1.5.0 -Dpackaging=war`
-
-`mvn clean install`
-
-`cp geowebcache-app-target/geowebcache-app-2.9.0-SNAPSHOT.kar <DDF_HOME>/deploy`
+- An Admin Plugin to configure tiles
 
 ## Usage
 
 ### Configure GWC layers
-GWC needs to be configured to utilize one or more *backend* tile services which are exposed via a service endpoint that the Search UI can utilize.
-
-The current layer configuration can be viewed as follows:
-`curl -v -k "https://localhost:8993/geowebcache/rest/layers"`
-
-Detailed layer information can be viewed with:
-`curl -v -k "https://localhost:8993/geowebcache/rest/layers/<layerName>.xml"`
-
-
-To add a layer, the XML representation of the layer can be posted:
-`curl -v -k -XPUT -H "Content-type: text/xml" -d @states.xml "https://localhost:8993/geowebcache/rest/layers/states.xml"`
+GWC needs to be configured to utilize one or more *backend* tile services which are exposed via a service endpoint that the Search UI can utilize.  The following XML shows the minimum amount of information required to configure a WMS layer :
 
 states.xml:
 ```
     <wmsLayer>
       <name>states</name>
       <mimeFormats>
-        <string>image/gif</string>
-        <string>image/jpeg</string>
         <string>image/png</string>
-        <string>image/png8</string>
       </mimeFormats>
       <wmsUrl>
         <string>http://demo.opengeo.org/geoserver/topp/wms</string>
@@ -63,12 +40,30 @@ states.xml:
     </wmsLayer>
 ```
 
+The GeoWebCache Admin Plugin will present a table with all configured layers, as well as the ability to add, remove or update them.
+
+The current layer configurations can also be viewed at the following URL:
+`https://localhost:8993/geowebcache/rest/layers`
+
+To add a layer, the minimum information (shown above) can be configured through the `GeoWebCache Layers` tab within the GWC App.  The following modal shows how the information is entered.  Optionally, one can add the name(s) of WMS layers that exist at the URL specified. If no WMS Layer names are specified, GeoWebCache will look for the Layer Name specified in the name field.  Otherwise, it will attempt to find all layer names added under the WMS Layers section, and combine them into one layer.
+<img src="https://codice.atlassian.net/wiki/download/attachments/1179800/gwcAddLayer"/>
+
+**Note: When changing the WMS Layers within a GeoWebCache Layer, it is recommended to truncate the layer to remove old tile images.**
+
+Alternatively, the layer XML can be posted with CURL :
+`curl -v -k -XPUT -H "Content-type: text/xml" -d @states.xml "https://localhost:8993/geowebcache/rest/layers/states.xml"`
+
+To update a configuration with CURL :
+`curl -v -k -X POST -H "Content-type: text/xml" -d @states.xml "https://localhost:8993/geowebcache/rest/layers/states.xml"`
+
+GeoWebCache also provides a user interface that can be used to preview layers and truncate or seed them at `https://localhost:8993/geowebcache/`.
+
 ### Configure GWC disk quota
 > Since disk usage increases geometrically by zoom level, one single seeding task could fill up an entire storage device. Because of this, GeoWebCache employs a disk quota system where one can specify the maximum amount of disk space to use for a particular layer or for the entire set of layers (the “Global Quota”), as well as logic on how to proceed when that quota is reached. There are two different policies for managing the disk quotas: Least Frequently Used (LFU) and Least Recently Used (LRU). 
 (https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes)
 
 To view the disk quota XML representative: 
-`curl -v -k "https://localhost:8993/geowebcache/rest/diskquota.xml"`
+`"https://localhost:8993/geowebcache/rest/diskquota.xml"`
 
 To update the disk quota, a client can post a new XML configuration:
 `curl -v -k -XPUT -H "Content-type: text/xml" -d @diskquota.xml "https://localhost:8993/geowebcache/rest/diskquota.xml"`
@@ -93,6 +88,12 @@ diskquota.xml:
 See http://geowebcache.org/docs/current/configuration/diskquotas.html for more information on configuration options for disk quota.
 
 ### Configure the Standard Search UI
-Add a new Imagery Provider in the Standard Search UI Config in the Admin Console (/admin)
+Add a new Imagery Provider in the Standard Search UI Config in the Admin Console (/admin).
+Set the Map Projection to `EPSG:900913` or `EPSG:4326`.  Out of the box, GeoWebCache supports either of these projections.
 
-`{"type" "WMS" "url" "https://localhost:8993/geowebcache/service/wms" "layers" ["states"]  "alpha" 0.5}`
+`{"type" "WMS" "url" "https://localhost:8993/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`
+
+**Note: Currently, GeoWebCache only supports WMS 1.1.1 and below.  If the version number is not specified in the imagery provider, DDF will default to version 1.3.0, and OpenLayers will not project the image tiles properly.  Thus, the version 1.1.1 must be specified using EPSG:4326 projections.**
+
+`{"type" "WMS" "url" "https://localhost:8993/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`
+
