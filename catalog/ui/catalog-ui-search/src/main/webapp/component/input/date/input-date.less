@@ -21,7 +21,7 @@
     > label {
       color: grey;
       font-weight: bold;
-      width: 100%;
+      max-width: ~'calc(100% - 44px)';
       margin: 0px;
       line-height: @minimumButtonSize;
       padding-right: 10px;
@@ -113,7 +113,27 @@
     }
     .input-label {
       text-align: left;
+
+      > label {
+        padding-right: 0px;
+      }
     }
+
+    .input-validation:first-of-type{
+      display: none;
+    }
+    .input-validation:nth-of-type(2) {
+      display: inherit;
+    }
+  }
+
+  .input-validation:nth-of-type(2){
+    display: none;
+  }
+
+  .input-validation {
+    line-height: @minimumButtonSize;
+    padding: 0px 10px;
   }
 }
 

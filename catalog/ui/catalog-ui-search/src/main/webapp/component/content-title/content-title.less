@@ -1,0 +1,34 @@
+@{customElementNamespace}content-title{
+  .customElement;
+  position: relative;
+  line-height: 24px;
+
+  input,
+  button {
+    display: inline-block;
+    vertical-align: top;
+    height: ~'calc(100% - 2px)';
+    margin-top: 2px;
+  }
+
+  input {
+    min-width: 1px;
+    background: @background-color;
+    font-size: 18px;
+    padding-top: 3px;
+  }
+  input:focus {
+    text-decoration: none;
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: grey;
+  }
+
+  button {
+    font-size: 16px;
+    color: grey;
+  }
+  button:hover {
+    color: shade(grey, 20%);
+  }
+}

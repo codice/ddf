@@ -14,18 +14,13 @@
 define([
         'wreqr',
         'backbone',
-        'js/model/Metacard',
         'js/model/Query',
         'js/Common',
         'js/ColorGenerator',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Metacard, Query, Common, ColorGenerator) {
+    function (wreqr, Backbone, Query, Common, ColorGenerator) {
         var Workspace = {};
-
-        Workspace.MetacardCollection = Backbone.Collection.extend({
-            model: Metacard.Metacard
-        });
 
         Workspace.QueryCollection = Backbone.Collection.extend({
             model: Query.Model,
@@ -59,11 +54,6 @@ define([
                     type: Backbone.Many,
                     key: 'queries',
                     collectionType: Workspace.QueryCollection
-                },
-                {
-                    type: Backbone.Many,
-                    key: 'metacards',
-                    collectionType: Workspace.MetacardCollection
                 }
             ],
             canAddQuery: function(){

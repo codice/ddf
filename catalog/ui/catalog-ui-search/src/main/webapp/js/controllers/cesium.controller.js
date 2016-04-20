@@ -45,6 +45,7 @@ define(['application',
                 this.drawHelper = new DrawHelper(this.mapViewer);
 
                 this.scene = this.mapViewer.scene;
+                //this.scene.backgroundColor = Cesium.Color.WHITE.clone();
                 this.ellipsoid = this.mapViewer.scene.globe.ellipsoid;
                 this.handler = new Cesium.ScreenSpaceEventHandler(this.scene.canvas);
                 this.setupEvents();
@@ -77,6 +78,8 @@ define(['application',
                             sceneModePicker: true,
                             selectionIndicator: false,
                             infoBox: false,
+                            //skyBox: false,
+                            //skyAtmosphere: false,
                             baseLayerPicker: false // Hide the base layer picker
                         }
                     }

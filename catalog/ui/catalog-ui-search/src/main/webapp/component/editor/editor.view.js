@@ -49,19 +49,27 @@ define([
             this.$el.addClass('is-editing');
             this.editorProperties.currentView.turnOnEditing();
             this.editorProperties.currentView.focus();
+            this.afterEdit();
         },
         cancel: function(){
             this.$el.removeClass('is-editing');
             this.editorProperties.currentView.turnOffEditing();
             this.editorProperties.currentView.revert();
+            this.afterCancel();
         },
         save: function(){
             this.$el.removeClass('is-editing');
             this.editorProperties.currentView.turnOffEditing();
             this.editorProperties.currentView.save();
-            this.onSave(this.editorProperties.currentView.toJSON());
+            this.afterSave(this.editorProperties.currentView.toJSON());
         },
-        onSave: function(){
+        afterCancel: function(){
+            //override
+        },
+        afterEdit: function(){
+            //override
+        },
+        afterSave: function(){
             //override
         },
         toJSON: function(){

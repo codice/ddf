@@ -30,7 +30,7 @@ define([
             }));
             this.editorProperties.currentView.$el.addClass("is-list");
         },
-        onSave: function(attributeToVal){
+        afterSave: function(attributeToVal){
             this.model.set(attributeToVal);
             this.model.save();
         }

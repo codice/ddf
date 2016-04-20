@@ -1,0 +1,115 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<h5 align="left">
+    Item Associations
+</h5>
+<div class="assocations-header">
+    <div class="list-association">
+        <div class="association-info">
+            <div class="association-type">
+                Association Type
+            </div>
+            <div class="association-item">
+                Associated Item
+            </div>
+        </div>
+        <div class="association-delete">
+            <span>
+
+            </span>
+        </div>
+    </div>
+</div>
+<div class="associations-list is-list">
+    {{#each associations}}
+        {{#each metacards}}
+            <div class="list-association" data-metacardId="{{id}}">
+                <div class="association-info">
+                    <div class="association-type">
+                        {{../type}}
+                    </div>
+                    <div class="association-item">
+                        {{title}}
+                    </div>
+                </div>
+                <button class="association-delete is-negative" data-metacardId="{{id}}"
+                        data-associationType="{{../type}}">
+                    <span class="fa fa-trash-o">
+
+                    </span>
+                </button>
+            </div>
+        {{/each}}
+    {{/each}}
+</div>
+<div class="associations-footer">
+    <button class="associations-edit is-primary">
+        <span class="fa fa-pencil">
+
+        </span>
+        <span>
+            Edit
+        </span>
+    </button>
+    <button class="associations-cancel is-negative">
+        <span class="fa fa-times">
+
+        </span>
+        <span>
+            Cancel
+        </span>
+    </button>
+    <button class="associations-save is-positive">
+        <span class="fa fa-floppy-o">
+
+        </span>
+        <span>
+            Save
+        </span>
+    </button>
+</div>
+<div class="associations-editing">
+    <h5 align="left">
+        Add an Associations
+    </h5>
+    <div class="associations-add">
+        <div class="add-type">
+            <div class="type-label">
+                Association Type
+            </div>
+            <select class="type-selection">
+                <option value="derived">Derived</option>
+                <option value="related">Related</option>
+            </select>
+        </div>
+        <div class="add-select">
+            <div class="select-label">
+                Associated Item(s)
+            </div>
+            <select multiple class="select-selection">
+                {{#each possibleAssociations}}
+                    <option value="{{id}}">{{title}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+    <button class="associations-addNew is-primary">
+        <span class="fa fa-plus">
+
+        </span>
+        <span>
+            Create Association
+        </span>
+    </button>
+</div>

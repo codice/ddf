@@ -1,0 +1,30 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<input class="content-title" value="{{currentWorkspace.title}}"/>
+<button class="content-favorite">
+    {{#if favorite}}
+        <span class="fa fa-star">
+
+        </span>
+    {{else}}
+        <span class="fa fa-star-o">
+
+        </span>
+    {{/if}}
+</button>
+<button class="content-open">
+    <span class="fa fa-folder">
+
+    </span>
+</button>

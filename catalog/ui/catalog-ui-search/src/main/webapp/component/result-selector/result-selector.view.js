@@ -20,8 +20,9 @@ define([
     'jquery',
     'text!./result-selector.hbs',
     'js/CustomElements',
-    'js/store'
-], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, store) {
+    'js/store',
+    'js/Common'
+], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, store, Common) {
 
     var ResultSelector = Marionette.LayoutView.extend({
         template: resultSelectorTemplate,
@@ -58,24 +59,20 @@ define([
         },
         massageData: function(data){
             data.forEach(function(result){
+                //make a nice date
                 result.local = Boolean(result.metacard.properties['source-id'] === 'ddf.distribution');
                 var dateModified = new Date(result.metacard.properties.modified);
-                var diffMs = (new Date()) - dateModified;
-                var diffDays = Math.round(diffMs / 86400000); // days
-                var diffHrs = Math.round((diffMs % 86400000) / 3600000); // hours
-                var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-                if (diffDays > 2){
-                    result.niceDiff = dateModified.toDateString() + ', ' + dateModified.toLocaleTimeString();
-                } else if (diffDays > 0) {
-                    result.niceDiff = 'Yesterday, ' + dateModified.toLocaleTimeString();
-                } else if (diffHrs > 4) {
-                    result.niceDiff = 'Today, ' + dateModified.toLocaleTimeString();
-                } else if (diffHrs > 1){
-                    result.niceDiff = diffHrs + ' hours ago';
-                } else if (diffMins > 0){
-                    result.niceDiff = diffMins + ' minutes ago';
-                } else {
-                    result.niceDiff = 'A few seconds ago';
+                result.niceDiff = Common.getMomentDate(dateModified);
+                //check validation errors
+                var validationErrors = result.metacard.properties['validation-errors'];
+                var validationWarnings = result.metacard.properties['validation-warnings'];
+                if (validationErrors){
+                    result.hasError = true;
+                    result.error = validationErrors;
+                }
+                if (validationWarnings){
+                    result.hasWarning = true;
+                    result.warning = validationWarnings;
                 }
             });
             return data;
@@ -127,7 +124,9 @@ define([
         },
         handleNormalClick: function(metacardId){
             store.clearSelectedResults();
+            console.log('clear on click');
             store.addSelectedResult(this.model.get('result').get('results').get(metacardId));
+            console.log('add on click');
         },
         handleSelectionChange: function(){
             var self = this;

@@ -1,5 +1,10 @@
 @{customElementNamespace}content {
   @titleBarFontSize: 3rem;
+  @contentMenuHeight: 60px;
+  @panelTwoSpacing: 20px;
+  @panelOneWidth: 420px;
+  @panelTwoWidth: 520px;
+
   .customElement;
 
   position: relative;
@@ -8,40 +13,52 @@
 
   .content-menu {
     width: 100%;
-    height: 36px;
+    height: 60px;
   }
 
   .content-content{
-    height: ~'calc(100% - 36px)';
+    height: ~'calc(100% - @{contentMenuHeight})';
     .inlineBlockDisplay(div);
     .whiteSpaceFix;
+    position: relative
   }
 
   .content-panelOne {
-    width: 20%;
+    background: @background-color;
+    width: @panelOneWidth;
+    position: relative;
+    z-index: 103;
   }
 
-  .content-panelTwo {
-    width: 30%;
+  .content-panel.content-panelTwo {
+    width: @panelTwoWidth;
+    height: ~'calc(100% - 2*@{panelTwoSpacing})';
+    position: absolute;
+    left: ~'calc(@{panelOneWidth} + @{panelTwoSpacing})';
+    top: @panelTwoSpacing;
+    z-index: 102;
+    background: @background-color;
+    box-shadow: 0px 3px 3px 10px @background-color;
+    transition: transform @coreTransitionTime ease-in-out;
+    transform: translateX(0%) scaleX(1);
   }
 
   .content-panelThree {
-    width: 50%;
+    width: ~'calc(100% - 420px)';
   }
 
   .content-panel {
     height: 100%;
     vertical-align: top;
-    transition: width @transitionTime linear;
     overflow: hidden;
   }
 
   &.hide-panelTwo {
     .content-panelTwo {
-      width: 0%;
+      transform: translateX(-@panelTwoWidth - 2*@panelTwoSpacing) scaleX(1);
     }
     .content-panelThree {
-      width: 80%;
+      width: ~'calc(100% - 420px)';
     }
   }
 
@@ -56,11 +73,13 @@
 
       > span {
         display: block;
-        width: ~'calc(100% - @{minimumButtonSize})';
+        width: ~'calc(100% - 2*@{minimumButtonSize})';
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         padding: 0px 10px;
+        position: relative;
+        left: @minimumButtonSize;
       }
 
       > button {

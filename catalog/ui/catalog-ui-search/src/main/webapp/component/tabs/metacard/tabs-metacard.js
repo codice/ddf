@@ -15,21 +15,23 @@ define([
     '../tabs',
     'js/store',
     'component/editor/metacard-basic/metacard-basic.view',
-    'component/editor/metacard-advanced/metacard-advanced.view'
-], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView) {
+    'component/editor/metacard-advanced/metacard-advanced.view',
+    'component/metacard-history/metacard-history.view',
+    'component/metacard-associations/metacard-associations.view',
+    'component/metacard-quality/metacard-quality.view'
+], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView, MetacardHistoryView, MetacardAssociationsView, MetacardQualityView) {
 
-    var MetacardTabs = Tabs.extend({
+    return Tabs.extend({
         defaults: {
             tabs: {
                 'Basic': MetacardBasicView,
                 'Advanced': MetacardAdvancedView,
-                'History': MetacardBasicView,
-                'Associations': MetacardBasicView,
+                'History': MetacardHistoryView,
+                'Associations': MetacardAssociationsView,
+                'Quality': MetacardQualityView,
                 'Sharing': MetacardBasicView,
                 'Actions': MetacardBasicView
             }
         }
     });
-
-    return MetacardTabs;
 });

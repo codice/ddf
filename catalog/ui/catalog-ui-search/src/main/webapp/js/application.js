@@ -47,7 +47,6 @@ define([
         controlPanelRegion: '#controlPanel',
         modalRegion: '#modalRegion'
     });
-    Application.Router = new Marionette.AppRouter({ routes: { '': 'index' } });
 
     //setup the header
     Application.App.addInitializer(function () {
@@ -56,7 +55,7 @@ define([
             className: 'header-layout',
             model: Application.AppModel
         }));
-        if (Application.AppModel.get('ui').header !== ""){
+        if (Application.AppModel.get('ui').header && Application.AppModel.get('ui').header !== ""){
             $('body').addClass('has-header');
         }
     });
@@ -67,7 +66,7 @@ define([
             className: 'footer-layout',
             model: Application.AppModel
         }));
-        if (Application.AppModel.get('ui').footer !== ""){
+        if (Application.AppModel.get('ui').footer &&Application.AppModel.get('ui').footer !== ""){
             $('body').addClass('has-footer');
         }
     });
@@ -77,7 +76,8 @@ define([
         require([
             'js/module/Notification.module',
             'js/module/Tasks.module',
-            'js/module/Content.module'
+            'js/module/Content.module',
+            'js/module/Home.module'
         ], function(){
             Application.App.loadingRegion.$el.addClass('is-hidden');
         });

@@ -1,0 +1,59 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<div class="home-items-center">
+    <div class="home-items-header">
+            <span class="header-item header-hint">
+                Recent workspaces
+            </span>
+        <div class="header-item header-button">
+            Owned by me
+            <span class="fa fa-caret-down">
+            </span>
+        </div>
+    </div>
+    <div class="home-items-choices-grid">
+        {{#each this}}
+            <div class="choice" data-workspaceId="{{id}}">
+                <div class="choice-preview">
+                    {{#if previewImage}}
+                    <img src="/services/catalog/sources/ddf.distribution/{{previewImage}}?transform=resource">
+                    {{/if}}
+                </div>
+                <div class="choice-footer">
+                    <div class="choice-details">
+                        <div class="choice-title">
+                            {{title}}
+                        </div>
+                        <div class="choice-date">
+                            {{niceDate}}
+                        </div>
+                    </div>
+                    <div class="choice-actions" data-workspaceId="{{id}}">
+                        <span class="fa fa-ellipsis-v">
+
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+    <div class="home-items-choices-list is-hidden">
+        {{#each this}}
+            <div class="choice" data-workspaceId="{{id}}">
+                <div class="choice-preview"></div>
+                <div class="choice-description">{{title}}</div>
+            </div>
+        {{/each}}
+    </div>
+</div>

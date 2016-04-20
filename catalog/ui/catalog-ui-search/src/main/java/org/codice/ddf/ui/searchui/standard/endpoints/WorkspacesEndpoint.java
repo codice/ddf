@@ -162,7 +162,7 @@ public class WorkspacesEndpoint {
 
     @DELETE
     @Path("/{id}")
-    public void deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
+    public Map deleteDocument(@PathParam("id") String id, @Context HttpServletResponse res)
             throws Exception {
         try {
             cf.delete(new DeleteRequestImpl(id));
@@ -171,6 +171,8 @@ public class WorkspacesEndpoint {
             // couldn't remove workspace with given id
             res.setStatus(404);
         }
+
+        return Collections.EMPTY_MAP;
     }
 
     private FilterBuilder builder() {

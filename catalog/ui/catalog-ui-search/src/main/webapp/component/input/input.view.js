@@ -37,6 +37,9 @@ define([
             'change:value': 'render'
         },
         regions: {},
+        initialize: function(){
+            console.log('initializing');
+        },
         serializeData: function () {
             return _.extend(this.model.toJSON(), {cid: this.cid});
         },
@@ -45,6 +48,7 @@ define([
             this.handleReadOnly();
             this.handleValue();
             this.handleRevert();
+            this.handleValidation();
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -87,6 +91,33 @@ define([
                 this.$el.addClass('is-changed');
             } else {
                 this.$el.removeClass('is-changed');
+            }
+        },
+        updateValidation: function(validationReport){
+            this._validationReport = validationReport;
+            var $validationElement = this.$el.find('.input-validation');
+            if (validationReport.errors.length > 0){
+                this.$el.removeClass('has-warning').addClass('has-error');
+                $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error');
+                var validationMessage = validationReport.errors.reduce(function(totalMessage, currentMessage){
+                    return totalMessage + currentMessage;
+                }, '');
+                $validationElement.attr('title', validationMessage);
+            } else if (validationReport.warnings.length > 0) {
+                this.$el.addClass('has-warning').removeClass('has-error');
+                $validationElement.removeClass('is-hidden').removeClass('is-error').addClass('is-warning');
+                var validationMessage = validationReport.warnings.reduce(function(totalMessage, currentMessage){
+                    return totalMessage + currentMessage;
+                }, '');
+                $validationElement.attr('title', validationMessage);
+            } else {
+                this.$el.removeClass('has-warning').removeClass('has-error');
+                $validationElement.addClass('is-hidden');
+            }
+        },
+        handleValidation: function(){
+            if (this._validationReport){
+                this.updateValidation(this._validationReport);
             }
         },
         _editMode: false

@@ -1,0 +1,44 @@
+@{customElementNamespace}menu {
+  .customElement;
+  position: relative;
+  height: 60px;
+  white-space: nowrap;
+
+  > .menu-logo {
+    width: @minimumButtonSize;
+  }
+
+  > .menu-content {
+    width: ~'calc(100% - 244px)';
+  }
+
+  > .menu-details {
+    width: 200px;
+  }
+
+  > .menu-logo,
+  > .menu-content,
+  > .menu-details {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+  }
+
+  > .menu-content > .content-title,
+  > .menu-content > .content-toolbar {
+    height: 30px;
+    padding: 0px 10px;
+  }
+
+  > .menu-content > .content-title {
+  }
+
+  > .menu-details > .details-user {
+    height: 25px;
+  }
+
+  > .menu-details > .details-buttons {
+    height: 35px;
+  }
+
+}

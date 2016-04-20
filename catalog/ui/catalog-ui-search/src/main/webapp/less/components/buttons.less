@@ -12,13 +12,13 @@ button.is-primary {
 
 .button-mixin(@buttonColor) {
   background: @buttonColor;
-  font-size: 2rem !important;
-  padding: 0px !important;
+  font-size: 2rem;
+  padding: 0px;
   line-height: 44px;
   height: 44px;
   .resetIconLineHeight;
   span {
-    font-size: 2rem !important;
+    font-size: 2rem;
   }
 
   &:hover {
@@ -38,10 +38,12 @@ button.is-primary {
 }
 
 button.is-negative {
+  color: @text-color;
   .button-mixin(@negative-color);
 }
 
 button.is-positive {
+  color: @text-color;
   .button-mixin(@positive-color);
 }
 
@@ -50,6 +52,7 @@ button.is-neutral {
 }
 
 button.is-primary {
+  color: @text-color;
   .button-mixin(@primary-color);
 }
 

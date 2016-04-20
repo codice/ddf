@@ -41,7 +41,6 @@ define([
             this.listenTo(this.model, 'change:currentWorkspace', this.render);
         },
         onRender: function(){
-            console.log(this.model.toJSON());
         },
         openWorkspaces: function () {
             lightboxViewInstance.model.updateTitle('Workspaces');

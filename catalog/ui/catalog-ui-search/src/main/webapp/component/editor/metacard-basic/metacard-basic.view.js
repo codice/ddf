@@ -33,6 +33,28 @@ define([
                 collection: InputMetacardCollection.createBasic(this.model)
             }));
             this.editorProperties.currentView.turnOnLimitedWidth();
+        },
+        initialize: function(options){
+            EditorView.prototype.initialize.call(this, options);
+            this.getValidation();
+        },
+        getValidation: function(){
+            var self = this;
+            $.get('/services/search/catalog/metacard/'+this.model.id+'/validation').then(function(response){
+                if (!self.isDestroyed){
+                    self.editorProperties.currentView.updateValidation(response);
+                }
+            }).always(function(){
+                if (!self.isDestroyed){
+                    
+                }
+            });
+        },
+        afterCancel: function(){
+            this.getValidation();
+        },
+        afterSave: function(){
+            this.getValidation();
         }
     });
 });

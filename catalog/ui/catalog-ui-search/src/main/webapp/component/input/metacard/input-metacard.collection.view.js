@@ -65,6 +65,16 @@ define([
                 return _.extend(attributeToVal, childView.toJSON());
             }, {});
         },
+        updateValidation: function(validationReport){
+            var self = this;
+            validationReport.forEach(function(attributeValidationReport){
+                self.children.filter(function(childView){
+                    return childView.model.get('id') === attributeValidationReport.attribute;
+                }).forEach(function(childView){
+                    childView.updateValidation(attributeValidationReport);
+                });
+            });
+        },
         focus: function () {
             this.children.first().focus();
         }

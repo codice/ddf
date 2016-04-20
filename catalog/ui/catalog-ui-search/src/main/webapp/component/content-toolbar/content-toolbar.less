@@ -1,0 +1,38 @@
+@{customElementNamespace}content-toolbar {
+  .customElement;
+  line-height: 30px;
+  font-size: 0px;
+
+  .toolbar-menu {
+    display: inline-block;
+    padding: 0px 10px;
+    cursor: pointer;
+    height: 30px;
+    vertical-align: top;
+  }
+
+  .toolbar-menu > span {
+    font-size: 14px;
+  }
+
+  .toolbar-menu:hover {
+    background: @hover-background-color;
+  }
+
+  .toolbar-menu.is-open {
+    .boxShadow;
+    overflow: visible;
+    z-index: @zIndexMenuItem;
+    position: relative;
+    background: @background-color;
+  }
+  .toolbar-menu.is-open::after {
+    content: '';
+    width: 100%;
+    height: 10px;
+    background: @background-color;
+    position: absolute;
+    left: 0px;
+    bottom: -10px;
+  }
+}

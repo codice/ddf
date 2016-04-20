@@ -12,13 +12,14 @@
  **/
  --}}
 <div class="input-label">
+    <span class="input-validation fa fa-exclamation-triangle is-hidden"></span>
     <label for="{{cid}}">
-        <span class=""></span>
         {{label}}
         {{#unless label}}
             {{id}}
         {{/unless}}
     </label>
+    <span class="input-validation fa fa-exclamation-triangle is-hidden"></span>
 </div>
 <div class="input-value">
     <input id="{{cid}}" value="{{value}}">

@@ -34,7 +34,7 @@ define([
         },
         events: {
             'click .querySelector-add': 'addQuery',
-            'click .querySelector-queryDetails': 'selectQuery',
+            'click .querySelector-list .querySelector-queryDetails': 'selectQuery',
             'click .querySelector-queryActive': 'filterQuery'
         },
         ui: {

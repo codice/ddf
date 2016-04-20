@@ -20,7 +20,7 @@ define([
     'jquery',
     'text!./content.hbs',
     'js/CustomElements',
-    'js/view/Menu.view',
+    'component/menu/menu.view',
     'properties',
     'component/tabs/workspace-content/tabs-workspace-content',
     'component/tabs/workspace-content/tabs-workspace-content.view',
@@ -29,10 +29,11 @@ define([
     'text!templates/map.handlebars',
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
-    'component/tabs/metacards/tabs-metacards.view'
+    'component/tabs/metacards/tabs-metacards.view',
+    'js/router'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
-             MetacardTabsView, MetacardsTabsView) {
+             MetacardTabsView, MetacardsTabsView, router) {
 
     var debounceTime = 25;
 
@@ -119,20 +120,31 @@ define([
                 });
                 this._mapView = new Map2d();
             }
-            this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.updatePanelOne);
-            this.listenTo(store.get('content'), 'change:query', _.debounce(this.updatePanelTwo, debounceTime));
-            this.listenTo(store.getSelectedResults(), 'update',_.debounce(this.updatePanelTwo, debounceTime));
-            this.listenTo(store.getSelectedResults(), 'add', _.debounce(this.updatePanelTwo, debounceTime));
-            this.listenTo(store.getSelectedResults(), 'remove', _.debounce(this.updatePanelTwo, debounceTime));
-            this.listenTo(store.getSelectedResults(), 'reset', _.debounce(this.updatePanelTwo, debounceTime));
+            this.listenTo(store.get('router'), 'change', this.handleRoute);
+            this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);
+            var debouncedUpdatePanelTwo = _.debounce(this.updatePanelTwo, debounceTime);
+            this.listenTo(store.get('content'), 'change:query', debouncedUpdatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'update',debouncedUpdatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'add', debouncedUpdatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'remove', debouncedUpdatePanelTwo);
+            this.listenTo(store.getSelectedResults(), 'reset', debouncedUpdatePanelTwo);
+            this.handleRoute();
+        },
+        handleRoute: function(){
+            var router = store.get('router').toJSON();
+            if (router.name==='openWorkspace'){
+                this.$el.removeClass('is-hidden');
+            } else {
+                this.$el.addClass('is-hidden');
+            }
         },
         onRender: function(){
             this.updatePanelOne();
             this.hidePanelTwo();
+            this.menu.show(new MenuView());
             this.panelThree.show(this._mapView);
-            this.menu.show(new MenuView.Bar({model: new Backbone.Model(properties)}));
         },
-        updatePanelOne: function(){
+        updatePanelOne: function(arg1, arg2){
             this.panelOne.show(new WorkspaceContentTabsView({
                 model: new WorkspaceContentTabs()
             }));

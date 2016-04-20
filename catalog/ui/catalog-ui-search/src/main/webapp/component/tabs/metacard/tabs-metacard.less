@@ -1,0 +1,40 @@
+@{customElementNamespace}tabs.is-metacard {
+
+    .metacard-actions {
+      overflow: hidden;
+      line-height: 0px;
+      text-align: center;
+      .boxShadowBottom;
+      white-space: nowrap;
+      padding-bottom: 10px;
+    }
+
+    .metacard-action {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: inherit;
+      margin: 0px;
+      padding: 3px 10px;
+    }
+
+    .metacard-action:hover {
+      background: rgba(66,66,66,.9);
+      box-shadow: inset 0px 0px 1px 1px rgba(0,0,0,.1);
+    }
+
+    .metacard-action > div {
+      height: 22px;
+      line-height: 22px;
+    }
+
+    .action-text {
+      font-size: 14px;
+      //display: none;
+    }
+
+    .tabs-content {
+      height: ~'calc(100% - 2*@{minimumButtonSize})';
+    }
+  
+}

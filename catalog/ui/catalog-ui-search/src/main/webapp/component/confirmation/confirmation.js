@@ -18,7 +18,7 @@ define([
     return Backbone.Model.extend({
         defaults: {
             prompt: 'Default prompt.',
-            no: 'Default no',
+            no: undefined,
             yes: 'Default yes',
             choice: undefined
         },

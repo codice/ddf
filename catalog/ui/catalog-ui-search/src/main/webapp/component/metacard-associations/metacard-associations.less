@@ -1,0 +1,111 @@
+@{customElementNamespace}metacard-associations {
+
+  .list-association {
+    white-space: nowrap;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  .association-type,
+  .association-item,
+  .association-delete,
+  .association-info {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .association-info {
+    width: 100%;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .association-delete {
+    width: @minimumButtonSize;
+    text-align: center;
+  }
+
+  .association-item,
+  .association-type {
+    width: 50%;
+  }
+
+  .associations-add {
+    white-space: nowrap;
+  }
+
+  .add-type,
+  .add-select {
+    width: 50%;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+  }
+
+  .associations-addNew {
+    width: 100%;
+  }
+
+  .associations-footer {
+    white-space: nowrap;
+    font-size: 0px;
+    padding-top: 10px;
+  }
+
+  .associations-footer > button {
+    display: inline-block;
+  }
+
+  .associations-edit {
+    width: 100%;
+  }
+
+  .associations-cancel {
+    width: 50%;
+  }
+
+  .associations-save {
+    width: 50%;
+  }
+
+  .associations-cancel,
+  .associations-save,
+  .associations-editing,
+  .association-delete {
+    display: none;
+  }
+
+  .associations-editing {
+    padding-top: 10px;
+    padding-bottom: 20px;
+  }
+
+  .associations-addNew {
+    margin-top: 10px;
+  }
+
+}
+
+@{customElementNamespace}metacard-associations.is-editing {
+  .associations-edit {
+    display: none;
+  }
+
+  .associations-cancel,
+  .associations-save {
+    display: inline-block;
+  }
+
+  .associations-editing {
+    display: block;
+  }
+
+  .association-delete {
+    display: inline-block;
+  }
+
+  .association-info {
+    width: ~'calc(100% - @{minimumButtonSize})';
+  }
+
+}

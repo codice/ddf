@@ -6,8 +6,9 @@
 
   .customElement;
 
-  display: none;
-
+  transform: scale(0);
+  transition: transform @coreTransitionTime ease-in-out;
+  display: block;
   position: absolute;
   left: 0%;
   top: 0%;
@@ -17,7 +18,7 @@
   background: @lightboxIndicator;
 
   &.is-open {
-    display: block;
+    transform: scale(1);
   }
 
   .lightbox-container {

@@ -19,8 +19,9 @@ define([
     'js/model/source',
     'component/workspaces/workspaces',
     'js/model/Selected',
-    'component/content/content'
-], function (Backbone, poller, _, Workspace, Source, Workspaces, Selected, Content) {
+    'component/content/content',
+    'component/router/router'
+], function (Backbone, poller, _, Workspace, Source, Workspaces, Selected, Content, Router) {
 
     return new (Backbone.Model.extend({
         defaults: {
@@ -58,8 +59,7 @@ define([
             }));
             this.set('workspaces', this.initModel(Workspace.Collection, {
                 listeners: {
-                    'sync': this.handleWorkspaceSync,
-                    'remove': this.handleWorkspaceDestruction
+                    'sync': this.handleWorkspaceSync
                 }
             }));
             this.set('sources', this.initModel(Source, {
@@ -71,6 +71,9 @@ define([
                 persisted: false
             }));
             this.set('selected', this.initModel(Selected, {
+                persisted: false
+            }));
+            this.set('router', this.initModel(Router, {
                 persisted: false
             }));
         },
@@ -95,6 +98,9 @@ define([
                     this.get('content').set('currentWorkspace', this.get('workspaces').createWorkspace('My First Workspace'));
                 }
             }
+        },
+        setCurrentWorkspaceById: function(workspaceId){
+            this.get('content').set('currentWorkspace', this.get('workspaces').get(workspaceId));
         },
         getCurrentWorkspace: function () {
             return this.get('content').get('currentWorkspace');
@@ -163,6 +169,17 @@ define([
         },
         addMetacardTypes: function(metacardTypes){
             this.get('content').addMetacardTypes(metacardTypes);
+        },
+        saveCurrentSelection: function(){
+            var selectedResults = this.getSelectedResults().pluck('id');
+            var savedMetacards = _.union(this.getCurrentWorkspace().get('metacards'), selectedResults);
+            this.getCurrentWorkspace().set('metacards', savedMetacards);
+        },
+        saveCurrentWorkspace: function(){
+            this.getCurrentWorkspace().save();
+        },
+        deleteCurrentWorkspace: function(){
+            this.getCurrentWorkspace().destroy();
         }
     }))();
 });

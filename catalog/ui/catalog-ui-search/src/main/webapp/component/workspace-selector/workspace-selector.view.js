@@ -21,8 +21,9 @@ define([
     'js/CustomElements',
     'js/store',
     'component/confirmation/confirmation.view',
-    'component/confirmation/confirmation'
-], function (Marionette, _, $, workspaceSelectorTemplate, CustomElements, store, ConfirmationView, Confirmation) {
+    'js/router'
+], function (Marionette, _, $, workspaceSelectorTemplate, CustomElements, store, ConfirmationView,
+        router) {
 
     function getWorkspaceId(){
         return store.get('componentWorkspaces').getWorkspaceId();
@@ -123,7 +124,7 @@ define([
             }
         },
         openWorkspace: function(){
-            window.location.hash = '#workspace/'+getWorkspaceId();
+            router.navigate('workspaces/'+getWorkspaceId(), {trigger: true, replace: true});
         }
     });
 

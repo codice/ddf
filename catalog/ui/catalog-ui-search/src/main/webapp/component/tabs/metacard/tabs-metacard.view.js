@@ -17,11 +17,20 @@ define([
     'marionette',
     'underscore',
     'jquery',
+    'text!./tabs-metacard.hbs',
     '../tabs.view',
-    './tabs-metacard'
-], function (Marionette, _, $, TabsView, MetacardTabsModel) {
+    './tabs-metacard',
+    'js/store'
+], function (Marionette, _, $, template, TabsView, MetacardTabsModel, store) {
 
-    var QueryTabsView = TabsView.extend({
+    var extendedEvents = _.extend({}, TabsView.prototype.events, {
+        'click .metacard-save': 'saveToWorkspace'
+    });
+
+    return TabsView.extend({
+        template: template,
+        className: 'is-metacard',
+        events: extendedEvents,
         setDefaultModel: function(){
             this.model = new MetacardTabsModel();
         },
@@ -29,13 +38,14 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
-            TabsView.prototype.initialize.call(this)
+            TabsView.prototype.initialize.call(this);
         },
         determineContent: function(){
             var activeTab = this.model.getActiveView();
             this.tabsContent.show(new activeTab());
+        },
+        saveToWorkspace: function(event){
+            store.saveCurrentSelection();
         }
     });
-
-    return QueryTabsView;
 });

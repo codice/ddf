@@ -40,17 +40,14 @@
   &.is-editing {
 
     > .buttons {
-      .inlineBlockDisplay(button);
+      white-space: nowrap;
+      font-size: 0px;
 
       > button {
+        display: inline-block;
+
         &.edit {
           display: none;
-        }
-        &.cancel {
-          display: inline-block;
-        }
-        &.save {
-          display: inline-block;
         }
       }
     }

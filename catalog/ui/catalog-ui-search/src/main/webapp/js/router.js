@@ -9,26 +9,79 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, window*/
 
 define([
-    'marionette'
-], function (Marionette) {
+    'wreqr',
+    'jquery',
+    'marionette',
+    'js/store',
+    'component/confirmation/confirmation.view'
+], function (wreqr, $, Marionette, store, ConfirmationView) {
 
     var Router = Marionette.AppRouter.extend({
         controller: {
-            openWorkspace: function(){
+            openWorkspace: function(workspaceId){
+                console.log('route to specific workspace:'+workspaceId);
             },
             home: function(){
+                console.log('route to workspaces home');
             },
             workspaces: function(){
-                console.log('routing happened!');
+                console.log('route to workspaces home');
             }
         },
         appRoutes: {
-            'workspace/:id': 'openWorkspace',
-            'home': 'home',
-            'workspaces': 'workspaces'
+            'workspaces/:id(?*)': 'openWorkspace',
+            '(?*)': 'home',
+            'workspaces(/)': 'workspaces'
+        },
+        initialize: function(){
+            this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
+        },
+        handleNavigate: function(args){
+              this.navigate(args.fragment, args.options);
+        },
+        onRoute: function(name, path, args){
+            switch(name){
+                case 'openWorkspace':
+                    var workspaceId = args[0];
+                    if (store.get('workspaces').get(workspaceId)!==undefined) {
+                        store.setCurrentWorkspaceById(workspaceId);
+                        this.updateRoute(name, path, args);
+                    } else {
+                        this.listenTo(ConfirmationView.generateConfirmation({
+                                prompt: 'Workspace has been deleted.  To access this workspace, ' +
+                                'please restore it first.',
+                                yes: 'Go to Workspaces home screen'
+                            }),
+                            'change:choice',
+                            function(){
+                                wreqr.vent.trigger('router:navigate', {
+                                    fragment: 'workspaces',
+                                    options: {
+                                        trigger: true
+                                    }
+                                });
+                            });
+                    }
+                    break;
+                case 'home':
+                    this.updateRoute(name, path, args);
+                    break;
+                case 'workspaces':
+                    this.updateRoute(name, path, args);
+                    break;
+            }
+        },
+        updateRoute: function(name, path, args){
+            store.get('router').set({
+                name: name,
+                path: path,
+                args: args
+            });
+            $(window).trigger('resize');
+            wreqr.vent.trigger('resize');
         }
     });
 

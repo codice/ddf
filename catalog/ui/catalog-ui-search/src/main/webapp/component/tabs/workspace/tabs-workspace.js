@@ -16,8 +16,8 @@ define([
     'js/store',
     'component/editor/workspace-basic/workspace-basic.view',
     'component/editor/workspace-advanced/workspace-advanced.view',
-    'component/workspace-history/workspace-history.view',
-    'component/workspace-associations/workspace-associations.view',
+    'component/metacard-history/metacard-history.view',
+    'component/metacard-associations/metacard-associations.view',
     'component/workspace-sharing/workspace-sharing.view'
 ], function (_, Tabs, store, workspaceBasicView, workspaceAdvancedView, workspaceHistoryView,
 workspaceAssociationsView, workspaceSharingView) {

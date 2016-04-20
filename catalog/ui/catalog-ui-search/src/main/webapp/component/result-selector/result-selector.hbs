@@ -49,19 +49,26 @@
     </div>
 </div>
 <div class="resultSelector-result resultSelector-result-example">
-    <div class="resultSelector-resultTitle">
-        <span>
-            Title
-        </span>
+    <div class="result-details">
+        <div class="detail-title">
+            <span>
+                Title
+            </span>
+        </div>
+        <div class="detail-source">
+            <span>
+                Source
+            </span>
+        </div>
+        <div class="detail-lastModified">
+            <span>
+                Last Modified
+            </span>
+        </div>
     </div>
-    <div class="resultSelector-resultSource">
+    <div class="result-validation">
         <span>
-            Source
-        </span>
-    </div>
-    <div class="resultSelector-resultLastModified">
-        <span>
-            Last Modified
+
         </span>
     </div>
 </div>
@@ -69,29 +76,42 @@
     {{#each this}}
             <div class="resultSelector-result is-button" data-metacard-id="{{id}}" data-index="{{@key}}"
                  data-query-id="{{metacard.queryId}}">
-                <div class="resultSelector-resultTitle">
-                    <span>
-                        {{metacard.properties.title}}
-                    </span>
-                </div>
-                <div class="resultSelector-resultSource">
-                    {{#if local}}
-                        <span class="fa fa-home">
-
-                        </span>
-                    {{else}}
-                        <span class="fa fa-cloud">
-
-                        </span>
+                <div class="result-details">
+                    <div class="detail-title">
                         <span>
-                            {{metacard.properties.source-id}}
+                            {{metacard.properties.title}}
+                        </span>
+                    </div>
+                    <div class="detail-source">
+                        {{#if local}}
+                            <span class="fa fa-home">
+
+                            </span>
+                        {{else}}
+                            <span class="fa fa-cloud">
+
+                            </span>
+                            <span>
+                                {{metacard.properties.source-id}}
+                            </span>
+                        {{/if}}
+                    </div>
+                    <div class="detail-lastModified">
+                        <span>
+                            {{niceDiff}}
+                        </span>
+                    </div>
+                </div>
+                <div class="result-validation">
+                    {{#if hasError}}
+                        <span class="fa fa-exclamation-triangle resultError">
+
+                        </span>
+                    {{else if hasWarning}}
+                        <span class="fa fa-exclamation-triangle resultWarning">
+
                         </span>
                     {{/if}}
-                </div>
-                <div class="resultSelector-resultLastModified">
-                    <span>
-                        {{niceDiff}}
-                    </span>
                 </div>
             </div>
     {{/each}}

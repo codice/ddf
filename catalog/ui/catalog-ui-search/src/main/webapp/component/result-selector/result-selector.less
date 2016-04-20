@@ -4,7 +4,7 @@
   padding: 10px;
   .resultSelector-list {
     overflow: auto;
-    max-height: ~'calc(100% - 155px)';
+    height: ~'calc(100% - 155px)';
   }
 
   .resultSelector-result-example {
@@ -14,13 +14,30 @@
   }
 
   .resultSelector-result {
-      padding: 0px 10px;
-      .inlineBlockDisplay(div);
-      height: 2*@minimumLineSize;
-      vertical-align: middle;
+    white-space: nowrap;
+    padding: 0px 10px;
+    height: 2*@minimumLineSize;
   }
 
-  .resultSelector-result > div > span {
+  .result-details,
+  .result-validation {
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+  }
+
+  .result-details {
+    width: ~'calc(100% - 30px)';
+    height: 100%;
+  }
+
+  .result-validation {
+    width: 30px;
+    line-height: 2*@minimumLineSize;
+    text-align: center;
+  }
+
+  .resultSelector-result span {
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -31,17 +48,26 @@
     line-height: inherit;
   }
 
-  .resultSelector-resultTitle {
+  .detail-title {
     width: 100%;
     height: @minimumLineSize;
     line-height: @minimumLineSize;
   }
 
-  .resultSelector-resultSource,
-  .resultSelector-resultLastModified {
+  .detail-source,
+  .detail-lastModified {
+    display: inline-block;
     width: 50%;
     height: @minimumLineSize;
     line-height: @minimumLineSize;
+  }
+
+  .resultError {
+     color: @negative-color !important;
+   }
+
+  .resultWarning {
+    color: @warning-color !important;
   }
 
   .resultSelector-menu {

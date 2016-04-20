@@ -1,0 +1,78 @@
+@{customElementNamespace}metacard-history {
+  @buttonMargin: 10px;
+
+  @valueWidth: 60%;
+
+  .customElement;
+
+  overflow: hidden;
+  padding: 10px 10px;
+
+  .metacardHistory-row {
+    transition: padding @transitionTime linear;
+  }
+
+  .metacardHistory-header {
+    height: 50px;
+  }
+  .metacardHistory-body {
+    max-height: ~"calc(100% - @{minimumButtonSize}*2 - 20px - @{buttonMargin})";
+    overflow: auto;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .metacardHistory-cell {
+    float: left;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .metacardHistory-version {
+    width: 20%;
+  }
+
+  .metacardHistory-date {
+    width: 50%;
+  }
+
+  .metacardHistory-user {
+    width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  button {
+    margin-top: @buttonMargin;
+    width: 100%;
+    text-align: center;
+    height: @minimumButtonSize;
+    display: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &.has-selection {
+    button {
+      display: block;
+    }
+  }
+
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}metacard-history {
+    @buttonMargin: 10px;
+
+    .metacardHistory-body {
+      max-height: ~"calc(100% - @{minimumButtonSize}*4 - 19px - @{buttonMargin})";
+      overflow: auto;
+    }
+
+    .metacardHistory-cell {
+      display: block;
+      width: 100%;
+    }
+  }
+}
