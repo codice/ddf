@@ -45,11 +45,23 @@ public class GeoNamesWebService implements GeoCoder {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesWebService.class);
 
     //geonames requires an application username, this is the default name for DDF
-    protected String username = "ddf_ui";
+    private static final String USERNAME = "ddf_ui";
 
-    protected String geoNamesApiServer = "api.geonames.org";
+    private static final String GEONAMES_API_ADDRESS = "api.geonames.org";
 
-    protected String geoNamesProtocol = "http";
+    private static final String GEONAMES_PROTOCOL = "http";
+
+    private static final String GEONAMES_KEY = "geonames";
+
+    private static final String LAT_KEY = "lat";
+
+    private static final String LON_KEY = "lng";
+
+    private static final String POPULATION_KEY = "population";
+
+    private static final String ADMIN_CODE_KEY = "fcode";
+
+    private static final String PLACENAME_KEY = "name";
 
     @Override
     public GeoResult getLocation(String location) {
@@ -57,31 +69,28 @@ public class GeoNamesWebService implements GeoCoder {
         location = getUrlEncodedLocation(location);
 
         String urlStr = String.format("%s://%s/searchJSON?q=%s&username=%s",
-                geoNamesProtocol,
-                geoNamesApiServer,
+                GEONAMES_PROTOCOL,
+                GEONAMES_API_ADDRESS,
                 location,
-                username);
+                USERNAME);
 
         Object result = query(urlStr);
 
         if (result != null) {
             if (result instanceof JSONObject) {
                 JSONObject jsonResult = (JSONObject) result;
-                JSONArray geonames = (JSONArray) jsonResult.get("geonames");
+                JSONArray geonames = (JSONArray) jsonResult.get(GEONAMES_KEY);
                 if (geonames != null && geonames.size() > 0) {
                     JSONObject firstResult = (JSONObject) geonames.get(0);
                     if (firstResult != null) {
-                        double lat = Double.valueOf((String) firstResult.get("lat"));
-                        double lon = Double.valueOf((String) firstResult.get("lng"));
+                        double lat = Double.valueOf((String) firstResult.get(LAT_KEY));
+                        double lon = Double.valueOf((String) firstResult.get(LON_KEY));
 
-                        Long population = (Long) firstResult.get("population");
-                        String adminCode = (String) firstResult.get("fcode");
+                        Long population = (Long) firstResult.get(POPULATION_KEY);
+                        String adminCode = (String) firstResult.get(ADMIN_CODE_KEY);
 
-                        return GeoResultCreator.createGeoResult((String) firstResult.get("name"),
-                                lat,
-                                lon,
-                                adminCode,
-                                population);
+                        return GeoResultCreator.createGeoResult((String) firstResult.get(
+                                PLACENAME_KEY), lat, lon, adminCode, population);
                     }
                 }
             }
@@ -130,6 +139,7 @@ public class GeoNamesWebService implements GeoCoder {
         return location;
     }
 
+    @Override
     public NearbyLocation getNearbyCity(String locationWkt) {
         if (locationWkt == null) {
             throw new IllegalArgumentException("argument 'locationWkt' may not be null.");
@@ -138,24 +148,24 @@ public class GeoNamesWebService implements GeoCoder {
         Point wktCenterPoint = createPointFromWkt(locationWkt);
 
         String urlStr = String.format(
-                "%s://%s/findNearbyPlaceNameJSON?lat=%f&lng=%f&maxRows=1&username=%s",
-                geoNamesProtocol,
-                geoNamesApiServer,
+                "%s://%s/findNearbyPlaceNameJSON?lat=%f&lng=%f&maxRows=1&username=%s&cities=cities5000",
+                GEONAMES_PROTOCOL,
+                GEONAMES_API_ADDRESS,
                 wktCenterPoint.getY(),
                 wktCenterPoint.getX(),
-                username);
+                USERNAME);
 
         Object result = query(urlStr);
 
         if (result instanceof JSONObject) {
             JSONObject jsonResult = (JSONObject) result;
-            JSONArray geonames = (JSONArray) jsonResult.get("geonames");
+            JSONArray geonames = (JSONArray) jsonResult.get(GEONAMES_KEY);
             if (geonames != null && geonames.size() > 0) {
                 JSONObject firstResult = (JSONObject) geonames.get(0);
                 if (firstResult != null) {
-                    double lat = Double.valueOf((String) firstResult.get("lat"));
-                    double lon = Double.valueOf((String) firstResult.get("lng"));
-                    String cityName = (String) firstResult.get("adminName1");
+                    double lat = Double.valueOf((String) firstResult.get(LAT_KEY));
+                    double lon = Double.valueOf((String) firstResult.get(LON_KEY));
+                    String cityName = (String) firstResult.get(PLACENAME_KEY);
                     Point cityPoint = new PointImpl(lon, lat, SpatialContext.GEO);
 
                     return new NearbyLocationImpl(wktCenterPoint, cityPoint, cityName);

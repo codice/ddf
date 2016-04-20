@@ -87,7 +87,7 @@ public class TestGeoNamesWebService {
     }
 
     @Test
-    public void testQuery() {
+    public void testGetNearbyCity() {
         WebClient webClientMock = mock(WebClient.class);
         when(webClientMock.acceptEncoding(anyString())).thenReturn(webClientMock);
         when(webClientMock.accept(anyString())).thenReturn(webClientMock);
@@ -99,6 +99,6 @@ public class TestGeoNamesWebService {
         assertThat(nearbyLocation.getCardinalDirection(), equalTo("W"));
         assertThat(nearbyLocation.getDistance(), greaterThan(14.0));
         assertThat(nearbyLocation.getDistance(), lessThan(15.0));
-        assertThat(nearbyLocation.getName(), equalTo("Aswān"));
+        assertThat(nearbyLocation.getName(), equalTo("Qaryat Wādī ‘Abbādī 2"));
     }
 }
