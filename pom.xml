@@ -426,6 +426,7 @@
                         <additionalparam>
                             -Xdoclint:none
                         </additionalparam>
+                        <outputDirectory>${project.build.directory}</outputDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -683,7 +684,9 @@
         <profile>
             <id>javadoc</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <file>
+                    <exists>javadoc-descriptor.xml</exists>
+                </file>
             </activation>
             <build>
                 <plugins>
@@ -706,6 +709,21 @@
                                     </reportOutputDirectory>
                                     <destDir>api</destDir>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <configuration>
+                                    <descriptor>javadoc-descriptor.xml</descriptor>
+                                </configuration>
+                                <id>package-javadoc</id>
+                                <phase>site</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
