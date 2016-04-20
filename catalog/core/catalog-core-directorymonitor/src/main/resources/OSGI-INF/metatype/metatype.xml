@@ -25,8 +25,8 @@
             name="Copy Files to Backup Directory" id="copyIngestedFiles" required="false"
             type="Boolean" default="false"/>
 
-        <AD description="Optional: Parameters (Key-Value pairs) that are available to any registered ingest plugin.  The format should be 'key=value'."
-            name="Parameters" id="parameters" required="false" type="String"
+        <AD description="Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor.  If an attribute is specified here, it will overwrite the metacard's attribute that was created from the content directory.   The format should be 'key=value'."
+            name="Attribute Overrides" id="attributeOverrides" required="false" type="String"
             cardinality="100"
             default="" />
     </OCD>

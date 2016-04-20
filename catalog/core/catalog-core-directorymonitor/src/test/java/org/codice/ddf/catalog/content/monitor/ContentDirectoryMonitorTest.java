@@ -38,6 +38,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.Constants;
+
 public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitorTest.class);
 
@@ -54,7 +56,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     private Processor noOpProcessor = exchange -> {
     };
 
-    private static final List<String> PARAMETERS = Arrays.asList("test1=someParameter1",
+    private static final List<String> ATTRIBUTE_OVERRIDES = Arrays.asList("test1=someParameter1",
             "test2=someParameter2");
 
     @After
@@ -257,14 +259,12 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         contentDirectoryMonitor.systemSubjectBinder = noOpProcessor;
         contentDirectoryMonitor.setMonitoredDirectoryPath(MONITORED_DIRECTORY);
         contentDirectoryMonitor.setCopyIngestedFiles(copyIngestedFiles);
-        contentDirectoryMonitor.setParameters(PARAMETERS);
+        contentDirectoryMonitor.setAttributeOverrides(ATTRIBUTE_OVERRIDES);
         contentDirectoryMonitor.init();
         RouteDefinition routeDefinition = camelContext.getRouteDefinitions()
                 .get(0);
         assertThat(routeDefinition.toString(), containsString(
-                "SetHeader[test1, simple{Simple: someParameter1"));
-        assertThat(routeDefinition.toString(), containsString(
-                "SetHeader[test2, simple{Simple: someParameter2"));
+                "SetHeader[" + Constants.ATTRIBUTE_OVERRIDES_KEY + ", simple{Simple: test1=someParameter1,test2=someParameter2}"));
     }
 
     /**

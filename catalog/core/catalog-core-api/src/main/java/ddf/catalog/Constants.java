@@ -164,4 +164,6 @@ public final class Constants {
     public static final String OPERATION_TRANSACTION_KEY = "operation-transaction";
 
     public static final String CONTENT_PATHS = "content-paths";
+
+    public static final String ATTRIBUTE_OVERRIDES_KEY = "attributeOverrides";
 }
