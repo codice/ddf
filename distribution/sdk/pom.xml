@@ -33,6 +33,7 @@
         <module>sample-metacard-filter</module>
         <module>sample-cometd</module>
         <module>sample-metacard-validator</module>
+        <module>sample-storageplugins</module>
         <module>sdk-app</module>
     </modules>
     <repositories>

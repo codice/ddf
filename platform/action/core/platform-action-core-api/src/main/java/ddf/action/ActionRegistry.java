@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,9 +18,8 @@ import java.util.List;
 /**
  * This class is used to find all {@link Action} objects that correspond to a certain input object.
  *
- * @author Ashraf Barakat
- * @author ddf.isgs@lmco.com
- *
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
  */
 public interface ActionRegistry {
 
@@ -33,5 +32,5 @@ public interface ActionRegistry {
      *         empty list if no actions can be applied.
      *
      */
-    public <T> List<Action> list(T subject);
+    <T> List<Action> list(T subject);
 }

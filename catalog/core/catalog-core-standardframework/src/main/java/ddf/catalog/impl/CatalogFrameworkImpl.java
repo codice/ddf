@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -309,7 +310,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -331,7 +332,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -360,7 +361,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local storage provider will be set to the first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework.
      *
@@ -378,7 +379,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p>
+     * <p/>
      * The local storage provider will be reset to the new first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
      * currently empty, then the local storage provider will be set to <code>null</code>.
@@ -500,8 +501,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
 
         } catch (RuntimeException re) {
-            LOGGER.warn(
-                    "Exception during runtime while performing getSourceInfo: {}",
+            LOGGER.warn("Exception during runtime while performing getSourceInfo: {}",
                     re.getMessage());
             LOGGER.debug("Exception during runtime while performing getSourceInfo", re);
             throw new SourceUnavailableException(
@@ -689,7 +689,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             for (InputTransformer candidate : listOfCandidates) {
                 transformer = candidate;
 
-                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
+                try (InputStream transformerStream = com.google.common.io.Files.asByteSource(
+                        tmpContentPath.toFile())
                         .openStream()) {
                     generatedMetacard = transformer.transform(transformerStream);
                 }
@@ -760,10 +761,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         return fileName;
     }
 
-    private String guessMimeType(String mimeTypeRaw, String fileName,
-            Path tmpContentPath) throws IOException {
+    private String guessMimeType(String mimeTypeRaw, String fileName, Path tmpContentPath)
+            throws IOException {
         if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
-            try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
+            try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
+                    tmpContentPath.toFile())
                     .openStream()) {
                 String mimeTypeGuess = frameworkProperties.getMimeTypeMapper()
                         .guessMimeType(inputStreamMessageCopy,
@@ -776,7 +778,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
             if (ContentItem.DEFAULT_MIME_TYPE.equals(mimeTypeRaw)) {
                 Detector detector = new DefaultProbDetector();
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
+                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
+                        tmpContentPath.toFile())
                         .openStream()) {
                     MediaType mediaType = detector.detect(inputStreamMessageCopy, new Metadata());
                     mimeTypeRaw = mediaType.toString();
@@ -785,7 +788,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
             if (mimeTypeRaw.equals("text/plain")) {
-                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(tmpContentPath.toFile())
+                try (InputStream inputStreamMessageCopy = com.google.common.io.Files.asByteSource(
+                        tmpContentPath.toFile())
                         .openStream();
                         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
                                 inputStreamMessageCopy,
@@ -843,9 +847,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     IOUtils.closeQuietly(contentItem.getInputStream());
                 }
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
-                mimeTypeRaw = guessMimeType(mimeTypeRaw,
-                        contentItem.getFilename(),
-                        tmpPath);
+                mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(), tmpPath);
 
                 String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
                 Metacard metacard = generateMetacard(mimeTypeRaw,
@@ -909,7 +911,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
-        streamCreateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
+        streamCreateRequest.getProperties()
+                .put(CONTENT_PATHS, tmpContentPaths);
 
         CreateStorageRequest createStorageRequest = null;
         CreateResponse createResponse;
@@ -931,7 +934,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 CreateStorageResponse createStorageResponse;
                 try {
                     createStorageResponse = storage.create(createStorageRequest);
-                    createStorageResponse.getProperties().put(CONTENT_PATHS, tmpContentPaths);
+                    createStorageResponse.getProperties()
+                            .put(CONTENT_PATHS, tmpContentPaths);
                 } catch (StorageException e) {
                     throw new IngestException("Could not store content items.", e);
                 }
@@ -1020,7 +1024,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 INGEST_LOGGER.warn(
                         "Error on create operation, local provider not available. {} metacards failed to ingest. {}",
                         createRequest.getMetacards()
-                                .size(), buildIngestLog(createRequest), sourceUnavailableException);
+                                .size(),
+                        buildIngestLog(createRequest),
+                        sourceUnavailableException);
             }
             throw sourceUnavailableException;
         }
@@ -1070,8 +1076,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             validateCreateRequest(createRequest);
 
             // Call the create on the catalog
-            LOGGER.debug("Calling catalog.create() with {} entries.", createRequest.getMetacards()
-                    .size());
+            LOGGER.debug("Calling catalog.create() with {} entries.",
+                    createRequest.getMetacards()
+                            .size());
 
             if (Requests.isLocal(createRequest)) {
                 createResponse = catalog.create(createRequest);
@@ -1105,7 +1112,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             if (ingestError != null && INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on create operation. {} metacards failed to ingest. {}",
                         createRequest.getMetacards()
-                                .size(), buildIngestLog(createRequest), ingestError);
+                                .size(),
+                        buildIngestLog(createRequest),
+                        ingestError);
             }
         }
 
@@ -1132,7 +1141,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         if (INGEST_LOGGER.isDebugEnabled()) {
             INGEST_LOGGER.debug("{} metacards were successfully ingested. {}",
                     createRequest.getMetacards()
-                            .size(), buildIngestLog(createRequest));
+                            .size(),
+                    buildIngestLog(createRequest));
         }
         return createResponse;
     }
@@ -1171,7 +1181,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 metacardMap,
                 contentItems,
                 tmpContentPaths);
-        streamUpdateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
+        streamUpdateRequest.getProperties()
+                .put(CONTENT_PATHS, tmpContentPaths);
 
         UpdateResponse updateResponse;
         UpdateStorageRequest updateStorageRequest = null;
@@ -1194,7 +1205,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 UpdateStorageResponse updateStorageResponse;
                 try {
                     updateStorageResponse = storage.update(updateStorageRequest);
-                    updateStorageResponse.getProperties().put(CONTENT_PATHS, tmpContentPaths);
+                    updateStorageResponse.getProperties()
+                            .put(CONTENT_PATHS, tmpContentPaths);
                 } catch (StorageException e) {
                     throw new IngestException(
                             "Could not store content items. Removed created metacards.",
@@ -2411,8 +2423,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 }
             }
 
-            resourceResponse.getProperties().put(Constants.METACARD_PROPERTY, metacard);
-        } catch(DataUsageLimitExceededException e) {
+            resourceResponse.getProperties()
+                    .put(Constants.METACARD_PROPERTY, metacard);
+        } catch (DataUsageLimitExceededException e) {
             LOGGER.error("RuntimeException caused by: ", e);
             throw e;
         } catch (RuntimeException e) {
@@ -2436,7 +2449,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p>
+     * <p/>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -2467,6 +2480,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
                 if (value instanceof URI) {
                     resourceUri = (URI) value;
+                    if (StringUtils.isNotBlank(resourceUri.getFragment())) {
+                        resourceRequest.getProperties()
+                                .put(ContentItem.QUALIFIER, resourceUri.getFragment());
+                        try {
+                            resourceUri = new URI(resourceUri.getScheme(),
+                                    resourceUri.getSchemeSpecificPart(),
+                                    null);
+                        } catch (URISyntaxException e) {
+                            throw new ResourceNotFoundException(
+                                    "Could not resolve URI by doing a URI based query: " + value);
+                        }
+                    }
 
                     Query propertyEqualToUriQuery =
                             createPropertyIsEqualToQuery(Metacard.RESOURCE_URI,

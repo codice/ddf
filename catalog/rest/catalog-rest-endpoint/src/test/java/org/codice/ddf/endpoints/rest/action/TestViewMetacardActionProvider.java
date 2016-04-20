@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -14,10 +14,10 @@
 package org.codice.ddf.endpoints.rest.action;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
@@ -31,7 +31,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
 
     @Test
     public void testMetacardNull() {
-        assertEquals(null, new ViewMetacardActionProvider(ACTION_PROVIDER_ID).getAction(null));
+        assertThat(new ViewMetacardActionProvider(ACTION_PROVIDER_ID).getActions(null), hasSize(0));
     }
 
     @Test
@@ -49,8 +49,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertNull("A bad url should have been caught and a null action returned.",
-                actionProvider.getAction(metacard));
+        assertThat("A bad url should have been caught and an empty list returned.",
+                actionProvider.getActions(metacard),
+                hasSize(0));
 
     }
 
@@ -67,7 +68,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         this.configureActionProvider();
 
         // when
-        String url = actionProvider.getAction(metacard)
+        String url = actionProvider.getActions(metacard)
+                .get(0)
                 .getUrl()
                 .toString();
 
@@ -89,7 +91,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         this.configureActionProvider();
 
         // when
-        String url = actionProvider.getAction(metacard)
+        String url = actionProvider.getActions(metacard)
+                .get(0)
                 .getUrl()
                 .toString();
 
@@ -109,8 +112,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
-        assertNull("An action should not have been created when no id is provided.",
-                actionProvider.getAction(metacard));
+        assertThat("An action should not have been created when no id is provided.",
+                actionProvider.getActions(metacard),
+                hasSize(0));
 
     }
 
@@ -130,7 +134,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertThat(actionProvider.getAction(metacard)
+        assertThat(actionProvider.getActions(metacard)
+                .get(0)
                 .getUrl()
                 .toString(), containsString("localhost"));
 
@@ -152,8 +157,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertNull("An action should not have been created when ip is unknown (0.0.0.0).",
-                actionProvider.getAction(metacard));
+        assertThat("An action should not have been created when ip is unknown (0.0.0.0).",
+                actionProvider.getActions(metacard),
+                hasSize(0));
     }
 
     @Test
@@ -172,7 +178,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        assertThat(actionProvider.getAction(metacard)
+        assertThat(actionProvider.getActions(metacard)
+                .get(0)
                 .getUrl()
                 .toString(), containsString("8181"));
     }
@@ -193,7 +200,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 null,
                 SAMPLE_SOURCE_NAME);
 
-        assertThat(actionProvider.getAction(metacard)
+        assertThat(actionProvider.getActions(metacard)
+                .get(0)
                 .getUrl()
                 .toString(), not(containsString("/services")));
     }
@@ -205,8 +213,9 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 ACTION_PROVIDER_ID);
         this.configureActionProvider();
 
-        assertNull("An action when metacard was not provided.",
-                actionProvider.getAction(new Date()));
+        assertThat("An action when metacard was not provided.",
+                actionProvider.getActions(new Date()),
+                hasSize(0));
 
     }
 
@@ -223,7 +232,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         this.configureActionProvider();
 
         // when
-        Action action = actionProvider.getAction(metacard);
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
 
         // then
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
@@ -250,7 +260,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
         this.configureActionProvider();
 
         // when
-        Action action = actionProvider.getAction(metacard);
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
 
         // then
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
@@ -271,7 +282,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 ACTION_PROVIDER_ID);
         this.configureSecureActionProvider();
 
-        Action action = actionProvider.getAction(metacard);
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
 
         assertEquals(ViewMetacardActionProvider.TITLE, action.getTitle());
         assertEquals(ViewMetacardActionProvider.DESCRIPTION, action.getDescription());
@@ -300,7 +312,8 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
                 SAMPLE_SERVICES_ROOT,
                 SAMPLE_SOURCE_NAME);
 
-        Action action = actionProvider.getAction(metacard);
+        Action action = actionProvider.getActions(metacard)
+                .get(0);
 
         //when null protocal should default to https
         assertThat(action.getUrl()

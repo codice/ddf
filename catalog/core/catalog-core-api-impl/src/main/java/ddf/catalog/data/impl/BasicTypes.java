@@ -287,7 +287,18 @@ public class BasicTypes {
                 false /* tokenized */,
                 false /* multivalued */,
                 STRING_TYPE));
-
+        descriptors.add(new AttributeDescriptorImpl(Metacard.DERIVED_RESOURCE_URI,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
         return descriptors;
     }
 

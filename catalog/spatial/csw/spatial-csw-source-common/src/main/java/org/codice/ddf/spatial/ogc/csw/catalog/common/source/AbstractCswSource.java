@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -85,6 +85,7 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
@@ -1174,6 +1175,14 @@ public abstract class AbstractCswSource extends MaskableImpl
                         wrappedMetacard.getAttribute(Metacard.RESOURCE_DOWNLOAD_URL)
                                 .getValue());
             }
+            if (wrappedMetacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL) != null
+                    && !wrappedMetacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                    .getValues()
+                    .isEmpty()) {
+                wrappedMetacard.setAttribute(new AttributeImpl(Metacard.DERIVED_RESOURCE_URI,
+                        wrappedMetacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                                .getValues()));
+            }
             Metacard tranformedMetacard = wrappedMetacard;
             if (transformer != null) {
                 tranformedMetacard = transform(metacard, transformer);
@@ -1319,7 +1328,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     /**
      * Parses the getRecords {@link Operation} to understand the capabilities of the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server. A
      * sample GetRecords Operation may look like this:
-     * <p>
+     * <p/>
      * <pre>
      *   <ows:Operation name="GetRecords">
      *     <ows:DCP>
@@ -1647,7 +1656,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     /**
      * Callback class to check the Availability of the CswSource.
-     * <p>
+     * <p/>
      * NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
      * have an AvailabilityTask that cached each Source's availability. Until that is done, allow
      * the command to handle the logic of managing availability.

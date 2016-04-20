@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,7 @@ package ddf.catalog.cache.impl;
 
 import java.util.Set;
 
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
 
@@ -56,9 +57,11 @@ public class CacheKey {
         // that alters the InputStream to be read for resource retrieval, so only look for that 
         // option when generating the unique cache key.
         for (String propertyName : names) {
-            if (propertyName.equals(ResourceRequest.OPTION_ARGUMENT)) {
+            if (ResourceRequest.OPTION_ARGUMENT.equals(propertyName)
+                    || ContentItem.QUALIFIER.equals(propertyName)) {
                 properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(
                         propertyName);
+                break;
             }
         }
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -207,6 +207,34 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         final String url = CSW_PATH.getUrl() + Library.getGetRecordByIdProductRetrievalUrl()
                 .replace("placeholder_id", id);
+
+        given().get(url)
+                .then()
+                .log()
+                .headers()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testReadDerivedStorage() throws IOException {
+        String fileName = testName.getMethodName() + ".jpg";
+        File tmpFile = createTemporaryFile(fileName,
+                TestCatalog.class.getResourceAsStream(SAMPLE_IMAGE));
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(201)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        final String url = REST_PATH.getUrl() + "sources/ddf.distribution/" + id
+                + "?transform=resource&qualifier=preview";
 
         given().get(url)
                 .then()
@@ -792,19 +820,17 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .getHeader("id");
 
         final String url =
-                REST_PATH.getUrl() + "sources/ddf.distribution/"+id+"?transform=resource";
+                REST_PATH.getUrl() + "sources/ddf.distribution/" + id + "?transform=resource";
 
-        LOGGER.error("URL: "+url);
+        LOGGER.error("URL: " + url);
 
         //Get the product once
-        get(url)
-                .then()
+        get(url).then()
                 .log()
                 .headers();
 
         //Get again to hit the cache
-        get(url)
-                .then()
+        get(url).then()
                 .log()
                 .headers()
                 .assertThat()
@@ -1563,8 +1589,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .assertThat()
                     .body(hasXPath(newMetacardXpath))
                     .body(hasXPath(newMetacardXpath + "/type", is("new.metacard.type")))
-                    .body(hasXPath("count(" + newMetacardXpath + "/string[@name=\"validation-errors\"]/value)",
-                            is("2")))
+                    .body(hasXPath("count(" + newMetacardXpath
+                            + "/string[@name=\"validation-errors\"]/value)", is("2")))
                     .body(hasXPath(newMetacardXpath
                             + "/string[@name=\"validation-errors\"]/value[text()=\"point-of-contact is required\"]"))
                     .body(hasXPath(newMetacardXpath

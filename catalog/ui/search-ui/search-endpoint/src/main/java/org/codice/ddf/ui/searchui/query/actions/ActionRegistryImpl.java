@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,8 @@ package org.codice.ddf.ui.searchui.query.actions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
@@ -32,14 +34,16 @@ public class ActionRegistryImpl implements ActionRegistry {
     }
 
     public <Metacard> List<Action> list(Metacard metacard) {
-        List<Action> actions = new ArrayList<Action>();
+        List<Action> availableActions = new ArrayList<>();
 
         for (ActionProvider provider : providers) {
-            Action action = provider.getAction(metacard);
-            if (action != null && !actions.contains(action)) {
-                actions.add(action);
+            if (provider.canHandle(metacard)) {
+                List<Action> actions = provider.getActions(metacard);
+                if (!CollectionUtils.isEmpty(actions)) {
+                    availableActions.addAll(actions);
+                }
             }
         }
-        return actions;
+        return availableActions;
     }
 }

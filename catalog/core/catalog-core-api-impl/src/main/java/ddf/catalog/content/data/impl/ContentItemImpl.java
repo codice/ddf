@@ -65,7 +65,8 @@ public class ContentItemImpl implements ContentItem {
     public ContentItemImpl(ByteSource byteSource, String mimeTypeRawData, String filename,
             Metacard metacard) {
         this(UUID.randomUUID()
-                .toString(), byteSource, mimeTypeRawData, filename, 0, metacard);
+                .toString()
+                .replaceAll("-", ""), byteSource, mimeTypeRawData, filename, 0, metacard);
     }
 
     /**

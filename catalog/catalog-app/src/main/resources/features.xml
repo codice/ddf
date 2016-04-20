@@ -61,12 +61,8 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/catalog-core-contentresourcereader/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf/checksum/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-checksum/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-videothumbnail/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-camelcomponent/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
@@ -89,6 +85,15 @@
         <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
         </configfile>
+    </feature>
+
+    <feature name="catalog-core-content" install="auto" version="${project.version}"
+             description="Core features for content">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-contentresourcereader/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf/checksum/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-checksum/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-videothumbnail/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-directorymonitor" install="auto" version="${project.version}"

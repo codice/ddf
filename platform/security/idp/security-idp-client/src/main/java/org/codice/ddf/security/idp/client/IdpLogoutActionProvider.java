@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,8 @@ package org.codice.ddf.security.idp.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.subject.Subject;
@@ -42,12 +44,12 @@ public class IdpLogoutActionProvider implements ActionProvider {
     EncryptionService encryptionService;
 
     /***
-     * @param realmSubjectMap containing a realm of "idp" with the corresponding subject
      * @param <T>             is a Map<String, Subject>
+     * @param realmSubjectMap containing a realm of "idp" with the corresponding subject
      * @return IdpLogoutActionProvider containing the logout url
      */
     @Override
-    public <T> Action getAction(T realmSubjectMap) {
+    public <T> List<Action> getActions(T realmSubjectMap) {
 
         URL logoutUrl = null;
         if (realmSubjectMap instanceof Map) {
@@ -71,7 +73,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
                         e);
             }
         }
-        return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
+        return Arrays.asList(new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl));
     }
 
     @Override
@@ -81,6 +83,11 @@ public class IdpLogoutActionProvider implements ActionProvider {
 
     public void setEncryptionService(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
+    }
+
+    @Override
+    public <T> boolean canHandle(T subject) {
+        return subject instanceof Map;
     }
 
 }

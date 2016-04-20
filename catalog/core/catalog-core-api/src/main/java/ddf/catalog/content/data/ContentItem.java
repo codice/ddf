@@ -40,6 +40,8 @@ public interface ContentItem {
 
     String DEFAULT_FILE_NAME = "content_store_file.bin";
 
+    String QUALIFIER = "qualifier";
+
     /**
      * Return the globally unique ID for the content item.
      *

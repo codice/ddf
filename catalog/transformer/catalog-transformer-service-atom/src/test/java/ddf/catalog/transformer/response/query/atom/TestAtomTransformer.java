@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -959,7 +959,7 @@ public class TestAtomTransformer {
         when(viewAction.getUrl()).thenReturn(new URL("http://host:80/" + SAMPLE_ID));
 
         ActionProvider viewActionProvider = mock(ActionProvider.class);
-        when(viewActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
+        when(viewActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(viewAction));
 
         AtomTransformer transformer = new AtomTransformer();
 
@@ -1061,13 +1061,15 @@ public class TestAtomTransformer {
         when(viewAction.getUrl()).thenReturn(new URL("http://host:80/" + SAMPLE_ID));
 
         ActionProvider viewActionProvider = mock(ActionProvider.class);
-        when(viewActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
+        when(viewActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(viewAction));
 
         ActionProvider resourceActionProvider = mock(ActionProvider.class);
-        when(resourceActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
+        when(resourceActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(
+                viewAction));
 
         ActionProvider thumbnailActionProvider = mock(ActionProvider.class);
-        when(thumbnailActionProvider.getAction(isA(Metacard.class))).thenReturn(viewAction);
+        when(thumbnailActionProvider.getActions(isA(Metacard.class))).thenReturn(Arrays.asList(
+                viewAction));
 
         AtomTransformer transformer = new AtomTransformer();
 

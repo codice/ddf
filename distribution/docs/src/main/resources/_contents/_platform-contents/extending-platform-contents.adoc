@@ -53,10 +53,10 @@ The Action Framework consists of two major Java interfaces in its API:
 ==== Usage
 
 To provide a service, such as a link to a record, the `ActionProvider` interface should be implemented.
-An `ActionProvider` essentially provides an `Action` when given input that it can recognize and handle.
+An `ActionProvider` essentially provides a List of  `Action`s when given input that it can recognize and handle.
 For instance, if a REST endpoint ActionProvider was given a metacard, it could provide a link based on the metacard's ID. 
 An Action Provider performs an action when given a subject that it understands.
-If it does not understand the subject or does not know how to handle the given input, it will return `null`.
+If it does not understand the subject or does not know how to handle the given input, it will return `Collections.emptyList()`.
 An Action Provider is required to have an ActionProvider id.
 The Action Provider must register itself in the OSGi Service Registry with the `${ddf-branding-lowercase}.action.ActionProvider` interface and must also have a service property value for `id`. 
 An action is a URL that, when invoked, provides a resource or executes intended business logic. 

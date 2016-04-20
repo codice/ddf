@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -18,11 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,10 +115,26 @@ public class ContentResourceReader implements ResourceReader {
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        LOGGER.trace("ENTERING/EXITING: getOptions");
-        LOGGER.debug(
-                "ContentResourceReader getOptions doesn't support options, returning empty set.");
-
+        if (metacard != null
+                && metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL) != null
+                && !CollectionUtils.isEmpty(metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                .getValues())) {
+            Set<String> options = new HashSet<>();
+            for (Serializable value : metacard.getAttribute(Metacard.DERIVED_RESOURCE_DOWNLOAD_URL)
+                    .getValues()) {
+                try {
+                    URI contentUri = new URI((String) value);
+                    if (ContentItem.CONTENT_SCHEME.equals(contentUri.getScheme())) {
+                        if (StringUtils.isNotBlank(contentUri.getFragment())) {
+                            options.add(contentUri.getFragment());
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    // Ignore - nothing to do
+                }
+            }
+            return options;
+        }
         return Collections.emptySet();
     }
 
@@ -140,6 +160,17 @@ public class ContentResourceReader implements ResourceReader {
             LOGGER.debug("Resource URI is content scheme");
             String contentId = resourceUri.getSchemeSpecificPart();
             if (contentId != null && !contentId.isEmpty()) {
+                if (arguments != null && arguments.get(ContentItem.QUALIFIER) instanceof String &&
+                        StringUtils.isNotBlank((String) arguments.get(ContentItem.QUALIFIER))) {
+                    try {
+                        resourceUri = new URI(resourceUri.getScheme(),
+                                resourceUri.getSchemeSpecificPart(),
+                                (String) arguments.get(ContentItem.QUALIFIER));
+                    } catch (URISyntaxException e) {
+                        throw new ResourceNotFoundException("Unable to create with qualifier", e);
+                    }
+                }
+
                 ReadStorageRequest readRequest = new ReadStorageRequestImpl(resourceUri, arguments);
                 try {
                     ReadStorageResponse readResponse = storage.read(readRequest);

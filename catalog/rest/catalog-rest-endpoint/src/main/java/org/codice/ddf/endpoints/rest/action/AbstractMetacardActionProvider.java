@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -15,6 +15,9 @@ package org.codice.ddf.endpoints.rest.action;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
@@ -44,26 +47,20 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     protected abstract Action getAction(String metacardId, String metacardSource);
 
     @Override
-    public <T> Action getAction(T input) {
+    public <T> List<Action> getActions(T input) {
 
-        if (input == null) {
-
-            LOGGER.info("In order to receive url to Metacard, Metacard must not be null.");
-            return null;
-        }
-
-        if (Metacard.class.isAssignableFrom(input.getClass())) {
+        if (input instanceof Metacard) {
 
             Metacard metacard = (Metacard) input;
 
             if (StringUtils.isBlank(metacard.getId())) {
                 LOGGER.info("No id given. No action to provide.");
-                return null;
+                return Collections.emptyList();
             }
 
             if (isHostUnset(SystemBaseUrl.getHost())) {
                 LOGGER.info("Host name/ip not set. Cannot create link for metacard.");
-                return null;
+                return Collections.emptyList();
             }
 
             String metacardId = null;
@@ -74,14 +71,16 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
                 metacardSource = URLEncoder.encode(getSource(metacard), CharEncoding.UTF_8);
             } catch (UnsupportedEncodingException e) {
                 LOGGER.info("Unsupported Encoding exception", e);
-                return null;
+                return Collections.emptyList();
             }
 
-            return getAction(metacardId, metacardSource);
-
+            Action action = getAction(metacardId, metacardSource);
+            if (action == null) {
+                return Collections.emptyList();
+            }
+            return Arrays.asList(action);
         }
-
-        return null;
+        return Collections.emptyList();
     }
 
     protected boolean isHostUnset(String host) {
@@ -102,6 +101,11 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
     @Override
     public String getId() {
         return this.actionProviderId;
+    }
+
+    @Override
+    public <T> boolean canHandle(T subject) {
+        return subject instanceof Metacard;
     }
 
 }

@@ -17,6 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URL;
+import java.util.Arrays;
 
 import com.google.common.collect.ImmutableList;
 
@@ -36,7 +37,7 @@ public class NotificationEventPublisherTest extends AbstractDownloadsStatusEvent
         actionProvider = mock(ActionProvider.class);
         Action downloadAction = mock(Action.class);
         try {
-            when(actionProvider.getAction(metacard)).thenReturn(downloadAction);
+            when(actionProvider.getActions(metacard)).thenReturn(Arrays.asList(downloadAction));
             when(downloadAction.getUrl()).thenReturn(new URL("http://example.com/download"));
         } catch (Exception e) {
             LOGGER.warn("Could not set download action URL", e);
