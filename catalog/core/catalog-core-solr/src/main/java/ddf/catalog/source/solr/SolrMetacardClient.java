@@ -32,12 +32,11 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.spatial4j.core.distance.DistanceUtils;
 
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;

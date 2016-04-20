@@ -43,14 +43,7 @@
             Remove restlet.version property and restlet dependencies from the dependencyManagement section when
             Solr version is updated (see DDF-1203).
         -->
-        <solr.version>5.5.0</solr.version>
-        <!--
-            Important: version 2.1.4 is being used to address security vulnerabilities CVE-2013-4221 and
-            CVE-2013-4271. As this is a Solr transitive dependency, the restlet.version property and the restlet
-            dependencies found in the dependencyManagement section should be removed (see DDF-1203).
-        -->
-        <restlet.version>2.1.4</restlet.version>
-        <solr.saxon.version>9.5.1-5</solr.saxon.version>
+        <solr.version>6.0.0</solr.version>
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
         <jaxb.visitor.plugin.version>1.13</jaxb.visitor.plugin.version>
         <catalog.joda.time.version>2.2</catalog.joda.time.version>

@@ -34,6 +34,11 @@
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <version>1.13</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -47,6 +52,7 @@
                             <include>org.antlr:antlr4-runtime</include>
                             <include>org.ow2.asm:asm</include>
                             <include>org.ow2.asm:asm-commons</include>
+                            <include>com.github.ben-manes.caffeine:caffeine</include>
                             <include>commons-cli:commons-cli</include>
                             <include>commons-codec:commons-codec</include>
                             <include>commons-collections:commons-collections</include>
@@ -70,6 +76,7 @@
                             <include>com.fasterxml.jackson.core:jackson-core</include>
                             <include>com.fasterxml.jackson.dataformat:jackson-dataformat-smile</include>
                             <include>joda-time:joda-time</include>
+                            <include>com.vividsolutions:jts</include>
                             <include>org.apache.lucene:lucene-analyzers-common</include>
                             <include>org.apache.lucene:lucene-analyzers-kuromoji</include>
                             <include>org.apache.lucene:lucene-analyzers-phonetic</include>
@@ -85,15 +92,17 @@
                             <include>org.apache.lucene:lucene-queries</include>
                             <include>org.apache.lucene:lucene-queryparser</include>
                             <include>org.apache.lucene:lucene-sandbox</include>
-                            <include>org.apache.lucene:lucene-spatial</include>
+                            <include>org.apache.lucene:lucene-spatial-extras</include>
                             <include>org.apache.lucene:lucene-suggest</include>
                             <include>org.noggit:noggit</include>
                             <include>org.restlet.jee:org.restlet</include>
                             <include>org.restlet.jee:org.restlet.ext.servlet</include>
+                            <include>com.facebook.presto:presto-parser</include>
                             <include>com.google.protobuf:protobuf-java</include>
+                            <include>io.airlift:slice</include>
                             <include>org.apache.solr:solr-core</include>
                             <include>org.apache.solr:solr-solrj</include>
-                            <include>com.spatial4j:spatial4j</include>
+                            <include>org.locationtech.spatial4j:spatial4j</include>
                             <include>org.codehaus.woodstox:stax2-api</include>
                             <include>com.tdunning:t-digest</include>
                             <include>org.codehaus.woodstox:woodstox-core-asl</include>

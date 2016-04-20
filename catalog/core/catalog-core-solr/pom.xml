@@ -24,17 +24,29 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-core</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
         </dependency>
+        <!-- Override dependency management Lucene versions from Camel parent import -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
             <version>${solr.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-dependencies</artifactId>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${solr.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
@@ -91,14 +103,14 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.spatial4j</groupId>
-            <artifactId>spatial4j</artifactId>
-            <version>0.5</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-dependencies</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -128,9 +140,8 @@
                             <include>ddf.platform.solr:solr-xpath</include>
                             <include>org.apache.lucene:lucene-core</include>
                             <include>ddf.catalog.core:catalog-core-api-impl</include>
-                            <include>com.spatial4j:spatial4j</include>
+                            <include>org.locationtech.spatial4j:spatial4j</include>
                             <include>joda-time:joda-time</include>
-                            <include>com.google.guava:guava</include>
                             <include>commons-collections:commons-collections</include>
                         </includes>
                     </artifactSet>

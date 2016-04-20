@@ -316,6 +316,7 @@
                             org.apache.xml.resolver.helpers,
                             org.codice.ddf.configuration,
                             org.codice.ddf.persistence,
+                            org.eclipse.jetty.server.handler.gzip;resolution:=optional,
                             org.eclipse.jetty.*;version="[9.2,10)",
                             org.geotools.factory,
                             org.geotools.filter,
