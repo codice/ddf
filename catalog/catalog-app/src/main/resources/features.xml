@@ -322,6 +322,11 @@
         <bundle>mvn:ddf.catalog.admin/catalog-admin-poller-service/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-plugin-clavin" install="manual" version="${project.version}"
+             description="Post ingest clavin plugin.">
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-clavin/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-streaming" install="manual" version="${project.version}"
              description="DDF Generic Input Transformer API">
         <feature prerequisite="true">catalog-app</feature>
