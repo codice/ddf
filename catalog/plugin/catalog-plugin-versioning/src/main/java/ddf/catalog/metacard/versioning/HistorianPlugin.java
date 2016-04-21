@@ -14,6 +14,7 @@
 package ddf.catalog.metacard.versioning;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.SecurityUtils;
@@ -23,19 +24,25 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.core.versioning.HistoryMetacardImpl;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
+import ddf.catalog.plugin.PreIngestPlugin;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.Subject;
 import ddf.security.common.util.Security;
 
-public class HistorianPlugin implements PostIngestPlugin {
+public class HistorianPlugin implements PostIngestPlugin, PreIngestPlugin {
     private static final Logger LOGGER = LoggerFactory.getLogger(HistorianPlugin.class);
 
     private final CatalogFramework catalogFramework;
@@ -46,7 +53,8 @@ public class HistorianPlugin implements PostIngestPlugin {
 
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        getVersionedMetacards(input.getCreatedMetacards(), HistoryMetacardImpl.Action.CREATED);
+//        getVersionedMetacards(input.getCreatedMetacards(), HistoryMetacardImpl.Action.CREATED);
+
         return input;
     }
 
@@ -98,5 +106,45 @@ public class HistorianPlugin implements PostIngestPlugin {
         } catch (SourceUnavailableException | IngestException e) {
             throw new PluginExecutionException(e);
         }
+    }
+
+    @Override
+    public CreateRequest process(CreateRequest input)
+            throws PluginExecutionException, StopProcessingException {
+        List<Metacard> updatedMetacardList = input.getMetacards()
+                .stream()
+                .filter(m -> !HistoryMetacardImpl.getVersionHistoryMetacardType()
+                        .equals(m.getMetacardType()))
+                .map(m -> new HistoryMetacardImpl(m,
+                        HistoryMetacardImpl.Action.CREATED,
+                        SecurityUtils.getSubject()))
+                .collect(Collectors.toList());
+        updatedMetacardList.addAll(input.getMetacards());
+        return new CreateRequestImpl(updatedMetacardList,
+                input.getProperties());
+    }
+
+    @Override
+    public UpdateRequest process(UpdateRequest input)
+            throws PluginExecutionException, StopProcessingException {
+        /*List<Metacard> updatedMetacardList = input.getUpdates()
+                .stream()
+                .map(Map.Entry::getValue)
+                .filter(m -> !HistoryMetacardImpl.getVersionHistoryMetacardType()
+                        .equals(m.getMetacardType()))
+                .map(m -> new HistoryMetacardImpl(m,
+                        HistoryMetacardImpl.Action.CREATED,
+                        SecurityUtils.getSubject()))
+                .collect(Collectors.toList());
+        updatedMetacardList.addAll(input.getUpdates().stream().map(Map.Entry::getValue).collect(
+                Collectors.toList()));
+        return new UpdateRequestImpl()*/
+        return input;
+    }
+
+    @Override
+    public DeleteRequest process(DeleteRequest input)
+            throws PluginExecutionException, StopProcessingException {
+        return input;
     }
 }

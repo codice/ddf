@@ -24,6 +24,7 @@
     </bean>
 
     <service ref="historian" interface="ddf.catalog.plugin.PostIngestPlugin" />
+    <service ref="historian" interface="ddf.catalog.plugin.PreIngestPlugin" />
 
     <bean id="bouncerPlugin" class="ddf.catalog.metacard.versioning.HistorianBouncerPolicyPlugin" />
 
