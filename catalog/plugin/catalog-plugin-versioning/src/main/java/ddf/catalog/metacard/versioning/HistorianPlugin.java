@@ -14,7 +14,6 @@
 package ddf.catalog.metacard.versioning;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.shiro.SecurityUtils;
@@ -32,7 +31,6 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreIngestPlugin;
@@ -53,8 +51,6 @@ public class HistorianPlugin implements PostIngestPlugin, PreIngestPlugin {
 
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-//        getVersionedMetacards(input.getCreatedMetacards(), HistoryMetacardImpl.Action.CREATED);
-
         return input;
     }
 
@@ -120,25 +116,12 @@ public class HistorianPlugin implements PostIngestPlugin, PreIngestPlugin {
                         SecurityUtils.getSubject()))
                 .collect(Collectors.toList());
         updatedMetacardList.addAll(input.getMetacards());
-        return new CreateRequestImpl(updatedMetacardList,
-                input.getProperties());
+        return new CreateRequestImpl(updatedMetacardList, input.getProperties());
     }
 
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
-        /*List<Metacard> updatedMetacardList = input.getUpdates()
-                .stream()
-                .map(Map.Entry::getValue)
-                .filter(m -> !HistoryMetacardImpl.getVersionHistoryMetacardType()
-                        .equals(m.getMetacardType()))
-                .map(m -> new HistoryMetacardImpl(m,
-                        HistoryMetacardImpl.Action.CREATED,
-                        SecurityUtils.getSubject()))
-                .collect(Collectors.toList());
-        updatedMetacardList.addAll(input.getUpdates().stream().map(Map.Entry::getValue).collect(
-                Collectors.toList()));
-        return new UpdateRequestImpl()*/
         return input;
     }
 
