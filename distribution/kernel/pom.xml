@@ -164,6 +164,27 @@
                                     <outputDirectory>${setup.folder}</outputDirectory>
                                     <destFileName>ddf-branding.jar</destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcprov-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcprov-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcmail-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcmail-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcpkix-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
