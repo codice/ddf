@@ -190,16 +190,32 @@ public class HistoryMetacardImpl extends MetacardImpl {
      * @throws IllegalStateException
      */
     public Metacard toBasicMetacard() {
-        String id = this.getIdHistory();
+        return toBasicMetacard(this);
+    }
+
+    public static Metacard toBasicMetacard(Metacard source) {
+        String id = (String) source.getAttribute(HistoryMetacardImpl.ID_HISTORY).getValue();
         if (isNullOrEmpty(id)) {
             throw new IllegalStateException(
                     "Cannot convert history metacard without the original metacard id");
         }
 
-        MetacardImpl result = new MetacardImpl(this, BasicTypes.BASIC_METACARD);
+        MetacardImpl result = new MetacardImpl(source, BasicTypes.BASIC_METACARD);
         result.setId(id);
-        result.setTags(this.getTagsHistory());
+        result.setTags(getTagsHistory(source));
         return result;
+    }
+
+    private static Set<String> getTagsHistory(Metacard source) {
+        Attribute attribute = source.getAttribute(TAGS_HISTORY);
+        if (attribute == null || attribute.getValue() == null) {
+            return new HashSet<>();
+        } else {
+            return new HashSet<>(attribute.getValues()
+                    .stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList()));
+        }
     }
 
     public String getIdHistory() {
