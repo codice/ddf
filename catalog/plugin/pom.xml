@@ -30,5 +30,6 @@
         <module>catalog-plugin-checksum</module>
         <module>catalog-plugin-videothumbnail</module>
         <module>catalog-plugin-versioning</module>
+        <module>catalog-plugin-duplication</module>
     </modules>
 </project>
