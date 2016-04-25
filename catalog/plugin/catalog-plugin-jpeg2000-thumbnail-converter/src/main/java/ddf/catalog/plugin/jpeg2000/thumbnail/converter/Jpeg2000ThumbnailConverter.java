@@ -21,8 +21,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 
-import com.sun.media.imageioimpl.plugins.jpeg2000.IISRandomAccessIO;
-import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
+import com.github.jaiimageio.jpeg2000.impl.IISRandomAccessIO;
+import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
