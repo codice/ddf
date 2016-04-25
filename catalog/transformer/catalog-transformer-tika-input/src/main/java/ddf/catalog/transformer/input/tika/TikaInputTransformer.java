@@ -53,9 +53,9 @@ import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
+import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 import com.google.common.io.FileBackedOutputStream;
-import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
