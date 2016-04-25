@@ -121,7 +121,6 @@ public class LdapLoginConfigTest {
         ldapConfig.setLdapUrl("ldaps://ldap:1636");
         ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
         ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
-        ldapConfig.setKeyAlias("server");
         ldapConfig.setStartTls(false);
         return ldapConfig;
     }

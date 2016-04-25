@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -83,8 +83,7 @@ public class LdapLoginConfig {
         Properties props = new Properties();
         props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
         props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
-        props.put("connection.url",
-                properties.get(LDAP_URL)
+        props.put("connection.url", properties.get(LDAP_URL)
                         .toString());
         props.put("user.base.dn", properties.get(USER_BASE_DN));
         props.put("user.filter", "(uid=%u)");
@@ -95,11 +94,6 @@ public class LdapLoginConfig {
         props.put("role.search.subtree", "true");
         props.put("authentication", "simple");
         props.put("ssl.protocol", "TLS");
-        props.put("ssl.truststore", "ts");
-        props.put("ssl.keystore", "ks");
-        props.put("ssl.keyalias",
-                properties.get(KEY_ALIAS)
-                        .toString());
         props.put("ssl.algorithm", "SunX509");
         props.put("ssl.starttls", properties.get(START_TLS));
         ldapModule.setOptions(props);
@@ -134,11 +128,6 @@ public class LdapLoginConfig {
     public void setGroupBaseDn(String groupBaseDn) {
         LOGGER.trace("setGroupBaseDn called: {}", groupBaseDn);
         ldapProperties.put(GROUP_BASE_DN, groupBaseDn);
-    }
-
-    public void setKeyAlias(String keyAlias) {
-        LOGGER.trace("setKeyAlias called: {}", keyAlias);
-        ldapProperties.put(KEY_ALIAS, new PropertyResolver(keyAlias));
     }
 
     public void setStartTls(boolean startTls) {

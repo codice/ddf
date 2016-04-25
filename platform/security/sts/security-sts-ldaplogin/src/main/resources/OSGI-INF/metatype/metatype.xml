@@ -52,15 +52,10 @@
             default="ou=groups\,dc=example\,dc=com"
             description="Full LDAP path to where groups can be found.">
 	    </AD>
-
-        <AD name="SSL Keystore Alias:" id="keyAlias" required="true" type="String"
-            default="${org.codice.ddf.system.hostname}"
-            description="Alias of the private key to use for SSL connections.">
-        </AD>
 	    
 	</OCD>
 	
-	<Designate factoryPid="Ldap_Login_Config" pid="ddf.Ldap_Login_Config">
+	<Designate factoryPid="Ldap_Login_Config" pid="Ldap_Login_Config">
 	    <Object ocdref="Ldap_Login_Config"/>
   	</Designate>
   	
