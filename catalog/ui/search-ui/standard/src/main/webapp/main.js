@@ -51,7 +51,7 @@ require.config({
 
         // jquery
         jquery: 'lib/jquery/jquery.min',
-        jqueryCookie: 'lib/jquery-cookie/jquery.cookie',
+        jsCookie: 'lib/js-cookie/src/js.cookie',
         jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
         datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
         progressbar: 'lib/jquery-ui/ui/minified/jquery.ui.progressbar.min',
@@ -128,7 +128,7 @@ require.config({
             deps: ['jquery', 'cometd']
         },
         jqueryuiCore: ['jquery'],
-        jqueryCookie: ['jquery'],
+        jsCookie: ['jquery'],
         mouse: ['jqueryuiCore', 'jquery.ui.widget'],
         slider: ['mouse'],
         datepicker: ['slider'],

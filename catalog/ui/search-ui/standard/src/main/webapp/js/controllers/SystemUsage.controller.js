@@ -16,16 +16,16 @@ define(['jquery',
         'wreqr',
         'properties',
         'js/view/SystemUsageModal.view',
-        'jqueryCookie'
-    ], function ($, _, Marionette, wreqr, properties, SystemUsageModal) {
+        'jsCookie'
+    ], function ($, _, Marionette, wreqr, properties, SystemUsageModal, Cookies) {
         'use strict';
         var SystemUsageController;
 
         SystemUsageController = Marionette.Controller.extend({
             initialize: function () {
-                if(properties.ui.systemUsageTitle && (_.isUndefined($.cookie("systemUsage")) ||
+                if(properties.ui.systemUsageTitle && (_.isUndefined(Cookies.get("systemUsage")) ||
                         !properties.ui.systemUsageOncePerSession)) {
-                    $.cookie("systemUsage", true);
+                    Cookies.set("systemUsage", true);
                     var modal = new SystemUsageModal();
                     wreqr.vent.trigger('showModal', modal);
                 }
