@@ -517,14 +517,5 @@
             <name>Codice Repository</name>
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
-        <repository>
-            <releases/>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>mygrid-repository</id>
-            <name>myGrid Repository</name>
-            <url>http://repository.mygrid.org.uk/artifactory/ext-release-local</url>
-        </repository>
     </repositories>
 </project>
