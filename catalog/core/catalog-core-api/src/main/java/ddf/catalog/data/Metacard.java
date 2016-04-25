@@ -205,6 +205,20 @@ public interface Metacard extends Serializable {
     String CHECKSUM_ALGORITHM = "checksum-algorithm";
 
     /**
+     * {@link Attribute} name for related {@link Metacard} ids.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String RELATED = "metacard.associations.related";
+
+    /**
+     * {@link Attribute} name for derived {@link Metacard} ids.
+     *
+     * @since DDF-2.9.0
+     */
+    public static final String DERIVED = "metacard.associations.derived";
+
+    /**
      * {@link Attribute} checksum value for the {@link Metacard#RESOURCE_URI}
      *
      * @since DDF-2.9.0

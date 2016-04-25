@@ -29,8 +29,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,8 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.configuration.SystemInfo;
 import org.opengis.filter.Filter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.blueprint.container.ServiceUnavailableException;
@@ -88,8 +92,10 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
@@ -225,6 +231,17 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
         setId(SystemInfo.getSiteName());
         setVersion(SystemInfo.getVersion());
         setOrganization(SystemInfo.getOrganization());
+        registerBasicMetacard();
+    }
+
+    private void registerBasicMetacard() {
+        Bundle bundle = FrameworkUtil.getBundle(CatalogFrameworkImpl.class);
+        if (bundle != null && bundle.getBundleContext() != null) {
+            Dictionary<String, Object> properties = new Hashtable<>();
+            properties.put("name", BasicTypes.BASIC_METACARD.getName());
+            bundle.getBundleContext()
+                    .registerService(MetacardType.class, BasicTypes.BASIC_METACARD, properties);
+        }
     }
 
     public void setFanoutEnabled(boolean fanoutEnabled) {

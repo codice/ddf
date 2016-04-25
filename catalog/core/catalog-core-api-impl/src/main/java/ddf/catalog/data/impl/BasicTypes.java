@@ -299,6 +299,18 @@ public class BasicTypes {
                 false /* tokenized */,
                 true /* multivalued */,
                 STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.DERIVED,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RELATED,
+                true /* indexed */,
+                true /* stored */,
+                false /* tokenized */,
+                true /* multivalued */,
+                STRING_TYPE));
         return descriptors;
     }
 
