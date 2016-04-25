@@ -80,6 +80,11 @@ public interface CatalogFramework extends Describable {
      * <b> This code is experimental. While this interface is functional and tested, it may change or be
      * removed in a future version of the library. </b>
      * </p>
+     * <p>
+     * If the ContentItems within the {@link CreateStorageRequest} contain a non-null Metacard, then the
+     * framework will not call the input transformers and the Metacard must contain the following attributes:
+     * {@link Metacard#ID}, {@link Metacard#TITLE} and {@link Metacard#POINT_OF_CONTACT}.
+     * </p>
      *
      * Creates {@link Metacard}s in the {@link ddf.catalog.source.CatalogProvider}.
      *

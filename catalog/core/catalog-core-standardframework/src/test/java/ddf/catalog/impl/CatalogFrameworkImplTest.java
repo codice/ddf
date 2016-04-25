@@ -341,8 +341,6 @@ public class CatalogFrameworkImplTest {
     public void testCreateStorage() throws Exception {
         List<ContentItem> contentItems = new ArrayList<>();
 
-        MetacardImpl newCard = new MetacardImpl();
-        newCard.setId(null);
         ByteSource byteSource = new ByteSource() {
             @Override
             public InputStream openStream() throws IOException {
@@ -350,7 +348,7 @@ public class CatalogFrameworkImplTest {
             }
         };
         ContentItemImpl newItem = new ContentItemImpl(byteSource, "application/octet-stream",
-                "blah", newCard);
+                "blah", null);
         contentItems.add(newItem);
 
         CreateResponse response = framework.create(
@@ -423,7 +421,7 @@ public class CatalogFrameworkImplTest {
             }
         };
         ContentItemImpl newItem = new ContentItemImpl(byteSource, "application/octet-stream",
-                "blah", newCard);
+                "blah", null);
         contentItems.add(newItem);
 
         CreateResponse response = framework.create(
@@ -434,7 +432,7 @@ public class CatalogFrameworkImplTest {
         List<ContentItem> updatedContentItems = new ArrayList<>();
         updatedContentItems.add(
                 new ContentItemImpl(insertedCard.getId(), byteSource, "application/octet-stream",
-                        insertedCard));
+                        null));
         UpdateStorageRequest request = new UpdateStorageRequestImpl(updatedContentItems, null);
         // send update to framework
         List<Update> returnedCards = framework.update(request)

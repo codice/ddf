@@ -867,13 +867,31 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(), tmpPath);
 
                 String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
-                Metacard metacard = generateMetacard(mimeTypeRaw,
-                        contentItem.getId(),
-                        fileName,
-                        size,
-                        (Subject) storageRequest.getProperties()
-                                .get(SecurityConstants.SECURITY_SUBJECT),
-                        tmpPath);
+
+                Metacard metacard;
+
+                if (contentItem.getMetacard() != null) {
+                    metacard = contentItem.getMetacard();
+                    if (StringUtils.isBlank(metacard.getId()) ||
+                            StringUtils.isBlank(metacard.getTitle()) ||
+                            metacard.getAttribute(Metacard.POINT_OF_CONTACT) == null ||
+                            StringUtils.isBlank((String) metacard.getAttribute(Metacard.POINT_OF_CONTACT)
+                                    .getValue())) {
+                        throw new MetacardCreationException(
+                                "caller supplied metacards must include an id, title and point of contact: id="
+                                        + metacard.getId() + ", title=" + metacard.getTitle()
+                                        + ", point-of-contact=" +
+                                        metacard.getAttribute(Metacard.POINT_OF_CONTACT));
+                    }
+                } else {
+                    metacard = generateMetacard(mimeTypeRaw,
+                            contentItem.getId(),
+                            fileName,
+                            size,
+                            (Subject) storageRequest.getProperties()
+                                    .get(SecurityConstants.SECURITY_SUBJECT),
+                            tmpPath);
+                }
                 metacardMap.put(metacard.getId(), metacard);
 
                 ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
