@@ -197,9 +197,10 @@ public class RoleClaimsHandler implements ClaimsHandler {
             }
 
             AndFilter filter = new AndFilter();
+            String userBaseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDn());
             filter.and(new EqualsFilter("objectClass", getObjectClass()))
                     .and(new EqualsFilter(getMemberNameAttribute(),
-                            getUserNameAttribute() + "=" + user + "," + getUserBaseDn()));
+                            getUserNameAttribute() + "=" + user + "," + userBaseDN));
 
             String filterString = filter.toString();
 
@@ -208,12 +209,11 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 BindResult bindResult = connection.bind(bindUserDN, bindUserCredentials.toCharArray());
 
                 if (bindResult.isSuccess()) {
-                    String baseDN = AttributeMapLoader.getBaseDN(principal, groupBaseDn);
                     LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
-                            baseDN,
+                            groupBaseDn,
                             filterString);
 
-                    ConnectionEntryReader entryReader = connection.search(baseDN,
+                    ConnectionEntryReader entryReader = connection.search(groupBaseDn,
                             SearchScope.WHOLE_SUBTREE,
                             filter.toString(),
                             attributes);
