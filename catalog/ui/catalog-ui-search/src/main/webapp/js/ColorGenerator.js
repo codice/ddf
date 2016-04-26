@@ -52,6 +52,7 @@ define([
                     var color = idToColor[id];
                     if (color !== undefined){
                         colors.push(color);
+                        delete idToColor[id];
                     }
                 }
             };

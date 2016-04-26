@@ -63,6 +63,7 @@ define([
 
             initialize: function () {
                 _.bindAll(this);
+                this.set('id', this.getId());
                 this.listenTo(this, 'change:north change:south change:east change:west',this.setBBox);
                 this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
                 this.listenTo(this, 'change:bbox', this.setBboxLatLon);

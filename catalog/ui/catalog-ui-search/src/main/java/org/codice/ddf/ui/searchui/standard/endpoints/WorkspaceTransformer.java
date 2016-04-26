@@ -51,6 +51,10 @@ public class WorkspaceTransformer {
             q.setTitle((String) m.get(Metacard.TITLE));
         }
 
+        if (check(m.get(Metacard.ID), String.class)) {
+            q.setId((String) m.get(Metacard.ID));
+        }
+
         if (check(m.get(QueryMetacardTypeImpl.QUERY_CQL), String.class)) {
             q.setCql((String) m.get(QueryMetacardTypeImpl.QUERY_CQL));
         }

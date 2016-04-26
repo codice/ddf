@@ -39,6 +39,13 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
     static {
         DESCRIPTORS = new HashSet<>();
 
+        DESCRIPTORS.add(new AttributeDescriptorImpl(Metacard.ID,
+                true    /* indexed */,
+                true    /* stored */,
+                false   /* tokenized */,
+                false   /* multivalued */,
+                BasicTypes.STRING_TYPE));
+
         DESCRIPTORS.add(new AttributeDescriptorImpl(Metacard.TITLE,
                 true    /* indexed */,
                 true    /* stored */,

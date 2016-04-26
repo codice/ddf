@@ -40,7 +40,11 @@ define([
         ui: {
         },
         initialize: function(options){
-            this.listenTo(this.model, 'all', _.throttle(this.render, 200));
+            this.listenTo(this.model, 'all', _.throttle(function(){
+                if (!this.isDestroyed){
+                    this.render();
+                }
+            }.bind(this), 200));
             this._workspaceMenuModel = new ContentToolbar();
         },
         initializeMenus: function(){
