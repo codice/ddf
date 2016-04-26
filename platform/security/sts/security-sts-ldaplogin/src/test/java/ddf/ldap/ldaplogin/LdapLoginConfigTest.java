@@ -132,7 +132,6 @@ public class LdapLoginConfigTest {
         ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
         ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
-        ldapProps.put(LdapLoginConfig.KEY_ALIAS, "server");
         ldapProps.put(LdapLoginConfig.START_TLS, "false");
         return ldapProps;
     }

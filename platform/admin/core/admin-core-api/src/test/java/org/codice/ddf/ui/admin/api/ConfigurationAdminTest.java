@@ -798,6 +798,64 @@ public class ConfigurationAdminTest {
                 .get(arrayInteger)).length, equalTo(0));
     }
 
+    /**
+     * Tests the {@link ConfigurationAdmin#update(String, Map)} and
+     * {@link ConfigurationAdmin#updateForLocation(String, String, Map)} methods and
+     * verifies when updating a password with a value other than "password", it will update
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testUpdatePassword() throws Exception {
+        ConfigurationAdmin configAdmin = getConfigAdmin();
+
+        // Initialize password to "secret".
+        Dictionary<String, Object> currentProps = new Hashtable<>();
+        currentProps.put("TestKey_0_12", "secret");
+        when(testConfig.getProperties()).thenReturn(currentProps);
+
+        // Update the password with "newPassword".
+        Hashtable<String, Object> values = new Hashtable<>();
+        values.put("TestKey_0_12", "newPassword");
+
+        ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
+        configAdmin.update(TEST_PID, values);
+        verify(testConfig, times(1)).update(captor.capture());
+
+        // Assert the password updated to "newPassword".
+        assertThat(captor.getValue()
+                .get("TestKey_0_12"), equalTo("newPassword"));
+    }
+
+    /**
+     * Tests the {@link ConfigurationAdmin#update(String, Map)} and
+     * {@link ConfigurationAdmin#updateForLocation(String, String, Map)} methods and
+     * verifies when attempting to update a password with "password", it will not update it.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testUpdatePasswordWithPassword() throws Exception {
+        ConfigurationAdmin configAdmin = getConfigAdmin();
+
+        // Initialize password to "secret".
+        Dictionary<String, Object> currentProps = new Hashtable<>();
+        currentProps.put("TestKey_0_12", "secret");
+        when(testConfig.getProperties()).thenReturn(currentProps);
+
+        // Attempt updating the password with "password", the password should not actually update.
+        Hashtable<String, Object> values = new Hashtable<>();
+        values.put("TestKey_0_12", "password");
+
+        ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
+        configAdmin.update(TEST_PID, values);
+        verify(testConfig, times(1)).update(captor.capture());
+
+        // Assert the password did not update to "password".
+        assertThat(captor.getValue()
+                .get("TestKey_0_12"), equalTo("secret"));
+    }
+
     private Object getValue(int cardinality, TYPE type) {
         Object value = null;
         switch (type) {

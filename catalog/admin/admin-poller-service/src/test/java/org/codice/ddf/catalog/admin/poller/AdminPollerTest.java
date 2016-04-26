@@ -14,6 +14,7 @@
 
 package org.codice.ddf.catalog.admin.poller;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.empty;
@@ -41,6 +42,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.metatype.AttributeDefinition;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -146,6 +148,13 @@ public class AdminPollerTest {
 
         assertThat(sources.get(0), not(hasKey("configurations")));
         assertThat(sources.get(1), hasKey("configurations"));
+
+        // Assert that the password value was changed from "secret" to "password".
+        String password =
+                (String) ((Map<String, Object>) ((List<Map<String, Object>>) sources.get(1)
+                        .get("configurations")).get(0)
+                        .get("properties")).get("password");
+        assertThat(password, is(equalTo("password")));
     }
 
     @Test
@@ -242,6 +251,8 @@ public class AdminPollerTest {
                 Dictionary<String, Object> dict = new Hashtable<>();
                 dict.put("service.pid", CONFIG_PID);
                 dict.put("service.factoryPid", FPID);
+                // Add a password property with the value of "secret".
+                dict.put("password", "secret");
                 when(config.getProperties()).thenReturn(dict);
                 when(helper.getConfigurations(anyMap())).thenReturn(CollectionUtils.asList(config),
                         null);
@@ -262,8 +273,14 @@ public class AdminPollerTest {
 
                 // Mock out the metatypes
                 Map<String, Object> metatype = new HashMap<>();
+                // Add a password property to the metatype.
+                List<Map<String, Object>> metatypeProperties = new ArrayList<>();
+                Map<String, Object> metatypeProperty = new HashMap<>();
+                metatypeProperty.put("id", "password");
+                metatypeProperty.put("type", AttributeDefinition.PASSWORD);
+                metatypeProperties.add(metatypeProperty);
                 metatype.put("id", "OpenSearchSource");
-                metatype.put("metatype", new ArrayList<Map<String, Object>>());
+                metatype.put("metatype", metatypeProperties);
 
                 Map<String, Object> noConfigMetaType = new HashMap<>();
                 noConfigMetaType.put("id", "No Configurations");
