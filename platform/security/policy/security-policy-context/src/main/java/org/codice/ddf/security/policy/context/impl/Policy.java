@@ -14,6 +14,7 @@
 package org.codice.ddf.security.policy.context.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -89,5 +90,23 @@ public class Policy implements ContextPolicy {
             return new ArrayList<ContextAttributeMapping>();
         }
         return new ArrayList<ContextAttributeMapping>(attributeMappings);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Context Path: ");
+        sb.append(contextPath);
+        sb.append(", Realm: ");
+        sb.append(realm);
+        sb.append(", Authentication Methods: ");
+        sb.append(Arrays.toString(authenticationMethods.toArray()));
+        sb.append(", AttributeMapping: ");
+
+        for (ContextAttributeMapping attriMap : attributeMappings) {
+            sb.append(attriMap.toString());
+        }
+
+        return sb.toString();
     }
 }

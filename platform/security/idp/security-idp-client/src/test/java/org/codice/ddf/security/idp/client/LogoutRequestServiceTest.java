@@ -21,6 +21,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +29,12 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.joda.time.DateTime;
@@ -42,6 +48,9 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
 import org.opensaml.xmlsec.signature.SignableXMLObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
@@ -54,6 +63,8 @@ import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.RelayStates;
 
 public class LogoutRequestServiceTest {
+
+    private static final long LOGOUT_PAGE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
 
     private LogoutRequestService logoutRequestService;
 
@@ -85,8 +96,6 @@ public class LogoutRequestServiceTest {
 
     private SecurityTokenHolder securityTokenHolder;
 
-    private static final long LOGOUT_PAGE_TIMEOUT = TimeUnit.HOURS.toMillis(1);
-
     private class MockLogoutRequestService extends LogoutRequestService {
 
         public MockLogoutRequestService(SimpleSign simpleSign, IdpMetadata idpMetadata,
@@ -103,7 +112,7 @@ public class LogoutRequestServiceTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws ParserConfigurationException, SAXException, IOException {
         simpleSign = mock(SimpleSign.class);
         idpMetadata = mock(IdpMetadata.class);
         relayStates = mock(RelayStates.class);
@@ -113,6 +122,11 @@ public class LogoutRequestServiceTest {
         encryptionService = mock(EncryptionService.class);
         session = mock(HttpSession.class);
         securityTokenHolder = mock(SecurityTokenHolder.class);
+        Element issuedAssertion = readSamlAssertion().getDocumentElement();
+        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID")
+                .getNodeValue();
+        SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
+        when(securityTokenHolder.getSecurityToken("idp")).thenReturn(token);
 
         logoutRequestService = new MockLogoutRequestService(simpleSign, idpMetadata, relayStates);
         logoutRequestService.setEncryptionService(encryptionService);
@@ -130,6 +144,7 @@ public class LogoutRequestServiceTest {
         when(idpMetadata.getSigningCertificate()).thenReturn("signingCertificate");
         when(idpMetadata.getSingleLogoutBinding()).thenReturn(SamlProtocol.REDIRECT_BINDING);
         when(idpMetadata.getSingleLogoutLocation()).thenReturn(redirectLogoutUrl);
+        System.setProperty("security.audit.roles", "none");
 
     }
 
@@ -466,5 +481,20 @@ public class LogoutRequestServiceTest {
                 response.getLocation()
                         .getQuery()
                         .contains(msg));
+    }
+
+    public static Document readSamlAssertion()
+            throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        return db.parse(LogoutRequestServiceTest.class.getResourceAsStream("/SAMLAssertion.xml"));
     }
 }

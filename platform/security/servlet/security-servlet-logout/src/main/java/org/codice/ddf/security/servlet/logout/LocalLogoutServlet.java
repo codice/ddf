@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -30,11 +31,14 @@ import javax.servlet.http.HttpSession;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
+import ddf.security.common.audit.SecurityLogger;
 
 public class LocalLogoutServlet extends HttpServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutServlet.class);
@@ -57,6 +61,18 @@ public class LocalLogoutServlet extends HttpServlet {
                 SecurityTokenHolder savedToken = (SecurityTokenHolder) session.getAttribute(
                         SecurityConstants.SAML_ASSERTION);
                 if (savedToken != null) {
+                    Subject subject = ThreadContext.getSubject();
+                    boolean hasSecurityAuditRole = Arrays.stream(System.getProperty(
+                            "security.audit.roles")
+                            .split(","))
+                            .filter(role -> subject.hasRole(role))
+                            .findFirst()
+                            .isPresent();
+                    if (hasSecurityAuditRole) {
+                        SecurityLogger.audit("Subject with admin privileges has logged out",
+                                subject);
+                    }
+
                     savedToken.removeAll();
                 }
                 session.invalidate();
