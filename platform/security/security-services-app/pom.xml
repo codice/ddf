@@ -48,23 +48,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <id>kar</id>
-                        <goals>
-                            <goal>kar</goal>
-                        </goals>
-                        <configuration>
-                            <resourcesDir>${project.build.directory}/resources</resourcesDir>
-                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Puts the features XML file for this app into the maven repo. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -84,7 +67,34 @@
                                     <type>xml</type>
                                     <classifier>features</classifier>
                                 </artifact>
+                                <artifact>
+                                    <file>target/classes/etc/ddf.ldap.ldaplogin.LdapLoginConfig.config</file>
+                                    <type>config</type>
+                                    <classifier>ddf.ldap.ldaplogin.LdapLoginConfig</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/classes/etc/ddf.security.sts.claimsHandler.ClaimsHandlerManager.config</file>
+                                    <type>config</type>
+                                    <classifier>ddf.security.sts.claimsHandler.ClaimsHandlerManager</classifier>
+                                </artifact>
                             </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>kar</id>
+                        <goals>
+                            <goal>kar</goal>
+                        </goals>
+                        <configuration>
+                            <resourcesDir>${project.build.directory}/resources</resourcesDir>
+                            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
                         </configuration>
                     </execution>
                 </executions>

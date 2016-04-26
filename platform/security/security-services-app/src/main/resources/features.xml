@@ -119,11 +119,21 @@
     <feature name="security-sts-ldaplogin" install="manual" version="${project.version}"
              description="DDF Security STS JAAS LDAP Login.">
         <bundle>mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}</bundle>
+        <configfile
+                finalname="/etc/ddf.ldap.ldaplogin.LdapLoginConfig.config"
+                override="false">
+            mvn:ddf.security/security-services-app/${project.version}/config/ddf.ldap.ldaplogin.LdapLoginConfig
+        </configfile>
     </feature>
 
     <feature name="security-sts-ldapclaimshandler" install="manual" version="${project.version}"
              description="Retrieves claims attributes from an LDAP store.">
         <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
+        <configfile
+                finalname="/etc/ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
+                override="false">
+            mvn:ddf.security/security-services-app/${project.version}/config/ddf.security.sts.claimsHandler.ClaimsHandlerManager
+        </configfile>
     </feature>
 
     <feature name="security-handler-basic" install="manual" version="${project.version}"
