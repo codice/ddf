@@ -16,12 +16,9 @@ package ddf.camel.component.catalog.content;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
@@ -35,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
+import ddf.catalog.Constants;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
@@ -56,25 +54,6 @@ public class ContentProducer extends DefaultProducer {
     private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
 
     private ContentEndpoint endpoint;
-
-    private static final String FILE_ABSOLUTE = "CamelFileAbsolute";
-
-    private static final String FILE_ABSOLUTE_PATH = "CamelFileAbsolutePath";
-
-    private static final String FILE_RELATIVE_PATH = "CamelFileRelativePath";
-
-    private static final List<String> CAMEL_DEFAULT_HEADERS = Arrays.asList(Exchange.BREADCRUMB_ID,
-            FILE_ABSOLUTE,
-            FILE_ABSOLUTE_PATH,
-            Exchange.FILE_CONTENT_TYPE,
-            Exchange.FILE_LAST_MODIFIED,
-            Exchange.FILE_LENGTH,
-            Exchange.FILE_NAME,
-            Exchange.FILE_NAME_CONSUMED,
-            Exchange.FILE_NAME_ONLY,
-            Exchange.FILE_PARENT,
-            Exchange.FILE_PATH,
-            FILE_RELATIVE_PATH);
 
     /**
      * Constructs the {@link org.apache.camel.Producer} for the custom Camel ContentComponent. This producer would
@@ -102,10 +81,6 @@ public class ContentProducer extends DefaultProducer {
         Message in = exchange.getIn();
         Object body = in.getBody();
         File ingestedFile;
-
-        Map<String, Object> headerMap = exchange.getIn()
-                .getHeaders();
-        LOGGER.debug("Headers : {} ", headerMap);
 
         if (body instanceof GenericFile) {
             GenericFile<File> genericFile = (GenericFile<File>) body;
@@ -156,16 +131,13 @@ public class ContentProducer extends DefaultProducer {
 
             LOGGER.debug("Creating content item.");
 
-            Map<String, Serializable> propertiesMap = new HashMap<>();
-
-            headerMap.forEach((key, value) -> {
-                if (!CAMEL_DEFAULT_HEADERS.contains(key)) {
-                    propertiesMap.put(key, (String) value);
-                }
-            });
-
             CreateStorageRequest createRequest =
-                    new CreateStorageRequestImpl(Collections.singletonList(newItem), propertiesMap);
+                    new CreateStorageRequestImpl(Collections.singletonList(newItem), null);
+
+            String attributeOverrideHeaders = (String) exchange.getIn()
+                    .getHeaders().get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+            createRequest.getProperties().put(Constants.ATTRIBUTE_OVERRIDES_KEY, createAttributeOverrideMapFromHeaders(attributeOverrideHeaders));
+
             CreateResponse createResponse = endpoint.getComponent()
                     .getCatalogFramework()
                     .create(createRequest);
@@ -185,6 +157,23 @@ public class ContentProducer extends DefaultProducer {
         }
 
         LOGGER.debug("EXITING: process");
+    }
+
+    private HashMap<String, String> createAttributeOverrideMapFromHeaders(
+            String attributeOverrideHeaders) {
+
+        HashMap<String, String> attributeOverrideMap = null;
+        if (StringUtils.isNotBlank(attributeOverrideHeaders)) {
+            attributeOverrideMap = new HashMap<>();
+            String[] attribute = attributeOverrideHeaders.split(",");
+            for (String string : attribute) {
+                String[] keyValuePair = string.split("=");
+                if (keyValuePair.length == 2) {
+                    attributeOverrideMap.put(keyValuePair[0], keyValuePair[1]);
+                }
+            }
+        }
+        return attributeOverrideMap;
     }
 
 }

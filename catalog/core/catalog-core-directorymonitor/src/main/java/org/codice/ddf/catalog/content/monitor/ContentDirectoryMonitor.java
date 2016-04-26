@@ -16,7 +16,7 @@ package org.codice.ddf.catalog.content.monitor;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -30,6 +30,7 @@ import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.Constants;
 import ddf.security.common.util.Security;
 
 /**
@@ -46,7 +47,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private List<RouteDefinition> routeCollection;
 
-    private List<String> parameters;
+    private List<String> attributeOverrides;
 
     Processor systemSubjectBinder = new SystemSubjectBinder();
 
@@ -68,7 +69,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     /**
      * This method will stop and remove any existing Camel routes in this context, and then
      * configure a new Camel route using the properties set in the setter methods.
-     *
+     * <p>
      * Invoked after all of the setter methods have been called (for initial route creation), and
      * also called whenever an existing route is updated.
      */
@@ -92,7 +93,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     /**
      * Invoked when a configuration is destroyed from the container
-     *
      */
     public void destroy(int code) {
         LOGGER.trace("INSIDE: destroy()");
@@ -112,9 +112,9 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         if (properties != null) {
             setMonitoredDirectoryPath((String) properties.get("monitoredDirectoryPath"));
             setCopyIngestedFiles((Boolean) properties.get("copyIngestedFiles"));
-            String[] parameterArray = (String[])properties.get("parameters");
+            String[] parameterArray = (String[]) properties.get(Constants.ATTRIBUTE_OVERRIDES_KEY);
             if (parameterArray != null) {
-                setParameters(Arrays.asList(parameterArray));
+                setAttributeOverrides(Arrays.asList(parameterArray));
             }
             init();
         }
@@ -140,12 +140,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         this.copyIngestedFiles = copyIngestedFiles;
     }
 
-    public void setParameters(List<String> parameters) {
-        this.parameters = parameters;
+    public void setAttributeOverrides(List<String> attributeOverrides) {
+        this.attributeOverrides = attributeOverrides;
     }
 
-    public List<String> getParameters() {
-        return this.parameters;
+    public List<String> getAttributeOverrides() {
+        return this.attributeOverrides;
     }
 
     private void configureCamelRoute() {
@@ -170,16 +170,16 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
                 RouteDefinition routeDefinition = from(inbox);
 
-                if (parameters != null) {
-                    for (String parameter : parameters) {
-                        String[] parameters = parameter.split("=");
-                        if (parameters.length == 2) {
-                            routeDefinition.setHeader(parameters[0], simple(parameters[1]));
-                            LOGGER.debug("Adding Header to RouteDefinition : {} {}", parameters[0], parameters[1]);
-                        }
-                    }
+                if (attributeOverrides != null) {
+                    String attributeOverrideString = attributeOverrides.stream()
+                            .map(String::trim)
+                            .collect(Collectors.joining(","));
+                    routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY, simple(
+                            attributeOverrideString));
                 }
-                routeDefinition.process(systemSubjectBinder).to("content:framework");
+
+                routeDefinition.process(systemSubjectBinder)
+                        .to("content:framework");
             }
         };
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -37,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -44,7 +46,9 @@ import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -327,7 +331,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be set to the first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework.
      *
@@ -349,7 +353,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link CatalogProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local catalog provider will be reset to the new first item in the {@link List} of
      * {@link CatalogProvider}s bound to this CatalogFramework. If this list of catalog providers is
      * currently empty, then the local catalog provider will be set to <code>null</code>.
@@ -378,7 +382,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is created and bound to this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local storage provider will be set to the first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework.
      *
@@ -396,7 +400,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     /**
      * Invoked by blueprint when a {@link StorageProvider} is deleted and unbound from this
      * CatalogFramework instance.
-     * <p/>
+     * <p>
      * The local storage provider will be reset to the new first item in the {@link List} of
      * {@link StorageProvider}s bound to this CatalogFramework. If this list of storage providers is
      * currently empty, then the local storage provider will be set to <code>null</code>.
@@ -897,7 +901,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     @Override
     public CreateResponse create(CreateStorageRequest streamCreateRequest)
             throws IngestException, SourceUnavailableException {
-
         validateCreateStorageRequest(streamCreateRequest);
 
         setFlagsOnRequest(streamCreateRequest);
@@ -930,6 +933,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 tmpContentPaths);
         streamCreateRequest.getProperties()
                 .put(CONTENT_PATHS, tmpContentPaths);
+
+        // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
+        Map<String, String> attributeOverrideHeaders =
+                (HashMap<String, String>) streamCreateRequest.getProperties()
+                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+        applyAttributeOverridesToMetacardMap(attributeOverrideHeaders, metacardMap);
+        streamCreateRequest.getProperties()
+                .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
 
         CreateStorageRequest createStorageRequest = null;
         CreateResponse createResponse;
@@ -1077,9 +1088,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             createRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.CREATE,
-                                    new ArrayList<>()));
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                            OperationTransaction.OperationType.CREATE,
+                            new ArrayList<>()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
@@ -1162,6 +1173,71 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     buildIngestLog(createRequest));
         }
         return createResponse;
+    }
+
+    private void applyAttributeOverridesToMetacardMap(Map<String, String> attributeOverrideMap,
+            Map<String, Metacard> metacardMap) {
+
+        if (MapUtils.isEmpty(attributeOverrideMap) || MapUtils.isEmpty(metacardMap)) {
+            return;
+        }
+
+        metacardMap.values()
+                .forEach(metacard -> attributeOverrideMap.keySet()
+                        .stream()
+                        .map(attributeName -> metacard.getMetacardType()
+                                .getAttributeDescriptor(attributeName))
+                        .filter(Objects::nonNull)
+                        .map(attributeDescriptor -> {
+                            String overrideValue =
+                                    attributeOverrideMap.get(attributeDescriptor.getName());
+                            try {
+                                Serializable newValue;
+                                switch (attributeDescriptor.getType()
+                                        .getAttributeFormat()) {
+                                case INTEGER:
+                                    newValue = Integer.parseInt(overrideValue);
+                                    break;
+                                case FLOAT:
+                                    newValue = Float.parseFloat(overrideValue);
+                                    break;
+                                case DOUBLE:
+                                    newValue = Double.parseDouble(overrideValue);
+                                    break;
+                                case SHORT:
+                                    newValue = Short.parseShort(overrideValue);
+                                    break;
+                                case LONG:
+                                    newValue = Long.parseLong(overrideValue);
+                                    break;
+                                case DATE:
+                                    Calendar calendar = DatatypeConverter.parseDateTime(
+                                            overrideValue);
+                                    newValue = calendar.getTime();
+                                    break;
+                                case BOOLEAN:
+                                    newValue = Boolean.parseBoolean(overrideValue);
+                                    break;
+                                case BINARY:
+                                    newValue = overrideValue.getBytes();
+                                    break;
+                                case OBJECT:
+                                case STRING:
+                                case GEOMETRY:
+                                case XML:
+                                    newValue = overrideValue;
+                                    break;
+
+                                default:
+                                    return null;
+                                }
+                                return new AttributeImpl(attributeDescriptor.getName(), newValue);
+                            } catch (IllegalArgumentException e) {
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .forEach(metacard::setAttribute));
     }
 
     @Override
@@ -1249,8 +1325,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     new UpdateRequestImpl(Iterables.toArray(metacardMap.values()
                             .stream()
                             .map(Metacard::getId)
-                            .collect(Collectors.toList()), String.class),
-                            new ArrayList<>(metacardMap.values()));
+                            .collect(Collectors.toList()), String.class), new ArrayList<>(
+                            metacardMap.values()));
             updateRequest.setProperties(streamUpdateRequest.getProperties());
             updateResponse = update(updateRequest);
         } catch (Exception e) {
@@ -1380,9 +1456,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             updateReq.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
-                                    metacardMap.values()));
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                            OperationTransaction.OperationType.UPDATE,
+                            metacardMap.values()));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
@@ -1523,9 +1599,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
             }
 
             deleteRequest.getProperties()
-                    .put(Constants.OPERATION_TRANSACTION_KEY,
-                            new OperationTransactionImpl(OperationTransaction.OperationType.DELETE,
-                                    metacards));
+                    .put(Constants.OPERATION_TRANSACTION_KEY, new OperationTransactionImpl(
+                            OperationTransaction.OperationType.DELETE,
+                            metacards));
 
             for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
                 try {
@@ -2005,8 +2081,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     }
 
                     if (!sourceFound) {
-                        exceptions.add(new ProcessingDetailsImpl(id,
-                                new Exception("Source id is not found")));
+                        exceptions.add(new ProcessingDetailsImpl(id, new Exception(
+                                "Source id is not found")));
                     }
                 }
             }
@@ -2466,7 +2542,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     /**
      * Retrieves a resource by URI.
-     * <p/>
+     * <p>
      * The {@link ResourceRequest} can specify either the product's URI or ID. If the product ID is
      * specified, then the matching {@link Metacard} must first be retrieved and the product URI
      * extracted from this {@link Metacard}.
@@ -2558,10 +2634,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                     String metacardId = (String) value;
                     LOGGER.debug("metacardId = {},   site = {}", metacardId, site);
                     QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(
-                            metacardId),
-                            isEnterprise,
-                            Collections.singletonList(site == null ? this.getId() : site),
-                            resourceRequest.getProperties());
+                            metacardId), isEnterprise, Collections.singletonList(
+                            site == null ? this.getId() : site), resourceRequest.getProperties());
 
                     QueryResponse queryResponse = query(queryRequest, null, true);
                     if (queryResponse.getResults()

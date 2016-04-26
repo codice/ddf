@@ -33,7 +33,7 @@
                               init-method="init" destroy-method="destroy">
             <argument ref="camelContext"/>
             <property name="monitoredDirectoryPath" value=""/>
-            <property name="parameters">
+            <property name="attributeOverrides">
                 <list/>
             </property>
             <cm:managed-properties persistent-id=""
