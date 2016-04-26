@@ -35,7 +35,7 @@ define([
                     });
                 });
                 this.listenTo(this, 'remove', function(query){
-                    searchList._colorGenerator.removeColor(query.getId);
+                    searchList._colorGenerator.removeColor(query.getId());
                 });
             },
             canAddQuery: function(){

@@ -25,8 +25,8 @@ define([
 
     var Router = Marionette.AppRouter.extend({
         controller: {
-            openWorkspace: function(workspaceId){
-               // console.log('route to specific workspace:'+workspaceId);
+            openWorkspace: function(){
+                //console.log('route to specific workspace:'+workspaceId);
             },
             home: function(){
                // console.log('route to workspaces home');
