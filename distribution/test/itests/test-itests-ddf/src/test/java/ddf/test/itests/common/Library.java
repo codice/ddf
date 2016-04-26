@@ -35,7 +35,7 @@ public final class Library {
 
     public static String getSimpleGeoJson() {
         return "{\r\n" + "    \"properties\": {\r\n" + "        \"title\": \"myTitle\",\r\n"
-                + "        \"thumbnail\": \"CA==\",\r\n"
+                + "        \"thumbnail\": \"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=\",\r\n"
                 + "        \"created\": \"2012-09-01T00:09:19.368+0000\",\r\n"
                 + "        \"metadata-content-type-version\": \"myVersion\",\r\n"
                 + "        \"metadata-content-type\": \"myType\",\r\n"
@@ -64,8 +64,10 @@ public final class Library {
                 + "        <value>2013-04-18T10:50:27.371-07:00</value>\n" + "    </dateTime>\n"
                 + "    <dateTime name=\"modified\">\n"
                 + "        <value>2013-04-18T10:50:27.371-07:00</value>\n" + "    </dateTime>\n"
-                + "    <base64Binary name=\"thumbnail\">\n" + "        <value>CA==</value>\n"
-                + "    </base64Binary>\n" + "    <stringxml name=\"metadata\">\n"
+                + "    <base64Binary name=\"thumbnail\">\n" 
+                + "        <value>/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=</value>\n"
+                + "    </base64Binary>\n" 
+                + "    <stringxml name=\"metadata\">\n"
                 + "        <value>\n"
                 + "            <xml xmlns:ns6=\"urn:catalog:metacard\" xmlns=\"\">text</xml>\n"
                 + "        </value>\n" + "    </stringxml>\n"
