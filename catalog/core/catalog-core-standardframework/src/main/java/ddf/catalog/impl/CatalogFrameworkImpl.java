@@ -877,11 +877,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             metacard.getAttribute(Metacard.POINT_OF_CONTACT) == null ||
                             StringUtils.isBlank((String) metacard.getAttribute(Metacard.POINT_OF_CONTACT)
                                     .getValue())) {
-                        throw new MetacardCreationException(
-                                "caller supplied metacards must include an id, title and point of contact: id="
-                                        + metacard.getId() + ", title=" + metacard.getTitle()
-                                        + ", point-of-contact=" +
-                                        metacard.getAttribute(Metacard.POINT_OF_CONTACT));
+                        throw new MetacardCreationException(String.format(
+                                "caller supplied metacards must include an id, title and point of contact: id=%s, title=%s, point-of-contact=%s",
+                                metacard.getId(),
+                                metacard.getTitle(),
+                                metacard.getAttribute(Metacard.POINT_OF_CONTACT)));
                     }
                 } else {
                     metacard = generateMetacard(mimeTypeRaw,

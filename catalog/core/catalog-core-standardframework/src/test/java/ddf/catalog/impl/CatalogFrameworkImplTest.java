@@ -87,6 +87,7 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
@@ -359,6 +360,59 @@ public class CatalogFrameworkImplTest {
                 .size(), storageProvider.size());
         for (Metacard curCard : response.getCreatedMetacards()) {
             assertNotNull(curCard.getId());
+        }
+
+        // make sure that the event was posted correctly
+        assertTrue(eventAdmin.wasEventPosted());
+        Metacard[] array = {};
+        array = response.getCreatedMetacards()
+                .toArray(array);
+        assertTrue(eventAdmin.wasEventPosted());
+        assertEquals(eventAdmin.getLastEvent(), array[array.length - 1]);
+
+    }
+
+    /**
+     * Tests that the framework properly passes a create request to the local provider when the caller provides a metacard.
+     */
+    @Test
+    public void testCreateStorageWithMetacard() throws Exception {
+        List<ContentItem> contentItems = new ArrayList<>();
+
+        ByteSource byteSource = new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return new ByteArrayInputStream("blah".getBytes());
+            }
+        };
+
+        String expectedId = "the-id";
+        String expectedTitle = "the-title";
+        String expectedPointOfContact = "the-point-of-contact";
+
+        MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+        metacard.setId(expectedId);
+        metacard.setTitle(expectedTitle);
+        metacard.setPointOfContact(expectedPointOfContact);
+
+        ContentItemImpl newItem = new ContentItemImpl(byteSource,
+                "application/octet-stream",
+                "blah",
+                metacard);
+        contentItems.add(newItem);
+
+        CreateResponse response = framework.create(new CreateStorageRequestImpl(contentItems,
+                null));
+        assertEquals(response.getCreatedMetacards()
+                .size(), provider.size());
+        assertEquals(response.getCreatedMetacards()
+                .size(), storageProvider.size());
+        for (Metacard curCard : response.getCreatedMetacards()) {
+            assertNotNull(curCard.getId());
+            assertThat(curCard.getId(), is(expectedId));
+            assertThat(curCard.getTitle(), is(expectedTitle));
+            assertThat(curCard.getAttribute(Metacard.POINT_OF_CONTACT)
+                    .getValue(), is(expectedPointOfContact));
         }
 
         // make sure that the event was posted correctly
