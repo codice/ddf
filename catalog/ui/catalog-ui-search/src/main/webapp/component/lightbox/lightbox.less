@@ -6,18 +6,21 @@
 
   .customElement;
 
-  transform: scale(0);
-  transition: transform @coreTransitionTime ease-in-out;
+  transition: opacity @coreTransitionTime ease-in-out;
+  transform: translateY(-100%);
   display: block;
+  opacity: 0;
   position: absolute;
   left: 0%;
   top: 0%;
   width: 100%;
   height: 100%;
   z-index: @zIndexLightbox;
+  background: rgba(0,0,0,.4);
 
   &.is-open {
-    transform: scale(1);
+    transform: translateY(0%);
+    opacity: 1;
   }
 
   .lightbox-container {

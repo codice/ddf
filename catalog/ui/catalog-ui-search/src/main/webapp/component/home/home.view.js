@@ -41,7 +41,6 @@ define([
             items: '.home-items'
         },
         initialize: function(){
-            $('header').after(this.el);
             this.listenTo(store.get('router'), 'change', this.handleRoute);
             this.handleRoute();
         },

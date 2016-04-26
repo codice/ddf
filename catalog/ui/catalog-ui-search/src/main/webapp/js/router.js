@@ -9,35 +9,49 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window*/
+/*global define, window, setTimeout, location*/
 
 define([
     'wreqr',
     'jquery',
+    'backbone',
     'marionette',
     'js/store',
-    'component/confirmation/confirmation.view'
-], function (wreqr, $, Marionette, store, ConfirmationView) {
+    'component/confirmation/confirmation.view',
+    'application',
+    'component/content/content.view',
+    'component/home/home.view'
+], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView, HomeView) {
 
     var Router = Marionette.AppRouter.extend({
         controller: {
             openWorkspace: function(workspaceId){
-                console.log('route to specific workspace:'+workspaceId);
+               // console.log('route to specific workspace:'+workspaceId);
             },
             home: function(){
-                console.log('route to workspaces home');
+               // console.log('route to workspaces home');
             },
             workspaces: function(){
-                console.log('route to workspaces home');
+                //console.log('route to workspaces home');
             }
         },
         appRoutes: {
-            'workspaces/:id(?*)': 'openWorkspace',
+            'workspaces/:id': 'openWorkspace',
             '(?*)': 'home',
             'workspaces(/)': 'workspaces'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
+            /*
+               HACK:  listeners for the router aren't setup (such as the onRoute or controller)
+                    until after initialize is done.  SetTimeout (with timeout of 0) pushes this
+                    navigate onto the end of the current execution queue
+             */
+            setTimeout(function(){
+                var currentFragment = location.hash;
+                Backbone.history.fragment = undefined;
+                this.navigate(currentFragment, {trigger: true});
+            }.bind(this), 0);
         },
         handleNavigate: function(args){
               this.navigate(args.fragment, args.options);
@@ -47,12 +61,14 @@ define([
                 case 'openWorkspace':
                     var workspaceId = args[0];
                     if (store.get('workspaces').get(workspaceId)!==undefined) {
+                        if (Application.App.workspaceRegion.currentView===undefined) {
+                            Application.App.workspaceRegion.show(new ContentView());
+                        }
                         store.setCurrentWorkspaceById(workspaceId);
                         this.updateRoute(name, path, args);
                     } else {
                         this.listenTo(ConfirmationView.generateConfirmation({
-                                prompt: 'Workspace has been deleted.  To access this workspace, ' +
-                                'please restore it first.',
+                                prompt: 'Either the workspace has been deleted or you no longer have permission to access it. ',
                                 yes: 'Go to Workspaces home screen'
                             }),
                             'change:choice',
@@ -67,9 +83,15 @@ define([
                     }
                     break;
                 case 'home':
+                    if (Application.App.workspacesRegion.currentView===undefined) {
+                        Application.App.workspacesRegion.show(new HomeView());
+                    }
                     this.updateRoute(name, path, args);
                     break;
                 case 'workspaces':
+                    if (Application.App.workspacesRegion.currentView===undefined) {
+                        Application.App.workspacesRegion.show(new HomeView());
+                    }
                     this.updateRoute(name, path, args);
                     break;
             }

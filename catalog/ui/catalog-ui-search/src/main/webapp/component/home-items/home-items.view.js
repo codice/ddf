@@ -21,15 +21,10 @@ define([
     'text!./home-items.hbs',
     'js/CustomElements',
     'js/store',
-    'js/router',
-    'moment',
-    'component/lightbox/lightbox.view.instance',
-    'component/tabs/workspace/tabs-workspace',
-    'component/tabs/workspace/tabs-workspace.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router, moment, lightboxInstance,
-    TabsModel, TabsView) {
+    'component/workspace-item/workspace-item.collection.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspaceItemCollection) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = store.get('workspaces');
         },
@@ -37,42 +32,20 @@ define([
         tagName: CustomElements.register('home-items'),
         modelEvents: {
         },
-        events: {
-            'click .choice': 'handleChoice',
-            'click .choice-actions': 'editWorkspaceDetails'
-        },
         ui: {
+        },
+        regions: {
+            homeItems: '.home-items-choices'
         },
         initialize: function(options){
             if (!options.model){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'all', _.throttle(this.render, 200));
         },
-        onRender: function(){
-        },
-        handleChoice: function(event){
-            var workspaceId = $(event.currentTarget).attr('data-workspaceId');
-            router.navigate('workspaces/'+workspaceId, {trigger: true});
-        },
-        editWorkspaceDetails: function(event){
-            event.stopPropagation();
-            var workspaceId = $(event.currentTarget).attr('data-workspaceId');
-            lightboxInstance.model.updateTitle('Workspace Details');
-            lightboxInstance.model.open();
-            lightboxInstance.lightboxContent.show(new TabsView({
-                model: new TabsModel({
-                    workspaceId: workspaceId
-                })
+        onBeforeShow: function(){
+            this.homeItems.show(new WorkspaceItemCollection({
+                collection: this.model
             }));
         },
-        serializeData: function() {
-            var workspacesJSON = this.model.toJSON();
-            workspacesJSON.forEach(function(workspace){
-                workspace.previewImage = workspace.metacards[0];
-                workspace.niceDate = moment(workspace.modified).fromNow();
-            });
-            return workspacesJSON;
-        }
     });
 });

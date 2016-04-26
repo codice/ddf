@@ -24,9 +24,9 @@ define([
     'component/content-toolbar/content-toolbar.view',
     'component/details-user/details-user.view',
     'component/details-buttons/details-buttons.view',
-    'js/router'
+    'wreqr'
 ], function (Marionette, _, $, template, CustomElements, LogoView, TitleView, ToolbarView,
-UserView, ButtonsView, router) {
+UserView, ButtonsView, wreqr) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -57,7 +57,12 @@ UserView, ButtonsView, router) {
             this.buttons.show(new ButtonsView());
         },
         navigateHome: function(){
-            router.navigate('workspaces', {trigger: true});
+            wreqr.vent.trigger('router:navigate', {
+                fragment: 'workspaces',
+                options: {
+                    trigger: true
+                }
+            });
         }
     });
 });

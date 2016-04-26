@@ -18,74 +18,72 @@ define([
     'underscore',
     'jquery',
     'component/menu-item/menu-item.collection.view',
-    'js/CustomElements',
-    './file/menu-vertical.file',
-    './tools/menu-vertical.tools'
-], function (Marionette, _, $, MenuItemCollectionView, CustomElements, FileMenu, ToolsMenu) {
+    'js/CustomElements'
+], function (Marionette, _, $, MenuItemCollectionView, CustomElements) {
 
     return Marionette.CollectionView.extend({
-        className: 'is-hidden',
         childView: MenuItemCollectionView,
         tagName: CustomElements.register('menu-vertical'),
         events: {
             'click ddf-menu-item.is-action': 'handleClick'
         },
-        initialize: function(){
+        initialize: function () {
             $('body').append(this.el);
             this.render();
-            this.listenTo(this.options.linkedView.model, 'change:activeMenu', this.handleActiveMenu);
+            this.listenTo(this.options.linkedModel, 'change:activeMenu', this.handleActiveMenu);
         },
-        open: function(){
-            this.$el.removeClass('is-hidden');
+        open: function () {
             this.updatePosition();
+            this.$el.addClass('is-open');
             this.listenForOutsideClick();
+            this.listenForResize();
+            this.listenForScroll();
         },
-        close: function(){
-            this.$el.addClass('is-hidden');
+        close: function () {
+            this.$el.removeClass('is-open');
             this.stopListeningForOutsideClick();
+            this.stopListeningForResize();
+            this.stopListeningForScroll();
         },
-        handleClick: function(){
-            this.options.linkedView.model.close();
+        handleClick: function () {
+            this.options.linkedModel.close();
         },
-        updatePosition: function(){
-            var clientRect = this.options.targetElement.getBoundingClientRect();
+        updatePosition: function () {
+            var clientRect = this.options.getTargetElement().getBoundingClientRect();
             this.$el.css('left', clientRect.left).css('top', clientRect.top + clientRect.height);
         },
-        listenForOutsideClick: function(){
-            $('body').on('click.'+this.cid,function(event){
-                console.log('outside click');
-                if (this.$el.find(event.target).length === 0){
+        listenForOutsideClick: function () {
+            $('body').on('mousedown.' + this.cid, function (event) {
+                if (this.$el.find(event.target).length === 0) {
                     this.handleClick();
                 }
             }.bind(this));
         },
-        stopListeningForOutsideClick: function(){
-            console.log('detaching listener '+this.cid);
-            $('body').off('click.'+this.cid);
+        stopListeningForOutsideClick: function () {
+            $('body').off('mousedown.' + this.cid);
         },
-        handleActiveMenu: function(){
-            if (this.options.linkedView.model.getActiveMenu()===this.options.name){
+        listenForResize: function(){
+            $(window).on('resize.'+this.cid, _.throttle(function(event){
+                this.updatePosition();
+            }.bind(this), 16));
+        },
+        stopListeningForResize: function(){
+            $(window).off('resize.'+this.cid);
+        },
+        listenForScroll: function(){
+            $('*').on('scroll.'+this.cid, _.throttle(function(event){
+                this.updatePosition();
+            }.bind(this), 16));
+        },
+        stopListeningForScroll: function(){
+            $('*').off('scroll.'+this.cid);
+        },
+        handleActiveMenu: function () {
+            if (this.options.linkedModel.getActiveMenu() === this.options.name) {
                 this.open();
             } else {
                 this.close();
             }
-        }
-    }, {
-        getNewFileMenu: function(linkedView, targetElement, name){
-            return new this({
-                collection: FileMenu.getNew(),
-                linkedView: linkedView,
-                targetElement: targetElement,
-                name: name
-            });
-        },
-        getNewToolsMenu: function(linkedView, targetElement, name) {
-            return new this({
-                collection: ToolsMenu.getNew(),
-                linkedView: linkedView,
-                targetElement: targetElement,
-                name: name
-            });
         }
     });
 });

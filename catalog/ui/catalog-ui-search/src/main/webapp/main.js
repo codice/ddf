@@ -19,7 +19,6 @@ require.config({
         bootstrapDatepicker: 'lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
         moment: 'lib/moment/min/moment.min',
-        perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
         spin: 'lib/spin.js/spin',
         q: 'lib/q/q',
         strapdown: 'lib/strapdown/v/0.2',
@@ -127,6 +126,7 @@ require.config({
                 'cometd'
             ]
         },
+        'jquery.ui.widget': ['jquery'],
         jqueryuiCore: ['jquery'],
         jqueryCookie: ['jquery'],
         mouse: [
@@ -159,7 +159,6 @@ require.config({
             'jquery.ui.widget',
             'mouse'
         ],
-        perfectscrollbar: ['jquery'],
         purl: ['jquery'],
         spectrum: ['jquery'],
         bootstrap: ['jquery'],
@@ -230,20 +229,7 @@ require([
         }
         return cache[template](data);
     };
-    //TODO: this hack here is to fix the issue of the main div not resizing correctly
-    //when the header and footer are in place
-    //remove this code when the correct way to get the div to resize is discovered
-    $(window).resize(function () {
-        var height = $('body').height();
-        if (properties.ui.header && properties.ui.header !== '') {
-            height = height - 20;
-        }
-        if (properties.ui.footer && properties.ui.footer !== '') {
-            height = height - 20;
-        }
-        $('#content').height(height);
-    });
-    $(window).trigger('resize');
+    //$(window).trigger('resize');
     $(document).ready(function () {
         document.title = properties.branding;
     });

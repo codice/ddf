@@ -164,6 +164,9 @@ define([
                 type: 'STRING'
             });
             return metacardInputCollection;
+        },
+        createBulkBasic: function(metacards){
+            
         }
     });
 

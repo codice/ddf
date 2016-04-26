@@ -24,7 +24,7 @@
   }
 
   .content-panelOne {
-    background: @background-color;
+    background: @niceBlack;
     width: @panelOneWidth;
     position: relative;
     z-index: 103;
@@ -37,8 +37,8 @@
     left: ~'calc(@{panelOneWidth} + @{panelTwoSpacing})';
     top: @panelTwoSpacing;
     z-index: 102;
-    background: @background-color;
-    box-shadow: 0px 3px 3px 10px @background-color;
+    background: @niceBlack;
+    box-shadow: 0px 3px 3px 10px @niceBlack;
     transition: transform @coreTransitionTime ease-in-out;
     transform: translateX(0%) scaleX(1);
   }
@@ -96,15 +96,6 @@
       overflow: hidden;
     }
   }
-}
-
-body.has-header @{customElementNamespace}content,
-body.has-footer @{customElementNamespace}content{
-  height: ~'calc(100% - 20px)';
-}
-
-body.has-header.has-footer @{customElementNamespace}content {
-  height: ~'calc(100% - 40px)';
 }
 
 @media (max-width: @mediumScreenSize) {

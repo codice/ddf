@@ -34,7 +34,6 @@ define([
     'js/view/WorkspaceIndicator.view',
     'js/store',
     'modelbinder',
-    'perfectscrollbar',
     'backbonecometd',
     'progressbar'
 ], function (Marionette, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate,

@@ -289,6 +289,7 @@ define([
                 }
             },
             mergeLatest: function () {
+                console.log(this.lastResponse);
                 var queryId = this.getQueryId();
                 var color = this.getColor();
                 if (this.lastResponse) {

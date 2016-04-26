@@ -21,9 +21,8 @@ define([
     'text!./home-templates.hbs',
     'js/CustomElements',
     'js/store',
-    'component/loading/loading.view',
-    'js/router'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView, router) {
+    'component/loading/loading.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView) {
 
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
@@ -45,7 +44,12 @@ define([
             var loadingview = new LoadingView();
             store.get('workspaces').once('sync', function(workspace, resp, options){
                 loadingview.remove();
-                router.navigate('workspaces/'+workspace.id, {trigger: true});
+                wreqr.vent.trigger('router:navigate', {
+                    fragment: 'workspaces/'+workspace.id,
+                    options: {
+                        trigger: true
+                    }
+                });
             });
             store.get('workspaces').createWorkspace();
         }

@@ -1,0 +1,41 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<h5 align="center">Update Frequency</h5>
+<div class="frequency-types">
+    <div class="frequency-type type-never">
+        <label>
+            <input type="radio" name="frequencyType{{cid}}" value="never" checked>
+            Never
+        </label>
+    </div>
+    <div class="frequency-type type-immediate">
+        <label>
+            <input type="radio" name="frequencyType{{cid}}" value="immediate" checked>
+            Immediate
+        </label>
+    </div>
+    <div class="frequency-type type-periodic">
+        <label>
+            <input type="radio" name="frequencyType{{cid}}" value="periodic" checked>
+            Periodic
+        </label>
+    </div>
+</div>
+<h5 align="center">Additional Notification Delivery</h5>
+<div class="notification-delivery">
+    <div class="delivery-checkbox">
+        <input type="checkbox"> Email
+    </div>
+    <input class="delivery-email" type="text">
+</div>

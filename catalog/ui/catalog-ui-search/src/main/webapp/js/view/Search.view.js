@@ -28,9 +28,7 @@ define([
     'js/model/Query',
     'js/view/WorkspaceSaveResults.view',
     'js/controllers/Filter.controller',
-    'js/store',
-    // Load non attached libs and plugins
-    'perfectscrollbar'
+    'js/store'
 ], function ($, _, Marionette, SlidingRegion, QueryView, Progress, MetacardList, MetacardDetail, MetacardModel, Backbone, dir, wreqr, searchPanel, SearchControl, QueryModel, WorkspaceSaveResults, FilterController, store) {
     'use strict';
     var Search = {};

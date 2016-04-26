@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, require */
+/*global define, require, setTimeout */
 // #Main Application
 define([
     'jquery',
@@ -31,7 +31,10 @@ define([
     'jquerycometd',
     'modelbinder',
     'collectionbinder',
-    'js/router'
+    'datepicker',
+    'datepickerOverride',
+    'multiselect',
+    'multiselectfilter'
 ], function ($, _, Marionette, Backbone, properties, maptype, header, footer, ModalController, SystemUsageController, User) {
     var Application = {};
     Application.App = new Marionette.Application();
@@ -44,6 +47,8 @@ define([
         loadingRegion: '#loading',
         headerRegion: 'header',
         footerRegion: 'footer',
+        workspacesRegion: '#workspaces',
+        workspaceRegion: '#workspace',
         controlPanelRegion: '#controlPanel',
         modalRegion: '#modalRegion'
     });
@@ -76,10 +81,13 @@ define([
         require([
             'js/module/Notification.module',
             'js/module/Tasks.module',
-            'js/module/Content.module',
-            'js/module/Home.module'
+            //'js/module/Content.module',
+            //'js/module/Home.module',
+            'js/router'
         ], function(){
-            Application.App.loadingRegion.$el.addClass('is-hidden');
+            setTimeout(function(){
+                Application.App.loadingRegion.$el.removeClass('is-open');
+            }, 1000);
         });
     });
 

@@ -1,12 +1,17 @@
 @{customElementNamespace}menu-vertical {
   position: absolute;
   display: block;
-  background: @background-color;
-  color: @text-color;
   z-index: @zIndexVerticalMenu;
 
   left: 50%;
   top: 50%;
 
   .boxShadow;
+
+  transform: translateY(-50%) scaleY(0);
+
+  &.is-open {
+    transition: transform @coreTransitionTime ease-in-out;
+    transform: translateY(0%) scaleY(1);
+  }
 }

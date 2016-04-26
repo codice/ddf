@@ -29,11 +29,10 @@ define([
     'text!templates/map.handlebars',
     'js/store',
     'component/tabs/metacard/tabs-metacard.view',
-    'component/tabs/metacards/tabs-metacards.view',
-    'js/router'
+    'component/tabs/metacards/tabs-metacards.view'
 ], function (wreqr, Marionette, _, $, contentTemplate, CustomElements, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, maptype, map, store,
-             MetacardTabsView, MetacardsTabsView, router) {
+             MetacardTabsView, MetacardsTabsView) {
 
     var debounceTime = 25;
 
@@ -54,7 +53,6 @@ define([
             'panelThree': '.content-panelThree'
         },
         initialize: function(){
-            $('header').after(this.el);
             var contentView = this;
             if (maptype.is3d()) {
                 var Map3d = Marionette.LayoutView.extend({
@@ -142,7 +140,9 @@ define([
             this.updatePanelOne();
             this.hidePanelTwo();
             this.menu.show(new MenuView());
-            this.panelThree.show(this._mapView);
+            if (this._mapView){
+                this.panelThree.show(this._mapView);
+            }
         },
         updatePanelOne: function(arg1, arg2){
             this.panelOne.show(new WorkspaceContentTabsView({

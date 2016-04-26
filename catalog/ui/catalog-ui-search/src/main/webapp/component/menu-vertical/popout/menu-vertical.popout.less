@@ -1,0 +1,30 @@
+@{customElementNamespace}menu-vertical.is-popout {
+
+  &.is-bottom::before {
+    content: '';
+    display: block;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid black;
+    text-align: center;
+    width: 0;
+    height: 0;
+    margin: auto;
+  }
+
+  &.is-top::after {
+    content: '';
+    display: block;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid black;
+    text-align: center;
+    width: 0;
+    height: 0;
+    margin: auto;
+  }
+
+  &.is-top.is-open {
+    transform: translateY(-100%) scaleY(1);
+  }
+}

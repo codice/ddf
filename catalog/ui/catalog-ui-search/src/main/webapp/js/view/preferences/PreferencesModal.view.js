@@ -40,20 +40,23 @@ define([
              CesiumLayersController, maptype, Modal, preferencesModalTemplate,
              colorPrefsTabTemplate, layerPrefsTabTemplate, layerListTemplate,
              layerPickerTemplate, preferenceButtonsTemplate, User, Cesium, wreqr) {
-    var PrefsModalView = Modal.extend({
+    var PrefsModalView = Marionette.LayoutView.extend({
+        setDefaultModel: function(){
+            this.model = Application.UserModel.get('user>preferences');
+        },
         template: preferencesModalTemplate,
-        className: 'well well-small prefsModal',
+        className: 'prefsModal',
         regions: {
             colorTabRegion: '#colorTab',
             layerTabRegion: '#layerTab'
         },
         events: { 'shown.bs.tab .nav-tabs > li > a[href="#layerTab"]': 'layerTabShown' },
-        initialize: function () {
-            // there is no automatic chaining of initialize.
-            Modal.prototype.initialize.apply(this, arguments);
-            var prefs = this.model.get('preferences');
-            this.colorTabView = new PrefsModalView.ColorTabView({ model: prefs.get('mapColors') });
-            this.layerTabView = new PrefsModalView.LayerTabView({ model: prefs.get('mapLayers') });
+        initialize: function (options) {
+            if (options.model===undefined){
+                this.setDefaultModel();
+            }
+            this.colorTabView = new PrefsModalView.ColorTabView({ model: this.model.get('mapColors') });
+            this.layerTabView = new PrefsModalView.LayerTabView({ model: this.model.get('mapLayers') });
             // only create map the first time user selects map tab.
             this.layerTabShown = _.once(function () {
                 this.layerTabView.setupMap();

@@ -22,38 +22,7 @@
             </span>
         </div>
     </div>
-    <div class="home-items-choices-grid">
-        {{#each this}}
-            <div class="choice" data-workspaceId="{{id}}">
-                <div class="choice-preview">
-                    {{#if previewImage}}
-                    <img src="/services/catalog/sources/ddf.distribution/{{previewImage}}?transform=resource">
-                    {{/if}}
-                </div>
-                <div class="choice-footer">
-                    <div class="choice-details">
-                        <div class="choice-title">
-                            {{title}}
-                        </div>
-                        <div class="choice-date">
-                            {{niceDate}}
-                        </div>
-                    </div>
-                    <div class="choice-actions" data-workspaceId="{{id}}">
-                        <span class="fa fa-ellipsis-v">
+    <div class="home-items-choices">
 
-                        </span>
-                    </div>
-                </div>
-            </div>
-        {{/each}}
-    </div>
-    <div class="home-items-choices-list is-hidden">
-        {{#each this}}
-            <div class="choice" data-workspaceId="{{id}}">
-                <div class="choice-preview"></div>
-                <div class="choice-description">{{title}}</div>
-            </div>
-        {{/each}}
     </div>
 </div>

@@ -18,9 +18,9 @@ define([
     'backbone',
     '../menu-vertical',
     'js/store',
-    'js/router',
+    'wreqr',
     'component/loading/loading.view'
-], function (_, Backbone, Vertical, store, router, LoadingView) {
+], function (_, Backbone, Vertical, store, wreqr, LoadingView) {
 
     var definition = [
         [
@@ -53,7 +53,12 @@ define([
                     ]
                 },
                 action: function(){
-                    router.navigate('workspaces', {trigger: true});
+                    wreqr.vent.trigger('router:navigate', {
+                        fragment: 'workspaces',
+                        options: {
+                            trigger: true
+                        }
+                    });
                 }
             },
             {
@@ -71,7 +76,12 @@ define([
                 action: function(){
                     var loadingview = new LoadingView();
                     store.getCurrentWorkspace().once('sync', function(){
-                        router.navigate('workspaces', {trigger: true});
+                        wreqr.vent.trigger('router:navigate', {
+                            fragment: 'workspaces',
+                            options: {
+                                trigger: true
+                            }
+                        });
                         loadingview.remove();
                     });
                     store.getCurrentWorkspace().destroy({

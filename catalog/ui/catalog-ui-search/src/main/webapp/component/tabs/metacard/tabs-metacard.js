@@ -24,8 +24,8 @@ define([
     return Tabs.extend({
         defaults: {
             tabs: {
-                'Basic': MetacardBasicView,
-                'Advanced': MetacardAdvancedView,
+                'Summary': MetacardBasicView,
+                'Details': MetacardAdvancedView,
                 'History': MetacardHistoryView,
                 'Associations': MetacardAssociationsView,
                 'Quality': MetacardQualityView,

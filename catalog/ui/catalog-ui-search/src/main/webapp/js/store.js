@@ -99,6 +99,9 @@ define([
                 }
             }
         },
+        getWorkspaceById: function(workspaceId){
+            return this.get('workspaces').get(workspaceId);
+        },
         setCurrentWorkspaceById: function(workspaceId){
             this.get('content').set('currentWorkspace', this.get('workspaces').get(workspaceId));
         },

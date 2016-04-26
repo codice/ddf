@@ -2,21 +2,34 @@
 .has-footer {
   #loading {
     height: ~'calc(100% - 20px)';
+    top: 20px;
   }
 }
 
 .has-header.has-footer {
   #loading {
     height: ~'calc(100% - 40px)';
+    top: 20px;
   }
 }
 
 #loading {
+  top: 0px;
+  left: 0px;
+  width: 100%;
   height: 100%;
   line-height: 100vh;
   font-size: xx-large;
   text-align: center;
   background: @background-color;
+  position: fixed;
+  transform: translateX(-100%);
+  transition: transform .5s ease-in-out;
+  z-index: 1000;
+
+  &.is-open {
+    transform: translateX(0%);
+  }
 }
 
 .loader {

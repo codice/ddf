@@ -19,7 +19,7 @@ define([
     'jquery',
     'text!./content-toolbar.hbs',
     'js/CustomElements',
-    'component/menu-vertical/menu-vertical.view',
+    'component/menu-vertical/toolbar/menu-vertical.toolbar.view',
     './content-toolbar'
 ], function (Marionette, _, $, template, CustomElements, MenuView, ContentToolbar) {
 
@@ -30,25 +30,35 @@ define([
         template: template,
         tagName: CustomElements.register('content-toolbar'),
         events: {
-            'click .menu-file': 'clickFile',
-            'click .menu-tools': 'clickTools',
-            'mouseover .menu-file': 'hoverFile',
-            'mouseover .menu-tools': 'hoverTools'
+            'click .toolbar-menu': 'clickMenu',
+            'mouseover .toolbar-menu': 'hoverMenu'
         },
         initialize: function (options) {
             if (!options.model){
                 this.setDefaultModel();
             }
-            this.listenTo(this.model, 'change:isOpen', this.handleOpen);
             this.listenTo(this.model, 'change:activeMenu', this.handleActiveMenu);
         },
         initializeMenus: function(){
-            this._fileMenu = MenuView.getNewFileMenu(this,
-                this.el.querySelector('.menu-file'),
+            this._fileMenu = MenuView.getNewFileMenu(this.model, function () {
+                    return this.el.querySelector('.menu-file');
+                }.bind(this),
                 'file');
-            this._toolsMenu = MenuView.getNewToolsMenu(this,
-                this.el.querySelector('.menu-tools'),
+            this._editMenu = MenuView.getNewEditMenu(this.model,
+                function () {
+                    return this.el.querySelector('.menu-edit');
+                }.bind(this),
+                'edit');
+            this._toolsMenu = MenuView.getNewToolsMenu(this.model,
+                function () {
+                    return this.el.querySelector('.menu-tools');
+                }.bind(this),
                 'tools');
+            this._viewMenu = MenuView.getNewViewMenu(this.model,
+                function () {
+                    return this.el.querySelector('.menu-view');
+                }.bind(this),
+                'view');
         },
         firstRender: true,
         onRender: function(){
@@ -57,40 +67,23 @@ define([
                 this.initializeMenus();
             }
         },
-        activateFile: function(){
-            this.model.activate('file');
+        activateMenu: function(menu){
+            this.model.activate(menu);
         },
-        activateTools: function(){
-            this.model.activate('tools');
-        },
-        clickFile: function(event){
+        clickMenu: function(event){
+            var menu = $(event.currentTarget).attr('data-menu');
             if (this.model.isOpen()){
                 this.model.close();
             } else {
                 event.stopPropagation();
-                this.activateFile();
+                this.activateMenu(menu);
             }
         },
-        clickTools: function(event){
+        hoverMenu: function(event){
+            var menu = $(event.currentTarget).attr('data-menu');
             if (this.model.isOpen()){
-                this.model.close();
-            } else {
-                event.stopPropagation();
-                this.activateTools();
+                this.activateMenu(menu);
             }
-        },
-        hoverFile: function(){
-            if (this.model.isOpen()){
-                this.activateFile();
-            }
-        },
-        hoverTools: function(){
-            if (this.model.isOpen()){
-                this.activateTools();
-            }
-        },
-        handleOpen: function(){
-            console.log(this.model.toJSON());
         },
         handleActiveMenu: function(){
             var activeMenu = this.model.getActiveMenu();

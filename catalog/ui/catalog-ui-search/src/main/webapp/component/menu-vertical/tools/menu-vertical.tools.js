@@ -17,8 +17,10 @@ define([
     'underscore',
     'backbone',
     '../menu-vertical',
-    'js/store'
-], function (_, Backbone, Vertical, store) {
+    'component/lightbox/lightbox.view.instance',
+    'component/ingest/ingest.view',
+    'js/view/ingest/IngestModal.view'
+], function (_, Backbone, Vertical, lightboxInstance, IngestView, IngestModalView) {
 
     var definition = [
         [
@@ -34,16 +36,17 @@ define([
                         'I'
                     ]
                 },
-                action: function(){
-                    //store.saveCurrentWorkspace();
+                action: function () {
+                    lightboxInstance.model.updateTitle('Ingest');
+                    lightboxInstance.model.open();
+                    lightboxInstance.lightboxContent.show(new IngestModalView());
                 }
             }
         ]
     ];
 
-    return Vertical.extend({
-    }, {
-        getNew: function(){
+    return Vertical.extend({}, {
+        getNew: function () {
             return new this(definition);
         }
     });
