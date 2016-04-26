@@ -76,27 +76,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     public static final String ROLE_SEARCH_SUBTREE = "role.search.subtree";
 
-    public static final String SSL = "ssl";
-
-    public static final String SSL_PROVIDER = "ssl.provider";
-
-    public static final String SSL_PROTOCOL = "ssl.protocol";
-
-    public static final String SSL_ALGORITHM = "ssl.algorithm";
-
-    public static final String SSL_KEYSTORE = "ssl.keystore";
-
-    public static final String SSL_KEYALIAS = "ssl.keyalias";
-
-    public static final String SSL_TRUSTSTORE = "ssl.truststore";
-
-    public static final String SSL_TIMEOUT = "ssl.timeout";
-
     public static final String SSL_STARTTLS = "ssl.starttls";
 
     public static final String PROTOCOL = "TLS";
-
-    static final long CREATE_SSL_FACTORY_ARG_6 = 10000;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);
 
@@ -124,23 +106,9 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     private String authentication = DEFAULT_AUTHENTICATION;
 
-    private String sslProvider;
-
-    private String sslProtocol;
-
-    private String sslAlgorithm;
-
-    private String sslKeystore;
-
-    private String sslKeyAlias;
-
-    private String sslTrustStore;
-
     private boolean startTls = false;
 
     private LDAPConnectionFactory ldapConnectionFactory;
-
-    private long sslTimeout;
 
     protected boolean doLogin() throws LoginException {
         Callback[] callbacks = new Callback[2];
@@ -381,17 +349,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             roleFilter = (String) options.get(ROLE_FILTER);
             roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
             roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
-            sslProvider = (String) options.get(SSL_PROVIDER);
-            sslProtocol = (String) options.get(SSL_PROTOCOL);
-            sslAlgorithm = (String) options.get(SSL_ALGORITHM);
-            sslKeystore = (String) options.get(SSL_KEYSTORE);
-            sslKeyAlias = (String) options.get(SSL_KEYALIAS);
-            sslTrustStore = (String) options.get(SSL_TRUSTSTORE);
-            try {
-                sslTimeout = Integer.parseInt((String) options.get(SSL_TIMEOUT));
-            } catch (Exception e) {
-                sslTimeout = CREATE_SSL_FACTORY_ARG_6;
-            }
             startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
 
             if (ldapConnectionFactory != null) {
@@ -419,21 +376,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
         try {
             if (useSsl || useTls) {
-                SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-                if (sslKeystore != null && sslTrustStore != null) {
-                    BundleContext bundleContext = getContext();
-                    if (null != bundleContext) {
-                        ServiceReference<org.apache.karaf.jaas.config.KeystoreManager> ref = bundleContext.getServiceReference(
-                                org.apache.karaf.jaas.config.KeystoreManager.class);
-                        org.apache.karaf.jaas.config.KeystoreManager manager = bundleContext.getService(
-                                ref);
-                        sslContext = manager.createSSLContext(sslProvider, sslProtocol,
-                                sslAlgorithm, sslKeystore, sslKeyAlias, sslTrustStore, sslTimeout);
-                    } else {
-                        LOGGER.error("Unable to retrieve Bundle Context!");
-                    }
-                }
-
+                SSLContext sslContext = SSLContext.getDefault();
                 lo.setSSLContext(sslContext);
             }
         } catch (GeneralSecurityException e) {

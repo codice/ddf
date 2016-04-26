@@ -70,7 +70,7 @@
 
 	</OCD>
 
-	<Designate factoryPid="Claims_Handler_Manager">
+	<Designate factoryPid="Claims_Handler_Manager" pid="Claims_Handler_Manager">
 	    <Object ocdref="Claims_Handler_Manager"/>
   	</Designate>
 
