@@ -91,7 +91,6 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         Connection connection = null;
         try {
-
             AndFilter filter = new AndFilter();
             filter.and(new EqualsFilter("objectclass", this.getObjectClass()))
                     .and(new EqualsFilter(this.getUserNameAttribute(), user));
@@ -111,19 +110,18 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             String[] searchAttributes = null;
             searchAttributes = searchAttributeList.toArray(new String[searchAttributeList.size()]);
 
-            LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
-                    this.getUserBaseDN(),
-                    filter.toString());
             connection = connectionFactory.getConnection();
             if (connection != null) {
                 BindResult bindResult = connection.bind(bindUserDN,
                         bindUserCredentials.toCharArray());
                 if (bindResult.isSuccess()) {
-                    ConnectionEntryReader entryReader = connection.search((this.getUserBaseDN()
-                                    == null) ? "" : this.getUserBaseDN(),
-                            SearchScope.WHOLE_SUBTREE,
-                            filter.toString(),
-                            searchAttributes);
+                    String baseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDN());
+                    LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
+                            baseDN,
+                            filter.toString());
+
+                    ConnectionEntryReader entryReader = connection.search(baseDN,
+                            SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
@@ -163,7 +161,6 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                         }
 
                     }
-
                 } else {
                     LOGGER.error("LDAP Connection failed.");
                 }

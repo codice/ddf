@@ -40,12 +40,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.51</version>
+            <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.51</version>
+            <version>${bouncy.version}</version>
         </dependency>
         <dependency>
             <groupId>ca.juliusdavies</groupId>
@@ -73,7 +73,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            bcpkix-jdk15on,
                             not-yet-commons-ssl
                         </Embed-Dependency>
                     </instructions>

@@ -17,19 +17,23 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.function.Predicate;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.PropertiesLoader;
+import ddf.security.SubjectUtils;
 
 /**
  * Logic that handles loading attribute maps from an incoming format and returning it as a Map.
- *
  */
 public class AttributeMapLoader {
 
@@ -38,13 +42,12 @@ public class AttributeMapLoader {
     /**
      * Parses a file of attributes and returns them as a map.
      *
-     * @param attributeMapFile
-     *            File of the listed attributes
+     * @param attributeMapFile File of the listed attributes
      * @return Map containing the fully populated attributes or empty map if file does not exist.
      */
     public static Map<String, String> buildClaimsMapFile(String attributeMapFile) {
-        Map<String, String> map = PropertiesLoader.toMap(PropertiesLoader.loadProperties(
-                attributeMapFile));
+        Map<String, String> map = PropertiesLoader.toMap(
+                PropertiesLoader.loadProperties(attributeMapFile));
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(logLdapClaimsMap(map));
@@ -56,10 +59,9 @@ public class AttributeMapLoader {
     /**
      * Obtains the user name from the principal.
      *
-     * @param principal
-     *            Describing the current user that should be used for retrieving claims.
+     * @param principal Describing the current user that should be used for retrieving claims.
      * @return the user name if the principal has one, null if no name is specified or if principal
-     *         is null.
+     * is null.
      */
     public static String getUser(Principal principal) {
         String user = null;
@@ -92,6 +94,33 @@ public class AttributeMapLoader {
         }
 
         return user;
+    }
+
+    /**
+     * Determines the base DN for the provided {@code Principal}.
+     * <p>
+     * If an X500 {@code Principal} is provided, its base DN is extracted; however, if it is empty
+     * then then provided {@code defaultBaseDN} is used instead.
+     * <p>
+     * If any other type of {@code Principal} is provided, the {@code defaultBaseDN} is used.
+     *
+     * @param principal     the Principal to check
+     * @param defaultBaseDN the default DN to fall back to
+     * @return the base DN
+     */
+    public static String getBaseDN(Principal principal, String defaultBaseDN) {
+        String baseDN = null;
+        if (principal instanceof X500Principal) {
+            Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType()
+                    .equals(BCStyle.CN);
+            baseDN = SubjectUtils.filterDN((X500Principal) principal, predicate);
+        }
+
+        if (StringUtils.isEmpty(baseDN)) {
+            baseDN = (defaultBaseDN == null) ? "" : defaultBaseDN;
+        }
+
+        return baseDN;
     }
 
     public static String getCredentials(Principal principal) {

@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.function.Predicate;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -32,8 +33,12 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Tests out the SubjectUtils class
@@ -44,7 +49,9 @@ public class SubjectUtilsTest {
 
     private static final String DEFAULT_NAME = "default";
 
-    Principal principal;
+    private Principal principal;
+
+    private X500Principal dnPrincipal;
 
     @Before
     public void setup()
@@ -56,6 +63,8 @@ public class SubjectUtilsTest {
             X509Certificate localhost = (X509Certificate) keyStore.getCertificate("localhost");
             principal = localhost.getSubjectDN();
         }
+
+        dnPrincipal = new X500Principal("CN=Foo,OU=Engineering,OU=Dev,O=DDF,ST=AZ,C=US");
     }
 
     @Test
@@ -85,7 +94,48 @@ public class SubjectUtilsTest {
 
     @Test
     public void testGetCommonName() {
-        assertThat(SubjectUtils.getCommonName(new X500Principal(principal.getName())), is("localhost"));
+        assertThat(SubjectUtils.getCommonName(new X500Principal(principal.getName())),
+                is("localhost"));
     }
 
+    @Test
+    public void testFilterDNKeepOne() {
+        Predicate<RDN> predicate = rdn -> rdn.getTypesAndValues()[0].getType()
+                .equals(BCStyle.CN);
+        String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+        assertThat(baseDN, is("CN=Foo"));
+    }
+
+    @Test
+    public void testFilterDNDropOne() {
+        Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType()
+                .equals(BCStyle.CN);
+        String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+        assertThat(baseDN, is("OU=Engineering,OU=Dev,O=DDF,ST=AZ,C=US"));
+    }
+
+    @Test
+    public void testFilterDNDropTwo() {
+        Predicate<RDN> predicate = rdn -> !ImmutableSet.of(BCStyle.C, BCStyle.ST)
+                .contains(rdn.getTypesAndValues()[0].getType());
+        String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+        assertThat(baseDN, is("CN=Foo,OU=Engineering,OU=Dev,O=DDF"));
+    }
+
+    @Test
+    public void testFilterDNDropMultivalue() {
+        Predicate<RDN> predicate = rdn -> !rdn.getTypesAndValues()[0].getType()
+                .equals(BCStyle.OU);
+        String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+        assertThat(baseDN, is("CN=Foo,O=DDF,ST=AZ,C=US"));
+    }
+
+    @Test
+    public void testFilterDNRemoveAll() {
+        Predicate<RDN> predicate = rdn -> !ImmutableSet.of(BCStyle.OU, BCStyle.CN, BCStyle.O,
+                BCStyle.ST, BCStyle.C)
+                .contains(rdn.getTypesAndValues()[0].getType());
+        String baseDN = SubjectUtils.filterDN(dnPrincipal, predicate);
+        assertThat(baseDN, is(""));
+    }
 }

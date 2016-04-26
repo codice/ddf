@@ -14,12 +14,16 @@
 package ddf.security;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.function.Predicate;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.opensaml.core.xml.schema.XSString;
@@ -87,7 +91,7 @@ public final class SubjectUtils {
      * @return String representation of the user name if available or null if no
      * user name could be found.
      */
-    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName) {
+    public static String getName(Subject subject, String defaultName) {
         return getName(subject, defaultName, false);
     }
 
@@ -101,7 +105,7 @@ public final class SubjectUtils {
      * defaultName if no user name could be found or incoming subject
      * was null.
      */
-    public static String getName(org.apache.shiro.subject.Subject subject, String defaultName,
+    public static String getName(Subject subject, String defaultName,
             boolean returnDisplayName) {
         String name = defaultName;
         if (subject != null) {
@@ -148,7 +152,15 @@ public final class SubjectUtils {
                 .toString();
     }
 
-    public static String getEmailAddress(org.apache.shiro.subject.Subject subject) {
+    public static String filterDN(X500Principal principal, Predicate<RDN> predicate) {
+        RDN[] rdns = Arrays.stream(new X500Name(principal.getName()).getRDNs())
+                .filter(predicate)
+                .toArray(RDN[]::new);
+
+        return new X500Name(rdns).toString();
+    }
+
+    public static String getEmailAddress(Subject subject) {
         if (subject == null) {
             LOGGER.debug("Incoming subject was null, cannot look up email address.");
             return null;

@@ -167,16 +167,23 @@
                                 <artifactItem>
                                     <groupId>org.bouncycastle</groupId>
                                     <artifactId>bcprov-jdk15on</artifactId>
-                                    <version>1.49</version>
+                                    <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
-                                    <destFileName>bcprov-1.49.jar</destFileName>
+                                    <destFileName>bcprov-${bouncy.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.bouncycastle</groupId>
-                                    <artifactId>bcprov-ext-jdk15on</artifactId>
-                                    <version>1.49</version>
+                                    <artifactId>bcmail-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
-                                    <destFileName>bcprov-ext-1.49.jar</destFileName>
+                                    <destFileName>bcmail-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcpkix-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

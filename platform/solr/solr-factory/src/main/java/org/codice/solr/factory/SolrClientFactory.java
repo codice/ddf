@@ -66,12 +66,11 @@ public class SolrClientFactory {
 
     public static final String DEFAULT_CORE_NAME = "core1";
 
-    public static final List<String> DEFAULT_PROTOCOLS = Collections.unmodifiableList(Arrays.asList(
-            StringUtils.split(System.getProperty("https.protocols"), ",")));
+    public static final List<String> DEFAULT_PROTOCOLS = Collections.unmodifiableList(
+            Arrays.asList(StringUtils.split(System.getProperty("https.protocols"), ",")));
 
-    public static final List<String> DEFAULT_CIPHER_SUITES =
-            Collections.unmodifiableList(Arrays.asList(StringUtils.split(System.getProperty(
-                    "https.cipherSuites"), ",")));
+    public static final List<String> DEFAULT_CIPHER_SUITES = Collections.unmodifiableList(
+            Arrays.asList(StringUtils.split(System.getProperty("https.cipherSuites"), ",")));
 
     public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
@@ -82,8 +81,9 @@ public class SolrClientFactory {
     private static final String THREAD_POOL_DEFAULT_SIZE = "128";
 
     private static ExecutorService getThreadPool() throws NumberFormatException {
-        Integer threadPoolSize = Integer.parseInt(System.getProperty(
-                    "org.codice.ddf.system.threadPoolSize", THREAD_POOL_DEFAULT_SIZE));
+        Integer threadPoolSize = Integer.parseInt(
+                System.getProperty("org.codice.ddf.system.threadPoolSize",
+                        THREAD_POOL_DEFAULT_SIZE));
         return Executors.newFixedThreadPool(threadPoolSize);
     }
 
@@ -148,9 +148,7 @@ public class SolrClientFactory {
 
     private static CloseableHttpClient getHttpClient(boolean retryRequestsOnError) {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                getSslContext(),
-                getProtocols(),
-                getCipherSuites(),
+                getSslContext(), getProtocols(), getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
         HttpRequestRetryHandler solrRetryHandler = new SolrHttpRequestRetryHandler();
 
@@ -201,9 +199,8 @@ public class SolrClientFactory {
 
         try {
             sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(keyStore,
-                            System.getProperty("javax.net.ssl.keyStorePassword")
-                                    .toCharArray())
+                    .loadKeyMaterial(keyStore, System.getProperty("javax.net.ssl.keyStorePassword")
+                            .toCharArray())
                     .loadTrustMaterial(trustStore)
                     .useTLS()
                     .build();
@@ -255,23 +252,20 @@ public class SolrClientFactory {
                 String configFile = StringUtils.defaultIfBlank(configFileName,
                         DEFAULT_SOLRCONFIG_XML);
 
-                String instanceDir = Paths.get(System.getProperty("karaf.home"),
-                        "data",
-                        "solr",
+                String instanceDir = Paths.get(System.getProperty("karaf.home"), "data", "solr",
                         coreName)
                         .toString();
 
-                CoreAdminRequest.createCore(coreName,
-                        instanceDir,
-                        client,
-                        configFile,
+                CoreAdminRequest.createCore(coreName, instanceDir, client, configFile,
                         DEFAULT_SCHEMA_XML);
             } else {
                 LOGGER.debug("Solr core ({}) already exists - reloading it", coreName);
                 CoreAdminRequest.reloadCore(coreName, client);
             }
+        } else {
+            LOGGER.debug("Unable to ping Solr core {}", coreName);
+            throw new SolrServerException("Unable to ping Solr core");
         }
-
     }
 
     private static boolean solrCoreExists(SolrClient client, String coreName) {
@@ -315,11 +309,10 @@ public class SolrClientFactory {
                     return client;
                 } catch (Exception e) {
                     retryCount = Math.min(retryCount + 1, MAX_RETRY_COUNT);
-                    long retrySleepMillis = (long) Math.pow(2, Math.min(retryCount,
-                            MAX_RETRY_COUNT)) * 50;
+                    long retrySleepMillis = (long) Math.pow(2,
+                            Math.min(retryCount, MAX_RETRY_COUNT)) * 50;
                     LOGGER.info("Failed retry {} to create Solr client ({}), trying again in {}",
-                            retryIndex,
-                            coreName,
+                            retryIndex, coreName,
                             DurationFormatUtils.formatDurationWords(retrySleepMillis, true, true));
                     LOGGER.debug("Retry failed", e);
                     Thread.sleep(retrySleepMillis);
