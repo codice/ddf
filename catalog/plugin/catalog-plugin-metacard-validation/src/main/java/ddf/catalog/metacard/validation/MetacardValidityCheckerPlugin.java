@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -53,17 +54,20 @@ public class MetacardValidityCheckerPlugin implements PreQueryPlugin {
         try {
             if (!showInvalidMetacards && !filterAdapter.adapt(input.getQuery(),
                     new ValidationQueryDelegate())) {
-                QueryImpl query = new QueryImpl(filterBuilder.allOf(input.getQuery(),
+                Query inputQuery = input.getQuery();
+                QueryImpl query = new QueryImpl(filterBuilder.allOf(inputQuery,
                         filterBuilder.attribute(VALIDATION_ERRORS)
                                 .is()
                                 .empty(),
                         filterBuilder.attribute(VALIDATION_WARNINGS)
                                 .is()
-                                .empty()));
-                query.setPageSize(input.getQuery()
-                        .getPageSize());
-                query.setRequestsTotalResultsCount(input.getQuery()
-                        .requestsTotalResultsCount());
+                                .empty()),
+                        inputQuery.getStartIndex(),
+                        inputQuery.getPageSize(),
+                        inputQuery.getSortBy(),
+                        inputQuery.requestsTotalResultsCount(),
+                        inputQuery.getTimeoutMillis());
+
                 queryRequest = new QueryRequestImpl(query,
                         input.isEnterprise(),
                         input.getSourceIds(),
