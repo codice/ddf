@@ -72,7 +72,9 @@ public class CookieCache {
     public Element getSamlAssertion(String key) {
         DataWrapper dataWrapper = cache.getIfPresent(key);
         if (dataWrapper != null) {
-            return dataWrapper.element;
+            synchronized (dataWrapper) {
+                return dataWrapper.element;
+            }
         }
         return null;
     }
@@ -83,7 +85,9 @@ public class CookieCache {
             LOGGER.debug("Expiring Saml assertion due to LogoutRequest\n[{}:{}]",
                     key,
                     dataWrapper.element);
-            dataWrapper.element = null;
+            synchronized (dataWrapper) {
+                dataWrapper.element = null;
+            }
         }
     }
 
@@ -138,12 +142,12 @@ public class CookieCache {
         }
     }
 
+    /**
+     * Data access to each of the class variables should be synchronized
+     */
     private static class DataWrapper {
         private Element element;
 
-        /**
-         * Data access to this variable should be synchronized
-         */
         private final Set<String> activeSpSet;
 
         private DataWrapper(Element element) {
