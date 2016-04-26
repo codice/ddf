@@ -36,3 +36,10 @@ export function grow () {
     type: 'GROW_DISPLAY_SIZE'
   }
 }
+
+export function expandEntry (hash) {
+  return {
+    type: 'CHANGE_EXPANDED_ENTRY',
+    hash: hash
+  }
+}

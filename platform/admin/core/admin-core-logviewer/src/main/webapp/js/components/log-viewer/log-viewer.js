@@ -17,18 +17,20 @@ import React from 'react'
 import moment from 'moment'
 import VisibilitySensor from 'react-visibility-sensor'
 
+import './log-viewer.less'
+
 import LevelSelector from '../level-selector/level-selector'
 import TextFilter from '../text-filter/text-filter'
 import LogEntry from '../log-entry/log-entry'
 import * as actions from '../../actions'
 import filterLogs from '../../filter'
 
-export default ({ dispatch, displaySize, logs, filter }) => {
+export default ({ dispatch, expandedHash, displaySize, logs, filter }) => {
   const filteredLogs = filterLogs(filter, logs)
 
   const displayedLogs = filteredLogs.slice(0, displaySize)
     .map(function (row, i) {
-      return <LogEntry key={i} entry={row.entry} marks={row.marks} />
+      return <LogEntry key={i} entry={row.entry} marks={row.marks} expandedHash={expandedHash} dispatch={dispatch}/>
     })
 
   // grow the log display when the bottom is reached
@@ -42,7 +44,7 @@ export default ({ dispatch, displaySize, logs, filter }) => {
   const loading = () => {
     if (filteredLogs.length > 0 && displayedLogs.length < filteredLogs.length) {
       return (
-        <VisibilitySensor onChange={growLogs}>
+        <VisibilitySensor onChange={growLogs} partialVisibility={Boolean(true)} delay={200}>
           <div className='loading'>Loading...</div>
         </VisibilitySensor>
       )
@@ -73,10 +75,22 @@ export default ({ dispatch, displaySize, logs, filter }) => {
     }
   }
 
+  const getTableClasses = () => {
+    if (expandedHash === undefined) {
+      return 'table'
+    } else {
+      return 'table dimUnselected'
+    }
+  }
+
+  const deselect = () => {
+    dispatch(actions.expandEntry(undefined))
+  }
+
   return (
     <div className='container'>
       <div className='filterRow'>
-        <table className='table'>
+        <table className='table' onClick={deselect}>
           <thead>
             <tr>
               <td className='header' width={175}>
@@ -111,7 +125,7 @@ export default ({ dispatch, displaySize, logs, filter }) => {
       </div>
 
       <div className='logRows'>
-        <table className='table'>
+        <table className={getTableClasses()}>
           <tbody>
             {displayedLogs}
           </tbody>

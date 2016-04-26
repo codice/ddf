@@ -20,11 +20,22 @@ const INITIAL_DISPLAY_SIZE = 25
 const GROW_SIZE = 50
 
 export default (state, action) => {
+  // determines whether to toggle or switch the expandedHash
+  const toggleExpand = () => {
+    if (action.hash === state.expandedHash) {
+      return undefined
+    } else {
+      return action.hash
+    }
+  }
+
+  // starting state
   if (state === undefined) {
     return {
       logs: [],
       filter: { level: 'ALL' },
-      displaySize: INITIAL_DISPLAY_SIZE
+      displaySize: INITIAL_DISPLAY_SIZE,
+      expandedHash: undefined
     }
   }
 
@@ -43,6 +54,11 @@ export default (state, action) => {
     case 'GROW_DISPLAY_SIZE':
       return { ...state,
         displaySize: state.displaySize + GROW_SIZE
+      }
+
+    case 'CHANGE_EXPANDED_ENTRY':
+      return { ...state,
+        expandedHash: toggleExpand()
       }
 
     default:

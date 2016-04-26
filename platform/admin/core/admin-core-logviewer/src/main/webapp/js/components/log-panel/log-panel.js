@@ -16,6 +16,8 @@
 import React from 'react'
 import LogViewer from '../log-viewer/log-viewer'
 
+import './log-panel.less'
+
 const panelClass = () => {
   if (window === window.top) {
     return 'panel'
@@ -43,6 +45,7 @@ export default ({ state, dispatch }) => {
           filter={state.filter}
           logs={state.logs}
           displaySize={state.displaySize}
+          expandedHash={state.expandedHash}
           dispatch={dispatch} />
       </div>
     </div>

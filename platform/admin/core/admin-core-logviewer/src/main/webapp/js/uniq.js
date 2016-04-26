@@ -14,10 +14,11 @@
  **/
 
 import eventStream from 'event-stream'
+import hash from 'object-hash'
 
 const MAX_COMPARE_SIZE = 5000
 
-// filters out old/duplicate logs and stream out new/unique logs
+// filters out old/duplicate logs and stream out new/unique logs and attaches a hash
 export default () => {
   var lastSet = []
 
@@ -30,9 +31,15 @@ export default () => {
     return found === undefined
   }
 
+  // generates an MD5 hash from the object and adds it as a key
+  var attachHash = (entry) => {
+    entry.hash = hash.MD5(entry)
+    return entry
+  }
+
   return eventStream.through(function (currentEntry) {
     if (isNotInOldList(currentEntry)) {
-      this.emit('data', currentEntry)
+      this.emit('data', attachHash(currentEntry))
       lastSet.unshift(currentEntry) // append to front of lastSet
       if (lastSet.length > MAX_COMPARE_SIZE) {
         lastSet.pop() // get rid of oldest one
