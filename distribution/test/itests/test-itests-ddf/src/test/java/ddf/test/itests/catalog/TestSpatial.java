@@ -143,6 +143,12 @@ public class TestSpatial extends AbstractIntegrationTest {
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     PLAINXML_NEAR_METACARD),
                                     new ExpectedResultPair(ResultType.TITLE, GEOJSON_FAR_METACARD)})
+                    .put("CswXPathExpressionQueryWithAttributeSelector",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    PLAINXML_FAR_METACARD)})
+                    .put("CswXPathExpressionQuery",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    CSW_METACARD)})
                     .build();
 
     @BeforeExam
@@ -311,6 +317,20 @@ public class TestSpatial extends AbstractIntegrationTest {
             throws XPathException, ParserConfigurationException, SAXException, IOException {
 
         performQueryAndValidateExpectedResults("CswLogicalOperatorContextualOrQuery");
+    }
+
+    @Test
+    public void testCswXPathExpressionQueryWithAttributeSelector()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswXPathExpressionQueryWithAttributeSelector");
+    }
+
+    @Test
+    public void testCswXPathExpressionQuery()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswXPathExpressionQuery");
     }
 
     /**
