@@ -189,10 +189,10 @@
                         <plugin>
                             <groupId>de.saumya.mojo</groupId>
                             <artifactId>gem-maven-plugin</artifactId>
-                            <version>1.0.5</version>
+                            <version>1.1.5</version>
                             <configuration>
                                 <!-- align JRuby version with AsciidoctorJ to avoid redundant downloading -->
-                                <jrubyVersion>1.7.9</jrubyVersion>
+                                <jrubyVersion>1.7.25</jrubyVersion>
                                 <gemHome>${project.build.directory}/gems</gemHome>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                             </configuration>
