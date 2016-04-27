@@ -117,7 +117,7 @@ public class TestFanout extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(containsString("Unknown source"));
+                .body(containsString("Unsupported query"));
     }
 
     @Test
@@ -129,6 +129,6 @@ public class TestFanout extends AbstractIntegrationTest {
                 .log()
                 .all()
                 .assertThat()
-                .body(containsString("SiteNames could not be resolved"));
+                .body(containsString("Error executing query"));
     }
 }

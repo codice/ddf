@@ -559,7 +559,9 @@ public class RESTEndpoint implements RESTService {
                 // a huge stack trace
                 // in a GUI or whatever else is connected to this endpoint
             } catch (RuntimeException | UnsupportedEncodingException e) {
-                throw new ServerErrorException(e, Status.BAD_REQUEST);
+                String exceptionMessage = "Unknown error occurred while processing request: ";
+                LOGGER.warn(exceptionMessage, e);
+                throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             }
         } else {
             throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
