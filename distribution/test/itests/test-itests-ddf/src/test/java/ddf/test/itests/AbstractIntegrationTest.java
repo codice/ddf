@@ -382,7 +382,6 @@ public abstract class AbstractIntegrationTest {
                 .versionAsInProject()
                 .getURL(), "ddf", KARAF_VERSION).unpackDirectory(new File("target/exam"))
                 .useDeployFolder(false));
-
     }
 
     protected Option[] configurePaxExam() {
