@@ -33,8 +33,8 @@ define([
             'click .previous': 'previous',
             'click .next': 'next',
             'click .finish': 'finish',
-            'click .restart-later': 'finish',
-            'click .restart-now': 'restart'
+            'click .shutdown-later': 'finish',
+            'click .shutdown-now': 'shutdown'
         },
         initialize: function() {
             this.listenTo(this.model, 'change', this.updateProgress);
@@ -70,9 +70,9 @@ define([
                 alert('Final installation failed, please check application logs for details.');
             });
          },
-         restart: function() {
+         shutdown: function() {
             this.model.trigger('block');
-            this.model.set({message: 'Restarting.... If not automatically redirected in a little while click the link above.'});
+            this.model.set({message: 'Shutting down.... When complete please manually start the system and then go to the Admin Console.'});
             this.model.save(true)
             .fail(function(){
                 alert('Final installation failed, please check application logs for details.');

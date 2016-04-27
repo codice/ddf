@@ -158,9 +158,9 @@ Final Page
 
 image::final_page.png[Final Page,${image.width}]
 
-Restart Page
+Shutdown Page
 
-image::restart_page.png[Restart Page,${image.width}]
+image::shutdown_page.png[Shutdown Page,${image.width}]
 [NOTE]
 ===============================
 The redirect will only work if the certificates are configured in the browser. +
