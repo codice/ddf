@@ -220,13 +220,15 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                     String metacardKey = keyValuePermission.getKey();
                     // user specified this key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchAllMap.get(metacardKey), keyValuePermission.getValues());
+                        KeyValuePermission kvp =
+                                new KeyValuePermission(matchAllMap.get(metacardKey),
+                                        keyValuePermission.getValues());
                         matchAllPermissions.add(kvp);
                         // user specified this key in the match one list - remap key
                     } else if (matchOneMap.containsKey(metacardKey)) {
-                        KeyValuePermission kvp = new KeyValuePermission(
-                                matchOneMap.get(metacardKey), keyValuePermission.getValues());
+                        KeyValuePermission kvp =
+                                new KeyValuePermission(matchOneMap.get(metacardKey),
+                                        keyValuePermission.getValues());
                         matchOnePermissions.add(kvp);
                         // this key was not specified in either - default to match all with the
                         // same key value
@@ -240,13 +242,17 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                 }
 
                 CollectionPermission subjectAllCollection = new CollectionPermission(
-                        CollectionPermission.UNKNOWN_ACTION, perms);
+                        CollectionPermission.UNKNOWN_ACTION,
+                        perms);
                 KeyValueCollectionPermission matchAllCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchAllPermissions);
-                KeyValueCollectionPermission matchAllPreXacmlCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchAllPreXacmlPermissions);
+                        kvcp.getAction(),
+                        matchAllPermissions);
+                KeyValueCollectionPermission matchAllPreXacmlCollection =
+                        new KeyValueCollectionPermission(kvcp.getAction(),
+                                matchAllPreXacmlPermissions);
                 KeyValueCollectionPermission matchOneCollection = new KeyValueCollectionPermission(
-                        kvcp.getAction(), matchOnePermissions);
+                        kvcp.getAction(),
+                        matchOnePermissions);
 
                 matchAllCollection = isPermittedByExtensionAll(subjectAllCollection,
                         matchAllCollection);
@@ -254,8 +260,8 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                         matchAllPreXacmlCollection);
                 matchOneCollection = isPermittedByExtensionOne(subjectAllCollection,
                         matchOneCollection);
-                MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(
-                        perms);
+                MatchOneCollectionPermission subjectOneCollection =
+                        new MatchOneCollectionPermission(perms);
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchAllXacml = subjectAllCollection.implies(matchAllPreXacmlCollection);
@@ -272,9 +278,11 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
                 //if we weren't able to automatically imply these permissions, call out to XACML
                 if (!matchAllXacml) {
-                    KeyValueCollectionPermission xacmlPermissions = new KeyValueCollectionPermission(
-                            kvcp.getAction(), matchAllPreXacmlPermissions);
-                    matchAllXacml = xacmlPdp.isPermitted(curUser, authorizationInfo,
+                    KeyValueCollectionPermission xacmlPermissions =
+                            new KeyValueCollectionPermission(kvcp.getAction(),
+                                    matchAllPreXacmlPermissions);
+                    matchAllXacml = xacmlPdp.isPermitted(curUser,
+                            authorizationInfo,
                             xacmlPermissions);
                     if (matchAllXacml) {
                         SecurityLogger.audit(
@@ -460,7 +468,8 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchAllMap.", values[1].trim(),
+                    SecurityLogger.audit("Adding mapping: {} = {} to matchAllMap.",
+                            values[1].trim(),
                             values[0].trim());
                     matchAllMap.put(values[1].trim(), values[0].trim());
                 } else {
@@ -493,7 +502,8 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             for (String mapping : list) {
                 values = mapping.split("=");
                 if (values.length == 2) {
-                    LOGGER.debug("Adding mapping: {} = {} to matchOneMap.", values[1].trim(),
+                    SecurityLogger.audit("Adding mapping: {} = {} to matchOneMap.",
+                            values[1].trim(),
                             values[0].trim());
                     matchOneMap.put(values[1].trim(), values[0].trim());
                 } else {
