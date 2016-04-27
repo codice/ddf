@@ -31,6 +31,7 @@
 package org.codice.ddf.security.session;
 
 import java.lang.ref.WeakReference;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +46,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.prng.BasicEntropySourceProvider;
+import org.bouncycastle.crypto.prng.EntropySourceProvider;
+import org.bouncycastle.crypto.prng.drbg.DualECSP800DRBG;
 import org.eclipse.jetty.server.session.AbstractSession;
 import org.eclipse.jetty.server.session.AbstractSessionIdManager;
 
@@ -58,10 +63,11 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
             new HashMap<String, Set<WeakReference<HttpSession>>>();
 
     public HashSessionIdManager() {
+        super(new SecureRandom(getBcRbgSeed()));
     }
 
     public HashSessionIdManager(Random random) {
-        super(random);
+        super(new SecureRandom(getBcRbgSeed()));
     }
 
     /**
@@ -263,5 +269,20 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
                 this.sessions.put(newClusterId, sessions);
             }
         }
+    }
+
+    public static byte[] getBcRbgSeed() {
+        EntropySourceProvider esp = new BasicEntropySourceProvider(new SecureRandom(), true);
+        byte[] nonce = new byte[256];
+        new SecureRandom().nextBytes(nonce);
+
+        DualECSP800DRBG bcRbg = new DualECSP800DRBG(new SHA256Digest(),
+                256,
+                esp.get(256),
+                null,
+                nonce);
+        byte[] seed = new byte[256];
+        bcRbg.generate(seed, null, true);
+        return seed;
     }
 }
