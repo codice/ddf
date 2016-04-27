@@ -27,13 +27,6 @@
             description="If set to true, no guest access will be allowed via this guest interceptor. If set to
             false, this interceptor will generate guest tokens for incoming requests that lack a WS-Security header."/>
 
-        <AD name="Override Endpoint Policies" id="overrideEndpointPolicies" required="false"
-            type="Boolean" default="false"
-            description="If checked, forces guest tokens to be created and inserted into the incoming request regardless
-            of whether the policy requires an issued token. If set to false, if the endpoint policies cannot be satisfied,
-            no changes will be made to the incoming request. This only applies to incoming requests that lack a WS-Security
-            header - those with a WS-Security header are passed through unchanged."/>
-
     </OCD>
 
     <Designate pid="org.codice.ddf.security.interceptor.GuestInterceptor">

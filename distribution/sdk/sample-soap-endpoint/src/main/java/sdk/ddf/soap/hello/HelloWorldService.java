@@ -41,10 +41,10 @@ public class HelloWorldService extends Service {
             URL baseUrl;
             baseUrl = HelloWorldService.class.getResource(".");
             url = new URL(baseUrl,
-                    "file:/Users/scott/git-workspace/DDF/ddf/sdk/sample-soap-endpoint/src/main/resources/META-INF/wsdl/sdk.wsdl");
+                    "file:/Users/scott/git-workspace/DDF/ddf/sdk/sample-soap-endpoint/src/main/resources/META-INF/wsdl/sdk-transport.wsdl");
         } catch (MalformedURLException e) {
             LOGGER.warning(
-                    "Failed to create URL for the wsdl Location: 'file:/Users/scott/git-workspace/DDF/ddf/sdk/sample-soap-endpoint/src/main/resources/META-INF/wsdl/sdk.wsdl', retrying as a local file");
+                    "Failed to create URL for the wsdl Location: 'file:/Users/scott/git-workspace/DDF/ddf/sdk/sample-soap-endpoint/src/main/resources/META-INF/wsdl/sdk-transport.wsdl', retrying as a local file");
             LOGGER.warning(e.getMessage());
         }
         HELLOWORLDSERVICE_WSDL_LOCATION = url;

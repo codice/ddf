@@ -100,7 +100,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "        </wst:RequestSecurityToken>\n" + "    </soap:Body>\n"
                     + "</soap:Envelope>";
 
-    protected static final String SDK_SOAP_CONTEXT = "/services/sdk/SoapService";
+    protected static final String SDK_SOAP_CONTEXT = "/services/sdk";
 
     private static final String BAD_X509_TOKEN =
             "                        MIIDQDCCAqmgAwIBAgICAQUwDQYJKoZIhvcNAQEFBQAwTjELMAkGA1UEBhMCSlAxETAPBg\n"
@@ -269,6 +269,9 @@ public class TestSecurity extends AbstractIntegrationTest {
                     + "         </wst:UseKey>\n" + "         <wst:Renewing/>\n"
                     + "      </wst:RequestSecurityToken>\n" + "   </soap:Body>\n"
                     + "</soap:Envelope>";
+
+    public static final String SAMPLE_SOAP =
+            "<?xml version=\"1.0\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body><helloWorld xmlns=\"http://ddf.sdk/soap/hello\" /></soap:Body></soap:Envelope>";
 
     @BeforeExam
     public void beforeTest() throws Exception {
@@ -549,7 +552,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .expect()
                 .statusCode(equalTo(200))
                 .when()
-                .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService")
+                .post(SERVICE_ROOT.getUrl() + "/sdk/SoapTransportService")
                 .then()
                 .log()
                 .all()
@@ -576,7 +579,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 .expect()
                 .statusCode(equalTo(200))
                 .when()
-                .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService")
+                .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapTransportService")
                 .then()
                 .log()
                 .all()
@@ -996,4 +999,59 @@ public class TestSecurity extends AbstractIntegrationTest {
             restoreKeystoreFile();
         }
     }
+
+    @Test
+    public void testTransportSoapPolicy() {
+        //verify that transport policy is observed indirectly by verifying that a security header with a timestamp was added to the response
+        given().log()
+                .all()
+                .body(SAMPLE_SOAP)
+                .header("Content-Type", "application/json")
+                .when()
+                .post(SERVICE_ROOT + "/sdk/SoapTransportService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .body(hasXPath("/Envelope/Header/Security/Timestamp"));
+
+    }
+
+    @Test
+    public void testAsymmetricSoapPolicy() {
+        //verify that asymmetric policy is observed indirectly by verifying that a security header with encrypted data was added to the response
+        given().log()
+                .all()
+                .body(SAMPLE_SOAP)
+                .header("Content-Type", "application/json")
+                .when()
+                .post(SERVICE_ROOT + "/sdk/SoapAsymmetricService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .body(hasXPath("/Envelope/Header/Security/EncryptedData"));
+
+    }
+
+    @Test
+    public void testSymmetricSoapPolicy() {
+        //verify that symmetric policy is observed indirectly by verifying that a security header with a signature was added to the response
+        given().log()
+                .all()
+                .body(SAMPLE_SOAP)
+                .header("Content-Type", "application/xml")
+                .when()
+                .post(SERVICE_ROOT + "/sdk/SoapSymmetricService")
+                .then()
+                .log()
+                .all()
+                .assertThat()
+                .statusCode(equalTo(200))
+                .body(hasXPath("/Envelope/Header/Security/Signature/SignatureValue"));
+
+    }
+
 }
