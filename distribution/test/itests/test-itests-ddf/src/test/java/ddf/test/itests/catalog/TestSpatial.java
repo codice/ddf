@@ -127,6 +127,22 @@ public class TestSpatial extends AbstractIntegrationTest {
                     .put("CswWithinWktPolygonQuery",
                             new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
                                     GEOJSON_NEAR_METACARD)})
+                    .put("CswCompoundLikeTextAndIntersectingWktLineString",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    PLAINXML_NEAR_METACARD)})
+                    .put("CswCompoundAfterDateAndIntersectingWktPolygon",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    GEOJSON_NEAR_METACARD)})
+                    .put("CswCompoundBeforeDateAndLikeText",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    PLAINXML_FAR_METACARD)})
+                    .put("CswLogicalOperatorContextualNotQuery",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    PLAINXML_NEAR_METACARD)})
+                    .put("CswLogicalOperatorContextualOrQuery",
+                            new ExpectedResultPair[] {new ExpectedResultPair(ResultType.TITLE,
+                                    PLAINXML_NEAR_METACARD),
+                                    new ExpectedResultPair(ResultType.TITLE, GEOJSON_FAR_METACARD)})
                     .build();
 
     @BeforeExam
@@ -260,6 +276,41 @@ public class TestSpatial extends AbstractIntegrationTest {
             throws XPathException, ParserConfigurationException, SAXException, IOException {
 
         performQueryAndValidateExpectedResults("CswWithinWktPolygonQuery");
+    }
+
+    @Test
+    public void testCswCompoundAfterDateAndIntersectingWktPolygon()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswCompoundAfterDateAndIntersectingWktPolygon");
+    }
+
+    @Test
+    public void testCswCompoundBeforeDateAndLikeText()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswCompoundBeforeDateAndLikeText");
+    }
+
+    @Test
+    public void testCswCompoundLikeTextAndIntersectingWktLineString()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswCompoundLikeTextAndIntersectingWktLineString");
+    }
+
+    @Test
+    public void testCswLogicalOperatorContextualNotQuery()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswLogicalOperatorContextualNotQuery");
+    }
+
+    @Test
+    public void testCswLogicalOperatorContextualOrQuery()
+            throws XPathException, ParserConfigurationException, SAXException, IOException {
+
+        performQueryAndValidateExpectedResults("CswLogicalOperatorContextualOrQuery");
     }
 
     /**
