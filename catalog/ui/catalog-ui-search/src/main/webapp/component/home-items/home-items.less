@@ -1,6 +1,8 @@
 @{customElementNamespace}home-items {
   .customElement;
+  background: @niceGrey;
   color: @niceBlack;
+  position: relative;
 
   .home-items-center {
     max-width: 1200px;
@@ -34,5 +36,8 @@
 
 @media (max-width: @smallScreenSize) {
   @{customElementNamespace}home-items {
+    .home-items-choices {
+      text-align: center;
+    }
   }
 }

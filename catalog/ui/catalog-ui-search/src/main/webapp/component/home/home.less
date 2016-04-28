@@ -7,8 +7,16 @@
   }
 
   .home-content {
-    max-height: ~'calc(100% - 60px)';
+    height: ~'calc(100% - 60px)';
     overflow: auto;
+  }
+
+}
+
+@{customElementNamespace}home.has-templates-expanded {
+
+  .home-content {
+    overflow: hidden;
   }
 
 }

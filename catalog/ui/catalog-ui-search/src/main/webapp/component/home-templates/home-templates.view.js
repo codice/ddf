@@ -21,8 +21,9 @@ define([
     'text!./home-templates.hbs',
     'js/CustomElements',
     'js/store',
-    'component/loading/loading.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView) {
+    'component/loading/loading.view',
+    'js/Transitions'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView, Transitions) {
 
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
@@ -32,7 +33,9 @@ define([
         modelEvents: {
         },
         events: {
-            'click .home-templates-choices-choice': 'createNewWorkspace'
+            'click .home-templates-choices-choice': 'createNewWorkspace',
+            'click .home-templates-header-button': 'expand',
+            'click .expanded-back': 'close'
         },
         ui: {
         },
@@ -52,6 +55,17 @@ define([
                 });
             });
             store.get('workspaces').createWorkspace();
+        },
+        expand: function(){
+            this.$el.addClass('is-expanded');
+            this.triggerMethod('homeTemplates:expand');
+        },
+        close: function(){
+            this.$el.removeClass('is-expanded');
+            this.$el.animate({
+                scrollTop: 0
+            }, Transitions.coreTransitionTime);
+            this.triggerMethod('homeTemplates:close');
         }
     });
 });

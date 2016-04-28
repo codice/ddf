@@ -5,6 +5,7 @@
   background: @niceBlack;
   height: 270px;
   overflow: hidden;
+  transition: height @coreTransitionTime ease-in-out;
 
   .home-templates-center {
     margin: auto;
@@ -24,6 +25,12 @@
 
   .home-templates-header-button {
     float: right;
+    cursor: pointer;
+    opacity: .8;
+  }
+
+  .home-templates-header-button:hover {
+    opacity: 1;
   }
 
   .home-templates-choices-choice {
@@ -32,8 +39,8 @@
     margin-bottom: 10px;
   }
 
-  .home-templates-choices-choice + .home-templates-choices-choice {
-    margin-left: 20px;
+  .home-templates-choices-choice {
+    margin-right: 20px;
   }
 
   .home-templates-choices-choice-preview {
@@ -73,19 +80,83 @@
     font-weight: 500;
     text-align: center;
   }
+
+  .home-templates-expanded {
+    background: @background-color;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 60px;
+    opacity: 0;
+    transition: opacity @coreTransitionTime ease-in-out;
+    transform: translateY(-100%);
+    white-space: nowrap;
+    line-height: 60px;
+  }
+
+  .expanded-content {
+    margin: auto;
+    max-width: 1200px;
+    padding: 0px 100px 0px @minimumButtonSize;
+  }
+
+  .expanded-back,
+  .expanded-title {
+    display: inline-block;
+    font-size: 2rem;
+    vertical-align: top;
+  }
+
+  .expanded-back {
+    width: @minimumButtonSize;
+    text-align: center;
+    cursor: pointer;
+    opacity: .8;
+  }
+
+  .expanded-back:hover {
+    opacity: 1;
+  }
+
+  .expanded-title {
+    font-weight: 500;
+  }
 }
 
+@{customElementNamespace}home-templates.is-expanded {
+  .home-templates-expanded {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+
+  height: ~'calc(100vh - 60px)';
+  overflow: auto;
+
+  .home-templates-header-button {
+    display: none;
+  }
+}
 
 @media (max-width: @mediumScreenSize) {
   @{customElementNamespace}home-templates {
+    .home-templates-center,
+    .expanded-content{
+      max-width: 100%;
+    }
     .home-templates-center {
-      max-width: ~'calc(100% - 0px)';
       padding: 0px 20px;
+    }
+    .expanded-content {
+      padding: 0px 0px;
     }
   }
 }
 
 @media (max-width: @smallScreenSize) {
   @{customElementNamespace}home-templates {
+    .home-templates-choices {
+      text-align: center;
+    }
   }
 }

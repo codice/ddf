@@ -33,6 +33,10 @@ define([
         },
         events: {
         },
+        childEvents: {
+            'homeTemplates:expand' : 'handleTemplatesExpand',
+            'homeTemplates:close' : 'handleTemplatesClose'
+        },
         ui: {
         },
         regions: {
@@ -56,6 +60,12 @@ define([
             this.menu.show(new HomeMenuView());
             this.templates.show(new HomeTemplateView());
             this.items.show(new HomeItemView());
+        },
+        handleTemplatesExpand: function(){
+            this.$el.addClass('has-templates-expanded');
+        },
+        handleTemplatesClose: function(){
+            this.$el.removeClass('has-templates-expanded');
         }
     });
 });
