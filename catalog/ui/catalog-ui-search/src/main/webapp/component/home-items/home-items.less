@@ -22,3 +22,17 @@
     float: right;
   }
 }
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}home-items {
+    .home-items-center {
+      max-width: ~'calc(100% - 0px)';
+      padding: 0px 20px;
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}home-items {
+  }
+}

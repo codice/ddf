@@ -79,9 +79,28 @@
   .choice-title,
   .choice-date {
     line-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .choice-title {
     font-weight: 500;
+  }
+}
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}workspace-item {
+    .choice {
+      width: 144px;
+    }
+
+    .choice-preview {
+      height: 200px;
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}workspace-item {
   }
 }

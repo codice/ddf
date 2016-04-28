@@ -74,3 +74,18 @@
     text-align: center;
   }
 }
+
+
+@media (max-width: @mediumScreenSize) {
+  @{customElementNamespace}home-templates {
+    .home-templates-center {
+      max-width: ~'calc(100% - 0px)';
+      padding: 0px 20px;
+    }
+  }
+}
+
+@media (max-width: @smallScreenSize) {
+  @{customElementNamespace}home-templates {
+  }
+}
