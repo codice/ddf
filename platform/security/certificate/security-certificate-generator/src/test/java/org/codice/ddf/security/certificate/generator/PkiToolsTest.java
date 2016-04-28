@@ -28,6 +28,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PkiToolsTest {
 
-    PkiTools tools;
+    private PkiTools tools;
 
     @Mock
     X509Certificate mockCert;
@@ -69,6 +70,39 @@ public class PkiToolsTest {
         assertThat(name.toString(), equalTo("cn=" + host));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void dnIsNull() throws CertificateEncodingException {
+        PkiTools.convertDistinguishedName((String[]) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void dnIsEmpty() throws CertificateEncodingException {
+        PkiTools.convertDistinguishedName("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void dnIsNotValidFormat() throws CertificateEncodingException {
+        PkiTools.convertDistinguishedName("cnIsSomething", "l=london");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void dnHasInvalidRDN() throws CertificateEncodingException {
+        PkiTools.convertDistinguishedName("cnxxx=IsSomething", "l=london");
+    }
+
+    @Test
+    public void dnIsValidFormat() throws CertificateEncodingException {
+        X500Name name = PkiTools.convertDistinguishedName("cn=john.smith", "o=police box",
+                "o = Tardis", "l= London", "c=UK");
+        assertThat(name.getRDNs(BCStyle.CN)[0].getFirst()
+                .getValue()
+                .toString(), equalTo("john.smith"));
+        assertThat(name.getRDNs(BCStyle.O).length, equalTo(2));
+        assertThat(name.getRDNs(BCStyle.C)[0].getFirst()
+                .getValue()
+                .toString(), equalTo("UK"));
+    }
+
     @Test
     public void convertCertificate() throws CertificateException {
         String originalCert = DemoCertificateAuthority.pemDemoCaCertificate;
@@ -84,7 +118,6 @@ public class PkiToolsTest {
 
     @Test(expected = CertificateGeneratorException.class)
     public void exception() {
-        new CertificateGeneratorException("");
         throw new CertificateGeneratorException("", new Exception());
     }
 
@@ -97,13 +130,11 @@ public class PkiToolsTest {
     @Test
     public void testFormatPassword() throws Exception {
         Assert.assertThat("formatPassword() failed to return empty character array",
-                PkiTools.formatPassword(null),
-                instanceOf(char[].class));
+                PkiTools.formatPassword(null), instanceOf(char[].class));
 
         char[] pw = "password".toCharArray();
         Assert.assertThat("formatPassword() should not modify the password",
-                new String(PkiTools.formatPassword(pw)),
-                equalTo("password"));
+                new String(PkiTools.formatPassword(pw)), equalTo("password"));
     }
 
     //Null path to keyStore file.
@@ -129,8 +160,7 @@ public class PkiToolsTest {
     public void realFile() throws IOException {
         assertThat(
                 "Should have returned a new File object. Is the file in the test resources directory?",
-                PkiTools.createFileObject(getPathTo("not_keystore.jks")),
-                instanceOf(File.class));
+                PkiTools.createFileObject(getPathTo("not_keystore.jks")), instanceOf(File.class));
     }
 
     @Test(expected = CertificateGeneratorException.class)

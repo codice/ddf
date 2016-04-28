@@ -2,7 +2,8 @@
 #
 # Usage:
 #   CertNew.sh
-#    CertNew.sh <common-name>
+#   CertNew.sh -cn <common-name>
+#   CertNew.sh -dn <distinguished name>
 #
 # Create new certificate and certificate chain signed by Demo Certificate Authority.  
 # The new certificate chain and private key are installed in the keystore.
@@ -33,15 +34,16 @@ if [[ -z $JARFILE ]]; then
   exit 2
 fi
 
-if [[ $1 ]]; then
-    COMMONNAME="$1"
+if [[ $1 && $2 ]]; then
+    PARAM1="$1"
+    PARAM2="$2"
 else
-    COMMONNAME=$(hostname -f)
+    PARAM1="-cn"
+    PARAM2="$(hostname -f)"
 fi
 
 echo "--IGNORE SLF4J ERRORS"--
-
-$(java -Djavax.net.ssl.keyStore="$KEYFILE" -Djavax.net.ssl.keyStorePassword="$PASSWORD" -Djavax.net.ssl.keyStoreType="$KEYTYPE" -jar "$JARFILE" "$COMMONNAME")
+$(java -Djavax.net.ssl.keyStore="$KEYFILE" -Djavax.net.ssl.keyStorePassword="$PASSWORD" -Djavax.net.ssl.keyStoreType="$KEYTYPE" -jar "$JARFILE" "$PARAM1" "$PARAM2")
 
 
 if [[ $? == 0 ]]; then
@@ -49,4 +51,3 @@ if [[ $? == 0 ]]; then
     KEYSTORECONTENTS=$(keytool -list -keystore "$KEYFILE" -storepass "$PASSWORD" -storetype "$KEYTYPE")
     printf "%s" "$KEYSTORECONTENTS"
 fi
-
