@@ -47,7 +47,7 @@ public class AuthNStatementProvider implements AuthenticationStatementProvider {
     @Override
     public AuthenticationStatementBean getStatement(TokenProviderParameters providerParameters) {
         AuthenticationStatementBean authBean = new AuthenticationStatementBean();
-        authBean.setSessionIndex(Integer.toString(RandomNumberGenerator.getRNG().nextInt()));
+        authBean.setSessionIndex(Integer.toString(RandomNumberGenerator.create().nextInt()));
 
         TokenRequirements tokenRequirements = providerParameters.getTokenRequirements();
         ReceivedToken receivedToken = null;
