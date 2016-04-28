@@ -93,6 +93,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>httpclient,httpcore,platform-util-unavailableurls,ddf-security-common,platform-util</Embed-Dependency>
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
