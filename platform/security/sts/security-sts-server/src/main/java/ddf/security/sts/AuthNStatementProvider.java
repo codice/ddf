@@ -25,10 +25,11 @@ import org.apache.cxf.sts.token.provider.TokenProviderParameters;
 import org.apache.wss4j.common.principal.UsernameTokenPrincipal;
 import org.apache.wss4j.common.saml.bean.AuthenticationStatementBean;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
+import org.codice.ddf.platform.util.RandomNumberGenerator;
+
 
 /**
  * This class will always return the unspecified string to the SAML Token Provider
- *
  */
 public class AuthNStatementProvider implements AuthenticationStatementProvider {
 
@@ -46,6 +47,7 @@ public class AuthNStatementProvider implements AuthenticationStatementProvider {
     @Override
     public AuthenticationStatementBean getStatement(TokenProviderParameters providerParameters) {
         AuthenticationStatementBean authBean = new AuthenticationStatementBean();
+        authBean.setSessionIndex(Integer.toString(RandomNumberGenerator.getRNG().nextInt()));
 
         TokenRequirements tokenRequirements = providerParameters.getTokenRequirements();
         ReceivedToken receivedToken = null;
