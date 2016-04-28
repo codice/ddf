@@ -25,6 +25,11 @@ define([
     'js/Transitions'
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView, Transitions) {
 
+    var triggers = {
+        expand: 'homeTemplates:expand',
+        close: 'homeTemplates:close'
+    };
+
     return Marionette.ItemView.extend({
         setDefaultModel: function(){
         },
@@ -55,17 +60,18 @@ define([
                 });
             });
             store.get('workspaces').createWorkspace();
+            this.close();
         },
         expand: function(){
             this.$el.addClass('is-expanded');
-            this.triggerMethod('homeTemplates:expand');
+            this.triggerMethod(triggers.expand);
         },
         close: function(){
             this.$el.removeClass('is-expanded');
             this.$el.animate({
                 scrollTop: 0
             }, Transitions.coreTransitionTime);
-            this.triggerMethod('homeTemplates:close');
+            this.triggerMethod(triggers.close);
         }
     });
 });
