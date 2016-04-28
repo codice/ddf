@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define , location , alert , window*/
+/*global define , location , window*/
 define([
     'backbone',
     'underscore',
@@ -47,9 +47,9 @@ define([
     };
 
     Installer.Model = Backbone.Model.extend({
-        installUrl:'/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
+        installUrl: '/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
         uninstallUrl: '/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
-        rebootUrl:    '/jolokia/exec/org.apache.karaf:type=system,name=root/rebootCleanAll()',
+        shutdownUrl: '/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
         defaults: function () {
             return {
                 hasNext: true,
@@ -123,7 +123,7 @@ define([
         previousStep: function() {
             this.set(_step.call(this, -1));
         },
-        save: function(reboot) {
+        save: function(shutdown) {
             var that = this;
             wreqr.vent.trigger('modulePoller:stop');
             return $.ajax({
@@ -136,19 +136,16 @@ define([
                     url: that.installUrl + 'admin-post-install-modules/true',
                     dataType: 'JSON'
                 }).then(function(){
-                    if (reboot) {
+                    if (shutdown) {
                         $.ajax({
                             type: 'GET',
-                            url: that.rebootUrl,
+                            url: that.shutdownUrl,
                             dataType: 'JSON'
                         }).done(function () {
                             window.setTimeout(function () {
                               window.location.href = that.get("redirectUrl");
                             }, 30000);
-                        }).fail(function () {
-                            alert("Error trying to restart system. Please manually restart the system.");
                         });
-
                     } else {
                         location.reload();
                     }
