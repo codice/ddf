@@ -89,6 +89,10 @@ public class WorkspaceTransformer {
             m.setTitle((String) w.get(Metacard.TITLE));
         }
 
+        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS), List.class)) {
+            m.setMetacards((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS));
+        }
+
         if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES), List.class)) {
             List<String> roles = (List<String>) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_ROLES);
             m.setRoles(roles);
@@ -104,10 +108,6 @@ public class WorkspaceTransformer {
                     .collect(Collectors.toList());
 
             m.setQueries(xmlQueries);
-        }
-
-        if (check(w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS), List.class)) {
-            m.setMetacards((List) w.get(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS));
         }
 
         return m;
@@ -140,7 +140,9 @@ public class WorkspaceTransformer {
                         continue;
                     }
 
-                    if (WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES.equals(ad.getName())) {
+                    if (Metacard.RELATED.equals(ad.getName())) {
+                        h.put(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, attr.getValues());
+                    } else if (WorkspaceMetacardTypeImpl.WORKSPACE_QUERIES.equals(ad.getName())) {
                         h.put(ad.getName(),
                                 attr.getValues()
                                         .stream()

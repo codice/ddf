@@ -40,13 +40,6 @@ public class WorkspaceMetacardTypeImpl extends MetacardTypeImpl {
     static {
         DESCRIPTORS = new HashSet<>(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
 
-        DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_METACARDS,
-                true    /* indexed */,
-                true    /* stored */,
-                false   /* tokenized */,
-                true    /* multivalued */,
-                BasicTypes.STRING_TYPE));
-
         DESCRIPTORS.add(new AttributeDescriptorImpl(WORKSPACE_ROLES,
                 false    /* indexed */,
                 true    /* stored */,

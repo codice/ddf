@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
 public class WorkspaceMetacardImpl extends MetacardImpl {
@@ -30,7 +31,11 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     }
 
     public void setMetacards(List<String> items) {
-        setAttribute(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS, new ArrayList<>(items));
+        setAttribute(Metacard.RELATED, new ArrayList<>(items));
+    }
+
+    public List<String> getMetacards() {
+        return getValues(Metacard.RELATED);
     }
 
     private List<String> getValues(String attribute) {
@@ -38,10 +43,6 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
                 .stream()
                 .map(String::valueOf)
                 .collect(Collectors.toList());
-    }
-
-    public List<String> getMetacards() {
-        return getValues(WorkspaceMetacardTypeImpl.WORKSPACE_METACARDS);
     }
 
     public void setQueries(List<String> queries) {
