@@ -1,0 +1,168 @@
+@{customElementNamespace}input-bulk {
+
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  padding: 10px;
+
+  .inlineFix;
+
+  > div {
+    width: 50%;
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  label {
+    cursor: auto;
+  }
+
+  select {
+    color: black;
+    max-width: ~'calc(100% - 44px)';
+    height: 44px;
+    line-height: 44px;
+    vertical-align: top;
+  }
+  option::after {
+    content: 'hey'
+  }
+
+  .input-value {
+    padding-right: 10px;
+  }
+
+  .input-label {
+    text-align: right;
+    > label {
+      color: grey;
+      font-weight: bold;
+      max-width: ~'calc(100% - 44px)';
+      margin: 0px;
+      line-height: @minimumButtonSize;
+      padding-right: 10px;
+      word-break: break-all;
+      word-wrap: normal;
+      white-space: normal;
+    }
+  }
+
+  .input-revert {
+    display: none;
+    color: orange;
+  }
+
+  .input-revert {
+    font-size: 2rem;
+    line-height: 44px;
+    vertical-align: top;
+    &:hover {
+      color: shade(orange, 10%);
+    }
+
+    &:focus {
+      color: shade(orange, 25%);
+    }
+  }
+
+  .input-edit {
+    display: none;
+    max-width: 100%;
+    line-height: 44px;
+  }
+
+  .value-list-header {
+    height: 44px;
+    line-height: 44px;
+    width: 100%;
+    display: block;
+  }
+
+  .value-list {
+    border: 1px solid grey;
+    max-height: 140px;
+    overflow: auto;
+    max-width: 90%;
+    display: inline-block;
+  }
+
+  .list-value {
+    height: 44px;
+    line-height: 44px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0px 10px;
+    position: relative;
+  }
+
+  .cell-value,
+  .cell-hits {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .cell-value {
+    max-width: ~'calc(100% - 50px)';
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cell-hits {
+    position: absolute;
+    right: 20px;
+  }
+
+  .input-other {
+    display: none;
+  }
+}
+
+@{customElementNamespace}input-bulk.has-limited-width {
+  .input-label {
+    text-align: left;
+  }
+}
+
+@{customElementNamespace}input-bulk.is-other {
+
+  .input-other {
+    display: block;
+  }
+
+  .input-other .input-revert {
+    display: none !important;
+  }
+
+  .input-other > @{customElementNamespace}input,
+  .input-other > @{customElementNamespace}input-date {
+    padding: 10px 0px;
+  }
+
+  .input-other .input-label {
+    display: none;
+  }
+
+  .input-other .input-value {
+    display: block;
+    width: 100%;
+    padding-right: 0px;
+  }
+}
+
+@{customElementNamespace}input-bulk.is-editing {
+
+  &.is-changed {
+    .input-revert {
+      display: inline-block;
+    }
+  }
+
+  .input-edit {
+    display: inherit;
+  }
+
+  .input-view {
+    display: none;
+  }
+}

@@ -20,8 +20,9 @@ define([
     'js/CustomElements',
     '../input.view',
     '../thumbnail/input-thumbnail.view',
-    '../date/input-date.view'
-], function (Marionette, _, $, CustomElements, InputView, InputThumbnailView, InputDateView) {
+    '../date/input-date.view',
+    '../bulk/input-bulk.view'
+], function (Marionette, _, $, CustomElements, InputView, InputThumbnailView, InputDateView, InputBulkView) {
 
     var InputCollectionView = Marionette.CollectionView.extend({
         tagName: CustomElements.register('input-metacard-collection'),
@@ -33,6 +34,8 @@ define([
                     return InputThumbnailView;
                 case 'text':
                     return InputView;
+                case 'bulk':
+                    return InputBulkView;
             }
         },
         turnOnLimitedWidth: function(){

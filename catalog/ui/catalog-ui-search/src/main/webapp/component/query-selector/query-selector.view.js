@@ -57,18 +57,18 @@ define([
             }
         },
         selectQuery: function(event){
-            var queryId = event.currentTarget.getAttribute('data-id');
+            var queryId = event.currentTarget.getAttribute('data-queryId');
             store.setQueryById(queryId);
         },
         highlightQuery: function(){
             var queryRef = store.getQuery();
             this.$el.find('.querySelector-queryDetails').removeClass('is-selected');
             if (queryRef !== undefined){
-                this.$el.find('.querySelector-queryDetails[data-id="'+queryRef.getId()+'"]').addClass('is-selected');
+                this.$el.find('.querySelector-queryDetails[data-queryId="'+queryRef.getId()+'"]').addClass('is-selected');
             }
         },
         filterQuery: function(event){
-            var queryId = event.currentTarget.getAttribute('data-id');
+            var queryId = event.currentTarget.getAttribute('data-queryId');
             store.filterQuery(queryId);
         },
         filterQueries: function(){
@@ -76,7 +76,7 @@ define([
             var filteredQueries = store.getFilteredQueries();
             this.$el.find('.querySelector-queryActive').removeClass('is-filtered');
             filteredQueries.forEach(function(query){
-                self.$el.find('.querySelector-queryActive[data-id="'+query.getId()+'"]').addClass('is-filtered');
+                self.$el.find('.querySelector-queryActive[data-queryId="'+query.getId()+'"]').addClass('is-filtered');
             });
         },
         serializeData: function(){

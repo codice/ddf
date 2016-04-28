@@ -15,30 +15,35 @@ define([
     'backbone',
     'component/input/input',
     'component/input/thumbnail/input-thumbnail',
-    'component/input/date/input-date'
-], function (_, Backbone, TextInput, ThumbnailInput, DateInput) {
+    'component/input/date/input-date',
+    'component/input/bulk/input-bulk'
+], function (_, Backbone, TextInput, ThumbnailInput, DateInput, BulkInput) {
 
     var MetacardInputCollection = Backbone.Collection.extend({
         model: function(attrs, options){
-            switch (options.type) {
-                case 'DATE':
-                    return new DateInput(attrs);
-                    break;
-                case 'STRING':
-                    return new TextInput(attrs);
-                    break;
-                case 'GEOMETRY':
-                    return new TextInput(attrs);
-                    break;
-                case 'XML':
-                    return new TextInput(attrs);
-                    break;
-                case 'BINARY':
-                    return new ThumbnailInput(attrs);
-                    break;
-                default:
-                    return new TextInput(attrs);
-                    break;
+            if (options.multivalued){
+                return new BulkInput(attrs);
+            } else {
+                switch (options.type) {
+                    case 'DATE':
+                        return new DateInput(attrs);
+                        break;
+                    case 'STRING':
+                        return new TextInput(attrs);
+                        break;
+                    case 'GEOMETRY':
+                        return new TextInput(attrs);
+                        break;
+                    case 'XML':
+                        return new TextInput(attrs);
+                        break;
+                    case 'BINARY':
+                        return new ThumbnailInput(attrs);
+                        break;
+                    default:
+                        return new TextInput(attrs);
+                        break;
+                }
             }
         },
         initialize: function(options){
@@ -166,7 +171,54 @@ define([
             return metacardInputCollection;
         },
         createBulkBasic: function(metacards){
-            
+            var self = this;
+            var metacardInputCollection = new MetacardInputCollection();
+            var metacardsJSON = metacards.toJSON();
+            var propertyIntersection = _.intersection.apply(_, metacardsJSON.map(function(metacard){
+                return Object.keys(metacard.metacard.properties);
+            })).filter(function(property){
+                return property.indexOf('metadata')!==0 && self.blacklist.indexOf(property) === -1
+                    && self.hiddenTypes.indexOf(metacardsJSON[0].propertyTypes[property].format) === -1;
+            });
+            var propertyArray = [];
+            propertyIntersection.forEach(function(property){
+                propertyArray.push({
+                    id: property,
+                    type: metacardsJSON[0].propertyTypes[property].format,
+                    values: {}
+                });
+            });
+            propertyArray.forEach(function(property){
+                metacardsJSON.forEach(function(metacard){
+                    var value = metacard.metacard.properties[property.id];
+                    property.values[value] = property.values[value] || {
+                            value: value,
+                            hits: 0
+                        };
+                    property.values[value].hits++;
+                });
+            });
+            propertyArray.forEach(function(property){
+                var hasSingleValue = Object.keys(property.values).length === 1;
+                if (hasSingleValue){
+                    metacardInputCollection.add({
+                        id: property.id,
+                        value: Object.keys(property.values)[0]
+                    }, {
+                        type: property.type
+                    });
+                } else {
+                    metacardInputCollection.add({
+                        id: property.id,
+                        values: property.values,
+                        type: property.type
+                    }, {
+                        multivalued: true,
+                        type: property.type
+                    });
+                }
+            });
+            return metacardInputCollection;
         }
     });
 

@@ -24,7 +24,7 @@ define([
 ], function (Marionette, _, $, EditorView, store, InputMetacardCollectionView, InputMetacardCollection) {
 
     return EditorView.extend({
-        className: 'is-metacard-basic',
+        className: 'is-metacards-basic',
         setDefaultModel: function(){
             this.model = store.getSelectedResults();
         },
@@ -32,11 +32,12 @@ define([
             this.editorProperties.show(new InputMetacardCollectionView({
                 collection: InputMetacardCollection.createBulkBasic(this.model)
             }));
-            this.editorProperties.currentView.turnOnLimitedWidth();
+            this.editorProperties.currentView.$el.addClass("is-list");
+            //this.editorProperties.currentView.turnOnLimitedWidth();
         },
         initialize: function(options){
             EditorView.prototype.initialize.call(this, options);
-            this.getValidation();
+            //this.getValidation();
         },
         getValidation: function(){
             var self = this;

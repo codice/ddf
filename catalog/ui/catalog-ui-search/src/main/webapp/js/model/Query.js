@@ -20,9 +20,10 @@ define([
         'usngs',
         'js/model/Filter',
         'wreqr',
+        'js/Common',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard, usngs, Filter, wreqr) {
+    function (Backbone, _, properties, moment, Metacard, usngs, Filter, wreqr, Common) {
         "use strict";
         var Query = {};
 
@@ -593,7 +594,7 @@ define([
                 }
             },
             getId: function(){
-                return this._cloneOf || this.cid;
+                return this._cloneOf || this.id || Common.generateUUID();
             },
             setColor: function(color){
                 this.color = color;

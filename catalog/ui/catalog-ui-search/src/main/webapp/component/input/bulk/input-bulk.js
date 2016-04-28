@@ -12,18 +12,11 @@
 /*global define*/
 define([
     'underscore',
-    '../tabs',
-    'js/store',
-    'component/editor/metacards-basic/metacards-basic.view'
-], function (_, Tabs, store, MetacardsBasicView) {
+    'backbone',
+    '../input'
+], function (_, Backbone, Input) {
 
-    var MetacardsTabs = Tabs.extend({
-        defaults: {
-            tabs: {
-                'Details': MetacardsBasicView
-            }
-        }
+    return Input.extend({
+        type: 'bulk'
     });
-
-    return MetacardsTabs;
 });

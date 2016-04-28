@@ -38,7 +38,7 @@ define([
         },
         regions: {},
         initialize: function(){
-            console.log('initializing');
+            //console.log('initializing');
         },
         serializeData: function () {
             return _.extend(this.model.toJSON(), {cid: this.cid});

@@ -176,8 +176,8 @@ define([
             this.$el.find('.content-panelTwo-title').html(title);
         },
         updatePanelTwoSelectedResultsTitle: function(){
-            var queryRef = store.getQuery();
-            var title = 'Metacard';
+            var queryRef = store.getSelectedResults();
+            var title = queryRef.length + ' Items';
             this.$el.find('.content-panelTwo-title').html(title);
         },
         updatePanelTwoSelectedResultTitle: function(){
