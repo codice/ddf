@@ -39,14 +39,6 @@ import org.codice.ddf.parser.ParserConfigurator;
 import org.codice.ddf.parser.ParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.balana.PDP;
-import org.wso2.balana.PDPConfig;
-import org.wso2.balana.finder.AttributeFinder;
-import org.wso2.balana.finder.AttributeFinderModule;
-import org.wso2.balana.finder.PolicyFinder;
-import org.wso2.balana.finder.PolicyFinderModule;
-import org.wso2.balana.finder.impl.CurrentEnvModule;
-import org.wso2.balana.finder.impl.SelectorModule;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -54,6 +46,14 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.connexta.arbitro.PDP;
+import com.connexta.arbitro.PDPConfig;
+import com.connexta.arbitro.finder.AttributeFinder;
+import com.connexta.arbitro.finder.AttributeFinderModule;
+import com.connexta.arbitro.finder.PolicyFinder;
+import com.connexta.arbitro.finder.PolicyFinderModule;
+import com.connexta.arbitro.finder.impl.CurrentEnvModule;
+import com.connexta.arbitro.finder.impl.SelectorModule;
 import com.google.common.collect.ImmutableList;
 
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
@@ -61,11 +61,11 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 
 /**
- * Balana implementation of a XACML Policy Decision Point (PDP). This class acts as a proxy to the
- * real Balana PDP.
+ * Implementation of a XACML Policy Decision Point (PDP). This class acts as a proxy to the
+ * real XACML PDP.
  */
-public class BalanaClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaClient.class);
+public class XacmlClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(XacmlClient.class);
 
     private static final String XACML30_NAMESPACE =
             "urn:oasis:names:tc:xacml:3.0:core:schema:wd-17";
@@ -88,13 +88,13 @@ public class BalanaClient {
     private final Parser parser;
 
     /**
-     * Creates the proxy to the real Balana PDP.
+     * Creates the proxy to the real XACML PDP.
      *
      * @param relativeXacmlPoliciesDirectoryPath Relative directory path to the root of the DDF installation.
      * @param parser                             for marshal and unmarshal
      * @throws PdpException
      */
-    public BalanaClient(String relativeXacmlPoliciesDirectoryPath, Parser parser)
+    public XacmlClient(String relativeXacmlPoliciesDirectoryPath, Parser parser)
             throws PdpException {
         this.parser = parser;
         if (StringUtils.isEmpty(relativeXacmlPoliciesDirectoryPath)) {
@@ -146,7 +146,7 @@ public class BalanaClient {
 
         String xacmlResponse = this.callPdp(xacmlRequest);
 
-        LOGGER.debug("\nXACML 3.0 Response from Balana PDP:\n {}", xacmlResponse);
+        LOGGER.debug("\nXACML 3.0 Response from XACML PDP:\n {}", xacmlResponse);
 
         DOMResult domResult = addNamespaceAndPrefixes(xacmlResponse);
 
@@ -154,7 +154,7 @@ public class BalanaClient {
     }
 
     /**
-     * Creates the Balana PDP.
+     * Creates the XACML PDP.
      */
     private void createPdp(PDPConfig pdpConfig) {
         LOGGER.debug("Creating PDP of type: {}", PDP.class.getName());
@@ -163,7 +163,7 @@ public class BalanaClient {
     }
 
     /**
-     * Creates the Balana PDP configuration.
+     * Creates the XACML PDP configuration.
      *
      * @return PDPConfig
      */
@@ -229,7 +229,7 @@ public class BalanaClient {
     }
 
     /**
-     * Calls the real Balana PDP to evaluate the XACML request.
+     * Calls the real XACML PDP to evaluate the XACML request.
      *
      * @param xacmlRequest The XACML request as a string.
      * @return The XACML response as a string.
@@ -240,8 +240,8 @@ public class BalanaClient {
     }
 
     /**
-     * Adds namespaces and namespace prefixes to the XACML response returned by the Balana PDP. The
-     * Balana PDP returns a response with no namespaces, so we need to add them to unmarshal the
+     * Adds namespaces and namespace prefixes to the XACML response returned by the XACML PDP. The
+     * XACML PDP returns a response with no namespaces, so we need to add them to unmarshal the
      * response.
      *
      * @param xacmlResponse The XACML response as a string.
@@ -278,7 +278,7 @@ public class BalanaClient {
         ClassLoader tccl = Thread.currentThread()
                 .getContextClassLoader();
         Thread.currentThread()
-                .setContextClassLoader(BalanaClient.class.getClassLoader());
+                .setContextClassLoader(XacmlClient.class.getClassLoader());
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
@@ -315,7 +315,7 @@ public class BalanaClient {
             ctxPath.add(ResponseType.class.getPackage()
                     .getName());
             ParserConfigurator configurator = parser.configureParser(ctxPath,
-                    BalanaClient.class.getClassLoader());
+                    XacmlClient.class.getClassLoader());
             configurator.addProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ObjectFactory objectFactory = new ObjectFactory();
@@ -349,7 +349,7 @@ public class BalanaClient {
         }
 
         ParserConfigurator configurator = parser.configureParser(ctxPath,
-                BalanaClient.class.getClassLoader());
+                XacmlClient.class.getClassLoader());
 
         try {
             JAXBElement<ResponseType> xacmlResponseTypeElement = parser.unmarshal(configurator,
