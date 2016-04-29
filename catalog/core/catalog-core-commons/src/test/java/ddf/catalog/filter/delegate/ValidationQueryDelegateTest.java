@@ -12,161 +12,26 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package ddf.catalog.metacard.validation;
+package ddf.catalog.filter.delegate;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_ERRORS;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class MetacardValidityCheckerPluginTest {
-    private FilterBuilder filterBuilder;
+public class ValidationQueryDelegateTest {
 
-    private FilterAdapter filterAdapter;
-
-    private MetacardValidityCheckerPlugin metacardValidityCheckerPlugin;
-
-    private static ValidationQueryDelegate testValidationQueryDelegate;
-
-    @Before
-    public void setUp() {
-        FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-        FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
-        metacardValidityCheckerPlugin = new MetacardValidityCheckerPlugin(filterBuilder,
-                filterAdapter);
-        this.filterBuilder = filterBuilder;
-        this.filterAdapter = filterAdapter;
-        testValidationQueryDelegate = new ValidationQueryDelegate();
-    }
-
-    @Test
-    public void testSearchValid()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS)
-                .is()
-                .empty());
-        ValidationQueryDelegate delegate = new ValidationQueryDelegate();
-        assertThat(filterAdapter.adapt(query, delegate), is(true));
-        QueryRequest returnQuery =
-                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), delegate), is(true));
-    }
-
-    @Test
-    public void testSearchInvalid()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS)
-                .is()
-                .equalTo()
-                .text("sample"));
-        ValidationQueryDelegate delegate = new ValidationQueryDelegate();
-        assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(true));
-        QueryRequest returnQuery =
-                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
-                is(true));
-    }
-
-    @Test
-    public void testSearchAnyAndShow()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        metacardValidityCheckerPlugin.setShowInvalidMetacards(true);
-        QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.MODIFIED)
-                .is()
-                .equalTo()
-                .text("sample"));
-        assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(false));
-        QueryRequest sendQuery = new QueryRequestImpl(query);
-        QueryRequest returnQuery = metacardValidityCheckerPlugin.process(sendQuery);
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
-                is(false));
-        assertThat(sendQuery, is(returnQuery));
-    }
-
-    @Test
-    public void testSearchInvalidAndNotShow()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        metacardValidityCheckerPlugin.setShowInvalidMetacards(false);
-        QueryImpl query = new QueryImpl(filterBuilder.attribute(VALIDATION_WARNINGS)
-                .is()
-                .equalTo()
-                .text("sample"));
-        assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(true));
-        QueryRequest sendQuery = new QueryRequestImpl(query);
-        QueryRequest returnQuery = metacardValidityCheckerPlugin.process(sendQuery);
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
-                is(true));
-        assertThat(sendQuery, is(returnQuery));
-    }
-
-    @Test
-    public void testSearchBoth()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder.allOf(filterBuilder.attribute(
-                VALIDATION_WARNINGS)
-                        .is()
-                        .empty(),
-                filterBuilder.attribute(VALIDATION_WARNINGS)
-                        .is()
-                        .equalTo()
-                        .text("sample")));
-        QueryRequest returnQuery =
-                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
-
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
-                is(true));
-    }
-
-    @Test
-    public void testSearchNone()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.MODIFIED)
-                .is()
-                .equalTo()
-                .text("sample"));
-        assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(false));
-        QueryRequest returnQuery =
-                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
-                is(true));
-    }
-
-    @Test
-    public void testSearchBothImplicit()
-            throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
-        QueryImpl query = new QueryImpl(filterBuilder.allOf(filterBuilder.attribute(
-                VALIDATION_WARNINGS)
-                        .is()
-                        .empty(),
-                filterBuilder.attribute(VALIDATION_WARNINGS)
-                        .is()
-                        .equalTo()
-                        .text("*")));
-        QueryRequest returnQuery =
-                metacardValidityCheckerPlugin.process(new QueryRequestImpl(query));
-
-        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
-                is(true));
-    }
+    private static ValidationQueryDelegate testValidationQueryDelegate =
+            new ValidationQueryDelegate();
 
     @Test
     public void testOrTrueTrue() {
@@ -694,20 +559,13 @@ public class MetacardValidityCheckerPluginTest {
 
     @Test
     public void testDuring() {
-        assertThat(testValidationQueryDelegate.during(Metacard.ANY_TEXT,
-                new Date(),
-                new Date()), is(false));
+        assertThat(testValidationQueryDelegate.during(Metacard.ANY_TEXT, new Date(), new Date()),
+                is(false));
     }
 
     @Test
     public void testRelative() {
         assertThat(testValidationQueryDelegate.relative(Metacard.ANY_TEXT, (long) 0), is(false));
-    }
-
-    @Test
-    public void testGetShowInvalidMetacards() {
-        metacardValidityCheckerPlugin.setShowInvalidMetacards(true);
-        assertThat(metacardValidityCheckerPlugin.getShowInvalidMetacards(), is(true));
     }
 
 }

@@ -12,10 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package ddf.catalog.metacard.validation;
+package ddf.catalog.filter.delegate;
 
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_ERRORS;
-import static ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin.VALIDATION_WARNINGS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_ERRORS;
+import static ddf.catalog.data.impl.BasicTypes.VALIDATION_WARNINGS;
 
 import java.util.List;
 
@@ -55,6 +55,14 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
         return operand;
     }
 
+    /*
+     *The three propertyIs... methods return true if the propertyName (the property they are filtering for) is either VALIDATION_ERRORS
+     * or VALIDATION_WARNINGS. This boolean is used to determine whether the query needs to be modified to query for only valid metacards or not
+     *
+     * If the original query does not have a "true" return value from this FilterDelegate, it means the query and its filters do not specify the validity of metacards they are searching for,
+     * and therefore the query needs to only query for valid metacards by adding a propertyIsNull filter for both VALIDATION_ERRORS and VALIDATION_WARNINGS
+     */
+
     @Override
     public Boolean propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         return propertyName.equals(VALIDATION_ERRORS) || propertyName.equals(VALIDATION_WARNINGS);
@@ -69,8 +77,4 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
     public Boolean propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         return propertyName.equals(VALIDATION_ERRORS) || propertyName.equals(VALIDATION_WARNINGS);
     }
-
-    //    public Pair<Boolean, Boolean> getValidityParams() {
-    //        return new ImmutablePair<>(searchValid, searchInvalid);
-    //    }
 }

@@ -57,6 +57,7 @@
 
     <feature name="security-pdp-authz" install="manual" version="${project.version}"
              description="DDF Security PDP.">
+        <configfile finalname="/etc/ddf.security.pdp.realm.AuthzRealm.config">mvn:ddf.security/security-services-app/${project.version}/config/pdp</configfile>
         <feature prerequisite="true">security-expansion</feature>
         <feature prerequisite="true">security-expansion-user-attributes</feature>
         <feature prerequisite="true">security-expansion-metacard-attributes</feature>
