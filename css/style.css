@@ -53,3 +53,13 @@ body {
 .spacer {
     min-height: 40px;
 }
+
+.doc-descriptions {
+    min-height: 175px;
+    position: relative;
+}
+
+.doc-buttons {   
+    position: absolute;
+    bottom:0;
+}
