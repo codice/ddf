@@ -887,7 +887,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         size,
                         metacard);
                 contentItems.add(generatedContentItem);
-
             } catch (Exception e) {
                 tmpContentPaths.values()
                         .stream()
@@ -925,7 +924,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 .size());
         HashMap<String, Path> tmpContentPaths = new HashMap<>(streamCreateRequest.getContentItems()
                 .size());
-
         generateMetacardAndContentItems(streamCreateRequest,
                 streamCreateRequest.getContentItems(),
                 metacardMap,
@@ -1268,7 +1266,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                 .size());
         HashMap<String, Path> tmpContentPaths = new HashMap<>(streamUpdateRequest.getContentItems()
                 .size());
-
         generateMetacardAndContentItems(streamUpdateRequest,
                 streamUpdateRequest.getContentItems(),
                 metacardMap,
@@ -1395,10 +1392,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                                 .toString()));
             }
 
-            QueryImpl queryImpl = new QueryImpl(frameworkProperties.getFilterBuilder()
-                    .allOf(getTagsQueryFilter(),
-                            frameworkProperties.getFilterBuilder()
-                                    .anyOf(idFilters)));
+            QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters));
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(updateReq.getUpdates()
                     .size());
@@ -1545,10 +1539,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         .text(serializable.toString()));
             }
 
-            QueryImpl queryImpl = new QueryImpl(frameworkProperties.getFilterBuilder()
-                    .allOf(getTagsQueryFilter(),
-                            frameworkProperties.getFilterBuilder()
-                                    .anyOf(idFilters)));
+            QueryImpl queryImpl = new QueryImpl(getFilterWithAdditionalFilters(idFilters));
             queryImpl.setStartIndex(1);
             queryImpl.setPageSize(deleteRequest.getAttributeValues()
                     .size());
@@ -1859,6 +1850,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                         frameworkProperties.getFilterBuilder()
                                 .attribute(Metacard.TAGS)
                                 .empty());
+    }
+
+    private Filter getFilterWithAdditionalFilters(List<Filter> originalFilter) {
+        return frameworkProperties.getFilterBuilder()
+                .allOf(getTagsQueryFilter(),
+                        frameworkProperties.getValidationQueryFactory()
+                                .getFilterWithValidationFilter(),
+                        frameworkProperties.getFilterBuilder()
+                                .anyOf(originalFilter));
     }
 
     private void setFlagsOnRequest(Request request) {
@@ -2515,7 +2515,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
                             e);
                 }
             }
-
             resourceResponse.getProperties()
                     .put(Constants.METACARD_PROPERTY, metacard);
         } catch (DataUsageLimitExceededException e) {

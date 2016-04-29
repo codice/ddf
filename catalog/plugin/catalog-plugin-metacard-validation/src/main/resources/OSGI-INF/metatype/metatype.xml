@@ -33,15 +33,6 @@
                 default="" cardinality="100"/>
     </OCD>
 
-    <OCD name="Metacard Validation Checker Plugin"
-         id="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin">
-        <AD
-                description="Show invalid metacards in search results"
-                name="Show Invalid Metacards" id="showInvalidMetacards" required="true"
-                type="Boolean"
-                default="false"/>
-    </OCD>
-
     <Designate
             pid="ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin">
         <Object
@@ -52,12 +43,6 @@
             pid="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
         <Object
                 ocdref="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin"/>
-    </Designate>
-
-    <Designate
-            pid="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin">
-        <Object
-                ocdref="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin"/>
     </Designate>
 
 </metatype:MetaData>

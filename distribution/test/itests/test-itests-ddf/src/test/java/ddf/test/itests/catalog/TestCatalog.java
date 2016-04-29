@@ -44,7 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -1113,23 +1112,16 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testValidationEnforced() throws Exception {
         getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        // Update metacardMarkerPlugin config with enforcedMetacardValidators
+        configureEnforcedMetacardValidators(Arrays.asList("sample-validator"));
+
+        String id1 = ingestXmlFromResource("/metacard1.xml");
+        String id2 = ingestXmlFromResource("/metacard2.xml", false);
 
         try {
-            // Update metacardMarkerPlugin config with enforcedMetacardValidators
-            Configuration metacardMarker = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
-                    null);
-            Dictionary<String, Object> properties = new Hashtable<>();
-            List<String> enforcedMetacardValidators = new ArrayList<>();
-            enforcedMetacardValidators.add("sample-validator");
-            properties.put("enforcedMetacardValidators", enforcedMetacardValidators);
-            metacardMarker.update(properties);
-
-            String id1 = ingestXmlFromResource("/metacard1.xml");
-            String id2 = ingestXmlFromResource("/metacard2.xml", false);
 
             // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
-            // should get added by MetacardValidityCheckerPlugin
+            // should get added by ValidationQueryFactory
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
                     "AnyText",
                     "*")
@@ -1202,8 +1194,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
-            deleteMetacard(id1);
         } finally {
+            deleteMetacard(id1);
+            configureEnforcedMetacardValidators(Arrays.asList(""));
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
     }
@@ -1211,23 +1204,16 @@ public class TestCatalog extends AbstractIntegrationTest {
     @Test
     public void testValidationUnenforced() throws Exception {
         getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+        configureEnforcedMetacardValidators(Arrays.asList(""));
+
+        String id1 = ingestXmlFromResource("/metacard1.xml");
+        String id2 = ingestXmlFromResource("/metacard2.xml");
 
         try {
             // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-            Configuration metacardMarker = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
-                    null);
-            Dictionary<String, Object> properties = new Hashtable<>();
-            List<String> enforcedMetacardValidators = new ArrayList<>();
-            enforcedMetacardValidators.add("");
-            properties.put("enforcedMetacardValidators", enforcedMetacardValidators);
-            metacardMarker.update(properties);
-
-            String id1 = ingestXmlFromResource("/metacard1.xml");
-            String id2 = ingestXmlFromResource("/metacard2.xml");
 
             // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
-            // should get added by MetacardValidityCheckerPlugin
+            // should get added by ValidationQueryFactory
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
                     "AnyText",
                     "*")
@@ -1317,8 +1303,9 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1))));
 
-            deleteMetacard(id1);
         } finally {
+            deleteMetacard(id1);
+            deleteMetacard(id2);
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
         }
 
@@ -1329,29 +1316,26 @@ public class TestCatalog extends AbstractIntegrationTest {
         getServiceManager().startFeature(true,
                 "catalog-plugin-metacard-validation",
                 "catalog-security-filter");
+
+        // Update metacardMarkerPlugin config with no enforcedMetacardValidators
+        configureEnforcedMetacardValidators(Arrays.asList(""));
+
+        // Configure invalid filtering
+        configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin"));
+
+        // Configure the PDP
+        PdpProperties pdpProperties = new PdpProperties();
+        pdpProperties.put("matchOneMappings",
+                Arrays.asList(
+                        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=invalid-state"));
+        Configuration config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm",
+                null);
+        Dictionary<String, ?> configProps = new Hashtable<>(pdpProperties);
+        config.update(configProps);
+
+        String id1 = ingestXmlFromResource("/metacard1.xml");
+        String id2 = ingestXmlFromResource("/metacard2.xml");
         try {
-            // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-            Configuration config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
-                    null);
-            Dictionary<String, Object> properties = new Hashtable<>();
-            List<String> property = new ArrayList<>();
-            property.add("");
-            properties.put("enforcedMetacardValidators", property);
-            config.update(properties);
-
-            // Configure invalid filtering
-            config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
-                    null);
-            properties = new Hashtable<>();
-            property = new ArrayList<>();
-            property.add("invalid-state=system-admin");
-            properties.put("attributeMap", property);
-            config.update(properties);
-
-            String id1 = ingestXmlFromResource("/metacard1.xml");
-            String id2 = ingestXmlFromResource("/metacard2.xml");
 
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
                     VALIDATION_WARNINGS,
@@ -1388,14 +1372,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             // Configure invalid filtering
-            config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
-                    null);
-            properties = new Hashtable<>();
-            property = new ArrayList<>();
-            property.add("invalid-state=system-admin,guest");
-            properties.put("attributeMap", property);
-            config.update(properties);
+            configureMetacardValidityFilterPlugin(Arrays.asList("invalid-state=system-admin,guest"));
 
             response = given().auth()
                     .preemptive()
@@ -1424,51 +1401,35 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2)));
 
+        } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-        } finally {
             getServiceManager().stopFeature(true,
                     "catalog-plugin-metacard-validation",
                     "catalog-security-filter");
+            config = configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
+            configProps = new Hashtable<>(new PdpProperties());
+            config.update(configProps);
         }
     }
 
     @Test
     public void testValidationChecker() throws Exception {
         getServiceManager().startFeature(true, "catalog-plugin-metacard-validation");
+
+        configureEnforcedMetacardValidators(Arrays.asList(""));
+
+        // Configure invalid filtering
+        configureMetacardValidityFilterPlugin(Arrays.asList(""));
+
+        configureShowInvalidMetacards("true");
+
+        String id1 = ingestXmlFromResource("/metacard1.xml");
+        String id2 = ingestXmlFromResource("/metacard2.xml");
         try {
-            // Update metacardMarkerPlugin config with no enforcedMetacardValidators
-            Configuration config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
-                    null);
-            Dictionary<String, Object> properties = new Hashtable<>();
-            List<String> property = new ArrayList<>();
-            property.add("");
-            properties.put("enforcedMetacardValidators", property);
-            config.update(properties);
-
-            // Configure invalid filtering
-            config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
-                    null);
-            properties = new Hashtable<>();
-            property = new ArrayList<>();
-            property.add("");
-            properties.put("attributeMap", property);
-            config.update(properties);
-
-            config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin",
-                    null);
-            properties = new Hashtable<>();
-            properties.put("showInvalidMetacards", "false");
-            config.update(properties);
-
-            String id1 = ingestXmlFromResource("/metacard1.xml");
-            String id2 = ingestXmlFromResource("/metacard2.xml");
 
             // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
-            // should get added by MetacardValidityCheckerPlugin
+            // should get added by ValidationQueryFactory
             String query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE,
                     "AnyText",
                     "*")
@@ -1478,11 +1439,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                     .body(query)
                     .post(CSW_PATH.getUrl())
                     .then();
-            // Assert Metacard1 is in results AND not Metacard2
+            // Assert Metacard1 is in results AND Metacard2 because showInvalidMetacards is true
             response.body(hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id1)));
-            response.body(not(hasXPath(String.format(
+            response.body((hasXPath(String.format(
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
@@ -1502,7 +1463,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                     id2))));
 
             //Search for all entries that have validation-warnings from sample-validator or no validation warnings
-            //Only search that will actually return all entries
 
             query = new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_EQUAL_TO,
                     VALIDATION_WARNINGS,
@@ -1541,46 +1501,41 @@ public class TestCatalog extends AbstractIntegrationTest {
                     "/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]",
                     id2))));
 
+        } finally {
             deleteMetacard(id1);
             deleteMetacard(id2);
-        } finally {
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
+            configureShowInvalidMetacards("false");
         }
     }
 
     @Test
     public void testMetacardDefinitionJsonFile() throws Exception {
         getServiceManager().startFeature(true, "catalog-core-validator");
+        Path definitionsDir = Paths.get(System.getProperty("ddf.home"), "etc/definitions");
+        definitionsDir = Files.createDirectories(definitionsDir);
+        definitionsDir.toFile()
+                .deleteOnExit();
+        Path tmpFile = definitionsDir.resolve("definitions.json");
+        tmpFile.toFile()
+                .deleteOnExit();
+        Files.copy(getClass().getClassLoader()
+                .getResourceAsStream("definitions.json"), tmpFile);
+
+        expect("Service to be available: " + MetacardType.class.getName()).within(10,
+                TimeUnit.SECONDS)
+                .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
+                        "(name=new.metacard.type)"), not(empty()));
+
+        String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
+                .getResourceAsStream("metacard1.xml"), UTF_8.name());
+
+        String modifiedMetacardXml = ddfMetacardXml.replaceFirst("ddf\\.metacard",
+                "new.metacard.type")
+                .replaceFirst("resource-uri", "new-attribute-required-2");
+        String id = ingest(modifiedMetacardXml, "text/xml");
+        configureShowInvalidMetacards("true");
         try {
-            Path definitionsDir = Paths.get(System.getProperty("ddf.home"), "etc/definitions");
-            definitionsDir = Files.createDirectories(definitionsDir);
-            definitionsDir.toFile()
-                    .deleteOnExit();
-            Path tmpFile = definitionsDir.resolve("definitions.json");
-            tmpFile.toFile()
-                    .deleteOnExit();
-            Files.copy(getClass().getClassLoader()
-                    .getResourceAsStream("definitions.json"), tmpFile);
-
-            expect("Service to be available: " + MetacardType.class.getName()).within(10,
-                    TimeUnit.SECONDS)
-                    .until(() -> getServiceManager().getServiceReferences(MetacardType.class,
-                            "(name=new.metacard.type)"), not(empty()));
-
-            String ddfMetacardXml = IOUtils.toString(getClass().getClassLoader()
-                    .getResourceAsStream("metacard1.xml"), UTF_8.name());
-
-            String modifiedMetacardXml = ddfMetacardXml.replaceFirst("ddf\\.metacard",
-                    "new.metacard.type")
-                    .replaceFirst("resource-uri", "new-attribute-required-2");
-            String id = ingest(modifiedMetacardXml, "text/xml");
-
-            Configuration config = configAdmin.getConfiguration(
-                    "ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin",
-                    null);
-            Dictionary<String, Object> properties = new Hashtable<>();
-            properties.put("showInvalidMetacards", "true");
-            config.update(properties);
 
             String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", id);
 
@@ -1599,9 +1554,10 @@ public class TestCatalog extends AbstractIntegrationTest {
                             newMetacardXpath + "/string[@name=\"new-attribute-required-2\"]/value",
                             is("\" + uri + \"")));
 
-            deleteMetacard(id);
         } finally {
+            deleteMetacard(id);
             getServiceManager().stopFeature(true, "catalog-core-validator");
+            configureShowInvalidMetacards("false");
         }
     }
 

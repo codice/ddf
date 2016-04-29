@@ -241,6 +241,11 @@
         </argument>
     </bean>
 
+    <bean id="validationQueryFactory" class="ddf.catalog.cache.solr.impl.ValidationQueryFactory">
+        <argument ref="filterAdapter" />
+        <argument ref="filterBuilder" />
+    </bean>
+
     <bean id="federationStrategy" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
         <cm:managed-properties
@@ -253,6 +258,7 @@
         <argument ref="cacheThreadPool"/>
         <argument ref="filterAdapter"/>
         <argument ref="filterBuilder"/>
+        <argument ref="validationQueryFactory" />
         <property name="maxStartIndex" value="50000"/>
     </bean>
 
@@ -351,6 +357,7 @@
                 <property name="filterBuilder" ref="filterBuilder"/>
                 <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
                 <property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+                <property name="validationQueryFactory" ref="validationQueryFactory" />
             </bean>
         </argument>
         <property name="masker" ref="sourceListener"/>
