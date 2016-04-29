@@ -10,3 +10,4 @@ target/
 bin/
 atlassian-ide-plugin.xml
 *.sonar-ide.properties
+_site/

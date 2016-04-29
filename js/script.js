@@ -46,3 +46,8 @@ $(function() {
         getLatestStableVersion();
     }
 });
+
+$("#hamburger").on("click", function (){
+    console.log("happening");
+    $("#navbar").toggleClass("small-hidden");
+});
