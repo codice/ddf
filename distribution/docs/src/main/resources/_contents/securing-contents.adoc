@@ -75,8 +75,6 @@ The IdP client that interacts with the specified Identity Provider.
 
 ===== IdP SSO Configuration
 
-===== Configuring
-
 . Navigate to ${admin-console} -> ${ddf-security} -> Configuration -> IdP Client
 . Populate IdP Metadata field through one of the following:
 .. An HTTPS URL (https://)
@@ -1010,7 +1008,7 @@ Resources for changing truststore values can be found in the ${branding} Certifi
 ====== Certificate Configuration Management
 
 Configuration management includes configuring ${branding} to use existing certificates and defining configuration options for the system.
-This includes configuration certificate revocation and keystores.
+This includes configuring certificate revocation and keystores.
 
 ====== Certificate Revocation Configuration
 
@@ -1286,7 +1284,6 @@ Self signed certificates should never be used outside of development/testing are
 SSL/TLS is enabled out of the box for ${branding}.
 ====
 
-// Still an issue?
 [IMPORTANT]
 ====
 Do not use the ${admin-console} to SSL enable the ${branding} services.
