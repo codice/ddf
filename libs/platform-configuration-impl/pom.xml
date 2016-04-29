@@ -26,11 +26,6 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
             <version>${org.slf4j.version}</version>
