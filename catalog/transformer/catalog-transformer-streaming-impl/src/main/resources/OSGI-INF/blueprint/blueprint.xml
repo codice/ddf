@@ -39,6 +39,12 @@
                                 factory-pid="XmlInputTransformer"
                                 interface="ddf.catalog.transform.InputTransformer">
         <service-properties>
+            <entry key="mime-type">
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                </list>
+            </entry>
             <cm:cm-properties persistent-id="XmlInputTransformer"/>
         </service-properties>
 
