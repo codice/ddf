@@ -2909,7 +2909,7 @@ Recommendations for Framework Development
 ===== Console Commands
 
 ${branding} supports development of custom console commands.
-For more information, see the Karaf website on http://karaf.apache.org/manual/latest-2.2.x/developers-guide/extending-console.html[Extending the Console]. 
+For more information, see this section of the Karaf website: http://karaf.apache.org/manual/latest-2.2.x/developers-guide/extending-console.html. 
 
 ===== Custom ${branding} Console Commands
 

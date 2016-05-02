@@ -148,12 +148,11 @@ State         Version          Name                          Repository  Descrip
 
 ===== Configuring HTTP Port from the ${command-console}
 
-
 ==== Configuring HTTP to HTTPS Proxy From the ${command-console}
 
 [NOTE]
 ====
-If ${branding} has not been installed, use the <<How to install this feature using the Admin Console>> guide.
+If ${branding} has not been installed, configure from  <<Configuring HTTP to HTTPS Proxy From the ${admin-console}, ${admin-console}>>.
 ====
 
 . Type the command `feature:install platform-http-proxy`
