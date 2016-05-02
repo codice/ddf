@@ -3,12 +3,14 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,7 @@ import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
@@ -76,6 +79,42 @@ public class EndpointUtil {
         return list.stream()
                 .map(String::valueOf)
                 .collect(Collectors.toList());
+    }
+
+     public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        if (ids.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        List<Filter> filters = new ArrayList<>(ids.size());
+        for (String id : ids) {
+            Filter historyFilter = filterBuilder.attribute(Metacard.ID)
+                    .is()
+                    .equalTo()
+                    .text(id);
+            Filter idFilter = filterBuilder.attribute(Metacard.TAGS)
+                    .is()
+                    .like()
+                    .text(tagFilter);
+            Filter filter = filterBuilder.allOf(historyFilter, idFilter);
+            filters.add(filter);
+        }
+
+        Filter queryFilter = filterBuilder.anyOf(filters);
+        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+                queryFilter,
+                1,
+                -1,
+                SortBy.NATURAL_ORDER,
+                false,
+                TimeUnit.SECONDS.toMillis(10)), false));
+        Map<String, Result> results = new HashMap<>();
+        for (Result result : response.getResults()) {
+            results.put(result.getMetacard()
+                    .getId(), result);
+        }
+        return results;
     }
 
     public Map<String, Object> getMetacardTypeMap() {
