@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
-package org.codice.ddf.ui.searchui.standard.properties;
+package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -106,10 +106,11 @@ public class ConfigurationStoreTest {
         // Verify
         assertThat(configurationStore.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(),
-                hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
-        assertThat(configurationStore.getTypeNameMapping(),
-                hasEntry("alpha", Sets.newSet("beta", "omega")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
+                "baz",
+                "qux")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
+                "omega")));
     }
 
     @Test
@@ -126,10 +127,11 @@ public class ConfigurationStoreTest {
         // Verify
         assertThat(configurationStore.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(),
-                hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
-        assertThat(configurationStore.getTypeNameMapping(),
-                hasEntry("alpha", Sets.newSet("beta", "omega")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
+                "baz",
+                "qux")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
+                "omega")));
     }
 
     @Test
@@ -142,10 +144,11 @@ public class ConfigurationStoreTest {
         // Verify
         assertThat(configurationStore.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(),
-                hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
-        assertThat(configurationStore.getTypeNameMapping(),
-                hasEntry("alpha", Sets.newSet("beta", "omega")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
+                "baz",
+                "qux")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
+                "omega")));
     }
 
 }

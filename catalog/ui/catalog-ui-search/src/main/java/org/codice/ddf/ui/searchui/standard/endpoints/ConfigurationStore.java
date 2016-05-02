@@ -12,13 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package org.codice.ddf.ui.searchui.standard.properties;
+package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import static org.boon.Boon.toJson;
 import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,8 +30,9 @@ import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.Factory;
@@ -45,8 +43,6 @@ import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.impl.BinaryContentImpl;
 import us.bpsm.edn.EdnIOException;
 import us.bpsm.edn.EdnSyntaxException;
 import us.bpsm.edn.parser.Parser;
@@ -154,8 +150,9 @@ public class ConfigurationStore {
 
     @GET
     @Path("/config")
-    public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-        Response response;
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getDocument(@Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest) {
         Map<String, Object> config = new HashMap<>();
 
         config.put("branding", getProductName());
@@ -175,13 +172,7 @@ public class ConfigurationStore {
         config.put("bingKey", bingKey);
         config.put("externalAuthentication", isExternalAuthentication);
 
-        String configJson = toJson(config);
-        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes(
-                StandardCharsets.UTF_8)), jsonMimeType);
-        response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
-                .build();
-
-        return response;
+        return config;
     }
 
     public String getProductName() {
@@ -234,10 +225,6 @@ public class ConfigurationStore {
         return imageryProviders;
     }
 
-    public void setImageryProviders(String imageryProviders) {
-        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
-    }
-
     public void setImageryProviders(List<String> imageryProviders) {
         List<String> itemList = new ArrayList<String>();
         for (String item : imageryProviders) {
@@ -250,6 +237,10 @@ public class ConfigurationStore {
         }
         this.imageryProviders = itemList;
         setProxiesForImagery(itemList);
+    }
+
+    public void setImageryProviders(String imageryProviders) {
+        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
     }
 
     public Map<String, Object> getProxiedTerrainProvider() {

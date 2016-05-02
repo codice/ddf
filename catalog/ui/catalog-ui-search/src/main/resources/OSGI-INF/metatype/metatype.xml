@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
+    <OCD name="Catalog UI Search" id="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">
         <AD
                 description="Specifies the number of results to request from each source"
                 name="Result Count" id="resultCount" required="true" type="Integer"
@@ -69,10 +69,10 @@
             required="false" type="String" cardinality="10000"
             description="Mapping of display names to content types in the form name=type."
                 />
-	    </OCD>
+    </OCD>
 
-	<Designate pid="org.codice.ddf.ui.search.standard.properties">
-		<Object ocdref="org.codice.ddf.ui.search.standard.properties"/>
-	</Designate>
+    <Designate pid="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">
+        <Object ocdref="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"/>
+    </Designate>
 
 </metatype:MetaData>

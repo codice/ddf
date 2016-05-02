@@ -34,9 +34,9 @@
     </bean>
 
     <bean id="configurationStore"
-          class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore"
+          class="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
           destroy-method="destroy">
-        <cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore"
                                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
@@ -75,6 +75,9 @@
 
     <jaxrs:server id="workspaceService" address="/search/catalog">
         <jaxrs:serviceBeans>
+            <!-- config store -->
+            <ref component-id="configurationStore"/>
+
             <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspacesEndpoint">
                 <argument ref="catalogFramework"/>
                 <argument ref="filterBuilder"/>
