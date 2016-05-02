@@ -121,6 +121,10 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>${bouncy.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.jaas</groupId>
+            <artifactId>org.apache.karaf.jaas.boot</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
