@@ -13,17 +13,21 @@
  */
 package ddf.security.common.audit;
 
+import java.security.AccessController;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Supplier;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
@@ -42,17 +46,26 @@ public final class SecurityLogger {
     }
 
     private static String getUser(Subject subject) {
-        String user;
         try {
             if (subject == null) {
-                subject = SecurityUtils.getSubject();
+                subject = ThreadContext.getSubject();
             }
-            user = SubjectUtils.getName(subject, NO_USER);
+            if (subject == null) {
+                javax.security.auth.Subject javaSubject = javax.security.auth.Subject.getSubject(
+                        AccessController.getContext());
+                if (javaSubject != null) {
+                    Set<UserPrincipal> userPrincipal = javaSubject.getPrincipals(UserPrincipal.class);
+                    if (userPrincipal != null && userPrincipal.size() > 0) {
+                        return userPrincipal.toArray(new UserPrincipal[1])[0].getName();
+                    }
+                }
+            } else {
+                return SubjectUtils.getName(subject, NO_USER);
+            }
         } catch (Exception e) {
-            user = NO_USER;
+           //ignore and return NO_USER
         }
-
-        return user;
+        return NO_USER;
     }
 
     private static void requestIpAndPortAndUserMessage(Message message,
@@ -98,7 +111,8 @@ public final class SecurityLogger {
      */
     public static void audit(String message, Subject subject) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.info(messageBuilder.append(message)
                 .toString());
@@ -125,7 +139,8 @@ public final class SecurityLogger {
      */
     public static void audit(String message, Subject subject, Object... params) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.info(messageBuilder.append(message)
                 .toString(), params);
@@ -154,7 +169,8 @@ public final class SecurityLogger {
      */
     public static void audit(String message, Subject subject, Supplier... paramSuppliers) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.info(messageBuilder.append(message)
                 .toString(), paramSuppliers);
@@ -184,7 +200,8 @@ public final class SecurityLogger {
      */
     public static void audit(String message, Subject subject, Throwable t) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.info(messageBuilder.append(message)
                 .toString(), t);
@@ -212,7 +229,8 @@ public final class SecurityLogger {
      */
     public static void auditWarn(String message, Subject subject) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.warn(messageBuilder.append(message)
                 .toString());
@@ -239,7 +257,8 @@ public final class SecurityLogger {
      */
     public static void auditWarn(String message, Subject subject, Object... params) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.warn(messageBuilder.append(message)
                 .toString(), params);
@@ -268,7 +287,8 @@ public final class SecurityLogger {
      */
     public static void auditWarn(String message, Subject subject, Supplier... paramSuppliers) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.warn(messageBuilder.append(message)
                 .toString(), paramSuppliers);
@@ -298,7 +318,8 @@ public final class SecurityLogger {
      */
     public static void auditWarn(String message, Subject subject, Throwable t) {
         StringBuilder messageBuilder = new StringBuilder();
-        requestIpAndPortAndUserMessage(subject, PhaseInterceptorChain.getCurrentMessage(),
+        requestIpAndPortAndUserMessage(subject,
+                PhaseInterceptorChain.getCurrentMessage(),
                 messageBuilder);
         LOGGER.warn(messageBuilder.append(message)
                 .toString(), t);
