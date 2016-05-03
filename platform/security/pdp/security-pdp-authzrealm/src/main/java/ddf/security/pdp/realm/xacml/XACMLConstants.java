@@ -20,6 +20,8 @@ public class XACMLConstants {
 
     public static final String STRING_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#string";
 
+    public static final String BOOLEAN_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#boolean";
+
     public static final String TIME_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#time";
 
     public static final String DATE_DATA_TYPE = "http://www.w3.org/2001/XMLSchema#date";
