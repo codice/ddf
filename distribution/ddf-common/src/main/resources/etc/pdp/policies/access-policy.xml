@@ -12,7 +12,6 @@
  *
  **/
 -->
-<!-- WARNING: DO NOT FORMAT THIS FILE - BALANA DOES NOT PROPERLY PARSE THE ELEMENTS IF THE ARE ON MULTIPLE LINES -->
 <Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="AccessPolicy"
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides"
         Version="1.0">

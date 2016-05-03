@@ -14,7 +14,7 @@
 package ddf.security.pdp.realm.xacml.processor;
 
 /**
- * Exception thrown by the DDF implementation of the Balana PDP.
+ * Exception thrown by the DDF implementation of the XACML PDP.
  */
 public class PdpException extends Exception {
     private static final long serialVersionUID = 1L;

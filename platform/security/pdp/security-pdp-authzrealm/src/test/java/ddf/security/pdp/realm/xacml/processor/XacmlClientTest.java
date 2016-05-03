@@ -43,8 +43,8 @@ import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 
-public class BalanaClientTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BalanaClientTest.class);
+public class XacmlClientTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(XacmlClientTest.class);
 
     private static final String ROLE_CLAIM =
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
@@ -180,7 +180,7 @@ public class BalanaClientTest {
             xacmlRequestType.getAttributes()
                     .add(categoryAttributes);
 
-            BalanaClient pdp = new BalanaClient(destDir.getCanonicalPath(), new XmlParser());
+            XacmlClient pdp = new XacmlClient(destDir.getCanonicalPath(), new XmlParser());
 
             // Perform Test
             ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -277,7 +277,7 @@ public class BalanaClientTest {
         xacmlRequestType.getAttributes()
                 .add(categoryAttributes);
 
-        BalanaClient pdp = new BalanaClient(tempDir.getCanonicalPath(), new XmlParser());
+        XacmlClient pdp = new XacmlClient(tempDir.getCanonicalPath(), new XmlParser());
 
         // Perform Test
         ResponseType xacmlResponse = pdp.evaluate(xacmlRequestType);
@@ -296,12 +296,12 @@ public class BalanaClientTest {
     }
 
     @Test
-    public void testBalanaWrapperpoliciesdirectorydoesnotexist() throws PdpException, IOException {
-        LOGGER.debug("\n\n\n##### testBalanaWrapper_policies_directory_does_not_exist");
+    public void testWrapperpoliciesdirectorydoesnotexist() throws PdpException, IOException {
+        LOGGER.debug("\n\n\n##### testXACMLWrapper_policies_directory_does_not_exist");
 
         // Perform Test on new directory
         // Expect directory to be created
-        new BalanaClient(TEST_CREATION_DIR, new XmlParser());
+        new XacmlClient(TEST_CREATION_DIR, new XmlParser());
 
         // Delete the directory that was just created
         FileUtils.forceDelete(new File(TEST_CREATION_DIR));
@@ -310,8 +310,8 @@ public class BalanaClientTest {
     @Test
     /**
      * No longer expect an exception thrown here since we can start with an empty directory
-     */ public void testBalanaWrapperpoliciesdirectoryexistsandisempty() throws Exception {
-        LOGGER.debug("\n\n\n##### testBalanaWrapper_policies_directory_exists_and_is_empty");
+     */ public void testWrapperpoliciesdirectoryexistsandisempty() throws Exception {
+        LOGGER.debug("\n\n\n##### testXACMLWrapper_policies_directory_exists_and_is_empty");
 
         // Setup
         File dir = folder.newFolder(TEMP_DIR_NAME);
@@ -321,7 +321,7 @@ public class BalanaClientTest {
             assertTrue(isDirEmpty(dir));
 
             // Perform Test
-            new BalanaClient(dir.getCanonicalPath(), new XmlParser());
+            new XacmlClient(dir.getCanonicalPath(), new XmlParser());
 
             // Cleanup
             LOGGER.debug("Deleting directory: {}", dir.getPath());
@@ -332,14 +332,14 @@ public class BalanaClientTest {
     }
 
     @Test
-    public void testBalanaWrapperpoliciesdirectorypolicyadded() throws Exception {
-        LOGGER.debug("\n\n\n##### testBalanaWrapper_policies_directory_policy_added");
+    public void testWrapperpoliciesdirectorypolicyadded() throws Exception {
+        LOGGER.debug("\n\n\n##### testXACMLWrapper_policies_directory_policy_added");
 
         File policyDir = folder.newFolder("tempDir");
 
-        BalanaClient.defaultPollingIntervalInSeconds = 1;
+        XacmlClient.defaultPollingIntervalInSeconds = 1;
         // Perform Test
-        BalanaClient pdp = new BalanaClient(policyDir.getCanonicalPath(), new XmlParser());
+        XacmlClient pdp = new XacmlClient(policyDir.getCanonicalPath(), new XmlParser());
 
         File srcFile = new File(
                 projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
@@ -437,7 +437,7 @@ public class BalanaClientTest {
         File policyDir = folder.newFolder("tempDir");
 
         // Perform Test
-        BalanaClient pdp = new BalanaClient(policyDir.getCanonicalPath(), null);
+        XacmlClient pdp = new XacmlClient(policyDir.getCanonicalPath(), null);
 
         File srcFile = new File(
                 projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator

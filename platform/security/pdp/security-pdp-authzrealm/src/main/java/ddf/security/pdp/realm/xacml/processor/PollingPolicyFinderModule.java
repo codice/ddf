@@ -26,7 +26,8 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.balana.finder.impl.FileBasedPolicyFinderModule;
+
+import com.connexta.arbitro.finder.impl.FileBasedPolicyFinderModule;
 
 import ddf.security.common.audit.SecurityLogger;
 

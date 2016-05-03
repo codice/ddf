@@ -34,9 +34,9 @@
             <artifactId>cxf-rt-ws-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.balana</groupId>
-            <artifactId>org.wso2.balana</artifactId>
-            <version>1.0.2</version>
+            <groupId>com.connexta.arbitro</groupId>
+            <artifactId>arbitro-core</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -111,8 +111,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            org.wso2.balana,
-                            commons-io
+                            arbitro-core,
+                            commons-io,
                             httpclient,
                             httpcore,
                             platform-util-unavailableurls,
