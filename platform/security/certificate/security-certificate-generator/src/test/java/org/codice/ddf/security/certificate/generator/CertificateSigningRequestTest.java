@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.certificate.generator;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,21 +43,17 @@ public class CertificateSigningRequestTest {
 
     @Test
     public void testKeys() throws Exception {
-        assertThat("CSR failed to auto-generate RSA keypair",
-                csr.getSubjectPrivateKey(),
+        assertThat("CSR failed to auto-generate RSA keypair", csr.getSubjectPrivateKey(),
                 instanceOf(PrivateKey.class));
-        assertThat("CSR failed to auto-generate RSA keypair",
-                csr.getSubjectPublicKey(),
+        assertThat("CSR failed to auto-generate RSA keypair", csr.getSubjectPublicKey(),
                 instanceOf(PublicKey.class));
         PublicKey pubKey = mock(PublicKey.class);
         PrivateKey privKey = mock(PrivateKey.class);
         KeyPair kp = new KeyPair(pubKey, privKey);
         csr.setSubjectKeyPair(kp);
-        assertThat("Unable to get mock private key",
-                csr.getSubjectPrivateKey(),
+        assertThat("Unable to get mock private key", csr.getSubjectPrivateKey(),
                 sameInstance(privKey));
-        assertThat("Unable to get mock public key",
-                csr.getSubjectPublicKey(),
+        assertThat("Unable to get mock public key", csr.getSubjectPublicKey(),
                 sameInstance(pubKey));
     }
 
@@ -65,8 +62,7 @@ public class CertificateSigningRequestTest {
         boolean outcome = csr.getNotAfter()
                 .isAfter(csr.getNotBefore());
         assertThat("'Not after' date should never be chronologically before the 'Not before' date'",
-                outcome,
-                equalTo(true));
+                outcome, equalTo(true));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,13 +99,28 @@ public class CertificateSigningRequestTest {
     @Test
     public void subjectName() throws Exception {
 
-        assertThat("Subject name should never be null",
-                true,
+        assertThat("Subject name should never be null", true,
                 equalTo(csr.getSubjectName() != null));
         csr.setCommonName("test");
         String cn = csr.getSubjectName()
                 .toString();
         assertThat("Subject name should be 'test'", cn, endsWith("test"));
+    }
+
+    @Test
+    public void subjectFromDN() throws Exception {
+        assertThat("Subject name should never be null", true,
+                equalTo(csr.getSubjectName() != null));
+        csr.setDistinguishedName("CN=john.smith", "O=Tardis", "o=police box", "L=London", "C=UK");
+        String subjectName = csr.getSubjectName()
+                .toString();
+
+        assertThat("Subject name should contain 'cn=john.smith'", subjectName,
+                containsString("cn=john.smith"));
+        assertThat("Subject name should contain 'o=Tardis'", subjectName,
+                containsString("o=Tardis"));
+        assertThat("Subject name should contain 'o=police box'", subjectName,
+                containsString("o=police box"));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -30,9 +30,12 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.Validate;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
@@ -117,8 +120,7 @@ public abstract class PkiTools {
             return derToPem(cert.getEncoded());
         } catch (RuntimeException | CertificateEncodingException e) {
             throw new CertificateGeneratorException(
-                    "Unable to convert the certificate to a PEM object",
-                    e);
+                    "Unable to convert the certificate to a PEM object", e);
         }
     }
 
@@ -176,8 +178,7 @@ public abstract class PkiTools {
             return keyGen.generateKeyPair();
         } catch (Exception e) {
             throw new CertificateGeneratorException(
-                    "Failed to generate new public/private key pair.",
-                    e);
+                    "Failed to generate new public/private key pair.", e);
         }
     }
 
@@ -234,6 +235,30 @@ public abstract class PkiTools {
         return nameBuilder.build();
     }
 
+    public static X500Name convertDistinguishedName(String... tuples) {
+        Validate.isTrue(tuples != null && tuples.length > 0,
+                "Distinguished name must consist of at least one component");
+        assert tuples != null && tuples.length > 0;
+
+        Pattern tuplePattern = Pattern.compile(".*[=].*");
+        Validate.isTrue(Arrays.stream(tuples)
+                        .allMatch(t -> tuplePattern.matcher(t)
+                                .matches()),
+                "Distinguished name components must be in the format symbol=value");
+
+        AttributeNameChecker style = new AttributeNameChecker();
+        Validate.isTrue(Arrays.stream(tuples)
+                .map(t -> t.split("[=]")[0])
+                .map(String::trim)
+                .allMatch(style::isValidName));
+
+        X500NameBuilder nameBuilder = new X500NameBuilder(RFC4519Style.INSTANCE);
+        Arrays.stream(tuples)
+                .map(t -> t.split("[=]"))
+                .forEach(t -> nameBuilder.addRDN(style.lookupByName(t[0].trim()), t[1].trim()));
+        return nameBuilder.build();
+    }
+
     /**
      * Given a PEM encoded X509 certificate, return an object representation of the certificate
      *
@@ -243,13 +268,12 @@ public abstract class PkiTools {
     public static X509Certificate pemToCertificate(String certString) {
         CertificateFactory cf = new CertificateFactory();
         ByteArrayInputStream in = new ByteArrayInputStream(PkiTools.pemToDer(certString));
-        X509Certificate cert = null;
+        X509Certificate cert;
         try {
             cert = (X509Certificate) cf.engineGenerateCertificate(in);
         } catch (CertificateException e) {
             throw new CertificateGeneratorException(
-                    "Cannot convert this PEM object to X509 certificate",
-                    e);
+                    "Cannot convert this PEM object to X509 certificate", e);
         }
         if (cert == null) {
             throw new CertificateGeneratorException(
@@ -266,6 +290,8 @@ public abstract class PkiTools {
      */
     public static byte[] pemToDer(String string) {
         Validate.isTrue(string != null, "PEM string cannot be null");
+        assert string != null;
+
         return Base64.getDecoder()
                 .decode(string);
     }
@@ -288,5 +314,15 @@ public abstract class PkiTools {
 
     static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
         return KeyFactory.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
+    }
+
+    private static class AttributeNameChecker extends RFC4519Style {
+        ASN1ObjectIdentifier lookupByName(String name) {
+            return (ASN1ObjectIdentifier) defaultLookUp.get(name.toLowerCase());
+        }
+
+        boolean isValidName(String name) {
+            return defaultLookUp.containsKey(name.toLowerCase());
+        }
     }
 }
