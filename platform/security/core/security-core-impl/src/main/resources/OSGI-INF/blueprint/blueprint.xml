@@ -19,6 +19,8 @@
 
     <ext:property-placeholder/>
 
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
                     ext:proxy-method="greedy"/>
 
@@ -36,6 +38,10 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
+    <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger">
+        <property name="configurationAdmin" ref="configurationAdmin"/>
+    </bean>
+
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
         <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
@@ -48,7 +54,10 @@
         <property name="systemCrypto" ref="crypto"/>
     </bean>
 
-    <service ref="logoutMessageImpl" interface="ddf.security.samlp.LogoutMessage" />
+    <service ref="logoutMessageImpl" interface="ddf.security.samlp.LogoutMessage"/>
+
+    <service ref="configSecurityLogger"
+             interface="org.osgi.service.cm.SynchronousConfigurationListener"/>
 
     <service id="serviceManager" ref="securityManagerImpl"
              interface="ddf.security.service.SecurityManager"/>

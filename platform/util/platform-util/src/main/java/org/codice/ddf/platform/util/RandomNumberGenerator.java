@@ -22,11 +22,11 @@ import org.bouncycastle.crypto.prng.drbg.DualECSP800DRBG;
 
 public class RandomNumberGenerator {
 
-    public static SecureRandom getRNG() {
-        return new SecureRandom(getBcRbgSeed());
+    public static SecureRandom create() {
+        return new SecureRandom(createSeed());
     }
 
-    public static byte[] getBcRbgSeed() {
+    public static byte[] createSeed() {
         EntropySourceProvider esp = new BasicEntropySourceProvider(new SecureRandom(), true);
         byte[] nonce = new byte[256];
         new SecureRandom().nextBytes(nonce);

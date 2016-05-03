@@ -59,11 +59,11 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
             new HashMap<String, Set<WeakReference<HttpSession>>>();
 
     public HashSessionIdManager() {
-        super(RandomNumberGenerator.getRNG());
+        super(RandomNumberGenerator.create());
     }
 
     public HashSessionIdManager(Random random) {
-        super(RandomNumberGenerator.getRNG());
+        super(RandomNumberGenerator.create());
     }
 
     /**

@@ -44,17 +44,6 @@
 
     </bean>
 
-    <!-- Pre-Query Metacard Validity Checker Plugin -->
-    <bean id="pre-query-plugin"
-          class="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin">
-        <cm:managed-properties
-                persistent-id="ddf.catalog.metacard.validation.MetacardValidityCheckerPlugin"
-                update-strategy="container-managed"/>
-        <argument ref="filterBuilder"/>
-        <argument ref="filterAdapter"/>
-        <property name="showInvalidMetacards" value="false"/>
-    </bean>
-
     <!-- Post-Query Metacard Validity Filter Plugin -->
     <bean id="post-query-plugin"
           class="ddf.catalog.metacard.validation.MetacardValidityFilterPlugin">
@@ -69,7 +58,7 @@
 
     <!-- Register in the OSGi Service Registry -->
     <service ref="pre-ingest-plugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
-    <service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>
+    <!--<service ref="pre-query-plugin" interface="ddf.catalog.plugin.PreQueryPlugin"/>-->
     <service ref="post-query-plugin" auto-export="interfaces" ranking="100"/>
 
 </blueprint>
