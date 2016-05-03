@@ -179,9 +179,18 @@ To use the scripts, run them out of the <${branding}_HOME>/etc/certs directory. 
 `sh CertNew.sh <FQDN>`
 
 The above command creates a new entry in the keystore for a server named `my.server.com`.
+
+Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+
+`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
+
 To create and install the certificates on Windows, use the `CertNew.cmd` file in the same directory.
 
 `CertNew <FQDN>`
+
+Alternatively, a FQDN can be provided to the script with a comma-delimited string.
+
+`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>"`
 
 To install a certificate signed by a different Certificate Authority, see <<Import into a Java Keystore (JKS)>>.
 
