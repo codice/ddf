@@ -138,6 +138,22 @@
   }
 }
 
+.has-header @{customElementNamespace}home-templates.is-expanded {
+  top: 80px;
+  .home-templates-expanded {
+    top: 20px;
+  }
+}
+
+.has-footer @{customElementNamespace}home-templates.is-expanded,
+.has-header @{customElementNamespace}home-templates.is-expanded {
+  height: ~'calc(100vh - 60px - 20px)';
+}
+
+.has-header.has-footer @{customElementNamespace}home-templates.is-expanded {
+  height: ~'calc(100vh - 60px - 40px)';
+}
+
 @media (max-width: @mediumScreenSize) {
   @{customElementNamespace}home-templates {
     .home-templates-center,

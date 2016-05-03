@@ -9,9 +9,10 @@
   .boxShadow;
 
   transform: translateY(-50%) scaleY(0);
+  opacity: 0;
 
   &.is-open {
-    transition: transform @coreTransitionTime ease-in-out;
     transform: translateY(0%) scaleY(1);
+    opacity: 1;
   }
 }

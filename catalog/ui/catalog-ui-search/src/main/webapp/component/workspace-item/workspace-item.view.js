@@ -50,7 +50,14 @@ define([
         initializeMenus: function(){
             this._workspaceMenu = MenuView.getNewWorkspaceMenu(this._workspaceMenuModel,
                 function(){
-                    return this.el.querySelector('.actions-icon');
+                    switch(this.displayType){
+                        case 'Grid':
+                            return this.el.querySelector('.choice.as-grid .actions-icon');
+                            break;
+                        case 'List':
+                            return this.el.querySelector('.choice.as-list .actions-icon');
+                            break;
+                    }
                 }.bind(this),
                 'workspace',
                 this.model);
@@ -80,6 +87,15 @@ define([
             workspacesJSON.previewImage = workspacesJSON.metacards[0];
             workspacesJSON.niceDate = moment(workspacesJSON.modified).fromNow();
             return workspacesJSON;
-        }
+        },
+        activateGridDisplay: function(){
+            this.displayType = 'Grid';
+            this.$el.addClass('as-grid').removeClass('as-list');
+        },
+        activateListDisplay: function(){
+            this.displayType = 'List';
+            this.$el.addClass('as-list').removeClass('as-grid');
+        },
+        displayType: undefined
     });
 });

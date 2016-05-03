@@ -1,8 +1,15 @@
-@{customElementNamespace}workspace-item {
+@{customElementNamespace}workspace-item.as-grid {
   .customElement;
   display: inline-block;
   width: auto;
   color: @niceBlack;
+
+  .choice.as-grid {
+    display: inline-block;
+  }
+  .choice.as-list {
+    display: none;
+  }
 
   .choice {
     position: relative;
@@ -89,7 +96,7 @@
 }
 
 @media (max-width: @mediumScreenSize) {
-  @{customElementNamespace}workspace-item {
+  @{customElementNamespace}workspace-item.as-grid {
     .choice {
       width: 144px;
     }
@@ -100,7 +107,70 @@
   }
 }
 
-@media (max-width: @smallScreenSize) {
-  @{customElementNamespace}workspace-item {
+@{customElementNamespace}workspace-item.as-list {
+
+  .choice.as-grid {
+    display: none;
   }
+
+  .choice.as-list {
+    display: block;
+  }
+
+  .choice {
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+    white-space: nowrap;
+    background: white;
+    border-bottom: 1px solid #c4c4c4;
+    border-left: 1px solid #d3d3d3;
+    border-right: 1px solid #d3d3d3;
+    border-top: 1px solid #d3d3d3;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+    cursor: pointer;
+  }
+
+  .choice + .choice {
+    border-top: none;
+  }
+
+  .choice:hover {
+    background: @niceHoverBlue;
+  }
+
+  .choice-details,
+  .choice-actions {
+    display: inline-block;
+  }
+
+  .choice-details {
+    width: ~'calc(100% - 44px)';
+    padding: 0px 20px;
+    white-space: nowrap;
+    vertical-align: top;
+  }
+
+  .choice-actions {
+    width: @minimumButtonSize;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .choice-title,
+  .choice-date {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .choice-title {
+    width: 50%;
+  }
+
+  .choice-date {
+    width: 50%;
+    text-align: center;
+  }
+
+
 }

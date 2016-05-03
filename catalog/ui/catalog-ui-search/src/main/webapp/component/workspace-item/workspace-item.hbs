@@ -11,7 +11,7 @@
  *
  **/
  --}}
-<div class="choice" data-workspaceId="{{id}}">
+<div class="choice as-grid" data-workspaceId="{{id}}">
     <div class="choice-preview">
         {{#if previewImage}}
             <img src="/services/catalog/sources/ddf.distribution/{{previewImage}}?transform=resource">
@@ -31,5 +31,20 @@
 
                         </span>
         </div>
+    </div>
+</div>
+<div class="choice as-list" data-workspaceId="{{id}}">
+    <div class="choice-details">
+        <div class="choice-title">
+            {{title}}
+        </div>
+        <div class="choice-date">
+            {{niceDate}}
+        </div>
+    </div>
+    <div class="choice-actions" data-workspaceId="{{id}}">
+                        <span class="actions-icon fa fa-ellipsis-v">
+
+                        </span>
     </div>
 </div>

@@ -14,28 +14,23 @@
  **/
 /*global define*/
 define([
-    'wreqr',
-    'marionette',
     'underscore',
-    'jquery',
-    'text!./home-menu.hbs',
-    'js/CustomElements'
-], function (wreqr, Marionette, _, $, template, CustomElements) {
+    'backbone'
+], function (_, Backbone) {
 
-    return Marionette.LayoutView.extend({
-        template: template,
-        tagName: CustomElements.register('home-menu'),
-        regions: {
+    return Backbone.Model.extend({
+        defaults: {
+            isOpen: false,
+            value: undefined
         },
-        modelEvents: {
+        toggleOpen: function(){
+            this.set('isOpen', !this.get('isOpen'));
         },
-        events: {
+        close: function(){
+            this.set('isOpen', false);
         },
-        ui: {
-        },
-        initialize: function(){
-        },
-        onRender: function(){
+        open: function(){
+            this.set('isOpen', true);
         }
     });
 });

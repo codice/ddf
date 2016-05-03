@@ -27,4 +27,8 @@
   &.is-top.is-open {
     transform: translateY(-100%) scaleY(1);
   }
+
+  &.is-open {
+    transition: opacity @coreTransitionTime ease-in-out;
+  }
 }

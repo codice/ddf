@@ -14,28 +14,26 @@
  **/
 /*global define*/
 define([
-    'wreqr',
     'marionette',
     'underscore',
     'jquery',
-    'text!./home-menu.hbs',
-    'js/CustomElements'
-], function (wreqr, Marionette, _, $, template, CustomElements) {
+    '../dropdown.view',
+    'text!./dropdown.workspaces-filter.hbs',
+    'component/workspaces-filter/workspaces-filter.view'
+], function (Marionette, _, $, DropdownView, template, ComponentView) {
 
-    return Marionette.LayoutView.extend({
+    return DropdownView.extend({
         template: template,
-        tagName: CustomElements.register('home-menu'),
-        regions: {
+        className: 'is-workspacesFilter',
+        componentToShow: ComponentView,
+        initializeComponentModel: function(){
+            //override if you need more functionality
+            this.modelForComponent = this.model;
         },
-        modelEvents: {
+        isCentered: true,
+        getCenteringElement: function(){
+            return this.el.querySelector('.dropdown-text');
         },
-        events: {
-        },
-        ui: {
-        },
-        initialize: function(){
-        },
-        onRender: function(){
-        }
+        hasTail: true
     });
 });

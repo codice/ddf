@@ -21,8 +21,13 @@ define([
     'text!./home-items.hbs',
     'js/CustomElements',
     'js/store',
-    'component/workspace-item/workspace-item.collection.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspaceItemCollection) {
+    'component/workspace-item/workspace-item.collection.view',
+    'component/dropdown/dropdown',
+    'component/dropdown/workspaces-filter/dropdown.workspaces-filter.view',
+    'component/dropdown/workspaces-sort/dropdown.workspaces-sort.view',
+    'component/dropdown/workspaces-display/dropdown.workspaces-display.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspaceItemCollection, DropdownModel, FilterDropdownView,
+        SortDropdownView, DisplayDropdownView) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -32,9 +37,10 @@ define([
         tagName: CustomElements.register('home-items'),
         modelEvents: {
         },
-        ui: {
-        },
         regions: {
+            homeFilter: '.home-items-filter',
+            homeSort: '.home-items-sort',
+            homeDisplay: '.home-items-display',
             homeItems: '.home-items-choices'
         },
         initialize: function(options){
@@ -43,8 +49,22 @@ define([
             }
         },
         onBeforeShow: function(){
-            this.homeItems.show(new WorkspaceItemCollection({
+            var workspaceItemCollection = new WorkspaceItemCollection({
                 collection: this.model
+            });
+            var displayDropdownModel = new DropdownModel({value: 'Grid'});
+            workspaceItemCollection.listenTo(displayDropdownModel, 'change:value',
+                workspaceItemCollection.switchDisplay);
+            workspaceItemCollection.activateGridDisplay();
+            this.homeItems.show(workspaceItemCollection);
+            this.homeFilter.show(new FilterDropdownView({
+                model: new DropdownModel({value: 'Owned by anyone'})
+            }));
+            this.homeSort.show(new SortDropdownView({
+                model: new DropdownModel({value: 'Last modified by me'})
+            }));
+            this.homeDisplay.show(new DisplayDropdownView({
+                model: displayDropdownModel
             }));
         },
     });

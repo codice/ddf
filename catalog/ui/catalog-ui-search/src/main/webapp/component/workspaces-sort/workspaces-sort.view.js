@@ -14,28 +14,37 @@
  **/
 /*global define*/
 define([
-    'wreqr',
     'marionette',
     'underscore',
     'jquery',
-    'text!./home-menu.hbs',
+    'text!./workspaces-sort.hbs',
     'js/CustomElements'
-], function (wreqr, Marionette, _, $, template, CustomElements) {
+], function (Marionette, _, $, template, CustomElements) {
 
-    return Marionette.LayoutView.extend({
+    return Marionette.ItemView.extend({
         template: template,
-        tagName: CustomElements.register('home-menu'),
-        regions: {
-        },
+        tagName: CustomElements.register('workspaces-sort'),
         modelEvents: {
+            'all': 'render'
         },
         events: {
+            'click .choice': 'handleChoice'
         },
         ui: {
         },
         initialize: function(){
         },
         onRender: function(){
+            this.handleValue();
+        },
+        handleValue: function(){
+            this.$el.find('[data-value]').removeClass('is-selected');
+            this.$el.find('[data-value="'+this.model.get('value')+'"]').addClass('is-selected');
+        },
+        handleChoice: function(e){
+            var value = $(e.currentTarget).attr('data-value');
+            this.model.set('value', value);
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
     });
 });

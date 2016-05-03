@@ -23,6 +23,39 @@ define([
 
     return Marionette.CollectionView.extend({
         tagName: CustomElements.register('workspace-item-collection'),
-        childView: WorkspaceItemView
+        childView: WorkspaceItemView,
+        onBeforeAddChild: function(childView){
+            switch(this.displayType){
+                case 'List':
+                    childView.activateListDisplay();
+                    break;
+                case 'Grid':
+                    childView.activateGridDisplay();
+                    break;
+            }
+        },
+        activateGridDisplay: function(){
+            this.displayType = 'Grid';
+            this.children.forEach(function (childView) {
+                childView.activateGridDisplay();
+            });
+        },
+        activateListDisplay: function(){
+            this.displayType = 'List';
+            this.children.forEach(function (childView) {
+                childView.activateListDisplay();
+            });
+        },
+        switchDisplay: function(model, displayType){
+            switch(displayType){
+                case 'List':
+                    this.activateListDisplay();
+                    break;
+                case 'Grid':
+                    this.activateGridDisplay();
+                    break;
+            }
+        },
+        displayType: 'Grid'
     });
 });
