@@ -26,6 +26,9 @@ define([
         setDefaultModel: function(){
             this.model = store.get('content');
         },
+        events: {
+            'change input': 'updateWorkspaceName'
+        },
         template: template,
         tagName: CustomElements.register('content-title'),
         initialize: function (options) {
@@ -35,6 +38,9 @@ define([
             this.listenTo(this.model, 'change:currentWorkspace', this.render);
         },
         onRender: function(){
+        },
+        updateWorkspaceName: function(e){
+            this.model.get('currentWorkspace').set('title', e.currentTarget.value);
         }
     });
 });
