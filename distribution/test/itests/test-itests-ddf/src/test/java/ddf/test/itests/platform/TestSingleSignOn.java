@@ -124,6 +124,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             // Start the services needed for testing.
             // We need to start the Search UI to test that it redirects properly
             getServiceManager().startFeature(true, "security-idp", "search-ui-app");
+            getServiceManager().waitForAllBundles();
 
             // Get all of the metadata
             String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
