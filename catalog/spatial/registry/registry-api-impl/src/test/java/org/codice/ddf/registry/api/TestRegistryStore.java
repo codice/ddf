@@ -55,6 +55,7 @@ import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.encryption.EncryptionService;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionSummaryType;
 
@@ -74,6 +75,8 @@ public class TestRegistryStore {
 
     private TransformerManager transformer;
 
+    private EncryptionService encryptionService;
+
     @Before
     public void setup() {
         parser = new XmlParser();
@@ -82,7 +85,12 @@ public class TestRegistryStore {
         configuration = mock(CswSourceConfiguration.class);
         factory = mock(SecureCxfClientFactory.class);
         transformer = mock(TransformerManager.class);
-        registryStore = new RegistryStoreImpl(context, configuration, provider, factory);
+        encryptionService = mock(EncryptionService.class);
+        registryStore = new RegistryStoreImpl(context,
+                configuration,
+                provider,
+                factory,
+                encryptionService);
         registryStore.setParser(parser);
         registryStore.setFilterBuilder(new GeotoolsFilterBuilder());
         registryStore.setSchemaTransformerManager(transformer);
@@ -91,8 +99,11 @@ public class TestRegistryStore {
 
     @Test
     public void testUpdate() throws Exception {
-
-        registryStore = new RegistryStoreImpl(context, configuration, provider, factory) {
+        registryStore = new RegistryStoreImpl(context,
+                configuration,
+                provider,
+                factory,
+                encryptionService) {
             @Override
             public SourceResponse query(QueryRequest queryRequest)
                     throws UnsupportedQueryException {

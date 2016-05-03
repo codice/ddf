@@ -27,6 +27,8 @@
                     interface="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory"
                     availability="optional"/>
 
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id"
             factory-pid="Wfs_v1_0_0_Federated_Source"
@@ -48,6 +50,7 @@
             <property name="forceSpatialFilter" value=""/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
@@ -74,6 +77,7 @@
             <property name="forceSpatialFilter" value=""/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
+            <argument ref="encryptionService"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

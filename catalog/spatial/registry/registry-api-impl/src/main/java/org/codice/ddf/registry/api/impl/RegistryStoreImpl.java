@@ -54,6 +54,7 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.encryption.EncryptionService;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.ExternalIdentifierType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.RegistryObjectType;
 
@@ -74,12 +75,13 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
     private ParserConfigurator unmarshalConfigurator;
 
     public RegistryStoreImpl(BundleContext context, CswSourceConfiguration cswSourceConfiguration,
-            Converter provider, SecureCxfClientFactory factory) {
-        super(context, cswSourceConfiguration, provider, factory);
+            Converter provider, SecureCxfClientFactory factory,
+            EncryptionService encryptionService) {
+        super(context, cswSourceConfiguration, provider, factory, encryptionService);
     }
 
-    public RegistryStoreImpl() {
-        super();
+    public RegistryStoreImpl(EncryptionService encryptionService) {
+        super(encryptionService);
     }
 
     @Override

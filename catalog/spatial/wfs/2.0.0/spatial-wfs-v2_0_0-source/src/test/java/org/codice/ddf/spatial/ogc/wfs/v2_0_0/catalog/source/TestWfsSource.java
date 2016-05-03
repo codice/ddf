@@ -72,6 +72,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
 import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
@@ -117,6 +118,8 @@ public class TestWfsSource {
     private Wfs20FeatureCollection mockFeatureCollection = mock(Wfs20FeatureCollection.class);
 
     private SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
+
+    private EncryptionService encryptionService = mock(EncryptionService.class);
 
     public WfsSource getWfsSource(final String schema, final FilterCapabilities filterCapabilities,
             final String srsName, final int numFeatures)
@@ -203,7 +206,8 @@ public class TestWfsSource {
         WfsSource source = new WfsSource(new GeotoolsFilterAdapterImpl(),
                 mockContext,
                 mockAvailabilityTask,
-                mockFactory);
+                mockFactory,
+                encryptionService);
 
         source.setMetacardToFeatureMapper(mappers);
         return source;
@@ -286,7 +290,8 @@ public class TestWfsSource {
         WfsSource wfsSource = new WfsSource(new GeotoolsFilterAdapterImpl(),
                 mockContext,
                 mockAvailabilityTask,
-                mockFactory);
+                mockFactory,
+                encryptionService);
 
         wfsSource.setFeatureCollectionReader(mockReader);
 

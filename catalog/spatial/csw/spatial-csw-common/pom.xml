@@ -173,5 +173,9 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-urlresourcereader</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

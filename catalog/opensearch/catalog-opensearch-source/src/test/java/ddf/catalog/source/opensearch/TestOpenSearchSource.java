@@ -81,6 +81,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.encryption.EncryptionService;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -97,6 +98,8 @@ public class TestOpenSearchSource {
     private static final String SAMPLE_SEARCH_PHRASE = "foobar";
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
+
+    private EncryptionService encryptionService = mock(EncryptionService.class);
 
     private static final List<String> DEFAULT_PARAMETERS = Arrays.asList("q",
             "src",
@@ -312,7 +315,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -369,7 +373,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -407,7 +412,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -446,7 +452,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         MetacardImpl generatedMetacard = new MetacardImpl();
@@ -495,7 +502,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         MetacardImpl generatedMetacard = new MetacardImpl();
@@ -548,7 +556,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -577,7 +586,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -627,7 +637,8 @@ public class TestOpenSearchSource {
      */
     @Test
     public void testRetrieveNullProduct() throws ResourceNotSupportedException, IOException {
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         // when
         try {
             source.retrieveResource(null, null);
@@ -658,7 +669,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -704,7 +716,8 @@ public class TestOpenSearchSource {
 
         SecureCxfClientFactory factory = getMockFactory(client);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -814,7 +827,8 @@ public class TestOpenSearchSource {
 
         when(clientResponse.getHeaders()).thenReturn(headers);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER);
+        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
+                encryptionService);
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.setParameters(DEFAULT_PARAMETERS);
         source.init();
@@ -894,13 +908,14 @@ public class TestOpenSearchSource {
          * @param filterAdapter
          * @throws UnsupportedQueryException
          */
-        public OverriddenOpenSearchSource(FilterAdapter filterAdapter) {
-            super(filterAdapter);
+        public OverriddenOpenSearchSource(FilterAdapter filterAdapter,
+                EncryptionService encryptionService) {
+            super(filterAdapter, encryptionService);
         }
 
         public OverriddenOpenSearchSource(FilterAdapter filterAdapter,
-                SecureCxfClientFactory factory) {
-            super(filterAdapter);
+                SecureCxfClientFactory factory, EncryptionService encryptionService) {
+            super(filterAdapter, encryptionService);
             this.factory = factory;
         }
 
