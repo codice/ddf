@@ -23,9 +23,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.codice.proxy.http.HttpProxyService;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
@@ -35,12 +35,6 @@ import org.osgi.framework.BundleContext;
 public class ConfigurationStoreTest {
 
     private static final String PROXY_SERVER = "http://www.example.com/wms";
-
-    private static final List<String> IMAGERY_PROVIDERS = Arrays.asList(
-            "{\"type\" \"OSM\" \"url\" \"http://otile1.mqcdn.com/tiles/1.0.0/map\" \"fileExtension\" \"jpg\" \"alpha\" 1},{\"type\" \"OSM\" \"url\" \"http://otile1.mqcdn.com/tiles/1.0.0/sat\" \"fileExtension\" \"jpg\" \"alpha\" 0.5}");
-
-    private static final String TERRAIN_PROVIDER =
-            "{\"type\" \"CT\" \"url\" \"http://cesiumjs.org/stk-terrain/tilesets/world/tiles\"}";
 
     private static final String BUNDLE_SYMBOLIC_NAME = "mySymbolicName";
 
@@ -58,7 +52,8 @@ public class ConfigurationStoreTest {
 
         ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setHttpProxy(mockHttpProxyService);
-        configurationStore.setImageryProviders(IMAGERY_PROVIDERS);
+        configurationStore.setImageryProviders(IOUtils.toString(getClass().getResourceAsStream(
+                "/imagery-providers.json")));
 
         // Verify
         for (Map<String, Object> provider : configurationStore.getProxiedImageryProviders()) {
@@ -82,7 +77,8 @@ public class ConfigurationStoreTest {
 
         ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setHttpProxy(mockHttpProxyService);
-        configurationStore.setTerrainProvider(TERRAIN_PROVIDER);
+        configurationStore.setTerrainProvider(IOUtils.toString(getClass().getResourceAsStream(
+                "/terrain-provider.json")));
 
         // Verify
         assertTrue(configurationStore.getProxiedTerrainProvider()
@@ -106,11 +102,10 @@ public class ConfigurationStoreTest {
         // Verify
         assertThat(configurationStore.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
-                "baz",
-                "qux")));
-        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
-                "omega")));
+        assertThat(configurationStore.getTypeNameMapping(),
+                hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
+        assertThat(configurationStore.getTypeNameMapping(),
+                hasEntry("alpha", Sets.newSet("beta", "omega")));
     }
 
     @Test
@@ -127,11 +122,10 @@ public class ConfigurationStoreTest {
         // Verify
         assertThat(configurationStore.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
-                "baz",
-                "qux")));
-        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
-                "omega")));
+        assertThat(configurationStore.getTypeNameMapping(),
+                hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
+        assertThat(configurationStore.getTypeNameMapping(),
+                hasEntry("alpha", Sets.newSet("beta", "omega")));
     }
 
     @Test
@@ -144,11 +138,10 @@ public class ConfigurationStoreTest {
         // Verify
         assertThat(configurationStore.getTypeNameMapping()
                 .size(), is(2));
-        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
-                "baz",
-                "qux")));
-        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
-                "omega")));
+        assertThat(configurationStore.getTypeNameMapping(),
+                hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
+        assertThat(configurationStore.getTypeNameMapping(),
+                hasEntry("alpha", Sets.newSet("beta", "omega")));
     }
 
 }

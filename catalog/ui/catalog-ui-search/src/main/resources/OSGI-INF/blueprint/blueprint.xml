@@ -40,10 +40,8 @@
                                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
-        <property name="imageryProviders"
-                  value='{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/map" "fileExtension" "jpg" "alpha" 1},{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/sat" "fileExtension" "jpg" "alpha" 0.5}'/>
-        <property name="terrainProvider"
-                  value='{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
+        <property name="imageryProviders" value='[{"type":"OSM","url":"http://otile1.mqcdn.com/tiles/1.0.0/map","fileExtension":"jpg","alpha":1},{"type":"OSM","url":"http://otile1.mqcdn.com/tiles/1.0.0/sat","fileExtension":"jpg","alpha":0.5}]'/>
+        <property name="terrainProvider" value='{"type": "CT", "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}'/>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">

@@ -14,19 +14,8 @@
 
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
-import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -39,14 +28,10 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
+import org.boon.json.JsonFactory;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import us.bpsm.edn.EdnIOException;
-import us.bpsm.edn.EdnSyntaxException;
-import us.bpsm.edn.parser.Parser;
-import us.bpsm.edn.parser.Parsers;
 
 /**
  * Stores external configuration properties.
@@ -70,26 +55,13 @@ public class ConfigurationStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
-    private static MimeType jsonMimeType;
-
-    static {
-        MimeType mime = null;
-        try {
-            String jsonMimeType_STRING = "application/json";
-            mime = new MimeType(jsonMimeType_STRING);
-        } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
-        }
-        jsonMimeType = mime;
-    }
-
     private String format;
 
-    private List<String> imageryProviders = new ArrayList<>();
+    private List imageryProviders = new ArrayList<>();
 
-    private List<Map<String, Object>> proxiedImageryProviders = new ArrayList<>();
+    private List<Map> proxiedImageryProviders = new ArrayList<>();
 
-    private String terrainProvider;
+    private Map terrainProvider;
 
     private Map<String, Object> proxiedTerrainProvider;
 
@@ -217,30 +189,17 @@ public class ConfigurationStore {
         this.timeout = timeout;
     }
 
-    public List<Map<String, Object>> getProxiedImageryProviders() {
+    public List<Map> getProxiedImageryProviders() {
         return proxiedImageryProviders;
     }
 
-    public List<String> getImageryProviders() {
-        return imageryProviders;
-    }
-
-    public void setImageryProviders(List<String> imageryProviders) {
-        List<String> itemList = new ArrayList<String>();
-        for (String item : imageryProviders) {
-            if (item.contains(",")) {
-                String[] items = item.split(",");
-                itemList.addAll(Arrays.asList(items));
-            } else {
-                itemList.add(item);
-            }
-        }
-        this.imageryProviders = itemList;
-        setProxiesForImagery(itemList);
+    public String getImageryProviders() {
+        return JsonFactory.create().writeValueAsString(imageryProviders);
     }
 
     public void setImageryProviders(String imageryProviders) {
-        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
+        this.imageryProviders = (List) JsonFactory.create().readValue(imageryProviders, List.class);
+        setProxiesForImagery(this.imageryProviders);
     }
 
     public Map<String, Object> getProxiedTerrainProvider() {
@@ -248,15 +207,15 @@ public class ConfigurationStore {
     }
 
     public String getTerrainProvider() {
-        return terrainProvider;
+        return JsonFactory.create().writeValueAsString(terrainProvider);
     }
 
     public void setTerrainProvider(String terrainProvider) {
-        this.terrainProvider = terrainProvider;
-        setProxyForTerrain(terrainProvider);
+        this.terrainProvider = JsonFactory.create().readValue(terrainProvider, Map.class);
+        setProxyForTerrain(this.terrainProvider);
     }
 
-    private void setProxiesForImagery(List<String> imageryProviders) {
+    private void setProxiesForImagery(List imageryProviders) {
         if (imageryEndpoints.size() > 0) {
             for (String endpoint : imageryEndpoints) {
                 try {
@@ -268,15 +227,15 @@ public class ConfigurationStore {
         }
         proxiedImageryProviders.clear();
 
-        for (String provider : imageryProviders) {
-            Map<String, Object> proxiedProvider = getProxiedProvider(provider, true);
+        for (Object provider : imageryProviders) {
+            Map proxiedProvider = getProxiedProvider((Map) provider, true);
             if (proxiedProvider != null) {
                 proxiedImageryProviders.add(proxiedProvider);
             }
         }
     }
 
-    private void setProxyForTerrain(String terrainProvider) {
+    private void setProxyForTerrain(Map terrainProvider) {
         if (terrainEndpoint != null) {
             try {
                 httpProxy.stop(terrainEndpoint);
@@ -288,26 +247,8 @@ public class ConfigurationStore {
         proxiedTerrainProvider = getProxiedProvider(terrainProvider, false);
     }
 
-    private Map<String, Object> getProxiedProvider(String provider, boolean imagery) {
-        if (StringUtils.isBlank(provider)) {
-            return null;
-        }
-
-        Parser parser = Parsers.newParser(defaultConfiguration());
-        Map<String, Object> config;
-        try {
-            Object value = parser.nextValue(Parsers.newParseable(provider));
-            if (value instanceof Map) {
-                config = new HashMap<String, Object>((Map) value);
-            } else {
-                LOGGER.warn("Expected a map for provider configuration but got {} instead: {}",
-                        value.getClass()
-                                .getName(),
-                        provider);
-                return null;
-            }
-        } catch (EdnSyntaxException | EdnIOException e) {
-            LOGGER.warn("Unable to parse provider configuration: " + provider, e);
+    private Map getProxiedProvider(Map config, boolean imagery) {
+        if (config == null) {
             return null;
         }
 
