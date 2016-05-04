@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -92,7 +93,13 @@ public class HistoryEndpoint {
         Metacard revertMetacard = HistoryMetacardImpl.toBasicMetacard(versionMetacard);
         catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
 
-        return Response.ok()
+
+        Map<String, Object> response = endpointUtil.transformToJson(revertMetacard);
+
+        return Response.ok(JsonFactory.create(new JsonParserFactory(),
+                new JsonSerializerFactory().includeNulls()
+                        .includeEmpty())
+                .toJson(response), MediaType.APPLICATION_JSON)
                 .build();
     }
 
