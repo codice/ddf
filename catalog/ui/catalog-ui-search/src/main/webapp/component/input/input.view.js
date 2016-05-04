@@ -82,12 +82,25 @@ define([
             attributeToVal[this.model.getId()] = this.model.getValue();
             return attributeToVal;
         },
+        toPatchJSON: function(){
+            if (this.hasChanged()){
+                return {
+                    attribute: this.model.getId(),
+                    values: [this.model.getValue()]
+                };
+            } else {
+                return undefined;
+            }
+        },
         focus: function(){
             this.$el.find('input').select();
         },
-        handleRevert: function(){
+        hasChanged: function(){
             var value = this.$el.find('input').val();
-            if (value !== this.model.getInitialValue()){
+            return value !== this.model.getInitialValue();
+        },
+        handleRevert: function(){
+            if (this.hasChanged()){
                 this.$el.addClass('is-changed');
             } else {
                 this.$el.removeClass('is-changed');

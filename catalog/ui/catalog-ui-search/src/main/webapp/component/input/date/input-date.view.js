@@ -96,9 +96,12 @@ define([
         focus: function(){
             this.$el.find('input').select();
         },
-        handleRevert: function(){
+        hasChanged: function(){
             var value = this.$el.find('input').val();
-            if (value !== getHumanReadableDate(this.model.getInitialValue())){
+            return value !== getHumanReadableDate(this.model.getInitialValue());
+        },
+        handleRevert: function(){
+            if (this.hasChanged()){
                 this.$el.addClass('is-changed');
             } else {
                 this.$el.removeClass('is-changed');

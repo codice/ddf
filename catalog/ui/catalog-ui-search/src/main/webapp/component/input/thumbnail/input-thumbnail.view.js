@@ -18,10 +18,11 @@ define([
     'underscore',
     'jquery',
     'text!./input-thumbnail.hbs',
+    '../input.view',
     'js/CustomElements'
-], function (Marionette, _, $, template, CustomElements) {
+], function (Marionette, _, $, template, InputView, CustomElements) {
 
-    return Marionette.LayoutView.extend({
+    return InputView.extend({
         template: template,
         tagName: CustomElements.register('input-thumbnail'),
         attributes: function(){
@@ -31,7 +32,8 @@ define([
         },
         events: {
             'click .input-revert': 'revert',
-            'click button': 'upload'
+            'click button': 'upload',
+            'change input': 'handleUpload'
         },
         modelEvents: {
             'change:value': 'render'
@@ -40,11 +42,35 @@ define([
         serializeData: function () {
             return _.extend(this.model.toJSON(), {cid: this.cid});
         },
-        onRender: function () {
-            this.handleEdit();
-            this.handleReadOnly();
-            this.handleValue();
-            this.handleRevert();
+        handleUpload: function(e){
+            var self = this;
+            var canvas = this.el.querySelector('canvas');
+            var button = this.$el.find('button');
+            var revert = this.$el.find('.input-revert');
+            var ctx = canvas.getContext('2d');
+            var reader = new FileReader();
+            reader.onload = function(event){
+                var img = new Image();
+                img.onload = function(){
+                    var width = img.width;
+                    var height = img.height;
+                    var scaleFactor = img.width / (self.el.querySelector('.input-value').clientWidth - 88);
+                    if (scaleFactor > 1){
+                        width = width / scaleFactor;
+                        height = height / scaleFactor;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    button.css('height', height);
+                    revert.css('height', Math.max(height, 44));
+                    revert.css('line-height', Math.max(height,44) + 'px');
+                    ctx.drawImage(img,0,0, width, height);
+                    self.hasUploaded = true;
+                    self.handleRevert();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
         },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
@@ -53,7 +79,29 @@ define([
             this.$el.toggleClass('is-editing', this._editMode);
         },
         handleValue: function(){
-            //this.$el.find('input').val(this.model.getValue());
+            var self = this;
+            var canvas = this.el.querySelector('canvas');
+            var button = this.$el.find('button');
+            var revert = this.$el.find('.input-revert');
+            var ctx = canvas.getContext('2d');
+            var img = new Image();
+            img.onload = function() {
+                var width = img.width;
+                var height = img.height;
+                var scaleFactor = img.width / (self.el.querySelector('.input-value').clientWidth -88);
+                if (scaleFactor > 1){
+                    width = width / scaleFactor;
+                    height = height / scaleFactor;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                button.css('height', height);
+                revert.css('height', height);
+                revert.css('line-height', height + 'px');
+                ctx.drawImage(img,0,0, width, height);
+                self.handleRevert();
+            };
+            img.src = "data:image/png;base64,"+this.model.get('value');
         },
         turnOnEditing: function(){
             this._editMode = true;
@@ -67,18 +115,21 @@ define([
             this.$el.addClass('has-limited-width');
         },
         revert: function(){
+            this.hasUploaded = false;
             this.model.revert();
         },
         save: function(){
-            var value = this.$el.find('input').val();
-            this.model.save(value);
+            var canvas = this.el.querySelector('canvas');
+            this.model.save(canvas.toDataURL('image/png').split(',')[1]);
         },
         focus: function(){
             this.$el.find('input').select();
         },
+        hasChanged: function(){
+          return this.hasUploaded;
+        },
         handleRevert: function(){
-            var value = this.$el.find('input').val();
-            if (value !== this.model.getInitialValue()){
+            if (this.hasUploaded){
                 this.$el.addClass('is-changed');
             } else {
                 this.$el.removeClass('is-changed');
@@ -87,6 +138,7 @@ define([
         upload: function(){
             this.$el.find('input').click();
         },
+        hasUploaded: false,
         _editMode: false
     });
 });

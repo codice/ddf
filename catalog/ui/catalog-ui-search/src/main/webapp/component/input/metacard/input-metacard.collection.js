@@ -50,8 +50,9 @@ define([
 
         }
     }, {
-        hiddenTypes: ['XML', 'BINARY', 'OBJECT'],
-        blacklist: ['metacard-type', 'source-id'],
+        bulkHiddenTypes: ['BINARY'],
+        hiddenTypes: ['XML', 'OBJECT'],
+        blacklist: ['metacard-type', 'source-id', 'cached'],
         create: function(searchResult){
             var self = this;
             var metacardInputCollection = new MetacardInputCollection();
@@ -178,7 +179,8 @@ define([
                 return Object.keys(metacard.metacard.properties);
             })).filter(function(property){
                 return property.indexOf('metadata')!==0 && self.blacklist.indexOf(property) === -1
-                    && self.hiddenTypes.indexOf(metacardsJSON[0].propertyTypes[property].format) === -1;
+                    && self.hiddenTypes.indexOf(metacardsJSON[0].propertyTypes[property].format) === -1
+                    && self.bulkHiddenTypes.indexOf(metacardsJSON[0].propertyTypes[property].format) === -1;
             });
             var propertyArray = [];
             propertyIntersection.forEach(function(property){

@@ -20,8 +20,9 @@ define([
     '../editor.view',
     'js/store',
     'component/input/metacard/input-metacard.collection.view',
-    'component/input/metacard/input-metacard.collection'
-], function (Marionette, _, $, EditorView, store, InputMetacardCollectionView, InputMetacardCollection) {
+    'component/input/metacard/input-metacard.collection',
+    'component/loading/loading.view'
+], function (Marionette, _, $, EditorView, store, InputMetacardCollectionView, InputMetacardCollection, LoadingView) {
 
     return EditorView.extend({
         className: 'is-metacards-basic',
@@ -54,8 +55,39 @@ define([
         afterCancel: function(){
             this.getValidation();
         },
-        afterSave: function(){
-            this.getValidation();
+        afterSave: function(editorJSON){
+            if (editorJSON.length > 0){
+                var payload = [
+                    {
+                        ids: this.model.map(function(metacard){
+                            return metacard.id;
+                        }),
+                        attributes: editorJSON
+                    }
+                ];
+                var loadingView = new LoadingView();
+                var self = this;
+                setTimeout(function(){
+                    $.ajax({
+                        url: '/services/search/catalog/metacards',
+                        type: 'PATCH',
+                        data: JSON.stringify(payload),
+                        contentType: 'application/json'
+                    }).always(function(response){
+                        var attributeMap = response.reduce(function(attributeMap, changes){
+                            return changes.attributes.reduce(function(attrMap, chnges){
+                                attrMap[chnges.attribute] = chnges.values[0];
+                                return attrMap;
+                            }, attributeMap);
+                        }, {});
+                        self.model.forEach(function(metacard){
+                           metacard.get('metacard').get('properties').set(attributeMap);
+                        });
+                        loadingView.remove();
+                        self.onBeforeShow();
+                    });
+                }, 1000);
+            }
         }
     });
 });

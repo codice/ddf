@@ -68,6 +68,16 @@ define([
                 return _.extend(attributeToVal, childView.toJSON());
             }, {});
         },
+        toPatchJSON: function(){
+            var attributeArray = [];
+            this.children.forEach(function (childView){
+                var attribute = childView.toPatchJSON();
+                if (attribute){
+                    attributeArray.push(attribute);
+                }
+            });
+            return attributeArray;
+        },
         updateValidation: function(validationReport){
             var self = this;
             validationReport.forEach(function(attributeValidationReport){
