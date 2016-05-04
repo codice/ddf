@@ -127,7 +127,7 @@ public class ValidationQueryFactoryTest {
     }
 
     @Test
-    public void testSearchNone()
+    public void testSearchWarningsAndNotErrors()
             throws StopProcessingException, PluginExecutionException, UnsupportedQueryException {
         QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.MODIFIED)
                 .is()
@@ -151,6 +151,18 @@ public class ValidationQueryFactoryTest {
                         .equalTo()
                         .text("*")));
         QueryRequest returnQuery = validationQueryFactory.getQueryRequestWithValidationFilter(new QueryRequestImpl(query));
+
+        assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
+                is(true));
+    }
+
+    @Test
+    public void testSearchErrorsAndNotWarnings() throws UnsupportedQueryException {
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.MODIFIED)
+                .is()
+                .equalTo()
+                .text("sample"));
+        QueryRequest returnQuery = validationQueryFactory.getQueryRequestWithValidationFilter(new QueryRequestImpl(query), true, false);
 
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(true));
