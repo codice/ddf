@@ -38,6 +38,14 @@ DDF_HOME=`cd $DIRNAME/..; pwd`
 # NOTE: export on separate line to support caveat of Solaris OS
 export DDF_HOME
 
+# Prefer /dev/urandom over /dev/random on Linux systems.
+OS="`uname`"
+
+if [[ $OS == Linux* ]]; then
+   if [ -e /dev/urandom ]; then
+      RANDOM_DEVICE_OPTION="-Djava.security.egd=file:/dev/./urandom"
+   fi
+fi
 
 #
 # The following section shows the possible configuration options for the default 
@@ -50,4 +58,4 @@ export JAVA_MAX_MEM=2048M
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
 
-export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
+export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME $RANDOM_DEVICE_OPTION"
