@@ -48,6 +48,14 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     private static final Path USERS_PROPERTIES = Paths.get("etc", "users.properties");
 
+    private static final Path DDF_METACARD_ATTRIBUTE_RULESET = Paths.get("etc",
+            "pdp",
+            "ddf-metacard-attribute-ruleset.cfg");
+
+    private static final Path DDF_USER_ATTRIBUTE_RULESET = Paths.get("etc",
+            "pdp",
+            "ddf-user-attribute-ruleset.cfg");
+
     private static final Path APPLICATION_LIST = Paths.get("etc",
             "org.codice.ddf.admin.applicationlist.properties");
 
@@ -79,6 +87,8 @@ public class PlatformMigratable extends DescribableBean implements Configuration
         migratableUtil.copyFile(SYSTEM_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(USERS_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(APPLICATION_LIST, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(DDF_METACARD_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(DDF_USER_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
     }
 
     private void exportWsSecurity(Path exportDirectory,

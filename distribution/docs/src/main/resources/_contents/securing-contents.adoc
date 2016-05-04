@@ -1832,12 +1832,11 @@ The expansion service defines rulesets to map metacard attributes and user attri
 For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
 ===== Configuring Expansion Service
-// NOTE: This will change with completion of this task DDF-1829
 
-To use the expansion service, create the following two files within the `<INSTALLATION_HOME>` directory:
+To use the expansion service, modify the following two files within the `<INSTALLATION_HOME>/etc` directory:
 
-* `security/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
-* `security/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
+* `<INSTALLATION_HOME>/etc/pdp/${ddf-branding-lowercase}-metacard-attribute-ruleset.cfg`
+* `<INSTALLATION_HOME>/etc/pdp/${ddf-branding-lowercase}-user-attribute-ruleset.cfg`
 
 Within these files, the following configuration details will be defined.
 
