@@ -88,7 +88,7 @@ public class ValidationQueryFactoryTest {
                 .text("sample"));
         assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(false));
         QueryRequest sendQuery = new QueryRequestImpl(query);
-        QueryRequest returnQuery = validationQueryFactory.getQueryRequestWithValidationFilter(sendQuery, true);
+        QueryRequest returnQuery = validationQueryFactory.getQueryRequestWithValidationFilter(sendQuery, true, true);
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(false));
         assertThat(sendQuery, is(returnQuery));
@@ -103,7 +103,7 @@ public class ValidationQueryFactoryTest {
                 .text("sample"));
         assertThat(filterAdapter.adapt(query, testValidationQueryDelegate), is(true));
         QueryRequest sendQuery = new QueryRequestImpl(query);
-        QueryRequest returnQuery = validationQueryFactory.getQueryRequestWithValidationFilter(sendQuery, false);
+        QueryRequest returnQuery = validationQueryFactory.getQueryRequestWithValidationFilter(sendQuery, false, false);
         assertThat(filterAdapter.adapt(returnQuery.getQuery(), testValidationQueryDelegate),
                 is(true));
         assertThat(sendQuery, is(returnQuery));
