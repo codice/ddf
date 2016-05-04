@@ -44,7 +44,7 @@ public class ValidationQueryFactory {
         builder = filterBuilder;
     }
 
-    public QueryRequest getQueryRequestWithValidationFilter(QueryRequest input, Boolean showErrors,
+    QueryRequest getQueryRequestWithValidationFilter(QueryRequest input, Boolean showErrors,
             Boolean showWarnings) {
         Query inputQuery = input.getQuery();
         try {
@@ -94,7 +94,7 @@ public class ValidationQueryFactory {
                         .empty());
     }
 
-    public QueryRequest getQueryRequestWithValidationFilter(QueryRequest input) {
+    QueryRequest getQueryRequestWithValidationFilter(QueryRequest input) {
         return getQueryRequestWithValidationFilter(input, false, true);
     }
 
