@@ -13,9 +13,11 @@
  */
 package ddf.catalog.util.impl;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,7 +46,18 @@ public class SourcePollerRunner implements Runnable {
 
     private List<Source> sources;
 
-    private Map<Source, CachedSource> cachedSources = new ConcurrentHashMap<Source, CachedSource>();
+    private Map<Source, CachedSource> cachedSources = new ConcurrentSkipListMap<>(
+            Comparator.comparing(Source::getId, Comparator
+                    .nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Source::getTitle, Comparator
+                            .nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Source::getVersion, Comparator
+                            .nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Source::getDescription, Comparator
+                            .nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Source::getOrganization, Comparator
+                            .nullsLast(Comparator.naturalOrder()))
+            );
 
     private ExecutorService pool;
 
