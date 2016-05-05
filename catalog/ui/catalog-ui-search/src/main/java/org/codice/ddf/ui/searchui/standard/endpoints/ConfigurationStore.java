@@ -141,13 +141,12 @@ public class ConfigurationStore {
 
         if (proxiedImageryProviders.isEmpty()) {
             config.put("imageryProviders",
-                    ImmutableMap.of(
+                    Arrays.asList(ImmutableMap.of(
                             "type", "SI",
-                            "url", "/images/natural_earth_50m.png",
+                            "url", "/search/catalog/images/natural_earth_50m.png",
                             "parameters", ImmutableMap.of(
                                     "imageSize", Arrays.asList(10800, 5400)),
-                                    "alpha", 1
-                    ));
+                                    "alpha", 1)));
         } else {
             config.put("imageryProviders", proxiedImageryProviders);
         }
@@ -214,9 +213,18 @@ public class ConfigurationStore {
     }
 
     public void setImageryProviders(String imageryProviders) {
-        this.imageryProviders = (List) JsonFactory.create()
-                .readValue(imageryProviders, List.class);
-        setProxiesForImagery(this.imageryProviders);
+        if (StringUtils.isEmpty(imageryProviders)) {
+            this.imageryProviders = Collections.emptyList();
+        } else {
+            Object o = JsonFactory.create()
+                    .readValue(imageryProviders, List.class);
+            if (o != null) {
+                this.imageryProviders = (List) o;
+                setProxiesForImagery(this.imageryProviders);
+            } else {
+                LOGGER.warn("Could not parse imagery providers as JSON, {}", imageryProviders);
+            }
+        }
     }
 
     public Map<String, Object> getProxiedTerrainProvider() {
@@ -229,9 +237,18 @@ public class ConfigurationStore {
     }
 
     public void setTerrainProvider(String terrainProvider) {
-        this.terrainProvider = JsonFactory.create()
-                .readValue(terrainProvider, Map.class);
-        setProxyForTerrain(this.terrainProvider);
+        if (StringUtils.isEmpty(terrainProvider)) {
+            this.terrainProvider = null;
+        } else {
+            Object o = JsonFactory.create()
+                    .readValue(terrainProvider, Map.class);
+            if (o != null) {
+                this.terrainProvider = (Map) o;
+                setProxyForTerrain(this.terrainProvider);
+            } else {
+                LOGGER.warn("Could not parse terrain providers as JSON, {}", terrainProvider);
+            }
+        }
     }
 
     private void setProxiesForImagery(List imageryProviders) {
