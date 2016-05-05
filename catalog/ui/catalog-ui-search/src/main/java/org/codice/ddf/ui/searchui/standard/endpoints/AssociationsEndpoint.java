@@ -15,12 +15,10 @@ package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -30,8 +28,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.boon.json.JsonFactory;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,14 +38,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Path("/associations")
 public class AssociationsEndpoint {
@@ -129,7 +123,9 @@ public class AssociationsEndpoint {
         updatedAttributes.forEach(metacard::setAttribute);
         UpdateResponse update = catalogFramework.update(new UpdateRequestImpl(id, metacard));
 
-        return getAssociationsResponse(getAssociatedMetacardIdsFromMetacard(update.getUpdatedMetacards().get(0).getNewMetacard()));
+        return getAssociationsResponse(getAssociatedMetacardIdsFromMetacard(update.getUpdatedMetacards()
+                .get(0)
+                .getNewMetacard()));
     }
 
     private Set<String> deleteAssociation(String id, String associatedId, String attributeId)
@@ -195,17 +191,16 @@ public class AssociationsEndpoint {
         return associated;
     }
 
-
-
-    private class Associated {
+    private static class Associated {
         List<String> related;
 
         List<String> derived;
     }
 
-    private class AssociationItem {
+    private static class AssociationItem {
         String id;
 
+        @SuppressFBWarnings
         String title;
 
         private AssociationItem(String id, String title) {
@@ -214,7 +209,7 @@ public class AssociationsEndpoint {
         }
     }
 
-    private class AndrewAssociation {
+    private static class AndrewAssociation {
         String type;
 
         List<AssociationItem> metacards = new ArrayList<>();

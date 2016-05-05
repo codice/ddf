@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.ui.searchui.standard.endpoints;
 
 import java.time.Instant;
@@ -32,6 +45,7 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Path("/history")
 public class HistoryEndpoint {
@@ -66,7 +80,7 @@ public class HistoryEndpoint {
                                 .getValue(),
                         (Date) mc.getAttribute(HistoryMetacardImpl.VERSIONED)
                                 .getValue()))
-//                .sorted(compareBy(mc -> mc.versioned))
+                //                .sorted(compareBy(mc -> mc.versioned))
                 .collect(Collectors.toList());
         LOGGER.error("Time taken to do the history stuff: {} ns", System.nanoTime() - start);
         return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)
@@ -92,7 +106,6 @@ public class HistoryEndpoint {
 
         Metacard revertMetacard = HistoryMetacardImpl.toBasicMetacard(versionMetacard);
         catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
-
 
         Map<String, Object> response = endpointUtil.transformToJson(revertMetacard);
 
@@ -130,11 +143,13 @@ public class HistoryEndpoint {
         return response.getResults();
     }
 
-    private class HistoryResponse {
+    private static class HistoryResponse {
         Instant versioned;
 
+        @SuppressFBWarnings
         String id;
 
+        @SuppressFBWarnings
         String editedBy;
 
         private HistoryResponse(String historyId, String editedBy, Instant versioned) {

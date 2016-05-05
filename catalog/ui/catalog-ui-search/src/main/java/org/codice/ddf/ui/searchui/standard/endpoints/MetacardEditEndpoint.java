@@ -32,7 +32,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.boon.json.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +42,8 @@ import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 @Path("/edit")
 public class MetacardEditEndpoint {
@@ -132,6 +131,7 @@ public class MetacardEditEndpoint {
                 .build();
     }
 
+    @SuppressFBWarnings
     @PUT
     @Path("/{id}/{attribute}")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)

@@ -22,9 +22,6 @@
     <artifactId>catalog-ui-search</artifactId>
     <name>DDF :: Catalog :: UI :: Catalog UI Search</name>
     <packaging>bundle</packaging>
-    <properties>
-        <checkstyle.skip>true</checkstyle.skip>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.webconsole</groupId>
@@ -247,22 +244,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.47</minimum>
+                                            <minimum>0.21</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.45</minimum>
+                                            <minimum>0.20</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.27</minimum>
+                                            <minimum>0.17</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.43</minimum>
+                                            <minimum>0.19</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

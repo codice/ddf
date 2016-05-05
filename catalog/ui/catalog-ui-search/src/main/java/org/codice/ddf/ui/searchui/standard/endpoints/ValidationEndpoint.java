@@ -32,9 +32,7 @@ import org.boon.json.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.report.AttributeValidationReport;

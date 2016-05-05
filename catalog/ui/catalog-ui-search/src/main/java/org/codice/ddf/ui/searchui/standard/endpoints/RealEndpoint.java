@@ -54,6 +54,7 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class RealEndpoint {
     private final CatalogFramework catalogFramework;
@@ -237,6 +238,7 @@ public class RealEndpoint {
         return Response.ok().build();
     }
 
+    @SuppressFBWarnings
     @PATCH
     @Path("/metacards")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -315,7 +317,7 @@ public class RealEndpoint {
         return new ArrayList<>(list);
     }
 
-    private class ViolationResult {
+    private static class ViolationResult {
         String attribute;
 
         List<String> errors = new ArrayList<>();
@@ -323,13 +325,13 @@ public class RealEndpoint {
         List<String> warnings = new ArrayList<>();
     }
 
-    private class MetacardChanges {
+    private static class MetacardChanges {
         List<String> ids;
 
         List<AttributeChange> attributes;
     }
 
-    private class AttributeChange {
+    private static class AttributeChange {
         String attribute;
 
         List<String> values;
