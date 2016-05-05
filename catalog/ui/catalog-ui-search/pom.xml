@@ -40,11 +40,6 @@
             <version>0.30</version>
         </dependency>
         <dependency>
-            <groupId>us.bpsm</groupId>
-            <artifactId>edn-java</artifactId>
-            <version>0.4.4</version>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
@@ -178,7 +173,6 @@
                             camel-http-common,
                             camel-http,
                             camel-core-osgi,
-                            edn-java,
                             httpclient,
                             httpcore,
                             platform-error-servlet,
