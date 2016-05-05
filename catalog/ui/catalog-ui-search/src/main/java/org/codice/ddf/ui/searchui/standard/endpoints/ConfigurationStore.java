@@ -33,6 +33,8 @@ import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Stores external configuration properties.
  *
@@ -136,7 +138,20 @@ public class ConfigurationStore {
         config.put("resultCount", resultCount);
         config.put("typeNameMapping", typeNameMapping);
         config.put("terrainProvider", proxiedTerrainProvider);
-        config.put("imageryProviders", proxiedImageryProviders);
+
+        if (proxiedImageryProviders.isEmpty()) {
+            config.put("imageryProviders",
+                    ImmutableMap.of(
+                            "type", "SI",
+                            "url", "/images/natural_earth_50m.png",
+                            "parameters", ImmutableMap.of(
+                                    "imageSize", Arrays.asList(10800, 5400)),
+                                    "alpha", 1
+                    ));
+        } else {
+            config.put("imageryProviders", proxiedImageryProviders);
+        }
+
         config.put("gazetteer", isGazetteer);
         config.put("showIngest", isIngest);
         config.put("projection", projection);
@@ -194,11 +209,13 @@ public class ConfigurationStore {
     }
 
     public String getImageryProviders() {
-        return JsonFactory.create().writeValueAsString(imageryProviders);
+        return JsonFactory.create()
+                .writeValueAsString(imageryProviders);
     }
 
     public void setImageryProviders(String imageryProviders) {
-        this.imageryProviders = (List) JsonFactory.create().readValue(imageryProviders, List.class);
+        this.imageryProviders = (List) JsonFactory.create()
+                .readValue(imageryProviders, List.class);
         setProxiesForImagery(this.imageryProviders);
     }
 
@@ -207,11 +224,13 @@ public class ConfigurationStore {
     }
 
     public String getTerrainProvider() {
-        return JsonFactory.create().writeValueAsString(terrainProvider);
+        return JsonFactory.create()
+                .writeValueAsString(terrainProvider);
     }
 
     public void setTerrainProvider(String terrainProvider) {
-        this.terrainProvider = JsonFactory.create().readValue(terrainProvider, Map.class);
+        this.terrainProvider = JsonFactory.create()
+                .readValue(terrainProvider, Map.class);
         setProxyForTerrain(this.terrainProvider);
     }
 
