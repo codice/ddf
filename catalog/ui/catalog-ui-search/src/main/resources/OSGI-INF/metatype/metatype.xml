@@ -69,6 +69,20 @@
             required="false" type="String" cardinality="10000"
             description="Mapping of display names to content types in the form name=type."
                 />
+
+        <AD id="readOnly"
+            name="Read Only Metacard Attributes"
+            description="List of metacard attributes that are read-only."
+            type="String"
+            cardinality="10000"
+            required="false" />
+
+        <AD id="summaryShow"
+            name="Summary Metacard Attributes"
+            description="List of metacard attributes to display in the summary view."
+            type="String"
+            cardinality="10000"
+            required="false" />
     </OCD>
 
     <Designate pid="org.codice.ddf.ui.searchui.standard.endpoints.ConfigurationStore">

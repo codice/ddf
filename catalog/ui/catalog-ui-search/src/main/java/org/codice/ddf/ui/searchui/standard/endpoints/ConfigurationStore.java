@@ -99,6 +99,26 @@ public class ConfigurationStore {
 
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
+    public List<String> getSummaryShow() {
+        return summaryShow;
+    }
+
+    public List<String> getReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(List<String> readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    public void setSummaryShow(List<String> summaryShow) {
+        this.summaryShow = summaryShow;
+    }
+
+    private List<String> readOnly = Collections.emptyList();
+
+    private List<String> summaryShow = Collections.emptyList();
+
     public ConfigurationStore() {
 
     }
@@ -157,6 +177,8 @@ public class ConfigurationStore {
         config.put("helpUrl", helpUrl);
         config.put("bingKey", bingKey);
         config.put("externalAuthentication", isExternalAuthentication);
+        config.put("readOnly", readOnly);
+        config.put("summaryShow", summaryShow);
 
         return config;
     }
