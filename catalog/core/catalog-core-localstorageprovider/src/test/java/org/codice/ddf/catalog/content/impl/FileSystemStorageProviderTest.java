@@ -593,7 +593,11 @@ public class FileSystemStorageProviderTest {
         assertThat(Files.exists(Paths.get(expectedFilePath)), is(true));
         assertTrue(item.getSize() > 0);
 
-        String updatedFileContents = IOUtils.toString(item.getInputStream());
+        String updatedFileContents = null;
+        try (InputStream is = item.getInputStream()) {
+            updatedFileContents = IOUtils.toString(is);
+        }
+
         assertEquals("Updated NITF", updatedFileContents);
         provider.commit(updateRequest);
         assertReadRequest(new URI(updateRequest.getContentItems()
