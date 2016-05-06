@@ -21,7 +21,7 @@ const one = { message: '1', timestamp: 1 }
 const two = { message: '2', timestamp: 2 }
 
 test('old entry (duplicate)', function (t) {
-  t.timeoutAfter(25)
+  t.timeoutAfter(3000)
   t.plan(2)
 
   var d = uniq()
@@ -36,7 +36,7 @@ test('old entry (duplicate)', function (t) {
 })
 
 test('new entry', function (t) {
-  t.timeoutAfter(25)
+  t.timeoutAfter(3000)
   t.plan(2)
 
   var d = uniq()
@@ -51,7 +51,7 @@ test('new entry', function (t) {
 })
 
 test('same timestamp, different entry', function (t) {
-  t.timeoutAfter(25)
+  t.timeoutAfter(3000)
   t.plan(2)
 
   var d = uniq()
@@ -68,7 +68,7 @@ test('same timestamp, different entry', function (t) {
 })
 
 test('same hashes from identical objects.', function (t) {
-  t.timeoutAfter(25)
+  t.timeoutAfter(3000)
   t.plan(2)
 
   var d = uniq()
@@ -82,7 +82,7 @@ test('same hashes from identical objects.', function (t) {
 })
 
 test('different hashes from different objects.', function (t) {
-  t.timeoutAfter(25)
+  t.timeoutAfter(3000)
   t.plan(2)
 
   var d = uniq()

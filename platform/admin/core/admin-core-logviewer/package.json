@@ -8,7 +8,7 @@
   "scripts": {
     "start": "hotreloadify src/main/webapp/js/index.js --proxy=https://localhost:8993 --open",
     "pretest": "standard ./src/**/*.js",
-    "test": "browserify -d ./src/test/js/*.js > ./target/test.js && tap ./target/test.js",
+    "test": "globstar -- browserify -d ./src/test/js/*.js -o ./target/test.js && tap ./target/test.js",
     "prebuild": "mkdirp ./target/webapp",
     "build": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js"
   },
@@ -38,6 +38,7 @@
     "babel-preset-stage-0": "^6.5.0",
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
+    "globstar": "^1.0.0",
     "hotreloadify": "0.0.5",
     "minifyify": "^7.3.2",
     "mkdirp": "^0.5.1",
