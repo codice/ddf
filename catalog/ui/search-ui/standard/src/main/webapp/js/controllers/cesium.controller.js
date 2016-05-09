@@ -40,6 +40,8 @@ define(['application',
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
+                this.overlays = {};
+
                 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
                 this.mapViewer = this.createMap();
                 this.drawHelper = new DrawHelper(this.mapViewer);
@@ -54,6 +56,8 @@ define(['application',
                 this.listenTo(wreqr.vent, 'search:start', this.clearResults);
                 this.listenTo(wreqr.vent, 'map:results', this.newResults);
                 this.listenTo(wreqr.vent, 'map:clear', this.clear);
+                this.listenTo(wreqr.vent, 'metacard:overlay', this.overlayImage);
+                this.listenTo(wreqr.vent, 'metacard:overlay:remove', this.removeOverlay);
 
                 if (wreqr.reqres.hasHandler('search:results')) {
                     this.newResults(wreqr.reqres.request('search:results'));
@@ -293,6 +297,41 @@ define(['application',
                 }
             },
 
+            overlayImage: function (model) {
+                var metacardId = model.get('properties').get('id');
+                this.removeOverlay(metacardId);
+
+                var coords = model.get('geometry').getPolygon();
+                var cartographics = _.map(coords, function(coord) {
+                    return Cesium.Cartographic.fromDegrees(coord.longitude, coord.latitude, coord.altitude);
+                });
+
+                var rectangle = Cesium.Rectangle.fromCartographicArray(cartographics);
+
+                var overlayLayer = this.scene.imageryLayers.addImageryProvider(new Cesium.SingleTileImageryProvider({
+                    url: model.get('currentOverlayUrl'),
+                    rectangle: rectangle
+                }));
+
+                this.overlays[metacardId] = overlayLayer;
+            },
+
+            removeOverlay: function (metacardId) {
+                if (this.overlays[metacardId]) {
+                    this.scene.imageryLayers.remove(this.overlays[metacardId]);
+                    delete this.overlays[metacardId];
+                }
+            },
+
+            removeAllOverlays: function() {
+                for (var overlay in this.overlays) {
+                    if (this.overlays.hasOwnProperty(overlay)) {
+                        this.scene.imageryLayers.remove(this.overlays[overlay]);
+                    }
+                }
+                this.overlays = {};
+            },
+
             newResults: function (result, zoomOnResults) {
                 this.showResults(result.get('results'));
                 if (zoomOnResults) {
@@ -319,6 +358,7 @@ define(['application',
                 if (this.mapViews) {
                     this.mapViews.destroy();
                 }
+                this.removeAllOverlays();
             }
 
         });

@@ -458,5 +458,10 @@
             <artifactId>catalog-plugin-duplication</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-overlay</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
