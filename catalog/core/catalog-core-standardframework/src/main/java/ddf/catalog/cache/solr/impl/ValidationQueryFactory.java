@@ -13,6 +13,9 @@
  */
 package ddf.catalog.cache.solr.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +44,11 @@ public class ValidationQueryFactory {
         builder = filterBuilder;
     }
 
-    public QueryRequest getQueryRequestWithValidationFilter(QueryRequest input,
-            boolean showInvalidMetacards) {
+    QueryRequest getQueryRequestWithValidationFilter(QueryRequest input, Boolean showErrors,
+            Boolean showWarnings) {
         Query inputQuery = input.getQuery();
         try {
-            if (showInvalidMetacards || adapter.adapt(input.getQuery(),
+            if ((showErrors && showWarnings) || adapter.adapt(input.getQuery(),
                     new ValidationQueryDelegate())) {
                 return input;
             }
@@ -53,13 +56,18 @@ public class ValidationQueryFactory {
         } catch (UnsupportedQueryException e) {
             LOGGER.warn("This attribute filter is not supported by ValidationQueryDelegate.", e);
         }
-        QueryImpl query = new QueryImpl(builder.allOf(builder.allOf(
-                builder.attribute(BasicTypes.VALIDATION_ERRORS)
-                        .is()
-                        .empty(),
-                builder.attribute(BasicTypes.VALIDATION_WARNINGS)
-                        .is()
-                        .empty()), inputQuery),
+        List<Filter> filters = new ArrayList<>();
+        if (!showErrors) {
+            filters.add(builder.attribute(BasicTypes.VALIDATION_ERRORS)
+                    .is()
+                    .empty());
+        }
+        if (!showWarnings) {
+            filters.add(builder.attribute(BasicTypes.VALIDATION_WARNINGS)
+                    .is()
+                    .empty());
+        }
+        QueryImpl query = new QueryImpl(builder.allOf(builder.allOf(filters), inputQuery),
                 inputQuery.getStartIndex(),
                 inputQuery.getPageSize(),
                 inputQuery.getSortBy(),
@@ -86,8 +94,8 @@ public class ValidationQueryFactory {
                         .empty());
     }
 
-    public QueryRequest getQueryRequestWithValidationFilter(QueryRequest input) {
-        return getQueryRequestWithValidationFilter(input, false);
+    QueryRequest getQueryRequestWithValidationFilter(QueryRequest input) {
+        return getQueryRequestWithValidationFilter(input, false, true);
     }
 
 }

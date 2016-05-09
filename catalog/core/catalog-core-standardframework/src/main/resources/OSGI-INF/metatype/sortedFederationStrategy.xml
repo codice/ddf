@@ -50,10 +50,16 @@
             id="cacheRemoteIngests" required="true" type="Boolean" default="false"/>
 
         <AD
-            description="Show invalid metacards in search results"
-            name="Show Invalid Metacards" id="showInvalidMetacards" required="true"
+            description="Show metacards with validation errors in search results"
+            name="Show Validation Errors" id="showErrors" required="true"
             type="Boolean"
             default="false"/>
+
+        <AD
+            description="Show metacards with validation warnings in search results"
+            name="Show Validation Warnings" id="showWarnings" required="true"
+            type="Boolean"
+            default="true"/>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">
