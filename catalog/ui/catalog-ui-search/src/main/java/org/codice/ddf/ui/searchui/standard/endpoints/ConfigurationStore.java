@@ -54,7 +54,7 @@ public class ConfigurationStore {
 
     public static final String URL = "url";
 
-    public static final String ENDPOINT_NAME = "standard";
+    public static final String ENDPOINT_NAME = "catalog";
 
     public static final Factory NEW_SET_FACTORY = new Factory() {
         public Object create() {

@@ -21,7 +21,6 @@
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="proxyCamelContext"/>
 
-
     <bean id="camelServletCreator" class="org.codice.proxy.http.CamelServletCreator"
           init-method="registerServlet">
         <argument ref="blueprintBundleContext"/>
