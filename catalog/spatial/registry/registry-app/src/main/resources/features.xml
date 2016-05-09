@@ -1,0 +1,44 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+
+<!--
+     NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
+     is automatically installed when an app's KAR file is hot deployed.
+
+     Description of the install attribute from the Karaf features XSD:
+
+     "Installation mode. Can be either manual or auto. Specifies whether the feature should be
+     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't
+     affect feature descriptors that are installed from the command line or as part of the
+     org.apache.karaf.features.cfg."
+-->
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="registry-app" install="manual" version="${project.version}"
+             description="DDF Registry contains the base registry components, plugins, sources and interfaces needed for the registry to function">
+        <feature prerequisite="true">spatial-app</feature>
+        <bundle>mvn:org.codice.ddf.registry/registry-api/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-api-impl/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-schema-bindings/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-policy-plugin/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-ebrim-transformer/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-identification-plugin/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-service/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.registry/registry-federation-admin-service-impl/${project.version}</bundle>
+    </feature>
+
+</features>

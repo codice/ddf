@@ -92,7 +92,7 @@
                                     mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.catalog.registry/registry-app/${project.version}/xml/features
+                                    mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.ui.search/search-ui-app/${project.version}/xml/features
@@ -315,7 +315,7 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.registry</groupId>
+            <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
