@@ -19,17 +19,23 @@
 
     <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
 
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="proxyCamelContext"/>
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
 
-    <bean id="camelServletCreator" class="org.codice.proxy.http.CamelServletCreator"
-          init-method="registerServlet">
-        <argument ref="blueprintBundleContext"/>
-        <argument ref="proxyCamelContext"/>
+    <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet">
+        <argument ref="uiCamelContext"/>
     </bean>
+
+    <service interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="alias" value="/search/catalog/proxy"/>
+            <entry key="servlet-name" value="uiProxyServlet"/>
+        </service-properties>
+        <ref component-id="servlet"/>
+    </service>
 
     <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl"
           destroy-method="destroy">
-        <argument ref="proxyCamelContext"/>
+        <argument ref="uiCamelContext"/>
     </bean>
 
     <bean id="configurationStore"

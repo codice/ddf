@@ -50,7 +50,7 @@ import com.google.common.collect.ImmutableMap;
 @Path("/")
 public class ConfigurationStore {
 
-    public static final String SERVLET_PATH = "/proxy";
+    public static final String SERVLET_PATH = "/search/catalog/proxy";
 
     public static final String URL = "url";
 
