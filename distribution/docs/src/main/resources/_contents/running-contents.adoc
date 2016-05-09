@@ -270,7 +270,7 @@ No pre/post plugins are executed and no message validation is performed if the `
 ----
 catalog:describe     catalog:dump         catalog:envlist      catalog:ingest       catalog:inspect
 catalog:latest       catalog:migrate      catalog:range        catalog:remove       catalog:removeall
-catalog:replicate    catalog:search       catalog:spatial      catalog:validate
+catalog:replicate    catalog:search       catalog:spatial      catalog:validate     catalog:score
 ----
 
 .Command Descriptions
@@ -326,6 +326,9 @@ Provides a list of environment variables.
 
 |`validate`
 |Validates an XML file against all installed validators and prints out human readable errors and warnings.
+
+|`score`
+|Generate a report card for metadata based on a pre-defined rubric.
 
 |===
 
