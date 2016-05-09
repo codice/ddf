@@ -1422,7 +1422,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         // Configure invalid filtering
         configureMetacardValidityFilterPlugin(Arrays.asList(""));
 
-        configureShowInvalidMetacards("true");
+        configureShowInvalidMetacards("true", "true");
 
         String id1 = ingestXmlFromResource("/metacard1.xml");
         String id2 = ingestXmlFromResource("/metacard2.xml");
@@ -1505,7 +1505,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             deleteMetacard(id1);
             deleteMetacard(id2);
             getServiceManager().stopFeature(true, "catalog-plugin-metacard-validation");
-            configureShowInvalidMetacards("false");
+            configureShowInvalidMetacards("false", "true");
         }
     }
 
@@ -1534,7 +1534,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 "new.metacard.type")
                 .replaceFirst("resource-uri", "new-attribute-required-2");
         String id = ingest(modifiedMetacardXml, "text/xml");
-        configureShowInvalidMetacards("true");
+        configureShowInvalidMetacards("true", "true");
         try {
 
             String newMetacardXpath = String.format("/metacards/metacard[@id=\"%s\"]", id);
@@ -1557,7 +1557,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         } finally {
             deleteMetacard(id);
             getServiceManager().stopFeature(true, "catalog-core-validator");
-            configureShowInvalidMetacards("false");
+            configureShowInvalidMetacards("false", "false");
         }
     }
 

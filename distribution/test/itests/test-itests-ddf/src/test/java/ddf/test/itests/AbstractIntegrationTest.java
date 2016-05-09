@@ -559,13 +559,14 @@ public abstract class AbstractIntegrationTest {
         config.update(properties);
     }
 
-    protected void configureShowInvalidMetacards(String showInvalidMetacards) throws IOException {
+    protected void configureShowInvalidMetacards(String showErrors, String showWarnings) throws IOException {
         Configuration config = configAdmin.getConfiguration(
                 "ddf.catalog.federation.impl.CachingFederationStrategy",
                 null);
 
         Dictionary properties = new Hashtable<>();
-        properties.put("showInvalidMetacards", showInvalidMetacards);
+        properties.put("showErrors", showErrors);
+        properties.put("showWarnings", showWarnings);
         config.update(properties);
     }
 

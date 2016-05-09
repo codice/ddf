@@ -154,7 +154,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private ValidationQueryFactory validationQueryFactory;
 
-    private boolean showInvalidMetacards = false;
+    private boolean showErrors = false;
+
+    private boolean showWarnings = true;
 
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
@@ -403,7 +405,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private QueryRequest getQueryRequestWithAdditionalFilters(QueryRequest originalRequest) {
         return validationQueryFactory.getQueryRequestWithValidationFilter(getRequestWithTagsFilter(
-                originalRequest), showInvalidMetacards);
+                originalRequest), showErrors, showWarnings);
     }
 
     /**
@@ -658,12 +660,20 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
     }
 
-    public void setShowInvalidMetacards(boolean showInvalidMetacards) {
-        this.showInvalidMetacards = showInvalidMetacards;
+    public void setShowErrors(boolean showErrors) {
+        this.showErrors = showErrors;
     }
 
-    public boolean getShowInvalidMetacards() {
-        return showInvalidMetacards;
+    public boolean getShowErrors() {
+        return showErrors;
+    }
+
+    public void setShowWarnings(boolean showWarnings) {
+        this.showWarnings = showWarnings;
+    }
+
+    public boolean getShowWarnings() {
+        return showWarnings;
     }
 
 }
