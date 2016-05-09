@@ -17,11 +17,17 @@ define([
     'marionette',
     'underscore',
     'jquery',
+    'js/store',
     'text!./details-user.hbs',
     'js/CustomElements',
-], function (Marionette, _, $, template, CustomElements) {
+    'component/dropdown/dropdown',
+    'component/dropdown/login-form/dropdown.login-form.view'
+], function (Marionette, _, $, store, template, CustomElements, DropdownModel, loginForm) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
+        regions: {
+            'userInfo': '#user-info-region'
+        },
         setDefaultModel: function(){
             //override
         },
@@ -31,6 +37,11 @@ define([
             if (options.model === undefined){
                 this.setDefaultModel();
             }
+        },
+        onRender: function () {
+            this.userInfo.show(new loginForm({
+                model: new DropdownModel()
+            }));
         }
     });
 });

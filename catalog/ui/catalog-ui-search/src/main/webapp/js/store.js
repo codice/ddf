@@ -17,11 +17,13 @@ define([
     'underscore',
     'js/model/Workspace',
     'js/model/source',
+    'js/model/user',
     'component/workspaces/workspaces',
     'js/model/Selected',
     'component/content/content',
-    'component/router/router'
-], function (Backbone, poller, _, Workspace, Source, Workspaces, Selected, Content, Router) {
+    'component/router/router',
+    'application'
+], function (Backbone, poller, _, Workspace, Source, User, Workspaces, Selected, Content, Router, Application) {
 
     return new (Backbone.Model.extend({
         defaults: {
@@ -72,6 +74,7 @@ define([
             this.set('router', this.initModel(Router, {
                 persisted: false
             }));
+            this.set('user', Application.UserModel);
         },
         handleWorkspaceDestruction: function(model, workspaceCollection){
             if (workspaceCollection.length === 0){

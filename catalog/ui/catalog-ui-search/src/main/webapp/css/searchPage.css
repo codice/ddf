@@ -711,29 +711,6 @@ div.ui-pnotify-text br {
     color: #33b5e5;
 }
 
-/* Form elements */
-textarea:not([disabled]),
-input[type="text"]:not([disabled]),
-input[type="password"]:not([disabled]),
-input[type="datetime"]:not([disabled]),
-input[type="datetime-local"]:not([disabled]),
-input[type="date"]:not([disabled]),
-input[type="month"]:not([disabled]),
-input[type="time"]:not([disabled]),
-input[type="week"]:not([disabled]),
-input[type="number"]:not([disabled]),
-input[type="email"]:not([disabled]),
-input[type="url"]:not([disabled]),
-input[type="search"]:not([disabled]),
-input[type="tel"]:not([disabled]),
-input[type="color"]:not([disabled]),
-.input-group-addon,
-.uneditable-input {
-    color: white;
-    background-color: #333;
-    border-color: #666;
-}
-
 .input-group {
     width: 100%;
     margin-bottom: 10px;
@@ -965,16 +942,6 @@ button.ui-multiselect {
 
 .btn-logout {
     display: block;
-}
-
-.login-container {
-    padding: 10px;
-    width: 100%;
-}
-
-.logout-container {
-    margin: 10px;
-    width: 75%;
 }
 
 .full-screen-search {
@@ -1312,10 +1279,6 @@ a.pause:hover, a.pause:focus {
     width: 100%;
     font-size: small;
     color: #666;
-}
-
-.login-form > label {
-    cursor: default;
 }
 
 .result-select-column {
