@@ -57,7 +57,6 @@ public class ValidationEndpoint {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response validateAttribute(@Context HttpServletResponse response,
             @PathParam("attribute") String attribute, String value) throws Exception {
-        // TODO (RCZ) - Get dem attribute validators and run 'em
         Set<AttributeValidator> validators = attributeValidatorRegistry.getValidators(attribute);
         Set<String> suggestedValues = new HashSet<>();
         Set<ValidationViolation> violations = new HashSet<>();
@@ -79,12 +78,4 @@ public class ValidationEndpoint {
         return Response.ok(JsonFactory.create().toJson(resultMap)).build();
     }
 
-    @PUT
-    @Path("/metacard/{type}")
-    public Response validateMetacard(@Context HttpServletResponse response,
-            @PathParam("type") String type) {
-        // TODO (RCZ) - metacard level validators.. just validate everything?
-
-        return null;
-    }
 }

@@ -149,6 +149,43 @@ public class EndpointUtil {
     }
 
     public Map<String, Object> transformToJson(Metacard metacard) {
+        return transformToJson(Collections.singletonList(metacard));
+    }
+
+    public Map<String, Object> transformToJson(List<Metacard> metacards) {
+        List<Map<String, Object>> metacardJsons = metacards.stream()
+                .map(this::getMetacardJson)
+                .collect(Collectors.toList());
+
+        Set<String> types = metacards.stream()
+                .map(Metacard::getMetacardType)
+                .map(MetacardType::getName)
+                .collect(Collectors.toSet());
+
+        Map<String, Object> typesMap = new HashMap<>();
+        for (String type : types) {
+            Map<String, Object> typeMap = new HashMap<>();
+            typeMap.put("type-name", type);
+            typeMap.put("type", getMetacardTypeMap().get(type));
+
+            // TODO (RCZ) - optimize this since might be hit a lot
+            typeMap.put("ids",
+                    metacards.stream()
+                            .filter(mc -> type.equals(mc.getMetacardType()
+                                    .getName()))
+                            .map(Metacard::getId)
+                            .collect(Collectors.toList()));
+            typesMap.put(type, typeMap);
+        }
+
+        Map<String, Object> outerMap = new HashMap<>();
+        outerMap.put("metacards", metacardJsons);
+        outerMap.put("metacard-types", typesMap);
+
+        return outerMap;
+    }
+
+    private Map<String, Object> getMetacardJson(Metacard metacard) {
         Set<AttributeDescriptor> attributeDescriptors = metacard.getMetacardType()
                 .getAttributeDescriptors();
         Map<String, Object> result = new HashMap<>();
@@ -182,24 +219,7 @@ public class EndpointUtil {
                                 .getValue());
             }
         }
-
-        Map<String, Object> typeMap = new HashMap<>();
-        typeMap.put("type",
-                getMetacardTypeMap().get(metacard.getMetacardType()
-                        .getName()));
-        typeMap.put("type-name",
-                metacard.getMetacardType()
-                        .getName());
-        typeMap.put("ids", Collections.singletonList(metacard.getId()));
-
-        List<Object> typeList = new ArrayList<>();
-        typeList.add(typeMap);
-
-        Map<String, Object> outerMap = new HashMap<>();
-        outerMap.put("metacards", Collections.singletonList(result));
-        outerMap.put("metacard-types", typeList);
-
-        return outerMap;
+        return result;
     }
 
     public String getJson(Object result) {
