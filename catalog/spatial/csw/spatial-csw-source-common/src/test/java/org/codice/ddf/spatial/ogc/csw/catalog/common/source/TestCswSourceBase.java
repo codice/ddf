@@ -170,7 +170,7 @@ public class TestCswSourceBase {
                     + "        <ElementSetName>full</ElementSetName>"
                     + "        <Constraint version=\"1.1.0\">" // Line break
                     + "            <ogc:Filter>"
-                    + "                <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
+                    + "                <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"false\">"
                     + "                    <ogc:PropertyName>" + CswConstants.ANY_TEXT
                     + "                    </ogc:PropertyName>" // Line break
                     + "                    <ogc:Literal>*th*e</ogc:Literal>" // Line break
@@ -217,10 +217,11 @@ public class TestCswSourceBase {
                     + "        <csw:Constraint version=\"1.1.0\">\n" + "            <ogc:Filter>\n"
                     + "                <ogc:And>\n"
                     + "                    <ogc:PropertyIsEqualTo matchCase=\"true\">\n"
-                    + "                        <ogc:PropertyName>"+CswRecordMetacardType.CSW_FORMAT+"</ogc:PropertyName>\n"
+                    + "                        <ogc:PropertyName>"
+                    + CswRecordMetacardType.CSW_FORMAT + "</ogc:PropertyName>\n"
                     + "                        <ogc:Literal>myContentType</ogc:Literal>\n"
                     + "                    </ogc:PropertyIsEqualTo>\n"
-                    + "                    <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">\n"
+                    + "                    <ogc:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\"false\">\n"
                     + "                        <ogc:PropertyName>metadata-content-type-version</ogc:PropertyName>\n"
                     + "                        <ogc:Literal>2.0</ogc:Literal>\n"
                     + "                    </ogc:PropertyIsLike>\n" + "                </ogc:And>\n"

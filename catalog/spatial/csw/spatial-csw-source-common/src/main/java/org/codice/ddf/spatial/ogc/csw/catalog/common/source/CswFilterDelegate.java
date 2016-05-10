@@ -56,8 +56,8 @@ import net.opengis.ows.v_1_0_0.Operation;
 /**
  * CswFilterDelegate is an implementation of a {@link ddf.catalog.filter.FilterDelegate}. It extends
  * {@link CswAbstractFilterDelegate} and converts a {@link org.opengis.filter.Filter} into a {@link net.opengis.filter.v_1_1_0.FilterType}.
- *
- *            Generic type that the FilterDelegate will return as a final result
+ * <p>
+ * Generic type that the FilterDelegate will return as a final result
  */
 
 public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
@@ -780,7 +780,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         isComparisonOperationSupported(ComparisonOperatorType.LIKE);
         propertyName = mapPropertyName(propertyName);
         if (isPropertyQueryable(propertyName)) {
-            return cswFilterFactory.buildPropertyIsLikeFilter(propertyName, pattern);
+            return cswFilterFactory.buildPropertyIsLikeFilter(propertyName,
+                    pattern,
+                    isCaseSensitive);
         } else {
             return new FilterType();
         }
@@ -1182,7 +1184,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
             propertyName = CswConstants.BBOX_PROP;
         }
         propertyName = StringUtils.defaultIfBlank(cswSourceConfiguration.getMetacardMapping(
-                    propertyName), propertyName);
+                propertyName), propertyName);
 
         return propertyName;
     }
