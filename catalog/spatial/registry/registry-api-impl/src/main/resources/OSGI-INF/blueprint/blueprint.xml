@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
+           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+           http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
+           http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
+
+    <!-- Get reference to Filter Adapter implementation -->
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
+    <reference id="resourceReader" interface="ddf.catalog.resource.ResourceReader"
+               filter="(shortname=URLResourceReader)"/>
+    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter"/>
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+
+    <reference id="xmlParser" interface="org.codice.ddf.parser.Parser" filter="(id=xml)"
+               availability="mandatory"/>
+
+    <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
+        <reference-listener ref="metacardTypes" bind-method="bindPlugin"
+                            unbind-method="unbindPlugin"/>
+    </reference-list>
+
+    <!-- MetacardTransformer Manager -->
+    <bean id="metacardTransformerManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager">
+        <argument ref="metacardTransformers"/>
+    </bean>
+
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList" member-type="service-reference"
+                    interface="ddf.catalog.transform.MetacardTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="metacardTransformers"/>
+    </reference-list>
+
+    <bean id="cswTransactionWriter" class="org.codice.ddf.spatial.ogc.csw.catalog.common.source.writer.CswTransactionRequestWriter">
+        <argument ref="cswTransformProvider"/>
+    </bean>
+
+    <cm:managed-service-factory
+            id="ddf.catalog.registry.api.impl.RegistryStoreImpl.id"
+            factory-pid="Csw_Registry_Store">
+        <interfaces>
+            <value>org.codice.ddf.registry.api.RegistryStore</value>
+            <value>ddf.catalog.source.CatalogStore</value>
+            <value>ddf.catalog.source.FederatedSource</value>
+        </interfaces>
+        <cm:managed-component class="org.codice.ddf.registry.api.impl.RegistryStoreImpl"
+                              init-method="init" destroy-method="destroy">
+            <property name="context" ref="blueprintBundleContext"/>
+            <property name="filterBuilder" ref="filterBuilder"/>
+            <property name="filterAdapter" ref="filterAdapter"/>
+            <property name="cswUrl" value=""/>
+            <property name="id" value=""/>
+            <property name="username" value=""/>
+            <property name="password" value=""/>
+            <property name="disableCnCheck" value="false"/>
+            <property name="coordinateOrder" value="LON_LAT"/>
+            <property name="usePosList" value="false"/>
+            <property name="metacardMappings">
+                <list/>
+            </property>
+            <property name="pollInterval" value="5"/>
+            <property name="resourceReader" ref="resourceReader"/>
+            <property name="outputSchema" value="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"/>
+            <property name="queryTypeName" value="csw:Record"/>
+            <property name="queryTypeNamespace" value="http://www.opengis.net/cat/csw/2.0.2"/>
+            <property name="cswTransactionWriter" ref="cswTransactionWriter"/>
+            <property name="cswTransformConverter">
+                <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter">
+                    <argument ref="cswTransformProvider"/>
+                </bean>
+            </property>
+            <property name="isCqlForced" value="false"/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
+            <property name="connectionTimeout" value="30000"/>
+            <property name="receiveTimeout" value="60000"/>
+            <property name="securityManager" ref="securityManager"/>
+            <property name="metacardTypes" ref="metacardTypes"/>
+            <property name="eventServiceAddress" value=""/>
+            <property name="registerForEvents" value="false"/>
+            <property name="schemaTransformerManager" ref="metacardTransformerManager"/>
+            <property name="parser" ref="xmlParser"/>
+            <property name="pullAllowed" value="true"/>
+            <property name="pushAllowed" value="true"/>
+            <cm:managed-properties persistent-id="" update-strategy="component-managed"
+                                   update-method="refresh"/>
+        </cm:managed-component>
+    </cm:managed-service-factory>
+</blueprint>
