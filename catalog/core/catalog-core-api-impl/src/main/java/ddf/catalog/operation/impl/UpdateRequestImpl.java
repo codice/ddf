@@ -34,7 +34,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
 
     protected String name;
 
-    protected List<Entry<Serializable, Metacard>> updates;
+    protected List<Entry<? extends Serializable, Metacard>> updates;
 
     protected Set<String> destinations = new HashSet<>();
 
@@ -46,7 +46,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
      * @param properties    the properties associated with the operation
      * @param destinations  the destination ids this request should be sent to
      */
-    public UpdateRequestImpl(List<Entry<Serializable, Metacard>> updateList, String attributeName,
+    public UpdateRequestImpl(List<Entry<? extends Serializable, Metacard>> updateList, String attributeName,
             Map<String, Serializable> properties, Set<String> destinations) {
         super(properties);
         this.name = attributeName;
@@ -64,7 +64,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
      * @param attributeName the attribute name (e.g. Metacard.ID, Metacard.PRODUCT_URI)
      * @param properties    the properties associated with the operation
      */
-    public UpdateRequestImpl(List<Entry<Serializable, Metacard>> updateList, String attributeName,
+    public UpdateRequestImpl(List<Entry<? extends Serializable, Metacard>> updateList, String attributeName,
             Map<String, Serializable> properties) {
         this(updateList, attributeName, properties, new HashSet<>());
     }
@@ -112,10 +112,9 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
      * @param metacards the metacards to format
      * @return the list of {@link Entry}
      */
-    private static List<Entry<Serializable, Metacard>> formatEntryList(Serializable[] values,
+    private static List<Entry<? extends Serializable, Metacard>> formatEntryList(Serializable[] values,
             List<Metacard> metacards) {
-        List<Entry<Serializable, Metacard>> updateList =
-                new ArrayList<Entry<Serializable, Metacard>>();
+        List<Entry<? extends Serializable, Metacard>> updateList = new ArrayList<>();
         if (values.length != metacards.size()) {
             throw new IllegalArgumentException("Id List and Metacard List must be the same size.");
         } else {
@@ -148,7 +147,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
      * @see ddf.catalog.operation.UpdateRequest#getUpdates()
      */
     @Override
-    public List<Entry<Serializable, Metacard>> getUpdates() {
+    public List<Entry<? extends Serializable, Metacard>> getUpdates() {
         return updates;
     }
 
