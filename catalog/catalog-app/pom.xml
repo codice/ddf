@@ -459,6 +459,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-validationparser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-defaultvalues</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.plugin</groupId>
             <artifactId>catalog-plugin-duplication</artifactId>
             <version>${project.version}</version>

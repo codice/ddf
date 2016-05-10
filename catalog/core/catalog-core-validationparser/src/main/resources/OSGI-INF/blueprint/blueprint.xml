@@ -14,21 +14,18 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="metacardValidator" class="ddf.catalog.validation.impl.ReportingMetacardValidatorImpl">
-        <argument ref="attributeValidatorRegistry"/>
+    <bean id="validationDeployer" class="ddf.catalog.validation.impl.ValidationParser">
+        <argument>
+            <reference interface="ddf.catalog.data.AttributeRegistry"/>
+        </argument>
+        <argument>
+            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+        </argument>
+        <argument>
+            <reference interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
+        </argument>
     </bean>
 
-    <service ref="metacardValidator">
-        <interfaces>
-            <value>ddf.catalog.validation.MetacardValidator</value>
-            <value>ddf.catalog.validation.ReportingMetacardValidator</value>
-        </interfaces>
-    </service>
-
-    <bean id="attributeValidatorRegistry"
-          class="ddf.catalog.validation.impl.AttributeValidatorRegistryImpl"/>
-
-    <service ref="attributeValidatorRegistry"
-             interface="ddf.catalog.validation.AttributeValidatorRegistry"/>
+    <service ref="validationDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
 
 </blueprint>

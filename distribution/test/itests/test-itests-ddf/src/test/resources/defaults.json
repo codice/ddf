@@ -1,0 +1,27 @@
+{
+  "defaults": [
+    {
+      "attribute": "title",
+      "value": "Default Title"
+    },
+    {
+      "attribute": "description",
+      "value": "Default description"
+    },
+    {
+      "attribute": "expiration",
+      "value": "2020-02-02T02:02:02Z"
+    },
+    {
+      "attribute": "description",
+      "value": "Default custom description",
+      "metacardTypes": ["custom"]
+    }
+  ],
+  "metacardTypes": [
+    {
+      "type": "custom",
+      "attributes": {}
+    }
+  ]
+}
