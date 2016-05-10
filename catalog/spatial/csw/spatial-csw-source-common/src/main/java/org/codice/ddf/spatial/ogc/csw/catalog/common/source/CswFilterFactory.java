@@ -97,13 +97,10 @@ public class CswFilterFactory {
     /**
      * Constructor for CswFilterFactory.
      *
-     * @param cswAxisOrder
-     *            The order that axes are provided in.
-     *
-     * @param isSetUsePosList
-     *            True if a single <posList> element, rather than a set of <pos>
-     *            elements, should be used in LinearRings when constructing XML 
-     *            Filter strings.
+     * @param cswAxisOrder    The order that axes are provided in.
+     * @param isSetUsePosList True if a single <posList> element, rather than a set of <pos>
+     *                        elements, should be used in LinearRings when constructing XML
+     *                        Filter strings.
      */
     public CswFilterFactory(CswAxisOrder cswAxisOrder, boolean isSetUsePosList) {
         this.cswAxisOrder = cswAxisOrder;
@@ -191,9 +188,10 @@ public class CswFilterFactory {
         return filter;
     }
 
-    public FilterType buildPropertyIsLikeFilter(String propertyName, Object literal) {
+    public FilterType buildPropertyIsLikeFilter(String propertyName, Object literal,
+            boolean isCaseSensitive) {
         FilterType filter = new FilterType();
-        filter.setComparisonOps(createPropertyIsLike(propertyName, literal));
+        filter.setComparisonOps(createPropertyIsLike(propertyName, literal, isCaseSensitive));
         return filter;
     }
 
@@ -601,7 +599,7 @@ public class CswFilterFactory {
     }
 
     private JAXBElement<PropertyIsLikeType> createPropertyIsLike(String propertyName,
-            Object literal) {
+            Object literal, boolean isCaseSensitive) {
         PropertyIsLikeType propertyIsLikeType = new PropertyIsLikeType();
         propertyIsLikeType.setEscapeChar(CswConstants.ESCAPE);
         propertyIsLikeType.setSingleChar(CswConstants.SINGLE_CHAR);
@@ -609,6 +607,7 @@ public class CswFilterFactory {
         propertyIsLikeType.setPropertyName(createPropertyNameType(Arrays.asList(new Object[] {
                 propertyName})).getValue());
         propertyIsLikeType.setLiteral(createLiteralType(literal).getValue());
+        propertyIsLikeType.setMatchCase(isCaseSensitive);
         return filterObjectFactory.createPropertyIsLike(propertyIsLikeType);
     }
 

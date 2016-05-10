@@ -708,7 +708,6 @@ public class TestCswFilterDelegate {
                     + " 30.000424880003134 30.00102575106595"
                     + " 30.000216601947248 30.00108893152347" + " 30.0 30.001110264953223");
 
-
     private static final String APISO_PREFIX = "apiso:";
 
     private static final String APISO_SUBJECT = APISO_PREFIX + "subject";
@@ -964,7 +963,8 @@ public class TestCswFilterDelegate {
 
         if (comparisonOp.getComparatorType()
                 == ComparisonOperator.ComparisonStringOperatorType.WILDCARD) {
-            expression += " wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\"";
+            expression += " wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\" matchCase=\""
+                    + isCaseSensitive + "\"";
         } else if (comparisonOp.getComparatorType()
                 == ComparisonOperator.ComparisonStringOperatorType.STRING) {
             expression += " matchCase=\"false\"";
@@ -1393,13 +1393,10 @@ public class TestCswFilterDelegate {
         // Setup
         CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
         cswSourceConfiguration.putMetacardCswMapping(Metacard.ID, APISO_IDENTIFIER);
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED,
-                APISO_MODIFIED);
-        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE,
-                APISO_TYPE);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.MODIFIED, APISO_MODIFIED);
+        cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, APISO_TYPE);
         cswSourceConfiguration.putMetacardCswMapping(Metacard.TITLE, APISO_TITLE);
-        cswSourceConfiguration.putMetacardCswMapping(CswConstants.ANY_TEXT,
-                APISO_ANYTEXT);
+        cswSourceConfiguration.putMetacardCswMapping(CswConstants.ANY_TEXT, APISO_ANYTEXT);
 
         cswSourceConfiguration.setCswAxisOrder(CswAxisOrder.LAT_LON);
         cswSourceConfiguration.setUsePosList(false);
@@ -3108,7 +3105,8 @@ public class TestCswFilterDelegate {
     }
 
     private String getXmlFromMarshaller(FilterType filterType) throws JAXBException {
-        writer.getBuffer().setLength(0);
+        writer.getBuffer()
+                .setLength(0);
         marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
         String xml = writer.toString();
         LOGGER.debug("XML returned by Marshaller:\n{}", xml);
