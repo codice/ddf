@@ -132,7 +132,7 @@ public class EndpointUtil {
     public Map<String, Object> getMetacardTypeMap() {
         Map<String, Object> resultTypes = new HashMap<>();
         for (MetacardType metacardType : metacardTypes) {
-            List<Object> attributes = new ArrayList<>();
+            Map<String, Object> attributes = new HashMap<>();
             for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
                 Map<String, Object> attributeProperties = new HashMap<>();
                 attributeProperties.put("type",
@@ -141,7 +141,7 @@ public class EndpointUtil {
                                 .name());
                 attributeProperties.put("multivalued", descriptor.isMultiValued());
                 attributeProperties.put("id", descriptor.getName());
-                attributes.add(attributeProperties);
+                attributes.put(descriptor.getName(), attributeProperties);
             }
             resultTypes.put(metacardType.getName(), attributes);
         }
@@ -162,7 +162,7 @@ public class EndpointUtil {
                 .map(MetacardType::getName)
                 .collect(Collectors.toSet());
 
-        Map<String, Object> typesMap = new HashMap<>();
+        List<Map<String, Object>> typesList = new ArrayList<>();
         for (String type : types) {
             Map<String, Object> typeMap = new HashMap<>();
             typeMap.put("type-name", type);
@@ -175,12 +175,12 @@ public class EndpointUtil {
                                     .getName()))
                             .map(Metacard::getId)
                             .collect(Collectors.toList()));
-            typesMap.put(type, typeMap);
+            typesList.add(typeMap);
         }
 
         Map<String, Object> outerMap = new HashMap<>();
         outerMap.put("metacards", metacardJsons);
-        outerMap.put("metacard-types", typesMap);
+        outerMap.put("metacard-types", typesList);
 
         return outerMap;
     }
