@@ -16,13 +16,14 @@ package org.codice.ddf.commands.catalog;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -142,7 +143,7 @@ public class RemoveAllCommand extends CatalogCommands {
         long totalAmountDeleted = 0;
         long start = System.currentTimeMillis();
 
-        SourceResponse response = null;
+        SourceResponse response;
         try {
             response = catalog.query(firstQuery);
         } catch (UnsupportedQueryException e) {
@@ -169,16 +170,14 @@ public class RemoveAllCommand extends CatalogCommands {
         while (response.getResults()
                 .size() > 0) {
 
-            List<String> ids = new ArrayList<String>();
-
             // Add metacard ids to string array
-            for (Result result : response.getResults()) {
-                if (result != null && result.getMetacard() != null) {
-                    Metacard metacard = result.getMetacard();
-                    ids.add(metacard.getId());
-                }
-
-            }
+            List<String> ids = response.getResults()
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(Result::getMetacard)
+                    .filter(Objects::nonNull)
+                    .map(Metacard::getId)
+                    .collect(Collectors.toList());
 
             // Delete the records
             DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
@@ -236,9 +235,7 @@ public class RemoveAllCommand extends CatalogCommands {
                     .contains(UnsupportedQueryException.class.getSimpleName())) {
                 return true;
             }
-
         }
-
         return false;
     }
 

@@ -101,5 +101,6 @@
         <module>catalog-transformer-pdf</module>
         <module>catalog-transformer-pptx</module>
         <module>catalog-transformer-overlay</module>
+        <module>catalog-transformer-zip</module>
     </modules>
 </project>

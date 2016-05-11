@@ -37,7 +37,7 @@ import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
 
-public class ValidateCommandTest {
+public class TestValidateCommand {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();

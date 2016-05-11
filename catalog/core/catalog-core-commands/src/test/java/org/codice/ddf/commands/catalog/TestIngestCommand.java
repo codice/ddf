@@ -40,7 +40,7 @@ import ddf.catalog.transform.InputTransformer;
 /**
  * Tests the {@link IngestCommand} output.
  */
-public class TestIngestCommand extends AbstractCommandTest {
+public class TestIngestCommand extends TestAbstractCommand {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -56,6 +56,7 @@ public class TestIngestCommand extends AbstractCommandTest {
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
         catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
+
         command = new IngestCommand() {
             @Override
             protected CatalogFacade getCatalog() throws InterruptedException {
@@ -213,6 +214,26 @@ public class TestIngestCommand extends AbstractCommandTest {
             assertFalse(consoleOutput.getOutput()
                     .contains("ignored"));
 
+        } finally {
+            consoleOutput.closeBuffer();
+        }
+    }
+
+    @Test
+    public void testIncludeContentNonZipFile() throws Exception {
+
+        command.includeContent = true;
+
+        // when
+        command.doExecute();
+
+        // cleanup
+        consoleOutput.resetSystemOut();
+
+        // then
+        try {
+            String expectedMessage = "must be a zip file";
+            assertThat(consoleOutput.getOutput(), containsString(expectedMessage));
         } finally {
             consoleOutput.closeBuffer();
         }

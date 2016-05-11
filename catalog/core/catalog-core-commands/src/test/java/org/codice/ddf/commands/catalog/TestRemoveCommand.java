@@ -32,7 +32,7 @@ import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
-public class RemoveCommandTest {
+public class TestRemoveCommand {
 
     private List<Metacard> metacardList = getMetacardList(5);
 
@@ -56,7 +56,7 @@ public class RemoveCommandTest {
     public void testSingleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
-        List<String> ids = new ArrayList();
+        List<String> ids = new ArrayList<>();
         ids.add(metacardList.get(0)
                 .getId());
 
@@ -87,7 +87,7 @@ public class RemoveCommandTest {
     public void testMultipleItemList() throws Exception {
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
-        List<String> ids = new ArrayList();
+        List<String> ids = new ArrayList<>();
         ids.add(metacardList.get(0)
                 .getId());
         ids.add(metacardList.get(1)
@@ -151,7 +151,7 @@ public class RemoveCommandTest {
 
     private java.util.List<Metacard> getMetacardList(int amount) {
 
-        List<Metacard> metacards = new ArrayList<Metacard>();
+        List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
 

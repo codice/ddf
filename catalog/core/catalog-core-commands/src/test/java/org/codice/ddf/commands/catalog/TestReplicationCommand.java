@@ -40,8 +40,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -60,9 +58,9 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-public class ReplicationCommandTest {
+public class TestReplicationCommand {
 
-    private static final Set<String> SOURCE_IDS = new HashSet<String>(Arrays.asList("sourceId1",
+    private static final Set<String> SOURCE_IDS = new HashSet<>(Arrays.asList("sourceId1",
             "sourceId2"));
 
     private static final int HITS = 1000;
@@ -132,34 +130,23 @@ public class ReplicationCommandTest {
         when(mockSession.getKeyboard()).thenReturn(mockIS);
 
         when(catalogFramework.getSourceIds()).thenReturn(SOURCE_IDS);
-        when(catalogFramework.query(isA(QueryRequest.class))).thenAnswer(new Answer<QueryResponse>() {
-            @Override
-            public QueryResponse answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                QueryRequest request = (QueryRequest) args[0];
-                pageSize = request.getQuery()
-                        .getPageSize();
-                return mockQueryResponse;
-            }
+        when(catalogFramework.query(isA(QueryRequest.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            QueryRequest request = (QueryRequest) args[0];
+            pageSize = request.getQuery()
+                    .getPageSize();
+            return mockQueryResponse;
+
         });
 
         when(mockQueryResponse.getHits()).thenReturn(Long.valueOf(HITS));
-        when(mockQueryResponse.getResults()).thenAnswer(new Answer<List<Result>>() {
-            @Override
-            public List<Result> answer(InvocationOnMock invocation) throws Throwable {
-                return getResultList(pageSize);
-            }
+        when(mockQueryResponse.getResults()).thenAnswer(invocation -> getResultList(pageSize));
+        when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            CreateRequest request = (CreateRequest) args[0];
+            when(mockCreateResponse.getCreatedMetacards()).thenReturn(request.getMetacards());
+            return mockCreateResponse;
         });
-        when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(new Answer<CreateResponse>() {
-            @Override
-            public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                CreateRequest request = (CreateRequest) args[0];
-                when(mockCreateResponse.getCreatedMetacards()).thenReturn(request.getMetacards());
-                return mockCreateResponse;
-            }
-        });
-
     }
 
     @Test
@@ -172,8 +159,8 @@ public class ReplicationCommandTest {
 
         replicationCmd.doExecute();
 
-        assertThat(consoleOutput.getOutput(),
-                containsString("Batch Size must be between 1 and 1000."));
+        assertThat(consoleOutput.getOutput(), containsString(
+                "Batch Size must be between 1 and 1000."));
         consoleOutput.reset();
     }
 
@@ -185,8 +172,8 @@ public class ReplicationCommandTest {
 
         replicationCmd.doExecute();
 
-        assertThat(consoleOutput.getOutput(),
-                containsString("Please enter the Source ID you would like to replicate:"));
+        assertThat(consoleOutput.getOutput(), containsString(
+                "Please enter the Source ID you would like to replicate:"));
         assertThat(consoleOutput.getOutput(), containsString("sourceId1"));
         assertThat(consoleOutput.getOutput(), containsString("sourceId2"));
         consoleOutput.reset();
@@ -201,8 +188,8 @@ public class ReplicationCommandTest {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework, times(
+                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -221,8 +208,8 @@ public class ReplicationCommandTest {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework, times(
+                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -242,9 +229,8 @@ public class ReplicationCommandTest {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(replicationCmd.maxMetacards / replicationCmd.batchSize
-                        + 1)).query(argument.capture());
+        verify(catalogFramework, times(replicationCmd.maxMetacards / replicationCmd.batchSize
+                + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -264,15 +250,15 @@ public class ReplicationCommandTest {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework, times(
+                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
         assertThat(query, notNullValue());
         assertThat(query.getPageSize(), is(replicationCmd.batchSize));
-        assertThat(consoleOutput.getOutput(),
-                containsString("1000 record(s) replicated; 0 record(s) failed"));
+        assertThat(consoleOutput.getOutput(), containsString(
+                "1000 record(s) replicated; 0 record(s) failed"));
         consoleOutput.reset();
     }
 
@@ -285,8 +271,8 @@ public class ReplicationCommandTest {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework,
-                times(HITS / replicationCmd.batchSize + 1)).query(argument.capture());
+        verify(catalogFramework, times(
+                HITS / replicationCmd.batchSize + 1)).query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -302,17 +288,14 @@ public class ReplicationCommandTest {
     @Test
     public void testFailedtoIngestHalf() throws Exception {
 
-        when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(new Answer<CreateResponse>() {
-            @Override
-            public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                CreateRequest request = (CreateRequest) args[0];
-                when(mockCreateResponse.getCreatedMetacards()).thenReturn(request.getMetacards()
-                        .subList(0,
-                                request.getMetacards()
-                                        .size() / 2));
-                return mockCreateResponse;
-            }
+        when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            CreateRequest request = (CreateRequest) args[0];
+            when(mockCreateResponse.getCreatedMetacards()).thenReturn(request.getMetacards()
+                    .subList(0,
+                            request.getMetacards()
+                                    .size() / 2));
+            return mockCreateResponse;
         });
 
         replicationCmd.isProvider = true;
@@ -326,7 +309,7 @@ public class ReplicationCommandTest {
     }
 
     private List<Result> getResultList(int size) {
-        List<Result> results = new ArrayList<Result>();
+        List<Result> results = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             MetacardImpl metacard = new MetacardImpl();
             metacard.setId(UUID.randomUUID()

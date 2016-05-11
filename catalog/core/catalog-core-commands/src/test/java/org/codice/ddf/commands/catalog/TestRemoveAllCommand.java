@@ -15,7 +15,6 @@ package org.codice.ddf.commands.catalog;
 
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -30,8 +29,6 @@ import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.fusesource.jansi.Ansi;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.SolrCacheMBean;
@@ -46,7 +43,7 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 
-public class RemoveAllCommandTest {
+public class TestRemoveAllCommand {
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
             .reset()
@@ -177,7 +174,7 @@ public class RemoveAllCommandTest {
 
     private java.util.List<Result> getResultList(int amount) {
 
-        java.util.List<Result> results = new ArrayList<Result>();
+        java.util.List<Result> results = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
 
@@ -195,7 +192,7 @@ public class RemoveAllCommandTest {
 
     private java.util.List<Metacard> getMetacardList(int amount) {
 
-        List<Metacard> metacards = new ArrayList<Metacard>();
+        List<Metacard> metacards = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
 
@@ -207,21 +204,6 @@ public class RemoveAllCommandTest {
             metacards.add(metacard);
 
         }
-
         return metacards;
     }
-
-    private BundleContext getBundleContextStub(CatalogFramework framework) {
-
-        BundleContext context = mock(BundleContext.class);
-
-        when(context.getServiceReference(eq(CatalogFramework.class.getName()))).thenReturn(mock(
-                ServiceReference.class));
-
-        when(context.getService(isA(ServiceReference.class))).thenReturn(framework);
-
-        return context;
-
-    }
-
 }
