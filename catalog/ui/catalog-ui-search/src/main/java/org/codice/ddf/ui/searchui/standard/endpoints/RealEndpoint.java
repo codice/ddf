@@ -26,9 +26,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -46,16 +48,20 @@ import org.opengis.filter.sort.SortBy;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.validation.ReportingMetacardValidator;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
@@ -86,27 +92,15 @@ public class RealEndpoint {
     @Path("/metacardtype")
     public Response getMetacardType() throws Exception {
         Map<String, Object> resultTypes = endpointUtil.getMetacardTypeMap();
-        return Response.ok(JsonFactory.create()
-                .toJson(resultTypes), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(resultTypes), MediaType.APPLICATION_JSON)
                 .build();
     }
 
     @GET
     @Path("/metacard/{id}")
     public Response getMetacard(@PathParam("id") String id) throws Exception {
-        Metacard metacard = endpointUtil.getMetacard(id);
-        if (metacard == null) {
-            return Response.status(404)
-                    .build();
-        }
-
-        Map<String, Object> response = endpointUtil.transformToJson(metacard);
-
-        return Response.ok(endpointUtil.getJson(response), MediaType.APPLICATION_JSON)
+        return Response.ok(endpointUtil.getJson(getSingleMetacard(id)), MediaType.APPLICATION_JSON)
                 .build();
-    }
-
-    public class GoldPlatingException extends Exception {
     }
 
     // TODO (RCZ) - Eventually also make bulk validation endpoint
@@ -114,28 +108,7 @@ public class RealEndpoint {
     @Path("/metacard/{id}/validation")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response validateMetacard(@PathParam("id") String id) throws Exception {
-        Metacard newMetacard = endpointUtil.getMetacard(id);
-        MetacardType metacardType = newMetacard.getMetacardType();
-
-        // TODO (RCZ) - don't assume this only service, do for real
-        Optional<MetacardValidationReport> metacardValidationReport =
-                reportingMetacardValidator.validateMetacard(newMetacard);
-
-        if (metacardValidationReport.isPresent()) {
-            Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
-                    .getAttributeValidationViolations();
-
-            Map<String, ViolationResult> violationsResult = getViolationsResult(
-                    attributeValidationViolations);
-            List<ViolationResult> result = violationsResult.entrySet()
-                    .stream()
-                    .map(Map.Entry::getValue)
-                    .collect(Collectors.toList());
-
-            return Response.ok(endpointUtil.getJson(result), MediaType.APPLICATION_JSON)
-                    .build();
-        }
-        return Response.ok("[]", MediaType.APPLICATION_JSON)
+        return Response.ok(getValidation(id), MediaType.APPLICATION_JSON)
                 .build();
     }
 
@@ -179,6 +152,7 @@ public class RealEndpoint {
                 .build();
     }
 
+    //// TODO (RCZ) - Do we want to do any validation here?
     @SuppressFBWarnings
     @PATCH
     @Path("/metacards")
@@ -189,6 +163,73 @@ public class RealEndpoint {
                 .parser()
                 .parseList(MetacardChanges.class, body);
 
+        UpdateResponse updateResponse = patchMetacards(metacardChanges);
+
+        if (updateResponse.getProcessingErrors() != null && !updateResponse.getProcessingErrors()
+                .isEmpty()) {
+            // TODO (RCZ) - What should we return when we get processing errors? 500?
+            return Response.serverError()
+                    .entity("[{\"errors\":\"There were validation/processing errors\"}]")
+                    .build();
+        }
+
+        return Response.ok(body)
+                .build();
+    }
+
+    @GET
+    @Path("/recent")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response recentMetacards(@QueryParam("pageSize") int pageSize,
+            @QueryParam("pageNumber") int pageNumber) throws Exception {
+        Map<String, Object> results = getRecentMetacards(pageSize,
+                pageNumber,
+                SubjectUtils.getEmailAddress(SecurityUtils.getSubject()));
+        return Response.ok(endpointUtil.getJson(results))
+                .build();
+    }
+
+    protected Map<String, Object> getSingleMetacard(String id)
+            throws SourceUnavailableException, UnsupportedQueryException, StandardSearchException,
+            FederationException, NotFoundException {
+        Metacard metacard = endpointUtil.getMetacard(id);
+        if (metacard == null) {
+            // TODO (RCZ) - Should this be an exception or an emtpy map or a null? id say empty map?
+            // not found is really not an exceptional condition imo
+            throw new NotFoundException("Could not find specified Metacard. (id= " + id + " )");
+        }
+
+        return endpointUtil.transformToJson(metacard);
+    }
+
+    protected List<ViolationResult> getValidation(String id)
+            throws SourceUnavailableException, UnsupportedQueryException, StandardSearchException,
+            FederationException {
+        Metacard newMetacard = endpointUtil.getMetacard(id);
+
+        // TODO (RCZ) - don't assume this only service, iterate through all
+        Optional<MetacardValidationReport> metacardValidationReport =
+                reportingMetacardValidator.validateMetacard(newMetacard);
+
+        if (metacardValidationReport.isPresent()) {
+            Set<ValidationViolation> attributeValidationViolations = metacardValidationReport.get()
+                    .getAttributeValidationViolations();
+
+            Map<String, ViolationResult> violationsResult = getViolationsResult(
+                    attributeValidationViolations);
+            List<ViolationResult> result = violationsResult.entrySet()
+                    .stream()
+                    .map(Map.Entry::getValue)
+                    .collect(Collectors.toList());
+
+            return result;
+        }
+        return Collections.emptyList();
+    }
+
+    protected UpdateResponse patchMetacards(List<MetacardChanges> metacardChanges)
+            throws SourceUnavailableException, IngestException, FederationException,
+            UnsupportedQueryException {
         Set<String> changedIds = metacardChanges.stream()
                 .flatMap(mc -> mc.ids.stream())
                 .collect(Collectors.toSet());
@@ -222,50 +263,41 @@ public class RealEndpoint {
                 .stream()
                 .map(Result::getMetacard)
                 .collect(Collectors.toList());
-        UpdateResponse updateResponse =
-                catalogFramework.update(new UpdateRequestImpl(changedIds.toArray(new String[0]),
-                        changedMetacards));
-        // TODO (RCZ) - How do I want to do validation? since we can still update
-        if (updateResponse.getProcessingErrors() != null && !updateResponse.getProcessingErrors()
-                .isEmpty()) {
-            return Response.ok("[{\"errors\":\"There were validation/processing errors\"}]")
-                    .build();
-        }
-
-        return Response.ok(body)
-                .build();
+        return catalogFramework.update(new UpdateRequestImpl(changedIds.toArray(new String[0]),
+                changedMetacards));
     }
 
-    @GET
-    @Path("/recent")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response recentMetacards(@QueryParam("pageSize") int pageSize,
-            @QueryParam("pageNumber") int pageNumber) throws Exception {
+    protected Map<String, Object> getRecentMetacards(int pageSize, int pageNumber,
+            String emailAddress)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         pageSize = pageSize == 0 ? DEFAULT_PAGE_SIZE : pageSize;
         pageNumber = pageNumber == 0 ? 1 : pageNumber;
         if (pageNumber <= 0) {
-            return Response.status(400)
-                    .build();
+            throw new BadRequestException(
+                    "Page Number cannot be less than or equal to 0. (pageNumber= " + pageNumber
+                            + " )");
         }
 
-        // TODO (RCZ) - fix when actually in
+        // TODO (RCZ) - use real attribute once here
         Filter userFilter = filterBuilder.attribute("Metacard.OWNER")
                 .is()
                 .equalTo()
-                .text(SubjectUtils.getEmailAddress(SecurityUtils.getSubject()));
+                .text(emailAddress);
 
         int startIndex = 1 + ((pageNumber - 1) * pageSize);
-        catalogFramework.query(new QueryRequestImpl(new QueryImpl(userFilter,
+        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(userFilter,
                 startIndex,
                 pageSize,
                 SortBy.NATURAL_ORDER,
                 false,
                 TimeUnit.SECONDS.toMillis(10))));
 
-        // TODO (RCZ) - now need to sort and return results.
-
-        return Response.status(999)
-                .build();
+        //// TODO (RCZ) - now need to sort and return results.
+        List<Metacard> resultList = queryResponse.getResults()
+                .stream()
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+        return endpointUtil.transformToJson(resultList);
     }
 
     private Map<String, ViolationResult> getViolationsResult(
@@ -289,10 +321,6 @@ public class RealEndpoint {
             }
         }
         return violationsResult;
-    }
-
-    private List<Serializable> getSerializableList(List list) {
-        return new ArrayList<>(list);
     }
 
     private static class ViolationResult {

@@ -95,21 +95,26 @@ public class EndpointUtil {
 
     public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return getMetacards(Metacard.ID, ids, tagFilter);
+    }
+
+    public Map<String, Result> getMetacards(String attributeName, Collection<String> ids, String tag)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         if (ids.isEmpty()) {
             return new HashMap<>();
         }
 
         List<Filter> filters = new ArrayList<>(ids.size());
         for (String id : ids) {
-            Filter historyFilter = filterBuilder.attribute(Metacard.ID)
+            Filter attributeFilter = filterBuilder.attribute(attributeName)
                     .is()
                     .equalTo()
                     .text(id);
-            Filter idFilter = filterBuilder.attribute(Metacard.TAGS)
+            Filter tagFilter = filterBuilder.attribute(Metacard.TAGS)
                     .is()
                     .like()
-                    .text(tagFilter);
-            Filter filter = filterBuilder.allOf(historyFilter, idFilter);
+                    .text(tag);
+            Filter filter = filterBuilder.allOf(attributeFilter, tagFilter);
             filters.add(filter);
         }
 
