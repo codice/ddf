@@ -71,10 +71,12 @@
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>notifications</artifactId>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>activities</artifactId>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -151,7 +153,7 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

@@ -63,12 +63,12 @@
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
             <artifactId>proxy-camel-servlet</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.httpproxy</groupId>
             <artifactId>proxy-camel-route</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>grunt-port-allocator</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
             <type>tar.gz</type>
             <classifier>npm</classifier>
         </dependency>
@@ -135,7 +135,7 @@
                                 <artifactItem>
                                     <groupId>ddf.lib</groupId>
                                     <artifactId>grunt-port-allocator</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${ddf.libs.version}</version>
                                     <type>tar.gz</type>
                                     <classifier>npm</classifier>
                                 </artifactItem>

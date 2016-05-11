@@ -26,7 +26,7 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
