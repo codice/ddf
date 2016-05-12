@@ -778,7 +778,6 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.9_2</bundle>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
-        <bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}</bundle>
     </feature>
 
     <feature name="metrics-services" install="manual" version="${project.version}"
@@ -951,11 +950,6 @@
         <feature prerequisite="true">platform-filter-delegate</feature>
         <feature>war</feature>
     </feature>
-    
-    <feature name="ddf-webconsole" install="manual" version="${project.version}">
-        <feature prerequisite="true">web-container</feature>
-        <feature version="${project.version}">kernel-webconsole</feature>
-    </feature>
 
     <feature name="platform-app" install="auto" version="${project.version}"
              description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
@@ -965,7 +959,7 @@
     </feature>
 
     <feature name="platform-dependencies" version="${project.version}" install="manual" hidden="true">
-        <feature prerequisite="true">ddf-webconsole</feature>
+        <feature prerequisite="true">branding-api</feature>
         <feature prerequisite="true">wrap</feature>
         <feature prerequisite="true">camel-http</feature>
         <bundle dependency="true">mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
@@ -1031,7 +1025,6 @@
     <feature name="landing-page" install="manual" version="${project.version}"
              description="Landing page and branding support.">
         <feature prerequisite="true">platform-dependencies</feature>
-        <bundle>mvn:ddf.platform/branding-resources/${project.version}</bundle>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
     </feature>
 

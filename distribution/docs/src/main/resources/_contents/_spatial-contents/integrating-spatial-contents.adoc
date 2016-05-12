@@ -2207,7 +2207,7 @@ The CSW source can be installed and uninstalled using the normal processes descr
 
 ==== Configuring
 
-The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Web Console or Admin Console.
+The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Admin Console.
 
 ===== Configure the CSW Source
 
@@ -2370,7 +2370,7 @@ The GMD CSW source can be installed and uninstalled using the normal processes d
 
 ==== Configuring
 
-The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Web Console or Admin Console.
+The configurable properties for the GMD CSW source are accessed from the GMD CSW ISO Federated Source Configuration in the Admin Console.
 
 ===== Configure the CSW Source
 

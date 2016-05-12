@@ -18,7 +18,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -34,8 +33,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.ddf.branding.BrandingResourceProvider;
+import org.codice.ddf.branding.BrandingPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,8 +97,6 @@ public class LandingPage extends HttpServlet {
 
     private String logoToUse;
 
-    private transient BrandingResourceProvider provider;
-
     public String getTitle() {
         return title;
     }
@@ -119,10 +115,6 @@ public class LandingPage extends HttpServlet {
 
     public List<String> getAnnouncements() {
         return announcements;
-    }
-
-    public LandingPage(BrandingResourceProvider provider) {
-        this.provider = provider;
     }
 
     private void setVersion() {
@@ -148,17 +140,8 @@ public class LandingPage extends HttpServlet {
         this.branding = branding;
         setVersion();
         setTitle();
-        this.productImage = getBase64(branding.getProductImage());
-        this.favicon = getBase64(branding.getFavIcon());
-    }
-
-    private String getBase64(String productImage) throws IOException {
-        byte[] resourceAsBytes = provider.getResourceAsBytes(productImage);
-        if (resourceAsBytes.length > 0) {
-            return Base64.getEncoder()
-                    .encodeToString(resourceAsBytes);
-        }
-        return "";
+        this.productImage = branding.getBase64ProductImage();
+        this.favicon = branding.getBase64FavIcon();
     }
 
     public void setDescription(String description) {

@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.platform</groupId>
@@ -33,8 +35,8 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.webconsole</artifactId>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>branding-api</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -73,11 +75,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>branding-resources</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
@@ -91,7 +88,6 @@
                 <configuration>
                     <instructions>
                         <Import-Package>
-                            org.apache.felix.webconsole;version="[3.1,5)",
                             !org.abego.treelayout.*,
                             *
                         </Import-Package>
@@ -138,7 +134,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.73</minimum>
+                                            <minimum>0.72</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

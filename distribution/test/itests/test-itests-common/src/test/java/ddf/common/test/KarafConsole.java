@@ -32,7 +32,7 @@ public class KarafConsole extends KarafTestSupport {
 
     private static final RolePrincipal[] DEFAULT_ROLES =
             {new RolePrincipal("admin"), new RolePrincipal("group"), new RolePrincipal("manager"),
-                    new RolePrincipal("viewer"), new RolePrincipal("webconsole"), new RolePrincipal(
+                    new RolePrincipal("viewer"), new RolePrincipal(
                     "system-admin"), new RolePrincipal("systembundles")};
 
     /**

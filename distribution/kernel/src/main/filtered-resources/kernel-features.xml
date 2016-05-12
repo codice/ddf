@@ -26,15 +26,16 @@
         <feature prerequisite="true" version="${karaf.version}">http</feature>
     </feature>
 
-    <feature name="kernel-webconsole" install="manual" version="${project.version}">
-        <feature>webconsole</feature>
-        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+    <feature name="branding-api" version="${project.version}" description="Branding API">
+        <bundle>mvn:ddf.distribution/branding-api/${project.version}</bundle>
     </feature>
 
-    <feature name="kernel-webconsolebranding" description="" version="${project.version}">
-        <feature prerequisite="true">kernel-webconsole</feature>
-        <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
-        <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
+    <feature name="ddf-branding" version="${project.version}" description="DDF Branding">
+        <feature prerequisite="true">web-container</feature>
+        <feature prerequisite="true">branding-api</feature>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle>mvn:commons-configuration/commons-configuration/${commons-configuration.version}</bundle>
+        <bundle>mvn:ddf.distribution/ddf-branding-plugin/${project.version}</bundle>
     </feature>
 
 </features>

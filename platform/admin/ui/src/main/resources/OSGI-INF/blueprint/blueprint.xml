@@ -17,7 +17,7 @@
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
+    <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
 
     <bean id="configurationStore" class="org.codice.admin.ui.configuration.Configuration"
           factory-method="getInstance">

@@ -15,13 +15,10 @@
 package org.codice.ddf.ui.searchui.simple.properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.ddf.branding.BrandingPlugin;
 
 /**
  * Stores external configuration properties.
- *
- * @author ddf.isgs@lmco.com
- *
  */
 
 public class ConfigurationStore {
