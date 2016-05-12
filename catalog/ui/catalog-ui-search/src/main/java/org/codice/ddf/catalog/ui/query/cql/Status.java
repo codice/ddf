@@ -26,13 +26,13 @@ public class Status {
 
     private final long elapsed;
 
-    private final String source;
+    private final String id;
 
     private final boolean successful;
 
     public Status(QueryResponse response, String source, long elapsedTime) {
         elapsed = elapsedTime;
-        this.source = source;
+        id = source;
 
         count = response.getResults()
                 .size();
@@ -57,8 +57,8 @@ public class Status {
         return elapsed;
     }
 
-    public String getSource() {
-        return source;
+    public String getId() {
+        return id;
     }
 
     public long getCount() {

@@ -525,17 +525,25 @@ define([
 
             startSearch:function(progressFunction) {
 
+                var data = this.buildSearchData();
+                var sources = data.src;
+                var initialStatus = sources.map(function (src) {
+                    return {
+                        id: src
+                    };
+                });
                 var result;
                 if (this.get('result') && this.get('result').get('results')) {
                     result = this.get('result');
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
                     result.get('results').reset();
-                    result.get('status').reset();
+                    result.get('status').reset(initialStatus);
                 } else {
                     result = new Metacard.SearchResult({
                         queryId: this.getId(),
-                        color: this.getColor()
+                        color: this.getColor(),
+                        status: initialStatus
                     });
                     this.set({result: result});
                 }
@@ -579,9 +587,7 @@ define([
                     localResult = null;
                 };
 
-                var data = this.buildSearchData();
 
-                var sources = data.src;
                 sources.unshift("cache");
 
                 sources.forEach(function (src) {

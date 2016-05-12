@@ -61,7 +61,7 @@ define([
         },
         serializeData: function(){
             var status = _.filter(this.model.get('result').get('status').toJSON(), function (status) {
-                return status.source !== 'cache';
+                return status.id !== 'cache';
             });
             var results = _.map(this.model.get('result').get('results').slice(0, properties.resultCount), function (model) {
                 return this.massageResult(model.toJSON());
