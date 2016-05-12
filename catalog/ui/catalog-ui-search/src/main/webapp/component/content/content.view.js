@@ -172,7 +172,7 @@ define([
         },
         updatePanelTwoQueryTitle: function(){
             var queryRef = store.getQuery();
-            var title = queryRef._cloneOf === undefined ? 'New Query' : queryRef.get('cql');
+            var title = queryRef._cloneOf === undefined ? 'New Query' : queryRef.get('title');
             this.$el.find('.content-panelTwo-title').html(title);
         },
         updatePanelTwoSelectedResultsTitle: function(){

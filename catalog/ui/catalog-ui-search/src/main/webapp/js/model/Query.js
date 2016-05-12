@@ -44,7 +44,7 @@ define([
             //as soon as the model contains more than 5 items, we assume
             //that we have enough values to search
             defaults: {
-                title: 'Untitled Query',
+                title: 'Untitled',
                 offsetTimeUnits: 'hours',
                 scheduleUnits: 'minutes',
                 timeType: 'modified',
@@ -523,7 +523,7 @@ define([
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
 
-            startSearch:function(progressFunction) {
+            startSearch:function() {
 
                 var data = this.buildSearchData();
                 var sources = data.src;
@@ -578,24 +578,12 @@ define([
 
                 result.set('initiated', moment().format('lll'));
 
-                var progress = progressFunction || function() {
-                    var localResult = result;
-                    localResult.get('results').each(function(searchResult) {
-                        searchResult.cleanup();
-                    });
-                    localResult.mergeLatest();
-                    localResult = null;
-                };
-
-
                 sources.unshift("cache");
-
                 sources.forEach(function (src) {
                     data.src = src;
                     result.fetch({
                         data: JSON.stringify(data),
                         remove: false,
-                        progress: progress,
                         dataType: "json",
                         contentType: "application/json",
                         method: "POST",

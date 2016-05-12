@@ -39,6 +39,10 @@ define([
         regions: {
         },
         initialize: function(options){
+            if (!this.model.get('result')) {
+                store.getCurrentQueries().get(this.model.id).startSearch();
+            }
+
             var self = this;
             this.listenTo(this.model, 'nested-change', _.debounce(this.render,200));
             this.listenTo(store.getSelectedResults(), 'update', this.handleSelectionChange);
@@ -92,10 +96,10 @@ define([
         },
         resultsFound: function(data){
             var hits = _.reduce(data, function(hits, status) {
-                return hits + status.hits;
+                return status.hits ? hits + status.hits : hits;
             }, 0);
             var count = _.reduce(data, function(count, status) {
-                return count + status.count;
+                return status.count ? count + status.count : hits;
             }, 0);
             if (hits === count) {
                 return count + " results";

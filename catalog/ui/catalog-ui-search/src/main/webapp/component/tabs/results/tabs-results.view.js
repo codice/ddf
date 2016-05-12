@@ -61,7 +61,7 @@ define([
         addTab: function(query){
             var self = this;
             this.model.addTab(query.getId(), {
-                tooltip: Common.cqlToHumanReadable(query.get('cql')),
+                tooltip: query.get('title'),
                 color: query.getColor(),
                 getModel: function(){
                     return query;
@@ -72,7 +72,7 @@ define([
             });
             this.render();
             this.listenTo(query, 'change', function(){
-                self.model.get('tabs')[query.getId()].tooltip = Common.cqlToHumanReadable(query.get('cql'));
+                self.model.get('tabs')[query.getId()].tooltip = query.get('title');
                 self.render();
             });
         },

@@ -83,9 +83,6 @@ define([
             var json = this.model.toJSON({
                 additionalProperties: ['cid', 'color']
             });
-            json.forEach(function(search){
-                search.generatedName = Common.cqlToHumanReadable(search.cql);
-            });
             return json;
         },
         onRender: function(){

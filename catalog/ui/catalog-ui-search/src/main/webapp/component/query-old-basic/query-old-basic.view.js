@@ -370,6 +370,7 @@ define([
             this.$('#offsetTimeUnits').multiselect(singleselectOptions);
             this.$('#scheduleUnits').multiselect(singleselectOptions);
             this.$('#sortOrderSelected').selectpicker({ width: '200px' });
+            this.setupPopOver('[data-toggle="title-popover"]', 'Name associated with this query in the workspace.');
             this.setupPopOver('[data-toggle="keyword-popover"]', 'Search by free text using the grammar of the underlying source. For wildcard searches, use % or * after partial keywords (e.g. earth%).');
             this.setupPopOver('[data-toggle="time-popover"]', 'Search based on relative or absolute time of the created, modified, or effective date.');
             this.setupPopOver('[data-toggle="location-popover"]', 'Search by latitude/longitude or the USNG using a polygon, point-radius, or bounding box.');
