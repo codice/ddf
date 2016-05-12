@@ -50,11 +50,11 @@ public class CqlRequest {
 
     private String src;
 
-    private Long timeout = 300000L;
+    private long timeout = 300000L;
 
-    private Long start = 1L;
+    private int start = 1;
 
-    private Long count = 10L;
+    private int count = 10;
 
     private String cql;
 
@@ -68,15 +68,15 @@ public class CqlRequest {
         this.src = src;
     }
 
-    public void setTimeout(Long timeout) {
+    public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
 
-    public void setStart(Long start) {
+    public void setStart(int start) {
         this.start = start;
     }
 
-    public void setCount(Long count) {
+    public void setCount(int count) {
         this.count = count;
     }
 
@@ -88,14 +88,39 @@ public class CqlRequest {
         this.sort = sort;
     }
 
-    public QueryRequest getQueryRequest(String localSourceId, FilterBuilder filterBuilder) {
+    public String getSrc() {
+        return src;
+    }
 
-        Query query = new QueryImpl(createFitler(filterBuilder),
-                start.intValue(),
-                count.intValue(), parseSort(sort),
-                true, timeout);
+    public long getTimeout() {
+        return timeout;
+    }
 
-        String source = parseSrc(localSourceId);
+    public int getStart() {
+        return start;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public String getCql() {
+        return cql;
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder) {
+        Query query = new QueryImpl(createFilter(filterBuilder),
+                start,
+                count,
+                parseSort(sort),
+                true,
+                timeout);
+
+        String source = parseSrc(localSource);
 
         QueryRequest queryRequest;
         if (CACHE_SOURCE.equals(source)) {
@@ -111,15 +136,15 @@ public class CqlRequest {
         return queryRequest;
     }
 
-    private String parseSrc(String localSourceId) {
+    private String parseSrc(String localSource) {
         if (StringUtils.equalsIgnoreCase(src, LOCAL_SOURCE) || StringUtils.isBlank(src)) {
-            src = localSourceId;
+            src = localSource;
         }
 
         return src;
     }
 
-    private Filter createFitler(FilterBuilder filterBuilder) {
+    private Filter createFilter(FilterBuilder filterBuilder) {
         Filter filter = null;
         try {
             filter = ECQL.toFilter(cql);
@@ -134,39 +159,34 @@ public class CqlRequest {
                     .like()
                     .text(FilterDelegate.WILDCARD_CHAR);
         }
+
+        return filter;
     }
 
     private SortBy parseSort(String sortStr) {
-        // default values
         String sortField = Result.TEMPORAL;
         String sortOrder = DEFAULT_SORT_ORDER;
 
-        // Updated to use the passed in index if valid (=> 1)
-        // and to use the default if no value, or an invalid value (< 1)
-        // is specified
-        if (!(StringUtils.isEmpty(sortStr))) {
-            String[] sortAry = sortStr.split(":");
-            if (sortAry.length > 1) {
+        if (StringUtils.isNotBlank(sortStr)) {
+            String[] sortAry = StringUtils.split(sortStr, ":", 2);
+            if (sortAry.length == 2) {
                 sortField = sortAry[0];
                 sortOrder = sortAry[1];
             }
         }
 
-        // Query must specify a valid sort order if a sort field was specified, i.e., query
-        // cannot specify just "date:", must specify "date:asc"
         SortBy sort;
-        if ("asc".equalsIgnoreCase(sortOrder)) {
+        switch (sortOrder) {
+        case "asc":
             sort = new SortByImpl(sortField, SortOrder.ASCENDING);
-        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            break;
+        case "desc":
             sort = new SortByImpl(sortField, SortOrder.DESCENDING);
-        } else {
+            break;
+        default:
             throw new IllegalArgumentException(
                     "Incorrect sort order received, must be 'asc' or 'desc'");
         }
-
-        LOGGER.debug("Retrieved query settings: \n sortField: {} \nsortOrder: {}",
-                sortField,
-                sortOrder);
 
         return sort;
     }

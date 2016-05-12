@@ -60,9 +60,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import spark.globalstate.ServletFlag;
+import spark.http.matching.MatcherFilter;
 import spark.route.ServletRoutes;
 import spark.servlet.SparkApplication;
-import spark.http.matching.MatcherFilter;
 import spark.staticfiles.StaticFilesConfiguration;
 
 // Based on https://github.com/perwendel/spark/issues/193
@@ -76,12 +76,12 @@ public class SparkServlet extends HttpServlet {
 
     private static final String FILTER_MAPPING_PARAM = "filterMappingUrlPattern";
 
-    private final SparkApplication application;
+    private static SparkApplication sparkApplication;
 
-    private MatcherFilter matcherFilter;
+    private static MatcherFilter matcherFilter;
 
     public SparkServlet(SparkApplication application) {
-        this.application = application;
+        sparkApplication = application;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class SparkServlet extends HttpServlet {
         super.init(config);
         ServletFlag.runFromServlet();
 
-        application.init();
+        sparkApplication.init();
 
         matcherFilter = new MatcherFilter(ServletRoutes.get(),
                 StaticFilesConfiguration.servletInstance,
@@ -99,8 +99,8 @@ public class SparkServlet extends HttpServlet {
 
     @Override
     public void destroy() {
-        if (application != null) {
-            application.destroy();
+        if (sparkApplication != null) {
+            sparkApplication.destroy();
         }
     }
 

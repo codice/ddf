@@ -37,7 +37,6 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.io.ShapeReader;
 import org.locationtech.spatial4j.shape.Shape;
-import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +58,11 @@ public class CqlResult {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CqlQueryResponse.class);
 
-    private static final SpatialContext SPATIAL_CONTEXT = new JtsSpatialContextFactory().newSpatialContext();
+    private static final SpatialContext SPATIAL_CONTEXT =
+            new JtsSpatialContextFactory().newSpatialContext();
 
-    private static final ShapeReader WKT_READER = SPATIAL_CONTEXT.getFormats().getWktReader();
+    private static final ShapeReader WKT_READER = SPATIAL_CONTEXT.getFormats()
+            .getWktReader();
 
     private static final WktQueryDelegate WKT_QUERY_DELEGATE = new WktQueryDelegate();
 
@@ -79,10 +80,7 @@ public class CqlResult {
 
     private Double relevance;
 
-    // TODO remove
-    private Double testRelevance;
-
-    private List<Action> actions;
+    private Map<String, Action> actions;
 
     private boolean hasThumbnail = false;
 
@@ -93,33 +91,109 @@ public class CqlResult {
             hasThumbnail = true;
         }
 
-        if (calculateDistance(queryRequest.getQuery())) {
-            distance = normalizeDistance(result, queryRequest.getQuery(), filterAdapter);
-        }
+        distance = normalizeDistance(result, queryRequest.getQuery(), filterAdapter);
 
-        if (calculateRelevance(queryRequest.getQuery())) {
-            relevance = result.getRelevanceScore();
-            matches = mc.getMetacardType()
-                    .getAttributeDescriptors()
-                    .stream()
-                    .filter((descriptor1) -> isTextAttribute(descriptor1))
-                    .filter(Objects::nonNull)
-                    .map(descriptor -> mc.getAttribute(descriptor.getName()))
-                    .filter(Objects::nonNull)
-                    .map(attribute -> Optional.ofNullable(attribute.getValue()))
-                    .map(Object::toString)
-                    .map(value -> tokenize(value))
-                    .flatMap(Collection::stream)
-                    .map(token -> searchTerms.stream()
-                            .filter(token::matches)
-                            .collect(Collectors.toList()))
-                    .flatMap(Collection::stream)
-                    .map(match -> match.replace(".*", "%"))
-                    .collect(Collectors.toMap(match -> match, value -> 1, Integer::sum));
-        }
+        relevance = result.getRelevanceScore();
+        matches = mc.getMetacardType()
+                .getAttributeDescriptors()
+                .stream()
+                .filter(CqlResult::isTextAttribute)
+                .filter(Objects::nonNull)
+                .map(descriptor -> mc.getAttribute(descriptor.getName()))
+                .filter(Objects::nonNull)
+                .map(attribute -> Optional.ofNullable(attribute.getValue()))
+                .map(Object::toString)
+                .map(CqlResult::tokenize)
+                .flatMap(Collection::stream)
+                .map(token -> searchTerms.stream()
+                        .filter(token::matches)
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .map(match -> match.replace(".*", "%"))
+                .collect(Collectors.toMap(match -> match, value -> 1, Integer::sum));
 
-        actions = actionRegistry.list(result.getMetacard());
+        actions = actionRegistry.list(result.getMetacard())
+                .stream()
+                .collect(Collectors.toMap(Action::getId, a -> a));
         metacard = metacardToMap(result);
+    }
+
+    private void addCachedDate(Metacard metacard, Map<String, Object> json) {
+        Attribute cachedDate = metacard.getAttribute(CACHED);
+        if (cachedDate != null && cachedDate.getValue() != null) {
+            json.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
+        } else {
+            json.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
+        }
+    }
+
+    private Double normalizeDistance(Result result, Query query, FilterAdapter filterAdapter) {
+        Double distance = result.getDistanceInMeters();
+
+        try {
+            String queryWkt = filterAdapter.adapt(query, WKT_QUERY_DELEGATE);
+            if (StringUtils.isNotBlank(queryWkt)) {
+                Shape queryShape = WKT_READER.read(queryWkt);
+                if (result.getMetacard() != null && StringUtils.isNotBlank(result.getMetacard()
+                        .getLocation())) {
+                    Shape locationShape = WKT_READER.read(result.getMetacard()
+                            .getLocation());
+
+                    distance =
+                            DistanceUtils.degrees2Dist(SPATIAL_CONTEXT.calcDistance(locationShape.getCenter(),
+                                    queryShape.getCenter()), DistanceUtils.EARTH_MEAN_RADIUS_KM)
+                                    * 1000;
+                }
+            }
+        } catch (IOException | ParseException | UnsupportedQueryException e) {
+            LOGGER.debug("Unable to parse query wkt", e);
+        }
+
+        return distance;
+    }
+
+    private Map<String, Object> metacardToMap(Result result) {
+        Map<String, Object> geoJson = null;
+        MetacardImpl resultMetacard = new MetacardImpl(result.getMetacard());
+        try {
+
+            for (AttributeDescriptor descriptor : resultMetacard.getMetacardType()
+                    .getAttributeDescriptors()) {
+                switch (descriptor.getType()
+                        .getAttributeFormat()) {
+                case BINARY:
+                case XML:
+                case OBJECT:
+                    resultMetacard.setAttribute(descriptor.getName(), null);
+                default:
+                    break;
+                }
+            }
+
+            geoJson = GeoJsonMetacardTransformer.convertToJSON(resultMetacard);
+            addCachedDate(resultMetacard, geoJson);
+        } catch (CatalogTransformerException e) {
+            LOGGER.debug("Unable to convert metacard to GeoJSON", e);
+        }
+        return geoJson;
+    }
+
+    private static List<String> tokenize(String value) {
+        return StreamSupport.stream(Spliterators.spliterator(new Scanner(value.toLowerCase()).useDelimiter(
+                "[\\s\\p{Punct}]+"), Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL),
+                false)
+                .collect(Collectors.toList());
+    }
+
+    private static boolean isTextAttribute(AttributeDescriptor descriptor) {
+        switch (descriptor.getType()
+                .getAttributeFormat()) {
+        case STRING:
+        case XML:
+            return true;
+        default:
+            return false;
+        }
     }
 
     public Map<String, Object> getMetacard() {
@@ -134,7 +208,7 @@ public class CqlResult {
         return relevance;
     }
 
-    public List<Action> getActions() {
+    public Map<String, Action> getActions() {
         return actions;
     }
 
@@ -142,116 +216,8 @@ public class CqlResult {
         return hasThumbnail;
     }
 
-    private void addCachedDate(Metacard metacard, Map<String, Object> json) {
-        Attribute cachedDate = metacard.getAttribute(CACHED);
-        if (cachedDate != null && cachedDate.getValue() != null) {
-            json.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
-        } else {
-            json.put(CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
-        }
-    }
-
-    private Double normalizeDistance(Result result, Query query,
-                                     FilterAdapter filterAdapter) {
-        Double distance = result.getDistanceInMeters();
-
-        try {
-            String queryWkt = filterAdapter.adapt(query, WKT_QUERY_DELEGATE);
-            if (StringUtils.isNotBlank(queryWkt)) {
-                Shape queryShape = WKT_READER.read(queryWkt);
-                if (result.getMetacard() != null && StringUtils.isNotBlank(result.getMetacard()
-                        .getLocation())) {
-                    Shape locationShape = WKT_READER.read(result.getMetacard()
-                            .getLocation());
-
-                    distance = DistanceUtils.degrees2Dist(SPATIAL_CONTEXT.calcDistance(locationShape.getCenter(),
-                            queryShape.getCenter()), DistanceUtils.EARTH_MEAN_RADIUS_KM)
-                            * 1000;
-                }
-            }
-        } catch (IOException|ParseException|UnsupportedQueryException e) {
-            LOGGER.debug("Unable to parse query wkt", e);
-        }
-
-        return distance;
-    }
-
-    public boolean calculateDistance(Query query) {
-        return Result.DISTANCE.equals(getSortBy(query));
-    }
-
-    public boolean calculateRelevance(Query query) {
-        return Result.RELEVANCE.equals(getSortBy(query));
-    }
-
-    public String getSortBy(Query query) {
-        String result = null;
-        SortBy sortBy = query.getSortBy();
-
-        if (sortBy != null && sortBy.getPropertyName() != null) {
-            result = sortBy.getPropertyName()
-                    .getPropertyName();
-        }
-
-        return result;
-    }
-
-    private Map<String, Object> metacardToMap(Result result) {
-        Map<String, Object> geoJson = null;
-        MetacardImpl resultMetacard = new MetacardImpl(result.getMetacard());
-        try {
-
-            for (AttributeDescriptor descriptor : resultMetacard.getMetacardType()
-                    .getAttributeDescriptors()) {
-                switch (descriptor.getType()
-                        .getAttributeFormat()) {
-                    case BINARY:
-                    case XML:
-                    case OBJECT:
-                        if (Metacard.THUMBNAIL.equals(descriptor.getName())) {
-                            break;
-                        }
-                        resultMetacard.setAttribute(descriptor.getName(), null);
-                    default:
-                        break;
-                }
-            }
-
-            geoJson = GeoJsonMetacardTransformer.convertToJSON(resultMetacard);
-            addCachedDate(resultMetacard, geoJson);
-        } catch (CatalogTransformerException e) {
-            // TODO fix me
-        }
-        return geoJson;
-    }
-
-    private static List<String> tokenize(String value) {
-        return StreamSupport.stream(Spliterators.spliterator(new Scanner(value.toLowerCase()).useDelimiter(
-                "[\\s\\p{Punct}]+"), Long.MAX_VALUE, Spliterator.ORDERED | Spliterator.NONNULL),
-                false).collect(Collectors.toList());
-    }
-
-    private static boolean isTextAttribute(AttributeDescriptor descriptor) {
-        switch (descriptor.getType()
-                .getAttributeFormat()) {
-        case STRING:
-        case XML:
-            return true;
-        default:
-            return false;
-        }
-    }
-
     public Map<String, Integer> getMatches() {
         return matches;
     }
 
-    public Double getTestRelevance() {
-        return testRelevance;
-    }
-
-    // TODO remove
-    public void setTestRelevance(Double testRelevance) {
-        this.testRelevance = testRelevance;
-    }
 }

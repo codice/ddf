@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.catalog.ui.query.cql;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
@@ -27,7 +30,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.UnsupportedQueryException;
 
@@ -41,30 +45,17 @@ public class CqlQueryResponse {
 
     private final String id;
 
-    private final long hits;
-
-    private final long count;
-
-    private final long elapsed;
-
-    private final String source;
-
-    private final boolean successful;
-
     private final Map<String, Map<String, MetacardAttribute>> types;
 
-    public CqlQueryResponse(String id, QueryResponse queryResponse, String source,
-            long elapsedTime, FilterAdapter filterAdapter, ActionRegistry actionRegistry) {
+    private final Status status;
+
+    public CqlQueryResponse(String id, QueryRequest request, QueryResponse queryResponse,
+            String source, long elapsedTime, FilterAdapter filterAdapter,
+            ActionRegistry actionRegistry) {
         this.id = id;
-        elapsed = elapsedTime;
-        this.source = source;
 
-        final Set<String> searchTerms = extractSearchTerms(queryResponse, filterAdapter);
+        status = new Status(queryResponse, source, elapsedTime);
 
-        count = queryResponse.getResults()
-                .size();
-        hits = queryResponse.getHits();
-        successful = isSuccessful(queryResponse.getProcessingDetails());
         types = queryResponse.getResults()
                 .stream()
                 .map(Result::getMetacard)
@@ -79,6 +70,7 @@ public class CqlQueryResponse {
                                 .collect(Collectors.toMap(AttributeDescriptor::getName,
                                         MetacardAttribute::new))));
 
+        final Set<String> searchTerms = extractSearchTerms(request.getQuery(), filterAdapter);
         results = queryResponse.getResults()
                 .stream()
                 .map(result -> new CqlResult(result,
@@ -87,41 +79,12 @@ public class CqlQueryResponse {
                         filterAdapter,
                         actionRegistry))
                 .collect(Collectors.toList());
-
-        Map<String, Long> docsContainingTerms = results.stream()
-                .map(CqlResult::getMatches)
-                .filter(Objects::nonNull)
-                .map(Map::keySet)
-                .flatMap(Collection::stream)
-                .collect(Collectors
-                        .groupingBy(Function.identity(), Collectors.counting()));
-
-        // TODO remove
-        results.stream()
-                .forEach(result -> {
-                    Map<String, Integer> resultMatches = result.getMatches();
-                    if (resultMatches != null) {
-                        double tfidf = searchTerms.stream()
-                                .map(term -> {
-                                    String matchTerm = term.replace(".*", "%");
-                                    double tf = resultMatches.getOrDefault(matchTerm, 0);
-                                    double idf = Math.log10(((double) results.size()) / Math.max((double) docsContainingTerms.getOrDefault(
-                                            matchTerm,
-                                            0L), 0.000001));
-                                    return tf * idf;
-                                })
-                                .collect(Collectors.summingDouble(Double::doubleValue));
-                        result.setTestRelevance(tfidf);
-                    }
-                });
     }
 
-    private Set<String> extractSearchTerms(QueryResponse queryResponse, FilterAdapter filterAdapter) {
+    private Set<String> extractSearchTerms(Query query, FilterAdapter filterAdapter) {
         Set<String> searchTerms = Collections.emptySet();
         try {
-            searchTerms = filterAdapter.adapt(queryResponse.getRequest().getQuery(),
-                    SEARCH_TERMS_DELEGATE);
-            LOGGER.info("Keywords: {}", String.join(", ", searchTerms)); // TODO remove
+            searchTerms = filterAdapter.adapt(query, SEARCH_TERMS_DELEGATE);
         } catch (UnsupportedQueryException e) {
             LOGGER.debug("Unable to parse search terms", e);
         }
@@ -132,35 +95,6 @@ public class CqlQueryResponse {
         return results;
     }
 
-    public long getHits() {
-        return hits;
-    }
-
-    public long getElapsed() {
-        return elapsed;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public long getCount() {
-        return count;
-    }
-
-    public boolean isSuccessful() {
-        return successful;
-    }
-
-    private boolean isSuccessful(final Set<ProcessingDetails> details) {
-        for (ProcessingDetails detail : details) {
-            if (detail.hasException()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public Map<String, Map<String, MetacardAttribute>> getTypes() {
         return types;
     }
@@ -169,4 +103,7 @@ public class CqlQueryResponse {
         return id;
     }
 
+    public Status getStatus() {
+        return status;
+    }
 }

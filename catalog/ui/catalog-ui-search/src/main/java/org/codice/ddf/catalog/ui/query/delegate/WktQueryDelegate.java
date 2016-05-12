@@ -33,13 +33,18 @@ public class WktQueryDelegate extends SimpleFilterDelegate<String> {
 
     @Override
     public String and(List<String> operands) {
-        return operands.stream().filter(op -> !"".equals(op)).findFirst().orElse("");
+        return operands.stream()
+                .filter(op -> !"".equals(op))
+                .findFirst()
+                .orElse("");
     }
 
     @Override
     public String or(List<String> operands) {
-        return operands.stream().filter(op -> !"".equals(op)).findFirst().orElse("");
+        return operands.stream()
+                .filter(op -> !"".equals(op))
+                .findFirst()
+                .orElse("");
     }
-
 
 }

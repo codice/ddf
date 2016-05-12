@@ -33,8 +33,7 @@ public class SearchTermsDelegate extends SimpleFilterDelegate<Set<String>> {
     @Override
     public Set<String> propertyIsLike(String propertyName, String pattern,
             boolean isCaseSensitive) {
-        String[] patternWords = pattern
-                .toLowerCase()
+        String[] patternWords = pattern.toLowerCase()
                 .split("[\\s\\p{Punct}&&[^*]]+");
 
         return Arrays.stream(patternWords)
@@ -44,12 +43,16 @@ public class SearchTermsDelegate extends SimpleFilterDelegate<Set<String>> {
 
     @Override
     public Set<String> and(List<Set<String>> operands) {
-        return operands.stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        return operands.stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> or(List<Set<String>> operands) {
-        return operands.stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        return operands.stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 
     @Override
