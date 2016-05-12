@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -24,6 +25,9 @@ import java.util.Map;
 
 import javax.activation.MimeType;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
@@ -59,8 +63,6 @@ import ddf.catalog.transform.MetacardTransformer;
 
 /**
  * Converts CSW Record to a Metacard.
- *
- * @author rodgersh
  */
 
 public class CswRecordConverter implements Converter, MetacardTransformer, InputTransformer {
@@ -69,7 +71,10 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private XStream xstream;
 
+    private static XMLInputFactory factory = XMLInputFactory.newInstance();
+
     public CswRecordConverter() {
+
         xstream = new XStream(new Xpp3Driver());
         xstream.setClassLoader(this.getClass()
                 .getClassLoader());
@@ -223,6 +228,31 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
+        if (StringUtils.isNotBlank(metacard.getMetadata())) {
+            // Check if the metadata is csw:Record
+            try {
+                StringReader xml = new StringReader(metacard.getMetadata());
+                XMLEventReader reader = factory.createXMLEventReader(xml);
+                boolean rootFound = false;
+                while (reader.hasNext() && !rootFound) {
+                    XMLEvent event = reader.nextEvent();
+                    if (event.isStartElement()) {
+                        rootFound = true;
+                        QName name = event.asStartElement()
+                                .getName();
+                        if (StringUtils.equals(CswConstants.CSW_RECORD_LOCAL_NAME,
+                                name.getLocalPart())
+                                && StringUtils.equals(CswConstants.CSW_OUTPUT_SCHEMA,
+                                name.getNamespaceURI())) {
+                            return new BinaryContentImpl(IOUtils.toInputStream(metacard.getMetadata()),
+                                    new MimeType());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore and proceed with the transform.
+            }
+        }
         StringWriter stringWriter = new StringWriter();
         Boolean omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
 

@@ -24,7 +24,7 @@
             <ogc:Filter>
                 <ogc:PropertyIsEqualTo matchCase="true">
                     <ogc:PropertyName>AnyText</ogc:PropertyName>
-                    <ogc:Literal>324asdfaf242</ogc:Literal>
+                    <ogc:Literal>7c8da3209c994668b76102309b8f4769</ogc:Literal>
                 </ogc:PropertyIsEqualTo>
             </ogc:Filter>
         </csw:Constraint>
