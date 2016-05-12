@@ -20,9 +20,10 @@ define([
     'jquery',
     'text!./result-selector.hbs',
     'js/CustomElements',
+    'properties',
     'js/store',
     'js/Common'
-], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, store, Common) {
+], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common) {
 
     var ResultSelector = Marionette.LayoutView.extend({
         template: resultSelectorTemplate,
@@ -39,43 +40,69 @@ define([
         },
         initialize: function(options){
             var self = this;
-            this.listenTo(this.model, 'nested-change', _.debounce(this.handleUpdate,200));
+            this.listenTo(this.model, 'nested-change', _.debounce(this.render,200));
             this.listenTo(store.getSelectedResults(), 'update', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
             this.listenTo(wreqr.vent, 'metacard:selected', function(direction, metacard){
                 self.handleMapSelection(metacard);
             });
-            this.handleUpdate();
-        },
-        handleUpdate: function(){
             wreqr.vent.trigger('map:clear');
             this.updateMap();
             store.addMetacardTypes(this.model.get('result').get('metacard-types'));
-            this.render();
+        },
+        handleUpdate: function(){
+            if (!this.isDestroyed) {
+                wreqr.vent.trigger('map:clear');
+                this.updateMap();
+                store.addMetacardTypes(this.model.get('result').get('metacard-types'));
+                this.render();
+            }
         },
         serializeData: function(){
-            return this.massageData(this.model.get('result').get('results').toJSON());
-        },
-        massageData: function(data){
-            data.forEach(function(result){
-                //make a nice date
-                result.local = Boolean(result.metacard.properties['source-id'] === 'ddf.distribution');
-                var dateModified = new Date(result.metacard.properties.modified);
-                result.niceDiff = Common.getMomentDate(dateModified);
-                //check validation errors
-                var validationErrors = result.metacard.properties['validation-errors'];
-                var validationWarnings = result.metacard.properties['validation-warnings'];
-                if (validationErrors){
-                    result.hasError = true;
-                    result.error = validationErrors;
-                }
-                if (validationWarnings){
-                    result.hasWarning = true;
-                    result.warning = validationWarnings;
-                }
+            var status = _.filter(this.model.get('result').get('status').toJSON(), function (status) {
+                return status.source !== 'cache';
             });
-            return data;
+            var results = _.map(this.model.get('result').get('results').slice(0, properties.resultCount), function (model) {
+                return this.massageResult(model.toJSON());
+            }, this);
+            return {
+                results: results,
+                status: status,
+                resultCount: this.resultsFound(status)
+            };
+        },
+        massageResult: function(result){
+            //make a nice date
+            result.local = Boolean(result.metacard.properties['source-id'] === 'ddf.distribution');
+            var dateModified = new Date(result.metacard.properties.modified);
+            result.niceDiff = Common.getMomentDate(dateModified);
+            //check validation errors
+            var validationErrors = result.metacard.properties['validation-errors'];
+            var validationWarnings = result.metacard.properties['validation-warnings'];
+            if (validationErrors){
+                result.hasError = true;
+                result.error = validationErrors;
+            }
+            if (validationWarnings){
+                result.hasWarning = true;
+                result.warning = validationWarnings;
+            }
+            return result;
+        },
+        resultsFound: function(data){
+            var hits = _.reduce(data, function(hits, status) {
+                return hits + status.hits;
+            }, 0);
+            var count = _.reduce(data, function(count, status) {
+                return count + status.count;
+            }, 0);
+            if (hits === count) {
+                return count + " results";
+            } else {
+                var displayed = count > properties.resultCount ? properties.resultCount : count;
+                return "Top " + displayed + " of " + hits + " results displayed";
+            }
         },
         updateMap: function(){
             var searchResult = this.model.get('result');
@@ -134,13 +161,18 @@ define([
             store.getSelectedResults().forEach(function(metacard){
                 self.$el.find('.resultSelector-list > .resultSelector-result[data-metacard-id="'+metacard.id+'"]').addClass('is-selected');
             });
+            if (store.getSelectedResults().length === 1) {
+                this.scrollIntoView(store.getSelectedResults().at(0).get('metacard'));
+            }
         },
         handleMapSelection: function(metacard){
-            this.handleNormalClick(metacard.id);
-            this.scrollIntoView(metacard);
+            this.handleNormalClick(metacard.id + metacard.get('properties>source-id'));
         },
         scrollIntoView: function(metacard){
-            this.$el.find('.resultSelector-list > .resultSelector-result[data-metacard-id="'+metacard.id+'"]')[0].scrollIntoView();
+            var result = this.$el.find('.resultSelector-list > .resultSelector-result[data-metacard-id="'+metacard.id + metacard.get('properties>source-id')+'"]');
+            if (result && result.length > 0) {
+                result[0].scrollIntoView();
+            }
         },
         onRender: function(){
             this.handleSelectionChange();

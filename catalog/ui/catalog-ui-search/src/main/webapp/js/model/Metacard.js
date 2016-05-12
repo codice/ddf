@@ -192,7 +192,7 @@ define([
             },
 
             onAppContext: function (direction, model) {
-                if (model !== this) {
+                if (model.id !== this.id) {
                     this.set('context', false);
                 } else {
                     this.set('context', true);
@@ -256,13 +256,27 @@ define([
                     relatedModel: MetaCard.SourceStatus
                 }
             ],
-            url: "/service/query",
+            url: "/search/catalog/query/cql",
+            useAjaxSync: true,
             initialize: function(){
             },
             parse: function (resp) {
-                if (resp.data) {
-                    return resp.data;
+                if (resp.results) {
+                    var queryId = this.getQueryId();
+                    var color = this.getColor();
+                    _.forEach(resp.results, function (result) {
+                        result.propertyTypes = resp.types[result.metacard.properties['metacard-type']];
+                        result.metacardType = result.metacard.properties['metacard-type'];
+                        result.metacard.id = result.metacard.properties.id;
+                        result.id = result.metacard.id + result.metacard.properties['source-id'];
+                        result.metacard.queryId = queryId;
+                        result.metacard.color = color;
+                        if (result.hasThumbnail && result.actions['catalog.data.metacard.thumbnail']) {
+                            result.metacard.properties.thumbnail = result.actions['catalog.data.metacard.thumbnail'].url;
+                        }
+                    });
                 }
+
                 return resp;
             },
             setQueryId: function(queryId){

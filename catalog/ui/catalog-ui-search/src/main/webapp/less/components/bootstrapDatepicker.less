@@ -13,8 +13,13 @@
 
 .input-group > input[type=text]{
   border-radius: @border-radius;
-  background: white;
   color: black;
+}
+
+&.is-editing {
+  .input-group > input[type=text] {
+    background: white;
+  }
 }
 
 .input-group > span.input-group-addon {

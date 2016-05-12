@@ -313,11 +313,6 @@ define([
             queryModelBindings.radius.converter = radiusConverter;
             queryModelBindings.offsetTime.converter = offsetConverter;
             queryModelBindings.offsetTimeUnits.converter = offsetConverter;
-            queryModelBindings.src = {};
-            queryModelBindings.src.selector = '#federationSources';
-            queryModelBindings.src.converter = listConverter;
-            queryModelBindings.type = {};
-            queryModelBindings.type.selector = '#typeList';
             queryModelBindings.type.converter = listConverter;
             queryModelBindings.polygon.converter = polygonConverter;
             // ORDER MATTERS! The SourcesCollection must be bound prior to
@@ -327,8 +322,7 @@ define([
             this.typesCollectionBinder.bind(this.types, this.$('#typeList'));
             this.modelBinder.bind(this.model, this.$el, queryModelBindings, {
                 changeTriggers: {
-                    '': 'change',
-                    '': 'dp.change',
+                    '': 'change dp.change',
                     'input[name=q]': 'input'
                 }
             });
@@ -336,10 +330,10 @@ define([
             // changes when sources are added/removed or
             // modified (e.g., become available/unavailable)
             this.sources.bind('add change remove', function () {
-                $('.select-sources').selectpicker('refresh');
+                $('#federationSources').selectpicker('refresh');
             });
             this.types.bind('add change remove', function () {
-                $('.select-types').selectpicker('refresh');
+                $('#typeList').selectpicker('refresh');
             });
             this.delegateEvents();
             var singleselectOptions = {
@@ -370,8 +364,8 @@ define([
             typeSelectOptions.noneSelectedText = 'Select a Type';
             var federationSourcesSelectOptions = _.clone(multiselectOptions);
             federationSourcesSelectOptions.noneSelectedText = 'Select Sources';
-            this.$('.select-types').selectpicker();
-            this.$('.select-sources').selectpicker();
+            this.$('#typeList').selectpicker();
+            this.$('#federationSources').selectpicker();
             this.$('#radiusUnits').multiselect(singleselectOptions);
             this.$('#offsetTimeUnits').multiselect(singleselectOptions);
             this.$('#scheduleUnits').multiselect(singleselectOptions);
@@ -541,13 +535,15 @@ define([
             });
             this.$(selector).on('dp.change', function(e){
                 //hack to get datetimepicker working with ironcook modelbinder
-                if (e.target.children.length > 0)
+                if (e.target.children.length > 0) {
                     e.target = e.target.children[0];
+                }
             });
         },
         save: function(){
             this.model.setCql();
             store.saveQuery();
+            this.model.startSearch();
         },
         readOnly: function(){
             this.$el.find('label').attr('disabled', 'disabled');

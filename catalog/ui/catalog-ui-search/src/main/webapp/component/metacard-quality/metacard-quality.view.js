@@ -50,7 +50,7 @@ define([
             var loadingView = new LoadingView();
             var self = this;
             setTimeout(function(){
-                $.get('/services/search/catalog/metacard/'+self.model.id+'/validation').then(function(response){
+                $.get('/services/search/catalog/metacard/'+self.model.get('metacard').id+'/validation').then(function(response){
                     self._validation = response;
                 }).always(function(){
                     loadingView.remove();

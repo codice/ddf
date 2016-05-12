@@ -45,7 +45,8 @@ define([
                 this.listenTo(store.getSelectedResults(), 'add', this.updateSelection.bind(this));
                 this.listenTo(store.getSelectedResults(), 'remove', this.updateSelection.bind(this));
                 this.listenTo(store.getSelectedResults(), 'update', this.updateSelection.bind(this));
-                this.color = Cesium.Color.fromCssColorString(this.model.get('color')) || options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
+                this.color = !_.isUndefined(this.model.get('color')) ?
+                    Cesium.Color.fromCssColorString(this.model.get('color')) : options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
                 this.buildBillboard();
                 this.updateSelection();
             },
@@ -118,7 +119,7 @@ define([
                         this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                     }
 
-                    if (store.getSelectedResults().get(this.model.id)!==undefined) {
+                    if (store.getSelectedResults().get(this.model.id + this.model.get('properties>source-id'))!==undefined) {
                         this.billboard.scale = selectedPointScale;
                         this.billboard.image = this.billboards[1];
                     } else {

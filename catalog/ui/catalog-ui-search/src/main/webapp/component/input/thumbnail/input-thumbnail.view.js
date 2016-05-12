@@ -101,7 +101,11 @@ define([
                 ctx.drawImage(img,0,0, width, height);
                 self.handleRevert();
             };
-            img.src = "data:image/png;base64,"+this.model.get('value');
+            if (this.model.get('value') && this.model.get('value').substring(0, 4) === 'http') {
+                img.src = this.model.get('value');
+            } else {
+                img.src = "data:image/png;base64,"+this.model.get('value');
+            }
         },
         turnOnEditing: function(){
             this._editMode = true;

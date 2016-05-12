@@ -17,13 +17,14 @@ define([
         'properties',
         'moment',
         'js/model/Metacard',
+        'js/model/source',
         'usngs',
         'js/model/Filter',
         'wreqr',
         'js/Common',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard, usngs, Filter, wreqr, Common) {
+    function (Backbone, _, properties, moment, Metacard, Sources, usngs, Filter, wreqr, Common) {
         "use strict";
         var Query = {};
 
@@ -505,32 +506,66 @@ define([
                 // this overrides the cql generation with the filters cql.
                 data.cql = this.filters.toCQL();
 
-                // lets handle the source-id filters since they are not included in the cql.
-                var sourceFilters = this.filters.where({fieldName: properties.filters.SOURCE_ID});
-                var sources = [];
-                _.each(sourceFilters, function(sourceFilter){
-                    sources.push(sourceFilter.get('stringValue1'));
-                });
-                data.src = sources.join(',');
+                switch (data.federation) {
+                    case 'local':
+                        data.src = ["local"];
+                        break;
+                    case 'enterprise':
+                        data.src = _.pluck(Sources.where({'available': true}), 'id');
+                        break;
+                    case 'selected':
+                        // already in correct format
+                        break;
+                }
 
                 data.sort = this.get('sortField') + ':' + this.get('sortOrder');
 
-                return data;
+                return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
 
             startSearch:function(progressFunction) {
 
                 var result;
-                if (this.get('result')) {
+                if (this.get('result') && this.get('result').get('results')) {
                     result = this.get('result');
                     result.setColor(this.getColor());
                     result.setQueryId(this.getId());
+                    result.get('results').reset();
+                    result.get('status').reset();
                 } else {
                     result = new Metacard.SearchResult({
                         queryId: this.getId(),
                         color: this.getColor()
                     });
                     this.set({result: result});
+                }
+
+                var sortField = this.get('sortField');
+                var sortOrder = this.get('sortOrder') === 'desc' ? -1 : 1;
+
+                switch (sortField) {
+                    case 'RELEVANCE':
+                        result.get('results').comparator = function(a, b) {
+                            return sortOrder * (a.get('relevance') - b.get('relevance'));
+                        };
+                        break;
+                    case 'DISTANCE':
+                        result.get('results').comparator = function(a, b) {
+                            return sortOrder * (a.get('distance') - b.get('distance'));
+                        };
+                        break;
+                    default:
+                        result.get('results').comparator = function(a, b) {
+                            var aVal = a.get('metacard>properties>' + sortField);
+                            var bVal = b.get('metacard>properties>' + sortField);
+                            if (aVal < bVal) {
+                                return sortOrder * -1;
+                            }
+                            if (aVal > bVal) {
+                                return sortOrder;
+                            }
+                            return 0;
+                        };
                 }
 
                 result.set('initiated', moment().format('lll'));
@@ -546,16 +581,26 @@ define([
 
                 var data = this.buildSearchData();
 
-                return result.fetch({
-                    progress: progress,
-                    data: data,
-                    dataType: "json",
-                    timeout: properties.timeout,
-                    error : function(){
-                        if (typeof console !== 'undefined') {
-                            console.error(arguments);
+                var sources = data.src;
+                sources.unshift("cache");
+
+                sources.forEach(function (src) {
+                    data.src = src;
+                    result.fetch({
+                        data: JSON.stringify(data),
+                        remove: false,
+                        progress: progress,
+                        dataType: "json",
+                        contentType: "application/json",
+                        method: "POST",
+                        processData: false,
+                        timeout: properties.timeout,
+                        error : function(){
+                            if (typeof console !== 'undefined') {
+                                console.error(arguments);
+                            }
                         }
-                    }
+                    });
                 });
             },
 
@@ -594,13 +639,22 @@ define([
                 }
             },
             getId: function(){
-                return this._cloneOf || this.id || Common.generateUUID();
+                if (this.get('id')) {
+                    return this.get('id');
+                } else {
+                    var id = this._cloneOf || this.id || Common.generateUUID();
+                    this.set('id');
+                    return id;
+                }
             },
             setColor: function(color){
-                this.color = color;
+                this.set('color', color);
             },
             getColor: function(){
-                return this.color;
+                return this.get('color');
+            },
+            color: function(){
+                return this.get('color');
             }
         });
         return Query;

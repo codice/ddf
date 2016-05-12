@@ -130,7 +130,7 @@ define([
             lineStrokeColor: 'rgba(255,255,255,1)',
 
             initialize: function (options) {
-                this.pointFillColor = options.pointFillColor || Application.UserModel.get('user>preferences>mapColors>pointColor');
+                this.pointFillColor = this.model.get('color') || options.pointFillColor || Application.UserModel.get('user>preferences>mapColors>pointColor');
                 this.geoController = options.geoController;
                 if (!options.ignoreEvents) {
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);

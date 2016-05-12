@@ -71,7 +71,7 @@ define([
                 }
             });
             this.render();
-            this.listenTo(query, 'all', function(){
+            this.listenTo(query, 'change', function(){
                 self.model.get('tabs')[query.getId()].tooltip = Common.cqlToHumanReadable(query.get('cql'));
                 self.render();
             });

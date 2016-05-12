@@ -78,8 +78,9 @@
             <version>${camel.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -97,6 +98,40 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+            <version>13.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>gt-main</artifactId>
+                    <groupId>org.geotools</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jai_core</artifactId>
+                    <groupId>javax.media</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>geojson-metacard-transformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.locationtech.spatial4j</groupId>
+            <artifactId>spatial4j</artifactId>
+            <version>0.6</version>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
@@ -177,7 +212,11 @@
                             proxy-camel-route,
                             catalog-core-api-impl;scope=!test,
                             platform-util,
-                            versioning-common
+                            versioning-common,
+                            spark-core,
+                            gt-cql,
+                            spatial4j,
+                            commons-lang3
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
@@ -188,7 +227,10 @@
                             javax.servlet.http;version="[3,4)",
                             javax.servlet;version="[3,4)",
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",
+                            !sun.reflect,
                             !com.sun.management,
+                            !org.eclipse.jetty.websocket.*,
+                            !org.noggit,
                             *
                         </Import-Package>
                         <Export-Package/>

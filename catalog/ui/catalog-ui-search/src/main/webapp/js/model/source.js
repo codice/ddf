@@ -13,8 +13,9 @@
 define([
     'underscore',
     'backbone',
+    'poller',
     'properties'
-], function (_, Backbone, properties) {
+], function (_, Backbone, poller, properties) {
     "use strict";
 
     var Types = Backbone.Collection.extend({
@@ -53,7 +54,7 @@ define([
         }
     };
 
-    var Sources = Backbone.Collection.extend({
+    var Sources = new (Backbone.Collection.extend({
         url: "/services/catalog/sources",
         useAjaxSync: true,
         initialize: function () {
@@ -65,7 +66,11 @@ define([
         types: function () {
           return this._types;
         }
-    });
+    }))();
+
+    poller.get(Sources, {
+        delay: 60000
+    }).start();
 
     return Sources;
 

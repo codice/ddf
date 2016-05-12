@@ -62,11 +62,7 @@ define([
                     'sync': this.handleWorkspaceSync
                 }
             }));
-            this.set('sources', this.initModel(Source, {
-                poll: {
-                    delay: 60000
-                }
-            }));
+            this.set('sources', Source);
             this.set('componentWorkspaces', this.initModel(Workspaces, {
                 persisted: false
             }));

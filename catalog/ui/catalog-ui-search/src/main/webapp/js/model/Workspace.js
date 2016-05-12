@@ -29,10 +29,6 @@ define([
                 this._colorGenerator = ColorGenerator.getNewGenerator();
                 this.listenTo(this, 'add', function(query){
                     query.setColor(searchList._colorGenerator.getColor(query.getId()));
-                    query.startSearch();
-                    query.listenTo(query, 'change', function(){
-                        query.startSearch();
-                    });
                 });
                 this.listenTo(this, 'remove', function(query){
                     searchList._colorGenerator.removeColor(query.getId());

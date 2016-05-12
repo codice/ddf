@@ -59,8 +59,19 @@
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
                filter="(|(mime-type=application/xml)(mime-type=text/xml))"/>
+
+    <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.*)"/>
+
+    <reference-list id="metacardMultiActionProviders" interface="ddf.action.MultiActionProvider"
+                    filter="(id=catalog.data.metacard.*)"/>
+
+    <bean id="metacardActionRegistry" class="org.codice.ddf.catalog.ui.MetacardActionRegistry">
+        <argument ref="metacardActionProviders"/>
+        <argument ref="metacardMultiActionProviders"/>
+    </bean>
 
     <bean id="workspaceTransformer"
           class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceTransformer">
@@ -123,5 +134,22 @@
             <bean class="org.codice.ddf.ui.searchui.standard.endpoints.WorkspaceBodyWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
+
+    <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
+        <property name="catalogFramework" ref="catalogFramework" />
+        <property name="filterBuilder" ref="filterBuilder" />
+        <property name="filterAdapter" ref="filterAdapter" />
+        <property name="actionRegistry" ref="metacardActionRegistry" />
+    </bean>
+
+    <bean id="querySparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
+        <argument ref="queryApplication" />
+    </bean>
+
+    <service ref="querySparkServlet" interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="urlPatterns" value="/search/catalog/query/*"/>
+        </service-properties>
+    </service>
 
 </blueprint>

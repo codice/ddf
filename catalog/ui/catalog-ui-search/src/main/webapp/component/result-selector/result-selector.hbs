@@ -11,6 +11,9 @@
  *
  **/
  --}}
+<div class="resultSelector-status">
+    {{resultCount}}
+</div>
 <div class="resultSelector-menu">
     <div class="resultSelector-menu-action">
         <span class="fa fa-filter">
@@ -73,7 +76,7 @@
     </div>
 </div>
 <div class="resultSelector-list is-list">
-    {{#each this}}
+    {{#each results}}
             <div class="resultSelector-result is-button" data-metacard-id="{{id}}" data-index="{{@key}}"
                  data-query-id="{{metacard.queryId}}">
                 <div class="result-details">
