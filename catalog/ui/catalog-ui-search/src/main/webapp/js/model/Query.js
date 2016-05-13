@@ -16,15 +16,16 @@ define([
         'underscore',
         'properties',
         'moment',
+        'js/cql',
+        'wellknown',
         'js/model/Metacard',
         'js/model/source',
         'usngs',
-        'js/model/Filter',
         'wreqr',
         'js/Common',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard, Sources, usngs, Filter, wreqr, Common) {
+    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common) {
         "use strict";
         var Query = {};
 
@@ -58,7 +59,9 @@ define([
                 lon: undefined,
                 federation: 'enterprise',
                 sortField: 'modified',
-                sortOrder: 'desc'
+                sortOrder: 'desc',
+                dtstart: undefined,
+                dtend: undefined
             },
 
             drawing: false,
@@ -66,7 +69,7 @@ define([
             initialize: function () {
                 _.bindAll(this);
                 this.set('id', this.getId());
-                this.listenTo(this, 'change:north change:south change:east change:west',this.setBBox);
+                this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
                 this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
                 this.listenTo(this, 'change:bbox', this.setBboxLatLon);
                 this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
@@ -74,14 +77,6 @@ define([
                 this.listenTo(this, 'change:usng', this.setRadiusUsng);
                 this.listenTo(this, 'EndExtent', this.notDrawing);
                 this.listenTo(this, 'BeginExtent', this.drawingOn);
-                this.listenTo(wreqr.vent, 'search:clearfilters', this.clearFilters);
-
-                this.filters = new Filter.Collection();
-                var that = this;
-
-                this.listenTo(this.filters, 'change:north change:south change:east change:west', function(model) {
-                    that.setFilterBBox(model);
-                });
 
                 if (this.get('scheduled')) {
                     this.startSearch();
@@ -90,11 +85,91 @@ define([
                 this.startScheduledSearch();
             },
 
-            notDrawing: function() {
+            parse: function (resp) {
+                if (resp.cql) {
+                    this.filter = cql.read(resp.cql);
+                    _.extend(resp, this.defaultsFromFilter(this.filter, {}));
+                }
+                return resp;
+            },
+
+            defaultsFromFilter: function (filter, memo) {
+                var defaultValues = memo;
+                switch (filter.type) {
+                    case 'BBOX':
+                        if (filter.property === 'anyGeo') {
+                            var xmin = filter.value[0],
+                                ymin = filter.value[1],
+                                xmax = filter.value[2],
+                                ymax = filter.value[3];
+                            _.extend(defaultValues, {
+                                north: ymax,
+                                south: ymin,
+                                west: xmin,
+                                east: xmax,
+                                bbox: [xmin, ymin, xmax, ymax]
+                            });
+                        }
+                        break;
+                    case 'DWITHIN':
+                        if (filter.property === 'anyGeo') {
+                            var geo = wellknown.parse(filter.value.value);
+                            if (geo.geometry.type === 'Point') {
+                                _.extend(defaultValues, {
+                                    lon: geo.geometry.coordinates[0],
+                                    lat: geo.geometry.coordinates[1],
+                                    radius: filter.distance
+                                });
+                            }
+                        }
+                        break;
+                    case 'INTERSECTS':
+                        if (filter.property === 'anyGeo') {
+                            var polygon = wellknown.parse(filter.value.value);
+                            _.extend(defaultValues, {
+                                polygon: polygon.coordinates[0]
+                            });
+                        }
+                        break;
+                    case 'AND':
+                    case 'OR':
+                        for (var i = 0; i < filter.filters.length; i++) {
+                            _.extend(defaultValues, this.defaultsFromFilter(filter.filters[i], defaultValues));
+                        }
+                        break;
+                    case 'LIKE':
+                    case 'ILIKE':
+                        if (filter.property === 'anyText') {
+                            var matchcase = filter.type === 'LIKE';
+                            _.extend(defaultValues, {
+                                q: filter.value,
+                                matchcase: matchcase
+                            });
+                        }
+                        // TODO content types?
+                        break;
+                    case 'BEFORE':
+                        _.extend(defaultValues, {
+                            dtend: filter.value,
+                            timeType: filter.property
+                        });
+                        break;
+                    case 'AFTER':
+                        _.extend(defaultValues, {
+                            dtstart: filter.value,
+                            timeType: filter.property
+                        });
+                        break;
+                    default:
+                }
+                return defaultValues;
+            },
+
+            notDrawing: function () {
                 this.drawing = false;
             },
 
-            drawingOn: function() {
+            drawingOn: function () {
                 this.drawing = true;
             },
 
@@ -111,7 +186,7 @@ define([
                 }
             },
 
-            setLatLon: function() {
+            setLatLon: function () {
                 var result = {};
                 result.north = this.get('mapNorth');
                 result.south = this.get('mapSouth');
@@ -124,7 +199,7 @@ define([
                 this.set(result);
             },
 
-            setFilterBBox: function(model) {
+            setFilterBBox: function (model) {
                 var north = parseFloat(model.get('north'));
                 var south = parseFloat(model.get('south'));
                 var west = parseFloat(model.get('west'));
@@ -167,7 +242,7 @@ define([
                 this.set(newResult);
             },
 
-            setBBox : function() {
+            setBBox: function () {
 
                 //we need these to always be inferred
                 //as numeric values and never as strings
@@ -176,8 +251,8 @@ define([
                 var west = parseFloat(this.get('west'));
                 var east = parseFloat(this.get('east'));
 
-                if (north && south && east && west){
-                    this.set('bbox', [west, south, east, north].join(','), {silent:this.get('locationType') === 'usng' && !this.drawing});
+                if (north && south && east && west) {
+                    this.set('bbox', [west, south, east, north].join(','), {silent: this.get('locationType') === 'usng' && !this.drawing});
                 }
                 if (this.get('locationType') !== 'usng') {
                     this.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
@@ -189,26 +264,24 @@ define([
                 this.set(result);
             },
 
-            toFilters: function(){
+            toFilters: function () {
                 var filters = [];
 
                 // contextual
                 var q = this.get('q');
                 if (q) {
-                    if (this.get('matchcase')){
-                        filters.push(new Filter.Model({
-                            fieldName: 'anyText',
-                            fieldType: 'string',
-                            fieldOperator: 'matchcase',
-                            stringValue1: q
-                        }));
+                    if (this.get('matchcase')) {
+                        filters.push({
+                            type: 'LIKE',
+                            property: 'anyText',
+                            value: q
+                        });
                     } else {
-                        filters.push(new Filter.Model({
-                            fieldName: 'anyText',
-                            fieldType: 'string',
-                            fieldOperator: 'contains',
-                            stringValue1: q
-                        }));
+                        filters.push({
+                            type: 'ILIKE',
+                            property: 'anyText',
+                            value: q
+                        });
                     }
                 }
 
@@ -218,40 +291,34 @@ define([
                     offset = this.get('dtoffset'),
                     timeType = this.get('timeType');
                 if (start && end) {
-                    filters.push(new Filter.Model({
-                        fieldName: timeType,
-                        fieldType: 'date',
-                        fieldOperator: 'after',
-                        dateValue1: start
-                    }));
-                    filters.push(new Filter.Model({
-                        fieldName: timeType,
-                        fieldType: 'date',
-                        fieldOperator: 'before',
-                        dateValue1: end
-                    }));
+                    filters.push({
+                        type: 'AFTER',
+                        property: timeType,
+                        value: start
+                    });
+                    filters.push({
+                        type: 'BEFORE',
+                        property: timeType,
+                        value: end
+                    });
                 } else if (start) {
-                    filters.push(new Filter.Model({
-                        fieldName: timeType,
-                        fieldType: 'date',
-                        fieldOperator: 'after',
-                        dateValue1: start
-                    }));
+                    filters.push({
+                        type: 'AFTER',
+                        property: timeType,
+                        value: start
+                    });
                 } else if (end) {
-                    filters.push(new Filter.Model({
-                        fieldName: timeType,
-                        fieldType: 'date',
-                        fieldOperator: 'before',
-                        dateValue1: end
-                    }));
-
+                    filters.push({
+                        type: 'BEFORE',
+                        property: timeType,
+                        value: end
+                    });
                 } else if (offset) {
-                    filters.push(new Filter.Model({
-                        fieldName: timeType,
-                        fieldType: 'date',
-                        fieldOperator: 'after',
-                        dateValue1: moment().subtract(offset, 'milliseconds').toDate()
-                    }));
+                    filters.push({
+                        type: 'AFTER',
+                        property: timeType,
+                        value: moment().subtract(offset, 'milliseconds').toDate()
+                    });
                 }
 
                 // spatial stuff.
@@ -264,66 +331,52 @@ define([
                     radius = this.get('radius'),
                     polygon = this.get('polygon');
                 if (north && south && east && west) {
-                    filters.push(new Filter.Model({
-                        fieldName: 'anyGeo',
-                        fieldType: 'geometry',
-                        fieldOperator: 'intersects',
-                        geoType: 'bbox',
-                        north: north,
-                        south: south,
-                        west: west,
-                        east: east
-                    }));
-
+                    filters.push({
+                        type: 'BBOX',
+                        property: 'anyGeo',
+                        value: [west, south, east, north]
+                    });
                 } else if (polygon) {
-                    filters.push(new Filter.Model({
-                        fieldName: 'anyGeo',
-                        fieldType: 'geometry',
-                        fieldOperator: 'intersects',
-                        geoType: 'polygon',
-                        polygon: polygon
-                    }));
-                }else if (lat && lon && radius) {
-                    filters.push(new Filter.Model({
-                        fieldName: 'anyGeo',
-                        fieldType: 'geometry',
-                        fieldOperator: 'intersects',
-                        geoType: 'circle',
-                        lon: lon,
-                        lat: lat,
-                        radius: radius
-                    }));
+                    filters.push({
+                        type: 'INTERSECTS',
+                        property: 'anyGeo',
+                        value: polygon
+                    });
+                } else if (lat && lon && radius) {
+                    filters.push({
+                        type: 'DWITHIN',
+                        property: 'anyGeo',
+                        value: 'POINT(' + lon + ' ' + lat + ')',
+                        distance: Number(radius)
+                    });
                 }
 
                 // if no filters so far, lets create a global search one.
                 if (_.isEmpty(filters)) {
-                    filters.push(new Filter.Model({
-                        fieldName: 'anyText',
-                        fieldType: 'string',
-                        fieldOperator: 'contains',
-                        stringValue1: '%'
-                    }));
+                    filters.push({
+                        type: 'ILIKE',
+                        property: 'anyText',
+                        value: '%'
+                    });
                 }
 
                 // type
                 var types = this.get('type');
                 if (types) {
-                    filters.push(new Filter.Model({
-                        fieldName: properties.filters.METADATA_CONTENT_TYPE,
-                        fieldType: 'string',
-                        fieldOperator: 'contains',
-                        stringValue1: types  // this should already be common delimited for us.
-                    }));
+                    filters.push({
+                        type: 'ILIKE',
+                        property: properties.filters.METADATA_CONTENT_TYPE,
+                        value: types // this should already be common delimited for us.
+                    });
                 }
 
                 var src = this.get('src');
-                if(src){
-                    filters.push(new Filter.Model({
-                        fieldName: properties.filters.SOURCE_ID,
-                        fieldType: 'string',
-                        fieldOperator: 'equals',
-                        stringValue1: src
-                    }));
+                if (src) {
+                    filters.push({
+                        type: '=',
+                        property: properties.filters.SOURCE_ID,
+                        value: src
+                    });
                 }
 
                 return filters;
@@ -377,7 +430,7 @@ define([
                 } else if (polygon) {
                     var poly = 'POLYGON ((';
                     var polyPoint;
-                    for (var i = 0;i<polygon.length;i++) {
+                    for (var i = 0; i < polygon.length; i++) {
                         polyPoint = polygon[i];
                         poly += polyPoint[0] + ' ' + polyPoint[1];
                         if (i < polygon.length - 1) {
@@ -409,7 +462,7 @@ define([
 
                 return cql;
             },
-            setCql: function(){
+            setCql: function () {
                 this.set('cql', this.getCql());
             },
             logicalCql: function (filters, operator) {
@@ -424,7 +477,7 @@ define([
                 return cql;
             },
 
-            getValue: function(value) {
+            getValue: function (value) {
                 switch (typeof value) {
                     case 'string':
                         return "'" + value.replace(/'/g, "''") + "'";
@@ -442,7 +495,7 @@ define([
                 }
             },
 
-            toJSON: function(options) {
+            toJSON: function (options) {
                 var json = Backbone.Model.prototype.toJSON.call(this, options);
 
                 json.cql = this.getCql();
@@ -450,7 +503,7 @@ define([
                 return json;
             },
 
-            startScheduledSearch: function() {
+            startScheduledSearch: function () {
                 var model = this;
                 if (this.get('scheduled')) {
                     var scheduleDelay = this.getScheduleDelay();
@@ -463,13 +516,13 @@ define([
                 }
             },
 
-            stopScheduledSearch: function() {
+            stopScheduledSearch: function () {
                 if (this.timeoutId) {
                     clearInterval(this.timeoutId);
                 }
             },
 
-            getScheduleDelay: function() {
+            getScheduleDelay: function () {
                 var val;
                 switch (this.get('scheduleUnits')) {
                     case 'minutes':
@@ -482,29 +535,16 @@ define([
                 return val;
             },
 
-            clearSearch: function() {
+            clearSearch: function () {
                 if (this.get('result')) {
                     this.get('result').cleanup();
                 }
                 this.set({result: undefined});
-                this.filters.reset(this.toFilters());
                 this.trigger('searchCleared');
-            },
-
-            clearFilters: function() {
-                this.filters.reset(this.toFilters());
             },
 
             buildSearchData: function(){
                 var data = this.toJSON();
-
-                //commenting out for now, but we'll need to reconsider when we add advanced search
-                // I remember there being a bug with this
-                //if(this.filters.length === 0){
-                    this.clearFilters(); // init filters from search parameters.
-                //}
-                // this overrides the cql generation with the filters cql.
-                data.cql = this.filters.toCQL();
 
                 switch (data.federation) {
                     case 'local':
@@ -523,7 +563,7 @@ define([
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
 
-            startSearch:function() {
+            startSearch: function () {
 
                 var data = this.buildSearchData();
                 var sources = data.src;
@@ -553,17 +593,17 @@ define([
 
                 switch (sortField) {
                     case 'RELEVANCE':
-                        result.get('results').comparator = function(a, b) {
+                        result.get('results').comparator = function (a, b) {
                             return sortOrder * (a.get('relevance') - b.get('relevance'));
                         };
                         break;
                     case 'DISTANCE':
-                        result.get('results').comparator = function(a, b) {
+                        result.get('results').comparator = function (a, b) {
                             return sortOrder * (a.get('distance') - b.get('distance'));
                         };
                         break;
                     default:
-                        result.get('results').comparator = function(a, b) {
+                        result.get('results').comparator = function (a, b) {
                             var aVal = a.get('metacard>properties>' + sortField);
                             var bVal = b.get('metacard>properties>' + sortField);
                             if (aVal < bVal) {
@@ -589,7 +629,7 @@ define([
                         method: "POST",
                         processData: false,
                         timeout: properties.timeout,
-                        error : function(){
+                        error: function () {
                             if (typeof console !== 'undefined') {
                                 console.error(arguments);
                             }
@@ -598,7 +638,7 @@ define([
                 });
             },
 
-            setSources: function(sources) {
+            setSources: function (sources) {
                 var sourceArr = [];
                 sources.each(function (src) {
                     if (src.get('available') === true) {
@@ -612,27 +652,27 @@ define([
                 }
             },
 
-            setDefaults : function() {
+            setDefaults: function () {
                 var model = this;
-                _.each(_.keys(model.defaults), function(key) {
+                _.each(_.keys(model.defaults), function (key) {
                     model.set(key, model.defaults[key]);
                 });
             },
 
-            swapDatesIfNeeded : function() {
+            swapDatesIfNeeded: function () {
                 var model = this;
-                if (model.get('dtstart') && model.get('dtend')){
+                if (model.get('dtstart') && model.get('dtend')) {
                     var start = new Date(model.get('dtstart'));
                     var end = new Date(model.get('dtend'));
-                    if (start > end){
+                    if (start > end) {
                         this.set({
-                            dtstart : end.toISOString(),
-                            dtend : start.toISOString()
+                            dtstart: end.toISOString(),
+                            dtend: start.toISOString()
                         });
                     }
                 }
             },
-            getId: function(){
+            getId: function () {
                 if (this.get('id')) {
                     return this.get('id');
                 } else {
@@ -641,13 +681,13 @@ define([
                     return id;
                 }
             },
-            setColor: function(color){
+            setColor: function (color) {
                 this.set('color', color);
             },
-            getColor: function(){
+            getColor: function () {
                 return this.get('color');
             },
-            color: function(){
+            color: function () {
                 return this.get('color');
             }
         });

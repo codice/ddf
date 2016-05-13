@@ -44,7 +44,7 @@ define([
             }
 
             var self = this;
-            this.listenTo(this.model, 'nested-change', _.debounce(this.render,200));
+            this.listenTo(this.model, 'nested-change', _.debounce(this.handleUpdate,200));
             this.listenTo(store.getSelectedResults(), 'update', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
@@ -57,9 +57,6 @@ define([
         },
         handleUpdate: function(){
             if (!this.isDestroyed) {
-                wreqr.vent.trigger('map:clear');
-                this.updateMap();
-                store.addMetacardTypes(this.model.get('result').get('metacard-types'));
                 this.render();
             }
         },

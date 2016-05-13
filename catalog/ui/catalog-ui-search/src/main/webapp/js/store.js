@@ -143,7 +143,7 @@ define([
         },
         updateQuery: function(){
             var query = this.getQuery();
-            var newAttributes = JSON.parse(JSON.stringify(query.attributes));
+            var newAttributes = _.extend(query.defaults, query.toJSON());
             delete newAttributes.id;
             this.getCurrentQueries().get(query._cloneOf).set(newAttributes);
         },

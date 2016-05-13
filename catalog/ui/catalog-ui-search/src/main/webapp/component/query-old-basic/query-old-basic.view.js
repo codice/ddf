@@ -31,7 +31,7 @@ define([
 
     var format = 'YYYY-MM-DDTHH:mm:ss.SSSZ';
     function getHumanReadableDate(date) {
-        return moment(date).format(format);
+        return moment(date).toISOString();
     }
 
     var QueryOldBasicView = Marionette.ItemView.extend({

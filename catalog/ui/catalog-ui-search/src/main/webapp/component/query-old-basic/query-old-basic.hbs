@@ -61,7 +61,7 @@
                     <i class="fa fa-circle-o"></i>
                     Relative
                 </label>
-                <label class="btn btn-default time {{#ifAnd dtend dtstart}}active{{/ifAnd}}" data-target="#time_absolute" data-toggle="tab">
+                <label class="btn btn-default time {{#ifOr dtend dtstart}}active{{/ifOr}}" data-target="#time_absolute" data-toggle="tab">
                     <input type="radio" name="absoluteTimeButton">
                     <i class="fa fa-circle"></i>
                     <i class="fa fa-circle-o"></i>
@@ -112,7 +112,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
+                <div id="time_absolute" class="tab-pane {{#ifOr dtend dtstart}}active{{/ifOr}}">
                     <div class="col-lg-10">
                         <div class="input-group input-group-sm">
                             <span class="input-group-addon">Begin&nbsp;</span>
