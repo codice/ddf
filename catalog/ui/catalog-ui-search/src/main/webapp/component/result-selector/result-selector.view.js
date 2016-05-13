@@ -96,13 +96,19 @@ define([
                 return status.hits ? hits + status.hits : hits;
             }, 0);
             var count = _.reduce(data, function(count, status) {
-                return status.count ? count + status.count : hits;
+                return status.count ? count + status.count : count;
             }, 0);
+            var searching = _.every(data, function(status) {
+                return _.isUndefined(status.count);
+            });
+            if (searching) {
+                return 'Seraching...'
+            }
             if (hits === count) {
-                return count + " results";
+                return count + ' results';
             } else {
                 var displayed = count > properties.resultCount ? properties.resultCount : count;
-                return "Top " + displayed + " of " + hits + " results displayed";
+                return 'Top ' + displayed + ' of ' + hits + ' results displayed';
             }
         },
         updateMap: function(){
