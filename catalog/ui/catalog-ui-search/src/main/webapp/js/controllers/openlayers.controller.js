@@ -20,12 +20,13 @@ define(['application',
         'wreqr',
         'properties',
         'js/view/openlayers.metacard',
+        'js/store',
         'js/model/Metacard',
         'jquery',
         'js/controllers/ol.layerCollection.controller',
         'js/view/openlayers.geocoder'
-    ], function (Application, _, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, Metacard, $,
-                 LayerCollectionController, geocoder) {
+    ], function (Application, _, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, store,
+                 Metacard, $, LayerCollectionController, geocoder) {
         "use strict";
 
         var OpenLayerCollectionController = LayerCollectionController.extend({
@@ -53,15 +54,13 @@ define(['application',
 
                 this.setupEvents();
 
+                this.listenTo(store.get('content'), 'change:activeSearchResult', this.newActiveSearchResult);
+                if (store.get('content').getActiveSearchResult()) {
+                    this.newActiveSearchResult(store.get('content').getActiveSearchResult());
+                }
+
                 this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
                 this.listenTo(wreqr.vent, 'search:maprectanglefly', this.flyToRectangle);
-                this.listenTo(wreqr.vent, 'search:start', this.clearResults);
-                this.listenTo(wreqr.vent, 'map:results', this.newResults);
-                this.listenTo(wreqr.vent, 'map:clear', this.clear);
-
-                if (wreqr.reqres.hasHandler('search:results')) {
-                    this.newResults(wreqr.reqres.request('search:results'));
-                }
             },
             setupEvents: function () {
                 var controller = this;
@@ -71,7 +70,8 @@ define(['application',
                             // Only trigger click events for metacards, not other features like geo
                             // filters.
                             if (feature.get("featureType") === "metacard") {
-                                controller.trigger("click:left", feature);
+                                var isSelection = event.originalEvent.shiftKey || event.originalEvent.metaKey || event.originalEvent.ctrlKey;
+                                controller.trigger("click:left", feature, isSelection);
                                 // Return true to stop feature detection.
                                 return true;
                             }
@@ -272,6 +272,10 @@ define(['application',
                 }
             },
 
+            newActiveSearchResult: function (content) {
+                this.newResults(content.getActiveSearchResult());
+            },
+
             newResults: function (result, zoomOnResults) {
                 this.showResults(result.get('results'));
                 if (zoomOnResults) {
@@ -286,7 +290,9 @@ define(['application',
                 this.mapViews = new OpenlayersMetacard.ResultsView({
                     collection: results,
                     geoController: this
-                }).render();
+                });
+                this.mapViews.listenTo(results, 'sync', this.mapViews.render);
+                this.mapViews.render();
             },
 
             clear: function () {

@@ -16,12 +16,11 @@ define([
         'marionette',
         'underscore',
         'openlayers',
-        'direction',
+        'js/store',
         'properties',
-        'wreqr',
         'application'
     ],
-    function (Backbone, Marionette, _, ol, dir, properties, wreqr, Application) {
+    function (Backbone, Marionette, _, ol, store, properties, Application) {
         "use strict";
         var Views = {};
 
@@ -137,6 +136,10 @@ define([
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
                 this.buildBillboard();
+
+                this.listenTo(store.getSelectedResults(), 'update', this.toggleSelection);
+                this.listenTo(store.getSelectedResults(), 'add', this.toggleSelection);
+                this.listenTo(store.getSelectedResults(), 'remove', this.toggleSelection);
             },
 
             isThisPrimitive : function(event){
@@ -183,7 +186,11 @@ define([
 
             toggleSelection: function () {
                 var radius, strokeColor;
-                if (this.model.get('context')) {
+
+                var selected = store.getSelectedResults().some(function (result) {
+                    return result.get('metacard').id === this.model.id;
+                }, this);
+                if (selected) {
                     radius = 7;
                     strokeColor = '#000000';
                 } else {
@@ -199,10 +206,14 @@ define([
                     stroke: new ol.style.Stroke({color: this.lineStrokeColor, width: 1})
                 }));
             },
-            onMapLeftClick: function (event) {
+            onMapLeftClick: function (feature, isSelection) {
                 // find out if this click is on us
-                if (event === this.billboard) {
-                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                if (feature === this.billboard) {
+                    if (!isSelection) {
+                        store.clearSelectedResults();
+                    }
+                    store.addSelectedResult(store.getQueryById(this.model.get('queryId'))
+                        .get('result>results').get(this.model.id + this.model.get('properties>source-id')));
                 }
             },
             onMapDoubleClick: function (event) {

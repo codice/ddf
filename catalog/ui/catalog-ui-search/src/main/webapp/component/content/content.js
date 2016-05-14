@@ -39,7 +39,12 @@ define([
                 type: Backbone.Many,
                 key: 'filteredQueries',
                 relatedModel: Query.Model
-            }
+            },
+            {
+                type: Backbone.One,
+                key: 'activeSearchResult',
+                relatedModel: Metacard.SearchResult
+            },
         ],
         defaults: {
             currentWorkspace: undefined,
@@ -51,7 +56,8 @@ define([
             results: [],  //list of metacards
             filteredQueries: [],
             editing: true,
-            metacardTypes: {}
+            metacardTypes: {},
+            activeSearchResult: undefined
         },
         initialize: function(){
         },
@@ -69,6 +75,12 @@ define([
         },
         setQuery: function(queryRef){
             this.set('query', queryRef);
+        },
+        getActiveSearchResult: function(){
+            return this.get('activeSearchResult');
+        },
+        setActiveSearchResult: function(result){
+            this.set('activeSearchResult', result);
         },
         filterQuery: function(queryRef) {
             var filteredQueries = this.get('filteredQueries');

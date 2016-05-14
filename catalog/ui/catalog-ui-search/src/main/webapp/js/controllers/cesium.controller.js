@@ -18,13 +18,14 @@ define(['application',
         'cesium',
         'q',
         'wreqr',
+        'js/store',
         'properties',
         'js/view/cesium.metacard',
         'jquery',
         'drawHelper',
         'js/controllers/cesium.layerCollection.controller'
-    ], function (Application, _, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper,
-                 LayerCollectionController) {
+    ], function (Application, _, Marionette, Cesium, Q, wreqr, store, properties, CesiumMetacard,
+                 $, DrawHelper, LayerCollectionController) {
         "use strict";
 
         var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
@@ -51,14 +52,12 @@ define(['application',
                 this.setupEvents();
                 this.preloadBillboards();
 
-                this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
-                this.listenTo(wreqr.vent, 'search:start', this.clearResults);
-                this.listenTo(wreqr.vent, 'map:results', this.newResults);
-                this.listenTo(wreqr.vent, 'map:clear', this.clear);
-
-                if (wreqr.reqres.hasHandler('search:results')) {
-                    this.newResults(wreqr.reqres.request('search:results'));
+                this.listenTo(store.get('content'), 'change:activeSearchResult', this.newActiveSearchResult);
+                if (store.get('content').getActiveSearchResult()) {
+                    this.newActiveSearchResult(store.get('content').getActiveSearchResult());
                 }
+
+                this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
             },
             createMap: function () {
                 var layerPrefs = Application.UserModel.get('user>preferences>mapLayers');
@@ -132,9 +131,17 @@ define(['application',
                 var controller = this;
                 //Left button events
                 controller.handler.setInputAction(function (event) {
-                    controller.trigger('click:left', controller.pickObject(event));
-
+                    controller.trigger('click:left', controller.pickObject(event), false);
                 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+                controller.handler.setInputAction(function (event) {
+                    controller.trigger('click:left', controller.pickObject(event), true);
+
+                }, Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.CTRL);
+                controller.handler.setInputAction(function (event) {
+                    controller.trigger('click:left', controller.pickObject(event), true);
+
+                }, Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.SHIFT);
+
 
                 controller.handler.setInputAction(function (event) {
                     controller.trigger('doubleclick:left', controller.pickObject(event));
@@ -296,6 +303,10 @@ define(['application',
                 }
             },
 
+            newActiveSearchResult: function (content) {
+                this.newResults(content.getActiveSearchResult());
+            },
+
             newResults: function (result, zoomOnResults) {
                 this.showResults(result.get('results'));
                 if (zoomOnResults) {
@@ -308,7 +319,9 @@ define(['application',
                 this.mapViews = new CesiumMetacard.ResultsView({
                     collection: results,
                     geoController: this
-                }).render();
+                });
+                this.mapViews.listenTo(results, 'sync', this.mapViews.render);
+                this.mapViews.render();
             },
 
             clear: function () {

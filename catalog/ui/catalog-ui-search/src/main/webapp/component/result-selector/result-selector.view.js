@@ -14,7 +14,6 @@
  **/
 /*global define*/
 define([
-    'wreqr',
     'marionette',
     'underscore',
     'jquery',
@@ -23,7 +22,7 @@ define([
     'properties',
     'js/store',
     'js/Common'
-], function (wreqr, Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common) {
+], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common) {
 
     var ResultSelector = Marionette.LayoutView.extend({
         template: resultSelectorTemplate,
@@ -40,24 +39,26 @@ define([
         },
         initialize: function(options){
             if (!this.model.get('result')) {
-                store.getCurrentQueries().get(this.model.id).startSearch();
+                this.model.startSearch();
             }
 
-            var self = this;
-            this.listenTo(this.model, 'nested-change', _.debounce(this.handleUpdate,200));
+            this.listenTo(this.model.get('result'), 'sync', this.handleUpdate);
             this.listenTo(store.getSelectedResults(), 'update', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'add', this.handleSelectionChange);
             this.listenTo(store.getSelectedResults(), 'remove', this.handleSelectionChange);
-            this.listenTo(wreqr.vent, 'metacard:selected', function(direction, metacard){
-                self.handleMapSelection(metacard);
-            });
-            wreqr.vent.trigger('map:clear');
-            this.updateMap();
+
+            this.updateActiveRecords();
             store.addMetacardTypes(this.model.get('result').get('metacard-types'));
         },
         handleUpdate: function(){
             if (!this.isDestroyed) {
                 this.render();
+            }
+        },
+        updateActiveRecords: function(){
+            var searchResult = this.model.get('result');
+            if (searchResult){
+                store.get('content').setActiveSearchResult(searchResult);
             }
         },
         serializeData: function(){
@@ -109,12 +110,6 @@ define([
             } else {
                 var displayed = count > properties.resultCount ? properties.resultCount : count;
                 return 'Top ' + displayed + ' of ' + hits + ' results displayed';
-            }
-        },
-        updateMap: function(){
-            var searchResult = this.model.get('result');
-            if (searchResult){
-                wreqr.vent.trigger('map:results', searchResult, false);
             }
         },
         stopTextSelection: function(event){
@@ -171,9 +166,6 @@ define([
             if (store.getSelectedResults().length === 1) {
                 this.scrollIntoView(store.getSelectedResults().at(0).get('metacard'));
             }
-        },
-        handleMapSelection: function(metacard){
-            this.handleNormalClick(metacard.id + metacard.get('properties>source-id'));
         },
         scrollIntoView: function(metacard){
             var result = this.$el.find('.resultSelector-list > .resultSelector-result[data-metacard-id="'+metacard.id + metacard.get('properties>source-id')+'"]');

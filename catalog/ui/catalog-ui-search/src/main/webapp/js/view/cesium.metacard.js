@@ -16,16 +16,22 @@ define([
         'marionette',
         'underscore',
         'cesium',
-        'direction',
-        'wreqr',
         'application',
         'js/store'
     ],
-    function (Backbone, Marionette, _, Cesium, dir, wreqr, Application, store) {
+    function (Backbone, Marionette, _, Cesium, Application, store) {
         "use strict";
         var Views = {},
             pointScale = 0.02,
             selectedPointScale = 0.035;
+
+        function selectResult(model, isSelection) {
+            if (!isSelection) {
+                store.clearSelectedResults();
+            }
+            store.addSelectedResult(store.getQueryById(model.get('queryId'))
+                .get('result>results').get(model.id + model.get('properties>source-id')));
+        }
 
         Views.PointView = Marionette.ItemView.extend({
             modelEvents: {
@@ -42,9 +48,9 @@ define([
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
-                this.listenTo(store.getSelectedResults(), 'add', this.updateSelection.bind(this));
-                this.listenTo(store.getSelectedResults(), 'remove', this.updateSelection.bind(this));
-                this.listenTo(store.getSelectedResults(), 'update', this.updateSelection.bind(this));
+                this.listenTo(store.getSelectedResults(), 'update', this.updateSelection);
+                this.listenTo(store.getSelectedResults(), 'add', this.updateSelection);
+                this.listenTo(store.getSelectedResults(), 'remove', this.updateSelection);
                 this.color = !_.isUndefined(this.model.get('color')) ?
                     Cesium.Color.fromCssColorString(this.model.get('color')) : options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>mapColors>pointColor'));
                 this.buildBillboard();
@@ -119,7 +125,10 @@ define([
                         this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                     }
 
-                    if (store.getSelectedResults().get(this.model.id + this.model.get('properties>source-id'))!==undefined) {
+                    var selected = store.getSelectedResults().some(function (result) {
+                        return result.get('metacard').id === this.model.id;
+                    }, this);
+                    if (selected) {
                         this.billboard.scale = selectedPointScale;
                         this.billboard.image = this.billboards[1];
                     } else {
@@ -128,10 +137,10 @@ define([
                     }
                 }
             },
-            onMapLeftClick: function (event) {
+            onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (this.isThisPrimitive(event)) {
-                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                    selectResult(this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -206,10 +215,10 @@ define([
                 });
             },
 
-            onMapLeftClick: function (event) {
+            onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (_.has(event, 'object') && _.contains(this.points, event.object)) {
-                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                    selectResult(this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -240,10 +249,10 @@ define([
                 Views.PointView.prototype.initialize.call(this, options);
             },
 
-            onMapLeftClick: function (event) {
+            onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (this.isThisPrimitive(event)) {
-                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                    selectResult(this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -363,10 +372,10 @@ define([
                 }
 
             },
-            onMapLeftClick: function (event) {
+            onMapLeftClick: function (event, isSelection) {
                 // find out if this click is on us
                 if (this.isThisPrimitive(event)) {
-                    wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                    selectResult(this.model, isSelection);
                 }
             },
             onMapDoubleClick: function (event) {
@@ -647,25 +656,25 @@ define([
             buildBillboard: function () {
             },
 
-            onMapLeftClick: function (event) {
+            onMapLeftClick: function (event, isSelection) {
                 var view = this;
 
                 if(this.isThisPrimitive(event)) {
                     if (this.model) {
-                        wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                        selectResult(this.model, isSelection);
                     }
                     _.each(view.geometries, function (geometry) {
-                        geometry.onMapLeftClick(event);
+                        geometry.onMapLeftClick(event, isSelection);
                         geometry.toggleSelection();
                     });
                 }
             },
 
-            onMapDoubleClick: function (event) {
+            onMapDoubleClick: function (event, isSelection) {
                 var view = this;
                 if(this.isThisPrimitive(event)) {
                     if (this.model) {
-                        wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                        selectResult(this.model, isSelection);
                     }
                     _.each(view.geometries, function (geometry) {
                         geometry.onMapDoubleClick(event);
