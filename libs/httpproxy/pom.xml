@@ -21,10 +21,13 @@
         <artifactId>lib</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
+
     <groupId>org.codice.httpproxy</groupId>
     <artifactId>httpproxy-pom</artifactId>
     <packaging>pom</packaging>
-    <name>Codice DDF HTTP Proxy</name>
+    <name>DDF :: Libs :: HTTP Proxy</name>
+    <description>DDF HTTP Proxy Utilities</description>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -73,29 +76,9 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+
     <modules>
         <module>proxy-camel-servlet</module>
         <module>proxy-camel-route</module>
     </modules>
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
 </project>
