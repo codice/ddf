@@ -84,7 +84,7 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>grunt-port-allocator</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
             <type>tar.gz</type>
             <classifier>npm</classifier>
         </dependency>
@@ -115,7 +115,7 @@
                                 <artifactItem>
                                     <groupId>ddf.lib</groupId>
                                     <artifactId>grunt-port-allocator</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${ddf.libs.version}</version>
                                     <type>tar.gz</type>
                                     <classifier>npm</classifier>
                                 </artifactItem>

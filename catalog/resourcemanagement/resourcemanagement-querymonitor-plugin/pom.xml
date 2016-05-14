@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>platform-configuration-impl</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

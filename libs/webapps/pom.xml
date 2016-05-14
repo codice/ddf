@@ -25,8 +25,8 @@
 
     <artifactId>ddf-lib-webapps</artifactId>
     <packaging>pom</packaging>
-    <name>DDF :: Lib :: Webapp</name>
-    <description>DDF Webapp Libraries</description>
+    <name>DDF :: Libs :: Webapp</name>
+    <description>DDF Webapp Library</description>
 
     <modules>
         <module>lib-webapps-grunt-port-allocator</module>

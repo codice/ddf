@@ -117,7 +117,7 @@
         <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf.libs.version}</version>
         </dependency>
 
         <!-- Wanted to use this in JUnit tests to be able to get SQL representation

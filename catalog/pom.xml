@@ -166,12 +166,12 @@
             <dependency>
                 <groupId>org.codice.ddf</groupId>
                 <artifactId>notifications</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.libs.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf</groupId>
                 <artifactId>activities</artifactId>
-                <version>${project.version}</version>
+                <version>${ddf.libs.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.abdera</groupId>

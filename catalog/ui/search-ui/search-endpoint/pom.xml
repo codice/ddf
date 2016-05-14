@@ -76,10 +76,12 @@
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>notifications</artifactId>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>activities</artifactId>
+            <version>${ddf.libs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
