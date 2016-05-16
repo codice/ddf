@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.registry.common.metacard;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -69,7 +71,22 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
     public static final String PUBLISHED_LOCATIONS = "published-locations";
 
+    public static final String LAST_PUBLISHED = "last-published";
+
     public static final String REGISTRY_BASE_URL = "registry-base-url";
+
+    public static final String REGISTRY_LOCAL_NODE = "registry-local-node";
+
+    public static final Set<String> TRANSIENT_ATTRIBUTES;
+
+    static {
+        final Set<String> transientAttributes = new HashSet<>();
+        transientAttributes.add(REGISTRY_IDENTITY_NODE);
+        transientAttributes.add(REGISTRY_LOCAL_NODE);
+        transientAttributes.add(PUBLISHED_LOCATIONS);
+        transientAttributes.add(LAST_PUBLISHED);
+        TRANSIENT_ATTRIBUTES = Collections.unmodifiableSet(transientAttributes);
+    }
 
     public RegistryObjectMetacardType() {
         this(REGISTRY_METACARD_TYPE_NAME, null);
@@ -110,8 +127,10 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
         addQueryableString(SERVICE_BINDING_TYPES, true);
         addQueryableString(REGISTRY_ID, false);
         addQueryableBoolean(REGISTRY_IDENTITY_NODE, false);
+        addQueryableBoolean(REGISTRY_LOCAL_NODE, false);
         addQueryableString(REGISTRY_BASE_URL, false);
         addQueryableString(PUBLISHED_LOCATIONS, true);
+        addQueryableDate(LAST_PUBLISHED);
     }
 
     /**

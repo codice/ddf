@@ -18,9 +18,9 @@ public class RegistryConstants {
 
     public static final String REGISTRY_NODE_METACARD_TYPE_NAME = "registry.federation.node";
 
-    public static final String XML_DATE_TIME_TYPE = ":dateTime";
+    public static final String XML_DATE_TIME_TYPE = "date";
 
-    public static final String XML_GEO_TYPE = ":GM_Point";
+    public static final String XML_GEO_TYPE = "GM_Point";
 
     //ebrim constants
     //Object types
@@ -45,4 +45,9 @@ public class RegistryConstants {
     public static final String XML_LIVE_DATE_NAME = "liveDate";
 
     public static final String XML_LAST_UPDATED_NAME = "lastUpdated";
+
+    public static final String TRANSIENT_ATTRIBUTE_UPDATE = "transient.attribute.update";
+
+    public static final String GUID_PREFIX = "urn:uuid:";
+
 }
