@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<Configuration status="WARN">
+    <Properties>
+        <Property name="log-pattern">%-5.5p | %-16.16t | %-32.32c{1} | %-32.32C %4L | %X{bundle.id}
+            - %X{bundle.name} - %X{bundle.version} | %m%n
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <PaxOsgi name="osgi-platformLogging"
+                 filter="org.codice.ddf.platform.logging.LoggingService"/>
+
+        <PaxOsgi name="osgi-all" filter="*"/>
+
+        <Syslog name="syslog" facility="AUTH" host="localhost" protocol="UDP" port="514"/>
+
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{ABSOLUTE} | ${log-pattern}"/>
+        </Console>
+
+        <RollingFile name="out" fileName="${sys:karaf.data}/log/ddf.log"
+                     filePattern="${sys:karaf.data}/log/ddf.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+            <PatternLayout pattern="%d{ISO8601} | ${log-pattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="200 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <RollingFile name="ingestError" append="true"
+                     fileName="${sys:karaf.data}/log/ingest_error.log"
+                     filePattern="${sys:karaf.data}/log/ingest_error.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+            <PatternLayout pattern="%d{ABSOLUTE} | ${log-pattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="200 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <RollingFile name="securityMain" append="true" ignoreExceptions="false"
+                     fileName="${sys:karaf.data}/log/security.log"
+                     filePattern="${sys:karaf.data}/log/security.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+            <PatternLayout pattern="[%-5p] %d{ISO8601} | %-16.16t | %-15.20c{1} |  %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="200 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <RollingFile name="securityBackup" append="true" ignoreExceptions="false"
+                     fileName="${sys:karaf.data}/log/securityBackup.log"
+                     filePattern="${sys:karaf.data}/log/securityBackup.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
+            <PatternLayout pattern="[%-5p] %d{ISO8601} | %-16.16t | %-15.20c{1} |  %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="200 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <Failover name="securityFailover" primary="securityMain">
+            <Failovers>
+                <AppenderRef ref="securityBackup"/>
+            </Failovers>
+        </Failover>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="securityLogger" level="info" additivity="false">
+            <AppenderRef ref="securityFailover"/>
+            <AppenderRef ref="syslog"/>
+            <AppenderRef ref="osgi-platformLogging"/>
+        </Logger>
+
+        <Logger name="ingestLogger" level="info" additivity="false">
+            <AppenderRef ref="ingestError"/>
+            <AppenderRef ref="syslog"/>
+            <AppenderRef ref="osgi-platformLogging"/>
+        </Logger>
+
+        <!-- CXF and Solr logging is verbose.  Default setting to WARN.  This can be changed in the karaf console. -->
+        <Logger name="org.apache.cxf" level="warn"/>
+        <Logger name="org.apache.lucene" level="warn"/>
+        <Logger name="org.apache.solr" level="warn"/>
+        <Logger name="lux.solr" level="warn"/>
+        <Logger name="org.ops4j.pax.web.jsp" level="warn"/>
+        <Logger name="org.apache.aries.spifly" level="warn"/>
+        <Logger name="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper" level="error"/>
+        <Logger name="org.apache.cxf.phase.PhaseInterceptorChain" level="error"/>
+
+        <Root level="info">
+            <AppenderRef ref="out"/>
+            <AppenderRef ref="osgi-all"/>
+        </Root>
+    </Loggers>
+</Configuration>
