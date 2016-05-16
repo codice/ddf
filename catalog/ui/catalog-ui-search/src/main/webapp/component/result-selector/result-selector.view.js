@@ -71,7 +71,9 @@ define([
             return {
                 results: results,
                 status: status,
-                resultCount: this.resultsFound(status)
+                resultCount: this.resultsFound(status),
+                pending: this.someStatusSuccess(status, undefined),
+                failed: this.someStatusSuccess(status, false)
             };
         },
         massageResult: function(result){
@@ -111,6 +113,11 @@ define([
                 var displayed = count > properties.resultCount ? properties.resultCount : count;
                 return 'Top ' + displayed + ' of ' + hits + ' results displayed';
             }
+        },
+        someStatusSuccess: function(status, value) {
+            return _.some(status, function(s) {
+                return s.successful === value;
+            });
         },
         stopTextSelection: function(event){
             event.preventDefault();

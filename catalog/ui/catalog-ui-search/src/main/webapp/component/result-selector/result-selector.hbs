@@ -12,6 +12,12 @@
  **/
  --}}
 <div class="resultSelector-status">
+    {{#if pending}}
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+    {{/if}}
+    {{#if failed}}
+        <i class="fa fa-warning"></i>
+    {{/if}}
     {{resultCount}}
 </div>
 <div class="resultSelector-menu">
