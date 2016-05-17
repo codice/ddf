@@ -62,8 +62,8 @@
         <!-- ouput directory for reports -->
         <project.report.output.directory>project-info</project.report.output.directory>
         <!-- Properties for the frontend-maven-plugin -->
-        <node.version>v4.3.1</node.version>
-        <npm.version>2.14.12</npm.version>
+        <node.version>v4.4.4</node.version>
+        <npm.version>2.15.6</npm.version>
         <camel.version>2.16.1</camel.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-io.version>2.1</commons-io.version>
@@ -940,3 +940,4 @@
         <module>distribution</module>
     </modules>
 </project>
+
