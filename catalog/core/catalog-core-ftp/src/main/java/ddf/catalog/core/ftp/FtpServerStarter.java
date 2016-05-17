@@ -26,10 +26,17 @@ import org.apache.ftpserver.listener.ListenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< 002e415fd733b0005943cf41c95ca0a817e9d391
 import ddf.catalog.core.ftp.ftplets.FtpRequestHandler;
 
 /**
  * Registers the {@link FtpRequestHandler} and starts the FTP server for the FTP Endpoint.
+=======
+import ddf.catalog.core.ftp.ftplets.CustomFtplet;
+
+/**
+ * Registers the {@link CustomFtplet} and starts the FTP server for the FTP Endpoint.
+>>>>>>> DDF-2048: Provides support for ingesting files through an FTP Endpoint
  */
 public class FtpServerStarter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
