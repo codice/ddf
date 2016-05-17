@@ -395,4 +395,11 @@
         <feature>catalog-core</feature>
     </feature>
 
+    <feature name="catalog-core-ftp" install="manual" version="${project.version}"
+             description="FTP endpoint for ingesting files into the DDF catalog. Supports PUT and MPUT operations only. Avoids the extra IO overhead of otherwise having to temporarily write the file to the file system.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-ftp/${project.version}</bundle>
+        <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
+    </feature>
+
 </features>
