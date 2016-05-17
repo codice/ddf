@@ -17,18 +17,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -36,9 +32,6 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.QualifiedMetacardType;
-import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGeoJsonInputTransformer {
@@ -53,12 +46,6 @@ public class TestGeoJsonInputTransformer {
     private static final String SAMPLE_ID = "myId";
 
     private static final String DEFAULT_URI = "http://example.com";
-
-    private static final BundleContext CONTEXT = mock(BundleContext.class);
-
-    private static final MetacardTypeRegistry MTR = MetacardTypeRegistryImpl.getInstance();
-
-    private static List<QualifiedMetacardType> qmtList = new ArrayList<QualifiedMetacardType>();
 
     // @formatter:off
     private static final String noTypeJsonText() {
@@ -204,36 +191,36 @@ public class TestGeoJsonInputTransformer {
 
     @Test(expected = CatalogTransformerException.class)
     public void testNullInput() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(MTR).transform(null);
+        new GeoJsonInputTransformer().transform(null);
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testBadInput() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(MTR).transform(new ByteArrayInputStream("{key=".getBytes()));
+        new GeoJsonInputTransformer().transform(new ByteArrayInputStream("{key=".getBytes()));
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testFeatureCollectionType() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(MTR)
+        new GeoJsonInputTransformer()
                 .transform(new ByteArrayInputStream(sampleFeatureCollectionJsonText().getBytes()));
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testNoType() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(MTR)
+        new GeoJsonInputTransformer()
                 .transform(new ByteArrayInputStream(noTypeJsonText().getBytes()));
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testNoProperties() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(MTR).transform(
+        new GeoJsonInputTransformer().transform(
                 new ByteArrayInputStream("{ \"type\": \"FeatureCollection\"}".getBytes()));
     }
 
     @Test()
     public void testNoGeo() throws IOException, CatalogTransformerException {
 
-        Metacard metacard = new GeoJsonInputTransformer(MTR)
+        Metacard metacard = new GeoJsonInputTransformer()
                 .transform(new ByteArrayInputStream(noGeoJsonText().getBytes()));
 
         verifyBasics(metacard);
@@ -243,7 +230,7 @@ public class TestGeoJsonInputTransformer {
     @Test()
     public void testPointGeo() throws IOException, CatalogTransformerException, ParseException {
 
-        Metacard metacard = new GeoJsonInputTransformer(MTR)
+        Metacard metacard = new GeoJsonInputTransformer()
                 .transform(new ByteArrayInputStream(samplePointJsonText().getBytes()));
 
         verifyBasics(metacard);
@@ -262,7 +249,7 @@ public class TestGeoJsonInputTransformer {
     public void testLineStringGeo()
             throws IOException, CatalogTransformerException, ParseException {
 
-        GeoJsonInputTransformer transformer = new GeoJsonInputTransformer(MTR);
+        GeoJsonInputTransformer transformer = new GeoJsonInputTransformer();
 
         InputStream inputStream = new ByteArrayInputStream(sampleLineStringJsonText().getBytes());
 
@@ -289,7 +276,7 @@ public class TestGeoJsonInputTransformer {
     @Test
     public void testSetId() throws IOException, CatalogTransformerException {
 
-        Metacard metacard = new GeoJsonInputTransformer(MTR)
+        Metacard metacard = new GeoJsonInputTransformer()
                 .transform(new ByteArrayInputStream(samplePointJsonText().getBytes()), SAMPLE_ID);
 
         verifyBasics(metacard);

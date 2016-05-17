@@ -16,6 +16,7 @@ package ddf.catalog.transformer.input.geojson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -30,8 +31,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.QualifiedMetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -58,11 +57,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
-    private MetacardTypeRegistry mTypeRegistry;
-
-    public GeoJsonInputTransformer(MetacardTypeRegistry mTypeRegistry) {
-        this.mTypeRegistry = mTypeRegistry;
-    }
+    private List<MetacardType> metacardTypes;
 
     /**
      * Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard}
@@ -96,28 +91,28 @@ public class GeoJsonInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Properties are required to create a Metacard.");
         }
 
-        String metacardTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
+        final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
         MetacardImpl metacard = null;
 
-        if (metacardTypeName == null || metacardTypeName.isEmpty() || mTypeRegistry == null) {
+        if (propertyTypeName == null || propertyTypeName.isEmpty() || metacardTypes == null) {
             LOGGER.debug(
                     "MetacardType specified in input is null or empty.  Assuming default MetacardType");
             metacard = new MetacardImpl();
         } else {
-            QualifiedMetacardType metacardType = mTypeRegistry.lookup(metacardTypeName);
-            if (metacardType == null) {
-                String message =
-                        "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
-                                + metacardTypeName;
-                LOGGER.warn(message);
-                throw new CatalogTransformerException(message);
-            }
-            LOGGER.debug("Found registered MetacardType: {}", metacardTypeName);
+            MetacardType metacardType = metacardTypes.stream()
+                    .filter(type -> type.getName()
+                            .equals(propertyTypeName))
+                    .findFirst()
+                    .orElseThrow(() -> new CatalogTransformerException(
+                            "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
+                                    + propertyTypeName));
+
+            LOGGER.debug("Found registered MetacardType: {}", propertyTypeName);
             metacard = new MetacardImpl(metacardType);
         }
 
         MetacardType metacardType = metacard.getMetacardType();
-        metacardTypeName = metacardType.getName();
+        String metacardTypeName = metacardType.getName();
         LOGGER.debug("Metacard type name: {}", metacardType.getName());
 
         // retrieve geometry
@@ -236,6 +231,10 @@ public class GeoJsonInputTransformer implements InputTransformer {
         }
 
         return metacard;
+    }
+
+    public void setMetacardTypes(List<MetacardType> metacardTypes) {
+        this.metacardTypes = metacardTypes;
     }
 
     @Override
