@@ -61,6 +61,35 @@
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>0.6.0</version>
         </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-parser-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-parser-xml</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-common</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -135,6 +164,7 @@
                             oasis.names.tc.ebxml_regrep.xsd.rim._3
                             ,net.opengis.ogc
                             ,net.opengis.cat.wrs.v_1_0_2
+                            ,org.codice.ddf.registry.schemabindings
                         </Export-Package>
                         <Private-Package>
                             net.opengis.filter.v_1_1_0,
@@ -154,6 +184,10 @@
                         </goals>
                         <configuration>
                             <haltOnFailure>true</haltOnFailure>
+                            <includes>
+                                <include>**/RegistryPackageUtils.*</include>
+                                <include>**/RegistryPackageWebConverter.*</include>
+                            </includes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
@@ -161,22 +195,22 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.0</minimum>
+                                            <minimum>0.90</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.0</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.0</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.0</minimum>
+                                            <minimum>0.90</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
