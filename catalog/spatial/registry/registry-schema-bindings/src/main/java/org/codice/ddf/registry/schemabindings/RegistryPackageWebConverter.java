@@ -200,6 +200,13 @@ public class RegistryPackageWebConverter {
     private RegistryPackageWebConverter() {
     }
 
+    /**
+     * A Map<String,Object> will be created by crawling through the registry object and creating mappings along the way.
+     * @param registryObject
+     *  The registry object to convert.
+     * @return
+     * Returns a Map<String, Object> representation of the registry object
+     */
     public static Map<String, Object> getRegistryObjectWebMap(RegistryObjectType registryObject) {
         Map<String, Object> registryObjectMap = new HashMap<>();
 
@@ -207,21 +214,20 @@ public class RegistryPackageWebConverter {
 
         if (registryObject instanceof RegistryPackageType) {
             putRegistryPackage((RegistryPackageType) registryObject, registryObjectMap);
-        } else if (registryObject instanceof ExtrinsicObjectType) {
-            putExtrinsicObject((ExtrinsicObjectType) registryObject, registryObjectMap);
-        } else if (registryObject instanceof ServiceType) {
-            putRegistryService((ServiceType) registryObject, registryObjectMap);
-        } else if (registryObject instanceof OrganizationType) {
-            putRegistryOrganization((OrganizationType) registryObject, registryObjectMap);
-        } else if (registryObject instanceof PersonType) {
-            putRegistryPerson((PersonType) registryObject, registryObjectMap);
-        } else if (registryObject instanceof AssociationType1) {
-            putRegistryAssociation((AssociationType1) registryObject, registryObjectMap);
+        } else {
+            putRegistryObjects(registryObject, registryObjectMap);
         }
 
         return registryObjectMap;
     }
 
+    /**
+     * A RegistryPackageType will be created by crawling the Map.
+     * @param registryMap
+     *   The map containing the values to build the RegistryPackageType
+     * @return
+     * Returns a RegistryPackageType from the values in the map.
+     */
     public static RegistryPackageType getRegistryPackageFromWebMap(
             Map<String, Object> registryMap) {
         if (registryMap == null) {
@@ -274,23 +280,27 @@ public class RegistryPackageWebConverter {
         for (JAXBElement identifiable : registryObjects.getIdentifiable()) {
             RegistryObjectType registryObject = (RegistryObjectType) identifiable.getValue();
 
-            if (registryObject instanceof ExtrinsicObjectType) {
-                putExtrinsicObject((ExtrinsicObjectType) registryObject, registryObjectListMap);
-            } else if (registryObject instanceof ServiceType) {
-                putRegistryService((ServiceType) registryObject, registryObjectListMap);
-            } else if (registryObject instanceof OrganizationType) {
-                putRegistryOrganization((OrganizationType) registryObject, registryObjectListMap);
-            } else if (registryObject instanceof PersonType) {
-                putRegistryPerson((PersonType) registryObject, registryObjectListMap);
-            } else if (registryObject instanceof AssociationType1) {
-                putRegistryAssociation((AssociationType1) registryObject, registryObjectListMap);
-            }
+            putRegistryObjects(registryObject, registryObjectListMap);
 
             if (!registryObjectListMap.isEmpty()) {
                 registryObjectMap.put(REGISTRY_OBJECT_LIST_KEY, registryObjectListMap);
             }
         }
 
+    }
+
+    private static void putRegistryObjects(RegistryObjectType registryObject, Map<String, Object> map) {
+        if (registryObject instanceof ExtrinsicObjectType) {
+            putExtrinsicObject((ExtrinsicObjectType) registryObject, map);
+        } else if (registryObject instanceof ServiceType) {
+            putRegistryService((ServiceType) registryObject, map);
+        } else if (registryObject instanceof OrganizationType) {
+            putRegistryOrganization((OrganizationType) registryObject, map);
+        } else if (registryObject instanceof PersonType) {
+            putRegistryPerson((PersonType) registryObject, map);
+        } else if (registryObject instanceof AssociationType1) {
+            putRegistryAssociation((AssociationType1) registryObject, map);
+        }
     }
 
     private static void populateRegistryObjectList(Map<String, Object> rolMap,
