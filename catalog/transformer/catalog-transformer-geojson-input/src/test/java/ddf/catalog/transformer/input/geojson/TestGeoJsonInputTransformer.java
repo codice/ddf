@@ -57,7 +57,7 @@ public class TestGeoJsonInputTransformer {
                 "    }," +
                 "    \"geometry\":{" +
                 "        \"type\":\"GeometryCollection\"," +
-                "        \"coordinates\":[" +
+                "        \"geometries\":[" +
                 "            {" +
                 "                \"type\":\"Point\"," +
                 "                \"coordinates\":[" +
@@ -172,6 +172,47 @@ public class TestGeoJsonInputTransformer {
                 "}";
     }
 
+    private static final String sampleGeometryCollectionJsonText() {
+        return "{" +
+                "    \"properties\":{" +
+                "        \"title\":\"myTitle\"," +
+                "        \"thumbnail\":\"CA==\"," +
+                "        \"resource-uri\":\"http:\\/\\/example.com\"," +
+                "        \"created\":\"2012-09-01T00:09:19.368+0000\"," +
+                "        \"metadata-content-type-version\":\"myVersion\"," +
+                "        \"metadata-content-type\":\"myType\"," +
+                "        \"metadata\":\"<xml><\\/xml>\"," +
+                "        \"modified\":\"2012-09-01T00:09:19.368+0000\"" +
+                "    }," +
+                "    \"type\":\"Feature\"," +
+                "    \"geometry\":{" +
+                "        \"type\":\"GeometryCollection\"," +
+                "        \"geometries\":[" +
+                "            {" +
+                "                \"type\":\"Point\"," +
+                "                \"coordinates\":[" +
+                "                    4.0," +
+                "                    6.0" +
+                "                ]" +
+                "            }," +
+                "            {" +
+                "                \"type\":\"LineString\"," +
+                "                \"coordinates\":[" +
+                "                    [" +
+                "                        4.0," +
+                "                        6.0" +
+                "                    ]," +
+                "                    [" +
+                "                        7.0," +
+                "                        10.0" +
+                "                    ]" +
+                "                ]" +
+                "            }" +
+                "        ]" +
+                "    }" +
+                "}";
+    }
+
     private static final String noGeoJsonText() {
         return "{" +
                 "    \"properties\":{" +
@@ -271,6 +312,25 @@ public class TestGeoJsonInputTransformer {
 
         assertThat(coords[2].x, is(40.0));
         assertThat(coords[2].y, is(40.0));
+    }
+
+    @Test
+    public void testGeometryCollectionStringGeo()
+            throws IOException, CatalogTransformerException, ParseException {
+
+        GeoJsonInputTransformer transformer = new GeoJsonInputTransformer();
+
+        InputStream inputStream = new ByteArrayInputStream(sampleGeometryCollectionJsonText().getBytes());
+
+        Metacard metacard = transformer.transform(inputStream);
+
+        verifyBasics(metacard);
+
+        WKTReader reader = new WKTReader();
+
+        Geometry geometry = reader.read(metacard.getLocation());
+
+        assertThat(geometry.getNumGeometries(), is(2));
     }
 
     @Test

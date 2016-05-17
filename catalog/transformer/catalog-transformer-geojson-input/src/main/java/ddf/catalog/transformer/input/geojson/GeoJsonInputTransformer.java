@@ -120,8 +120,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
                 (Map<String, Object>) rootObject.get(CompositeGeometry.GEOMETRY_KEY);
         CompositeGeometry geoJsonGeometry = null;
         if (geometryJson != null) {
-            if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && geometryJson.get(
-                    CompositeGeometry.COORDINATES_KEY) != null) {
+            if (geometryJson.get(CompositeGeometry.TYPE_KEY) != null && (geometryJson.get(
+                    CompositeGeometry.COORDINATES_KEY) != null || geometryJson.get(
+                    CompositeGeometry.GEOMETRIES_KEY) != null)) {
 
                 String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY)
                         .toString();
