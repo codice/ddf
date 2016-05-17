@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define,window,setTimeout*/
 
 define([
         'wreqr',
@@ -17,9 +17,10 @@ define([
         'js/model/Query',
         'js/Common',
         'js/ColorGenerator',
+        'js/Common',
         'backboneassociations'
     ],
-    function (wreqr, Backbone, Query, Common, ColorGenerator) {
+    function (wreqr, Backbone, Query, Common, ColorGenerator, Common) {
         var Workspace = {};
 
         Workspace.QueryCollection = Backbone.Collection.extend({
@@ -64,6 +65,25 @@ define([
                 this.get('queries').on('add',function(){
                     this.trigger('change');
                 });
+            },
+            save: function (options) {
+                if (this.collection.isGuestUser()) {
+                    this.set('id', this.get('id') || Common.generateUUID());
+                    this.collection.save();
+                    this.trigger('sync', this, options);
+                } else {
+                    return Backbone.AssociatedModel.prototype.save.apply(this, arguments);
+                }
+            },
+            destroy: function (options) {
+                if (this.collection.isGuestUser()) {
+                    var collection = this.collection;
+                    this.collection.remove(this);
+                    collection.save();
+                    this.trigger('sync', this, options);
+                } else {
+                    return Backbone.AssociatedModel.prototype.destroy.apply(this, arguments);
+                }
             }
         });
 
@@ -71,7 +91,9 @@ define([
             model: Workspace.Model,
             url: '/services/search/catalog/workspaces',
             useAjaxSync: true,
-            initialize: function(){
+            initialize: function(options){
+                this.store = options.store;
+                this.listenTo(this.store.get('user'), 'change', this.fetch);
                 var collection = this;
                 collection.on('add',function(workspace){
                     workspace.on('change:lastModifiedDate',function(){
@@ -82,12 +104,28 @@ define([
                     collection.save();
                 });
             },
+            isGuestUser: function () {
+                return this.store.get('user').get('user').isGuestUser();
+            },
             comparator: function(workspace){
                 return -(new Date(workspace.get('lastModifiedDate'))).getTime();
             },
             createWorkspace: function(title){
                this.create({title: title || 'New Workspace'});
-             }
+            },
+            save: function () {
+                window.localStorage.setItem('workspaces', JSON.stringify(this.toJSON()));
+            },
+            fetch: function (options) {
+                if (this.isGuestUser()) {
+                    setTimeout(function () {
+                        this.set(JSON.parse(window.localStorage.getItem('workspaces')));
+                        this.trigger('sync', this, options);
+                    }.bind(this), 0);
+                } else {
+                    return Backbone.Collection.prototype.fetch.apply(this, arguments);
+                }
+            }
         });
 
         return Workspace;

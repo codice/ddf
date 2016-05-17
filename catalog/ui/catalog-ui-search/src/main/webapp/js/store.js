@@ -47,12 +47,13 @@ define([
                 persisted: true,
                 poll: false
             }, opts);
-            var model = new Model();
+            var model = new Model({ store: this });
             this.setupListeners(model, opts.listeners);
             this.setupPolling(model, opts);
             return model;
         },
         initialize: function () {
+            this.set('user', Application.UserModel);
             this.set('content', this.initModel(Content, {
                 persisted: false,
                 listeners: {
@@ -74,7 +75,6 @@ define([
             this.set('router', this.initModel(Router, {
                 persisted: false
             }));
-            this.set('user', Application.UserModel);
         },
         handleWorkspaceDestruction: function(model, workspaceCollection){
             if (workspaceCollection.length === 0){
@@ -92,8 +92,6 @@ define([
                     this.get('content').set('currentWorkspace', workspaceCollection);
                 } else if (workspaceCollection.length > 0) {
                     this.get('content').set('currentWorkspace', workspaceCollection.first());
-                } else {
-                    this.get('workspaces').createWorkspace('My First Workspace');
                 }
             }
         },
